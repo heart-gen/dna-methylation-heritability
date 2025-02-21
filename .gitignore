@@ -1,0 +1,70 @@
+# Packages #
+############
+# it's better to unpack these files and commit the raw source
+# git has its own built in compression methods
+*.iso
+*.jar
+*.tar
+*.zip
+
+# Logs and databases #
+######################
+*.sql
+*.sqlite
+*~ # emacs tracking file
+
+# OS generated files #
+######################
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Log files #
+#############
+SUCCESS
+nohup.out
+.ipynb_checkpoints/*
+*/.ipynb_checkpoints
+.ipynb_checkpoints
+
+# Additional files #
+####################
+gene2go
+go-basic.obo
+*.tbi
+*.toc
+*.aux
+*.snm
+*.nav
+*/auto/*
+dev/*
+*.svg
+*.eps
+*.pt
+*.slurm
+*.rds
+*.RDat
+*.RData
+.virtual_documents/
+*.gct
+
+# Compressed files #
+####################
+*.parquet
+*.gz
+*.h5ad
+
+# Genotypes #
+#############
+*.fam
+*.bim
+*.bed
+
+# Project specific files #
+##########################
+inputs/*
+protected_data/*
