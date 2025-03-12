@@ -88,13 +88,6 @@ vmrs0 <- bsseq:::regionFinder3(isHigh, as.character(v$chr), v$start, maxGap = 10
 vmr <- vmrs0[vmrs0$n > 5,1:3]
 write.table(vmr,"vmr.bed",col.names=F,row.names=F,sep="\t",quote=F)
 
-# GO enrich
-colnames(vmr) <- c("seqnames","start","end")
-vmr <- plyranges::as_granges(vmr)
-res <- great(vmr,"GO:BP","RefSeq:hg38", background=paste0("chr", 1)) # Error: No gene set left.
-tb  <- getEnrichmentTable(res)
-write.csv(tb,"vmr_great.csv")
-
 # adapt for all chr
 #for(i in 1:1){
 #	cat(i,"\n")
