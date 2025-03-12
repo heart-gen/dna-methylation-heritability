@@ -13,11 +13,14 @@ load_bsobj <- function(working_dir, file_name) {
 }
 
 # Change file path for raw data
-BSobj@assays@data@listData$M@seed@seed@filepath <- "/projects/p32505/projects/dna-methylation-heritability/inputs/wgbs-data/caudate/raw/CpGassays.h5"
-BSobj@assays@data@listData$Cov@seed@seed@filepath <- "/projects/p32505/projects/dna-methylation-heritability/inputs/wgbs-data/caudate/raw/CpGassays.h5"
-BSobj@assays@data@listData$coef@seed@seed@filepath <- "/projects/p32505/projects/dna-methylation-heritability/inputs/wgbs-data/caudate/raw/CpGassays.h5"
-
-BSobj = BSobj[seqnames(BSobj) == "chr1",] #keep chr1
+update_bsobj <- function(BSobj, raw_path) {
+    var <- c("M","Cov","coef")
+    for (i in var) {
+        BSobj@assays@data@listData[[i]]@seed@seed@filepath <- raw_path
+    }
+    return(BSobj)
+}
+#BSobj = BSobj[seqnames(BSobj) == "chr1",] #keep chr1
 
 # keep only control, adult AA
 pheno <- "/projects/p32505/projects/dna-methylation-heritability/inputs/phenotypes/merged/_m/merged_phenotypes.csv" 
