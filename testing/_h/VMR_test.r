@@ -7,8 +7,10 @@ library('data.table')
 library(scales)
 
 ### Adapting sd.R 01_pca.R and 03_vmr.R for one chromosome
-setwd("/projects/p32505/users/alexis/_h")
-load("Caudate_chr1_BSobj.rda")
+load_bsobj <- function(working_dir, file_name) {
+    setwd(working_dir)
+    load(file_name)
+}
 
 # Change file path for raw data
 BSobj@assays@data@listData$M@seed@seed@filepath <- "/projects/p32505/projects/dna-methylation-heritability/inputs/wgbs-data/caudate/raw/CpGassays.h5"
