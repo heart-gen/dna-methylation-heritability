@@ -5,20 +5,22 @@ library('HDF5Array')
 library(DelayedMatrixStats)
 library('data.table')
 library(scales)
+here::i_am("testing/_h/01.sd_test.R")
+library(here)
 
 ### Adapting sd.R 01_pca.R and 03_vmr.R for one chromosome
-setwd("/projects/p32505/users/alexis/_h")
-load("Caudate_chr1_BSobj.rda")
+setwd("/projects/p32505/projects/dna-methylation-heritability/testing/_h")
+load(here("inputs/wgbs-data/caudate/Caudate_chr1_BSobj.rda"))
 
 # Change file path for raw data
-BSobj@assays@data@listData$M@seed@seed@filepath <- "/projects/p32505/projects/dna-methylation-heritability/inputs/wgbs-data/caudate/raw/CpGassays.h5"
-BSobj@assays@data@listData$Cov@seed@seed@filepath <- "/projects/p32505/projects/dna-methylation-heritability/inputs/wgbs-data/caudate/raw/CpGassays.h5"
-BSobj@assays@data@listData$coef@seed@seed@filepath <- "/projects/p32505/projects/dna-methylation-heritability/inputs/wgbs-data/caudate/raw/CpGassays.h5"
+BSobj@assays@data@listData$M@seed@seed@filepath <- here("inputs/wgbs-data/caudate/raw/CpGassays.h5")
+BSobj@assays@data@listData$Cov@seed@seed@filepath <- here("inputs/wgbs-data/caudate/raw/CpGassays.h5")
+BSobj@assays@data@listData$coef@seed@seed@filepath <- here("inputs/wgbs-data/caudate/raw/CpGassays.h5")
 
 #BSobj = BSobj[seqnames(BSobj) == "chr1",] #keep chr1
 
 # keep only control, adult AA
-pheno <- "/projects/p32505/projects/dna-methylation-heritability/inputs/phenotypes/merged/_m/merged_phenotypes.csv" 
+pheno <- here("inputs/phenotypes/merged/_m/merged_phenotypes.csv")
 ances <- read.csv(pheno,header=T)
 id <- intersect(ances$BrNum[ances$Race == "AA" & ances$Dx == "Control" & ances$Age >= 17],colData(BSobj)$brnum)
 BSobj <- BSobj[,is.element(colData(BSobj)$brnum,id)]
