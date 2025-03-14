@@ -7,6 +7,9 @@ library('data.table')
 library(scales)
 here::i_am("testing/_h/01.sd_test.R")
 library(here)
+library(dplyr)
+library(genio)
+library(tibble)
 
 ### Adapting sd.R 01_pca.R and 03_vmr.R for one chromosome
 setwd("/projects/p32505/projects/dna-methylation-heritability/testing/_h")
@@ -36,3 +39,14 @@ M=as.matrix(getMeth(BSobj))
 sds <- rowSds(M)
 means <- rowMeans2(M)
 save(sds,means,BSobj,file=paste0("./","chr1_stats",".rda"))
+
+#Write methylation values to .phen file
+meth=as_tibble(getMeth(BSobj))
+average_meth <- tibble(pheno = rowMeans(meth)) 
+average_meth <- average_meth %>%
+  mutate(
+    fam = rep(NA, nrow(average_meth)),
+    id = rep(NA, nrow(average_meth)) 
+  ) %>%
+  select(fam, id, everything())
+write_phen("methylation.phen", meth)
