@@ -51,19 +51,12 @@ M_transpose <- t(M)
 meth_df <- data.frame(FID = sample_ids, M_transpose)
 
 # merge methylation values with FID and IID
-merged_data <- meth_df %>% 
+meth_merged <- meth_df %>% 
   inner_join(samples, by = "FID") %>% 
   arrange(match(FID, samples$FID))
-merged_data <- merged_data %>% 
+meth_merged <- meth_merged %>% 
   select(FID, IID, everything())
 
 #Write methylation values to .phen file
-meth=as_tibble(getMeth(BSobj))
-average_meth <- tibble(pheno = rowMeans(meth)) 
-average_meth <- average_meth %>%
-  mutate(
-    fam = rep(NA, nrow(average_meth)),
-    id = rep(NA, nrow(average_meth)) 
-  ) %>%
-  select(fam, id, everything())
-write_phen("methylation.phen", meth)
+colnames(meth_merged)[1:3] <- c("fam", "id", "pheno")
+write_phen("methylation.phen", meth_merged)
