@@ -45,6 +45,18 @@ save(sds,means,BSobj,file=paste0("./","chr1_stats",".rda"))
 samples <- read_plink2_psam_file("/projects/p32505/projects/dna-methylation-heritability/inputs/genotypes/TOPMed_LIBD.AA.psam")
 samples <- samples[,1:2]
 
+# add sample IDs to methylation matrix
+sample_ids <- colData(BSobj)$brnum #use this or id?
+M_transpose <- t(M)
+meth_df <- data.frame(FID = sample_ids, M_transpose)
+
+# merge methylation values with FID and IID
+merged_data <- meth_df %>% 
+  inner_join(samples, by = "FID") %>% 
+  arrange(match(FID, samples$FID))
+merged_data <- merged_data %>% 
+  select(FID, IID, everything())
+
 #Write methylation values to .phen file
 meth=as_tibble(getMeth(BSobj))
 average_meth <- tibble(pheno = rowMeans(meth)) 
