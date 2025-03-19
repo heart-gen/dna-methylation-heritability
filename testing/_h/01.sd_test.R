@@ -10,6 +10,7 @@ library(here)
 library(dplyr)
 library(genio)
 library(tibble)
+library(plinkr)
 
 ### Adapting sd.R 01_pca.R and 03_vmr.R for one chromosome
 setwd("/projects/p32505/projects/dna-methylation-heritability/testing/_h")
@@ -39,6 +40,10 @@ M=as.matrix(getMeth(BSobj))
 sds <- rowSds(M)
 means <- rowMeans2(M)
 save(sds,means,BSobj,file=paste0("./","chr1_stats",".rda"))
+
+# read in FID, IID from sample file 
+samples <- read_plink2_psam_file("/projects/p32505/projects/dna-methylation-heritability/inputs/genotypes/TOPMed_LIBD.AA.psam")
+samples <- samples[,1:2]
 
 #Write methylation values to .phen file
 meth=as_tibble(getMeth(BSobj))
