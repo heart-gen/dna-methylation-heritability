@@ -5,6 +5,7 @@ library('HDF5Array')
 library(DelayedMatrixStats)
 library('data.table')
 library(scales)
+library(GenomicRanges)
 
 # read files
 #fs <- list.files(path = ".", pattern = "^p",recursive = T, full.names = T)
@@ -25,3 +26,10 @@ isHigh[v$sd > sdCut] <- 1
 vmrs0 <- bsseq:::regionFinder3(isHigh, as.character(v$chr), v$start, maxGap = 1000)$up
 vmr <- vmrs0[vmrs0$n > 5,1:3]
 write.table(vmr,"vmr.bed",col.names=F,row.names=F,sep="\t",quote=F)
+
+#extract methylation values for 1 vmr
+chr <- "chr1"
+start <- 903969
+end <- 904084
+reg <- GRanges(seqnames = chr, ranges = IRanges(start = start, end = end))
+meth_reg <- getMeth(BSobj, regions = reg, what="perRegion")
