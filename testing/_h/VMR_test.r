@@ -5,6 +5,7 @@ library('HDF5Array')
 library(DelayedMatrixStats)
 library('data.table')
 library(scales)
+library(sessioninfo)
 
 ### Adapting sd.R 01_pca.R and 03_vmr.R for one chromosome
 load_bsobj <- function(working_dir, file_name) {
