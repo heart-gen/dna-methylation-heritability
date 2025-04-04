@@ -33,23 +33,14 @@ module load R/4.3.0
 module list 
 
 # Set path variables
-VENV_PATH="/projects/p32505/opt/env/R_env/"
+ENV_PATH="/projects/p32505/opt/env"
 
-# Activate virtual environment
-log_message "**** Activate virtual environment ****"
-source "${VENV_PATH}/bin/activate" 
-
+## Activate conda environment
+log_message "**** Test run R environment ****"
+mamba run -p $ENV_PATH/R_env Rscript ../_h/01.sd_test.R
 if [ $? -ne 0 ]; then
-    log_message "Error: Failed to activate virtual environment"
+    log_message "Error: Mamba or script execution failed"
     exit 1
 fi
 
-# Run main script
-Rscript --verbose ../_h/01.sd_test.R
-
-if [ $? -ne 0 ]; then
-    log_message "Error: R script execution failed"
-    exit 1
-fi
-
-deactivate
+log_message "**** Job ends ****"
