@@ -4,7 +4,6 @@ library('bsseq')
 library('HDF5Array')
 library(DelayedMatrixStats)
 library('data.table')
-library(scales)
 
 # load sd of raw DNAm
 i <- 1

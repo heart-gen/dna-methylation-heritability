@@ -9,7 +9,6 @@ here::i_am("testing/_h/01.sd_test.R")
 library(here)
 library(dplyr)
 library(genio)
-library(plinkr)
 
 ### Adapting sd.R 01_pca.R and 03_vmr.R for one chromosome
 setwd("/projects/p32505/projects/dna-methylation-heritability/testing/_h")
