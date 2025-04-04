@@ -12,13 +12,13 @@ def process_hsq_file(input_file_path, chr, start_pos, end_pos, output_file_path)
                                                 'Variance_Ve', 'Standard_Error_Ve',
                                                 'Variance_Vp', 'Standard_Error_Vp',
                                                 'Variance_Vg_Vp', 'Standard_Error_Vg_Vp'])
-    greml_df.to_csv(output_file_path, index=False)
+    greml_df.to_csv(output_file_path, sep='\t', index=False)
 
     return greml_df
 
 # Test run
 input_file_path = '/projects/p32505/projects/dna-methylation-heritability/testing/_m/TOPMed_LIBD.AA.VMR1.hsq'
-output_file_path = '/projects/p32505/projects/dna-methylation-heritability/testing/_m/TOPMed_LIBD.AA.VMR1.csv'
+output_file_path = '/projects/p32505/projects/dna-methylation-heritability/testing/_m/TOPMed_LIBD.AA.VMR1.txt'
 chr = 'chr1'
 start_pos = 403969
 end_pos = 1404084
