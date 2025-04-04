@@ -66,5 +66,9 @@ dev/*
 
 # Project specific files #
 ##########################
-inputs/*
+*.pgen
+*.psam
+*.pvar
+*.gz
+*.parquet
 protected_data/*
