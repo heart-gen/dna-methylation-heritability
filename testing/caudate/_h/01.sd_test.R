@@ -5,14 +5,16 @@ library('HDF5Array')
 library(DelayedMatrixStats)
 library('data.table')
 library(scales)
-here::i_am("testing/_h/01.sd_test.R")
 library(here)
 library(dplyr)
 library(genio)
+library(plinkr)
 
 ### Adapting sd.R 01_pca.R and 03_vmr.R for one chromosome
-setwd("/projects/p32505/projects/dna-methylation-heritability/testing/_h")
+here::i_am("testing/caudate/_h/01.sd_test.R")
+setwd(here("testing/caudate/_h"))
 load(here("inputs/wgbs-data/caudate/Caudate_chr1_BSobj.rda"))
+output <- here("testing/caudate/_m/chr_1")
 
 # Change file path for raw data
 BSobj@assays@data@listData$M@seed@seed@filepath <- here("inputs/wgbs-data/caudate/raw/CpGassays.h5")
@@ -37,10 +39,11 @@ BSobj <- BSobj[keep,]
 M=as.matrix(getMeth(BSobj))
 sds <- rowSds(M)
 means <- rowMeans2(M)
-save(sds,means,BSobj,file=paste0("./","chr1_stats",".rda"))
+save(sds,means,BSobj,file=file.path(output, "chr_1_stats.rda"))
 
 # read in FID, IID from sample file 
-samples <- read_plink2_psam_file("/projects/p32505/projects/dna-methylation-heritability/inputs/genotypes/TOPMed_LIBD.AA.psam")
+psam <- here("inputs/genotypes/TOPMed_LIBD.AA.psam")
+samples <- read_plink2_psam_file(psam)
 samples <- samples[,1:2]
 
 # add sample IDs to methylation matrix
@@ -57,4 +60,4 @@ meth_merged <- meth_merged %>%
 
 #Write methylation values to .phen file
 colnames(meth_merged)[1:3] <- c("fam", "id", "pheno")
-write_phen("methylation.phen", meth_merged)
+write_phen(file=file.path(output,"chr_1_cpg_meth.phen"), meth_merged)
