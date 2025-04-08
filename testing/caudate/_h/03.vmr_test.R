@@ -28,7 +28,7 @@ isHigh <- rep(0, nrow(v))
 isHigh[v$sd > sdCut] <- 1
 vmrs0 <- bsseq:::regionFinder3(isHigh, as.character(v$chr), v$start, maxGap = 1000)$up
 vmr <- vmrs0[vmrs0$n > 5,1:3]
-write.table(vmr,"vmr.bed",col.names=F,row.names=F,sep="\t",quote=F)
+write.table(vmr,file=file.path(output,"vmr.bed"),col.names=F,row.names=F,sep="\t",quote=F)
 
 # extract methylation values for 1 vmr
 chr <- "chr1"
@@ -55,4 +55,4 @@ meth_reg_merged <- meth_reg_merged %>%
 
 # write methylation values to .phen file
 colnames(meth_reg_merged)[1:3] <- c("fam", "id", "pheno")
-write_phen("methylation.VMR1.phen", meth_reg_merged)
+write_phen(file=file.path(output,"vmr1_meth.phen"), meth_reg_merged)
