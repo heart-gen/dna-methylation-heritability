@@ -21,13 +21,13 @@ BSobj@assays@data@listData$M@seed@seed@filepath <- here("inputs/wgbs-data/caudat
 BSobj@assays@data@listData$Cov@seed@seed@filepath <- here("inputs/wgbs-data/caudate/raw/CpGassays.h5")
 BSobj@assays@data@listData$coef@seed@seed@filepath <- here("inputs/wgbs-data/caudate/raw/CpGassays.h5")
 
-# keep only control, adult AA
+# keep only adult AA
 pheno <- here("inputs/phenotypes/merged/_m/merged_phenotypes.csv")
 ances <- read.csv(pheno,header=T)
-id <- intersect(ances$BrNum[ances$Race == "AA" & ances$Dx == "Control" & ances$Age >= 17 & ances$Region == "Caudate"],colData(BSobj)$brnum)
+id <- intersect(ances$BrNum[ances$Race == "AA" & ances$Age >= 17 & ances$Region == "Caudate"],colData(BSobj)$brnum)
 BSobj <- BSobj[,is.element(colData(BSobj)$brnum,id)]
 
-# exlcude low coverage sites
+# exclude low coverage sites
 cov=getCoverage(BSobj)
 n <- length(colData(BSobj)$brnum)
 keep <- which(rowSums2(cov >= 5) >= n * 0.8) 
@@ -60,10 +60,10 @@ meth_merged <- meth_merged %>%
 colnames(meth_merged)[1:3] <- c("fam", "id", "pheno")
 write_phen(file=file.path(output,"chr_1_cpg_meth.phen"), meth_merged)
 
-# add sample IDs to covariate file
+# write covariate files
 covar <- ances %>%
   filter(Region == "Caudate") %>%
-  select(BrNum, Sex)
+  select(BrNum, Sex, Dx)
 qcovar <- ances %>%
   filter(Region == "Caudate") %>%
   select(BrNum, Age)
@@ -79,5 +79,5 @@ covar_merged <- meth_selected %>%
 qcovar_merged <- meth_selected %>%
   inner_join(qcovar, by = c("fam" = "BrNum")) %>%
   arrange(match(fam, meth_selected$fam))
-write.table(covar_merged, file=file.path(output,"chr_1.covar"), sep = "\t", row.names = FALSE, col.names = FALSE, quote = FALSE)
-write.table(qcovar_merged, file=file.path(output,"chr_1.qcovar"), sep = "\t", row.names = FALSE, col.names = FALSE, quote = FALSE)
+write.table(covar_merged, file=file.path(output,"TOPMed_LIBD.AA.covar"), sep = "\t", row.names = FALSE, col.names = FALSE, quote = FALSE)
+write.table(qcovar_merged, file=file.path(output,"TOPMed_LIBD.AA.qcovar"), sep = "\t", row.names = FALSE, col.names = FALSE, quote = FALSE)
