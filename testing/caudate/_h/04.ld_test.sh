@@ -14,7 +14,4 @@ gcta64 --bfile TOPMed_LIBD.AA.VMR1 --extract snp_group3.txt --make-grm --out TOP
 gcta64 --bfile TOPMed_LIBD.AA.VMR1 --extract snp_group4.txt --make-grm --out TOPMed_LIBD.AA.VMR1_group4
 
 # GREML with multiple GRM
-gcta64 --reml --mgrm multi_GRMs.txt --pheno methylation.phen --out TOPMed_LIBD.AA.VMR1 #Error: analysis stopped because more than half of the variance components are constrained. The result would be unreliable.
-
-# REML no contrain 
-gcta64 --reml-no-constrain --mgrm multi_GRMs.txt --pheno methylation.phen --out TOPMed_LIBD.AA.VMR1 #Error: the information matrix is not invertible.
+gcta64 --reml --mgrm multi_GRMs.txt --pheno methylation.phen --covar TOPMed_LIBD.AA.covar --qcovar TOPMed_LIBD.AA.qcovar --out TOPMed_LIBD.AA.VMR1
