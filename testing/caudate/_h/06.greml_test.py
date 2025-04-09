@@ -2,7 +2,7 @@ import pandas as pd
 
 def process_hsq_file(input_file_path, chr, start_pos, end_pos, output_file_path):
     # Read in .hsq file
-    df = pd.read_csv(file_path, sep='\t', header=None, names=['source', 'variance', 'standard_error'])
+    df = pd.read_csv(input_file_path, sep='\t', header=None, names=['source', 'variance', 'standard_error'])
     extracted_data = df.iloc[1:5, -2:]
     transposed_data = extracted_data.values.flatten()
 
@@ -23,5 +23,5 @@ chr = 'chr1'
 start_pos = 403969
 end_pos = 1404084
 
-result_df = process_hsq_file(file_path, chr, start_pos, end_pos, output_file_path)
+result_df = process_hsq_file(input_file_path, chr, start_pos, end_pos, output_file_path)
 print(result_df)
