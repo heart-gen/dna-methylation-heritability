@@ -145,10 +145,9 @@ write_covar <- function(pheno_file_path,meth_merged,output_path) {
 }
 covars <- write_covar(pheno_file_path,meth_merged,output_path)
 
-#### Reproducibility information
-if(sge_id == 1){
-  Sys.time()
-  proc.time()
-  options(width = 120)
-  sessioninfo::session_info()
-}
+#### Reproducibility information ####
+print("Reproducibility information:")
+Sys.time()
+proc.time()
+options(width = 120)
+sessioninfo::session_info()
