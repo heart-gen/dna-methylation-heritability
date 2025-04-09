@@ -4,12 +4,13 @@
 #SBATCH --time=01:00:00         # Time limit hrs:min:sec
 #SBATCH --nodes=1               # Number of nodes
 #SBATCH --ntasks-per-node=1     # Number of cores (CPU)
-#SBATCH --mem=1G                # Memory limit
+#SBATCH --mem=10G                # Memory limit
 #SBATCH --mail-type=FAIL
+#SBATCH --array=1-22
 #SBATCH --mail-user=alexis.bennett@northwestern.edu
-#SBATCH --job-name=vmr_test  # Job name
-#SBATCH --output=vmr_%j_out.log  # Standard output log
-#SBATCH --error=vmr_%j_err.log    # Standard error log
+#SBATCH --job-name=sd_test  # Job name
+#SBATCH --output=sd_%j_out.log  # Standard output log
+#SBATCH --error=sd_%j_err.log    # Standard error log
 
 # Log function
 log_message() {
@@ -24,20 +25,20 @@ echo "Job id: ${SLURM_JOBID}"
 echo "Job name: ${SLURM_JOB_NAME}"
 echo "Node name: ${SLURM_NODENAME}"
 echo "Hostname: ${HOSTNAME}"
-echo "Task id: ${SLURM_ARRAY_TASK_ID:-N/A}"
+echo "Task id: ${SLURM_ARRAY_TASK_ID}"
 
 ## List current modules for reproducibility
 
 module purge
-module load R/4.3.0
 module list 
 
 # Set path variables
 ENV_PATH="/projects/p32505/opt/env"
 
+echo "Working on: Chromosome "$SLURM_ARRAY_TASK_ID
+
 ## Activate conda environment
-log_message "**** Test run R environment ****"
-mamba run -p $ENV_PATH/R_env Rscript ../_h/01.sd_test.R
+mamba run -p $ENV_PATH/R_env Rscript 01.sd_test.R $SLURM_ARRAY_TASK_ID
 if [ $? -ne 0 ]; then
     log_message "Error: Mamba or script execution failed"
     exit 1
