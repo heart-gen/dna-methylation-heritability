@@ -10,11 +10,11 @@ i <- 1
 v <- data.frame(chr=i,start=start(BSobj),sd=sds)
 
 # get top 1M variable CpG
-v <- v[order(v$sd * -1),]
-v <- v[1:10^6,]
+v_top <- v[order(v$sd * -1),]
+v_top <- v_top[1:10^6,]
 
 # DNAm levels for top 1M
-tmp <- v[v$chr==i,]
+tmp <- v_top[v_top$chr==i,]
 BS <- BSobj[is.element(start(BSobj),tmp$start),]
 meth <- as.matrix(getMeth(BS))
 
