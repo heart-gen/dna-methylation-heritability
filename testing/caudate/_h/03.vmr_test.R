@@ -55,4 +55,5 @@ meth_reg_merged <- meth_reg_merged %>%
 
 # write methylation values to .phen file
 colnames(meth_reg_merged)[1:3] <- c("fam", "id", "pheno")
-write_phen(file=file.path(output,"vmr1_meth.phen"), meth_reg_merged)
+write_phen(file=file.path(output,"VMR1_meth.phen"), meth_reg_merged)
+

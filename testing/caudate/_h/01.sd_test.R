@@ -37,7 +37,7 @@ BSobj <- BSobj[keep,]
 M=as.matrix(getMeth(BSobj))
 sds <- rowSds(M)
 means <- rowMeans2(M)
-save(sds,means,BSobj,file=file.path(output, "chr_1_stats.rda"))
+save(sds,means,BSobj,file=file.path(output, "stats.rda"))
 
 # read in FID, IID from sample file 
 psam <- here("inputs/genotypes/TOPMed_LIBD.AA.psam")
@@ -58,7 +58,7 @@ meth_merged <- meth_merged %>%
 
 # write methylation values to .phen file
 colnames(meth_merged)[1:3] <- c("fam", "id", "pheno")
-write_phen(file=file.path(output,"chr_1_cpg_meth.phen"), meth_merged)
+write_phen(file=file.path(output,"cpg_meth.phen"), meth_merged)
 
 # write covariate files
 covar <- ances %>%
