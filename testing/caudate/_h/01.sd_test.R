@@ -10,10 +10,13 @@ library(dplyr)
 library(genio)
 library(plinkr)
 
+args <- commandArgs(trailingOnly = TRUE)
+chr <- args[1]
+
 here::i_am("testing/caudate/_h/01.sd_test.R")
 setwd(here("testing/caudate/_h"))
-load(here("inputs/wgbs-data/caudate/Caudate_chr1_BSobj.rda"))
-output_path <- here("testing/caudate/_m/chr_1")
+load(here(paste0("inputs/wgbs-data/caudate/Caudate_chr",chr,"_BSobj.rda")))
+output_path <- here(paste0("testing/caudate/_m/chr_",chr))
 
 # change file path for raw data
 change_file_path <- function(BSobj,raw_assays) {
