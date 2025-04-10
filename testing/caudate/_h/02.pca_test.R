@@ -5,16 +5,19 @@ library('HDF5Array')
 library(DelayedMatrixStats)
 library('data.table')
 
+args <- commandArgs(trailingOnly = TRUE)
+chr <- args[1]
+
 # load sd of raw DNAm
-i <- 1
-v <- data.frame(chr=i,start=start(BSobj),sd=sds)
+load(here(paste0("testing/caudate/_m/chr_",chr,"/stats.rda")))
+v <- data.frame(chr=chr,start=start(BSobj),sd=sds)
 
 # get top 1M variable CpG
 v_top <- v[order(v$sd * -1),]
 v_top <- v_top[1:10^6,]
 
 # DNAm levels for top 1M
-tmp <- v_top[v_top$chr==i,]
+tmp <- v_top[v_top$chr==chr,]
 BS <- BSobj[is.element(start(BSobj),tmp$start),]
 meth <- as.matrix(getMeth(BS))
 
@@ -56,3 +59,10 @@ for(i in 1:ncol(pc$x)){
   res[i,2] <- tmp$p.value
 }
 write.csv(res,file=file.path(output,"pc_ances_cor.csv"))
+
+#### Reproducibility information ####
+print("Reproducibility information:")
+Sys.time()
+proc.time()
+options(width = 120)
+sessioninfo::session_info()
