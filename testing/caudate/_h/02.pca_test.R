@@ -8,6 +8,9 @@ library('data.table')
 args <- commandArgs(trailingOnly = TRUE)
 chr <- args[1]
 
+here::i_am("testing/caudate/_h/01.sd_test.R")
+output_path <- here(paste0("testing/caudate/_m/chr_",chr))
+
 # load sd of raw DNAm
 load(here(paste0("testing/caudate/_m/chr_",chr,"/stats.rda")))
 v <- data.frame(chr=chr,start=start(BSobj),sd=sds)
@@ -49,7 +52,7 @@ pdf(file=file.path(output,"pca.pdf"))
 plot(pc)
 plot(pc$x[,1], pc$x[,2])
 dev.off()
-write.csv(pc$x,file=file.path(output,"pc.csv"))
+write.csv(pc$x,file=file.path(output_path,"pc.csv"))
 
 # correlation of pc with ancestry
 res <- matrix(NA,nrow=ncol(pc$x),ncol=2)
@@ -58,7 +61,7 @@ for(i in 1:ncol(pc$x)){
   res[i,1] <- tmp$estimate
   res[i,2] <- tmp$p.value
 }
-write.csv(res,file=file.path(output,"pc_ances_cor.csv"))
+write.csv(res,file=file.path(output_path,"pc_ances_cor.csv"))
 
 #### Reproducibility information ####
 print("Reproducibility information:")
