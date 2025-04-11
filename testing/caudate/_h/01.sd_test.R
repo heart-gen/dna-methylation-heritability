@@ -79,6 +79,28 @@ write_meth_to_phen <- function(BSobj,M,samples,output) {
     write_phen(file=file.path(output_path,"cpg_meth.phen"), meth_merged)
     return(meth_merged)
 }
+write_covar <- function(BSobj, pheno_file_path, meth_merged, output_path) {
+    out_cov  <- file.path(output_path, "TOPMed_LIBD.AA.covar")
+    out_qcov <- file.path(output_path, "TOPMed_LIBD.AA.qcovar")
+                                        # Filter data
+    pheno   <- filter_pheno(BSobj,pheno_file_path) |>
+        select(BrNum, Sex, Dx, Age) |> filter(BrNum %in% id)
+                                        # Merge data
+    meth_selected <- select(meth_merged, fam, id) |>
+        inner_join(pheno, by="fam"="BrNum") |>
+        arrange(match(fam, meth_merged$fam)) |>
+        tibble::column_to_rownames("BrNum")
+                                        # Write file
+    covar_merged <- meth_selected |> select(fam, id, Sex, Dx)
+    covar_merged |>
+        write.table(file=out_cov, sep="\t", row.names=TRUE,
+                    col.names=FALSE, quote=FALSE)
+    qcovar_merged <- meth_selected |> select(fam, id, Age)
+    qcovar_merged |>
+        write.table(file=out_qcov, sep="\t", row.names=TRUE,
+                    col.names=FALSE, quote=FALSE)
+  return(list(covar_merged=covar_merged, qcovar_merged=qcovar_merged))
+}
 
 ## Main
                                         # load data
@@ -109,28 +131,6 @@ samples   <- extract_fid_iid(psam_file)
 meth_merged <- write_meth_to_phen(BSobj, stats$M, samples, output)
 
 # write covariate files
-write_covar <- function(BSobj, pheno_file_path, meth_merged, output_path) {
-    out_cov  <- file.path(output_path, "TOPMed_LIBD.AA.covar")
-    out_qcov <- file.path(output_path, "TOPMed_LIBD.AA.qcovar")
-                                        # Filter data
-    pheno   <- filter_pheno(BSobj,pheno_file_path) |>
-        select(BrNum, Sex, Dx, Age) |> filter(BrNum %in% id)
-                                        # Merge data
-    meth_selected <- select(meth_merged, fam, id) |>
-        inner_join(pheno, by="fam"="BrNum") |>
-        arrange(match(fam, meth_merged$fam)) |>
-        tibble::column_to_rownames("BrNum")
-                                        # Write file
-    covar_merged <- meth_selected |> select(fam, id, Sex, Dx)
-    covar_merged |>
-        write.table(file=out_cov, sep="\t", row.names=TRUE,
-                    col.names=FALSE, quote=FALSE)
-    qcovar_merged <- meth_selected |> select(fam, id, Age)
-    qcovar_merged |>
-        write.table(file=out_qcov, sep="\t", row.names=TRUE,
-                    col.names=FALSE, quote=FALSE)
-  return(list(covar_merged=covar_merged, qcovar_merged=qcovar_merged))
-}
 covars <- write_covar(pheno_file_path,meth_merged,output_path)
 
 #### Reproducibility information ####
