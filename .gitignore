@@ -73,3 +73,8 @@ dev/*
 *.parquet
 inputs/*
 protected_data/*
+
+# R related files
+*.rda
+*.RData
+*.rds
