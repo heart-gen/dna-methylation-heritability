@@ -121,6 +121,12 @@ write_covar <- function(BSobj, pheno_file_path, meth_merged, output_path) {
 load(here("inputs/wgbs-data/caudate", paste0("Caudate_chr",chr,"_BSobj.rda")))
 output_path <- here("testing/caudate/_m", paste0("chr_",chr))
 
+                                        # create output directory if it  
+                                        # doesn't exist
+if (!dir.exists(output_path)) {
+  dir.create(output_path, recursive = TRUE)
+}
+
                                         # change file path for raw data
 raw_assays  <- here("inputs/wgbs-data/caudate/raw/CpGassays.h5")
 BSobj       <- change_file_path(BSobj,raw_assays)
