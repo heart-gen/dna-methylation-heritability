@@ -55,6 +55,20 @@ DNAm_stats <- function(BSobj,output_stats) {
     return(list(M = M, sds = sds, means = means))
 }
 
+get_vmr <- function(v) {
+    sdCut <- quantile(v[,3], prob = 0.99, na.rm = TRUE)
+    vmrs  <- c()
+    v2    <- v[v$chr==chr,]
+    v2    <- v2[order(v2$start),]
+    isHigh <- rep(0, nrow(v2))
+    isHigh[v2$sd > sdCut] <- 1
+    vmrs0 <- bsseq:::regionFinder3(isHigh, as.character(v2$chr), v2$start, maxGap = 1000)$up
+    vmr   <- vmrs0[vmrs0$n > 5,1:3]
+    write.table(vmr,file=file.path(output_path,"vmr_test.bed"),col.names=F,
+                row.names=F,sep="\t",quote=F)
+    return(vmr)
+}
+
 extract_fid_iid <- function(psam_file) {
     samples <- read_plink2_psam_file(psam_file)
     samples <- samples[,1:2]
@@ -121,6 +135,10 @@ BSobj <- exclude_low_cov(BSobj)
                                         # calculate sd & mean of DNAm
 ##dir.create()
 stats <- DNAm_stats(BSobj,file.path(output_path, "stats.rda"))
+
+                                        # extract VMRs
+v   <- data.frame(chr=chr,start=start(BSobj),sd=stats$sds)
+vmr <- get_vmr(v)
 
                                         # read in FID, IID from sample file
 psam_file <- here("inputs/genotypes/TOPMed_LIBD.AA.psam")
