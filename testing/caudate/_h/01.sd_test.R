@@ -75,7 +75,7 @@ extract_fid_iid <- function(psam_file) {
     return(samples)
 }
 
-write_meth_to_phen <- function(BSobj,M,samples,output) {
+write_meth_to_phen <- function(BSobj,M,samples,out_phen) {
 
                                         # add sample IDs to methylation matrix
     sample_ids <- colData(BSobj)$brnum #use this or id?
@@ -90,7 +90,7 @@ write_meth_to_phen <- function(BSobj,M,samples,output) {
     colnames(meth_merged)[1:3] <- c("fam", "id", "pheno")
 
                                         # write methylation values to .phen file
-    write_phen(file=file.path(output_path,"cpg_meth.phen"), meth_merged)
+    write_phen(file=out_phen, meth_merged)
     return(meth_merged)
 }
 write_covar <- function(BSobj, pheno_file_path, meth_merged, output_path) {
@@ -152,7 +152,8 @@ samples   <- extract_fid_iid(psam_file)
 
                                         # merge methylation values with FID and
                                         # IID and write to .phen file
-meth_merged <- write_meth_to_phen(BSobj, stats$M, samples, output)
+out_phen    <- file.path(output_path, "cpg_meth.phen")
+meth_merged <- write_meth_to_phen(BSobj, stats$M, samples, out_phen)
 
 # write covariate files
 covars <- write_covar(pheno_file_path,meth_merged,output_path)
