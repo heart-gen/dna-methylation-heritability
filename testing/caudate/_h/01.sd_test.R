@@ -16,7 +16,7 @@ chr  <- args[1]
 ##here::i_am("testing/caudate/_h/01.sd_test.R")
 ##setwd(here("testing/caudate/_h"))
 ## Function
-change_file_path <- function(BSobj,raw_assays) {
+change_file_path <- function(BSobj, raw_assays) {
     var <- c("M", "Cov", "coef")
     for (assay in var) {
         BSobj@assays@data@listData[[assay]]@seed@seed@filepath <- raw_assays
@@ -34,48 +34,47 @@ filter_pheno <- function(BSobj, pheno_file_path) {
 }
 
 exclude_low_cov <- function(BSobj) {
-    cov=getCoverage(BSobj)
+    cov   <- getCoverage(BSobj)
     n     <- length(colData(BSobj)$brnum)
     keep  <- which(rowSums2(cov >= 5) >= n * 0.8)
-    BSobj <- BSobj[keep,]
+    BSobj <- BSobj[keep, ]
     return(BSobj)
 }
 
-DNAm_stats <- function(BSobj,out_stats) {
+DNAm_stats <- function(BSobj, out_stats) {
     M     <- as.matrix(getMeth(BSobj))
     sds   <- rowSds(M)
     means <- rowMeans2(M)
-    save(sds,means,BSobj,file=out_stats)
+    save(sds, means, BSobj, file=out_stats)
     return(list(M = M, sds = sds, means = means))
 }
 
-get_vmr <- function(v,out_vmr) {
-    sdCut  <- quantile(v[,3], prob = 0.99, na.rm = TRUE)
+get_vmr <- function(v, out_vmr) {
+    sdCut  <- quantile(v[, 3], prob = 0.99, na.rm = TRUE)
     vmrs   <- c()
-    v2     <- v[v$chr==chr,]
-    v2     <- v2[order(v2$start),]
+    v2     <- v[v$chr==chr, ]
+    v2     <- v2[order(v2$start), ]
     isHigh <- rep(0, nrow(v2))
     isHigh[v2$sd > sdCut] <- 1
     vmrs0  <- bsseq:::regionFinder3(isHigh, as.character(v2$chr), 
                                    v2$start, maxGap = 1000)$up
     vmr    <- vmrs0[vmrs0$n > 5,1:3]
-    write.table(vmr,file=out_vmr,col.names=F,
-                row.names=F,sep="\t",quote=F)
+    write.table(vmr, file=out_vmr, col.names=F,
+                row.names=F, sep="\t", quote=F)
     return(vmr)
 }
 
 extract_fid_iid <- function(psam_file) {
     samples <- read_plink2_psam_file(psam_file)
-    samples <- samples[,1:2]
+    samples <- samples[, 1:2]
     return(samples)
 }
 
-write_meth_to_phen <- function(BSobj,M,samples,out_phen) {
+write_meth_to_phen <- function(BSobj, M, samples, out_phen) {
 
                                         # add sample IDs to methylation matrix
-    sample_ids <- colData(BSobj)$brnum #use this or id?
-    meth_transpose <- t(M)
-    meth_df <- data.frame(FID = sample_ids, meth_transpose)
+    sample_ids <- colData(BSobj)$brnum
+    meth_df <- data.frame(FID = sample_ids, t(M))
 
                                         # merge methylation data and sample ids by FID
     meth_merged <- meth_df %>%
@@ -114,8 +113,8 @@ write_covar <- function(BSobj, pheno, id, meth_merged, output_path) {
 
 ## Main
                                         # load data
-load(here("inputs/wgbs-data/caudate", paste0("Caudate_chr",chr,"_BSobj.rda")))
-output_path <- here("testing/caudate/_m", paste0("chr_",chr))
+load(here("inputs/wgbs-data/caudate", paste0("Caudate_chr", chr, "_BSobj.rda")))
+output_path <- here("testing/caudate/_m", paste0("chr_", chr))
 
                                         # create output directory if it  
                                         # doesn't exist
@@ -125,21 +124,21 @@ if (!dir.exists(output_path)) {
 
                                         # change file path for raw data
 raw_assays  <- here("inputs/wgbs-data/caudate/raw/CpGassays.h5")
-BSobj       <- change_file_path(BSobj,raw_assays)
+BSobj       <- change_file_path(BSobj, raw_assays)
 
                                         # keep only adult AA
 pheno_file_path <- here("inputs/phenotypes/merged/_m/merged_phenotypes.csv")
-filtered        <- filter_pheno(BSobj,pheno_file_path)
+filtered        <- filter_pheno(BSobj, pheno_file_path)
 
                                         # exclude low coverage sites
 BSobj <- exclude_low_cov(filtered$BSobj)
 
                                         # calculate sd & mean of DNAm
-stats <- DNAm_stats(BSobj,file.path(output_path, "stats.rda"))
+stats <- DNAm_stats(BSobj, file.path(output_path, "stats.rda"))
 
                                         # extract VMRs
-v   <- data.frame(chr=chr,start=start(BSobj),sd=stats$sds)
-vmr <- get_vmr(v,file.path(output_path,"vmr_test.bed"))
+v   <- data.frame(chr = chr, start = start(BSobj), sd = stats$sds)
+vmr <- get_vmr(v, file.path(output_path, "vmr.bed"))
 
                                         # read in FID, IID from sample file
 psam_file <- here("inputs/genotypes/TOPMed_LIBD.AA.psam")
