@@ -12,18 +12,14 @@ library(plinkr)
 library(here)
 source(here("testing/caudate/_h/01.sd_test.R"))
 
-args <- commandArgs(trailingOnly = TRUE)
-chr <- args[1]
-start_pos <- args[2]
-end_pos <- args[3]
+args      <- commandArgs(trailingOnly = TRUE)
+chr_num   <- args[1]
+chr       <- paste0("chr", chr_num)
+start_pos <- as.integer(args[2])
+end_pos   <- as.integer(args[3])
 
 #here::i_am("testing/caudate/_h/03.cal_vmr.R")
-output_path <- here(paste0("testing/caudate/_m/chr_",chr))
 
-# load raw DNAm
-load(here(paste0("testing/caudate/_m/chr_",chr,"/stats.rda")))
-
-# extract methylation values for each VMR
 calc_vmr_meth <- function(BSobj,chr,start_pos,end_pos) {
   reg      <- GRanges(seqnames = chr, 
                       ranges = IRanges(start = start_pos, end = end_pos))
@@ -31,7 +27,12 @@ calc_vmr_meth <- function(BSobj,chr,start_pos,end_pos) {
   return(meth_reg)
 }
 
-# main
+## Main
+# load raw DNAm
+load(here("testing/caudate/_m", paste0("chr_",chr_num,"/stats.rda")))
+output_path <- here("testing/caudate/_m", paste0("chr_",chr_num))
+
+# extract methylation values for each VMR
 meth_reg <- calc_vmr_meth(BSobj,chr,start_pos,end_pos)
   
 # read in FID, IID from sample file
@@ -43,27 +44,6 @@ samples   <- extract_fid_iid(psam_file)
 out_phen    <- file.path(output_path, 
                          paste0(start_pos,"_",end_pos,"_meth.phen"))
 meth_merged <- write_meth_to_phen(BSobj, meth_reg, samples, out_phen)
-
-
-# read in FID, IID from sample file 
-#samples <- read_plink2_psam_file(here("inputs/inputs/genotypes/TOPMed_LIBD.AA.psam"))
-#samples <- samples[,1:2]
-
-# add sample IDs to methylation matrix
-#sample_ids <- colData(BSobj)$brnum #use this or id?
-#meth_reg_transpose <- t(meth_reg)
-#meth_reg_df <- data.frame(FID = sample_ids, meth_reg_transpose)
-
-# merge methylation values with FID and IID
-#meth_reg_merged <- meth_reg_df %>% 
-#  inner_join(samples, by = "FID") %>% 
-#  arrange(match(FID, samples$FID))
-#meth_reg_merged <- meth_reg_merged %>% 
-#  select(FID, IID, everything())
-
-# write methylation values to .phen file
-#colnames(meth_reg_merged)[1:3] <- c("fam", "id", "pheno")
-#write_phen(file=file.path(output_path,"VMR1_meth.phen"), meth_reg_merged)
 
 #### Reproducibility information ####
 print("Reproducibility information:")
