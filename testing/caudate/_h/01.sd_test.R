@@ -1,6 +1,5 @@
 #### Calculate mean and SD of methylation values ####
 
-
 library('bsseq')
 library('HDF5Array')
 library(DelayedMatrixStats)
@@ -25,18 +24,13 @@ change_file_path <- function(BSobj,raw_assays) {
     return(BSobj)
 }
 
-filter_pheno <- function(BSobj,pheno_file_path) {
-    pheno <- read.csv(pheno_file_path,header=T)
-    id <- intersect(
-        pheno$BrNum[
-                  pheno$Race == "AA" &
-                  pheno$Age >= 17 &
-                  pheno$Region == "Caudate"
-              ],
-        colData(BSobj)$brnum
-    )
-    BSobj <- BSobj[,is.element(colData(BSobj)$brnum,id)]
-    return(BSobj)
+filter_pheno <- function(BSobj, pheno_file_path) {
+    pheno <- read.csv(pheno_file_path, header = TRUE)
+    pheno_filtered <- pheno %>%
+        filter(Race == "AA", Age >= 17, Region == "Caudate")
+    id    <- intersect(pheno_filtered$BrNum, colData(BSobj)$brnum)
+    BSobj <- BSobj[, colData(BSobj)$brnum %in% id]
+    return(list(BSobj = BSobj, pheno = pheno_filtered, id = id))
 }
 
 exclude_low_cov <- function(BSobj) {
@@ -47,24 +41,25 @@ exclude_low_cov <- function(BSobj) {
     return(BSobj)
 }
 
-DNAm_stats <- function(BSobj,output_stats) {
+DNAm_stats <- function(BSobj,out_stats) {
     M     <- as.matrix(getMeth(BSobj))
     sds   <- rowSds(M)
     means <- rowMeans2(M)
-    save(sds,means,BSobj,file=output_stats)
+    save(sds,means,BSobj,file=out_stats)
     return(list(M = M, sds = sds, means = means))
 }
 
-get_vmr <- function(v) {
-    sdCut <- quantile(v[,3], prob = 0.99, na.rm = TRUE)
-    vmrs  <- c()
-    v2    <- v[v$chr==chr,]
-    v2    <- v2[order(v2$start),]
+get_vmr <- function(v,out_vmr) {
+    sdCut  <- quantile(v[,3], prob = 0.99, na.rm = TRUE)
+    vmrs   <- c()
+    v2     <- v[v$chr==chr,]
+    v2     <- v2[order(v2$start),]
     isHigh <- rep(0, nrow(v2))
     isHigh[v2$sd > sdCut] <- 1
-    vmrs0 <- bsseq:::regionFinder3(isHigh, as.character(v2$chr), v2$start, maxGap = 1000)$up
-    vmr   <- vmrs0[vmrs0$n > 5,1:3]
-    write.table(vmr,file=file.path(output_path,"vmr_test.bed"),col.names=F,
+    vmrs0  <- bsseq:::regionFinder3(isHigh, as.character(v2$chr), 
+                                   v2$start, maxGap = 1000)$up
+    vmr    <- vmrs0[vmrs0$n > 5,1:3]
+    write.table(vmr,file=out_vmr,col.names=F,
                 row.names=F,sep="\t",quote=F)
     return(vmr)
 }
@@ -93,23 +88,24 @@ write_meth_to_phen <- function(BSobj,M,samples,out_phen) {
     write_phen(file=out_phen, meth_merged)
     return(meth_merged)
 }
-write_covar <- function(BSobj, pheno_file_path, meth_merged, output_path) {
-    out_cov  <- file.path(output_path, "TOPMed_LIBD.AA.covar")
-    out_qcov <- file.path(output_path, "TOPMed_LIBD.AA.qcovar")
+
+write_covar <- function(BSobj, pheno, id, meth_merged, output_path) {
+    out_cov  <- file.path(output_path, "test_TOPMed_LIBD.AA.covar")
+    out_qcov <- file.path(output_path, "test_TOPMed_LIBD.AA.qcovar")
                                         # Filter data
-    pheno   <- filter_pheno(BSobj,pheno_file_path) |>
+    filtered_pheno <- pheno |>
         select(BrNum, Sex, Dx, Age) |> filter(BrNum %in% id)
                                         # Merge data
     meth_selected <- select(meth_merged, fam, id) |>
-        inner_join(pheno, by="fam"="BrNum") |>
+        inner_join(filtered_pheno, by= c("fam" = "BrNum")) |>
         arrange(match(fam, meth_merged$fam)) |>
-        tibble::column_to_rownames("BrNum")
+        tibble::column_to_rownames("fam")
                                         # Write file
-    covar_merged <- meth_selected |> select(fam, id, Sex, Dx)
+    covar_merged <- meth_selected |> select(id, Sex, Dx)
     covar_merged |>
         write.table(file=out_cov, sep="\t", row.names=TRUE,
                     col.names=FALSE, quote=FALSE)
-    qcovar_merged <- meth_selected |> select(fam, id, Age)
+    qcovar_merged <- meth_selected |> select(id, Age)
     qcovar_merged |>
         write.table(file=out_qcov, sep="\t", row.names=TRUE,
                     col.names=FALSE, quote=FALSE)
@@ -133,18 +129,17 @@ BSobj       <- change_file_path(BSobj,raw_assays)
 
                                         # keep only adult AA
 pheno_file_path <- here("inputs/phenotypes/merged/_m/merged_phenotypes.csv")
-BSobj           <- filter_pheno(BSobj,pheno_file_path)
+filtered        <- filter_pheno(BSobj,pheno_file_path)
 
                                         # exclude low coverage sites
-BSobj <- exclude_low_cov(BSobj)
+BSobj <- exclude_low_cov(filtered$BSobj)
 
                                         # calculate sd & mean of DNAm
-##dir.create()
 stats <- DNAm_stats(BSobj,file.path(output_path, "stats.rda"))
 
                                         # extract VMRs
 v   <- data.frame(chr=chr,start=start(BSobj),sd=stats$sds)
-vmr <- get_vmr(v)
+vmr <- get_vmr(v,file.path(output_path,"vmr_test.bed"))
 
                                         # read in FID, IID from sample file
 psam_file <- here("inputs/genotypes/TOPMed_LIBD.AA.psam")
@@ -155,8 +150,8 @@ samples   <- extract_fid_iid(psam_file)
 out_phen    <- file.path(output_path, "cpg_meth.phen")
 meth_merged <- write_meth_to_phen(BSobj, stats$M, samples, out_phen)
 
-# write covariate files
-covars <- write_covar(pheno_file_path,meth_merged,output_path)
+                                        # write covariate files
+covars <- write_covar(BSobj, filtered$pheno, filtered$id, meth_merged, output_path)
 
 #### Reproducibility information ####
 print("Reproducibility information:")
