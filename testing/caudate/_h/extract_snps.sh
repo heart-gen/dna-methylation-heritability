@@ -1,40 +1,66 @@
 #!/bin/bash
+#SBATCH --account=p32505        # Replace with your allocation
+#SBATCH --partition=short       # Partition (queue) name
+#SBATCH --time=01:00:00         # Time limit hrs:min:sec
+#SBATCH --nodes=1               # Number of nodes
+#SBATCH --ntasks-per-node=1     # Number of cores (CPU)
+#SBATCH --mem=10G               # Memory limit
+#SBATCH --mail-type=FAIL
+#SBATCH --array=1-12078%250
+#SBATCH --mail-user=alexis.bennett@northwestern.edu
+#SBATCH --job-name=extract_snp  # Job name
+#SBATCH --output=logs/extract_snp_%j_out.log  # Standard output log
+#SBATCH --error=logs/extract_snp_%j_err.log    # Standard error log
 
-#module load plink/2.0-alpha-3.3
+# Log function
+log_message() {
+    echo "$(date '+%Y-%m-%d %H:%M:%S') - $1"
+}
 
-data_dir="/projects/p32505/projects/dna-methylation-heritability/inputs/genotypes"
-output_dir="/projects/p32505/users/alexis/projects/dna-methylation-heritability/testing/caudate/_m/chr_1"
-chr_file="/projects/b1213/resources/genomes/human/gencode-v47/fasta/chromosome_sizes.txt"
-ranges="/projects/p32505/users/alexis/projects/dna-methylation-heritability/testing/caudate/_m/chr_1/vmr.bed"
+log_message "**** Job starts ****"
 
-#for chr in {1..22}; do
-#mkdir /projects/p32505/users/alexis/projects/dna-methylation-heritability/testing/caudate/_m/chr_$chr ;
-#done
+echo "**** QUEST info ****"
+echo "User: ${USER}"
+echo "Job id: ${SLURM_JOBID}"
+echo "Job name: ${SLURM_JOB_NAME}"
+echo "Node name: ${SLURM_NODENAME}"
+echo "Hostname: ${HOSTNAME}"
+echo "Task id: ${SLURM_ARRAY_TASK_ID}"
 
-while IFS=$'\t' read -r chrom start end; do 
-    echo "Processing Chromosome $chrom: $start-$end"
+## List current modules for reproducibility
 
-    plink2 --pfile $data_dir/TOPMed_LIBD.AA --chr "$chrom" --from-bp "$start" --to-bp "$end" --make-bed --out "$output_dir/TOPMed_LIBD.AA.Chr${chrom}_${start}_${end}"
+module purge
+module load plink/2.0-alpha-3.3
+module list
 
-    # check chromosome size information
-    window=500000
-    chrom_size=$(grep "^chr1[[:space:]]" $chr_file | cut -f2)
+## Edit with your job command
+REGION_LIST="./vmr_list.txt"
+CHR_FILE="/projects/b1213/resources/genomes/human/gencode-v47/fasta/chromosome_sizes.txt"
+DATA="/projects/p32505/projects/dna-methylation-heritability/inputs/genotypes"
+OUTPUT="/projects/p32505/users/alexis/projects/dna-methylation-heritability/testing/caudate/_m"
 
-    start_pos=$start-$window
+# Get the current sample name from the sample list
+REGION=$(sed -n "${SLURM_ARRAY_TASK_ID}p" $REGION_LIST)
+CHR=$(echo "$REGION" | awk '{print $1}')
+START=$(echo "$REGION" | awk '{print $2}')
+END=$(echo "$REGION" | awk '{print $3}')
 
-    if (( start_pos < 1 )); then
-        echo "ERROR: Start position is below zero."
-    fi
+echo "Processing Chromosome $CHR: $START-$END"
 
-    end_pos=$end+$window
+plink2 --pfile $DATA/TOPMed_LIBD.AA --chr "$CHR" --from-bp "$START" --to-bp "$END" --make-bed --out "$OUTPUT/chr_${CHR}/TOPMed_LIBD.AA.${START}_${END}"
 
-    if (( end_pos >= chrom_size )); then
-        echo "ERROR: End position exceeds Chromosome $chrom size."
-    fi
+# check chromosome size information
+WINDOW=500000
+CHR_SIZE=$(grep "^chr1[[:space:]]" $CHR_FILE | cut -f2)
 
-done < "$ranges"
+START_POS=$START-$WINDOW
 
-# extract snps for 1 vmr
-# plink2 --pfile $data_dir/TOPMed_LIBD.AA --from-bp 403969 --to-bp 1404084 --maf 0.05 --geno 0.1 --make-bed --out $output_dir/TOPMed_LIBD.AA.VMR1
+if (( START_POS <= 0 )); then
+    echo "ERROR: Start position is below zero."
+fi
 
+END_POS=$END+$WINDOW
 
+if (( END_POS >= CHR_SIZE )); then
+    echo "ERROR: End position exceeds Chromosome $CHR size."
+fi
