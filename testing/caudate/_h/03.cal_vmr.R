@@ -1,15 +1,18 @@
 #### Calculate methylation values for variably methylated regions ####
 
-library('bsseq')
-library('HDF5Array')
-library(DelayedMatrixStats)
-library('data.table')
-library(scales)
-library(GenomicRanges)
-library(dplyr)
-library(genio)
-library(plinkr)
-library(here)
+suppressPackageStartupMessageslibrary({
+    library('bsseq')
+    library('HDF5Array')
+    library(DelayedMatrixStats)
+    library('data.table')
+    library(scales)
+    library(GenomicRanges)
+    library(dplyr)
+    library(genio)
+    library(plinkr)
+    library(here)
+})
+
 source(here("testing/caudate/_h/01.sd_test.R"))
 
 args      <- commandArgs(trailingOnly = TRUE)
