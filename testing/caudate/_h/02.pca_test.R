@@ -1,9 +1,12 @@
 #### Perform principal component analysis ####
 
-library('bsseq')
-library('HDF5Array')
-library(DelayedMatrixStats)
-library('data.table')
+suppressPackageStartupMessages({
+    library('bsseq')
+    library('HDF5Array')
+    library(DelayedMatrixStats)
+    library('data.table')
+    library(here)
+})
 
 args <- commandArgs(trailingOnly = TRUE)
 chr  <- args[1]
