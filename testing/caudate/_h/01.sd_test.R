@@ -1,14 +1,16 @@
 #### Calculate mean and SD of methylation values ####
 
-library('bsseq')
-library('HDF5Array')
-library(DelayedMatrixStats)
-library('data.table')
-library(scales)
-library(here)
-library(dplyr)
-library(genio)
-library(plinkr)
+suppressPackageStartupMessageslibrary({
+    library('bsseq')
+    library('HDF5Array')
+    library(DelayedMatrixStats)
+    library('data.table')
+    library(scales)
+    library(here)
+    library(dplyr)
+    library(genio)
+    library(plinkr)
+})
 
 args <- commandArgs(trailingOnly = TRUE)
 chr  <- args[1]
@@ -89,8 +91,8 @@ write_meth_to_phen <- function(BSobj, M, samples, out_phen) {
 }
 
 write_covar <- function(BSobj, pheno, id, meth_merged, output_path) {
-    out_cov  <- file.path(output_path, "test_TOPMed_LIBD.AA.covar")
-    out_qcov <- file.path(output_path, "test_TOPMed_LIBD.AA.qcovar")
+    out_cov  <- file.path(output_path, "TOPMed_LIBD.AA.covar")
+    out_qcov <- file.path(output_path, "TOPMed_LIBD.AA.qcovar")
                                         # Filter data
     filtered_pheno <- pheno |>
         select(BrNum, Sex, Dx, Age) |> filter(BrNum %in% id)
