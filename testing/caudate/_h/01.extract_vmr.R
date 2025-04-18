@@ -1,6 +1,6 @@
 #### Calculate mean and SD of methylation values ####
 
-suppressPackageStartupMessageslibrary({
+suppressPackageStartupMessages({
     library('bsseq')
     library('HDF5Array')
     library(DelayedMatrixStats)
