@@ -4,7 +4,7 @@
 #SBATCH --time=01:00:00         # Time limit hrs:min:sec
 #SBATCH --nodes=1               # Number of nodes
 #SBATCH --ntasks-per-node=1     # Number of cores (CPU)
-#SBATCH --mem=10G               # Memory limit
+#SBATCH --mem=16G               # Memory limit
 #SBATCH --mail-type=FAIL
 #SBATCH --array=1-12078%250
 #SBATCH --mail-user=alexis.bennett@northwestern.edu
@@ -47,7 +47,12 @@ END=$(echo "$REGION" | awk '{print $3}')
 
 echo "Processing Chromosome $CHR: $START-$END"
 
-plink2 --pfile $DATA/TOPMed_LIBD.AA --chr "$CHR" --from-bp "$START" --to-bp "$END" --make-bed --out "$OUTPUT/chr_${CHR}/TOPMed_LIBD.AA.${START}_${END}"
+plink2 --pfile $DATA/TOPMed_LIBD.AA \
+       --chr "$CHR" \
+       --from-bp "$START" \
+       --to-bp "$END" \
+       --make-bed \
+       --out "$OUTPUT/chr_${CHR}/TOPMed_LIBD.AA.${START}_${END}"
 
 # check chromosome size information
 WINDOW=500000
