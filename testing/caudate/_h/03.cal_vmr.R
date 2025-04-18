@@ -1,6 +1,6 @@
 #### Calculate methylation values for variably methylated regions ####
 
-suppressPackageStartupMessageslibrary({
+suppressPackageStartupMessages({
     library('bsseq')
     library('HDF5Array')
     library(DelayedMatrixStats)
