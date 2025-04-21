@@ -4,7 +4,7 @@
 #SBATCH --time=01:00:00         # Time limit hrs:min:sec
 #SBATCH --nodes=1               # Number of nodes
 #SBATCH --ntasks-per-node=1     # Number of cores (CPU)
-#SBATCH --mem=10G               # Memory limit
+#SBATCH --mem=16G               # Memory limit
 #SBATCH --mail-type=FAIL
 #SBATCH --array=1-12078%250
 #SBATCH --mail-user=alexis.bennett@northwestern.edu
@@ -45,19 +45,17 @@ CHR=$(echo "$REGION" | awk '{print $1}')
 START=$(echo "$REGION" | awk '{print $2}')
 END=$(echo "$REGION" | awk '{print $3}')
 
-echo "Processing Chromosome $CHR: $START-$END"
-
 # check chromosome size information
 WINDOW=500000
 CHR_SIZE=$(grep "^chr1[[:space:]]" $CHR_FILE | cut -f2)
 
-START_POS=$START-$WINDOW
+START_POS=$((START - WINDOW))
 
 if (( START_POS <= 0 )); then
     echo "ERROR: Start position is below zero."
 fi
 
-END_POS=$END+$WINDOW
+END_POS=$((END + WINDOW))
 
 if (( END_POS >= CHR_SIZE )); then
     echo "ERROR: End position exceeds Chromosome $CHR size."
@@ -65,4 +63,9 @@ fi
 
 echo "Extracting SNPs on $CHR: $START_POS-$END_POS"
 
-plink2 --pfile $DATA/TOPMed_LIBD.AA --chr "$CHR" --from-bp "$START_POS" --to-bp "$END_POS" --make-bed --out "$OUTPUT/chr_${CHR}/TOPMed_LIBD.AA.${START_POS}_${END_POS}"
+plink2 --pfile "$DATA/TOPMed_LIBD.AA" \
+       --chr "$CHR" \
+       --from-bp "$START_POS" \
+       --to-bp "$END_POS" \
+       --make-bed \
+       --out "$OUTPUT/chr_${CHR}/TOPMed_LIBD.AA.${START}_${END}"
