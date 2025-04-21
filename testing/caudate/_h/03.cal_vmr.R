@@ -13,8 +13,6 @@ suppressPackageStartupMessages({
     library(here)
 })
 
-source(here("testing/caudate/_h/01.sd_test.R"))
-
 args      <- commandArgs(trailingOnly = TRUE)
 chr_num   <- args[1]
 chr       <- paste0("chr", chr_num)
@@ -28,6 +26,30 @@ calc_vmr_meth <- function(BSobj, chr, start_pos, end_pos) {
                       ranges = IRanges(start = start_pos, end = end_pos))
   meth_reg <- getMeth(BSobj, regions = reg, what="perRegion")
   return(meth_reg)
+}
+
+extract_fid_iid <- function(psam_file) {
+    samples <- read_plink2_psam_file(psam_file)
+    samples <- samples[, 1:2]
+    return(samples)
+}
+
+write_meth_to_phen <- function(BSobj, M, samples, out_phen) {
+
+                                        # add sample IDs to methylation matrix
+    sample_ids <- colData(BSobj)$brnum
+    meth_df <- data.frame(FID = sample_ids, t(M))
+
+                                        # merge methylation data and sample ids by FID
+    meth_merged <- meth_df %>%
+        inner_join(samples, by = "FID") %>%
+        arrange(match(FID, samples$FID)) %>%
+        select(FID, IID, everything())
+    colnames(meth_merged)[1:3] <- c("fam", "id", "pheno")
+
+                                        # write methylation values to .phen file
+    write_phen(file=out_phen, meth_merged)
+    return(meth_merged)
 }
 
 ## Main
