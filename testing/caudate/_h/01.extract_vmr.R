@@ -90,9 +90,9 @@ write_meth_to_phen <- function(BSobj, M, samples, out_phen) {
     return(meth_merged)
 }
 
-write_covar <- function(BSobj, pheno, id, meth_merged, output_path) {
-    out_cov  <- file.path(output_path, "TOPMed_LIBD.AA.covar")
-    out_qcov <- file.path(output_path, "TOPMed_LIBD.AA.qcovar")
+write_covar <- function(BSobj, pheno, id, meth_merged, out_covs) {
+    out_cov  <- file.path(out_covs, "TOPMed_LIBD.AA.covar")
+    out_qcov <- file.path(out_covs, "TOPMed_LIBD.AA.qcovar")
                                         # Filter data
     filtered_pheno <- pheno |>
         select(BrNum, Sex, Dx, Age) |> filter(BrNum %in% id)
@@ -116,13 +116,23 @@ write_covar <- function(BSobj, pheno, id, meth_merged, output_path) {
 ## Main
                                         # load data
 load(here("inputs/wgbs-data/caudate", paste0("Caudate_chr", chr, "_BSobj.rda")))
-output_path <- here("testing/caudate/_m", paste0("chr_", chr))
+output_path <- here("testing", "caudate", "_m")
+subdirs <- c("vmr", "plink_format", "covs", "h2", "cpg", "logs")
 
-                                        # create output directory if it  
-                                        # doesn't exist
-if (!dir.exists(output_path)) {
-  dir.create(output_path, recursive = TRUE)
+                                        # create output directories if they  
+                                        # don't exist
+for (subdir in subdirs) {
+    subdir_path <- file.path(output_path, subdir, paste0("chr_", chr))
+    if (!dir.exists(subdir_path)) {
+        dir.create(subdir_path, recursive = TRUE)
+    }
 }
+
+                                        # define output directories 
+out_vmr   <- file.path(output_path, "vmr",   paste0("chr_", chr))
+out_covs  <- file.path(output_path, "covs",  paste0("chr_", chr))
+out_plink <- file.path(output_path, "plink_format", paste0("chr_", chr))
+out_cpg   <- file.path(output_path, "cpg", paste0("chr_", chr))
 
                                         # change file path for raw data
 raw_assays  <- here("inputs/wgbs-data/caudate/raw/CpGassays.h5")
@@ -136,11 +146,11 @@ filtered        <- filter_pheno(BSobj, pheno_file_path)
 BSobj <- exclude_low_cov(filtered$BSobj)
 
                                         # calculate sd & mean of DNAm
-stats <- DNAm_stats(BSobj, file.path(output_path, "stats.rda"))
+stats <- DNAm_stats(BSobj, file.path(out_cpg, "stats.rda"))
 
                                         # extract VMRs
 v   <- data.frame(chr = chr, start = start(BSobj), sd = stats$sds)
-vmr <- get_vmr(v, file.path(output_path, "vmr.bed"))
+vmr <- get_vmr(v, file.path(out_vmr, "vmr.bed"))
 
                                         # read in FID, IID from sample file
 psam_file <- here("inputs/genotypes/TOPMed_LIBD.AA.psam")
@@ -148,11 +158,10 @@ samples   <- extract_fid_iid(psam_file)
 
                                         # merge methylation values with FID and
                                         # IID and write to .phen file
-out_phen    <- file.path(output_path, "cpg_meth.phen")
-meth_merged <- write_meth_to_phen(BSobj, stats$M, samples, out_phen)
+meth_merged <- write_meth_to_phen(BSobj, stats$M, samples, file.path(out_cpg, "cpg_meth.phen"))
 
                                         # write covariate files
-covars <- write_covar(BSobj, filtered$pheno, filtered$id, meth_merged, output_path)
+covars <- write_covar(BSobj, filtered$pheno, filtered$id, meth_merged, out_covs)
 
 #### Reproducibility information ####
 print("Reproducibility information:")
