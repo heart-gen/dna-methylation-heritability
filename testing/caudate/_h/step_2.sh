@@ -9,8 +9,8 @@
 #SBATCH --array=1-22
 #SBATCH --mail-user=alexis.bennett@northwestern.edu
 #SBATCH --job-name=pca  # Job name
-##SBATCH --output=logs/pca_%j_out.log  # Standard output log
-##SBATCH --error=logs/pca_%j_err.log   # Standard error log
+#SBATCH --output=/dev/null      # Standard output log
+#SBATCH --error=/dev/null       # Standard error log
 
 # Create log directories for each chr
 LOG_DIR="logs/chr_${SLURM_ARRAY_TASK_ID}"

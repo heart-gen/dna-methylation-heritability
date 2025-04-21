@@ -9,8 +9,8 @@
 #SBATCH --array=1-12078%250
 #SBATCH --mail-user=alexis.bennett@northwestern.edu
 #SBATCH --job-name=extract_snp  # Job name
-##SBATCH --output=logs/extract_snp_%j_out.log  # Standard output log
-##SBATCH --error=logs/extract_snp_%j_err.log    # Standard error log
+#SBATCH --output=/dev/null      # Standard output log
+#SBATCH --error=/dev/null       # Standard error log
 
 ## Edit with your job command
 REGION_LIST="./vmr_list.txt"
