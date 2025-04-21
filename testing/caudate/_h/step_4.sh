@@ -9,8 +9,30 @@
 #SBATCH --array=1-12078%250
 #SBATCH --mail-user=alexis.bennett@northwestern.edu
 #SBATCH --job-name=extract_snp  # Job name
-#SBATCH --output=logs/extract_snp_%j_out.log  # Standard output log
-#SBATCH --error=logs/extract_snp_%j_err.log    # Standard error log
+##SBATCH --output=logs/extract_snp_%j_out.log  # Standard output log
+##SBATCH --error=logs/extract_snp_%j_err.log    # Standard error log
+
+## Edit with your job command
+REGION_LIST="./vmr_list.txt"
+CHR_FILE="/projects/b1213/resources/genomes/human/gencode-v47/fasta/chromosome_sizes.txt"
+DATA="/projects/p32505/projects/dna-methylation-heritability/inputs/genotypes"
+OUTPUT="/projects/p32505/users/alexis/projects/dna-methylation-heritability/testing/caudate/_m/plink"
+
+# Get the current sample name from the sample list
+REGION=$(sed -n "${SLURM_ARRAY_TASK_ID}p" $REGION_LIST)
+CHR=$(echo "$REGION" | awk '{print $1}')
+START=$(echo "$REGION" | awk '{print $2}')
+END=$(echo "$REGION" | awk '{print $3}')
+
+# Create directories for each chr
+CHR_DIR="$OUTPUT/chr_${CHR}"
+mkdir -p "$CHR_DIR"
+LOG_DIR="logs/chr_${CHR}"
+mkdir -p "$LOG_DIR"
+
+# Redirect output and error logs to chr-specific log files
+exec > >(tee -a "$LOG_DIR/pca_${SLURM_ARRAY_TASK_ID}_out.log")
+exec 2> >(tee -a "$LOG_DIR/pca_${SLURM_ARRAY_TASK_ID}_err.log" >&2)
 
 # Log function
 log_message() {
@@ -32,18 +54,6 @@ echo "Task id: ${SLURM_ARRAY_TASK_ID}"
 module purge
 module load plink/2.0-alpha-3.3
 module list
-
-## Edit with your job command
-REGION_LIST="./vmr_list.txt"
-CHR_FILE="/projects/b1213/resources/genomes/human/gencode-v47/fasta/chromosome_sizes.txt"
-DATA="/projects/p32505/projects/dna-methylation-heritability/inputs/genotypes"
-OUTPUT="/projects/p32505/users/alexis/projects/dna-methylation-heritability/testing/caudate/_m"
-
-# Get the current sample name from the sample list
-REGION=$(sed -n "${SLURM_ARRAY_TASK_ID}p" $REGION_LIST)
-CHR=$(echo "$REGION" | awk '{print $1}')
-START=$(echo "$REGION" | awk '{print $2}')
-END=$(echo "$REGION" | awk '{print $3}')
 
 # check chromosome size information
 WINDOW=500000
@@ -68,4 +78,4 @@ plink2 --pfile "$DATA/TOPMed_LIBD.AA" \
        --from-bp "$START_POS" \
        --to-bp "$END_POS" \
        --make-bed \
-       --out "$OUTPUT/chr_${CHR}/TOPMed_LIBD.AA.${START}_${END}"
+       --out "$CHR_DIR/TOPMed_LIBD.AA.${START}_${END}"

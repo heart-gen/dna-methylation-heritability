@@ -37,7 +37,10 @@ module list
 REGION_LIST="./vmr_list.txt"
 CHR_FILE="/projects/b1213/resources/genomes/human/gencode-v47/fasta/chromosome_sizes.txt"
 DATA="/projects/p32505/projects/dna-methylation-heritability/inputs/genotypes"
-OUTPUT="/projects/p32505/users/alexis/projects/dna-methylation-heritability/testing/caudate/_m"
+OUTPUT="/projects/p32505/users/alexis/projects/dna-methylation-heritability/testing/caudate/_m/plink"
+CHR_DIR="$OUTPUT/chr_${CHR}"
+
+mkdir -p "$CHR_DIR"
 
 # Get the current sample name from the sample list
 REGION=$(sed -n "${SLURM_ARRAY_TASK_ID}p" $REGION_LIST)
@@ -52,7 +55,7 @@ plink2 --pfile $DATA/TOPMed_LIBD.AA \
        --from-bp "$START" \
        --to-bp "$END" \
        --make-bed \
-       --out "$OUTPUT/chr_${CHR}/TOPMed_LIBD.AA.${START}_${END}"
+       --out "$CHR_DIR/TOPMed_LIBD.AA.${START}_${END}"
 
 # check chromosome size information
 WINDOW=500000

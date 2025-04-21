@@ -9,8 +9,27 @@
 #SBATCH --array=1-12078%300
 #SBATCH --mail-user=alexis.bennett@northwestern.edu
 #SBATCH --job-name=cal_vmr  # Job name
-#SBATCH --output=logs/cal_vmr_%j_out.log  # Standard output log
-#SBATCH --error=logs/cal_vmr_%j_err.log    # Standard error log
+##SBATCH --output=logs/cal_vmr_%j_out.log  # Standard output log
+##SBATCH --error=logs/cal_vmr_%j_err.log    # Standard error log
+
+## Edit with your job command
+REGION_LIST="./vmr_list.txt"
+
+# Get the current sample name from the sample list
+REGION=$(sed -n "${SLURM_ARRAY_TASK_ID}p" $REGION_LIST)
+CHR=$(echo "$REGION" | awk '{print $1}')
+START=$(echo "$REGION" | awk '{print $2}')
+END=$(echo "$REGION" | awk '{print $3}')
+
+# Create directories for each chr
+CHR_DIR="$OUTPUT/chr_${CHR}"
+mkdir -p "$CHR_DIR"
+LOG_DIR="logs/chr_${CHR}"
+mkdir -p "$LOG_DIR"
+
+# Redirect output and error logs to chr-specific log files
+exec > >(tee -a "$LOG_DIR/pca_${SLURM_ARRAY_TASK_ID}_out.log")
+exec 2> >(tee -a "$LOG_DIR/pca_${SLURM_ARRAY_TASK_ID}_err.log" >&2)
 
 # Log function
 log_message() {
@@ -32,15 +51,6 @@ echo "Task id: ${SLURM_ARRAY_TASK_ID}"
 module purge
 module load python/3.10.1
 module list 
-
-## Edit with your job command
-REGION_LIST="./vmr_list.txt"
-
-# Get the current sample name from the sample list
-REGION=$(sed -n "${SLURM_ARRAY_TASK_ID}p" $REGION_LIST)
-CHR=$(echo "$REGION" | awk '{print $1}')
-START=$(echo "$REGION" | awk '{print $2}')
-END=$(echo "$REGION" | awk '{print $3}')
 
 # Set path variables
 ENV_PATH="/projects/p32505/opt/env"

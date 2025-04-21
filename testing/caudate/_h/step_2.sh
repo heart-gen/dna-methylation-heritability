@@ -9,8 +9,16 @@
 #SBATCH --array=1-22
 #SBATCH --mail-user=alexis.bennett@northwestern.edu
 #SBATCH --job-name=pca  # Job name
-#SBATCH --output=logs/pca_%j_out.log  # Standard output log
-#SBATCH --error=logs/pca_%j_err.log   # Standard error log
+##SBATCH --output=logs/pca_%j_out.log  # Standard output log
+##SBATCH --error=logs/pca_%j_err.log   # Standard error log
+
+# Create log directories for each chr
+LOG_DIR="logs/chr_${SLURM_ARRAY_TASK_ID}"
+mkdir -p "$LOG_DIR"
+
+# Redirect output and error logs to chr-specific log files
+exec > >(tee -a "$LOG_DIR/pca_${SLURM_ARRAY_TASK_ID}_out.log")
+exec 2> >(tee -a "$LOG_DIR/pca_${SLURM_ARRAY_TASK_ID}_err.log" >&2)
 
 # Log function
 log_message() {
