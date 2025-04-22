@@ -70,11 +70,13 @@ corr_pc_ances <- function(pc, gen_ances, idx, output_path) {
 }
 
 ## Main
-
-output_path <- here(paste0("testing/caudate/_m/chr_", chr))
+output_path <- here("testing", "caudate", "_m", "pca", paste0("chr_", chr))
+if (!dir.exists(output_path)) {
+    dir.create(output_path, recursive = TRUE)
+}
 
 # load sd of raw DNAm
-load(here(paste0("testing/caudate/_m/chr_", chr, "/stats.rda")))
+load(here("testing", "caudate", "_m", "cpg", paste0("chr_", chr), "stats.rda"))
 v <- data.frame(chr = chr, start = start(BSobj), sd = sds)
 
 meth_top <- get_top_meth(BSobj, v)
