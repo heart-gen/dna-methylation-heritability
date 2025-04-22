@@ -69,7 +69,7 @@ gcta64 --bfile $WORKING/plink_format/chr_${CHR}/TOPMed_LIBD.AA.${START}_${END} \
 
 ## Activate conda environment
 # Stratify SNPs based on individual LD scores
-conda run -p $ENV_PATH/R_env Rscript ../_h/05.stratify_LD.R $CHR
+conda run -p $ENV_PATH/R_env Rscript ../_h/05.stratify_LD.R $CHR $START $END
 
 if [ $? -ne 0 ]; then
     log_message "Error: Conda or script execution failed"
@@ -77,7 +77,7 @@ if [ $? -ne 0 ]; then
 fi
 
 # Make GRM for each group
-for i in 1:4 ; do
+for i in {1..4} ; do
     gcta64 --bfile $WORKING/plink_format/chr_${CHR}/TOPMed_LIBD.AA.${START}_${END} \
            --extract $CHR_DIR/${START}_${END}_snp_group_${i}.txt \
            --make-grm \
