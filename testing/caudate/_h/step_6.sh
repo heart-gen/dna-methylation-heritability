@@ -14,6 +14,7 @@
 
 ## Edit with your job command
 REGION_LIST="./vmr_list.txt"
+OUTPUT="./summary"
 
 # Get the current sample name from the sample list
 REGION=$(sed -n "${SLURM_ARRAY_TASK_ID}p" $REGION_LIST)
