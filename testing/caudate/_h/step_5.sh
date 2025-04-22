@@ -16,6 +16,7 @@
 REGION_LIST="./vmr_list.txt"
 CHR_FILE="/projects/b1213/resources/genomes/human/gencode-v47/fasta/chromosome_sizes.txt"
 DATA="/projects/p32505/projects/dna-methylation-heritability/inputs/genotypes"
+WORKING="./"
 OUTPUT="./h2"
 
 ENV="/projects/p32505/opt/env"
@@ -60,17 +61,21 @@ module list
 echo "Perfoming GREML analysis on $CHR: $START-$END"
 
 ##### GREML-LDMS #####
-gcta64 --bfile $OUTPUT/chr_$CHR/TOPMed_LIBD.AA.${START}_${END} --ld-score-region 200 --out $OUTPUT/chr_$CHR/TOPMed_LIBD.AA.${START}_${END}
+gcta64 --bfile $WORKING/plink_format/chr_${CHR}/TOPMed_LIBD.AA.${START}_${END} --ld-score-region 200 --out $CHR_DIR/TOPMed_LIBD.AA.${START}_${END}
 
-# Activating conda environment
-$ENV/R_env/bin/Rscript ../_h/05.stratify_LD.R
+## Activate conda environment
+conda run -p $ENV_PATH/R_env Rscript ../_h/05.stratify_LD.R $CHR
+if [ $? -ne 0 ]; then
+    log_message "Error: Conda or script execution failed"
+    exit 1
+fi
 
 # Make GRM for each group
 for i in 1:4 ; do
-gcta64 --bfile $OUTPUT/chr_$CHR/TOPMed_LIBD.AA.${START}_${END} --extract $OUTPUT/chr_$CHR/${START}_${END}_snp_group_${i}.txt --make-grm --out $OUTPUT/chr_$CHR/TOPMed_LIBD.AA.${START}_${END}_group_${i}
+gcta64 --bfile $WORKING/plink_format/chr_${CHR}/TOPMed_LIBD.AA.${START}_${END} --extract $CHR_DIR/${START}_${END}_snp_group_${i}.txt --make-grm --out $CHR_DIR/TOPMed_LIBD.AA.${START}_${END}_group_${i}
 
-echo "$OUTPUT/chr_$CHR/TOPMed_LIBD.AA.${START}_${END}_group_${i}" >> $OUTPUT/chr_$CHR/${START}_${END}_multi_GRMs.txt
+echo "$CHR_DIR/TOPMed_LIBD.AA.${START}_${END}_group_${i}" >> $CHR_DIR/${START}_${END}_multi_GRMs.txt
 done
 
 # GREML with multiple GRM
-gcta64 --reml --mgrm $OUTPUT/chr_$CHR/${START}_${END}_multi_GRMs.txt --pheno $OUTPUT/chr_$CHR/${START}_${END}_meth.phen --covar $OUTPUT/chr_$CHR/TOPMed_LIBD.AA.covar --qcovar $OUTPUT/chr_$CHR/TOPMed_LIBD.AA.qcovar --out TOPMed_LIBD.AA.${START}_${END}
+gcta64 --reml --mgrm $CHR_DIR/${START}_${END}_multi_GRMs.txt --pheno $WORKING/vmr/chr_${CHR}/${START}_${END}_meth.phen --covar $WORKING/covs/chr_${CHR}/TOPMed_LIBD.AA.covar --qcovar $WORKING/covs/chr_${CHR}/TOPMed_LIBD.AA.qcovar --out $CHR_DIR/TOPMed_LIBD.AA.${START}_${END}
