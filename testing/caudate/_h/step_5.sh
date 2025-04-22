@@ -8,7 +8,7 @@
 #SBATCH --mail-type=FAIL
 #SBATCH --array=1-12078%250
 #SBATCH --mail-user=alexis.bennett@northwestern.edu
-#SBATCH --job-name=strat_ld     # Job name
+#SBATCH --job-name=greml     # Job name
 #SBATCH --output=/dev/null      # Standard output log
 #SBATCH --error=/dev/null       # Standard error log
 
@@ -19,7 +19,7 @@ DATA="/projects/p32505/projects/dna-methylation-heritability/inputs/genotypes"
 WORKING="./"
 OUTPUT="./h2"
 
-ENV="/projects/p32505/opt/env"
+ENV_PATH="/projects/p32505/opt/env"
 
 # Get the current sample name from the sample list
 REGION=$(sed -n "${SLURM_ARRAY_TASK_ID}p" $REGION_LIST)
@@ -34,8 +34,8 @@ LOG_DIR="logs/chr_${CHR}"
 mkdir -p "$LOG_DIR"
 
 # Redirect output and error logs to chr-specific log files
-exec > >(tee -a "$LOG_DIR/pca_${SLURM_ARRAY_TASK_ID}_out.log")
-exec 2> >(tee -a "$LOG_DIR/pca_${SLURM_ARRAY_TASK_ID}_err.log" >&2)
+exec > >(tee -a "$LOG_DIR/greml_${SLURM_ARRAY_TASK_ID}_out.log")
+exec 2> >(tee -a "$LOG_DIR/greml_${SLURM_ARRAY_TASK_ID}_err.log" >&2)
 
 # Log function
 log_message() {
@@ -61,10 +61,16 @@ module list
 echo "Perfoming GREML analysis on $CHR: $START-$END"
 
 ##### GREML-LDMS #####
-gcta64 --bfile $WORKING/plink_format/chr_${CHR}/TOPMed_LIBD.AA.${START}_${END} --ld-score-region 200 --out $CHR_DIR/TOPMed_LIBD.AA.${START}_${END}
+
+# Calculate SNP LD scores
+gcta64 --bfile $WORKING/plink_format/chr_${CHR}/TOPMed_LIBD.AA.${START}_${END} \
+       --ld-score-region 200 \
+       --out $CHR_DIR/TOPMed_LIBD.AA.${START}_${END}
 
 ## Activate conda environment
+# Stratify SNPs based on individual LD scores
 conda run -p $ENV_PATH/R_env Rscript ../_h/05.stratify_LD.R $CHR
+
 if [ $? -ne 0 ]; then
     log_message "Error: Conda or script execution failed"
     exit 1
@@ -72,10 +78,19 @@ fi
 
 # Make GRM for each group
 for i in 1:4 ; do
-gcta64 --bfile $WORKING/plink_format/chr_${CHR}/TOPMed_LIBD.AA.${START}_${END} --extract $CHR_DIR/${START}_${END}_snp_group_${i}.txt --make-grm --out $CHR_DIR/TOPMed_LIBD.AA.${START}_${END}_group_${i}
+    gcta64 --bfile $WORKING/plink_format/chr_${CHR}/TOPMed_LIBD.AA.${START}_${END} \
+           --extract $CHR_DIR/${START}_${END}_snp_group_${i}.txt \
+           --make-grm \
+           --out $CHR_DIR/TOPMed_LIBD.AA.${START}_${END}_group_${i}
 
-echo "$CHR_DIR/TOPMed_LIBD.AA.${START}_${END}_group_${i}" >> $CHR_DIR/${START}_${END}_multi_GRMs.txt
+    echo "$CHR_DIR/TOPMed_LIBD.AA.${START}_${END}_group_${i}" >> \
+         $CHR_DIR/${START}_${END}_multi_GRMs.txt
 done
 
 # GREML with multiple GRM
-gcta64 --reml --mgrm $CHR_DIR/${START}_${END}_multi_GRMs.txt --pheno $WORKING/vmr/chr_${CHR}/${START}_${END}_meth.phen --covar $WORKING/covs/chr_${CHR}/TOPMed_LIBD.AA.covar --qcovar $WORKING/covs/chr_${CHR}/TOPMed_LIBD.AA.qcovar --out $CHR_DIR/TOPMed_LIBD.AA.${START}_${END}
+gcta64 --reml \
+       --mgrm $CHR_DIR/${START}_${END}_multi_GRMs.txt \
+       --pheno $WORKING/vmr/chr_${CHR}/${START}_${END}_meth.phen \
+       --covar $WORKING/covs/chr_${CHR}/TOPMed_LIBD.AA.covar \
+       --qcovar $WORKING/covs/chr_${CHR}/TOPMed_LIBD.AA.qcovar \
+       --out $CHR_DIR/TOPMed_LIBD.AA.${START}_${END}
