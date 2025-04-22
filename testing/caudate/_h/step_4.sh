@@ -16,7 +16,7 @@
 REGION_LIST="./vmr_list.txt"
 CHR_FILE="/projects/b1213/resources/genomes/human/gencode-v47/fasta/chromosome_sizes.txt"
 DATA="/projects/p32505/projects/dna-methylation-heritability/inputs/genotypes"
-OUTPUT="/projects/p32505/users/alexis/projects/dna-methylation-heritability/testing/caudate/_m/plink_format"
+OUTPUT="./plink_format"
 
 # Get the current sample name from the sample list
 REGION=$(sed -n "${SLURM_ARRAY_TASK_ID}p" $REGION_LIST)
