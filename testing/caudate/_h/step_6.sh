@@ -56,10 +56,13 @@ module list
 # Set path variables
 ENV_PATH="/projects/p32505/opt/env"
 
-echo "Working on: Chromosome "$CHR:$START-$END 
+echo "Summarizing GREML results for Chromosome "$CHR:$START-$END 
 
 # Run main script
-python ../_h/06.summary.py
+python ../_h/06.summary.py \
+    --chr "$CHR" \
+    --start_pos "$START" \
+    --end_pos "$END"
 
 if [ $? -ne 0 ]; then
     log_message "Error: Python script execution failed"
