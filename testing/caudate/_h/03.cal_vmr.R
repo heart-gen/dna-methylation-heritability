@@ -54,8 +54,8 @@ write_meth_to_phen <- function(BSobj, M, samples, out_phen) {
 
 ## Main
 # load raw DNAm
-load(here("testing/caudate/_m", paste0("chr_", chr_num, "/stats.rda")))
-output_path <- here("testing/caudate/_m", paste0("chr_", chr_num))
+load(here("testing/caudate/_m/cpg", paste0("chr_", chr_num, "/stats.rda")))
+output_path <- here("testing/caudate/_m/vmr", paste0("chr_", chr_num))
 
 # extract methylation values for each VMR
 meth_reg <- calc_vmr_meth(BSobj, chr, start_pos, end_pos)

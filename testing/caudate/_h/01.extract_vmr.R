@@ -117,7 +117,7 @@ write_covar <- function(BSobj, pheno, id, meth_merged, out_covs) {
                                         # load data
 load(here("inputs/wgbs-data/caudate", paste0("Caudate_chr", chr, "_BSobj.rda")))
 output_path <- here("testing", "caudate", "_m")
-subdirs <- c("vmr", "plink_format", "covs", "h2", "cpg", "logs")
+subdirs <- c("vmr", "covs", "cpg")
 
                                         # create output directories if they  
                                         # don't exist
@@ -131,7 +131,6 @@ for (subdir in subdirs) {
                                         # define output directories 
 out_vmr   <- file.path(output_path, "vmr",   paste0("chr_", chr))
 out_covs  <- file.path(output_path, "covs",  paste0("chr_", chr))
-out_plink <- file.path(output_path, "plink_format", paste0("chr_", chr))
 out_cpg   <- file.path(output_path, "cpg", paste0("chr_", chr))
 
                                         # change file path for raw data
