@@ -4,9 +4,9 @@
 #SBATCH --time=01:00:00         # Time limit hrs:min:sec
 #SBATCH --nodes=1               # Number of nodes
 #SBATCH --ntasks-per-node=1     # Number of cores (CPU)
-#SBATCH --mem=15G               # Memory limit
+#SBATCH --mem=10G               # Memory limit
 #SBATCH --mail-type=FAIL
-#SBATCH --array=1-12078%300
+#SBATCH --array=1-12078%250
 #SBATCH --mail-user=alexis.bennett@northwestern.edu
 #SBATCH --job-name=summary      # Job name
 #SBATCH --output=/dev/null      # Standard output log
@@ -14,7 +14,6 @@
 
 ## Edit with your job command
 REGION_LIST="./vmr_list.txt"
-OUTPUT="./summary"
 
 # Get the current sample name from the sample list
 REGION=$(sed -n "${SLURM_ARRAY_TASK_ID}p" $REGION_LIST)
@@ -23,14 +22,12 @@ START=$(echo "$REGION" | awk '{print $2}')
 END=$(echo "$REGION" | awk '{print $3}')
 
 # Create directories for each chr
-CHR_DIR="$OUTPUT/chr_${CHR}"
-mkdir -p "$CHR_DIR"
 LOG_DIR="logs/chr_${CHR}"
 mkdir -p "$LOG_DIR"
 
 # Redirect output and error logs to chr-specific log files
-exec > >(tee -a "$LOG_DIR/pca_${SLURM_ARRAY_TASK_ID}_out.log")
-exec 2> >(tee -a "$LOG_DIR/pca_${SLURM_ARRAY_TASK_ID}_err.log" >&2)
+exec > >(tee -a "$LOG_DIR/summary_${SLURM_ARRAY_TASK_ID}_out.log")
+exec 2> >(tee -a "$LOG_DIR/summary_${SLURM_ARRAY_TASK_ID}_err.log" >&2)
 
 # Log function
 log_message() {
@@ -55,7 +52,7 @@ module list
 # Set path variables
 ENV_PATH="/projects/p32505/opt/env"
 
-echo "Exporting GREML results for Chromosome "$CHR:$START-$END 
+echo "Writing GREML results for Chromosome "$CHR:$START-$END 
 
 ## Activate conda environment
 conda run -p $ENV_PATH/AI_env python ../_h/06.summary.py \
