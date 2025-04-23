@@ -50,22 +50,21 @@ echo "Task id: ${SLURM_ARRAY_TASK_ID}"
 ## List current modules for reproducibility
 
 module purge
-module load python/3.10.1
 module list 
 
 # Set path variables
 ENV_PATH="/projects/p32505/opt/env"
 
-echo "Summarizing GREML results for Chromosome "$CHR:$START-$END 
+echo "Exporting GREML results for Chromosome "$CHR:$START-$END 
 
-# Run main script
-python ../_h/06.summary.py \
+## Activate conda environment
+conda run -p $ENV_PATH/AI_env python ../_h/06.summary.py \
     --chr "$CHR" \
     --start_pos "$START" \
     --end_pos "$END"
 
 if [ $? -ne 0 ]; then
-    log_message "Error: Python script execution failed"
+    log_message "Error: Conda or script execution failed"
     exit 1
 fi
 
