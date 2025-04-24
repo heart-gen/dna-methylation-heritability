@@ -4,17 +4,12 @@
 #SBATCH --time=01:00:00         # Time limit hrs:min:sec
 #SBATCH --nodes=1               # Number of nodes
 #SBATCH --ntasks-per-node=1     # Number of cores (CPU)
-#SBATCH --mem=10G               # Memory limit
+#SBATCH --mem=5G               # Memory limit
 #SBATCH --mail-type=FAIL
-#SBATCH --array=1-12078%250
 #SBATCH --mail-user=alexis.bennett@northwestern.edu
-#SBATCH --job-name=summary      # Job name
-#SBATCH --output=/dev/null      # Standard output log
-#SBATCH --error=/dev/null       # Standard error log
-
-# Redirect output and error logs to chr-specific log files
-exec > >(tee -a "$./logs/combine_results_${SLURM_ARRAY_TASK_ID}_out.log")
-exec 2> >(tee -a "$./logs/combine_results_${SLURM_ARRAY_TASK_ID}_err.log" >&2)
+#SBATCH --job-name=combine_results      # Job name
+#SBATCH --output=/logs/combine_results_$j_out.log      # Standard output log
+#SBATCH --error=/logs/combine_results_$j_err.log       # Standard error log
 
 # Log function
 log_message() {
