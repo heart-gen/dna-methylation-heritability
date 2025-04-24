@@ -11,8 +11,6 @@ suppressPackageStartupMessages({
 args <- commandArgs(trailingOnly = TRUE)
 chr  <- args[1]
 
-##here::i_am("testing/caudate/_h/01.sd_test.R")
-
 ## Function
 get_top_meth <- function(BSobj, v) {
     # get top 1M variable CpG
