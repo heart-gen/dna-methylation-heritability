@@ -1,6 +1,13 @@
 # GREML Heritability Testing
 
-Directory for data preprocessing and GCTA heritability testing in the caudate.
+This project aims to quantify environmental and genetic
+contributions to DNA methylation in an African genetic ancestry (AA) cohort. 
+To this end, we developed a comprehensive pipeline to prepare publicly
+available whole genome bisulfite sequencing (WGBS), genotype, and ancestry data 
+and subsequently apply a genomic restricted maximum likelihood (GREML) mixed model 
+to estimate SNP heritability in the caudate nucleus. This pipeline leverages 
+the Genome-wide Complex Trait Ananlyis [`(GCTA)`](https://github.com/jianyangqt/gcta) 
+software for heritability testing.  
 
 ---
 
@@ -84,8 +91,10 @@ Directory for data preprocessing and GCTA heritability testing in the caudate.
     - `chr_*/`
         - `stats.rda`
 - `TOPMed_LIBD.AA.psam`
-- `vmr_list.txt`: Tab-delimited file with 3 columns (chr, start, end) including all regions of interest
-
+- `vmr_list.txt`: Tab-delimited file with 3 columns (chr, start, end)
+                  detailing all regions of interest
+  
+Ex.
 |chr|start                        |end   |
 |---|-----------------------------|------|
 |1  |100565718                    |100569135|
