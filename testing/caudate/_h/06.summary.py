@@ -5,16 +5,20 @@ import argparse
 import session_info
 
 def process_hsq_file(input, chr, start_pos, end_pos, output):
-    # Read in .hsq file
+
+                                        # read in .hsq file
     df = pd.read_csv(input, sep='\t', header=None, 
                      names=['source', 'variance', 'standard_error'])
+
+                                        # extract results of interest
     extracted_data = pd.concat([
         df.iloc[1:12, -2:],
         df.iloc[16:17, [1]]
     ])
     transposed_data = extracted_data.values.flatten()
 
-    # Add Chromosome, start position, and end position as the first columns
+                                        # add chr, start pos, end pos 
+                                        # as the first columns
     greml = [chr, start_pos, end_pos] + list(transposed_data)
     greml_df = pd.DataFrame(
             [greml],
@@ -34,12 +38,17 @@ def process_hsq_file(input, chr, start_pos, end_pos, output):
                 'Pval', 'n'
             ]
         )
+
+                                        # write to csv
     out_hsq = f'greml_{start_pos}_{end_pos}.csv'
     greml_df.to_csv(os.path.join(output, out_hsq), sep='\t', index=False)
 
     return greml_df
 
 def main():
+
+                                        # define parser for chr, start_pos
+                                        # and end_pos inputs
     parser = argparse.ArgumentParser(
         description='Write GREML results to csv for each region')
     parser.add_argument('--chr', required=True)
@@ -48,11 +57,18 @@ def main():
     args = parser.parse_args()
     
     input = here('testing', 'caudate', '_m', 'h2', f'chr_{args.chr}', f'TOPMed_LIBD.AA.{args.start_pos}_{args.end_pos}.hsq')
+
+                                        # define output directory
     output = here('testing', 'caudate', '_m', 'summary', f'chr_{args.chr}')
+
+                                        # create output directory if it 
+                                        # doesn't exist
     os.makedirs(output, exist_ok=True)
 
     greml_df = process_hsq_file(input, args.chr, args.start_pos, 
                                  args.end_pos, output)
+
+                                        # reproducibility information
     session_info.show()
 
 if __name__ == '__main__':
