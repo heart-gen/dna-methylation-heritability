@@ -15,8 +15,6 @@ suppressPackageStartupMessages({
 args <- commandArgs(trailingOnly = TRUE)
 chr  <- args[1]
 
-##here::i_am("testing/caudate/_h/01.sd_test.R")
-##setwd(here("testing/caudate/_h"))
 ## Function
 change_file_path <- function(BSobj, raw_assays) {
     var <- c("M", "Cov", "coef")

@@ -19,7 +19,6 @@ chr       <- paste0("chr", chr_num)
 start_pos <- as.integer(args[2])
 end_pos   <- as.integer(args[3])
 
-#here::i_am("testing/caudate/_h/03.cal_vmr.R")
 ## Function
 calc_vmr_meth <- function(BSobj, chr, start_pos, end_pos) {
   reg      <- GRanges(seqnames = chr, 
