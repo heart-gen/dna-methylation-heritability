@@ -5,6 +5,7 @@ suppressPackageStartupMessages({
     library(ggplot2)
 })
 
+                                        # get loci from command line
 args      <- commandArgs(trailingOnly = TRUE)
 chr_num   <- args[1]
 chr       <- paste0("chr", chr_num)
@@ -48,6 +49,9 @@ extract_snps <- function(lds_seg, snp_groups, out_ld, start, end) {
 }
 
 plot_ld <- function(lds_seg, quartiles, chr_num, out_ld) {
+    
+                                        # create output dir if it
+                                        # doesn't exist
     hist_dir <- file.path(out_ld, "hist")
     if (!dir.exists(hist_dir)) {
       dir.create(hist_dir)
@@ -61,6 +65,7 @@ plot_ld <- function(lds_seg, quartiles, chr_num, out_ld) {
         labs(title = paste("Chr:", chr_num, ":", start, ":", end, "SNP LD Scores"),
             x = "SNP LD Score", y = "Frequency")
 
+                                        # write plot to file
     pdf(file=file.path(hist_dir, paste0(start, "_", end, "_ld_hist.pdf")))
     print(hist)
     dev.off()
@@ -68,7 +73,8 @@ plot_ld <- function(lds_seg, quartiles, chr_num, out_ld) {
 }
 
 ## Main
-# Load LD scores generated from gcta
+
+                                        # load LD scores from GCTA
 lds_seg = read.table(
   here("testing/caudate/_m/h2", 
       paste0("chr_", chr_num, "/TOPMed_LIBD.AA.", start, "_", end, ".score.ld")),
@@ -77,13 +83,13 @@ lds_seg = read.table(
 )
 out_ld <- here("testing/caudate/_m/h2", paste0("chr_", chr_num))
 
-# Stratify snps based on LD scores
+                                        # stratify SNPs based on LD
 groups <- get_snp_groups(lds_seg)
 
-# Extract each group of snps and write to text file
+                                        # write SNP groups to file
 snps <- extract_snps(lds_seg, groups$snp_groups, out_ld, start, end)
 
-# Plot histogram 
+                                        # plot histogram of LD scores
 hist <- plot_ld(lds_seg, groups$quartiles, chr_num, out_ld)
 
 #### Reproducibility information ####

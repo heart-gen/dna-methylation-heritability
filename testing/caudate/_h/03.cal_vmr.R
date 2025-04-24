@@ -13,6 +13,7 @@ suppressPackageStartupMessages({
     library(here)
 })
 
+                                        # get loci from command line
 args      <- commandArgs(trailingOnly = TRUE)
 chr_num   <- args[1]
 chr       <- paste0("chr", chr_num)
@@ -37,9 +38,10 @@ write_meth_to_phen <- function(BSobj, M, samples, out_phen) {
 
                                         # add sample IDs to methylation matrix
     sample_ids <- colData(BSobj)$brnum
-    meth_df <- data.frame(FID = sample_ids, t(M))
+    meth_df    <- data.frame(FID = sample_ids, t(M))
 
-                                        # merge methylation data and sample ids by FID
+                                        # merge methylation data and 
+                                        # sample ids by FID
     meth_merged <- meth_df %>%
         inner_join(samples, by = "FID") %>%
         arrange(match(FID, samples$FID)) %>%
@@ -52,21 +54,23 @@ write_meth_to_phen <- function(BSobj, M, samples, out_phen) {
 }
 
 ## Main
-# load raw DNAm
+
+                                        # load raw DNAm
 load(here("testing/caudate/_m/cpg", paste0("chr_", chr_num, "/stats.rda")))
 output_path <- here("testing/caudate/_m/vmr", paste0("chr_", chr_num))
 
-# extract methylation values for each VMR
+                                        # calculate DNAm for each VMR
 meth_reg <- calc_vmr_meth(BSobj, chr, start_pos, end_pos)
-  
-# read in FID, IID from sample file
+
+                                        # read FID, IID from sample file
 psam_file <- here("inputs/genotypes/TOPMed_LIBD.AA.psam")
 samples   <- extract_fid_iid(psam_file)
 
-# merge methylation values with FID and
-# IID and write to .phen file
+                                        # merge DNAm with FID, IID
 out_phen    <- file.path(output_path, 
                          paste0(start_pos, "_", end_pos, "_meth.phen"))
+
+                                        # write to .phen file
 meth_merged <- write_meth_to_phen(BSobj, meth_reg, samples, out_phen)
 
 #### Reproducibility information ####
