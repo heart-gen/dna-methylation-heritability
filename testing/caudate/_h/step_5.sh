@@ -78,7 +78,7 @@ fi
 
 # Make GRM for each group
 for i in {1..4} ; do
-    gcta64 --bfile $WORKING/plink_format/chr_${CHR}/TOPMed_LIBD.AA.${START}_${END} \
+    gcta64 --bfile $WORKING/plink_format/chr_${CHR}/subset_TOPMed_LIBD.AA.${START}_${END} \
            --extract $CHR_DIR/${START}_${END}_snp_group_${i}.txt \
            --make-grm \
            --out $CHR_DIR/TOPMed_LIBD.AA.${START}_${END}_group_${i}
