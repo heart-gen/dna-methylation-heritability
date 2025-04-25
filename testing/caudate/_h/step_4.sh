@@ -14,11 +14,12 @@
 
 ## Edit with your job command
 REGION_LIST="./vmr_list.txt"
+SAMPLE_LIST="./samples.txt"
 CHR_FILE="/projects/b1213/resources/genomes/human/gencode-v47/fasta/chromosome_sizes.txt"
 DATA="/projects/p32505/projects/dna-methylation-heritability/inputs/genotypes"
 OUTPUT="./plink_format"
 
-# Get the current sample name from the sample list
+# Get the current region name from the region list
 REGION=$(sed -n "${SLURM_ARRAY_TASK_ID}p" $REGION_LIST)
 CHR=$(echo "$REGION" | awk '{print $1}')
 START=$(echo "$REGION" | awk '{print $2}')
@@ -71,7 +72,7 @@ if (( END_POS >= CHR_SIZE )); then
     echo "ERROR: End position exceeds Chromosome $CHR size."
 fi
 
-echo "Extracting SNPs on $CHR: $START_POS-$END_POS"
+echo "Extracting SNPs from all subjects on $CHR: $START_POS-$END_POS"
 
 plink2 --pfile "$DATA/TOPMed_LIBD.AA" \
        --chr "$CHR" \
@@ -79,3 +80,14 @@ plink2 --pfile "$DATA/TOPMed_LIBD.AA" \
        --to-bp "$END_POS" \
        --make-bed \
        --out "$CHR_DIR/TOPMed_LIBD.AA.${START}_${END}"
+
+echo "Extracting SNPs from AA subjects on $CHR: $START_POS-$END_POS"
+
+# Subset of SNPs in AA cohort
+plink2 --pfile "$DATA/TOPMed_LIBD.AA" \
+       --chr "$CHR" \
+       --from-bp "$START_POS" \
+       --to-bp "$END_POS" \
+       --keep "$SAMPLE_LIST" \
+       --make-bed \
+       --out "$CHR_DIR/subset_TOPMed_LIBD.AA.${START}_${END}"
