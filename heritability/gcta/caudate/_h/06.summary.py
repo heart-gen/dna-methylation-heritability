@@ -51,15 +51,15 @@ def main():
                                         # and end_pos inputs
     parser = argparse.ArgumentParser(
         description='Write GREML results to csv for each region')
-    parser.add_argument('--chr', required=True)
-    parser.add_argument('--start_pos', required=True)
-    parser.add_argument('--end_pos', required=True)
+    parser.add_argument('--chr', type=int, required=True)
+    parser.add_argument('--start_pos', type=int, required=True)
+    parser.add_argument('--end_pos', type=int, required=True)
     args = parser.parse_args()
     
-    input = here('testing', 'caudate', '_m', 'h2', f'chr_{args.chr}', f'TOPMed_LIBD.AA.{args.start_pos}_{args.end_pos}.hsq')
+    input = here('heritability', 'gcta', 'caudate', '_m', 'h2', f'chr_{args.chr}', f'TOPMed_LIBD.AA.{args.start_pos}_{args.end_pos}.hsq')
 
                                         # define output directory
-    output = here('testing', 'caudate', '_m', 'summary', f'chr_{args.chr}')
+    output = here('heritability', 'gcta', 'caudate', '_m', 'summary', f'chr_{args.chr}')
 
                                         # create output directory if it 
                                         # doesn't exist

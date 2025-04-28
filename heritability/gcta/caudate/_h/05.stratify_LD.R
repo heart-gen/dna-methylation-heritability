@@ -76,12 +76,12 @@ plot_ld <- function(lds_seg, quartiles, chr_num, out_ld) {
 
                                         # load LD scores from GCTA
 lds_seg = read.table(
-  here("testing/caudate/_m/h2", 
+  here("heritability/gcta/caudate/_m/h2", 
       paste0("chr_", chr_num, "/TOPMed_LIBD.AA.", start, "_", end, ".score.ld")),
   header = TRUE,
   colClasses = c("character", rep("numeric", 8))
 )
-out_ld <- here("testing/caudate/_m/h2", paste0("chr_", chr_num))
+out_ld <- here("heritability/gcta/caudate/_m/h2", paste0("chr_", chr_num))
 
                                         # stratify SNPs based on LD
 groups <- get_snp_groups(lds_seg)

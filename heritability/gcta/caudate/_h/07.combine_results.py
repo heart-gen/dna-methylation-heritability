@@ -21,8 +21,8 @@ def merge_csv(input_dir, output_dir):
     combined_csv.to_csv(os.path.join(output_dir, 'greml_summary.csv'), 
                         sep=',', index=False)
 
-input_dir = here('testing', 'caudate', '_m', 'summary')
-output_dir = here('testing', 'caudate', '_m', 'summary')
+input_dir = here('heritability', 'gcta', '_m', 'summary')
+output_dir = here('heritability', 'gcta', '_m', 'summary')
 merge_csv(input_dir, output_dir)
 
 session_info.show()
