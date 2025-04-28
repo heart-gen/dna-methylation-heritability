@@ -10,35 +10,40 @@ def process_hsq_file(input, chr, start_pos, end_pos, output):
     df = pd.read_csv(input, sep='\t', header=None, 
                      names=['source', 'variance', 'standard_error'])
 
-                                        # extract results of interest
-    extracted_data = pd.concat([
-        df.iloc[1:12, -2:],
-        df.iloc[16:17, [1]]
-    ])
-    transposed_data = extracted_data.values.flatten()
+                                        # exclude header names from output
+    df = df[~df['source'].str.contains('^Source$', case=False, na=False)]
+
+                                        # extract results with only one col
+    one_col = {'logL', 'logL0', 'LRT', 'df', 'Pval', 'n'}
+    df1 = df[~df['source'].isin(one_col)]
+    df2 = df[df['source'].isin(one_col)]
+
+    column_names = []
+    extracted_data = []
+
+                                        # extract results with both cols
+    for _, values in df1.iterrows():
+        variable_name = values['source']
+        variance = f'Variance_{variable_name.replace("/", "_")}'
+        se = f'SE_{variable_name.replace("/", "_")}'
+        column_names.extend([variance, se])
+        extracted_data.extend([values['variance'], values['standard_error']])
+
+                                        # add one col data
+    one_col_val = {}
+    for var in one_col:
+        match = df2[df2['source'] == var]
+        one_col_val[var] = match.iloc[0, 1] if not match.empty else None
+        column_names.append(var)
+        extracted_data.append(one_col_val[var])
 
                                         # add chr, start pos, end pos 
                                         # as the first columns
-    greml = [chr, start_pos, end_pos] + list(transposed_data)
+    greml = [chr, start_pos, end_pos] + extracted_data
     greml_df = pd.DataFrame(
             [greml],
-            columns=[
-                'Chr', 'Start_Pos', 'End_Pos',
-                'Variance_Vg1', 'SE_Vg1',
-                'Variance_Vg2', 'SE_Vg2',
-                'Variance_Vg3', 'SE_Vg3',
-                'Variance_Vg4', 'SE_Vg4',
-                'Variance_Ve', 'SE_Ve',
-                'Variance_Vp', 'SE_Vp',
-                'Variance_Vg1_Vp', 'SE_Vg1_Vp',
-                'Variance_Vg2_Vp', 'SE_Vg2_Vp',
-                'Variance_Vg3_Vp', 'SE_Vg3_Vp',
-                'Variance_Vg4_Vp', 'SE_Vg4_Vp',
-                'Variance_Sum_Vg_Vp', 'SE_Sum_Vg_Vp',
-                'Pval', 'n'
-            ]
+            columns=['Chr', 'Start_Pos', 'End_Pos'] + column_names
         )
-
                                         # write to csv
     out_hsq = f'greml_{start_pos}_{end_pos}.csv'
     greml_df.to_csv(os.path.join(output, out_hsq), sep='\t', index=False)
