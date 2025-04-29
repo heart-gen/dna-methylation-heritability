@@ -1,33 +1,14 @@
 #!/bin/bash
 #SBATCH --account=p32505        # Replace with your allocation
 #SBATCH --partition=short       # Partition (queue) name
-#SBATCH --time=01:00:00         # Time limit hrs:min:sec
+#SBATCH --time=00:05:00         # Time limit hrs:min:sec
 #SBATCH --nodes=1               # Number of nodes
 #SBATCH --ntasks-per-node=1     # Number of cores (CPU)
-#SBATCH --mem=10G               # Memory limit
+#SBATCH --mem=5G                # Memory limit
 #SBATCH --mail-type=FAIL
-#SBATCH --array=1-12078%250
 #SBATCH --mail-user=alexis.bennett@northwestern.edu
-#SBATCH --job-name=summary      # Job name
-#SBATCH --output=/dev/null      # Standard output log
-#SBATCH --error=/dev/null       # Standard error log
-
-## Edit with your job command
-REGION_LIST="./vmr_list.txt"
-
-# Get the current sample name from the sample list
-REGION=$(sed -n "${SLURM_ARRAY_TASK_ID}p" $REGION_LIST)
-CHR=$(echo "$REGION" | awk '{print $1}')
-START=$(echo "$REGION" | awk '{print $2}')
-END=$(echo "$REGION" | awk '{print $3}')
-
-# Create directories for each chr
-LOG_DIR="logs/chr_${CHR}"
-mkdir -p "$LOG_DIR"
-
-# Redirect output and error logs to chr-specific log files
-exec > >(tee -a "$LOG_DIR/summary_${SLURM_ARRAY_TASK_ID}_out.log")
-exec 2> >(tee -a "$LOG_DIR/summary_${SLURM_ARRAY_TASK_ID}_err.log" >&2)
+#SBATCH --job-name=greml_summary # Job name
+#SBATCH --output=logs/output.%j.log # Standard output log
 
 # Log function
 log_message() {
@@ -42,27 +23,18 @@ echo "Job id: ${SLURM_JOBID}"
 echo "Job name: ${SLURM_JOB_NAME}"
 echo "Node name: ${SLURM_NODENAME}"
 echo "Hostname: ${HOSTNAME}"
-echo "Task id: ${SLURM_ARRAY_TASK_ID}"
+echo "Task id: ${SLURM_ARRAY_TASK_ID:-N/A}"
 
 ## List current modules for reproducibility
 
 module purge
-module list 
+module list
 
 # Set path variables
-ENV_PATH="/projects/p32505/opt/env"
-
-echo "Writing GREML results for Chromosome "$CHR:$START-$END 
+log_message "Combining all GREML results"
 
 ## Activate conda environment
-conda run -p $ENV_PATH/AI_env python ../_h/06.summary.py \
-    --chr "$CHR" \
-    --start_pos "$START" \
-    --end_pos "$END"
-
-if [ $? -ne 0 ]; then
-    log_message "Error: Conda or script execution failed"
-    exit 1
-fi
+cat <(head -n 1 ./summary/chr_1/greml_100944974_100948292.csv ) \
+    <(tail -n +2 -q ./summary/chr_*/*.csv | sort -g -k1 -) > greml_summary.tsv
 
 log_message "**** Job ends ****"
