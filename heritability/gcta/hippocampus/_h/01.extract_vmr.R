@@ -27,7 +27,7 @@ change_file_path <- function(BSobj, raw_assays) {
 filter_pheno <- function(BSobj, pheno_file_path) {
     pheno <- read.csv(pheno_file_path, header = TRUE)
     pheno_filtered <- pheno %>%
-        filter(Race == "AA", Age >= 17, Region == "hippocampus")
+        filter(Race == "AA", Age >= 17, Region == "HIPPO")
     id    <- intersect(pheno_filtered$BrNum, colData(BSobj)$brnum)
     BSobj <- BSobj[, colData(BSobj)$brnum %in% id]
     return(list(BSobj = BSobj, pheno = pheno_filtered, id = id))
@@ -113,7 +113,8 @@ write_covar <- function(BSobj, pheno, id, meth_merged, out_covs) {
 
 ## Main
                                         # load data
-load(here("inputs/wgbs-data/hippocampus", paste0("hippocampus_chr", chr, "_BSobj.rda")))
+load(here("inputs/wgbs-data/hippocampus", 
+          paste0("Hippocampus_chr", chr, "BSobj_Genotypes.rda")))
 output_path <- here("heritability", "gcta", "hippocampus", "_m")
 subdirs <- c("vmr", "covs", "cpg")
 
