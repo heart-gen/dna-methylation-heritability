@@ -1,23 +1,9 @@
 import session_info
 import pandas as pd
-from glob import glob
-
-import os
-import argparse
 from pyhere import here
-
-def read_hsq_file(fn):
-    return pd.read_csv(fn, sep="\t")
-
-
-def merge_data():
-    basepath = "/projects/p32505/users/alexis/projects/" +\
-        "dna-methylation-heritability/heritability/gcta/caudate/_m"
-    dt = pd.DataFrame()
-    for fn in iglob(f"{basepath}/summary/chr_*/*csv"):
-        dt = pd.concat([dt, read_hsq_file(fn)], axis=0)
-    return dt
-
+import os
+import re
+from pathlib import Path
 
 def process_hsq_file(filename):
     greml_df = pd.read_csv(filename, sep="\t")\
@@ -25,25 +11,44 @@ def process_hsq_file(filename):
                        var_name="Stat", value_name="Value")\
                  .pivot_table(index=None, columns=["Source", "Stat"],
                               values="Value").dropna(axis=1)
-    greml_df.columns = [f"{src.replace('/', '_')}_{stat}" for src, stat in df.columns]
-    return df
-
+    greml_df.columns = [f"{src.replace('/', '_')}_{stat}" for src, stat in greml_df.columns]
+    return greml_df
 
 def main():
     ## Main
-    basepath = Path("../_m/") / "h2"
-    dt = pd.DataFrame()
-    for fn in basepath.glob("*/*hsq"):
-        greml_df = process_hsq_file(fn)
-        # extract chromsome from filename
-        # Extract start and end from filename
-        # Add to data frame
-        dt = pd.concat([dt, greml_df], axis=0)
+    basepath = here("heritability", "gcta", "caudate", "_m", "h2")
+    output_path = here("heritability", "gcta", "caudate", "_m", "summary")
+    output_path.mkdir(exist_ok=True)
 
+    dt = pd.DataFrame()
+    pattern = re.compile(r"chr_(\d+)/TOPMed_LIBD\.AA\.(\d+)_(\d+)\.hsq")
+    for fn in Path(basepath).glob("*/*hsq"):
+        greml_df = process_hsq_file(fn)
+
+        # extract chromosome and position from filename
+        match = pattern.search(str(fn))
+        if match:
+            chrom, start, end = match.groups()
+            greml_df["chr"] = chrom
+            greml_df["start"] = start
+            greml_df["end"] = end
+        else:
+            print(f"Filename pattern not matched: {fn}")
+            continue
+
+        # Move chr, start, end to the beginning of df
+        cols = ["chr", "start", "end"] + [col for col in greml_df.columns if col not in ["chr", "start", "end"]]
+        greml_df = greml_df[cols]
+
+        # Add to data frame and sort
+        dt = pd.concat([dt, greml_df], axis=0)
+        dt = dt.astype({"chr": int}).sort_values(by=["chr", "start", "end"])
+    
     ## Save
+    dt.to_csv(os.path.join(output_path, "greml_summary.tsv"), sep='\t', index=False)
+
     ## Session information
     session_info.show()
-
 
 if __name__ == '__main__':
     main()
