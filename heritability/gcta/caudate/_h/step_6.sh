@@ -31,10 +31,16 @@ module purge
 module list
 
 # Set path variables
+ENV_PATH="/projects/p32505/opt/env"
+
 log_message "Combining all GREML results"
 
 ## Activate conda environment
-cat <(head -n 1 ./summary/chr_1/greml_100944974_100948292.csv ) \
-    <(tail -n +2 -q ./summary/chr_*/*.csv | sort -g -k1 -) > greml_summary.tsv
+conda run -p $ENV_PATH/AI_env python ../_h/06.summary.py
+
+if [ $? -ne 0 ]; then
+    log_message "Error: Conda or script execution failed"
+    exit 1
+fi
 
 log_message "**** Job ends ****"
