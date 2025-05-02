@@ -5,9 +5,9 @@ contributions to DNA methylation in an African genetic ancestry (AA) cohort.
 To this end, we developed a comprehensive pipeline to prepare publicly
 available whole genome bisulfite sequencing (WGBS), genotype, and ancestry data 
 and subsequently apply a genomic restricted maximum likelihood (GREML) mixed model 
-to estimate SNP heritability in the caudate nucleus. This pipeline leverages 
-the Genome-wide Complex Trait Ananlyis [`(GCTA)`](https://github.com/jianyangqt/gcta) 
-software for heritability testing.  
+to estimate SNP heritability in the caudate nucleus, dorsolateral prefrontal cortext 
+(DLPFC), and the hippocampus. This pipeline leverages the Genome-wide Complex Trait 
+Ananlyis [`(GCTA)`](https://github.com/jianyangqt/gcta) software for heritability testing.  
 
 ---
 
@@ -32,7 +32,7 @@ software for heritability testing.
 - Write covariate files 
 
 **Inputs:**
-- `Caudate_chr*_BSobj.rda`
+- `BSobj.rda`
 - `merged_phenotypes.csv`
 - `TOPMed_LIBD.AA.psam`
 
@@ -118,6 +118,7 @@ Generated using `cat ./chr_*/vmr.bed | sort -k1,1n > vmr_list.txt`
 
 **Overview:**
 - Use Plink to extract SNPs 500 kb around each VMR
+- Extract subset for samples used in study
 - Check for potential window selection errors 
 
 **Inputs:**
@@ -126,6 +127,7 @@ Generated using `cat ./chr_*/vmr.bed | sort -k1,1n > vmr_list.txt`
 - `TOPMed_LIBD.AA.pvar`
 - `chromosome_sizes.txt`
 - `vmr_list.txt`
+- `samples.txt`
 
 **Generated Output Files:**
 - `plink_format/`
@@ -150,6 +152,7 @@ Generated using `cat ./chr_*/vmr.bed | sort -k1,1n > vmr_list.txt`
 - `plink_format/`
     - `chr_*/`
         - `TOPMed_LIBD.AA.${START}_${END}`
+        - `subset_TOPMed_LIBD.AA.${START}_${END}`
 - `covs/`
     - `chr_*/`
         - `TOPMed_LIBD.AA.covar`
@@ -181,21 +184,16 @@ Generated using `cat ./chr_*/vmr.bed | sort -k1,1n > vmr_list.txt`
 ### Script `06.summary.py`
 
 **Overview:**
-- Write GCTA output to .csv files
-- Compile results for all regions
+- Compile results for all regions and write to .tsv file
 
 **Inputs:**
-- `vmr_list.txt`
 - `h2/`
     - `chr_*/`
         - `TOPMed_LIBD.AA.${START}_${END}.hsq`
 
 **Generated Output Files:**
-- `h2/`
-    - `chr_*/`
-        - `TOPMed_LIBD.AA.${START}_${END}.csv`
 - `summary/`
-    - `TOPMed_LIBD.AA.csv`
+    - `greml_summary.tsv`
 
  **Submission:**
  `sbatch ../_h/step_6.sh`
