@@ -16,14 +16,6 @@ args <- commandArgs(trailingOnly = TRUE)
 chr  <- args[1]
 
 ## Function
-change_file_path <- function(BSobj, raw_assays) {
-    var <- c("M", "Cov", "coef")
-    for (assay in var) {
-        BSobj@assays@data@listData[[assay]]@seed@seed@filepath <- raw_assays
-    }
-    return(BSobj)
-}
-
 filter_pheno <- function(BSobj, pheno_file_path) {
     pheno <- read.csv(pheno_file_path, header = TRUE)
     pheno_filtered <- pheno %>%
@@ -131,10 +123,6 @@ for (subdir in subdirs) {
 out_vmr   <- file.path(output_path, "vmr",   paste0("chr_", chr))
 out_covs  <- file.path(output_path, "covs",  paste0("chr_", chr))
 out_cpg   <- file.path(output_path, "cpg", paste0("chr_", chr))
-
-                                        # change file path for raw data
-raw_assays  <- here("inputs/wgbs-data/hippocampus/raw/CpGassays.h5")
-BSobj       <- change_file_path(BSobj, raw_assays)
 
                                         # keep only adult AA
 pheno_file_path <- here("inputs/phenotypes/merged/_m/merged_phenotypes.csv")
