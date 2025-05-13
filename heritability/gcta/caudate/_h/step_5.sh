@@ -58,7 +58,7 @@ module purge
 module load gcta/1.94.0
 module list
 
-echo "Perfoming GREML analysis on $CHR: $START-$END"
+echo "Performing GREML analysis on $CHR: $START-$END"
 
 ##### GREML-LDMS #####
 
