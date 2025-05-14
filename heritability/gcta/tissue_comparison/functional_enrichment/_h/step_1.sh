@@ -33,7 +33,7 @@ module list
 # Set path variables
 ENV_PATH="/projects/p32505/opt/env"
 
-log_message "Performing GO and KEGG enrichment for each brain region"
+log_message "Performing GO enrichment for each brain region"
 
 ## Activate conda environment
 conda run -p $ENV_PATH/R_env Rscript ../_h/01.get_enrichment.R
