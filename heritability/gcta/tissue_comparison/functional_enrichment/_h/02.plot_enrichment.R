@@ -1,18 +1,20 @@
-##### Generates plots for GO and KEGG enrichment analysis. #####
+##### Generates plots for GO enrichment analysis. #####
 suppressPackageStartupMessages({
     library(dplyr)
     library(ggplot2)
+    library(here)
 })
 
 save_plot <- function(p, fn, w, h){
-    for(ext in c('.svg', '.pdf')){
+    for(ext in c('.png', '.pdf')){
         ggsave(file=paste0(fn,ext), plot=p, width=w, height=h)
     }
 }
 
 get_top_GO <- function(tissue){
     err <- 1e-15
-    fn  <- paste0(tolower(tissue), "_dmr_rgreat.csv")
+    fn  <- here("heritability/gcta/tissue_comparison/functional_enrichment/_m", 
+                paste0(tolower(tissue), "_heritable_h2_pval_GO.csv"))
     return(data.table::fread(fn) |>
            filter(stringr::str_detect(id, "^GO")) |>
            arrange(p_value) |> head(10) |>
@@ -30,7 +32,7 @@ generate_dataframe <- function(){
 
 plot_GO <- function(){
     dt <- generate_dataframe()
-    cbPalette <- ggpubr::get_palette(palette = "npg", 4)
+    cbPalette <- brewer.pal(4, "Set1")
     gg1 = ggplot(dt, aes(x=Log10, y=description, color=Tissue,
                          size=fold_enrichment)) +
         geom_point(shape=18, alpha=0.8) +
@@ -46,7 +48,8 @@ plot_GO <- function(){
 
 #### MAIN
 gg = plot_GO()
-save_plot(gg, "ancestry_DMRs.local.GO.stacked", 14, 6)
+fn = here("heritability/gcta/tissue_comparison/functional_enrichment/_m/heritable_VMRs.GO.stacked")
+save_plot(gg, fn, 14, 6)
 
 #### Reproducibility information
 Sys.time()

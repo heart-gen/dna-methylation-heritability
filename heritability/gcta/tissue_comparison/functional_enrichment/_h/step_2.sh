@@ -33,7 +33,7 @@ module list
 # Set path variables
 ENV_PATH="/projects/p32505/opt/env"
 
-log_message "Plotting GO and KEGG enrichment for each brain region"
+log_message "Plotting GO enrichment for each brain region"
 
 ## Activate conda environment
 conda run -p $ENV_PATH/R_env Rscript ../_h/02.plot_enrichment.R
@@ -43,3 +43,4 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+log_message "**** Job ends ****"
