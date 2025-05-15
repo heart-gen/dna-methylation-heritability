@@ -9,13 +9,15 @@ import os
 
 pipeline_steps = {
     "extract_snp": {
-        "region": re.compile(r'on ([0-9XY]+): ([0-9]+)-([0-9]+)'),
+        "region": re.compile(r'on\s+([0-9XY]+):\s*([0-9]+)-([0-9]+)', re.IGNORECASE),
         "error": [
-            re.compile(r'No variants remaining after main filters', re.IGNORECASE)
+            re.compile(r'No variants remaining after main filters', re.IGNORECASE),
+            re.compile(r'Start position is below zero', re.IGNORECASE),
+            re.compile(r'End position exceeds Chromosome [0-9XY]+ size', re.IGNORECASE)
         ]
     },
     "greml": {
-        "region": re.compile(r'Performing GREML analysis on ([0-9XY]+): ([0-9]+)-([0-9]+)', re.IGNORECASE),
+        "region": re.compile(r'Perfoming GREML analysis on ([0-9XY]+): ([0-9]+)-([0-9]+)', re.IGNORECASE),
         "error": [
             re.compile(r'analysis stopped because more than half of the variance components are constrained', re.IGNORECASE),
             re.compile(r'\.fam not found', re.IGNORECASE),
@@ -43,6 +45,8 @@ for filepath in log_files:
 
     # Get stage based on filename
     stage = next((step for step in pipeline_steps if step in filename), None)
+    if stage is None:
+        continue 
 
     step_conf = pipeline_steps[stage]
     region_regex = step_conf["region"]
@@ -57,7 +61,6 @@ for filepath in log_files:
             region_match = region_regex.search(line)
             if region_match:
                 chr_val = f"chr{region_match.group(1)}"
-                print(f"Matched region: {region_match.groups()} in file {filename}")
                 if len(region_match.groups()) == 3:
                     start = region_match.group(2)
                     end = region_match.group(3)
@@ -69,17 +72,28 @@ for filepath in log_files:
             for err_re in error_regexes:
                 if err_re.search(line):
                     error_msgs.append(line.strip())
-                    print(f"Matched error: {line.strip()} in file {filename}")
                     break  # stop after first matched error per line
+        # --- Attempt to get region from related *_out.log if this is *_err.log ---
+    if not regions and "err" in filename:
+        match_out_file = filepath.replace("_err.log", "_out.log")
+        if os.path.exists(match_out_file):
+            with open(match_out_file) as f:
+                for line in f:
+                    region_match = region_regex.search(line)
+                    if region_match:
+                        chr_val = f"chr{region_match.group(1)}"
+                        start = region_match.group(2)
+                        end = region_match.group(3)
+                        regions.add((chr_val, start, end))
 
-    # If there are error messages, save them
+    # Save error messages
     if error_msgs:
         if regions:
             for chr_val, start, end in regions:
                 for err in error_msgs:
                     errors_by_stage_chr[(stage, chr_val)].add((start, end, err))
         else:
-            # Try to infer chromosome from filename
+            # Get chromosome from filename
             chr_match = re.search(r'chr[_\-]?([0-9XY]+)', filepath, re.IGNORECASE)
             chr_val = f"chr{chr_match.group(1)}" if chr_match else "chrNA"
             for err in error_msgs:
@@ -98,6 +112,6 @@ with open("summary/pipeline_errors.tsv", "w") as out:
 print("Summary of errors per stage and chromosome:\n")
 print("Stage\tChromosome\t# Regions with Errors")
 
-# Now include all stages in the summary print
+# Summary print
 for (stage, chr_val), entries in sorted(errors_by_stage_chr.items()):
     print(f"{stage}\t{chr_val}\t{len(entries)}")
