@@ -4,6 +4,9 @@ suppressPackageStartupMessages({
     library(here)
     library(dplyr)
     library(purrr)
+    library(KEGGREST)
+    library(reactome.db)
+    library(UniProtKeywords)
 })
 
 # Function
@@ -15,7 +18,10 @@ filter_heritability <- function(tissue,
     vmr <- read.table(here("heritability/gcta/",
                            paste0(tissue, "/_m/summary/greml_summary.tsv")),
                      sep = "\t", header = TRUE)
-
+    
+    # Apply FDR correction
+    vmr$Pval_Variance <- p.adjust(vmr$Pval_Variance, method = "fdr")
+    
     # Filter by heritability
     if (apply_h2_filter) {
         top_10  <- quantile(vmr$Sum.of.V.G._Vp_Variance, 0.90, na.rm = TRUE)
@@ -42,14 +48,32 @@ filter_heritability <- function(tissue,
 get_enrichment <- function(vmr_filtered, tissue, filter_label) {
     colnames(vmr_filtered) <- c("seqnames", "start", "end")
     vmr <- plyranges::as_granges(vmr_filtered)
-    res <- great(vmr, "GO:BP", "RefSeq:hg38", background = as.character(1:22))
-    tb  <- getEnrichmentTable(res)
-    write.csv(
-        tb,
-        file = here("heritability/gcta/tissue_comparison/functional_enrichment/_m",
-                    paste0(tissue, "_", filter_label, "_GO.csv")),
-        row.names = FALSE
+    
+    gene_sets <- list(
+      "GO:BP" = "GO:BP",
+      KEGG = split(gsub("hsa:", "", names(keggLink("pathway", "hsa"))),
+                   gsub("path:", "", keggLink("pathway", "hsa"))),
+      reactome = as.list(reactomePATHID2EXTID),
+      uniprot = load_keyword_genesets(9606)
     )
+    
+    for (gs in names(gene_sets)) {
+        message("Running GREAT for ", gs)
+        
+        if (gs == "GO:BP") {
+            res <- great(vmr, gene_sets[[gs]], "RefSeq:hg38", 
+                         background = as.character(1:22))
+        } else {
+            res <- great(vmr, gene_sets = gene_sets[[gs]], "hg38")
+        }
+        tb  <- getEnrichmentTable(res)
+        write.csv(
+          tb,
+          file = here("heritability/gcta/tissue_comparison/functional_enrichment/_m",
+                      paste0(tissue, "_", filter_label, "_", gs, ".csv")),
+          row.names = FALSE
+        )
+    }
 }
 
 # Main
