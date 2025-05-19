@@ -58,9 +58,16 @@ module purge
 module load gcta/1.94.0
 module list
 
-echo "Performing GREML analysis on $CHR: $START-$END"
-
 ##### GREML-LDMS #####
+# Check if SNP data exists
+BFILE="$WORKING/plink_format/chr_${CHR}/TOPMed_LIBD.AA.${START}_${END}"
+
+if [ ! -f "${BFILE}.bed" ] || [ ! -f "${BFILE}.bim" ] || [ ! -f "${BFILE}.fam" ]; then
+    log_message "SNP files for region $CHR:$START-$END not found. Skipping."
+    exit 0
+fi
+
+log_message "Performing GREML analysis on $CHR: $START-$END"
 
 # Calculate SNP LD scores
 gcta64 --bfile $WORKING/plink_format/chr_${CHR}/TOPMed_LIBD.AA.${START}_${END} \
@@ -94,3 +101,5 @@ gcta64 --reml \
        --covar $WORKING/covs/chr_${CHR}/TOPMed_LIBD.AA.covar \
        --qcovar $WORKING/covs/chr_${CHR}/TOPMed_LIBD.AA.qcovar \
        --out $CHR_DIR/TOPMed_LIBD.AA.${START}_${END}
+
+log_message "**** Job ends ****"
