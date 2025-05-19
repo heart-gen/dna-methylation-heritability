@@ -93,3 +93,5 @@ plink2 --pfile "$DATA/TOPMed_LIBD.AA" \
        --keep "$SAMPLE_LIST" \
        --make-bed \
        --out "$CHR_DIR/subset_TOPMed_LIBD.AA.${START}_${END}"
+
+log_message "**** Job ends ****"
