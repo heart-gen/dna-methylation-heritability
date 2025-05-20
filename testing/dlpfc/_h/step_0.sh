@@ -32,17 +32,26 @@ echo "Task id: ${SLURM_ARRAY_TASK_ID}"
 module purge
 module list 
 
-# Set path variables
-ENV_PATH="/projects/p32505/opt/env"
+#!/bin/bash
 
-echo "Working on: Chromosome "$SLURM_ARRAY_TASK_ID
+#SBATCH -q shared
+#SBATCH --mem=25G
+#SBATCH --job-name=BiocMAP
+#SBATCH -o ./run_first_half_jhpce.log
+#SBATCH -e ./run_first_half_jhpce.log
 
-## Activate conda environment
-#source /projects/p32505/opt/miniforge3/etc/profile.d/conda.sh
-conda run -p $ENV_PATH/R_env Rscript ../_h/01.extract_vmr.R $SLURM_ARRAY_TASK_ID
-if [ $? -ne 0 ]; then
-    log_message "Error: Conda or script execution failed"
-    exit 1
-fi
+#  After running 'install_software.sh', this should point to the directory
+#  where BiocMAP was installed, and not say "$PWD"
+ORIG_DIR=$PWD
 
-log_message "**** Job ends ****"
+module load nextflow/20.01.0
+export _JAVA_OPTIONS="-Xms8g -Xmx10g"
+
+nextflow $ORIG_DIR/first_half.nf \
+    --sample "paired" \
+    --reference "hg38" \
+    --input "/users/neagles/wgbs_test" \
+    --output "/users/neagles/wgbs_test/out" \
+    -w "/fastscratch/myscratch/neagles/nextflow_work" \
+    --trim_mode "force" \
+    -profile first_half_jhpce
