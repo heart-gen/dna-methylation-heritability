@@ -9,8 +9,6 @@
 #SBATCH --array=1-22
 #SBATCH --mail-user=elisajohnson2027@u.northwestern.edu
 #SBATCH --job-name=BiocMAP  # Job name
-#SBATCH --output=extract_vmr_%j.log      # Standard output log
-#SBATCH --error=error_%j.log       # Standard error log
 #SBATCH -q shared
 #SBATCH -o ./run_first_half_jhpce.log
 #SBATCH -e ./run_first_half_jhpce.log
