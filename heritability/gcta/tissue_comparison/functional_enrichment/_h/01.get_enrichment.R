@@ -3,6 +3,7 @@ suppressPackageStartupMessages({
     library(rGREAT)
     library(here)
     library(dplyr)
+    library(plyranges)
     library(purrr)
     library(KEGGREST)
     library(reactome.db)
@@ -48,6 +49,7 @@ filter_heritability <- function(tissue,
 get_enrichment <- function(vmr_filtered, tissue, filter_label) {
     colnames(vmr_filtered) <- c("seqnames", "start", "end")
     vmr <- plyranges::as_granges(vmr_filtered)
+    seqlevels(vmr) <- paste0("chr", seqlevels(vmr))
     
     gene_sets <- list(
       "GO:BP" = "GO:BP",
@@ -58,28 +60,24 @@ get_enrichment <- function(vmr_filtered, tissue, filter_label) {
     )
     
     for (gs in names(gene_sets)) {
-        message("Running GREAT for ", gs)
-        
-        if (gs == "GO:BP") {
-            res <- great(vmr, gene_sets[[gs]], "RefSeq:hg38", 
-                         background = as.character(1:22))
-        } else {
-            res <- great(vmr, gene_sets = gene_sets[[gs]], "hg38")
-        }
-        tb  <- getEnrichmentTable(res)
-        write.csv(
-          tb,
-          file = here("heritability/gcta/tissue_comparison/functional_enrichment/_m",
-                      paste0(tissue, "_", filter_label, "_", gs, ".csv")),
-          row.names = FALSE
-        )
+      message("Running GREAT for ", gs)
+      
+      res <- great(vmr, gene_sets[[gs]], "RefSeq:hg38",
+                   background = paste0("chr", 1:22))
+      tb  <- getEnrichmentTable(res)
+      write.csv(
+        tb,
+        file = here("heritability/gcta/tissue_comparison/functional_enrichment/_m",
+                    paste0(tissue, "_", filter_label, "_", gs, ".csv")),
+        row.names = FALSE
+      )
     }
 }
 
 # Main
 tissues              <- c("caudate", "dlpfc", "hippocampus")
 heritability_filters <- c("all", "heritable", "non_heritable")
-pval_filters         <- c("NULL", 0.05)
+pval_filters         <- c("NULL", 0.05, 0.1, 0.25)
 apply_h2_options     <- c(TRUE, FALSE)
 
 # Create all possible combinations
@@ -103,7 +101,7 @@ filter_grid <- expand.grid(
             parts <- c(parts, "h2")
         }
         if (pval != "NULL") {
-            parts <- c(parts, "pval")
+            parts <- c(parts, "pval", as.character(pval))
         }
         paste(parts, collapse = "_")
       }
