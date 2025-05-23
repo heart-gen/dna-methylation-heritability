@@ -9,7 +9,7 @@ import os
 
 pipeline_steps = {
     "extract_snp": {
-        "region": re.compile(r'on\s+([0-9XY]+):\s*([0-9]+)-([0-9]+)', re.IGNORECASE),
+        "region": re.compile(r'on\s+([0-9XY]+):\s*(-?[0-9]+)-([0-9]+)', re.IGNORECASE),
         "error": [
             re.compile(r'No variants remaining after main filters', re.IGNORECASE),
             re.compile(r'Start position is below zero', re.IGNORECASE),
