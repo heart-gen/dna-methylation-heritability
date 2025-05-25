@@ -3,12 +3,7 @@ library(here)
 library(bigsnpr)
 library(bigstatsr)
 
-get_genotypes <- function(task_id) {
-    base_dir <- here("heritability/gcta/caudate/_m")
-    vmr_file <- here(base_dir, "vmr_list.txt")
-                                        # Read the VMR list
-    vmr_list <- read.table(vmr_file, header=FALSE, stringsAsFactors=FALSE)
-
+get_error_list <- function() {
                                         # Read error regions
     error_file <- "../_h/snp-error-window.tsv"
     if(file.exists(error_file)) {
@@ -20,12 +15,67 @@ get_genotypes <- function(task_id) {
         error_regions <- data.frame(Chrom = numeric(), Start = numeric(), 
                                     End = numeric())
     }
-    
+    return(error_regions)
+}
+
+check_blacklist_regions <- function(chrom_num, start_pos, end_pos) {
+                                        # Read error regions
+    error_regions <- get_error_list()
+
+                                        # Check if region is in error list
+    if(any(error_regions$Chrom == chrom_num & 
+           error_regions$Start == start_pos & 
+           error_regions$End == end_pos)) {
+        message("Skipping blacklisted region: ", chrom_num, ":", 
+                start_pos, "-", end_pos)
+        return(FALSE)
+    } else {
+        return(TRUE)
+    }
+}
+
+get_vmrs <- function(region) {
+    base_dir <- here("heritability/gcta", tolower(region), "_m")
+    vmr_file <- here(base_dir, "vmr_list.txt")
+    return(read.table(vmr_file, header=FALSE, stringsAsFactors=FALSE))
+}
+
+get_data_path <- function(chrom_num, region, DATA) {
+    chrom_dir <- paste0("chr_", chrom_num)        
+    base_dir  <- here("heritability/gcta", tolower(region), "_m")
+                                        # Construct the chromosome
+                                        # directory path
+    if(tolower(DATA) == "plink") {
+        inpath  <- "plink_format"
+        data_fn <- paste0("subset_TOPMed_LIBD.AA.", start_pos, "_",
+                          end_pos, ".bed")
+    } else {
+        inpath  <- "vmr"
+        data_fn <- paste0(start_pos, "_", end_pos, "_meth.phen")
+    }
+    data_dir  <- here(base_dir, inpath, chrom_dir)
+
+                                        # Identify corresponding data file
+                                        # to the VMR entry
+    data_path     <- file.path(data_dir, data_fn)
+
+                                        # Check if the data file exists
+    if(!file.exists(data_path)) {
+        stop(paste(DATA, "file not found:", data_path))
+    }
+    return(data_path)
+}
+
+get_genotypes <- function(task_id, region) {
+                                        # Read the VMR list
+    vmr_list <- get_vmrs(region)
+
+                                        # Read error regions
+    error_regions <- get_error_list()
                                         # Validate the task ID
-    if (task_id < 1 || task_id > nrow(vmr_list)) {
+    if(task_id < 1 || task_id > nrow(vmr_list)) {
         stop("SLURM_ARRAY_TASK_ID is out of bounds.")
     }
-
                                         # Extract the specific VMR entry
                                         # for this task
     vmr_entry <- vmr_list[task_id, ]
@@ -33,24 +83,14 @@ get_genotypes <- function(task_id) {
     start_pos <- vmr_entry[2]
     end_pos   <- vmr_entry[3]
 
-                                        # Construct the chromosome
-                                        # directory path
-    chrom_dir <- paste0("chr_", chrom_num)
-    geno_dir  <- here("heritability/gcta/caudate/_m/plink_format",
-                      chrom_dir)
-
-                                        # Identify corresponding PLINK file
-                                        # to the VMR entry
-    geno_bed_filename <- paste0("subset_TOPMed_LIBD.AA.", start_pos, "_",
-                                end_pos, ".bed")
-    geno_bed_path     <- file.path(geno_dir, geno_bed_filename)
-
-                                        # Check if the PLINK file exists
-    if (!file.exists(geno_bed_path)) {
-        stop(paste("PLINK file not found:", geno_bed_path))
+                                        # Check if region is in error list
+    if(!check_blacklist_regions(chrom_num, start_pos, end_pos)) {
+        message("Skipping task_id: ", task_id)
+        return(NULL)
     }
-    
+
                                         # Process the PLINK file
+    geno_bed_path <- get_data_path(chrom_num, region, "PLINK")
     cat("Processing PLINK file:", geno_bed_path, "\n")
 
                                         # Convert PLINK files to FBM
@@ -59,16 +99,14 @@ get_genotypes <- function(task_id) {
     return(bigSNP)
 }
 
-get_vmr_data <- function(task_id) {
-    # Read the VMR list
-    vmr_list <- read.table("vmr_list.txt", header = FALSE,
-                           stringsAsFactors = FALSE)
+get_vmr_data <- function(task_id, region) {
+                                        # Read the VMR list
+    vmr_list <- get_vmrs(region)
 
                                         # Validate the task ID
     if (task_id < 1 || task_id > nrow(vmr_list)) {
         stop("SLURM_ARRAY_TASK_ID is out of bounds.")
     }
-
                                         # Extract the specific VMR entry
                                         # for this task
     vmr_entry <- vmr_list[task_id, ]
@@ -76,24 +114,16 @@ get_vmr_data <- function(task_id) {
     start_pos <- vmr_entry[2]
     end_pos   <- vmr_entry[3]
 
-                                        # Construct the chromosome
-                                        # directory path
-    chrom_dir <- paste0("chr_", chrom_num)
-    vmr_dir  <- here("heritability/gcta/caudate/_m/vmr", chrom_dir)
-
-                                        # Identify corresponding VMR file
-                                        # to the VMR entry
-    vmr_filename <- paste0(start_pos, "_", end_pos, "_meth.phen")
-    vmr_path     <- file.path(vmr_dir, vmr_filename)
-
-                                        # Check if the VMR file exists
-    if (!file.exists(vmr_path)) {
-        stop(paste("VMR file not found:", vmr_path))
+                                        # Check if region is in error list
+    if(!check_blacklist_regions(chrom_num, start_pos, end_pos)) {
+        message("Skipping task_id: ", task_id)
+        return(NULL)
     }
     
                                         # Process the VMR file
+    vmr_path <- get_data_path(chrom_num, region, "VMR")
     cat("Processing VMR file:", vmr_path, "\n")
-    pheno <- read.table(vmr_path, header=FALSE)
+    pheno    <- read.table(vmr_path, header=FALSE)
     return(pheno[, 3])
 }
 

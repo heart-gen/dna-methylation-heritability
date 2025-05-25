@@ -1,114 +1,114 @@
-Region  Step    Chr     Start   End     Error
-caudate extract_snp     chr1    248579051       248583176       ERROR: End position exceeds Chromosome 1 size.
-caudate extract_snp     chr1    248585900       248600240       ERROR: End position exceeds Chromosome 1 size.
-caudate extract_snp     chr1    248601270       248632304       ERROR: End position exceeds Chromosome 1 size.
-caudate extract_snp     chr1    248634080       248634819       ERROR: End position exceeds Chromosome 1 size.
-caudate extract_snp     chr1    248691995       248692258       ERROR: End position exceeds Chromosome 1 size.
-caudate extract_snp     chr1    248704256       248709141       ERROR: End position exceeds Chromosome 1 size.
-caudate extract_snp     chr1    248811276       248811669       ERROR: End position exceeds Chromosome 1 size.
-caudate extract_snp     chr10   394179  395006  ERROR: Start position is below zero.
-caudate extract_snp     chr10   484557  484715  ERROR: Start position is below zero.
-caudate extract_snp     chr10   338696  339100  ERROR: Start position is below zero.
-caudate extract_snp     chr10   293247  293376  ERROR: Start position is below zero.
-caudate extract_snp     chr10   49211   49360   ERROR: Start position is below zero.
-caudate extract_snp     chr11   399887  400430  ERROR: Start position is below zero.
-caudate extract_snp     chr11   396528  397650  ERROR: Start position is below zero.
-caudate extract_snp     chr11   489054  489311  ERROR: Start position is below zero.
-caudate extract_snp     chr11   374087  374421  ERROR: Start position is below zero.
-caudate extract_snp     chr11   361866  362206  ERROR: Start position is below zero.
-caudate extract_snp     chr11   355333  355557  ERROR: Start position is below zero.
-caudate extract_snp     chr11   350302  350483  ERROR: Start position is below zero.
-caudate extract_snp     chr11   335867  336313  ERROR: Start position is below zero.
-caudate extract_snp     chr11   327129  327479  ERROR: Start position is below zero.
-caudate extract_snp     chr11   319873  320840  ERROR: Start position is below zero.
-caudate extract_snp     chr11   308126  308473  ERROR: Start position is below zero.
-caudate extract_snp     chr11   300064  300329  ERROR: Start position is below zero.
-caudate extract_snp     chr11   479409  480076  ERROR: Start position is below zero.
-caudate extract_snp     chr11   287895  288034  ERROR: Start position is below zero.
-caudate extract_snp     chr11   494572  495570  ERROR: Start position is below zero.
-caudate extract_snp     chr11   424941  425254  ERROR: Start position is below zero.
-caudate extract_snp     chr11   420351  420604  ERROR: Start position is below zero.
-caudate extract_snp     chr11   405754  405936  ERROR: Start position is below zero.
-caudate extract_snp     chr12   219953  220323  ERROR: Start position is below zero.
-caudate extract_snp     chr12   203247  204380  ERROR: Start position is below zero.
-caudate extract_snp     chr12   199250  200194  ERROR: Start position is below zero.
-caudate extract_snp     chr12   187974  188700  ERROR: Start position is below zero.
-caudate extract_snp     chr12   175119  175431  ERROR: Start position is below zero.
-caudate extract_snp     chr12   138857  139181  ERROR: Start position is below zero.
-caudate extract_snp     chr12   461033  461277  ERROR: Start position is below zero.
-caudate extract_snp     chr12   104527  105095  ERROR: Start position is below zero.
-caudate extract_snp     chr12   103032  103211  ERROR: Start position is below zero.
-caudate extract_snp     chr12   453619  454172  ERROR: Start position is below zero.
-caudate extract_snp     chr16   487524  487885  ERROR: Start position is below zero.
-caudate extract_snp     chr16   369688  370130  ERROR: Start position is below zero.
-caudate extract_snp     chr16   483341  484037  ERROR: Start position is below zero.
-caudate extract_snp     chr16   276372  276499  ERROR: Start position is below zero.
-caudate extract_snp     chr16   174755  175779  ERROR: Start position is below zero.
-caudate extract_snp     chr16   91650   92042   ERROR: Start position is below zero.
-caudate extract_snp     chr16   73918   74174   ERROR: Start position is below zero.
-caudate extract_snp     chr16   400699  401180  ERROR: Start position is below zero.
-caudate extract_snp     chr17   379527  379862  ERROR: Start position is below zero.
-caudate extract_snp     chr17   360063  360695  ERROR: Start position is below zero.
-caudate extract_snp     chr17   332661  333229  ERROR: Start position is below zero.
-caudate extract_snp     chr17   330974  331852  ERROR: Start position is below zero.
-caudate extract_snp     chr17   239975  240699  ERROR: Start position is below zero.
-caudate extract_snp     chr17   234430  235144  ERROR: Start position is below zero.
-caudate extract_snp     chr17   222095  222432  ERROR: Start position is below zero.
-caudate extract_snp     chr17   207111  207981  ERROR: Start position is below zero.
-caudate extract_snp     chr19   489778  490121  ERROR: Start position is below zero.
-caudate extract_snp     chr19   480559  480774  ERROR: Start position is below zero.
-caudate extract_snp     chr19   479955  480232  ERROR: Start position is below zero.
-caudate extract_snp     chr19   291815  292072  ERROR: Start position is below zero.
-caudate extract_snp     chr19   277681  277847  ERROR: Start position is below zero.
-caudate extract_snp     chr19   426895  427162  ERROR: Start position is below zero.
-caudate extract_snp     chr19   410261  410609  ERROR: Start position is below zero.
-caudate extract_snp     chr19   406144  406435  ERROR: Start position is below zero.
-caudate extract_snp     chr2    214520  214836  ERROR: Start position is below zero.
-caudate extract_snp     chr2    199087  199501  ERROR: Start position is below zero.
-caudate extract_snp     chr2    439970  440385  ERROR: Start position is below zero.
-caudate extract_snp     chr20   278792  279586  ERROR: Start position is below zero.
-caudate extract_snp     chr3    487211  489672  ERROR: Start position is below zero.
-caudate extract_snp     chr3    308120  309330  ERROR: Start position is below zero.
-caudate extract_snp     chr3    11779   12039   ERROR: Start position is below zero.
-caudate extract_snp     chr4    212295  212354  ERROR: Start position is below zero.
-caudate extract_snp     chr4    125724  126197  ERROR: Start position is below zero.
-caudate extract_snp     chr5    388751  389037  ERROR: Start position is below zero.
-caudate extract_snp     chr5    322546  322881  ERROR: Start position is below zero.
-caudate extract_snp     chr5    270774  270939  ERROR: Start position is below zero.
-caudate extract_snp     chr5    475303  476359  ERROR: Start position is below zero.
-caudate extract_snp     chr5    241385  242390  ERROR: Start position is below zero.
-caudate extract_snp     chr5    231819  232228  ERROR: Start position is below zero.
-caudate extract_snp     chr5    210511  210641  ERROR: Start position is below zero.
-caudate extract_snp     chr5    197092  197718  ERROR: Start position is below zero.
-caudate extract_snp     chr5    191678  191938  ERROR: Start position is below zero.
-caudate extract_snp     chr5    51327   51384   ERROR: Start position is below zero.
-caudate extract_snp     chr5    415760  416043  ERROR: Start position is below zero.
-caudate extract_snp     chr6    487902  488600  ERROR: Start position is below zero.
-caudate extract_snp     chr6    436870  437206  ERROR: Start position is below zero.
-caudate extract_snp     chr7    379406  379735  ERROR: Start position is below zero.
-caudate extract_snp     chr7    360071  360701  ERROR: Start position is below zero.
-caudate extract_snp     chr7    353819  354157  ERROR: Start position is below zero.
-caudate extract_snp     chr7    341890  342662  ERROR: Start position is below zero.
-caudate extract_snp     chr7    498366  499185  ERROR: Start position is below zero.
-caudate extract_snp     chr7    219713  220165  ERROR: Start position is below zero.
-caudate extract_snp     chr7    168126  168223  ERROR: Start position is below zero.
-caudate extract_snp     chr7    162351  162980  ERROR: Start position is below zero.
-caudate extract_snp     chr7    159493  160338  ERROR: Start position is below zero.
-caudate extract_snp     chr7    465154  465228  ERROR: Start position is below zero.
-caudate extract_snp     chr7    131662  132151  ERROR: Start position is below zero.
-caudate extract_snp     chr7    129011  130649  ERROR: Start position is below zero.
-caudate extract_snp     chr7    119490  119720  ERROR: Start position is below zero.
-caudate extract_snp     chr7    115199  115573  ERROR: Start position is below zero.
-caudate extract_snp     chr7    71447   71490   ERROR: Start position is below zero.
-caudate extract_snp     chr7    61647   61890   ERROR: Start position is below zero.
-caudate extract_snp     chr7    455497  455568  ERROR: Start position is below zero.
-caudate extract_snp     chr7    452028  452404  ERROR: Start position is below zero.
-caudate extract_snp     chr7    442628  443469  ERROR: Start position is below zero.
-caudate extract_snp     chr7    437534  438173  ERROR: Start position is below zero.
-caudate extract_snp     chr7    435023  435306  ERROR: Start position is below zero.
-caudate extract_snp     chr7    424716  425635  ERROR: Start position is below zero.
-caudate extract_snp     chr7    419105  419247  ERROR: Start position is below zero.
-caudate extract_snp     chr8    385281  385522  ERROR: Start position is below zero.
-caudate extract_snp     chr8    281824  282081  ERROR: Start position is below zero.
-caudate extract_snp     chr8    276356  276838  ERROR: Start position is below zero.
-caudate extract_snp     chr9    469037  469391  ERROR: Start position is below zero.
+Region	Chr	Start	End
+caudate	chr1	248579051	248583176
+caudate	chr1	248585900	248600240
+caudate	chr1	248601270	248632304
+caudate	chr1	248634080	248634819
+caudate	chr1	248691995	248692258
+caudate	chr1	248704256	248709141
+caudate	chr1	248811276	248811669
+caudate	chr10	394179	395006
+caudate	chr10	484557	484715
+caudate	chr10	338696	339100
+caudate	chr10	293247	293376
+caudate	chr10	49211	49360
+caudate	chr11	399887	400430
+caudate	chr11	396528	397650
+caudate	chr11	489054	489311
+caudate	chr11	374087	374421
+caudate	chr11	361866	362206
+caudate	chr11	355333	355557
+caudate	chr11	350302	350483
+caudate	chr11	335867	336313
+caudate	chr11	327129	327479
+caudate	chr11	319873	320840
+caudate	chr11	308126	308473
+caudate	chr11	300064	300329
+caudate	chr11	479409	480076
+caudate	chr11	287895	288034
+caudate	chr11	494572	495570
+caudate	chr11	424941	425254
+caudate	chr11	420351	420604
+caudate	chr11	405754	405936
+caudate	chr12	219953	220323
+caudate	chr12	203247	204380
+caudate	chr12	199250	200194
+caudate	chr12	187974	188700
+caudate	chr12	175119	175431
+caudate	chr12	138857	139181
+caudate	chr12	461033	461277
+caudate	chr12	104527	105095
+caudate	chr12	103032	103211
+caudate	chr12	453619	454172
+caudate	chr16	487524	487885
+caudate	chr16	369688	370130
+caudate	chr16	483341	484037
+caudate	chr16	276372	276499
+caudate	chr16	174755	175779
+caudate	chr16	91650	92042
+caudate	chr16	73918	74174
+caudate	chr16	400699	401180
+caudate	chr17	379527	379862
+caudate	chr17	360063	360695
+caudate	chr17	332661	333229
+caudate	chr17	330974	331852
+caudate	chr17	239975	240699
+caudate	chr17	234430	235144
+caudate	chr17	222095	222432
+caudate	chr17	207111	207981
+caudate	chr19	489778	490121
+caudate	chr19	480559	480774
+caudate	chr19	479955	480232
+caudate	chr19	291815	292072
+caudate	chr19	277681	277847
+caudate	chr19	426895	427162
+caudate	chr19	410261	410609
+caudate	chr19	406144	406435
+caudate	chr2	214520	214836
+caudate	chr2	199087	199501
+caudate	chr2	439970	440385
+caudate	chr20	278792	279586
+caudate	chr3	487211	489672
+caudate	chr3	308120	309330
+caudate	chr3	11779	12039
+caudate	chr4	212295	212354
+caudate	chr4	125724	126197
+caudate	chr5	388751	389037
+caudate	chr5	322546	322881
+caudate	chr5	270774	270939
+caudate	chr5	475303	476359
+caudate	chr5	241385	242390
+caudate	chr5	231819	232228
+caudate	chr5	210511	210641
+caudate	chr5	197092	197718
+caudate	chr5	191678	191938
+caudate	chr5	51327	51384
+caudate	chr5	415760	416043
+caudate	chr6	487902	488600
+caudate	chr6	436870	437206
+caudate	chr7	379406	379735
+caudate	chr7	360071	360701
+caudate	chr7	353819	354157
+caudate	chr7	341890	342662
+caudate	chr7	498366	499185
+caudate	chr7	219713	220165
+caudate	chr7	168126	168223
+caudate	chr7	162351	162980
+caudate	chr7	159493	160338
+caudate	chr7	465154	465228
+caudate	chr7	131662	132151
+caudate	chr7	129011	130649
+caudate	chr7	119490	119720
+caudate	chr7	115199	115573
+caudate	chr7	71447	71490
+caudate	chr7	61647	61890
+caudate	chr7	455497	455568
+caudate	chr7	452028	452404
+caudate	chr7	442628	443469
+caudate	chr7	437534	438173
+caudate	chr7	435023	435306
+caudate	chr7	424716	425635
+caudate	chr7	419105	419247
+caudate	chr8	385281	385522
+caudate	chr8	281824	282081
+caudate	chr8	276356	276838
+caudate	chr9	469037	469391
