@@ -70,8 +70,6 @@ get_genotypes <- function(task_id, region) {
                                         # Read the VMR list
     vmr_list <- get_vmrs(region)
 
-                                        # Read error regions
-    error_regions <- get_error_list()
                                         # Validate the task ID
     if(task_id < 1 || task_id > nrow(vmr_list)) {
         stop("SLURM_ARRAY_TASK_ID is out of bounds.")
@@ -91,7 +89,7 @@ get_genotypes <- function(task_id, region) {
 
                                         # Process the PLINK file
     geno_bed_path <- get_data_path(chrom_num, region, "PLINK")
-    cat("Processing PLINK file:", geno_bed_path, "\n")
+    cat("Processing PLINK file:", basename(geno_bed_path), "\n")
 
                                         # Convert PLINK files to FBM
     geno   <- snp_readBed(geno_bed_path, backingfile = "genotypes")
@@ -122,31 +120,20 @@ get_vmr_data <- function(task_id, region) {
     
                                         # Process the VMR file
     vmr_path <- get_data_path(chrom_num, region, "VMR")
-    cat("Processing VMR file:", vmr_path, "\n")
+    cat("Processing VMR file:", basename(vmr_path), "\n")
     pheno    <- read.table(vmr_path, header=FALSE)
     return(pheno[, 3])
 }
 
-calcalute_snp_clumping <- function(bigSNP) {
-                                        # MAP-based ranking
-    ind.keep <- snp_clumping(
-        G = bigSNP$genotypes,
-        infos.chr = bigSNP$map$chromosome,
-        infos.pos = bigSNP$map$physical.pos,
-        ncores = nb_cores()
-    )
-    return(ind.keep)
-}
-
-cal_snp_clumping_unireg <- function(bigSNP, pheno) {
+cal_snp_clumping_unireg <- function(G_imputed, mapped_df, pheno) {
                                         # Using simple univariate regression
-    corrs <- big_univLinReg(bigSNP$genotypes, pheno)
+    corrs <- big_univLinReg(G_imputed, pheno)
     stat  <- abs(corrs$estim) # could use corrs$score, corrs$p.value, etc.
     ## Default parameters are 0.2 r2 threshold and windo of 500 kb
     ind.keep <- snp_clumping(
-        G = bigSNP$genotypes,
-        infos.chr = bigSNP$map$chromosome,
-        infos.pos = bigSNP$map$physical.pos,
+        G = G_imputed,
+        infos.chr = mapped_df$chromosome,
+        infos.pos = mapped_df$physical.pos,
         S = stat,
         ncores = nb_cores()
     )
@@ -154,16 +141,29 @@ cal_snp_clumping_unireg <- function(bigSNP, pheno) {
 }
 
 #### MAIN
-                                        # Retrieve the SLURM array task ID
+                                        # Retrieve variables
+region  <- Sys.getenv("region")
 task_id <- as.integer(Sys.getenv("SLURM_ARRAY_TASK_ID"))
                                         # Load data
-bigSNP  <- get_genotypes(task_id)
-G       <- bigSNP$genotypes  # Returns an FBM
-pheno   <- get_vmr_data(task_id)
+bigSNP  <- get_genotypes(task_id, region)
+pheno   <- get_vmr_data(task_id, region)
+infos   <- bigSNP$map
+G       <- bigsnp$genotypes
+
+                                        # Filter out zero-variance SNPs
+variances <- big_apply(G, function(X) apply(X, 2, var), ncores=nb_cores())
+keep      <- variances > 0
+G         <- G[, keep]
+infos     <- infos[keep, ]
+
+                                        # Impute missing values
+G_imputed <- snp_fastImpute(
+    Gna = G, infos.chr = infos$chromosome, ncores=nb_cores()
+)
 
                                         # Run clumping
-clumped   <- cal_snp_clumping_unireg(bigSNP, pheno)
-G_clumped <- big_copy(G, ind.col = which(clumped))
+clumped   <- cal_snp_clumping_unireg(G_imputed, infos, pheno)
+G_clumped <- big_copy(G_imputed, ind.col = clumped)
 
 ## Boosting framework
                                         # Parameters
@@ -178,7 +178,8 @@ betas        <- big_copy(G_clumped, type = "double") # Store SNP effects
 
                                         # Boosting loop
 for (iter in 1:n_iter) {
-                                        # Batch selection: Top correlated SNPs
+                                        # Batch selection:
+                                        # Top correlated SNPs
     corrs    <- big_univLinReg(G_clumped, residuals, ncores=nb_cores())
     selected <- order(-abs(corrs$estim))[1:min(batch_size, ncol(G_clumped))]
 
