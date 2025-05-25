@@ -129,7 +129,7 @@ get_vmr_data <- function(task_id, region) {
 cal_snp_clumping_unireg <- function(G_imputed, mapped_df, pheno) {
                                         # Using simple univariate regression
     corrs <- big_univLinReg(G_imputed, pheno)
-    stat  <- abs(corrs$estim) # could use corrs$score, corrs$p.value, etc.
+    stat  <- abs(corrs$estim)
     ## Default parameters are 0.2 r2 threshold and windo of 500 kb
     ind.keep <- snp_clumping(
         G = G_imputed,
@@ -145,7 +145,18 @@ cal_snp_clumping_unireg <- function(G_imputed, mapped_df, pheno) {
                                         # Retrieve variables
 region  <- Sys.getenv("region")
 task_id <- as.integer(Sys.getenv("SLURM_ARRAY_TASK_ID"))
-set.seed(20250525)
+
+                                        # Set reproducible seed per task
+RNGkind("L'Ecuyer-CMRG")
+set.seed(20250525 + task_id)
+
+                                        # Load VMR info
+vmr_list   <- get_vmrs(region)
+vmr_entry  <- vmr_list[task_id, ]
+chrom_num  <- vmr_entry[1]
+start_pos  <- vmr_entry[2]
+end_pos    <- vmr_entry[3]
+
                                         # Load data
 bigSNP  <- get_genotypes(task_id, region)
 pheno   <- get_vmr_data(task_id, region)
@@ -162,23 +173,24 @@ variances <- big_apply(
 keep      <- variances > 0
 infos     <- infos[keep, ]
 G         <- bigSNP$genotypes[, keep]
+
+                                        # Impute missing values
 G_filtered <- FBM.code256(
     nrow = nrow(G), ncol = ncol(G),
     code = bigSNP$genotypes$code256,
     backingfile = tempfile()
 )
 G_filtered[] <- G[]
-                                        # Impute missing values
-G_imputed <- snp_fastImputeSimple(
-    G_filtered, method="mode", ncores=nb_cores()
-)
+                            
+G_imputed <- snp_fastImputeSimple(G_filtered, method = "mode",
+                                  ncores = nb_cores())
 
                                         # Run clumping
 clumped   <- cal_snp_clumping_unireg(G_imputed, infos, pheno)
-G_clumped <- big_copy(G_imputed, ind.col = clumped)
+G_clumped <- G_imputed[, clumped]
 
 ## Boosting framework
-                                        # Parameters
+                                        # Boosting parameters
 n_iter     <- 100  # Total boosting iterations
 batch_size <- 1000 # SNPs per batch
 mstop      <- 10   # Batch-specific iterations
@@ -196,17 +208,20 @@ for (iter in 1:n_iter) {
     selected <- order(-abs(corrs$estim))[1:min(batch_size, ncol(G_clumped))]
 
                                         # Fit batch via elastic net
-    X_batch <- big_copy(G_clumped, ind.col = selected)
-    cv_fit  <- big_spLinReg(X_batch, residuals,
-                            alphas = seq(0.05,1,0.05),
-                            K=5, ncores=nb_cores())
+    X_batch <- G_clumped[, selected]
+    cv_fit  <- big_spLinReg(X_batch, residuals, alphas = seq(0.05, 1, 0.05),
+                            K = 5, ncores = nb_cores())
+
+                                        # Extract kept indicies
+    kept_ind <- attr(cv_fit, "ind.col")
 
                                         # Update residuals & store effects
     pred            <- predict(cv_fit, X_batch)
     residuals       <- residuals - pred
-    betas[selected] <- data.frame(SNP=attr(cv_fit, "ind.col"),
-                                  beta=summary(cv_fit, best.only=T)$beta[[1]])
-    betas[selected] <- betas[selected] + cv_fit$beta
+    
+    best_betas      <- summary(cv_fit, best.only = TRUE)$beta[[1]]
+    global_kept_ind <- selected[kept_ind]
+    betas[global_kept_ind] <- betas[global_kept_ind] + best_betas
 
                                         # Calculate incremental h2
     h2_estimates[iter] <- var(pred) / var(pheno)
@@ -214,11 +229,35 @@ for (iter in 1:n_iter) {
                                         # Early stopping
     if (iter > 10 && sd(tail(h2_estimates, 5)) < 0.001) break
 }
+
 ## Heritability estimates
                                         # Final h2 estimate
 final_h2 <- sum(h2_estimates, na.rm = TRUE)
 
                                         # SNP-specific heritability contributions
-snp_h2 <- betas[]^2 * big_apply(G_clumped, function(X) apply(X, 2, var),
-                                ncores = nb_cores())
+snp_vars <- big_apply(G_clumped, function(X) apply(X, 2, var),
+                      a.combine = "c", ncores = nb_cores())
+snp_h2   <- betas[]^2 * snp_vars
 total_h2 <- sum(snp_h2) / var(pheno)
+
+cat(sprintf("Final cumulative h2: %.4f\n", final_h2))
+cat(sprintf("Total SNP-based h2: %.4f\n", total_h2))
+
+# Save h2_estimates as TSV with region info
+output_df <- data.frame(
+    iteration = seq_along(h2_estimates),
+    h2 = h2_estimates,
+    chrom = chrom_num,
+    start = start_pos,
+    end = end_pos
+)
+write.table(output_df,
+            file = sprintf("h2_estimates_task_%d.tsv", task_id),
+            sep = "\t", quote = FALSE, row.names = FALSE)
+
+## Reproducibility
+print("Reproducibility information:")
+Sys.time()
+proc.time()
+options(width = 120)
+sessioninfo::session_info()
