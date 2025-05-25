@@ -40,18 +40,18 @@ get_vmrs <- function(region) {
     return(read.table(vmr_file, header=FALSE, stringsAsFactors=FALSE))
 }
 
-get_data_path <- function(chrom_num, region, DATA) {
+get_data_path <- function(chrom_num, spos, epos, region, DATA) {
     chrom_dir <- paste0("chr_", chrom_num)        
     base_dir  <- here("heritability/gcta", tolower(region), "_m")
                                         # Construct the chromosome
                                         # directory path
     if(tolower(DATA) == "plink") {
         inpath  <- "plink_format"
-        data_fn <- paste0("subset_TOPMed_LIBD.AA.", start_pos, "_",
-                          end_pos, ".bed")
+        data_fn <- paste0("subset_TOPMed_LIBD.AA.", spos, "_",
+                          epos, ".bed")
     } else {
         inpath  <- "vmr"
-        data_fn <- paste0(start_pos, "_", end_pos, "_meth.phen")
+        data_fn <- paste0(spos, "_", epos, "_meth.phen")
     }
     data_dir  <- here(base_dir, inpath, chrom_dir)
 
@@ -88,7 +88,8 @@ get_genotypes <- function(task_id, region) {
     }
 
                                         # Process the PLINK file
-    geno_bed_path <- get_data_path(chrom_num, region, "PLINK")
+    geno_bed_path <- get_data_path(chrom_num, start_pos, end_pos,
+                                   region, "PLINK")
     cat("Processing PLINK file:", basename(geno_bed_path), "\n")
 
                                         # Convert PLINK files to FBM
@@ -119,7 +120,7 @@ get_vmr_data <- function(task_id, region) {
     }
     
                                         # Process the VMR file
-    vmr_path <- get_data_path(chrom_num, region, "VMR")
+    vmr_path <- get_data_path(chrom_num, start_pos, end_pos, region, "VMR")
     cat("Processing VMR file:", basename(vmr_path), "\n")
     pheno    <- read.table(vmr_path, header=FALSE)
     return(pheno[, 3])
@@ -144,21 +145,32 @@ cal_snp_clumping_unireg <- function(G_imputed, mapped_df, pheno) {
                                         # Retrieve variables
 region  <- Sys.getenv("region")
 task_id <- as.integer(Sys.getenv("SLURM_ARRAY_TASK_ID"))
+set.seed(20250525)
                                         # Load data
 bigSNP  <- get_genotypes(task_id, region)
 pheno   <- get_vmr_data(task_id, region)
 infos   <- bigSNP$map
-G       <- bigsnp$genotypes
 
                                         # Filter out zero-variance SNPs
-variances <- big_apply(G, function(X) apply(X, 2, var), ncores=nb_cores())
+variances <- big_apply(
+    bigSNP$genotypes,
+    function(X, ind) {
+        apply(X[, ind, drop = FALSE], 2, function(x) var(x, na.rm=TRUE))
+    },
+    a.combine = "c", ncores=nb_cores()
+)
 keep      <- variances > 0
-G         <- G[, keep]
 infos     <- infos[keep, ]
-
+G         <- bigSNP$genotypes[, keep]
+G_filtered <- FBM.code256(
+    nrow = nrow(G), ncol = ncol(G),
+    code = bigSNP$genotypes$code256,
+    backingfile = tempfile()
+)
+G_filtered[] <- G[]
                                         # Impute missing values
-G_imputed <- snp_fastImpute(
-    Gna = G, infos.chr = infos$chromosome, ncores=nb_cores()
+G_imputed <- snp_fastImputeSimple(
+    G_filtered, method="mode", ncores=nb_cores()
 )
 
                                         # Run clumping
@@ -185,11 +197,15 @@ for (iter in 1:n_iter) {
 
                                         # Fit batch via elastic net
     X_batch <- big_copy(G_clumped, ind.col = selected)
-    cv_fit  <- big_spLinReg(X_batch, residuals, K=5, ncores=nb_cores())
+    cv_fit  <- big_spLinReg(X_batch, residuals,
+                            alphas = seq(0.05,1,0.05),
+                            K=5, ncores=nb_cores())
 
                                         # Update residuals & store effects
     pred            <- predict(cv_fit, X_batch)
     residuals       <- residuals - pred
+    betas[selected] <- data.frame(SNP=attr(cv_fit, "ind.col"),
+                                  beta=summary(cv_fit, best.only=T)$beta[[1]])
     betas[selected] <- betas[selected] + cv_fit$beta
 
                                         # Calculate incremental h2
