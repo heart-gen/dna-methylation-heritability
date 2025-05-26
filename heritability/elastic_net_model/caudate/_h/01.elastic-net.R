@@ -8,7 +8,7 @@ library(bigstatsr)
 get_error_list <- function(error_file_path = "../_h/snp-error-window.tsv") {
                                         # Read error regions
     if (file.exists(error_file_path)) {
-        error_regions <- read.table(error_file, header=TRUE, sep="\t") |>
+        error_regions <- read.table(error_file_path,header=TRUE,sep="\t") |>
             dplyr::mutate(Chrom=as.numeric(gsub("chr", "", Chr)),
                           Start=as.numeric(Start), End=as.numeric(End)) |>
             dplyr::select(Chrom, Start, End)
@@ -117,13 +117,13 @@ error_regions <- get_error_list()
 
                                         # Load VMR data
 vmr_list      <- get_vmr_list(region)
-if (current_task_id < 1 || current_task_id > nrow(vmr_list_df)) {
+if (task_id < 1 || task_id > nrow(vmr_list)) {
     stop("SLURM_ARRAY_TASK_ID is out of bounds for the VMR list.")
 }
 vmr_entry  <- vmr_list[task_id, ]
-chrom_num  <- vmr_entry$Chr
-start_pos  <- vmr_entry$Start
-end_pos    <- vmr_entry$End
+chrom_num  <- vmr_entry[[1]]
+start_pos  <- vmr_entry[[2]]
+end_pos    <- vmr_entry[[3]]
 
                                         # Check if the window is blacklisted
 if (!check_if_blacklisted(chrom_num, start_pos, end_pos, error_regions)) {
@@ -153,9 +153,15 @@ snp_variances <- big_apply(
     },
     a.combine = "c"
 )
-keep_idx   <- which(snp_variances > 1e-6
+keep_idx   <- which(snp_variances > 1e-6)
 infos_filt <- infos[keep_idx, ]
-G_filtered <- G$copy(ind.col = keep_idx, , backingfile=tempfile())
+G_temp     <- G[, keep_idx]
+G_filtered <- FBM.code256(
+    nrow = nrow(G_temp), ncol = ncol(G_temp),
+    code = bigSNP$genotypes$code256,
+    backingfile = tempfile()
+)
+G_filtered[] <- G_temp[]
 
                                         # Impute missing values
 cat("Imputing missing genotypes using mode...\n")
@@ -163,8 +169,8 @@ G_imputed <- snp_fastImputeSimple(G_filtered, method = "mode")
 
                                         # Run SNP clumping
 clumped_idx <- perform_snp_clumping(G_imputed, infos_filt, pheno_scaled)
-G_clumped   <- G_imputed$copy(ind.col = clumped_idx, backingfile=tempfile())
-infos_filt   <- infos_filt[clumped_idx, ]
+G_clumped   <- as_FBM(G_imputed[, clumped_idx])
+infos_filt  <- infos_filt[clumped_idx, ]
 cat("Number of SNPs before clumping: ", ncol(G_imputed), "\n")
 cat("Number of SNPs after clumping: ", ncol(G_clumped), "\n")
 
@@ -197,8 +203,7 @@ for (iter in 1:n_iter) {
     selected_snps <- order(abs(batch_corrs$estim), decreasing = TRUE)[1:batch_size]
 
                                         # Fit batch via elastic net
-    X_batch <- G_clumped$copy(ind.col = selected_snps,
-                              backingfile = tempfile())
+    X_batch <- as_FBM(G_clumped[, selected_snps])
     cv_fit  <- big_spLinReg(X_batch, residuals, alphas = seq(0.05, 1, 0.05),
                             K = 5)
 
@@ -231,17 +236,36 @@ for (iter in 1:n_iter) {
     }
 }
 
-# --- Final Model Refit and Evaluation --- ##
-cat("Refitting final model using Ridge regression...\n")
+## --- Final Model Refit and Evaluation --- ##
+r_squared_cv <- NA
 if (ncol(G_clumped) > 0) {
+    cat("Refitting final model using Ridge regression...\n")
     final_model <- cv.glmnet(G_clumped[], pheno_scaled, alpha = 0,
                              nfolds = 5, standardize = TRUE)
-    pred_cv <- predict(final_model, G_clumped[], s = "lambda.min")
-    r_squared_cv <- cor(pheno_scaled, pred_cv)^2
+    lambda_min  <- final_model$lambda.min
+    lambda_idx  <- which(abs(final_model$lambda - lambda_min) < 1e-9)
+    if (length(lambda_idx) == 0) {
+        lambda_idx <- which.min(abs(final_model$lambda - lambda_min))
+    }
+    if (length(lambda_idx) == 1 && !is.null(final_model$fit.preval)) {
+        pred_cv   <- final_model$fit.preval[, lambda_idx]
+        valid_idx <- !is.na(pheno_scaled) & !is.na(pred_cv)
+        if (sum(valid_idx) > 1) {
+            r_squared_cv <- cor(pheno_scaled[valid_idx], pred_cv[valid_idx])^2
+        } else {
+            cat("Warning: Not enough valid data points to calculate CV R^2.\n")
+        }
+    } else {
+        cat("Warning: Using fallback prediction method for CV R^2.\n")
+        pred_fallback <- predict(final_model, G_clumped[], s = "lambda.min")
+        valid_idx     <- !is.na(pheno_scaled) & !is.na(pred_fallback)
+        if (sum(valid_idx) > 1) {
+            r_squared_cv <- cor(pheno_scaled[valid_idx], pred_fallback[valid_idx])^2
+        }
+    }
     cat(sprintf("Cross-validated R^2 from Ridge regression: %.4f\n",
                 r_squared_cv))
 } else {
-    r_squared_cv <- NA
     cat("Skipping Ridge regression as no SNPs are available.\n")
 }
 
@@ -259,6 +283,17 @@ clumped_snp_vars <- big_apply(
 h2_unscaled <- sum(final_accumulated_betas^2 * clumped_snp_vars)
 
 ## --- Save Results --- ##
+task_summary_df <- data.frame(
+    task_id = task_id,
+    chrom = chrom_num,
+    start = start_pos,
+    end = end_pos,
+    num_snps = ifelse(exists("G_clumped"), ncol(G_clumped), 0),
+    boosting_iterations_performed = ifelse(exists("iter"), iter, 0),
+    h2_unscaled = ifelse(exists("h2_unscaled"), h2_unscaled, NA),
+    r_squared_cv = ifelse(exists("r_squared_cv"), r_squared_cv, NA)
+)
+
 output_df <- data.frame(
     task_id = task_id,
     chrom   = chrom_num,
@@ -277,15 +312,20 @@ betas_df <- data.frame(
     beta    = final_accumulated_betas
 )
 
+write.table(task_summary_df,
+            file = sprintf("task_summary_stats_%d.tsv", task_id),
+            sep = "\t", quote = FALSE, row.names = FALSE)
+
 write.table(output_df,
-            file = sprintf("h2_estimates_task_%d.tsv", task_id),
+            file = sprintf("h2_estimates_%d.tsv", task_id),
             sep = "\t", quote = FALSE, row.names = FALSE)
 
 write.table(betas_df,
-            file = sprintf("betas_task_%d.tsv", task_id),
+            file = sprintf("betas_%d.tsv", task_id),
             sep = "\t", quote = FALSE, row.names = FALSE)
 
 cat(sprintf("Total SNP-based h2 (unscaled): %.4f\n", h2_unscaled))
+cat(sprintf("Final h2: %.4f\n", sum(h2_estimates)))
 
 ## Reproducibility
 print("Reproducibility information:")
