@@ -99,7 +99,7 @@ perform_snp_clumping <- function(G_imputed, info, pheno_scaled) {
 ## --- MAIN SCRIPT --- ##
                                         # Retrieve variables
 region  <- Sys.getenv("region")
-task_id <- as.integer(Sys.getenv("SLURM_ARRAY_TASK_ID"))
+task_id <- as.integer(Sys.getenv("task_id"))
 
 if (is.na(task_id)) {
     stop("SLURM_ARRAY_TASK_ID is not set or is not a valid integer.")
@@ -312,16 +312,19 @@ betas_df <- data.frame(
     beta    = final_accumulated_betas
 )
 
+dir.create("summary", recursive = TRUE, showWarnings = FALSE)
 write.table(task_summary_df,
-            file = sprintf("task_summary_stats_%d.tsv", task_id),
-            sep = "\t", quote = FALSE, row.names = FALSE)
+            file = sprintf(file.path("summary","task_summary_stats_%d.tsv"),
+                           task_id), sep = "\t", quote = F, row.names = F)
 
+dir.create("h2", recursive = TRUE, showWarnings = FALSE)
 write.table(output_df,
-            file = sprintf("h2_estimates_%d.tsv", task_id),
+            file = sprintf(file.path("h2", "h2_estimates_%d.tsv"), task_id),
             sep = "\t", quote = FALSE, row.names = FALSE)
 
+dir.create("betas", recursive = TRUE, showWarnings = FALSE)
 write.table(betas_df,
-            file = sprintf("betas_%d.tsv", task_id),
+            file = sprintf(file.path("betas", "betas_%d.tsv"), task_id),
             sep = "\t", quote = FALSE, row.names = FALSE)
 
 cat(sprintf("Total SNP-based h2 (unscaled): %.4f\n", h2_unscaled))
