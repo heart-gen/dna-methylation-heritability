@@ -14,13 +14,19 @@ log_message() {
 
 log_message "**** Job starts ****"
 
+OFFSET=${OFFSET:-0} # fallback default to 0
+task_id=$((OFFSET + SLURM_ARRAY_TASK_ID - 1))
+export task_id
+
 echo "**** BRIDGES info ****"
 echo "User: ${USER}"
 echo "Job id: ${SLURM_JOBID}"
 echo "Job name: ${SLURM_JOB_NAME}"
 echo "Node name: ${SLURM_NODENAME}"
 echo "Hostname: ${HOSTNAME}"
-echo "Task id: ${SLURM_ARRAY_TASK_ID}"
+echo "OFFSET: ${OFFSET}"
+echo "SLURM_ARRAY_TASK_ID: ${SLURM_ARRAY_TASK_ID}"
+echo "Computed task_id: ${task_id}"
 
 module purge
 module load anaconda3/2024.10-1
