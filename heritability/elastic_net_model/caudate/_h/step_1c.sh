@@ -14,7 +14,7 @@ for ((offset=9001; offset<=total_tasks; offset+=chunk_size)); do
 
     echo "Submitting array for OFFSET=$offset (tasks $offset to $end)"
 
-    jobid=$(sbatch --test-only --array=1-${count} --export=OFFSET=${offset},ALL --parsable "$script")
+    jobid=$(sbatch --array=1-${count} --export=OFFSET=${offset},ALL --parsable "$script")
     echo "Submitted JobID: $jobid for OFFSET=$offset"
     jobids+=("$jobid")
 done
