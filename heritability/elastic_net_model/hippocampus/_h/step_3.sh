@@ -28,6 +28,8 @@ module list
 
 log_message "**** Cleaning directory ****"
 gzip -9v hippocampus_betas_elastic-net.tsv
+gzip -9v hippocampus_h2_elastic-net.tsv
+
 rm -r betas/ summary/ h2/
 
 log_message "**** Job ends ****"
