@@ -15,7 +15,7 @@ get_error_list <- function(error_file_path = "../_h/snp-error-window.tsv") {
     } else {
         message("Warning: Error regions file not found at: ",
                 error_file_path)
-        error_regions <- data.frame(Chrom = numeric(), Start = numeric(), 
+        error_regions <- data.frame(Chrom = numeric(), Start = numeric(),
                                     End = numeric())
     }
     return(error_regions)
@@ -25,10 +25,10 @@ check_if_blacklisted <- function(chrom_num, start_pos, end_pos, error_regions) {
     if (nrow(error_regions) == 0) {
         return(TRUE)
     }
-    if (any(error_regions$Chrom == chrom_num & 
-            error_regions$Start == start_pos & 
+    if (any(error_regions$Chrom == chrom_num &
+            error_regions$Start == start_pos &
             error_regions$End == end_pos)) {
-        message("Skipping blacklisted region: ", chrom_num, ":", 
+        message("Skipping blacklisted region: ", chrom_num, ":",
                 start_pos, "-", end_pos)
         return(FALSE)
     } else {
@@ -46,9 +46,9 @@ get_vmr_list <- function(region) {
 }
 
 construct_data_path <- function(chrom_num, spos, epos, region, data_type) {
-    chrom_dir <- paste0("chr_", chrom_num)        
+    chrom_dir <- paste0("chr_", chrom_num)
     base_dir  <- here("heritability/gcta", tolower(region), "_m")
-    
+
     if (tolower(data_type) == "plink") {
         inpath  <- "plink_format"
         data_fn <- paste0("subset_TOPMed_LIBD.AA.", spos, "_", epos, ".bed")
@@ -60,7 +60,7 @@ construct_data_path <- function(chrom_num, spos, epos, region, data_type) {
     }
     data_dir  <- here(base_dir, inpath, chrom_dir)
     data_path     <- file.path(data_dir, data_fn)
-    
+
     if (!file.exists(data_path)) {
         stop(paste(data_type, "file not found:", data_path))
     }
@@ -198,7 +198,7 @@ for (iter in 1:n_iter) {
     if (length(residuals) != nrow(G_clumped)){
         stop("Residuals length does not match genotype matrix rows.")
     }
-    
+
     batch_corrs <- big_univLinReg(G_clumped, residuals)
     selected_snps <- order(abs(batch_corrs$estim), decreasing = TRUE)[1:batch_size]
 
@@ -215,7 +215,7 @@ for (iter in 1:n_iter) {
         residuals  <- residuals - batch_pred
         best_betas <- summary(cv_fit, best.only = TRUE)$beta[[1]]
         global_idx <- selected_snps[kept_ind]
-        
+
         for(i in seq_along(global_idx)){
             idx <- global_idx[i]
             accumulated_betas[1, idx] <- accumulated_betas[1, idx] + best_betas[i]
