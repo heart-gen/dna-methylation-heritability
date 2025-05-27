@@ -1,0 +1,12 @@
+2025-05-27 13:28:27 - **** Job starts ****
+**** Quest info ****
+User: owb0346
+Job id: 4458361
+Job name: clean_dir
+Node name: 
+Hostname: qnode0135
+SLURM_ARRAY_TASK_ID: N/A
+No modules loaded
+2025-05-27 13:28:28 - **** Cleaning directory ****
+dlpfc_betas_elastic-net.tsv:	 78.6% -- replaced with dlpfc_betas_elastic-net.tsv.gz
+2025-05-27 13:29:14 - **** Job ends ****
