@@ -6,7 +6,7 @@
 #SBATCH --output=logs/elastic_h2_%A_%a.log
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
-#SBATCH --time=00:15:00
+#SBATCH --time=01:00:00
 
 log_message() {
     echo "$(date '+%Y-%m-%d %H:%M:%S') - $1"
