@@ -1,12 +1,13 @@
 #!/bin/bash
-#SBATCH --partition=RM-shared
+#SBATCH --account=p32505
+#SBATCH --partition=short
 #SBATCH --job-name=elastic_h2
 #SBATCH --mail-type=FAIL
 #SBATCH --mail-user=kynon.benjamin@northwestern.edu
 #SBATCH --output=logs/elastic_h2_%A_%a.log
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
-#SBATCH --time=00:15:00
+#SBATCH --time=03:00:00
 
 log_message() {
     echo "$(date '+%Y-%m-%d %H:%M:%S') - $1"
@@ -29,16 +30,15 @@ echo "SLURM_ARRAY_TASK_ID: ${SLURM_ARRAY_TASK_ID}"
 echo "Computed task_id: ${task_id}"
 
 module purge
-module load anaconda3/2024.10-1
 module list
 
-ENV_PATH="/ocean/projects/bio250020p/shared/opt/env"
+ENV_PATH="/projects/p32505/opt/env"
 export region="dlpfc"
 export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
 export MKL_NUM_THREADS=$SLURM_CPUS_PER_TASK
 
 log_message "**** Run elastic net ****"
-conda run -p "${ENV_PATH}/R_env" Rscript ../_h/01.elastic-net.R
+conda run -p "${ENV_PATH}/r_env" Rscript ../_h/01.elastic-net.R
 
 log_message "**** Job ends ****"
 
