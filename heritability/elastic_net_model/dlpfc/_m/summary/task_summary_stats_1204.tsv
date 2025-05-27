@@ -1,2 +1,0 @@
-task_id	chrom	start	end	num_snps	boosting_iterations_performed	h2_unscaled	r_squared_cv
-1204	2	173451220	173452982	457	11	0.0954766622362507	0.872001151579093
