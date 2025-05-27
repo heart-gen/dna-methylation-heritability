@@ -247,21 +247,10 @@ if (ncol(G_clumped) > 0) {
     if (length(lambda_idx) == 0) {
         lambda_idx <- which.min(abs(final_model$lambda - lambda_min))
     }
-    if (length(lambda_idx) == 1 && !is.null(final_model$fit.preval)) {
-        pred_cv   <- final_model$fit.preval[, lambda_idx]
-        valid_idx <- !is.na(pheno_scaled) & !is.na(pred_cv)
-        if (sum(valid_idx) > 1) {
-            r_squared_cv <- cor(pheno_scaled[valid_idx], pred_cv[valid_idx])^2
-        } else {
-            cat("Warning: Not enough valid data points to calculate CV R^2.\n")
-        }
-    } else {
-        cat("Warning: Using fallback prediction method for CV R^2.\n")
-        pred_fallback <- predict(final_model, G_clumped[], s = "lambda.min")
-        valid_idx     <- !is.na(pheno_scaled) & !is.na(pred_fallback)
-        if (sum(valid_idx) > 1) {
-            r_squared_cv <- cor(pheno_scaled[valid_idx], pred_fallback[valid_idx])^2
-        }
+    pred_cv <- predict(final_model, G_clumped[], s = "lambda.min")
+    valid_idx     <- !is.na(pheno_scaled) & !is.na(pred_cv)
+    if (sum(valid_idx) > 1) {
+        r_squared_cv <- cor(pheno_scaled[valid_idx], pred_cv[valid_idx])^2
     }
     cat(sprintf("Cross-validated R^2 from Ridge regression: %.4f\n",
                 r_squared_cv))
