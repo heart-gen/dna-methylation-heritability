@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # === CONFIG ===
-total_tasks=12078
-chunk_size=750
+total_tasks=9974
+chunk_size=1000
 script="../_h/elastic_h2_array-01.sh"
 jobids=()
 
