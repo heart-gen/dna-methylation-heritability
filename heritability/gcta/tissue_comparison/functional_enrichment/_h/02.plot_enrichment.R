@@ -3,6 +3,7 @@ suppressPackageStartupMessages({
     library(dplyr)
     library(ggplot2)
     library(here)
+    library(RColorBrewer)
 })
 
 save_plot <- function(p, fn, w, h){
@@ -14,7 +15,7 @@ save_plot <- function(p, fn, w, h){
 get_top_GO <- function(tissue){
     err <- 1e-15
     fn  <- here("heritability/gcta/tissue_comparison/functional_enrichment/_m", 
-                paste0(tolower(tissue), "_heritable_h2_pval_GO.csv"))
+                paste0(tolower(tissue), "_non_heritable_h2_pval_GO.csv"))
     return(data.table::fread(fn) |>
            filter(stringr::str_detect(id, "^GO")) |>
            arrange(p_value) |> head(10) |>
@@ -48,7 +49,7 @@ plot_GO <- function(){
 
 #### MAIN
 gg = plot_GO()
-fn = here("heritability/gcta/tissue_comparison/functional_enrichment/_m/heritable_VMRs.GO.stacked")
+fn = here("heritability/gcta/tissue_comparison/functional_enrichment/_m/non_heritable_VMRs.GO.stacked")
 save_plot(gg, fn, 14, 6)
 
 #### Reproducibility information
