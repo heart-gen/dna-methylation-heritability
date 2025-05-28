@@ -57,24 +57,24 @@ module load plink/2.0-alpha-3.3
 module list
 
 # check chromosome size information
+
 WINDOW=500000
 CHR_SIZE=$(grep "^chr1[[:space:]]" $CHR_FILE | cut -f2)
 
 START_POS=$((START - WINDOW))
+END_POS=$((END + WINDOW))
+
+echo "Extracting SNPs from all subjects on $CHR: $START-$END ($WINDOW bp window)"
 
 if (( START_POS <= 0 )); then
     echo "ERROR: Start position is below zero."
     exit 1
 fi
 
-END_POS=$((END + WINDOW))
-
 if (( END_POS >= CHR_SIZE )); then
     echo "ERROR: End position exceeds Chromosome $CHR size."
     exit 1
 fi
-
-echo "Extracting SNPs from all subjects on $CHR: $START_POS-$END_POS"
 
 plink2 --pfile "$DATA/TOPMed_LIBD.AA" \
        --chr "$CHR" \
@@ -83,7 +83,7 @@ plink2 --pfile "$DATA/TOPMed_LIBD.AA" \
        --make-bed \
        --out "$CHR_DIR/TOPMed_LIBD.AA.${START}_${END}"
 
-echo "Extracting SNPs from AA subjects on $CHR: $START_POS-$END_POS"
+echo "Extracting SNPs from AA subjects on $CHR: $START-$END ($WINDOW bp window)" 
 
 # Subset of SNPs in AA cohort
 plink2 --pfile "$DATA/TOPMed_LIBD.AA" \

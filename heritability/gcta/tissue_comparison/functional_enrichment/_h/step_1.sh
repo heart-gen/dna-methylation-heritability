@@ -1,10 +1,10 @@
 #!/bin/bash
 #SBATCH --account=p32505        # Replace with your allocation
 #SBATCH --partition=short       # Partition (queue) name
-#SBATCH --time=01:00:00         # Time limit hrs:min:sec
+#SBATCH --time=03:00:00         # Time limit hrs:min:sec
 #SBATCH --nodes=1               # Number of nodes
 #SBATCH --ntasks-per-node=1     # Number of cores (CPU)
-#SBATCH --mem=10G                # Memory limit
+#SBATCH --mem=15G                # Memory limit
 #SBATCH --mail-type=FAIL
 #SBATCH --mail-user=alexis.bennett@northwestern.edu
 #SBATCH --job-name=get_enrichment # Job name
@@ -33,10 +33,10 @@ module list
 # Set path variables
 ENV_PATH="/projects/p32505/opt/env"
 
-log_message "Performing GO enrichment for each brain region"
+log_message "Performing functional enrichment for each brain region"
 
 ## Activate conda environment
-conda run -p $ENV_PATH/R_env Rscript ../_h/01.get_enrichment.R
+conda run -p $ENV_PATH/r_env Rscript ../_h/01.get_enrichment.R
 
 if [ $? -ne 0 ]; then
     log_message "Error: Conda or script execution failed"
