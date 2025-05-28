@@ -55,7 +55,7 @@ ENV_PATH="/projects/p32505/opt/env"
 echo "Working on: Chromosome "$CHR:$START-$END 
 
 ## Activate conda environment
-conda run -p $ENV_PATH/R_env Rscript ../_h/03.cal_vmr.R $CHR $START $END
+conda run -p $ENV_PATH/r_env Rscript ../_h/03.cal_vmr.R $CHR $START $END
 if [ $? -ne 0 ]; then
     log_message "Error: Conda or script execution failed"
     exit 1
