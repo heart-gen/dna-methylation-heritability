@@ -1,0 +1,131 @@
+2025-05-27 13:41:49 - **** Job starts ****
+**** BRIDGES info ****
+User: owb0346
+Job id: 4464197
+Job name: elastic_h2
+Node name: 
+Hostname: qnode0018
+OFFSET: 751
+SLURM_ARRAY_TASK_ID: 488
+Computed task_id: 1238
+No modules loaded
+2025-05-27 13:41:49 - **** Run elastic net ****
+here() starts at /gpfs/projects/b1213/users/kynon/projects/dna-methylation-heritability
+Loading required package: Matrix
+Loaded glmnet 4.1-8
+Loading required package: bigstatsr
+Warning message:
+In replaceMat(x$address_rw, i, j, value) :
+  At least one value changed (nan -> 0)
+  while converting from R type 'double' to C type 'unsigned char (raw)'.
+There were 11 warnings (use warnings() to see them)
+
+Processing PLINK file: subset_TOPMed_LIBD.AA.188123566_188123884.bed 
+Processing VMR file: 188123566_188123884_meth.phen 
+Imputing missing genotypes using mode...
+Number of SNPs before clumping:  5164 
+Number of SNPs after clumping:  211 
+Starting boosting framework...
+Boosting iteration:  1 
+Incremental h2 this iteration:  0.32638 
+Boosting iteration:  2 
+Incremental h2 this iteration:  0.00000 
+Boosting iteration:  3 
+Incremental h2 this iteration:  0.00000 
+Boosting iteration:  4 
+Incremental h2 this iteration:  0.00000 
+Boosting iteration:  5 
+Incremental h2 this iteration:  0.00000 
+Boosting iteration:  6 
+Incremental h2 this iteration:  0.00000 
+Boosting iteration:  7 
+Incremental h2 this iteration:  0.00000 
+Boosting iteration:  8 
+Incremental h2 this iteration:  0.00000 
+Boosting iteration:  9 
+Incremental h2 this iteration:  0.00000 
+Boosting iteration:  10 
+Incremental h2 this iteration:  0.00000 
+Boosting iteration:  11 
+Incremental h2 this iteration:  0.00000 
+Early stopping criterion met at iteration:  11 
+Refitting final model using Ridge regression...
+Cross-validated R^2 from Ridge regression: 0.7421
+Total SNP-based h2 (unscaled): 0.1508
+Final h2: 0.3264
+[1] "Reproducibility information:"
+[1] "2025-05-27 13:46:19 CDT"
+   user  system elapsed 
+264.770   0.806 267.255 
+─ Session info ───────────────────────────────────────────────────────────────────────────────────────────────────────
+ setting  value
+ version  R version 4.4.3 (2025-02-28)
+ os       Red Hat Enterprise Linux 8.10 (Ootpa)
+ system   x86_64, linux-gnu
+ ui       X11
+ language (EN)
+ collate  en_US.UTF-8
+ ctype    en_US.UTF-8
+ tz       America/Chicago
+ date     2025-05-27
+ pandoc   3.7.0.1 @ /projects/p32505/opt/env/r_env/bin/pandoc
+ quarto   NA
+
+─ Packages ───────────────────────────────────────────────────────────────────────────────────────────────────────────
+ package      * version date (UTC) lib source
+ bigassertr     0.1.6   2023-01-10 [1] CRAN (R 4.4.3)
+ bigparallelr   0.3.2   2021-10-02 [1] CRAN (R 4.4.3)
+ bigreadr       0.2.5   2022-12-06 [1] CRAN (R 4.4.3)
+ bigsnpr      * 1.12.18 2024-11-26 [1] CRAN (R 4.4.3)
+ bigsparser     0.7.3   2024-09-06 [1] CRAN (R 4.4.3)
+ bigstatsr    * 1.6.1   2024-09-09 [1] CRAN (R 4.4.3)
+ bit            4.6.0   2025-03-06 [1] CRAN (R 4.4.3)
+ cli            3.6.5   2025-04-23 [1] CRAN (R 4.4.3)
+ codetools      0.2-20  2024-03-31 [1] CRAN (R 4.4.1)
+ cowplot        1.1.3   2024-01-22 [1] CRAN (R 4.4.3)
+ data.table     1.17.2  2025-05-12 [1] CRAN (R 4.4.3)
+ digest         0.6.37  2024-08-19 [1] CRAN (R 4.4.1)
+ doParallel     1.0.17  2022-02-07 [1] CRAN (R 4.4.3)
+ doRNG          1.8.6.2 2025-04-02 [1] CRAN (R 4.4.3)
+ dplyr          1.1.4   2023-11-17 [1] CRAN (R 4.4.1)
+ farver         2.1.2   2024-05-13 [1] CRAN (R 4.4.1)
+ ff             4.5.2   2025-01-13 [1] CRAN (R 4.4.3)
+ flock          0.7     2016-11-12 [1] CRAN (R 4.4.3)
+ foreach        1.5.2   2022-02-02 [1] CRAN (R 4.4.1)
+ generics       0.1.4   2025-05-09 [1] CRAN (R 4.4.3)
+ ggplot2        3.5.2   2025-04-09 [1] CRAN (R 4.4.3)
+ glmnet       * 4.1-8   2023-08-22 [1] CRAN (R 4.4.1)
+ glue           1.8.0   2024-09-30 [1] CRAN (R 4.4.1)
+ gtable         0.3.6   2024-10-25 [1] CRAN (R 4.4.1)
+ here         * 1.0.1   2020-12-13 [1] CRAN (R 4.4.3)
+ iterators      1.0.14  2022-02-05 [1] CRAN (R 4.4.1)
+ lattice        0.22-7  2025-04-02 [1] CRAN (R 4.4.3)
+ lifecycle      1.0.4   2023-11-07 [1] CRAN (R 4.4.1)
+ magrittr       2.0.3   2022-03-30 [1] CRAN (R 4.4.1)
+ Matrix       * 1.7-3   2025-03-11 [1] CRAN (R 4.4.3)
+ parallelly     1.44.0  2025-05-07 [1] CRAN (R 4.4.3)
+ pillar         1.10.2  2025-04-05 [1] CRAN (R 4.4.3)
+ pkgconfig      2.0.3   2019-09-22 [1] CRAN (R 4.4.1)
+ ps             1.9.1   2025-04-12 [1] CRAN (R 4.4.3)
+ R6             2.6.1   2025-02-15 [1] CRAN (R 4.4.2)
+ RColorBrewer   1.1-3   2022-04-03 [1] CRAN (R 4.4.1)
+ Rcpp           1.0.14  2025-01-12 [1] CRAN (R 4.4.2)
+ rlang          1.1.6   2025-04-11 [1] CRAN (R 4.4.3)
+ rmio           0.4.0   2022-02-17 [1] CRAN (R 4.4.3)
+ rngtools       1.5.2   2021-09-20 [1] CRAN (R 4.4.3)
+ rprojroot      2.0.4   2023-11-05 [1] CRAN (R 4.4.3)
+ scales         1.4.0   2025-04-24 [1] CRAN (R 4.4.3)
+ sessioninfo    1.2.3   2025-02-05 [1] CRAN (R 4.4.3)
+ shape          1.4.6.1 2024-02-23 [1] CRAN (R 4.4.1)
+ survival       3.8-3   2024-12-17 [1] CRAN (R 4.4.2)
+ tibble         3.2.1   2023-03-20 [1] CRAN (R 4.4.1)
+ tidyselect     1.2.1   2024-03-11 [1] CRAN (R 4.4.1)
+ vctrs          0.6.5   2023-12-01 [1] CRAN (R 4.4.1)
+ withr          3.0.2   2024-10-28 [1] CRAN (R 4.4.1)
+
+ [1] /gpfs/projects/p32505/opt/env/r_env/lib/R/library
+ * ── Packages attached to the search path.
+
+──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+2025-05-27 13:46:20 - **** Job ends ****

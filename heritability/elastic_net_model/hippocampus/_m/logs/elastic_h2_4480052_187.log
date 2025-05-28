@@ -1,0 +1,21 @@
+2025-05-27 14:30:30 - **** Job starts ****
+**** BRIDGES info ****
+User: owb0346
+Job id: 4480518
+Job name: elastic_h2
+Node name: 
+Hostname: qnode0413
+OFFSET: 9001
+SLURM_ARRAY_TASK_ID: 187
+Computed task_id: 9187
+No modules loaded
+2025-05-27 14:30:30 - **** Run elastic net ****
+here() starts at /gpfs/projects/b1213/users/kynon/projects/dna-methylation-heritability
+Loading required package: Matrix
+Loaded glmnet 4.1-8
+Loading required package: bigstatsr
+Skipping blacklisted region: 19:422533-422682
+
+Task ID  9187  corresponds to a blacklisted region. Exiting.
+
+2025-05-27 14:30:35 - **** Job ends ****
