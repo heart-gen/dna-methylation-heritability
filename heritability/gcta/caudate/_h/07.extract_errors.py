@@ -17,7 +17,7 @@ pipeline_steps = {
         ]
     },
     "greml": {
-        "region": re.compile(r'Perfoming GREML analysis on ([0-9XY]+): ([0-9]+)-([0-9]+)', re.IGNORECASE),
+        "region": re.compile(r'Performing GREML analysis on ([0-9XY]+): ([0-9]+)-([0-9]+)', re.IGNORECASE),
         "error": [
             re.compile(r'analysis stopped because more than half of the variance components are constrained', re.IGNORECASE),
             re.compile(r'\.fam not found', re.IGNORECASE),

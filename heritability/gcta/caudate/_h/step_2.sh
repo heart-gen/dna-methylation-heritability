@@ -46,7 +46,7 @@ ENV_PATH="/projects/p32505/opt/env"
 echo "Working on: Chromosome "$SLURM_ARRAY_TASK_ID
 
 ## Activate conda environment
-conda run -p $ENV_PATH/R_env Rscript ../_h/02.pca.R $SLURM_ARRAY_TASK_ID
+conda run -p $ENV_PATH/r_env Rscript ../_h/02.pca.R $SLURM_ARRAY_TASK_ID
 if [ $? -ne 0 ]; then
     log_message "Error: Conda or script execution failed"
     exit 1

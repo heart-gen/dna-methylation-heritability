@@ -47,7 +47,7 @@ echo "Working on: Chromosome "$SLURM_ARRAY_TASK_ID
 
 ## Activate conda environment
 #source /projects/p32505/opt/miniforge3/etc/profile.d/conda.sh
-conda run -p $ENV_PATH/R_env Rscript ../_h/01.extract_vmr.R $SLURM_ARRAY_TASK_ID
+conda run -p $ENV_PATH/r_env Rscript ../_h/01.extract_vmr.R $SLURM_ARRAY_TASK_ID
 if [ $? -ne 0 ]; then
     log_message "Error: Conda or script execution failed"
     exit 1
