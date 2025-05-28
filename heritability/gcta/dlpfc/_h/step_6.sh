@@ -8,7 +8,7 @@
 #SBATCH --mail-type=FAIL
 #SBATCH --mail-user=alexis.bennett@northwestern.edu
 #SBATCH --job-name=greml_summary # Job name
-#SBATCH --output=logs/output.%j.log # Standard output log
+#SBATCH --output=logs/greml_summary.%j.log # Standard output log
 
 # Log function
 log_message() {

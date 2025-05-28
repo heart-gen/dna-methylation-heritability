@@ -63,7 +63,7 @@ module list
 BFILE="$WORKING/plink_format/chr_${CHR}/TOPMed_LIBD.AA.${START}_${END}"
 
 if [ ! -f "${BFILE}.bed" ] || [ ! -f "${BFILE}.bim" ] || [ ! -f "${BFILE}.fam" ]; then
-    log_message "SNP files for region $CHR:$START-$END not found. Skipping."
+    log_message "SNP files for region $CHR: $START-$END not found. Skipping."
     exit 0
 fi
 
@@ -76,7 +76,7 @@ gcta64 --bfile $WORKING/plink_format/chr_${CHR}/TOPMed_LIBD.AA.${START}_${END} \
 
 ## Activate conda environment
 # Stratify SNPs based on individual LD scores
-conda run -p $ENV_PATH/R_env Rscript ../_h/05.stratify_LD.R $CHR $START $END
+conda run -p $ENV_PATH/r_env Rscript ../_h/05.stratify_LD.R $CHR $START $END
 
 if [ $? -ne 0 ]; then
     log_message "Error: Conda or script execution failed"
