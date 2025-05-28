@@ -15,7 +15,7 @@
 ## Edit with your job command
 REGION_LIST="./vmr_list.txt"
 CHR_FILE="/projects/b1213/resources/genomes/human/gencode-v47/fasta/chromosome_sizes.txt"
-DATA="/projects/p32505/projects/dna-methylation-heritability/inputs/genotypes"
+DATA="/projects/p32505/users/alexis/projects/dna-methylation-heritability/inputs/genotypes"
 WORKING="./"
 OUTPUT="./h2"
 
@@ -58,9 +58,16 @@ module purge
 module load gcta/1.94.0
 module list
 
-echo "Perfoming GREML analysis on $CHR: $START-$END"
-
 ##### GREML-LDMS #####
+# Check if SNP data exists
+BFILE="$WORKING/plink_format/chr_${CHR}/TOPMed_LIBD.AA.${START}_${END}"
+
+if [ ! -f "${BFILE}.bed" ] || [ ! -f "${BFILE}.bim" ] || [ ! -f "${BFILE}.fam" ]; then
+    log_message "SNP files for region $CHR: $START-$END not found. Skipping."
+    exit 0
+fi
+
+echo "Perfoming GREML analysis on $CHR: $START-$END"
 
 # Calculate SNP LD scores
 gcta64 --bfile $WORKING/plink_format/chr_${CHR}/TOPMed_LIBD.AA.${START}_${END} \
@@ -69,7 +76,7 @@ gcta64 --bfile $WORKING/plink_format/chr_${CHR}/TOPMed_LIBD.AA.${START}_${END} \
 
 ## Activate conda environment
 # Stratify SNPs based on individual LD scores
-conda run -p $ENV_PATH/R_env Rscript ../_h/05.stratify_LD.R $CHR $START $END
+conda run -p $ENV_PATH/r_env Rscript ../_h/05.stratify_LD.R $CHR $START $END
 
 if [ $? -ne 0 ]; then
     log_message "Error: Conda or script execution failed"
@@ -94,3 +101,5 @@ gcta64 --reml \
        --covar $WORKING/covs/chr_${CHR}/TOPMed_LIBD.AA.covar \
        --qcovar $WORKING/covs/chr_${CHR}/TOPMed_LIBD.AA.qcovar \
        --out $CHR_DIR/TOPMed_LIBD.AA.${START}_${END}
+
+log_message "**** Job ends ****"
