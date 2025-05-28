@@ -26,11 +26,11 @@ filter_heritability <- function(tissue,
 
                                         # Filter by heritability
     if (apply_h2_filter) {
-        top_10  <- quantile(vmr$Sum.of.V.G._Vp_Variance, 0.90, na.rm = TRUE)
+        h2_thresh  <- 0.75
         if (heritability_filter == "heritable") {
-            vmr <- dplyr::filter(vmr, Sum.of.V.G._Vp_Variance >= top_10)
+            vmr <- dplyr::filter(vmr, Sum.of.V.G._Vp_Variance >= h2_thresh)
         } else if (heritability_filter == "non_heritable") {
-            vmr <- dplyr::filter(vmr, Sum.of.V.G._Vp_Variance < top_10)
+            vmr <- dplyr::filter(vmr, Sum.of.V.G._Vp_Variance < h2_thresh)
         }
     }
 
