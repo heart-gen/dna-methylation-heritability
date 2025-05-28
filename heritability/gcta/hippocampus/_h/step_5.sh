@@ -67,7 +67,7 @@ if [ ! -f "${BFILE}.bed" ] || [ ! -f "${BFILE}.bim" ] || [ ! -f "${BFILE}.fam" ]
     exit 0
 fi
 
-echo "Perfoming GREML analysis on $CHR: $START-$END"
+echo "Performing GREML analysis on $CHR: $START-$END"
 
 # Calculate SNP LD scores
 gcta64 --bfile $WORKING/plink_format/chr_${CHR}/TOPMed_LIBD.AA.${START}_${END} \
