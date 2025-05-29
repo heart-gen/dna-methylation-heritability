@@ -7,8 +7,8 @@
 #SBATCH --mem=5G                # Memory limit
 #SBATCH --mail-type=FAIL
 #SBATCH --mail-user=alexis.bennett@northwestern.edu
-#SBATCH --job-name=h2_filter # Job name
-#SBATCH --output=logs/h2_filter.%j.log # Standard output log
+#SBATCH --job-name=non_heritable_sig # Job name
+#SBATCH --output=logs/non_heritable_sig.%j.log # Standard output log
 
 # Log function
 log_message() {
@@ -33,10 +33,10 @@ module list
 # Set path variables
 ENV_PATH="/projects/p32505/opt/env"
 
-log_message "Summarizing summary statistics for all p-value thresholds"
+log_message "Extracting statistically significant non-heritable VMRs"
 
 ## Activate conda environment
-conda run -p $ENV_PATH/r_env Rscript ../_h/02.summarize_h2_filter.R
+conda run -p $ENV_PATH/r_env Rscript ../_h/03.extract_non_heritable_rois.R
 
 if [ $? -ne 0 ]; then
     log_message "Error: Conda or script execution failed"
