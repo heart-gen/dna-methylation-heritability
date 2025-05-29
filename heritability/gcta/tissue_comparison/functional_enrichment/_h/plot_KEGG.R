@@ -59,6 +59,9 @@ plot_GO <- function(){
     scale_colour_manual(name="Brain Region", values=cbPalette,
                         labels=c("Caudate","DLPFC","Hippocampus")) +
     scale_size_continuous(range = c(2, 10)) +
+    guides(
+      colour = guide_legend(override.aes = list(size = 6))
+    ) +
     theme_bw(base_size=15) +
     theme(axis.title=element_text(face='bold'),
           strip.text=element_text(face='bold'))
@@ -67,7 +70,11 @@ plot_GO <- function(){
 
 #### MAIN
 gg = plot_GO()
-fn = here("heritability/gcta/tissue_comparison/functional_enrichment/_m/all_VMRs.KEGG.stacked")
+out_path = here("heritability/gcta/tissue_comparison/functional_enrichment/_m/plots")
+if (!dir.exists(out_path)) {
+  dir.create(out_path, recursive = TRUE)
+}
+fn = file.path(out_path, "all_VMRs.KEGG.stacked")
 save_plot(gg, fn, 14, 6)
 
 #### Reproducibility information
