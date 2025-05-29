@@ -1,0 +1,2 @@
+"id","genome_fraction","observed_region_hits","fold_enrichment","p_value","p_adjust","mean_tss_dist","observed_gene_hits","gene_set_size","fold_enrichment_hyper","p_value_hyper","p_adjust_hyper"
+"Reference proteome",0.95573057252975,5,1.04631998676476,0.797402134074687,0.797402134074687,129776,10,7162,1.07260541748115,0.495924164149988,0.495924164149988
