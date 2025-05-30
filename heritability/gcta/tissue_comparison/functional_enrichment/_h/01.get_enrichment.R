@@ -16,10 +16,9 @@ filter_heritability <- function(tissue,
                                 pval_filter = NULL,
                                 apply_h2_filter = FALSE) {
                                         # Read in summary table
-    vmr_test <- "/projects/p32505/users/alexis/projects/dna-methylation-heritability/heritability/gcta/caudate/_m/summary_to_del/greml_summary.tsv"
     vmr_file <- here("heritability/gcta", tissue,
                      "_m/summary/greml_summary.tsv")
-    vmr <- read.table(vmr_test, sep = "\t", header = TRUE)
+    vmr <- read.table(vmr_file, sep = "\t", header = TRUE)
 
                                         # Apply FDR correction
     vmr$Pval_Variance <- p.adjust(vmr$Pval_Variance, method = "fdr")
