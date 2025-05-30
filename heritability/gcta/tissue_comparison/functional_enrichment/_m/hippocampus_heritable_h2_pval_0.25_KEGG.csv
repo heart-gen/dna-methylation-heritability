@@ -1,1 +1,2 @@
 "id","genome_fraction","observed_region_hits","fold_enrichment","p_value","p_adjust","mean_tss_dist","observed_gene_hits","gene_set_size","fold_enrichment_hyper","p_value_hyper","p_adjust_hyper"
+"hsa01100",0.125708739552962,6,2.07519036580177,0.0600546134180806,0.0600546134180806,181315,6,642,1.88932611903591,0.093064821507756,0.093064821507756
