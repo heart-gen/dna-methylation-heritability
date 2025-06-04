@@ -27,7 +27,7 @@ module purge
 module list
 
 ENV_PATH="/projects/p32505/opt/env"
-export region="DLPFC"
+export region="Caudate"
 
 log_message "**** Run summary ****"
 conda run -p "${ENV_PATH}/r_env" Rscript ../_h/02.combined-data.R
