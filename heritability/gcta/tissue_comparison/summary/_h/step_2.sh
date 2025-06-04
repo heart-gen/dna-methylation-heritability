@@ -36,7 +36,7 @@ ENV_PATH="/projects/p32505/opt/env"
 log_message "Summarizing summary statistics for all p-value thresholds"
 
 ## Activate conda environment
-conda run -p $ENV_PATH/R_env Rscript ../_h/02.summarize_h2_filter.R
+conda run -p $ENV_PATH/r_env Rscript ../_h/02.summarize_h2_filter.R
 
 if [ $? -ne 0 ]; then
     log_message "Error: Conda or script execution failed"
