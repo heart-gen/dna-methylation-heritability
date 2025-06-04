@@ -6,6 +6,7 @@ suppressPackageStartupMessages({
     library(RColorBrewer)
 })
 
+# Function
 save_plot <- function(p, fn, w, h){
     for(ext in c('.png', '.pdf')){
         ggsave(file=paste0(fn,ext), plot=p, width=w, height=h)
@@ -15,7 +16,7 @@ save_plot <- function(p, fn, w, h){
 get_top_GO <- function(tissue){
     err <- 1e-15
     fn  <- here("heritability/gcta/tissue_comparison/functional_enrichment/_m", 
-                paste0(tolower(tissue), "_non_heritable_h2_pval_GO.csv"))
+                paste0(tolower(tissue), "_non_heritable_h2_pval_0.25_GO_BP.csv"))
     return(data.table::fread(fn) |>
            filter(stringr::str_detect(id, "^GO")) |>
            arrange(p_value) |> head(10) |>
@@ -41,15 +42,22 @@ plot_GO <- function(){
         scale_colour_manual(name="Brain Region", values=cbPalette,
                             labels=c("Caudate","DLPFC","Hippocampus")) +
         scale_size_continuous(range = c(2, 10)) +
+        guides(
+          colour = guide_legend(override.aes = list(size = 6))
+        ) +
         theme_bw(base_size=15) +
         theme(axis.title=element_text(face='bold'),
               strip.text=element_text(face='bold'))
     return(gg1)
 }
 
-#### MAIN
+# Main
 gg = plot_GO()
-fn = here("heritability/gcta/tissue_comparison/functional_enrichment/_m/non_heritable_VMRs.GO.stacked")
+out_path = here("heritability/gcta/tissue_comparison/functional_enrichment/_m/plots")
+if (!dir.exists(out_path)) {
+        dir.create(out_path, recursive = TRUE)
+}
+fn = file.path(out_path, "non_heritable_VMRs_pval_0.25.GO_BP.stacked")
 save_plot(gg, fn, 14, 6)
 
 #### Reproducibility information
