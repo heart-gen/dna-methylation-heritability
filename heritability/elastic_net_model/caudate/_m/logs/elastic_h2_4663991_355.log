@@ -1,0 +1,24 @@
+2025-05-28 16:43:38 - **** Job starts ****
+**** Quest info ****
+User: owb0346
+Job id: 4665546
+Job name: elastic_h2
+Node name: 
+Hostname: qnode0024
+OFFSET: 9001
+SLURM_ARRAY_TASK_ID: 355
+Computed task_id: 9355
+No modules loaded
+2025-05-28 16:43:38 - **** Run elastic net ****
+here() starts at /gpfs/projects/b1213/users/kynon/projects/dna-methylation-heritability
+Loading required package: Matrix
+Loaded glmnet 4.1-8
+Loading required package: bigstatsr
+Error: invalid assignment for reference class field ‘nrow’, should be from class “numeric” or a subclass (was class “NULL”)
+Execution halted
+
+ERROR conda.cli.main_run:execute(125): `conda run Rscript ../_h/01.elastic-net.R` failed. (See above for error)
+Processing PLINK file: subset_TOPMed_LIBD.AA.22758216_22758446.bed 
+Processing VMR file: 22758216_22758446_meth.phen 
+
+2025-05-28 16:43:46 - **** Job ends ****
