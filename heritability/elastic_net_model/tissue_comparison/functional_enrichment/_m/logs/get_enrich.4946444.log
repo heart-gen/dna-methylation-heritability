@@ -1,0 +1,11 @@
+2025-06-03 11:22:18 - **** Job starts ****
+**** QUEST info ****
+User: skc6679
+Job id: 4946444
+Job name: get_enrichment
+Node name: 
+Hostname: qnode0026
+Task id: N/A
+No modules loaded
+2025-06-03 11:22:20 - Performing functional enrichment for each brain region
+slurmstepd: error: *** JOB 4946444 ON qnode0026 CANCELLED AT 2025-06-03T12:16:29 ***
