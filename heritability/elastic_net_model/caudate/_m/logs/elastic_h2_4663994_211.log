@@ -1,0 +1,30 @@
+2025-05-28 16:37:44 - **** Job starts ****
+**** Quest info ****
+User: owb0346
+Job id: 4665020
+Job name: elastic_h2
+Node name: 
+Hostname: qnode1009
+OFFSET: 11251
+SLURM_ARRAY_TASK_ID: 211
+Computed task_id: 11461
+No modules loaded
+2025-05-28 16:37:45 - **** Run elastic net ****
+here() starts at /gpfs/projects/b1213/users/kynon/projects/dna-methylation-heritability
+Loading required package: Matrix
+Loaded glmnet 4.1-8
+Loading required package: bigstatsr
+Warning message:
+In replaceMat(x$address_rw, i, j, value) :
+  At least one value changed (nan -> 0)
+  while converting from R type 'double' to C type 'unsigned char (raw)'.
+Error: 'as_FBM()' is not implemented for class 'numeric'.
+Try to use 'big_copy()' instead. Otherwise, you can open an issue.
+Execution halted
+
+ERROR conda.cli.main_run:execute(125): `conda run Rscript ../_h/01.elastic-net.R` failed. (See above for error)
+Processing PLINK file: subset_TOPMed_LIBD.AA.30145358_30148829.bed 
+Processing VMR file: 30145358_30148829_meth.phen 
+Imputing missing genotypes using mode...
+
+2025-05-28 16:37:52 - **** Job ends ****

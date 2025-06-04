@@ -1,0 +1,21 @@
+2025-05-28 16:19:00 - **** Job starts ****
+**** Quest info ****
+User: owb0346
+Job id: 4660689
+Job name: elastic_h2
+Node name: 
+Hostname: qnode0156
+OFFSET: 6751
+SLURM_ARRAY_TASK_ID: 297
+Computed task_id: 7047
+No modules loaded
+2025-05-28 16:19:01 - **** Run elastic net ****
+here() starts at /gpfs/projects/b1213/users/kynon/projects/dna-methylation-heritability
+Loading required package: Matrix
+Loaded glmnet 4.1-8
+Loading required package: bigstatsr
+Skipping blacklisted region: 10:484557-484715
+
+Task ID  7047  corresponds to a blacklisted region. Exiting.
+
+2025-05-28 16:19:08 - **** Job ends ****
