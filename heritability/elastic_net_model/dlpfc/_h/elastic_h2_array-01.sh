@@ -41,4 +41,3 @@ log_message "**** Run elastic net ****"
 conda run -p "${ENV_PATH}/r_env" Rscript ../_h/01.elastic-net.R
 
 log_message "**** Job ends ****"
-

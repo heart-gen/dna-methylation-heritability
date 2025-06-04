@@ -1,0 +1,16 @@
+2025-05-28 12:29:50 - **** Job starts ****
+**** Quest info ****
+User: owb0346
+Job id: 4603491
+Job name: elastic_h2
+Node name: 
+Hostname: qnode0618
+OFFSET: 1
+SLURM_ARRAY_TASK_ID: 545
+Computed task_id: 545
+No modules loaded
+2025-05-28 12:29:51 - **** Run elastic net ****
+Fatal error: cannot create 'R_TempDir'
+
+ERROR conda.cli.main_run:execute(125): `conda run Rscript ../_h/01.elastic-net.R` failed. (See above for error)
+2025-05-28 12:29:54 - **** Job ends ****
