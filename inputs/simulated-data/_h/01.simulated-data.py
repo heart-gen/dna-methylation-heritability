@@ -2,6 +2,7 @@ import argparse
 import numpy as np
 import pandas as pd
 import session_info
+from tqdm import tqdm
 from pathlib import Path
 from random import seed, shuffle
 from scipy.linalg import toeplitz
@@ -100,38 +101,38 @@ def simulate_genotypes(simu_regions, min_snps, max_snps, num_samples, ld_decay):
         bim_records (list): List of lists for BIM file.
         current_snp_id_counter (int): The next available SNP ID number.
     """
-    bim_records = []; geno_lt = []; id_counter = 1; simu_snp_loc = {}
-    # Sort regions for consistent BIM file order
-    sorted_keys = sorted(list(simu_regions.keys()))
+    bim_records = []; simu_snp_loc = {}; geno_lt = []; id_counter = 1
+    sorted_keys = sorted(simu_regions.keys())
     print(f" Simulating genotypes for {len(sorted_keys)} unique causal SNP regions...")
-    for region_idx, (chrom, causal_pos) in enumerate(sorted_keys):
+    for region_idx, (chrom, causal_pos) in enumerate(tqdm(sorted_keys, desc="Simulating regions", unit="region")):
         region_start, region_end = simu_regions[(chrom, causal_pos)]
         num_snps = np.random.randint(min_snps, max_snps + 1)
-        poss_pos = np.arange(region_start, region_end + 1)
-        if len(poss_pos) < num_snps:
-            snp_locs = poss_pos
+        region_span = region_end - region_start + 1
+        if region_span < num_snps:
+            snp_locs = np.arange(region_start, region_end + 1)
         else:
-            locs_pooled = np.setdiff1d(poss_pos, [causal_pos])
-            if len(locs_pooled) < num_snps -1:
-                chosen_locs = locs_pooled
+            causal = np.array([causal_pos])
+            candidate_locs = np.arange(region_start, region_end + 1)
+            candidate_locs = candidate_locs[candidate_locs != causal_pos]
+            if len(candidate_locs) < num_snps - 1:
+                chosen_locs = candidate_locs
             else:
-                chosen_locs = np.random.choice(locs_pooled, num_snps - 1, replace=False)
-            snp_locs = np.sort(np.unique(np.append(chosen_locs, causal_pos)))
+                chosen_locs = np.random.choice(candidate_locs, num_snps - 1, replace=False)
+            snp_locs = np.sort(np.append(chosen_locs, causal))
         snps_in_region = len(snp_locs)
         if snps_in_region == 0:
             continue
-        # Simulate genotypes (SNPs x Samples)
         region_genotypes = simulate_ld_genotypes(snps_in_region, num_samples, ld_decay)
         if region_genotypes.shape[0] == 0:
             continue
-        for i in range(snps_in_region):
-            snp_pos = snp_locs[i]; snp_id = f"rs{id_counter}"; A1, A2 = 'A', 'G'
-            bim_records.append([chrom, snp_id, 0, snp_pos, A1, A2])
-            snp_geno = region_genotypes[i, :]
-            geno_lt.append(snp_geno)
-            simu_snp_loc[(chrom, snp_pos)] = (snp_id, len(geno_lt) - 1)
+        # Fast batch appending
+        for i, pos in enumerate(snp_locs):
+            snp_id = f"rs{id_counter}"
+            bim_records.append((chrom, snp_id, 0, pos, 'A', 'G'))
+            simu_snp_loc[(chrom, pos)] = (snp_id, len(geno_lt))
+            geno_lt.append(region_genotypes[i])
             id_counter += 1
-    geno_mat = np.array(geno_lt)
+    geno_mat = np.vstack(geno_lt) if geno_lt else np.empty((0, num_samples), dtype=np.int8)
     return geno_mat, simu_snp_loc, bim_records
 
 

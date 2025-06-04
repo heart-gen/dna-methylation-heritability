@@ -72,7 +72,6 @@ dev/*
 *.pvar
 *.gz
 *.parquet
-inputs/*
 protected_data/*
 
 # R related files
