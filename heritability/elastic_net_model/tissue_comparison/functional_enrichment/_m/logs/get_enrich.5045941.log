@@ -1,0 +1,3797 @@
+2025-06-05 09:25:51 - **** Job starts ****
+**** QUEST info ****
+User: skc6679
+Job id: 5045941
+Job name: get_enrichment
+Node name: 
+Hostname: qnode0027
+Task id: N/A
+No modules loaded
+2025-06-05 09:25:52 - Performing functional enrichment for each brain region
+Running enrichment: caudate - heritable_h2
+Running GREAT for GO:BP
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* use GO:BP ontology with 15413 gene sets (source: org.Hs.eg.db).
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 5376 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 6984 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for GO:MF
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* use GO:MF ontology with 5034 gene sets (source: org.Hs.eg.db).
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 5376 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 1390 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for KEGG
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 5376 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 351 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for reactome
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 5376 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 1646 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for uniprot
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 5376 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 447 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for msigdb:C7:IMMUNESIGDB
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 5376 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 4872 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running enrichment: dlpfc - heritable_h2
+Running GREAT for GO:BP
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* use GO:BP ontology with 15413 gene sets (source: org.Hs.eg.db).
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 2528 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 6795 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for GO:MF
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* use GO:MF ontology with 5034 gene sets (source: org.Hs.eg.db).
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 2528 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 1331 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for KEGG
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 2528 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 349 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for reactome
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 2528 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 1650 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for uniprot
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 2528 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 434 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for msigdb:C7:IMMUNESIGDB
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 2528 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 4872 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running enrichment: hippocampus - heritable_h2
+Running GREAT for GO:BP
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* use GO:BP ontology with 15413 gene sets (source: org.Hs.eg.db).
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 5479 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 6564 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for GO:MF
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* use GO:MF ontology with 5034 gene sets (source: org.Hs.eg.db).
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 5479 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 1249 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for KEGG
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 5479 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 347 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for reactome
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 5479 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 1572 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for uniprot
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 5479 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 411 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for msigdb:C7:IMMUNESIGDB
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 5479 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 4872 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running enrichment: caudate - non_heritable_h2
+Running GREAT for GO:BP
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* use GO:BP ontology with 15413 gene sets (source: org.Hs.eg.db).
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 6391 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 6984 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for GO:MF
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* use GO:MF ontology with 5034 gene sets (source: org.Hs.eg.db).
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 6391 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 1390 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for KEGG
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 6391 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 351 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for reactome
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 6391 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 1646 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for uniprot
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 6391 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 447 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for msigdb:C7:IMMUNESIGDB
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 6391 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 4872 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running enrichment: dlpfc - non_heritable_h2
+Running GREAT for GO:BP
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* use GO:BP ontology with 15413 gene sets (source: org.Hs.eg.db).
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 1729 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 6795 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for GO:MF
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* use GO:MF ontology with 5034 gene sets (source: org.Hs.eg.db).
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 1729 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 1331 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for KEGG
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 1729 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 349 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for reactome
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 1729 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 1650 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for uniprot
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 1729 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 434 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for msigdb:C7:IMMUNESIGDB
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 1729 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 4872 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running enrichment: hippocampus - non_heritable_h2
+Running GREAT for GO:BP
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* use GO:BP ontology with 15413 gene sets (source: org.Hs.eg.db).
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 4211 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 6564 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for GO:MF
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* use GO:MF ontology with 5034 gene sets (source: org.Hs.eg.db).
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 4211 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 1249 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for KEGG
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 4211 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 347 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for reactome
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 4211 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 1572 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for uniprot
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 4211 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 411 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for msigdb:C7:IMMUNESIGDB
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 4211 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 4872 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running enrichment: caudate - heritable_h2_r2_0.5
+Running GREAT for GO:BP
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* use GO:BP ontology with 15413 gene sets (source: org.Hs.eg.db).
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 5350 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 6984 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for GO:MF
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* use GO:MF ontology with 5034 gene sets (source: org.Hs.eg.db).
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 5350 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 1390 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for KEGG
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 5350 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 351 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for reactome
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 5350 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 1646 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for uniprot
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 5350 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 447 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for msigdb:C7:IMMUNESIGDB
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 5350 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 4872 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running enrichment: dlpfc - heritable_h2_r2_0.5
+Running GREAT for GO:BP
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* use GO:BP ontology with 15413 gene sets (source: org.Hs.eg.db).
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 2521 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 6795 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for GO:MF
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* use GO:MF ontology with 5034 gene sets (source: org.Hs.eg.db).
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 2521 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 1331 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for KEGG
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 2521 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 349 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for reactome
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 2521 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 1650 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for uniprot
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 2521 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 434 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for msigdb:C7:IMMUNESIGDB
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 2521 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 4872 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running enrichment: hippocampus - heritable_h2_r2_0.5
+Running GREAT for GO:BP
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* use GO:BP ontology with 15413 gene sets (source: org.Hs.eg.db).
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 5440 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 6564 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for GO:MF
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* use GO:MF ontology with 5034 gene sets (source: org.Hs.eg.db).
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 5440 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 1249 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for KEGG
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 5440 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 347 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for reactome
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 5440 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 1572 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for uniprot
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 5440 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 411 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for msigdb:C7:IMMUNESIGDB
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 5440 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 4872 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running enrichment: caudate - non_heritable_h2_r2_0.5
+Running GREAT for GO:BP
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* use GO:BP ontology with 15413 gene sets (source: org.Hs.eg.db).
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 6218 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 6984 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for GO:MF
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* use GO:MF ontology with 5034 gene sets (source: org.Hs.eg.db).
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 6218 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 1390 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for KEGG
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 6218 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 351 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for reactome
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 6218 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 1646 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for uniprot
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 6218 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 447 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for msigdb:C7:IMMUNESIGDB
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 6218 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 4872 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running enrichment: dlpfc - non_heritable_h2_r2_0.5
+Running GREAT for GO:BP
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* use GO:BP ontology with 15413 gene sets (source: org.Hs.eg.db).
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 1706 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 6795 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for GO:MF
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* use GO:MF ontology with 5034 gene sets (source: org.Hs.eg.db).
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 1706 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 1331 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for KEGG
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 1706 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 349 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for reactome
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 1706 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 1650 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for uniprot
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 1706 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 434 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for msigdb:C7:IMMUNESIGDB
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 1706 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 4872 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running enrichment: hippocampus - non_heritable_h2_r2_0.5
+Running GREAT for GO:BP
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* use GO:BP ontology with 15413 gene sets (source: org.Hs.eg.db).
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 4083 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 6564 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for GO:MF
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* use GO:MF ontology with 5034 gene sets (source: org.Hs.eg.db).
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 4083 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 1249 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for KEGG
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 4083 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 347 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for reactome
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 4083 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 1572 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for uniprot
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 4083 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 411 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for msigdb:C7:IMMUNESIGDB
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 4083 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 4872 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running enrichment: caudate - heritable_h2_r2_0.75
+Running GREAT for GO:BP
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* use GO:BP ontology with 15413 gene sets (source: org.Hs.eg.db).
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 4931 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 6984 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for GO:MF
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* use GO:MF ontology with 5034 gene sets (source: org.Hs.eg.db).
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 4931 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 1390 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for KEGG
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 4931 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 351 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for reactome
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 4931 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 1646 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for uniprot
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 4931 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 447 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for msigdb:C7:IMMUNESIGDB
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 4931 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 4872 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running enrichment: dlpfc - heritable_h2_r2_0.75
+Running GREAT for GO:BP
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* use GO:BP ontology with 15413 gene sets (source: org.Hs.eg.db).
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 2399 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 6795 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for GO:MF
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* use GO:MF ontology with 5034 gene sets (source: org.Hs.eg.db).
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 2399 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 1331 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for KEGG
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 2399 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 349 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for reactome
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 2399 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 1650 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for uniprot
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 2399 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 434 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for msigdb:C7:IMMUNESIGDB
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 2399 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 4872 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running enrichment: hippocampus - heritable_h2_r2_0.75
+Running GREAT for GO:BP
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* use GO:BP ontology with 15413 gene sets (source: org.Hs.eg.db).
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 5148 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 6564 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for GO:MF
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* use GO:MF ontology with 5034 gene sets (source: org.Hs.eg.db).
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 5148 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 1249 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for KEGG
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 5148 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 347 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for reactome
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 5148 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 1572 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for uniprot
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 5148 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 411 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for msigdb:C7:IMMUNESIGDB
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 5148 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 4872 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running enrichment: caudate - non_heritable_h2_r2_0.75
+Running GREAT for GO:BP
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* use GO:BP ontology with 15413 gene sets (source: org.Hs.eg.db).
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 4945 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 6984 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for GO:MF
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* use GO:MF ontology with 5034 gene sets (source: org.Hs.eg.db).
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 4945 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 1390 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for KEGG
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 4945 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 351 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for reactome
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 4945 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 1646 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for uniprot
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 4945 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 447 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for msigdb:C7:IMMUNESIGDB
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 4945 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 4872 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running enrichment: dlpfc - non_heritable_h2_r2_0.75
+Running GREAT for GO:BP
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* use GO:BP ontology with 15413 gene sets (source: org.Hs.eg.db).
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 1470 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 6795 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for GO:MF
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* use GO:MF ontology with 5034 gene sets (source: org.Hs.eg.db).
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 1470 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 1331 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for KEGG
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 1470 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 349 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for reactome
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 1470 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 1650 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for uniprot
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 1470 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 434 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for msigdb:C7:IMMUNESIGDB
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 1470 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 4872 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running enrichment: hippocampus - non_heritable_h2_r2_0.75
+Running GREAT for GO:BP
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* use GO:BP ontology with 15413 gene sets (source: org.Hs.eg.db).
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 3521 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 6564 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for GO:MF
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* use GO:MF ontology with 5034 gene sets (source: org.Hs.eg.db).
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 3521 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 1249 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for KEGG
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 3521 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 347 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for reactome
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 3521 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 1572 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for uniprot
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 3521 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 411 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for msigdb:C7:IMMUNESIGDB
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 3521 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 4872 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running enrichment: caudate - all
+Running GREAT for GO:BP
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* use GO:BP ontology with 15413 gene sets (source: org.Hs.eg.db).
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 11767 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 6984 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for GO:MF
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* use GO:MF ontology with 5034 gene sets (source: org.Hs.eg.db).
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 11767 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 1390 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for KEGG
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 11767 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 351 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for reactome
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 11767 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 1646 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for uniprot
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 11767 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 447 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for msigdb:C7:IMMUNESIGDB
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 11767 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 4872 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running enrichment: dlpfc - all
+Running GREAT for GO:BP
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* use GO:BP ontology with 15413 gene sets (source: org.Hs.eg.db).
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 4257 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 6795 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for GO:MF
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* use GO:MF ontology with 5034 gene sets (source: org.Hs.eg.db).
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 4257 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 1331 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for KEGG
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 4257 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 349 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for reactome
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 4257 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 1650 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for uniprot
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 4257 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 434 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for msigdb:C7:IMMUNESIGDB
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 4257 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 4872 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running enrichment: hippocampus - all
+Running GREAT for GO:BP
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* use GO:BP ontology with 15413 gene sets (source: org.Hs.eg.db).
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 9690 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 6564 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for GO:MF
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* use GO:MF ontology with 5034 gene sets (source: org.Hs.eg.db).
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 9690 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 1249 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for KEGG
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 9690 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 347 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for reactome
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 9690 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 1572 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for uniprot
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 9690 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 411 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for msigdb:C7:IMMUNESIGDB
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 9690 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 4872 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running enrichment: caudate - heritable_r2_0.5
+Running GREAT for GO:BP
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* use GO:BP ontology with 15413 gene sets (source: org.Hs.eg.db).
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 11568 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 6984 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for GO:MF
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* use GO:MF ontology with 5034 gene sets (source: org.Hs.eg.db).
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 11568 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 1390 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for KEGG
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 11568 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 351 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for reactome
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 11568 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 1646 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for uniprot
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 11568 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 447 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for msigdb:C7:IMMUNESIGDB
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 11568 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 4872 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running enrichment: dlpfc - heritable_r2_0.5
+Running GREAT for GO:BP
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* use GO:BP ontology with 15413 gene sets (source: org.Hs.eg.db).
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 4227 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 6795 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for GO:MF
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* use GO:MF ontology with 5034 gene sets (source: org.Hs.eg.db).
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 4227 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 1331 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for KEGG
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 4227 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 349 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for reactome
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 4227 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 1650 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for uniprot
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 4227 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 434 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for msigdb:C7:IMMUNESIGDB
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 4227 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 4872 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running enrichment: hippocampus - heritable_r2_0.5
+Running GREAT for GO:BP
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* use GO:BP ontology with 15413 gene sets (source: org.Hs.eg.db).
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 9523 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 6564 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for GO:MF
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* use GO:MF ontology with 5034 gene sets (source: org.Hs.eg.db).
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 9523 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 1249 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for KEGG
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 9523 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 347 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for reactome
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 9523 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 1572 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for uniprot
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 9523 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 411 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for msigdb:C7:IMMUNESIGDB
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 9523 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 4872 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running enrichment: caudate - non_heritable_r2_0.5
+Running GREAT for GO:BP
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* use GO:BP ontology with 15413 gene sets (source: org.Hs.eg.db).
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 11568 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 6984 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for GO:MF
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* use GO:MF ontology with 5034 gene sets (source: org.Hs.eg.db).
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 11568 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 1390 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for KEGG
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 11568 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 351 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for reactome
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 11568 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 1646 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for uniprot
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 11568 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 447 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for msigdb:C7:IMMUNESIGDB
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 11568 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 4872 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running enrichment: dlpfc - non_heritable_r2_0.5
+Running GREAT for GO:BP
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* use GO:BP ontology with 15413 gene sets (source: org.Hs.eg.db).
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 4227 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 6795 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for GO:MF
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* use GO:MF ontology with 5034 gene sets (source: org.Hs.eg.db).
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 4227 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 1331 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for KEGG
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 4227 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 349 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for reactome
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 4227 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 1650 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for uniprot
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 4227 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 434 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for msigdb:C7:IMMUNESIGDB
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 4227 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 4872 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running enrichment: hippocampus - non_heritable_r2_0.5
+Running GREAT for GO:BP
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* use GO:BP ontology with 15413 gene sets (source: org.Hs.eg.db).
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 9523 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 6564 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for GO:MF
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* use GO:MF ontology with 5034 gene sets (source: org.Hs.eg.db).
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 9523 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 1249 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for KEGG
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 9523 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 347 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for reactome
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 9523 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 1572 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for uniprot
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 9523 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 411 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for msigdb:C7:IMMUNESIGDB
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 9523 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 4872 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running enrichment: caudate - heritable_r2_0.75
+Running GREAT for GO:BP
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* use GO:BP ontology with 15413 gene sets (source: org.Hs.eg.db).
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 9876 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 6984 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for GO:MF
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* use GO:MF ontology with 5034 gene sets (source: org.Hs.eg.db).
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 9876 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 1390 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for KEGG
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 9876 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 351 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for reactome
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 9876 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 1646 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for uniprot
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 9876 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 447 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for msigdb:C7:IMMUNESIGDB
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 9876 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 4872 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running enrichment: dlpfc - heritable_r2_0.75
+Running GREAT for GO:BP
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* use GO:BP ontology with 15413 gene sets (source: org.Hs.eg.db).
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 3869 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 6795 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for GO:MF
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* use GO:MF ontology with 5034 gene sets (source: org.Hs.eg.db).
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 3869 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 1331 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for KEGG
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 3869 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 349 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for reactome
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 3869 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 1650 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for uniprot
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 3869 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 434 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for msigdb:C7:IMMUNESIGDB
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 3869 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 4872 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running enrichment: hippocampus - heritable_r2_0.75
+Running GREAT for GO:BP
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* use GO:BP ontology with 15413 gene sets (source: org.Hs.eg.db).
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 8669 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 6564 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for GO:MF
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* use GO:MF ontology with 5034 gene sets (source: org.Hs.eg.db).
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 8669 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 1249 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for KEGG
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 8669 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 347 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for reactome
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 8669 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 1572 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for uniprot
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 8669 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 411 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for msigdb:C7:IMMUNESIGDB
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 8669 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 4872 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running enrichment: caudate - non_heritable_r2_0.75
+Running GREAT for GO:BP
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* use GO:BP ontology with 15413 gene sets (source: org.Hs.eg.db).
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 9876 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 6984 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for GO:MF
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* use GO:MF ontology with 5034 gene sets (source: org.Hs.eg.db).
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 9876 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 1390 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for KEGG
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 9876 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 351 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for reactome
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 9876 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 1646 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for uniprot
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 9876 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 447 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for msigdb:C7:IMMUNESIGDB
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 9876 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 4872 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running enrichment: dlpfc - non_heritable_r2_0.75
+Running GREAT for GO:BP
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* use GO:BP ontology with 15413 gene sets (source: org.Hs.eg.db).
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 3869 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 6795 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for GO:MF
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* use GO:MF ontology with 5034 gene sets (source: org.Hs.eg.db).
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 3869 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 1331 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for KEGG
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 3869 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 349 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for reactome
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 3869 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 1650 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for uniprot
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 3869 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 434 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for msigdb:C7:IMMUNESIGDB
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 3869 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 4872 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running enrichment: hippocampus - non_heritable_r2_0.75
+Running GREAT for GO:BP
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* use GO:BP ontology with 15413 gene sets (source: org.Hs.eg.db).
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 8669 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 6564 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for GO:MF
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* use GO:MF ontology with 5034 gene sets (source: org.Hs.eg.db).
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 8669 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 1249 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for KEGG
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 8669 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 347 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for reactome
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 8669 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 1572 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for uniprot
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 8669 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 411 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+Running GREAT for msigdb:C7:IMMUNESIGDB
+* TSS source: RefSeqSelect.
+* use genome 'hg38'.
+* TSS extension mode is 'basalPlusExt'.
+* construct the basal domains by extending 5000bp to upstream and 1000bp to downsteram of TSS.
+* calculate distances to neighbour regions.
+* extend to both sides until reaching the neighbour genes or to the maximal extension.
+* check gene ID type in `gene_sets` and in `extended_tss`.
+* use self-defined background regions.
+* remove excluded regions from background.
+* overlap `gr` to background regions (based on midpoint).
+* in total 8669 `gr`.
+* overlap extended TSS to background regions.
+* check which genes are in the gene sets.
+* only take gene sets with size >= 5.
+* in total 4872 gene sets.
+* overlap `gr` to every extended TSS.
+* perform binomial test for each biological term.
+
+[1] "2025-06-05 10:55:03 CDT"
+    user   system  elapsed 
+5043.243   43.439 5344.119 
+─ Session info ───────────────────────────────────────────────────────────────────────────────────────────────────────
+ setting  value
+ version  R version 4.4.3 (2025-02-28)
+ os       Red Hat Enterprise Linux 8.10 (Ootpa)
+ system   x86_64, linux-gnu
+ ui       X11
+ language (EN)
+ collate  en_US.UTF-8
+ ctype    en_US.UTF-8
+ tz       America/Chicago
+ date     2025-06-05
+ pandoc   3.7.0.1 @ /projects/p32505/opt/env/r_env/bin/pandoc
+ quarto   NA
+
+─ Packages ───────────────────────────────────────────────────────────────────────────────────────────────────────────
+ package                           * version   date (UTC) lib source
+ abind                               1.4-8     2024-09-12 [1] CRAN (R 4.4.3)
+ AnnotationDbi                     * 1.68.0    2024-10-29 [1] Bioconductor 3.20 (R 4.4.2)
+ Biobase                           * 2.66.0    2024-10-29 [1] Bioconductor 3.20 (R 4.4.2)
+ BiocGenerics                      * 0.52.0    2024-10-29 [1] Bioconductor 3.20 (R 4.4.2)
+ BiocIO                              1.16.0    2024-10-29 [1] Bioconductor 3.20 (R 4.4.2)
+ BiocParallel                        1.40.2    2025-05-22 [1] Bioconductor
+ Biostrings                          2.74.1    2024-12-16 [1] Bioconductor 3.20 (R 4.4.3)
+ bit                                 4.6.0     2025-03-06 [1] CRAN (R 4.4.3)
+ bit64                               4.6.0-1   2025-01-16 [1] CRAN (R 4.4.3)
+ bitops                              1.0-9     2024-10-03 [1] CRAN (R 4.4.1)
+ blob                                1.2.4     2023-03-17 [1] CRAN (R 4.4.1)
+ cachem                              1.1.0     2024-05-16 [1] CRAN (R 4.4.1)
+ circlize                            0.4.16    2024-02-20 [1] CRAN (R 4.4.3)
+ cli                                 3.6.5     2025-04-23 [1] CRAN (R 4.4.3)
+ codetools                           0.2-20    2024-03-31 [1] CRAN (R 4.4.1)
+ colorspace                          2.1-1     2024-07-26 [1] CRAN (R 4.4.1)
+ crayon                              1.5.3     2024-06-20 [1] CRAN (R 4.4.1)
+ curl                                6.2.2     2025-03-24 [1] CRAN (R 4.4.3)
+ DBI                                 1.2.3     2024-06-02 [1] CRAN (R 4.4.1)
+ DelayedArray                        0.32.0    2024-10-29 [1] Bioconductor 3.20 (R 4.4.2)
+ digest                              0.6.37    2024-08-19 [1] CRAN (R 4.4.1)
+ doParallel                          1.0.17    2022-02-07 [1] CRAN (R 4.4.3)
+ dplyr                             * 1.1.4     2023-11-17 [1] CRAN (R 4.4.1)
+ DT                                  0.33      2024-04-04 [1] CRAN (R 4.4.3)
+ fastmap                             1.2.0     2024-05-15 [1] CRAN (R 4.4.1)
+ foreach                             1.5.2     2022-02-02 [1] CRAN (R 4.4.1)
+ generics                            0.1.4     2025-05-09 [1] CRAN (R 4.4.3)
+ GenomeInfoDb                      * 1.42.3    2025-01-27 [1] Bioconductor 3.20 (R 4.4.3)
+ GenomeInfoDbData                    1.2.13    2025-05-21 [1] Bioconductor
+ GenomicAlignments                   1.42.0    2024-10-29 [1] Bioconductor 3.20 (R 4.4.3)
+ GenomicFeatures                     1.58.0    2024-10-29 [1] Bioconductor 3.20 (R 4.4.3)
+ GenomicRanges                     * 1.58.0    2024-10-29 [1] Bioconductor 3.20 (R 4.4.2)
+ GetoptLong                          1.0.5     2020-12-15 [1] CRAN (R 4.4.3)
+ GlobalOptions                       0.1.2     2020-06-10 [1] CRAN (R 4.4.3)
+ glue                                1.8.0     2024-09-30 [1] CRAN (R 4.4.1)
+ GO.db                               3.20.0    2025-05-21 [1] Bioconductor
+ here                              * 1.0.1     2020-12-13 [1] CRAN (R 4.4.3)
+ hms                                 1.1.3     2023-03-21 [1] CRAN (R 4.4.1)
+ htmltools                           0.5.8.1   2024-04-04 [1] CRAN (R 4.4.1)
+ htmlwidgets                         1.6.4     2023-12-06 [1] CRAN (R 4.4.1)
+ httpuv                              1.6.16    2025-04-16 [1] CRAN (R 4.4.3)
+ httr                                1.4.7     2023-08-15 [1] CRAN (R 4.4.1)
+ IRanges                           * 2.40.1    2024-12-05 [1] Bioconductor 3.20 (R 4.4.3)
+ iterators                           1.0.14    2022-02-05 [1] CRAN (R 4.4.1)
+ jsonlite                            2.0.0     2025-03-27 [1] CRAN (R 4.4.3)
+ KEGGREST                          * 1.46.0    2024-10-29 [1] Bioconductor 3.20 (R 4.4.2)
+ later                               1.4.2     2025-04-08 [1] CRAN (R 4.4.3)
+ lattice                             0.22-7    2025-04-02 [1] CRAN (R 4.4.3)
+ lifecycle                           1.0.4     2023-11-07 [1] CRAN (R 4.4.1)
+ magrittr                            2.0.3     2022-03-30 [1] CRAN (R 4.4.1)
+ Matrix                              1.7-3     2025-03-11 [1] CRAN (R 4.4.3)
+ MatrixGenerics                      1.18.1    2025-01-09 [1] Bioconductor 3.20 (R 4.4.3)
+ matrixStats                         1.5.0     2025-01-07 [1] CRAN (R 4.4.2)
+ memoise                             2.0.1     2021-11-26 [1] CRAN (R 4.4.1)
+ mime                                0.13      2025-03-17 [1] CRAN (R 4.4.3)
+ org.Hs.eg.db                        3.20.0    2025-05-21 [1] Bioconductor
+ pillar                              1.10.2    2025-04-05 [1] CRAN (R 4.4.3)
+ pkgconfig                           2.0.3     2019-09-22 [1] CRAN (R 4.4.1)
+ plyranges                         * 1.26.0    2024-10-29 [1] Bioconductor 3.20 (R 4.4.3)
+ png                                 0.1-8     2022-11-29 [1] CRAN (R 4.4.1)
+ prettyunits                         1.2.0     2023-09-24 [1] CRAN (R 4.4.1)
+ progress                            1.2.3     2023-12-06 [1] CRAN (R 4.4.1)
+ promises                            1.3.2     2024-11-28 [1] CRAN (R 4.4.2)
+ purrr                             * 1.0.4     2025-02-05 [1] CRAN (R 4.4.2)
+ R6                                  2.6.1     2025-02-15 [1] CRAN (R 4.4.2)
+ RColorBrewer                        1.1-3     2022-04-03 [1] CRAN (R 4.4.1)
+ Rcpp                                1.0.14    2025-01-12 [1] CRAN (R 4.4.2)
+ RCurl                               1.98-1.17 2025-03-22 [1] CRAN (R 4.4.3)
+ reactome.db                       * 1.89.0    2025-05-22 [1] Bioconductor
+ restfulr                            0.0.15    2022-06-16 [1] CRAN (R 4.4.3)
+ rGREAT                            * 2.8.0     2024-10-29 [1] Bioconductor 3.20 (R 4.4.3)
+ rjson                               0.2.23    2024-09-16 [1] CRAN (R 4.4.1)
+ rlang                               1.1.6     2025-04-11 [1] CRAN (R 4.4.3)
+ rprojroot                           2.0.4     2023-11-05 [1] CRAN (R 4.4.3)
+ Rsamtools                           2.22.0    2024-10-29 [1] Bioconductor 3.20 (R 4.4.3)
+ RSQLite                             2.3.11    2025-05-04 [1] CRAN (R 4.4.3)
+ rtracklayer                         1.66.0    2024-10-29 [1] Bioconductor 3.20 (R 4.4.3)
+ S4Arrays                            1.6.0     2024-10-29 [1] Bioconductor 3.20 (R 4.4.3)
+ S4Vectors                         * 0.44.0    2024-10-29 [1] Bioconductor 3.20 (R 4.4.2)
+ sessioninfo                         1.2.3     2025-02-05 [1] CRAN (R 4.4.3)
+ shape                               1.4.6.1   2024-02-23 [1] CRAN (R 4.4.1)
+ shiny                               1.10.0    2024-12-14 [1] CRAN (R 4.4.2)
+ SparseArray                         1.6.2     2025-02-20 [1] Bioconductor 3.20 (R 4.4.3)
+ SummarizedExperiment                1.36.0    2024-10-29 [1] Bioconductor 3.20 (R 4.4.2)
+ tibble                              3.2.1     2023-03-20 [1] CRAN (R 4.4.1)
+ tidyselect                          1.2.1     2024-03-11 [1] CRAN (R 4.4.1)
+ TxDb.Hsapiens.UCSC.hg19.knownGene   3.2.2     2025-05-22 [1] Bioconductor
+ TxDb.Hsapiens.UCSC.hg38.knownGene   3.20.0    2025-05-22 [1] Bioconductor
+ UCSC.utils                          1.2.0     2024-10-29 [1] Bioconductor 3.20 (R 4.4.2)
+ UniProtKeywords                   * 0.99.7    2023-09-27 [1] Bioconductor
+ vctrs                               0.6.5     2023-12-01 [1] CRAN (R 4.4.1)
+ withr                               3.0.2     2024-10-28 [1] CRAN (R 4.4.1)
+ XML                                 3.99-0.18 2025-01-01 [1] CRAN (R 4.4.3)
+ xtable                              1.8-4     2019-04-21 [1] CRAN (R 4.4.1)
+ XVector                             0.46.0    2024-10-29 [1] Bioconductor 3.20 (R 4.4.2)
+ yaml                                2.3.10    2024-07-26 [1] CRAN (R 4.4.1)
+ zlibbioc                            1.52.0    2024-10-29 [1] Bioconductor 3.20 (R 4.4.2)
+
+ [1] /gpfs/projects/p32505/opt/env/r_env/lib/R/library
+ * ── Packages attached to the search path.
+
+──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+2025-06-05 10:55:05 - **** Job ends ****
