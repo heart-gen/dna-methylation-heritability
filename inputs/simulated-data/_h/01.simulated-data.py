@@ -41,13 +41,15 @@ def generate_phenotypes(num_pheno, num_chroms, snp_window):
     # Assign causal SNPs to phenotypes
     print(" Assigning causal SNPs to phenotypes...")
     for pheno_idx in range(num_pheno):
+        # Select chromosome per simulated phenotype
+        chrom = np.random.randint(1, num_chroms + 1)
+        max_bp_pos = get_chromosome_size(chrom)
+        # Select heritability phenotypes
         is_heritable = pheno_h2_flags[pheno_idx]
         h2 = np.random.uniform(0.1, 0.8) if is_heritable else np.random.uniform(0.0, 0.099)
         num_causal = np.random.randint(1, 6)
         causal_snps = []
         for _ in range(num_causal):
-            chrom = np.random.randint(1, num_chroms + 1)
-            max_bp_pos = get_chromosome_size(chrom)
             # Ensure causal_pos allows for a full window
             causal_pos = np.random.randint(snp_window + 1, max_bp_pos - snp_window)
             # Define the region for this specific causal SNP
@@ -197,19 +199,24 @@ def cal_pheno(pheno_dict, simu_snp_loc, geno_mat, num_samples, num_pheno):
                 pheno_def['heritability'] = 0.0
         # Store mapping info
         if causal_snp:
-            chrom_lt = [str(cs['chrom']) for cs in causal_snp]
+            chrom_set = {cs["chrom"] for cs in causal_snp}
+            if len(chrom_set) > 1:
+                print(f"Warning: Phenotype {pheno_id} has causal SNPs on multiple chromosomes: {chrom_set}")
+                sys.exit("Exiting script: Causal SNPs must be on the same chromosome.")
+            # Proceed only if all chromosomes are the same
+            chrom_val = str(causal_snp[0]["chrom"])
             pos_lt = [str(cs['pos']) for cs in causal_snp]
             rsid_lt = [cs['rs_id'] for cs in causal_snp]
             map_records.append({
                 "phenotype_id": pheno_id, "num_causal_snps": len(causal_snp),
-                "chroms": ",".join(chrom_lt), "positions": ",".join(pos_lt),
+                "chrom": chrom_val, "positions": ",".join(pos_lt),
                 "rsids": ",".join(rsid_lt), "target_heritability": h2,
                 "simulated_heritability": np.var(genetic_val_scaled) if len(pheno_def['causal_snps_info']) > 0 and np.var(genetic_val) > 1e-6 and 'genetic_val_scaled' in locals() else 0
             })
         else:
             map_records.append({
                 "phenotype_id": pheno_id, "num_causal_snps": 0,
-                "chroms": "", "positions": "", "rsids": "",
+                "chrom": "", "positions": "", "rsids": "",
                 "target_heritability": h2, "simulated_heritability": 0.0
             })
     return map_records, output_mat
