@@ -4,11 +4,15 @@ import pandas as pd
 import session_info
 from tqdm import tqdm
 from pathlib import Path
+from scipy.stats import norm
 from random import seed, shuffle
 from scipy.linalg import toeplitz
 
 
 def get_chromosome_size(chrom):
+    """
+    Given chromosomes. Return chromosome size.
+    """
     fn = "/projects/b1213/resources/genomes/human/gencode-v47/fasta/" +\
         "chromosome_sizes.txt"
     chrom_sizes = pd.read_csv(fn, sep="\t", header=None, names=["chr", "pos"])
@@ -18,6 +22,17 @@ def get_chromosome_size(chrom):
 
 
 def generate_phenotypes(num_pheno, num_chroms, snp_window):
+    """
+    Generates phenotype definitions with causal SNPs and heritability.
+
+    Parameters:
+        num_pheno (int): Total phenotypes to generate
+        num_chroms (int): Number of chromosomes (1-22)
+        snp_window (int): Window size around causal SNPs (±bp)
+
+    Returns:
+        tuple: (phenotype definitions, simulation regions)
+    """
     pheno_h2_flags = [True]*int(num_pheno * 0.25) + \
         [False]*int(num_pheno * 0.75)
     shuffle(pheno_h2_flags)
@@ -53,7 +68,8 @@ def generate_phenotypes(num_pheno, num_chroms, snp_window):
 
 def simulate_ld_genotypes(num_snps, num_samples, ld_decay):
     """
-    Simulates genotype matrix with LD using a full Toeplitz correlation matrix.
+    Simulates genotypes for each SNP using the inverse CDF of the normal
+    distribution, ensuring Hardy-Weinberg equilibrium genotype frequencies.
 
     Parameters:
         num_snps (int): Number of SNPs to simulate.
@@ -66,40 +82,44 @@ def simulate_ld_genotypes(num_snps, num_samples, ld_decay):
     # Create LD correlation matrix
     ld_vector = ld_decay ** np.arange(num_snps)
     corr_matrix = toeplitz(ld_vector).astype(np.float32)
-    np.fill_diagonal(corr_matrix, corr_matrix.diagonal() + 1e-5)
     try:
-        L = np.linalg.cholesky(corr_matrix)
+        L = np.linalg.cholesky(corr_matrix + 1e-5 * np.eye(num_snps, dtype=np.float32))
     except np.linalg.LinAlgError:
         L = np.eye(num_snps, dtype=np.float32)
     raw = np.random.normal(0, 1, size=(num_snps, num_samples)).astype(np.float32)
     correlated = L @ raw
     # Simulate minor allele frequencies (MAFs)
     mafs = np.random.uniform(0.05, 0.5, size=num_snps).astype(np.float32)
-    # Compute quantile thresholds for genotypes
-    thresholds_0 = np.array([
-        np.quantile(correlated[i], (1 - float(maf)) ** 2)
-        for i, maf in enumerate(mafs)
-    ], dtype=np.float32).reshape(-1, 1)
-    thresholds_1 = np.array([
-        np.quantile(correlated[i], 1 - float(maf) ** 2)
-        for i, maf in enumerate(mafs)
-    ], dtype=np.float32).reshape(-1, 1)
-    # Encode genotypes
-    genotypes = np.zeros_like(correlated, dtype=np.int8)
-    genotypes[correlated > thresholds_0] = 1
-    genotypes[correlated > thresholds_1] = 2
+    genotypes = np.zeros((num_snps, num_samples), dtype=np.int8)
+    for i, maf in enumerate(mafs):
+        # Hardy-Weinberg genotype frequencies: (1-p)^2, 2p(1-p), p^2
+        p = maf; q = 1 - p
+        # Cumulative probabilities for AA, Aa, aa
+        cum_prob_AA = q**2
+        cum_prob_Aa = q**2 + 2*p*q
+        # Set normal distribution thresholds for AA, Aa, aa
+        threshold_AA = norm.ppf(cum_prob_AA)
+        threshold_Aa = norm.ppf(cum_prob_Aa)
+        # Assign genotypes
+        geno = correlated[i, :]
+        genotypes[i, :] = np.where(geno <= threshold_AA, 0,
+                                   np.where(geno <= threshold_Aa, 1, 2))
     return genotypes
 
 
 def simulate_genotypes(simu_regions, min_snps, max_snps, num_samples, ld_decay):
     """
-    Simulates genotypes for specified genomic regions, creates BIM records,
-    and maps SNP locations.
+    Simulates genotypes with LD and creates PLINK BIM records.
+
+    Parameters:
+        simu_regions (dict): Genomic regions to simulate
+        min_snps (int): Minimum SNPs per region
+        max_snps (int): Maximum SNPs per region
+        num_samples (int): Number of individuals
+        ld_decay (float): LD decay rate
+
     Returns:
-        geno_mat (np.array): SNP x Sample matrix of genotypes (0,1,2).
-        simu_snp_loc (dict): Maps (chrom, pos) to (rsID, index_in_geno_mat).
-        bim_records (list): List of lists for BIM file.
-        current_snp_id_counter (int): The next available SNP ID number.
+        tuple: (genotype matrix, SNP location map, BIM records)
     """
     bim_records = []; simu_snp_loc = {}; geno_lt = []; id_counter = 1
     sorted_keys = sorted(simu_regions.keys())
@@ -136,7 +156,7 @@ def simulate_genotypes(simu_regions, min_snps, max_snps, num_samples, ld_decay):
     return geno_mat, simu_snp_loc, bim_records
 
 
-def cal_pheno(pheno_dict, num_samples, num_pheno):
+def cal_pheno(pheno_dict, simu_snp_loc, geno_mat, num_samples, num_pheno):
     """
     Standardize genetic_value_for_pheno to have variance = h2
     This makes E(Var(G)) = h2 if E(Var(P)) = 1.
@@ -196,29 +216,35 @@ def cal_pheno(pheno_dict, num_samples, num_pheno):
 
 
 def save_phen(output_mat, fam_df, num_pheno, outdir):
-    phenotype_df = pd.DataFrame(output_mat,
-                                columns=[f"pheno_{i+1}" for i in range(num_pheno)])
-    phenotype_df.insert(0, "IID", fam_df["IID"])
-    phenotype_df.insert(0, "FID", fam_df["FID"])
     pheno_file_path = outdir / "simulated.phen"
-    phenotype_df.to_csv(pheno_file_path, sep="\t", index=False, na_rep="NA")
+    with open(pheno_file_path, 'w') as f:
+        # Write header
+        f.write("FID\tIID\t" + "\t".join(f"pheno_{i+1}" for i in range(num_pheno)) + "\n")
+        # Write data row by row
+        for i in range(output_mat.shape[0]):
+            fid = fam_df["FID"].iloc[i]
+            iid = fam_df["IID"].iloc[i]
+            row_data = "\t".join(map(str, output_mat[i, :]))
+            f.write(f"{fid}\t{iid}\t{row_data}\n")
     print(f"  Saved Phenotype file: {pheno_file_path}")
 
 
 def _save_fam(fam_data, plink_dir):
-    fam_df = pd.DataFrame(fam_data, columns=["FID", "IID", "FatherID", "MotherID", "Sex", "Phenotype"])
     fam_file_path = plink_dir / "simulated.fam"
-    fam_df.to_csv(fam_file_path, sep="\t", header=False, index=False)
+    with open(fam_file_path, 'w') as f:
+        for row in fam_data:
+            f.write("\t".join(map(str, row)) + "\n")
     print(f"  Saved FAM file: {fam_file_path}")
-    return fam_df
+    # Return DataFrame if needed downstream
+    return pd.DataFrame(fam_data, columns=["FID", "IID", "FatherID", "MotherID", "Sex", "Phenotype"])
 
 
 def _save_bim(bim_records, plink_dir):
     bim_file_path = plink_dir / "simulated.bim"
     if bim_records:
-        bim_df = pd.DataFrame(bim_records,
-                              columns=["CHR", "SNP", "CM", "BP", "A1", "A2"])
-        bim_df.to_csv(bim_file_path, sep="\t", header=False, index=False)
+        with open(bim_file_path, 'w') as f:
+            for row in bim_records:
+                f.write("\t".join(map(str, row)) + "\n")
         print(f"  Saved BIM file: {bim_file_path}")
     else:
         print("  Warning: No SNP records generated for BIM file.")
@@ -292,7 +318,8 @@ def main(NUM_PHENOTYPES, NUM_SAMPLES, NUM_CHROMOSOMES, SNP_WINDOW_SIZE,
 
     # Phenotype Value Calculation
     print("Step IV: Phenotype Value Calculation")
-    map_records, output_mat = cal_pheno(pheno_dict, NUM_SAMPLES, NUM_PHENOTYPES)
+    map_records, output_mat = cal_pheno(pheno_dict, simu_snp_loc, geno_mat,
+                                        NUM_SAMPLES, NUM_PHENOTYPES)
 
     # Save Output Files
     print("Step V: Saving Output Files")
@@ -382,3 +409,6 @@ if __name__ == "__main__":
     # Call main
     main(NUM_PHENOTYPES, NUM_SAMPLES, NUM_CHROMOSOMES, SNP_WINDOW_SIZE,
          MIN_SNPS, MAX_SNPS, LD_DECAY, OUTPUT_DIR, PLINK_OUTPUT_DIR)
+
+    # Session information
+    session_info.show()
