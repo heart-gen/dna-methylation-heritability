@@ -33,7 +33,7 @@ module purge
 module list
 
 ENV_PATH="/projects/p32505/opt/env"
-export region="caudate"
+export NUM_SAMPLES=100
 export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
 export MKL_NUM_THREADS=$SLURM_CPUS_PER_TASK
 

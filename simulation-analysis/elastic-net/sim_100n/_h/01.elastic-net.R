@@ -15,7 +15,10 @@ get_phenotypes <- function(num_samples) {
     return(read.table(pheno_file, header=TRUE, stringsAsFactors=FALSE))
 }
 
-load_genotypes <- function(geno_bed_path) {
+load_genotypes <- function(num_samples) {
+    base_dir <- here("inputs/simulated-data/_m",
+                     paste0("sim_", num_samples, "_indiv"))
+    geno_bed_path <- here(base_dir, "plink_sim/simulated.bed")
     cat("Processing PLINK file:", basename(geno_bed_path), "\n")
                                         # Use tempfile for backingfile to
                                         # avoid conflicts in array jobs
@@ -23,12 +26,6 @@ load_genotypes <- function(geno_bed_path) {
     rds_path    <- snp_readBed(geno_bed_path,
                                backingfile=sub("\\.rds$", "", backing_rds))
     return(snp_attach(rds_path))
-}
-
-load_phenotypes <- function(vmr_data_path) {
-    cat("Processing VMR file:", basename(vmr_data_path), "\n")
-    pheno    <- read.table(vmr_data_path, header=FALSE)
-    return(pheno[, 3])
 }
 
 perform_snp_clumping <- function(G_imputed, info, pheno_scaled) {
@@ -46,52 +43,34 @@ perform_snp_clumping <- function(G_imputed, info, pheno_scaled) {
 
 ## --- MAIN SCRIPT --- ##
                                         # Retrieve variables
-region  <- Sys.getenv("region")
-task_id <- as.integer(Sys.getenv("task_id"))
+NUM_SAMPLES <- Sys.getenv("NUM_SAMPLES")
+task_id     <- as.integer(Sys.getenv("task_id"))
 
 if (is.na(task_id)) {
     stop("SLURM_ARRAY_TASK_ID is not set or is not a valid integer.")
 }
-if (region == "") {
-    stop("Region environment variable is not set.")
+if (NUM_SAMPLES == "") {
+    stop("NUM_SAMPLES environment variable is not set.")
 }
 
                                         # Set reproducible seed per task
 RNGkind("L'Ecuyer-CMRG")
 set.seed(20250525 + task_id)
 
-                                        # Load error regions
-error_regions <- get_error_list()
-
-                                        # Load VMR data
-vmr_list      <- get_vmr_list(region)
-if (task_id < 1 || task_id > nrow(vmr_list)) {
-    stop("SLURM_ARRAY_TASK_ID is out of bounds for the VMR list.")
+                                        # Load PHENO data
+pheno_list <- get_phenotypes(NUM_SAMPLES)
+if (task_id < 1 || task_id+2 > ncol(pheno_list)) {
+    stop("SLURM_ARRAY_TASK_ID is out of bounds for the PHENO list.")
 }
-vmr_entry  <- vmr_list[task_id, ]
-chrom_num  <- vmr_entry[[1]]
-start_pos  <- vmr_entry[[2]]
-end_pos    <- vmr_entry[[3]]
-
-                                        # Check if the window is blacklisted
-if (!check_if_blacklisted(chrom_num, start_pos, end_pos, error_regions)) {
-    cat("Task ID ", task_id,
-        " corresponds to a blacklisted region. Exiting.\n")
-    quit(save = "no", status = 0) # Exit script cleanly
-}
+pheno_entry  <- pheno_list[, task_id+2]
 
                                         # Load genotypes
-geno_path <- construct_data_path(chrom_num, start_pos, end_pos, region,
-                                 "PLINK")
-bigSNP    <- load_genotypes(geno_path)
+bigSNP    <- load_genotypes(NUM_SAMPLES)
 G         <- bigSNP$genotypes
 infos     <- bigSNP$map
 
                                         # Load Phenotype
-pheno_path <- construct_data_path(chrom_num, start_pos, end_pos, region,
-                                 "VMR")
-pheno_raw  <- load_phenotypes(pheno_path)
-pheno_scaled <- scale(pheno_raw)[, 1] # Center and scale data
+pheno_scaled <- scale(pheno_entry)
 
                                         # Filter out zero-variance SNPs
 snp_variances <- big_apply(
@@ -221,10 +200,7 @@ h2_unscaled <- sum(final_accumulated_betas^2 * clumped_snp_vars)
 
 ## --- Save Results --- ##
 task_summary_df <- data.frame(
-    task_id = task_id,
-    chrom = chrom_num,
-    start = start_pos,
-    end = end_pos,
+    pheno_id = paste0("pheno_", task_id),
     num_snps = ifelse(exists("G_clumped"), ncol(G_clumped), 0),
     boosting_iterations_performed = ifelse(exists("iter"), iter, 0),
     h2_unscaled = ifelse(exists("h2_unscaled"), h2_unscaled, NA),
@@ -232,19 +208,13 @@ task_summary_df <- data.frame(
 )
 
 output_df <- data.frame(
-    task_id = task_id,
-    chrom   = chrom_num,
-    start   = start_pos,
-    end     = end_pos,
+    pheno_id = paste0("pheno_", task_id),
     iteration = seq_along(h2_estimates),
     h2_incremental = h2_estimates
 )
 
 betas_df <- data.frame(
-    task_id = task_id,
-    chrom   = chrom_num,
-    start   = start_pos,
-    end     = end_pos,
+    pheno_id = paste0("pheno_", task_id),
     snp_id  = infos_filt$marker.ID,
     beta    = final_accumulated_betas
 )
