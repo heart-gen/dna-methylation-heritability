@@ -3,6 +3,7 @@ suppressPackageStartupMessages({
     library(rGREAT)
     library(dplyr)
     library(plyranges)
+    library(here)
     library(purrr)
     library(KEGGREST)
     library(reactome.db)
@@ -15,8 +16,8 @@ filter_heritability <- function(tissue,
                                 r2_filter = NULL,
                                 apply_h2_filter = FALSE) {
                                         # Read in summary table
-    vmr_file <- file.path("/projects/p32505/users/alexis/projects/dna-methylation-heritability/heritability/elastic_net_model",
-                         tissue, "_m", paste0(tissue, "_summary_elastic-net.tsv"))
+    vmr_file <- here("heritability/elastic_net_model",
+                      tissue, "_m", paste0(tissue, "_summary_elastic-net.tsv"))
     vmr <- read.table(vmr_file, sep = "\t", header = TRUE)
 
                                         # Filter by heritability
@@ -29,13 +30,9 @@ filter_heritability <- function(tissue,
         }
     }
 
-                                        # Filter by p-value
+                                        # Filter by r2
     if (r2_filter != "NULL") {
-        if (heritability_filter == "heritable") {
-            vmr <- dplyr::filter(vmr, r_squared_cv >= r2_filter)
-        } else if (heritability_filter == "non_heritable") {
-            vmr <- dplyr::filter(vmr, r_squared_cv < r2_filter)
-        }
+        vmr <- dplyr::filter(vmr, r_squared_cv >= r2_filter)
     }
   
     return(vmr)
@@ -44,8 +41,7 @@ filter_heritability <- function(tissue,
 ## --- GO enrichment --- ##
 load_vmr_background <- function(tissue) {
                                         # Load the regions tested as background
-    vmr_file <- file.path("/projects/p32505/users/alexis/projects/dna-methylation-heritability/heritability/gcta",
-                         tissue, "_m/vmr_list.txt")
+    vmr_file <- here("heritability/gcta", tissue, "_m/vmr_list.txt")
     vmr_df   <- read.table(vmr_file)
     colnames(vmr_df) <- c("seqnames", "start", "end")
     vmr_gr <- plyranges::as_granges(vmr_df)
@@ -79,7 +75,8 @@ get_enrichment <- function(vmr_filtered, tissue, filter_label) {
       outfile <- paste0(tissue, "_", filter_label, "_", new_gs, ".csv")
       write.csv(
         tb,
-        file = file.path("/projects/p32505/users/alexis/working/_m", outfile),
+        file = here("heritability/elastic_net_model/tissue_comparison",
+		    "functional_enrichment/_m", outfile),
         row.names = FALSE
       )
     }
