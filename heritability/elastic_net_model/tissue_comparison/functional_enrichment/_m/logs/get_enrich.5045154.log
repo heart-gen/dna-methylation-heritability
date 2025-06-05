@@ -1,0 +1,39 @@
+2025-06-05 09:22:41 - **** Job starts ****
+**** QUEST info ****
+User: skc6679
+Job id: 5045154
+Job name: get_enrichment
+Node name: 
+Hostname: qnode0027
+Task id: N/A
+No modules loaded
+2025-06-05 09:22:41 - Performing functional enrichment for each brain region
+Running enrichment: caudate - heritable_h2
+Error in `pmap()`:
+ℹ In index: 1.
+Caused by error in `file()`:
+! cannot open the connection
+Backtrace:
+     ▆
+  1. ├─purrr::pwalk(...)
+  2. │ └─purrr::pmap(.l, .f, ..., .progress = .progress)
+  3. │   └─purrr:::pmap_("list", .l, .f, ..., .progress = .progress)
+  4. │     ├─purrr:::with_indexed_errors(...)
+  5. │     │ └─base::withCallingHandlers(...)
+  6. │     ├─purrr:::call_with_cleanup(...)
+  7. │     └─global .f(...)
+  8. │       └─global get_enrichment(vmr_filtered, tissue, label)
+  9. │         └─global load_vmr_background(tissue)
+ 10. │           └─utils::read.table(vmr_file)
+ 11. │             └─base::file(file, "rt")
+ 12. └─base::.handleSimpleError(...)
+ 13.   └─purrr (local) h(simpleError(msg, call))
+ 14.     └─cli::cli_abort(...)
+ 15.       └─rlang::abort(...)
+Warning message:
+In file(file, "rt") :
+  cannot open file '/gpfs/projects/p32505/users/alexis/projects/dna-methylation-heritability/heritability/elastic_net_model/caudate/_m/vmr_list.txt': No such file or directory
+Execution halted
+
+ERROR conda.cli.main_run:execute(125): `conda run Rscript ../_h/01.get_enrichment.R` failed. (See above for error)
+2025-06-05 09:23:32 - Error: Conda or script execution failed
