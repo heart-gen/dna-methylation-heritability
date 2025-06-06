@@ -46,8 +46,8 @@ def generate_phenotypes(num_pheno, num_chroms, snp_window):
         # Select a position within real chromosome length
         max_bp_pos = get_chromosome_size(chrom)
         pos_init = np.random.randint(1, max_bp_pos)
-        max_pos = max(max_bp_pos, snp_window + pos_init)
-        min_pos = min(1, pos_init - snp_window)
+        max_pos = min(max_bp_pos, snp_window + pos_init)
+        min_pos = max(1, pos_init - snp_window)
         # Select heritability phenotypes
         is_heritable = pheno_h2_flags[pheno_idx]
         h2 = np.random.uniform(0.1, 0.8) if is_heritable else np.random.uniform(0.0, 0.099)
