@@ -7,7 +7,7 @@
 #SBATCH --output=logs/elastic_h2_%A_%a.log
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
-#SBATCH --array=1-1000%250
+#SBATCH --array=263-265
 #SBATCH --time=02:00:00
 
 log_message() {
