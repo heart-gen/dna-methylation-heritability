@@ -37,6 +37,9 @@ export NUM_SAMPLES=150
 export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
 export MKL_NUM_THREADS=$SLURM_CPUS_PER_TASK
 
+export TMPDIR="/projects/b1042/HEART-GeN-Lab/tmp"
+mkdir -p $TMPDIR
+
 log_message "**** Run elastic net ****"
 conda run -p "${ENV_PATH}/r_env" Rscript ../_h/01.elastic-net.R
 
