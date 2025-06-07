@@ -16,8 +16,7 @@ log_message() {
 
 log_message "**** Job starts ****"
 
-OFFSET=${OFFSET:-0} # fallback default to 0
-task_id=$((OFFSET + SLURM_ARRAY_TASK_ID - 1))
+task_id=$SLURM_ARRAY_TASK_ID
 export task_id
 
 echo "**** Quest info ****"
