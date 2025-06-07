@@ -22,8 +22,8 @@ load_genotypes <- function(num_samples) {
     cat("Processing PLINK file:", basename(geno_bed_path), "\n")
                                         # Use tempfile for backingfile to
                                         # avoid conflicts in array jobs
-    gcc_dir     <- "/projects/b1042/HEART-GeN-Lab/"
-    backing_rds <- tempfile(tmpdir = gcc_dir, fileext = ".rds")
+    ##gcc_dir     <- "/projects/b1042/HEART-GeN-Lab/"
+    backing_rds <- tempfile(fileext = ".rds")
     rds_path    <- snp_readBed(geno_bed_path,
                                backingfile=sub("\\.rds$", "", backing_rds))
     return(snp_attach(rds_path))
