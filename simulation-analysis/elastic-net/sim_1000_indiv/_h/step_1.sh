@@ -1,14 +1,14 @@
 #!/bin/bash
 #SBATCH --account=p32505
-#SBATCH --partition=short
-#SBATCH --job-name=elastic_h2
+#SBATCH --partition=normal
+#SBATCH --job-name=enet_1k
 #SBATCH --mail-type=FAIL
 #SBATCH --mail-user=kynon.benjamin@northwestern.edu
 #SBATCH --output=logs/elastic_h2_%A_%a.log
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
 #SBATCH --array=1-1000%250
-#SBATCH --time=02:00:00
+#SBATCH --time=06:00:00
 
 log_message() {
     echo "$(date '+%Y-%m-%d %H:%M:%S') - $1"
@@ -16,8 +16,7 @@ log_message() {
 
 log_message "**** Job starts ****"
 
-OFFSET=${OFFSET:-0} # fallback default to 0
-task_id=$((OFFSET + SLURM_ARRAY_TASK_ID - 1))
+task_id=$SLURM_ARRAY_TASK_ID
 export task_id
 
 echo "**** Quest info ****"
