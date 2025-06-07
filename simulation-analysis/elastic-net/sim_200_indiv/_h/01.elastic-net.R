@@ -28,10 +28,19 @@ load_genotypes <- function(num_samples) {
     return(snp_attach(rds_path))
 }
 
+get_pheno_loc <- function(num_samples, task_id){
+    base_dir <- here("inputs/simulated-data/_m",
+                     paste0("sim_", num_samples, "_indiv"))
+    mapping_file <- here(base_dir, "snp_phenotype_mapping.tsv")
+    mapped_df <- read.table(mapping_file, header=TRUE, stringsAsFactors = FALSE)
+    return(mapped_df[(mapped_df["phenotype_id"] == paste0("pheno_", task_id)), ])
+}
+
 perform_snp_clumping <- function(G_imputed, info, pheno_scaled) {
+                                        # Compute association statistics
     corrs <- big_univLinReg(G_imputed, pheno_scaled)
     stat  <- abs(corrs$estim)
-    ## Default parameters are 0.2 r2 threshold and windo of 500 kb
+                                        # Perform clumping on sorted data
     ind_keep <- snp_clumping(
         G = G_imputed,
         infos.chr = info$chromosome,
@@ -65,9 +74,28 @@ if (task_id < 1 || task_id+2 > ncol(pheno_list)) {
 pheno_entry  <- pheno_list[, task_id+2]
 
                                         # Load genotypes
-bigSNP    <- load_genotypes(NUM_SAMPLES)
-G         <- bigSNP$genotypes
-infos     <- bigSNP$map
+bigSNP      <- load_genotypes(NUM_SAMPLES)
+
+                                        # Filter data
+pheno_locs <- get_pheno_loc(NUM_SAMPLES, task_id)
+ind_loc    <- which(bigSNP$map$chromosome == pheno_locs$chrom &
+                    bigSNP$map$physical.pos > pheno_locs$start &
+                    bigSNP$map$physical.pos < pheno_locs$end)
+G_loc       <- bigSNP$genotypes[, ind_loc, drop = FALSE]
+map_loc     <- bigSNP$map[ind_loc, ]
+
+                                        # Reconstruct the bigSNP object
+bigSNP_loc  <- list(genotypes = G_loc, map = map_loc, fam = bigSNP$fam)
+class(bigSNP_loc) <- class(bigSNP)
+
+                                        # Subset data
+G         <- bigSNP_loc$genotypes
+infos     <- bigSNP_loc$map
+
+                                        # Ensure SNPs are sorted
+sorted_idx  <- order(infos$chromosome, infos$physical.pos)
+info_sorted <- infos[sorted_idx, ]
+G_sorted    <- G[, sorted_idx, drop = FALSE]
 
                                         # Load Phenotype
 pheno_scaled <- scale(pheno_entry)
@@ -81,14 +109,15 @@ snp_variances <- big_apply(
     a.combine = "c"
 )
 keep_idx   <- which(snp_variances > 1e-6)
-infos_filt <- infos[keep_idx, ]
-G_temp     <- G[, keep_idx]
+infos_filt <- info_sorted[keep_idx, ]
+G_temp     <- G_sorted[, keep_idx]
 G_filtered <- FBM.code256(
     nrow = nrow(G_temp), ncol = ncol(G_temp),
     code = bigSNP$genotypes$code256,
     backingfile = tempfile()
 )
 G_filtered[] <- G_temp[]
+rm(G_loc, map_loc, bigSNP, G_temp, G, infos, G_sorted, info_sorted)
 
                                         # Impute missing values
 cat("Imputing missing genotypes using mode...\n")
@@ -121,18 +150,25 @@ accumulated_betas <- FBM(1, ncol(G_clumped), type = "double", init = 0,
                                         # Boosting loop
 for (iter in 1:n_iter) {
     cat("Boosting iteration: ", iter, "\n")
-                                        # Top correlated SNPs
     if (length(residuals) != nrow(G_clumped)){
         stop("Residuals length does not match genotype matrix rows.")
     }
-
+                                        # Top correlated SNPs
     batch_corrs <- big_univLinReg(G_clumped, residuals)
-    selected_snps <- order(abs(batch_corrs$estim), decreasing = TRUE)[1:batch_size]
+    selected_snps <- order(abs(batch_corrs$estim), decreasing=TRUE)[1:batch_size]
 
                                         # Fit batch via elastic net
     X_batch <- as_FBM(G_clumped[, selected_snps])
     cv_fit  <- big_spLinReg(X_batch, residuals, alphas = seq(0.05, 1, 0.05),
                             K = 5)
+    fit_summary <- summary(cv_fit)
+
+                                        # Check for convergence issues
+    if (any(grepl("not converged", fit_summary))) {
+        warning("Model did not converge initeration ", iter)
+        h2_estimates[iter] <- 0
+        next
+    }
 
                                         # Extract kept indicies
     kept_ind <- attr(cv_fit, "ind.col")
@@ -145,7 +181,7 @@ for (iter in 1:n_iter) {
 
         for(i in seq_along(global_idx)){
             idx <- global_idx[i]
-            accumulated_betas[1, idx] <- accumulated_betas[1, idx] + best_betas[i]
+            accumulated_betas[1,idx] <- accumulated_betas[1,idx] + best_betas[i]
         }
                                         # Calculate incremental h2
         h2_estimates[iter] <- var(batch_pred)
