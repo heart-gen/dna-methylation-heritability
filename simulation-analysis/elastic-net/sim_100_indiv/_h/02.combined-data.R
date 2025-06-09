@@ -15,7 +15,9 @@ for (dir_name in c("summary", "h2", "betas")) {
                         "elastic-net.tsv", sep="_")
     file_names <- list.files(dir_name,pattern="*.tsv$",full.names=TRUE)
     purrr::map_dfr(file_names, read_data) |>
-        dplyr::mutate(PopSize = num_samples) |>
+        dplyr::mutate(PopSize = num_samples,
+                      ID = as.numeric(gsub("pheno_", "", pheno_id))) |>
+        dplyr::arrange(ID) |> dplyr::select(-ID) |>
         data.table::fwrite(file=outfile, sep="\t")
 }
 
