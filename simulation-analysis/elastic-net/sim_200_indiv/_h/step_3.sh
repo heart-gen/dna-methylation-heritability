@@ -27,9 +27,11 @@ module purge
 module list
 
 log_message "**** Cleaning directory ****"
-gzip -9v caudate_h2_elastic-net.tsv
-gzip -9v caudate_betas_elastic-net.tsv
+num_samples=200
+gzip -9v simulation_${num_samples}_h2_elastic-net.tsv
+gzip -9v simulation_${num_samples}_betas_elastic-net.tsv
 
 rm -r betas/ summary/ h2/
 
+#tar -czvf logfiles.tar.gz logs
 log_message "**** Job ends ****"
