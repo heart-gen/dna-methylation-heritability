@@ -22,7 +22,8 @@ load_genotypes <- function(num_samples) {
     cat("Processing PLINK file:", basename(geno_bed_path), "\n")
                                         # Use tempfile for backingfile to
                                         # avoid conflicts in array jobs
-    backing_rds <- tempfile(tmpdir = getwd(), fileext = ".rds")
+    gcc_dir     <- "/projects/b1042/HEART-GeN-Lab/"
+    backing_rds <- tempfile(tmpdir = gcc_dir, fileext = ".rds")
     rds_path    <- snp_readBed(geno_bed_path,
                                backingfile=sub("\\.rds$", "", backing_rds))
     return(snp_attach(rds_path))
@@ -75,6 +76,8 @@ pheno_entry  <- pheno_list[, task_id+2]
 
                                         # Load genotypes
 bigSNP      <- load_genotypes(NUM_SAMPLES)
+bk_file     <- bigSNP$genotypes$backingfile
+rds_file    <- bigSNP$genotypes$rds
 
                                         # Filter data
 pheno_locs <- get_pheno_loc(NUM_SAMPLES, task_id)
@@ -272,6 +275,12 @@ write.table(betas_df,
 
 cat(sprintf("Total SNP-based h2 (unscaled): %.4f\n", h2_unscaled))
 cat(sprintf("Final h2: %.4f\n", sum(h2_estimates)))
+
+                                        # Clean temporary files
+if (file.exists(rds_file)) {
+    file.remove(bk_file, rds_file)
+    cat("Successfully removed the temporary files.\n")
+}
 
 ## Reproducibility
 print("Reproducibility information:")

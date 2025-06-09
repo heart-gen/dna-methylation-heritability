@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --account=p32505
 #SBATCH --partition=short
-#SBATCH --job-name=elastic_h2
+#SBATCH --job-name=enet_250
 #SBATCH --mail-type=FAIL
 #SBATCH --mail-user=kynon.benjamin@northwestern.edu
 #SBATCH --output=logs/elastic_h2_%A_%a.log
@@ -16,8 +16,7 @@ log_message() {
 
 log_message "**** Job starts ****"
 
-OFFSET=${OFFSET:-0} # fallback default to 0
-task_id=$((OFFSET + SLURM_ARRAY_TASK_ID - 1))
+task_id=$SLURM_ARRAY_TASK_ID
 export task_id
 
 echo "**** Quest info ****"
@@ -37,6 +36,9 @@ ENV_PATH="/projects/p32505/opt/env"
 export NUM_SAMPLES=250
 export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
 export MKL_NUM_THREADS=$SLURM_CPUS_PER_TASK
+
+export TMPDIR="/projects/b1042/HEART-GeN-Lab/tmp"
+mkdir -p $TMPDIR
 
 log_message "**** Run elastic net ****"
 conda run -p "${ENV_PATH}/r_env" Rscript ../_h/01.elastic-net.R
