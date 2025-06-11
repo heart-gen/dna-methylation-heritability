@@ -21,6 +21,22 @@ start_pos <- as.integer(args[2])
 end_pos   <- as.integer(args[3])
 
 ## Function
+## NEED TO LOAD IN SD FILE
+get_vmr <- function(v, out_vmr) {
+  sdCut  <- quantile(v[, 3], prob = 0.99, na.rm = TRUE)
+  vmrs   <- c()
+  v2     <- v[v$chr==chr, ]
+  v2     <- v2[order(v2$start), ]
+  isHigh <- rep(0, nrow(v2))
+  isHigh[v2$sd > sdCut] <- 1
+  vmrs0  <- bsseq:::regionFinder3(isHigh, as.character(v2$chr), 
+                                  v2$start, maxGap = 1000)$up
+  vmr    <- vmrs0[vmrs0$n > 5,1:3]
+  write.table(vmr, file=out_vmr, col.names=F,
+              row.names=F, sep="\t", quote=F)
+  return(vmr)
+}
+
 calc_vmr_meth <- function(BSobj, chr, start_pos, end_pos) {
   reg      <- GRanges(seqnames = chr, 
                       ranges = IRanges(start = start_pos, end = end_pos))

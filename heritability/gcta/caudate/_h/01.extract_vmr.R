@@ -49,21 +49,6 @@ DNAm_stats <- function(BSobj, out_stats) {
     return(list(M = M, sds = sds, means = means))
 }
 
-get_vmr <- function(v, out_vmr) {
-    sdCut  <- quantile(v[, 3], prob = 0.99, na.rm = TRUE)
-    vmrs   <- c()
-    v2     <- v[v$chr==chr, ]
-    v2     <- v2[order(v2$start), ]
-    isHigh <- rep(0, nrow(v2))
-    isHigh[v2$sd > sdCut] <- 1
-    vmrs0  <- bsseq:::regionFinder3(isHigh, as.character(v2$chr), 
-                                   v2$start, maxGap = 1000)$up
-    vmr    <- vmrs0[vmrs0$n > 5,1:3]
-    write.table(vmr, file=out_vmr, col.names=F,
-                row.names=F, sep="\t", quote=F)
-    return(vmr)
-}
-
 extract_fid_iid <- function(psam_file) {
     samples <- read_plink2_psam_file(psam_file)
     samples <- samples[, 1:2]
@@ -71,20 +56,29 @@ extract_fid_iid <- function(psam_file) {
 }
 
 write_meth_to_phen <- function(BSobj, M, samples, out_phen) {
-
+  
+                                        # get CpG positions
+    rownames(M) <- start(BSobj)
+    
                                         # add sample IDs to methylation matrix
     sample_ids <- colData(BSobj)$brnum
-    meth_df <- data.frame(FID = sample_ids, t(M))
+    meth_df <- data.frame(FID = sample_ids, t(M), check.names = FALSE)
 
                                         # merge methylation data and sample ids by FID
     meth_merged <- meth_df %>%
         inner_join(samples, by = "FID") %>%
         arrange(match(FID, samples$FID)) %>%
         select(FID, IID, everything())
-    colnames(meth_merged)[1:3] <- c("fam", "id", "pheno")
-
+    
                                         # write methylation values to .phen file
-    write_phen(file=out_phen, meth_merged)
+    f_p <- file.path(out_phen, "cpg_meth.phen")
+    fwrite(meth_merged, file = f_p, sep = "\t", col.names = TRUE)
+
+                                        # write CpG names
+    f_p_names <- file.path(out_phen, "cpg_pos.txt")
+    write.table(colnames(meth_values), file = f_p_names, row.names = FALSE,
+                col.names = FALSE, quote = FALSE)
+    
     return(meth_merged)
 }
 
