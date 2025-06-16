@@ -5,7 +5,6 @@ suppressPackageStartupMessages({
     library('HDF5Array')
     library(DelayedMatrixStats)
     library('data.table')
-    library(scales)
     library(here)
     library(dplyr)
     library(genio)
@@ -55,7 +54,7 @@ extract_fid_iid <- function(psam_file) {
     return(samples)
 }
 
-write_meth_to_phen <- function(BSobj, M, samples, out_phen) {
+write_meth_to_phen <- function(BSobj, M, samples, out_cpg) {
   
                                         # get CpG positions
     rownames(M) <- start(BSobj)
@@ -71,12 +70,12 @@ write_meth_to_phen <- function(BSobj, M, samples, out_phen) {
         select(FID, IID, everything())
     
                                         # write methylation values to .phen file
-    f_p <- file.path(out_phen, "cpg_meth.phen")
+    f_p <- file.path(out_cpg, "cpg_meth.phen")
     fwrite(meth_merged, file = f_p, sep = "\t", col.names = TRUE)
 
                                         # write CpG names
-    f_p_names <- file.path(out_phen, "cpg_pos.txt")
-    write.table(colnames(meth_values), file = f_p_names, row.names = FALSE,
+    f_p_names <- file.path(out_cpg, "cpg_pos.txt")
+    write.table(colnames(meth_merged), file = f_p_names, row.names = FALSE,
                 col.names = FALSE, quote = FALSE)
     
     return(meth_merged)
@@ -125,7 +124,7 @@ out_vmr   <- file.path(output_path, "vmr",   paste0("chr_", chr))
 out_covs  <- file.path(output_path, "covs",  paste0("chr_", chr))
 out_cpg   <- file.path(output_path, "cpg", paste0("chr_", chr))
 
-                                        # change file path for raw data
+                                       # change file path for raw data
 raw_assays  <- here("inputs/wgbs-data/caudate/raw/CpGassays.h5")
 BSobj       <- change_file_path(BSobj, raw_assays)
 
@@ -149,7 +148,7 @@ samples   <- extract_fid_iid(psam_file)
 
                                         # merge methylation values with FID and
                                         # IID and write to .phen file
-meth_merged <- write_meth_to_phen(BSobj, stats$M, samples, file.path(out_cpg, "cpg_meth.phen"))
+meth_merged <- write_meth_to_phen(BSobj, stats$M, samples, out_cpg))
 
                                         # write covariate files
 covars <- write_covar(BSobj, filtered$pheno, filtered$id, meth_merged, out_covs)
