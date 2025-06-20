@@ -11,19 +11,6 @@
 #SBATCH --job-name=calculate_LD     # Job name
 #SBATCH --output=logs/calculate_LD_%j.out    # Standard output log
 
-## Edit with your job command
-SIM="/projects/p32505/users/alexis/projects/dna-methylation-heritability/inputs/simulated-data/_m"
-NUM_CHR=22
-SAMPLE_SIZES=(100 150 200 250 500 1000)
-IDX=$(( SLURM_ARRAY_TASK_ID / NUM_CHR ))
-CHR=$(( (SLURM_ARRAY_TASK_ID % NUM_CHR) + 1 ))
-SAMPLE_SIZE=${SAMPLE_SIZES[$IDX]}
-
-OUTPUT="./h2/sim_${SAMPLE_SIZE}_indiv"
-mkdir -p "$OUTPUT"
-
-ENV_PATH="/projects/p32505/opt/env"
-
 # Log function
 log_message() {
     echo "$(date '+%Y-%m-%d %H:%M:%S') - $1"
@@ -45,9 +32,23 @@ module purge
 module load gcta/1.94.0
 module list
 
+## Edit with your job command
+SIM="../../../inputs/simulated-data/_m" # Switched to relative PATH for flexibility
+ENV_PATH="/projects/p32505/opt/env"
+
+SAMPLE_SIZES=(100 150 200 250 500 1000)
+NUM_CHR=22
+
+IDX=$(( SLURM_ARRAY_TASK_ID / NUM_CHR ))
+CHR=$(( (SLURM_ARRAY_TASK_ID % NUM_CHR) + 1 ))
+SAMPLE_SIZE=${SAMPLE_SIZES[$IDX]}
+
+OUTPUT="./h2/sim_${SAMPLE_SIZE}_indiv"
+mkdir -p "$OUTPUT"
+
 ##### GREML-LDMS #####
 # Check if SNP data exists
-BFILE="$SIM/sim_${SAMPLE_SIZE}_indiv/plink_sim/simulated"
+BFILE="$SIM/sim_${SAMPLE_SIZE}_indiv/plink_sim/"
 
 if [ ! -f "${BFILE}.bed" ] || [ ! -f "${BFILE}.bim" ] || [ ! -f "${BFILE}.fam" ]; then
     log_message "SNP files not found. Skipping."
@@ -62,4 +63,4 @@ gcta64 --bfile $BFILE \
     --ld-score-region 200 \
     --out $OUTPUT/sim_${SAMPLE_SIZE}_indiv_chr${CHR}
 
-    log_message "**** Job ends ****"
+log_message "**** Job ends ****"

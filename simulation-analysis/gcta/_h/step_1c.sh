@@ -11,20 +11,6 @@
 #SBATCH --job-name=greml     # Job name
 #SBATCH --output=logs/greml_%j.out    # Standard output log
 
-## Edit with your job command
-SIM="/projects/p32505/users/alexis/projects/dna-methylation-heritability/inputs/simulated-data/_m"
-
-SAMPLE_SIZES=(100 150 200 250 500 1000)
-NUM_PHEN=1000
-IDX=$(( SLURM_ARRAY_TASK_ID / NUM_PHEN ))
-PHEN_INDEX=$((SLURM_ARRAY_TASK_ID % NUM_PHEN))
-SAMPLE_SIZE=${SAMPLE_SIZES[$IDX]}
-
-OUTPUT="./h2/sim_${SAMPLE_SIZE}_indiv"
-mkdir -p "$OUTPUT"
-
-ENV_PATH="/projects/p32505/opt/env"
-
 # Log function
 log_message() {
     echo "$(date '+%Y-%m-%d %H:%M:%S') - $1"
@@ -46,9 +32,23 @@ module purge
 module load gcta/1.94.0
 module list
 
+## Edit with your job command
+SIM="../../../inputs/simulated-data/_m"
+SAMPLE_SIZES=(100 150 200 250 500 1000)
+NUM_PHEN=1000
+
+IDX=$(( SLURM_ARRAY_TASK_ID / NUM_PHEN ))
+PHEN_INDEX=$((SLURM_ARRAY_TASK_ID % NUM_PHEN))
+SAMPLE_SIZE=${SAMPLE_SIZES[$IDX]}
+
+OUTPUT="./h2/sim_${SAMPLE_SIZE}_indiv"
+mkdir -p "$OUTPUT"
+
+ENV_PATH="/projects/p32505/opt/env"
+
 ##### GREML-LDMS #####
 # Check if SNP and LD score data exists
-BFILE="$SIM/sim_${SAMPLE_SIZE}_indiv/plink_sim/simulated"
+BFILE="$SIM/sim_${SAMPLE_SIZE}_indiv/plink_sim/"
 
 if [ ! -f "${BFILE}.bed" ] || [ ! -f "${BFILE}.bim" ] || [ ! -f "${BFILE}.fam" ]; then
     log_message "SNP files not found. Skipping."
