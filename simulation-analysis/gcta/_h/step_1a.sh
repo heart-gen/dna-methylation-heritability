@@ -48,17 +48,20 @@ mkdir -p "$OUTPUT"
 
 ##### GREML-LDMS #####
 # Check if SNP data exists
-BFILE="$SIM/sim_${SAMPLE_SIZE}_indiv/plink_sim/"
+PLINK_DIR="$SIM/sim_${SAMPLE_SIZE}_indiv/plink_sim/"
 
-if [ ! -f "${BFILE}.bed" ] || [ ! -f "${BFILE}.bim" ] || [ ! -f "${BFILE}.fam" ]; then
-    log_message "SNP files not found. Skipping."
-    exit 0
-fi
+required_files=(simulated.bed simulated.bim simulated.fam)
+for f in "${required_files[@]}"; do
+    if [[ ! -f "${PLINK_DIR}/$f" ]]; then
+        log_message "SNP files not found. Skipping."
+        exit 0
+    fi
+done
 
 log_message "Calaculating SNP LD scores for simulated data with $SAMPLE_SIZE samples"
 
 # Calculate SNP LD scores
-gcta64 --bfile $BFILE \
+gcta64 --bfile $PLINK_DIR/simulated \
     --chr $CHR \
     --ld-score-region 200 \
     --out $OUTPUT/sim_${SAMPLE_SIZE}_indiv_chr${CHR}
