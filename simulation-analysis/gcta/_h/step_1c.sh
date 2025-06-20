@@ -49,7 +49,7 @@ ENV_PATH="/projects/p32505/opt/env"
 ##### GREML-LDMS #####
 # Check if SNP and LD score data exists
 ## This checks only for PLINK files, needs to be updated for LD files
-BFILE="$SIM/sim_${SAMPLE_SIZE}_indiv/plink_sim/"
+PLINK_DIR="$SIM/sim_${SAMPLE_SIZE}_indiv/plink_sim/"
 required_files=(simulated.bed simulated.bim simulated.fam)
 for f in "${required_files[@]}"; do
     if [[ ! -f "${PLINK_DIR}/$f" ]]; then
