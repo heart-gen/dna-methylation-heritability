@@ -11,16 +11,6 @@
 #SBATCH --job-name=stratify_LD     # Job name
 #SBATCH --output=logs/stratify_LD_%j.out    # Standard output log
 
-## Edit with your job command
-SIM="/projects/p32505/users/alexis/projects/dna-methylation-heritability/inputs/simulated-data/_m"
-SAMPLE_SIZES=(100 150 200 250 500 1000)
-SAMPLE_SIZE=${SAMPLE_SIZES[$SLURM_ARRAY_TASK_ID]}
-
-OUTPUT="./h2/sim_${SAMPLE_SIZE}_indiv"
-mkdir -p "$OUTPUT"
-
-ENV_PATH="/projects/p32505/opt/env"
-
 # Log function
 log_message() {
     echo "$(date '+%Y-%m-%d %H:%M:%S') - $1"
@@ -41,6 +31,16 @@ echo "Task id: ${SLURM_ARRAY_TASK_ID}"
 module purge
 module load gcta/1.94.0
 module list
+
+## Edit with your job command
+SIM="../../../inputs/simulated-data/_m"
+SAMPLE_SIZES=(100 150 200 250 500 1000)
+SAMPLE_SIZE=${SAMPLE_SIZES[$SLURM_ARRAY_TASK_ID]}
+
+OUTPUT="./h2/sim_${SAMPLE_SIZE}_indiv"
+mkdir -p "$OUTPUT"
+
+ENV_PATH="/projects/p32505/opt/env"
 
 # Combine chr ld scores to one file
 log_message "Combining chromosome LD scores"
