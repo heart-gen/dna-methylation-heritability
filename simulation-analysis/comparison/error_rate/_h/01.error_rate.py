@@ -72,7 +72,7 @@ def empirical_power(n_samples, method="elastic-net", heritable = True):
 
 def main():
     results = []; method = "elastic-net"
-    for n in [100, 150, 250, 500, 1000]:
+    for n in [100, 150, 200, 250, 500, 1000, 5000]:
         power, type1_error = empirical_power(n, method)
         results.append({
             'sample_size': n,
