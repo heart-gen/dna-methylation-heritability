@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --account=p32505        # Replace with your allocation
 #SBATCH --partition=short       # Partition (queue) name
-#SBATCH --time=00:05:00         # Time limit hrs:min:sec
+#SBATCH --time=00:10:00         # Time limit hrs:min:sec
 #SBATCH --nodes=1               # Number of nodes
 #SBATCH --ntasks-per-node=1     # Number of cores (CPU)
 #SBATCH --mem=5G                # Memory limit

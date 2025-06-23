@@ -72,13 +72,13 @@ plot_ld <- function(lds_seg, quartiles, out_ld) {
 
                                         # load LD scores from GCTA
 lds_seg = read.table(
-  here("heritability/gcta/simulated/_m/h2",
+  here("simulation-analysis/gcta/_m/h2",
        paste0("sim_", sample_size, "_indiv"),
        paste0("sim_", sample_size, "_indiv.score.ld")),
   header = TRUE,
   colClasses=c("character",rep("numeric",8))
 )
-out_ld <- here("heritability/gcta/simulated/_m/h2", 
+out_ld <- here("simulation-analysis/gcta/_m/h2", 
               paste0("sim_", sample_size, "_indiv"))
 
                                         # stratify SNPs based on LD
