@@ -1,12 +1,12 @@
 #!/bin/bash
 #SBATCH --account=p32505        # Replace with your allocation
 #SBATCH --partition=short       # Partition (queue) name
-#SBATCH --time=01:00:00         # Time limit hrs:min:sec
+#SBATCH --time=03:00:00         # Time limit hrs:min:sec
 #SBATCH --nodes=1               # Number of nodes
 #SBATCH --ntasks-per-node=1     # Number of cores (CPU)
-#SBATCH --mem=16G               # Memory limit
+#SBATCH --mem=12G               # Memory limit
 #SBATCH --mail-type=FAIL
-#SBATCH --array=0-131
+#SBATCH --array=0-175
 #SBATCH --mail-user=alexis.bennett@northwestern.edu
 #SBATCH --job-name=calculate_LD     # Job name
 #SBATCH --output=logs/calculate_LD_%j.out    # Standard output log
@@ -33,10 +33,8 @@ module load gcta/1.94.0
 module list
 
 ## Edit with your job command
-SIM="../../../inputs/simulated-data/_m" # Switched to relative PATH for flexibility
-ENV_PATH="/projects/p32505/opt/env"
-
-SAMPLE_SIZES=(100 150 200 250 500 1000)
+SIM="../../../inputs/simulated-data/_m" 
+SAMPLE_SIZES=(100 150 200 250 500 1000 5000 10000)
 NUM_CHR=22
 
 IDX=$(( SLURM_ARRAY_TASK_ID / NUM_CHR ))
