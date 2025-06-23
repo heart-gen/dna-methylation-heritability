@@ -1,14 +1,14 @@
 #!/bin/bash
 #SBATCH --account=p32505
-#SBATCH --partition=short
+#SBATCH --partition=normal
 #SBATCH --job-name=simu_array
 #SBATCH --mail-type=FAIL
 #SBATCH --mail-user=kynon.benjamin@northwestern.edu
 #SBATCH --output=logs/simulation_%A_%a.log
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
-#SBATCH --time=02:00:00
-#SBATCH --mem=150G
+#SBATCH --time=48:00:00
+#SBATCH --mem=200G
 #SBATCH --array=0-1
 
 log_message() {
