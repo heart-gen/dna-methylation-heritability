@@ -1,13 +1,13 @@
 #!/bin/bash
 #SBATCH --account=p32505        # Replace with your allocation
 #SBATCH --partition=short       # Partition (queue) name
-#SBATCH --time=01:00:00         # Time limit hrs:min:sec
+#SBATCH --time=02:00:00         # Time limit hrs:min:sec
 #SBATCH --nodes=1               # Number of nodes
 #SBATCH --ntasks-per-node=1     # Number of cores (CPU)
 #SBATCH --mem=16G               # Memory limit
 #SBATCH --mail-type=FAIL
 #SBATCH --mail-user=alexis.bennett@northwestern.edu
-#SBATCH --array=0-5
+#SBATCH --array=0-7
 #SBATCH --job-name=stratify_LD     # Job name
 #SBATCH --output=logs/stratify_LD_%j.out    # Standard output log
 
@@ -34,7 +34,7 @@ module list
 
 ## Edit with your job command
 SIM="../../../inputs/simulated-data/_m"
-SAMPLE_SIZES=(100 150 200 250 500 1000)
+SAMPLE_SIZES=(100 150 200 250 500 1000 5000 10000)
 SAMPLE_SIZE=${SAMPLE_SIZES[$SLURM_ARRAY_TASK_ID]}
 
 OUTPUT="./h2/sim_${SAMPLE_SIZE}_indiv"
@@ -42,7 +42,22 @@ mkdir -p "$OUTPUT"
 
 ENV_PATH="/projects/p32505/opt/env"
 
-# Combine chr ld scores to one file
+# Check for LD score file for each chr
+MISSING=0
+for CHR in {1..22}; do
+    LDSCORE="$OUTPUT/sim_${SAMPLE_SIZE}_indiv_chr${CHR}.score.ld"
+    if [[ ! -f "$LDSCORE" ]]; then
+        log_message "Missing LD score file: $LDSCORE"
+        ((MISSING++))
+    fi
+done
+
+if [[ $MISSING -ne 0 ]]; then
+    log_message "Error: $MISSING chromosome LD score files are missing. Cannot combine."
+    exit 1
+fi
+
+# Combine chr LD scores to one file
 log_message "Combining chromosome LD scores"
 awk 'FNR==1 && NR!=1 { next } { print }' $OUTPUT/sim_${SAMPLE_SIZE}_indiv_chr*.score.ld > $OUTPUT/sim_${SAMPLE_SIZE}_indiv.score.ld
 

@@ -16,8 +16,8 @@ def process_hsq_file(filename):
 
 def main():
     ## Main
-    basepath = here("heritability", "gcta", "simulated", "_m", "h2")
-    output_path = here("heritability", "gcta", "simulated", "_m", "summary")
+    basepath = here("simulation-analysis", "gcta", "_m", "h2")
+    output_path = here("simulation-analysis", "gcta", "_m", "summary")
     output_path.mkdir(exist_ok=True)
 
     dt = pd.DataFrame()
