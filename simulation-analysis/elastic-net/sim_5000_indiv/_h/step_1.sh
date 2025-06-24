@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --account=p32505
-#SBATCH --partition=short
+#SBATCH --partition=normal
 #SBATCH --job-name=enet_5k
 #SBATCH --mail-type=FAIL
 #SBATCH --mail-user=kynon.benjamin@northwestern.edu
@@ -8,7 +8,7 @@
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
 #SBATCH --array=1-1000%250
-#SBATCH --time=02:00:00
+#SBATCH --time=06:00:00
 
 log_message() {
     echo "$(date '+%Y-%m-%d %H:%M:%S') - $1"
