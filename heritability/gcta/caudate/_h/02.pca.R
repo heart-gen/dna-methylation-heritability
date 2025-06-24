@@ -28,8 +28,8 @@ get_top_meth <- function(BSobj, v) {
     return(list(BS = BS, meth = meth, id_top = id_top))
 }
 
-get_ances <- function(f_ances, id_top) {
-    gen_ances <- read.table(f_ances, header=TRUE)
+get_ances <- function(ances_file_path, id_top) {
+    gen_ances <- read.table(ances_file_path, header=TRUE)
     idx       <- match(id_top, gen_ances$id)
     return(list(gen_ances = gen_ances, idx = idx))
 }
@@ -70,8 +70,51 @@ corr_pc_ances <- function(pc, gen_ances, idx, output_path) {
       res[i, 2] <- tmp$p.value
     }
     write.csv(res, file = file.path(output_path, "pc_ances_cor.csv"))
-    return(res)
 }
+
+remove_ct_snps <- function(snp_file_path, meth, pos) {
+    snp <- fread(snp_file_path, header=F, data.table=F)
+    idx <- is.element(pos[,1], snp[,1])
+    meth <- meth[,!idx]
+    pos <- pos[!idx,1]
+    return(list(meth, pos))
+}
+
+filter_pheno <- function(brnum, meth, pc, ances_file_path, pheno_file_path) {
+  ances <- read.table(ances_file_path, header=TRUE)
+  demo  <- read.csv(pheno_file_path, header = TRUE)
+  samples <- intersect(intersect(ances$brnum[ances$group == "AA"],brnum),
+                       demo$BrNum[demo$Region == "Caudate" & demo$Age >= 17])
+  meth <- meth[match(samples,brnum),]
+  
+  # align samples
+  ind <- intersect(samples, pc$X)
+  pc <- pc[match(ind, pc$X), -1]
+  meth <- meth[match(ind, samples), ]
+  return(list(meth, pc))
+}
+
+regress_pcs <- function(meth, pc, chr, pos, output_path){
+  residuals <- meth
+  for(i in 1:ncol(meth)){
+    if(! i %% 100){
+      cat(i,"\n")
+    }
+    d <- as.data.frame(cbind(y=meth[,i],pc[,1:5]))
+    model = lm(y ~ .,data=d)
+    residuals[,i] = resid(model)
+  }
+  
+  # get variance for residual
+  res_var <- apply(residuals,2,sd)
+  
+  # output
+  f_out <- file.path(output_path, "res_var.tsv")
+  out <- data.frame(chr=chr, pos=pos, sd=res_var)
+  write.table(out, f_out, col.names=F, row.names=F, sep="\t", quote=F)
+  return(out)
+}
+
 
 ## Main
                                         # create output directories if they  
@@ -85,65 +128,24 @@ if (!dir.exists(output_path)) {
 load(here("heritability", "gcta", "caudate", "_m", "cpg", paste0("chr_", chr), "stats.rda"))
 v <- data.frame(chr = chr, start = start(BSobj), sd = sds)
 
-########
+# set file paths
 cpg_meth <- here("heritability", "gcta", "caudate", "_m", "cpg", paste0("chr_", chr), "cpg_meth.phen")
 cpg_names <- here("heritability", "gcta", "caudate", "_m", "cpg", paste0("chr_", chr), "cpg_pos.txt")
-f_ances <- here("inputs/genetic-ancestry/structure.out_ancestry_proportion_raceDemo_compare")
 pheno_file_path <- here("inputs/phenotypes/merged/_m/merged_phenotypes.csv")
-pca <- here("heritability", "gcta", "caudate", "_m", "pca", paste0("chr_", chr), "pc.csv")
-pc <- read.csv(pca)
+snp_file_path <- paste0("/projects/b1213/resources/libd_data/wgbs/DEM2/snps_CT/chr",chr)
 
-# read data - need to fix header
-p <- fread(cpg_meth, header=TRUE, data.table=FALSE)
-id <- p[, 1]
-p <- p[,-c(1, 2)]
-p_names <- read.table(cpg_names, header=FALSE)
-p_names <- p_names[-c(1, 2), , drop = FALSE]
-ances <- read.table(f_ances, header=TRUE)
-demo  <- read.csv(pheno_file_path, header = TRUE)
-
-# remove CT snps at CpG sites
-f_snp <- paste0("/projects/b1213/resources/libd_data/wgbs/DEM2/snps_CT/chr",chr)
-snp <- fread(f_snp,header=F,data.table=F)
-idx <- is.element(p_names[,1], snp[,1])
-p <- p[,!idx]
-p_names <- p_names[!idx,1]
-
-# keep AA only
-id2 <- intersect(intersect(ances$id[ances$group == "AA"],id),demo$BrNum[demo$Region == "Caudate" & demo$Age >= 17])
-p <- p[match(id2,id),]
-
-# align samples
-ind <- intersect(id2,pc$X)
-pc <- pc[match(ind,pc$X),-1]
-p <- p[match(ind,id2),]
-
-# regress out top5 PC
-res <- p
-for(i in 1:ncol(p)){
-  if(! i %% 100){
-    cat(i,"\n")
-  }
-  d <- as.data.frame(cbind(y=p[,i],pc[,1:5]))
-  model = lm(y ~ .,data=d)
-  res[,i] = resid(model)
-}
-
-# get variance for residual
-res_var <- apply(res,2,sd)
-
-# output
-f_out <- file.path(output_path, "res_var.tsv")
-out <- data.frame(chr=chr,pos=p_names,sd=res_var)
-write.table(out,f_out,col.names=F,row.names=F,sep="\t",quote=F)
-
-########
+# read data
+meth <- fread(cpg_meth, header=TRUE, data.table=FALSE)
+brnum <- meth[, 1]
+meth <- meth[,-c(1, 2)]
+pos <- read.table(cpg_names, header=FALSE)
+pos <- pos[-c(1, 2), , drop = FALSE]
 
 meth_top <- get_top_meth(BSobj, v)
 
                                         # load genetic ancestry
-f_ances <- here("inputs/genetic-ancestry/structure.out_ancestry_proportion_raceDemo_compare")
-ances   <- get_ances(f_ances, meth_top$id_top)
+ances_file_path <- here("inputs/genetic-ancestry/structure.out_ancestry_proportion_raceDemo_compare")
+ances   <- get_ances(ances_file_path, meth_top$id_top)
 
                                         # residual after regressing out
                                         # Afr proportion
@@ -155,7 +157,13 @@ pc <- pca(res, output_path)
 #0.05648 0.08545 0.11074 0.13106 0.15105 0.16687 0.17921 0.19071 0.20140 0.21163 
 
                                         # correlation of pc with ancestry
-res <- corr_pc_ances(pc, ances$gen_ances, ances$idx, output_path)
+corr_pc_ances(pc, ances$gen_ances, ances$idx, output_path)
+
+filtered_cpg <- remove_ct_snps(snp_file_path, meth, pos)
+
+filtered_samples <- filter_pheno(brnum, filtered_cpg$meth, pc, ances_file_path, pheno_file_path)
+
+out <- regress_pcs(filtered_samples$meth, filtered_samples$pc, chr, filtered_cpg$pos, output_path)
 
 #### Reproducibility information ####
 print("Reproducibility information:")

@@ -8,7 +8,6 @@ suppressPackageStartupMessages({
     library(here)
     library(dplyr)
     library(genio)
-    library(plinkr)
 })
 
 args <- commandArgs(trailingOnly = TRUE)
@@ -108,7 +107,7 @@ write_covar <- function(BSobj, pheno, id, meth_merged, out_covs) {
                                         # load data
 load(here("inputs/wgbs-data/caudate", paste0("Caudate_chr", chr, "_BSobj.rda")))
 output_path <- here("heritability", "gcta", "caudate", "_m")
-subdirs <- c("vmr", "covs", "cpg")
+subdirs <- c("covs", "cpg")
 
                                         # create output directories if they  
                                         # don't exist
@@ -120,7 +119,6 @@ for (subdir in subdirs) {
 }
 
                                         # define output directories 
-out_vmr   <- file.path(output_path, "vmr",   paste0("chr_", chr))
 out_covs  <- file.path(output_path, "covs",  paste0("chr_", chr))
 out_cpg   <- file.path(output_path, "cpg", paste0("chr_", chr))
 
@@ -138,17 +136,13 @@ BSobj <- exclude_low_cov(filtered$BSobj)
                                         # calculate sd & mean of DNAm
 stats <- DNAm_stats(BSobj, file.path(out_cpg, "stats.rda"))
 
-                                        # extract VMRs
-v   <- data.frame(chr = chr, start = start(BSobj), sd = stats$sds)
-vmr <- get_vmr(v, file.path(out_vmr, "vmr.bed"))
-
                                         # read in FID, IID from sample file
 psam_file <- here("inputs/genotypes/TOPMed_LIBD.AA.psam")
 samples   <- extract_fid_iid(psam_file)
 
                                         # merge methylation values with FID and
                                         # IID and write to .phen file
-meth_merged <- write_meth_to_phen(BSobj, stats$M, samples, out_cpg))
+meth_merged <- write_meth_to_phen(BSobj, stats$M, samples, out_cpg)
 
                                         # write covariate files
 covars <- write_covar(BSobj, filtered$pheno, filtered$id, meth_merged, out_covs)
