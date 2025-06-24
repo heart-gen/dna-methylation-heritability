@@ -1,14 +1,14 @@
 #!/bin/bash
 #SBATCH --account=p32505        # Replace with your allocation
 #SBATCH --partition=short       # Partition (queue) name
-#SBATCH --time=00:05:00         # Time limit hrs:min:sec
+#SBATCH --time=01:00:00         # Time limit hrs:min:sec
 #SBATCH --nodes=1               # Number of nodes
 #SBATCH --ntasks-per-node=1     # Number of cores (CPU)
-#SBATCH --mem=5G                # Memory limit
+#SBATCH --mem=15G                # Memory limit
 #SBATCH --mail-type=FAIL
 #SBATCH --mail-user=alexis.bennett@northwestern.edu
-#SBATCH --job-name=greml_summary # Job name
-#SBATCH --output=logs/greml_summary.%j.log # Standard output log
+#SBATCH --job-name=extract_errors # Job name
+#SBATCH --output=logs/extract_errors.%j.log # Standard output log
 
 # Log function
 log_message() {
@@ -33,10 +33,10 @@ module list
 # Set path variables
 ENV_PATH="/projects/p32505/opt/env"
 
-log_message "Combining all GREML results"
+log_message "Extracting pipeline errors"
 
 ## Activate conda environment
-conda run -p $ENV_PATH/AI_env python ../_h/06.summary.py
+conda run -p $ENV_PATH/AI_env python ../_h/07.extract_errors.py
 
 if [ $? -ne 0 ]; then
     log_message "Error: Conda or script execution failed"

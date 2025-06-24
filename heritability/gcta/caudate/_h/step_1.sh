@@ -8,7 +8,7 @@
 #SBATCH --mail-type=FAIL
 #SBATCH --array=1-22
 #SBATCH --mail-user=alexis.bennett@northwestern.edu
-#SBATCH --job-name=extract_vmr  # Job name
+#SBATCH --job-name=cpg_stats  # Job name
 #SBATCH --output=/dev/null      # Standard output log
 #SBATCH --error=/dev/null       # Standard error log
 
@@ -17,8 +17,8 @@ LOG_DIR="logs/chr_${SLURM_ARRAY_TASK_ID}"
 mkdir -p "$LOG_DIR"
 
 # Redirect output and error logs to chr-specific log files
-exec > >(tee -a "$LOG_DIR/extract_vmr_${SLURM_ARRAY_TASK_ID}_out.log")
-exec 2> >(tee -a "$LOG_DIR/extract_vmr_${SLURM_ARRAY_TASK_ID}_err.log" >&2)
+exec > >(tee -a "$LOG_DIR/cpg_stats_${SLURM_ARRAY_TASK_ID}_out.log")
+exec 2> >(tee -a "$LOG_DIR/cpg_stats_${SLURM_ARRAY_TASK_ID}_err.log" >&2)
 
 # Log function
 log_message() {
@@ -47,7 +47,7 @@ echo "Working on: Chromosome "$SLURM_ARRAY_TASK_ID
 
 ## Activate conda environment
 #source /projects/p32505/opt/miniforge3/etc/profile.d/conda.sh
-conda run -p $ENV_PATH/r_env Rscript ../_h/01.extract_vmr.R $SLURM_ARRAY_TASK_ID
+conda run -p $ENV_PATH/r_env Rscript ../_h/01.get_cpg_stats.R $SLURM_ARRAY_TASK_ID
 if [ $? -ne 0 ]; then
     log_message "Error: Conda or script execution failed"
     exit 1
