@@ -74,6 +74,8 @@ if [ $? -ne 0 ]; then
 fi
 
 # Make GRM for each group
+> $OUTPUT/sim_${SAMPLE_SIZE}_indiv_multi_GRMs.txt
+
 for i in {1..4} ; do
     gcta64 --bfile $SIM/sim_${SAMPLE_SIZE}_indiv/plink_sim/simulated \
            --extract $OUTPUT/snp_group_${i}.txt \
