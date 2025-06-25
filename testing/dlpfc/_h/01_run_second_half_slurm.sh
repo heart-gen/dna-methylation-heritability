@@ -12,4 +12,5 @@ $ORIG_DIR/Software/bin/nextflow $ORIG_DIR/second_half.nf \
     --annotation "$ORIG_DIR/ref" \
     --sample "paired" \
     --reference "hg38" \
+    --use_bme \
     -profile second_half_slurm
