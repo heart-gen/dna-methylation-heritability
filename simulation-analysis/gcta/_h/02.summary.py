@@ -22,7 +22,7 @@ def main():
 
     dt = pd.DataFrame()
     pattern_dir = re.compile(r"sim_(\d+)_indiv")
-    pattern_file = re.compile(r"greml_pheno(\d+)\.hsq")
+    pattern_file = re.compile(r"greml_pheno_(\d+)\.hsq")
     for fn in Path(basepath).glob("*/*hsq"):
         greml_df = process_hsq_file(fn)
 
