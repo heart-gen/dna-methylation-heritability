@@ -12,4 +12,8 @@ $ORIG_DIR/Software/bin/nextflow $ORIG_DIR/first_half.nf \
     --annotation "$ORIG_DIR/ref" \
     --sample "paired" \
     --reference "hg38" \
+    --all_alignments \
+    --input /projects/p32505/users/elisa/projects/dna-methylation-heritability/testing/dlpfc/_h/BiocMAP/benchmark/samples.manifest \
+    --output "./results" \
+    --trim_mode "adaptive" \
     -profile first_half_slurm
