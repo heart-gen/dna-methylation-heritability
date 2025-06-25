@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --account=p32505        # Replace with your allocation
 #SBATCH --partition=short       # Partition (queue) name
-#SBATCH --time=02:00:00         # Time limit hrs:min:sec
+#SBATCH --time=04:00:00         # Time limit hrs:min:sec
 #SBATCH --nodes=1               # Number of nodes
 #SBATCH --ntasks-per-node=1     # Number of cores (CPU)
 #SBATCH --mem=16G               # Memory limit
@@ -74,6 +74,8 @@ if [ $? -ne 0 ]; then
 fi
 
 # Make GRM for each group
+> $OUTPUT/sim_${SAMPLE_SIZE}_indiv_multi_GRMs.txt
+
 for i in {1..4} ; do
     gcta64 --bfile $SIM/sim_${SAMPLE_SIZE}_indiv/plink_sim/simulated \
            --extract $OUTPUT/snp_group_${i}.txt \
