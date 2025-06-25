@@ -12,5 +12,7 @@ $ORIG_DIR/Software/bin/nextflow $ORIG_DIR/second_half.nf \
     --annotation "$ORIG_DIR/ref" \
     --sample "paired" \
     --reference "hg38" \
+    --input /projects/p32505/users/elisa/projects/dna-methylation-heritability/testing/dlpfc/_h/BiocMAP/benchmark/rules.txt \
+    --output "./results" \
     --use_bme \
     -profile second_half_slurm
