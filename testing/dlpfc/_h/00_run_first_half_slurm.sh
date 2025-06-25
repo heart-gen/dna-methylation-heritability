@@ -13,3 +13,4 @@ $ORIG_DIR/Software/bin/nextflow $ORIG_DIR/first_half.nf \
     --sample "paired" \
     --reference "hg38" \
     -profile first_half_slurm
+    --all_alignments
