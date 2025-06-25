@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --account=p32505        # Replace with your allocation
 #SBATCH --partition=short       # Partition (queue) name
-#SBATCH --time=03:00:00         # Time limit hrs:min:sec
+#SBATCH --time=02:00:00         # Time limit hrs:min:sec
 #SBATCH --nodes=1               # Number of nodes
 #SBATCH --ntasks-per-node=1     # Number of cores (CPU)
 #SBATCH --mem=16G               # Memory limit
@@ -38,7 +38,7 @@ SAMPLE_SIZES=(100 150 200 250 500 1000 5000 10000)
 NUM_PHEN=1000
 
 IDX=$(( SLURM_ARRAY_TASK_ID / NUM_PHEN ))
-PHEN_INDEX=$((SLURM_ARRAY_TASK_ID % NUM_PHEN))
+PHEN_INDEX=$(( (SLURM_ARRAY_TASK_ID % NUM_PHEN) + 1 ))
 SAMPLE_SIZE=${SAMPLE_SIZES[$IDX]}
 
 OUTPUT="./h2/sim_${SAMPLE_SIZE}_indiv"
@@ -68,6 +68,6 @@ gcta64 --reml \
        --mgrm $OUTPUT/sim_${SAMPLE_SIZE}_indiv_multi_GRMs.txt \
        --pheno $SIM/sim_${SAMPLE_SIZE}_indiv/simulated.phen \
        --mpheno $PHEN_INDEX \
-       --out $OUTPUT/greml_pheno$PHEN_INDEX
+       --out $OUTPUT/greml_pheno_$PHEN_INDEX
 
 log_message "**** Job ends ****"
