@@ -1,7 +1,6 @@
 #### Extract VMRs ####
 
 suppressPackageStartupMessages({
-    library('bsseq')
     library('data.table')
     library(here)
 })
@@ -38,7 +37,13 @@ if (!dir.exists(output_path)) {
 var_file <- here("heritability", "gcta", "caudate", "_m", "pca", paste0("chr_", chr), "res_var.tsv")
 res_var <- fread(var_file, header = FALSE)
 colnames(res_var) <- c("chr", "start", "sd")
-v <- as.data.frame(res_var)
 
                                         # extract VMRs
-vmr <- get_vmr(v, file.path(output_path, "vmr.bed"))
+vmr <- get_vmr(res_var, file.path(output_path, "vmr.bed"))
+
+#### Reproducibility information ####
+print("Reproducibility information:")
+Sys.time()
+proc.time()
+options(width = 120)
+sessioninfo::session_info()
