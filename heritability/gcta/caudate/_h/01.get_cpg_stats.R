@@ -8,6 +8,7 @@ suppressPackageStartupMessages({
     library(here)
     library(dplyr)
     library(genio)
+    library(plinkr)
 })
 
 args <- commandArgs(trailingOnly = TRUE)
@@ -87,16 +88,16 @@ write_covar <- function(BSobj, pheno, id, meth_merged, out_covs) {
     filtered_pheno <- pheno |>
         select(BrNum, Sex, Dx, Age) |> filter(BrNum %in% id)
                                         # Merge data
-    meth_selected <- select(meth_merged, fam, id) |>
-        inner_join(filtered_pheno, by= c("fam" = "BrNum")) |>
-        arrange(match(fam, meth_merged$fam)) |>
-        tibble::column_to_rownames("fam")
+    meth_selected <- meth_merged |>
+        inner_join(filtered_pheno, by= c("FID" = "BrNum")) |>
+        arrange(match(FID, meth_merged$FID)) |>
+        tibble::column_to_rownames("FID")
                                         # Write file
-    covar_merged <- meth_selected |> select(id, Sex, Dx)
+    covar_merged <- meth_selected |> select(IID, Sex, Dx)
     covar_merged |>
         write.table(file=out_cov, sep="\t", row.names=TRUE,
                     col.names=FALSE, quote=FALSE)
-    qcovar_merged <- meth_selected |> select(id, Age)
+    qcovar_merged <- meth_selected |> select(IID, Age)
     qcovar_merged |>
         write.table(file=out_qcov, sep="\t", row.names=TRUE,
                     col.names=FALSE, quote=FALSE)
