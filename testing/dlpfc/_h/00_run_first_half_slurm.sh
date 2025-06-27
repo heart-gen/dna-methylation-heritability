@@ -26,7 +26,7 @@ echo "Task id: ${SLURM_ARRAY_TASK_ID:-N/A}"
 ## List current modules for reproducibility
 
 module purge
-module load fastqc/0.12.0
+module load nextflow/22.04.4
 module list
 
 # Your commands go here
