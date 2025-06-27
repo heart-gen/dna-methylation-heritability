@@ -8,10 +8,10 @@
 #SBATCH --time=01:00:00         # Time limit hrs:min:sec
 #SBATCH --nodes=1               # Number of nodes
 #SBATCH --ntasks-per-node=1     # Number of cores (CPU)
-#SBATCH --mem=1G                # Memory limit
-#SBATCH --job-name=example_job  # Job name
-#SBATCH --output=output_%j.log  # Standard output log
-#SBATCH --error=error_%j.log    # Standard error log
+#SBATCH --mem=25G                # Memory limit
+#SBATCH --job-name=BiocMAP
+#SBATCH -o ./00_run_first_half_slurm.log
+#SBATCH -e ./00_run_first_half_slurm.log
 
 log_message "**** Job starts ****"
 
