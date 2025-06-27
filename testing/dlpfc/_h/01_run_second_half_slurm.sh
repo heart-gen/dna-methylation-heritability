@@ -13,11 +13,6 @@
 #SBATCH --output=output_%j.log  # Standard output log
 #SBATCH --error=error_%j.log    # Standard error log
 
-# Log function
-log_message() {
-    echo "$(date '+%Y-%m-%d %H:%M:%S') - $1"
-}
-
 log_message "**** Job starts ****"
 
 echo "**** QUEST info ****"
