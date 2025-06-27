@@ -1,3 +1,0 @@
-#!/bin/bash
-
-ln -sfn /dcs04/lieber/ds2b/users/kynon/github_projects/libd_coloc_app/inputs/phenotypes/_m/*csv .
