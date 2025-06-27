@@ -13,12 +13,12 @@ session_info()
 #  After running 'install_software.sh', this should point to the directory
 #  where this repo was cloned, and not say "$PWD"
 
-#SBATCH --account=b1042        # Replace with your allocation
-#SBATCH --partition=short       # Partition (queue) name
-#SBATCH --time=01:00:00         # Time limit hrs:min:sec
-#SBATCH --nodes=1               # Number of nodes
-#SBATCH --ntasks-per-node=1     # Number of cores (CPU)
-#SBATCH --mem=25G                # Memory limit
+#SBATCH --account=b1042       
+#SBATCH --partition=short       
+#SBATCH --time=01:00:00         
+#SBATCH --nodes=1               
+#SBATCH --ntasks-per-node=1     
+#SBATCH --mem=25G                
 #SBATCH --job-name=BiocMAP
 #SBATCH -o ./01_run_second_half_slurm.log
 #SBATCH -e ./01_run_second_half_slurm.log
@@ -38,6 +38,7 @@ echo "Task id: ${SLURM_ARRAY_TASK_ID:-N/A}"
 module purge
 module load nextflow/22.04.4
 module list
+module load java/jdk11.0.10
 
 # Your commands go here
 
