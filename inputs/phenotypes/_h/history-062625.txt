@@ -1,0 +1,372 @@
+ cd /projects/p32505/users
+    2  ls
+    3  mkdir -p nia/
+    4  ls
+    5  ls -lh /users.txt
+    6  cd /project/p32505/user
+    7  cd /project/p32505/users
+    8  cd /project/p32505/users/
+    9  Host quest.northwestern.edu
+   10      HostName quest.northwestern.edu
+   11      User mhi573
+   12      Port 22
+   13  cd /projects/p32505/users
+   14  ls
+   15  module load vscode
+   16  code ~/.bashrc
+   17  ll
+   18  home
+   19  cd /projects/p32505/users
+   20  ll
+   21  up
+   22  ll
+   23  source ~/.bashrc
+   24  ll
+   25  up
+   26  ll
+   27  cd ../
+   28  cd /projects/p32505/users/
+   29  ls
+   30  sort users.txt
+   31  ls /usr/bin
+   32  ll
+   33  mv
+   34  df
+   35  ls
+   36  cd /projects/p32505/users/
+   37  ls
+   38  ls -l
+   39  ls
+   40  list
+   41  man ls
+   42  uname -a
+   43  pwd
+   44  ls
+   45  cd nia
+   46  ls
+   47  cd/ projects/p32505/users/
+   48  cd /projects/p32505/users/
+   49  ls
+   50  cd nia
+   51  mkdir linux-practice
+   52  cd linux-practice
+   53  touch file1.txt file2.txt
+   54  ls
+   55  pwd
+   56  cp file1.txt file1_backup.txt
+   57  mv file2.txt notes.txt
+   58  mkdir notes-folder
+   59  mv notes.txt notes-folder/
+   60  ls
+   61  ls notes-folder
+   62  rm file1_backup.txt
+   63  mkdir search-test
+   64  cd search-test
+   65  touch alpha.txt beta.txt gamma.txt
+   66  echo "The mitochondria is the powerhouse of the cell." > alpha.txt
+   67  echo "Beta testing begins today." > beta.txt
+   68  echo "Gamma rays are dangerous." > gamma.txt
+   69  grep mitochondria +.txt
+   70  grep mitochondria *.txt
+   71  grep rays *.txt
+   72  grep beta *.txt
+   73  grep Beta *.txt
+   74  grep -i powerhouse *.txt
+   75  grep -i beta *.txt
+   76  nano alpha.txt
+   77  cat alpha.txt
+   78  linux-practice
+   79  cd /projects/p32505/users/nia/linux-practice
+   80  mkdir compbiopractice
+   81  cd compbiopractice
+   82  cat > seqs.fasta <<EOF
+   83  >gene1
+   84  ATGCGTACGTAGCTAGCTAG
+   85  >gene2
+   86  CGATCGATCGTAGCTAGCTA
+   87  >gene3
+   88  TACGTAGCTAGCTACGATCG
+   89  EOF
+   90  grep "CGAT" seqs.fasta
+   91  grep -n "CGAT"
+   92  cd /projects/p32505/users/nia/lunix-practice
+   93  cd /projects/p32505/users/
+   94  cd nia
+   95  cd linux-practice
+   96  stat myfile.txt
+   97  statmyfile.txt
+   98  df -h
+   99  ls -c
+  100  ls -l
+  101  ls -a
+  102  ls -b
+  103  ls- d
+  104  ls- r
+  105  ls -d
+  106  ls -r
+  107  man stat
+  108  df -h
+  109  apropos "search for files"
+  110  find "text"
+  111  find test
+  112  find gamma
+  113  stat Documents
+  114  stat Projects
+  115  stat alpha.txt
+  116  home
+  117  home/
+  118  /home
+  119  home
+  120  directory
+  121  cd /projects/p32505/users/
+  122  ls
+  123  nia
+  124  cd nia
+  125  ls
+  126  cd linux-practice
+  127  ls
+  128  ~
+  129  cd
+  130  ls
+  131  cd /projects/p32505/users/nia/
+  132  cd
+  133  cd /projects/b1042/
+  134  ls
+  135  cd /Heart-GeN-Lab/
+  136  cd HEART-GeN-Lab
+  137  ls
+  138  cd
+  139  cd /projects/p32505/users/nia/
+  140  cd /projects/p32505/users/
+  141  ls
+  142  kynon
+  143  cd christina
+  144  ls
+  145  cd projects
+  146  ls
+  147  cd /projects/p32505/users/
+  148  cd alexis
+  149  ls
+  150  projects
+  151  cd projects
+  152  ls
+  153  cd old_dna-methylation-heritability/
+  154  ls
+  155  RE
+  156  cd RE
+  157  cd README.md
+  158  README.md
+  159  cat README.md
+  160  file filename README.md
+  161  stat README.md
+  162  cd sample_summary
+  163  ls
+  164  cd _h
+  165  ls
+  166  cat 01.
+  167  cat 01.fancy_table.sample_summary.R 
+  168  cd /projects/p32505/users/alexis/
+  169  ls
+  170  cd projects
+  171  ls
+  172  cd old_dna-methylation-heritability/
+  173  ls
+  174  cd inputs
+  175  ls
+  176  cd genotypes
+  177  ls
+  178  cat TOPMed_LIBD.AA.eigenval
+  179  cd
+  180  ls .ssh
+  181  ssh-keygen -t ed25519 -C "niaterry"
+  182  # start the ssh-agent in the background
+  183  Get-Service -Name ssh-agent | Set-Service -StartupType Manual
+  184  ls .ssh
+  185  cat .ssh/id_ed25519.pub 
+  186  cd /projects/
+  187  cd p32505/users/nia
+  188  ls
+  189  git clone git@github.com:heart-gen/DNAm-biomarkers-SCZ.git
+  190  ls ~/.ssh/
+  191  ls ~/.ssh/id_ed25519.pub 
+  192  cat ~/.ssh/id_ed25519.pub 
+  193  git clone git@github.com:heart-gen/DNAm-biomarkers-SCZ.git
+  194  l
+  195  ls
+  196  ls -alF
+  197  cat ~/.ssh/id_ed25519.pub 
+  198  git clone git@github.com:heart-gen/DNAm-biomarkers-SCZ.git
+  199  cat ~/.ssh/id_ed25519.pub 
+  200  cat ~/.ssh/id_rsa.pub 
+  201  git clone git@github.com:heart-gen/DNAm-biomarkers-SCZ.git
+  202  ls
+  203  cd DNAm-biomarkers-SCZ
+  204  ls
+  205  git pull
+  206  cd /projects/p32505/users/nia
+  207  ls
+  208  DNAm-biomarkers-SCZ/inputs/
+  209  cd DNAm-biomarkers-SCZ/inputs/phenotypes/
+  210  cd DNAm-biomarkers-SCZ/
+  211  ls
+  212  cd inputs
+  213  ls
+  214  cd wgbs-data/
+  215  ls
+  216  `
+  217  ~
+  218  cd /projects/p32505/users/nia
+  219  ls
+  220  cd /projects/p32505/users/nia
+  221  cd DNAm-biomarkers-SCZ/
+  222  git pull
+  223  cd inputs
+  224  ls
+  225  cd counts
+  226  ls
+  227  cd inputs
+  228  cd /projects/p32505/users/nia/DNAm-biomarkers-SCZ/inputs/phenotypes/_m/phenotypes-AA.tsv
+  229  cd /projects/p32505/users/nia/DNAm-biomarkers-SCZ/inputs/phenotypes/_m/
+  230  ls
+  231  cat phenotypes-AA.tsv 
+  232  stat phenotype-AA.tsv
+  233  ls
+  234  stat phenotypes-AA.tsv
+  235  cat phenotypes-AA.tsv 
+  236  tail -n +2 phenotypes-AA.tsv | -1
+  237  tail -n +2 phenotypes-AA.tsv | -l
+  238  tail -n +2 phenotypes-AA.tsv | wc -l
+  239  ls -h phenotypes-AA.tsv
+  240  cat -h phenotypes-AA.tsv
+  241  cat --help
+  242  cat -T phenotypes-AA.tsv
+  243  head -n 1 phenotypes-AA.tsv
+  244  ls
+  245  head -n 1 phenotypes-AA.tsv | ls
+  246  head -n 1 phenotypes-AA.tsv | ls-h
+  247  head -n 1 phenotypes-AA.tsv | ls -h
+  248  head -n 1 phenotypes-AA.tsv | tr '\t' '\n' | nl
+  249  head -n 1 phenotypes-AA.tsv | tr '\t' '\n' | nl > variables.tsv
+  250  ls
+  251  cut -f3 phenotypes-AA.tsv | tail -n+2 | sort | uniq -c
+  252  cut -f3 phenotypes-AA.tsv | tail -n+1 | sort | uniq -c
+  253  cut -f4 phenotypes-AA.tsv | tail -n+2 | sort | uniq -c
+  254  cut -f2 phenotypes-AA.tsv | tail -n+2 | sort | uniq- c
+  255  cut -f2 phenotypes-AA.tsv | tail -n+2 | sort | uniq -c
+  256  cut -f8 phenotypes-AA.tsv | tail -n+2 | sort | uniq -c
+  257  cut -f5 phenotypes-AA.tsv | tail -n+2 | sort | uniq -c
+  258  cut -f2 phenotypes-AA.tsv | tail -n+2 | sort | awk
+  259  cut -f3 phenotypes-AA.tsv | tail -n+2 | sort | uniq -c
+  260  cut -f4 phenotypes-AA.tsv | tail -n+2 | sort | uniq -c
+  261  ls
+  262  cat variables.tsv
+  263  avg 2 phenotypes-AA.tsv
+  264  ./avg 2 phenotypes-AA.tsv
+  265  chmod +x avg
+  266  ~
+  267  cd /projects/p32505/users/nia
+  268  cd DNAm-biomarkers-SCZ/
+  269  chmod +x avg
+  270  cd /projects/p32505/users/nia
+  271  ls
+  272  cd DNAm-biomarkers-SCZ/inputs/phenotypes
+  273  ls
+  274  _m
+  275  cd _m
+  276  ls
+  277  cut -f3 phenotypes-AA.tsv | tail -n+2 | sort | uniq -c
+  278  cut -f4 phenotypes-AA.tsv | tail -n+2 | sort | uniq -c
+  279  cut -f5 phenotypes-AA.tsv | tail -n+2 | sort | uniq -c
+  280  cut -f8 phenotypes-AA.tsv | tail -n+2 | sort | uniq -c
+  281  chmod +x avg.sh
+  282  find . -name avg.sh
+  283  cd /home/mcl0899
+  284  chmod +x avg.sh
+  285  mkdir -p~/bin
+  286  mkdir -p ~/bin
+  287  mv /home/mcl0899/avg.sh ~/bin/
+  288  echo $PATH
+  289  mv /home/mcl0899/avg.sh /home/mcl0899/bin/avg
+  290  chmod +x /home/mcl0899/bin/avg
+  291  find /home/mcl0899 -name avg.sh
+  292  chmod +x /home/mcl0899/avg.sh
+  293  mkdir -p ~/bin
+  294  mv /home/mcl0899/avg.sh ~/bin/avg
+  295  chmod +x ~/bin/avg
+  296  cd /projects/p32505/users/nia/DNAm-biomarkers-SCZ/inputs/phenotypes/
+  297  ls
+  298  cd _m
+  299  ls
+  300  avg 2 phenotypes-AA.tsv
+  301  cd /projects/p32505/users/nia/DNAm-biomarkers-SCZ/inputs/phenotypes/_m/
+  302  cut -f3 -f4 -f5 -f8 | tail -n+2 | sort | uniq -c
+  303  cut -f3 | tail -n+2 | sort | uniq -c
+  304  cd /projects/p32505/users/nia/DNAm-biomarkers-SCZ/inputs/phenotypes/_m
+  305  cut -f3 phenotypes-AA.tsv | tail -n+2 | sort | uniq -c
+  306  cut -f4 phenotypes-AA.tsv | tail -n+2 | sort | uniq -c
+  307  cut -54 phenotypes-AA.tsv | tail -n+2 | sort | uniq -c
+  308  cut -4 phenotypes-AA.tsv | tail -n+2 | sort | uniq -c
+  309  cut -5 phenotypes-AA.tsv | tail -n+2 | sort | uniq -c
+  310  cut -f5  phenotypes-AA.tsv | tail -n+2 | sort | uniq -c
+  311  cut -f8  phenotypes-AA.tsv | tail -n+2 | sort | uniq -c
+  312  awk -F'\t' 'NR > 1 { sum += $COLUMN; count++ } END { if (count > 0) print sum / count; else print "No data" }' filename.tsv
+  313  awk -F'\t' 'NR > 1 { sum += $2; count++ } END { if (count > 0) print sum / count; else print "No data" }' phenotypes-AA.tsv
+  314  cut -f2 phenotypes-AA.tsv | tail -n+2
+  315  awk -F'\t' 'NR > 1 && $4 ~ /^[0-9.]+$/ { sum += $4; count++ } END { if (count > 0) print sum / count; else print "No valid numeric data" }' yourfile.tsv
+  316  awk -F'\t' 'NR > 1 && $2 ~ /^[0-9.]+$/ { sum += $4; count++ } END { if (count > 0) print sum / count; else print "No valid numeric data" }' yourfile.tsv
+  317  awk -F'\t' 'NR > 1 && $2 ~ /^[0-9.]+$/ { sum += $4; count++ } END { if (count > 0) print sum / count; else print "No valid numeric data" }' phenotypes-AA.tsv 
+  318  awk -F'\t' 'NR>1 { gsub(/^[ \t]+|[ \t]+$/, "", $4); if ($4 ~ /^[0-9]+(\.[0-9]+)?$/) { sum+=$4; count++ } } END { if(count>0) print sum/count; else print "No valid data" }' yourfile.tsv
+  319  awk -F'\t' 'NR>1 { gsub(/^[ \t]+|[ \t]+$/, "", $2); if ($2 ~ /^[0-9]+(\.[0-9]+)?$/) { sum+=$2; count++ } } END { if(count>0) print sum/count; else print "No valid data" }' phenotypes-AA.tsv
+  320  git add
+  321  git add .
+  322  git commit
+  323  git commit -m "Demographics derive" 
+  324  git config --global user.name "niaterry"
+  325  git config --global user.email "NiaTerry2025@u.northwestern.edu"
+  326  git commit -m "Derive Demographics"
+  327  git push
+  328  ls
+  329  cat variables.tsv
+  330  cut -1 phenotypes-AA.tsv | tail -n+2 | sort | uniq -cf
+  331  cut -f1 phenotypes-AA.tsv | tail -n+2 | sort | uniq -cf
+  332  cut -f2 phenotypes-AA.tsv | tail -n+2 | sort | uniq -cf
+  333  cut -f1 phenotypes-AA.tsv | tail -n+2 | sort | uniq -c
+  334  cut -f1 phenotypes-AA.tsv | tail -n+2 | sort | uniq -c | uniq -c
+  335  cut -f1 phenotypes-AA.tsv | tail -n+2 | sort | uniq -c | -c
+  336  cut -f1 phenotypes-AA.tsv | tail -n+2 | sort | uniq -c | count
+  337  cut -f1 phenotypes-AA.tsv | tail -n+2 | sort | uniq -c | wc -1
+  338  cut -f1 phenotypes-AA.tsv | tail -n+2 | sort | uniq -c | wc -l
+  339  cp phenotypes-AA.tsv > demographic-info.tsv
+  340  mkdir demographic-information
+  341  cp phenotypes-AA.tsv > demographic-information
+  342  mkdir demographic-information.tsv
+  343  cp phenotypes-AA.tsv > demographic-information.tsv
+  344  cp phenotypes-AA.tsv  demographic-information.tsv
+  345  ls
+  346  rmdir demographic information.tsv
+  347  rmdir demographic-information.tsv
+  348  rmdir -r  demographic-information.tsv
+  349  rm -r  demographic-information.tsv
+  350  rm demographic-info.tsv
+  351  rmdir demographic-information
+  352  cp phenotypes-AA.tsv  demographic-information
+  353  ls
+  354  cd demographic-information
+  355  cat demographic information
+  356  cat demographic-information
+  357  awk 'NR==1 {print; next} !seen[$1]++' phenotypes-AA.tsv > no_duplicates.tsv
+  358  awk 'NR==1 {print; next} !seen[$1]++' demographic-information > cleandemograpgics.tsv
+  359  ls
+  360  cat cleandemographics.tsv
+  361* 
+  362  cut -f3 cleandemograpgics.tsv | tail -n+2 | sort | uniq -c
+  363  cut -f5 cleandemograpgics.tsv | tail -n+2 | sort | uniq -c
+  364* cut - cleandemograpgics.tsv | tail -n+2 | sort | uniq -c
+  365  awk -F'\t' 'NR>1 { gsub(/^[ \t]+|[ \t]+$/, "", $2); if ($2 ~ /^[0-9]+(\.[0-9]+)?$/) { sum+=$2; count++ } } END { if(count>0) print sum/count; else print "No valid data" }' cleandemograpgics.tsv
+  366  cut -f1 phenotypes-AA.tsv | tail -n+2 | sort | uniq -c | wc -l
+  367* 
+  368  cut -f2 phenotypes-AA.tsv | tail -n+2 | sort | uniq -c 
+  369  cut -f3 phenotypes-AA.tsv | tail -n+2 | sort | uniq -c 
+  370  cut -f2 phenotypes-AA.tsv | tail -n+2 | sort | uniq -c 
+  371  cat variables.tsv 
+  372  history
