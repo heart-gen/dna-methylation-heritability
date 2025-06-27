@@ -17,6 +17,8 @@
 #        singularity: user plans to run BiocMAP with singularity to manage
 #                     software dependencies
 
+module load java/jdk11.0.10
+
 set -e
 
 REPO_NAME="BiocMAP"
