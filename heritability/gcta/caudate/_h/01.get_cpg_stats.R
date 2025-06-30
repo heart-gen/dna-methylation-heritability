@@ -24,10 +24,10 @@ change_file_path <- function(BSobj, raw_assays) {
 }
 
 filter_pheno <- function(BSobj, pheno_file_path) {
-    pheno <- read.csv(pheno_file_path, header = TRUE)
+    pheno <- fread(pheno_file_path, header = TRUE)
     pheno_filtered <- pheno %>%
-        filter(Race == "AA", Age >= 17, Region == "Caudate")
-    id    <- intersect(pheno_filtered$BrNum, colData(BSobj)$brnum)
+        filter(race == "AA", agedeath >= 17, region == "caudate")
+    id    <- intersect(pheno_filtered$brnum, colData(BSobj)$brnum)
     BSobj <- BSobj[, colData(BSobj)$brnum %in% id]
     return(list(BSobj = BSobj, pheno = pheno_filtered, id = id))
 }
@@ -86,10 +86,10 @@ write_covar <- function(BSobj, pheno, id, meth_merged, out_covs) {
     out_qcov <- file.path(out_covs, "TOPMed_LIBD.AA.qcovar")
                                         # Filter data
     filtered_pheno <- pheno |>
-        select(BrNum, Sex, Dx, Age) |> filter(BrNum %in% id)
+        select(brnum, sex, primarydx, agedeath) |> filter(brnum %in% id)
                                         # Merge data
     meth_selected <- meth_merged |>
-        inner_join(filtered_pheno, by= c("FID" = "BrNum")) |>
+        inner_join(filtered_pheno, by= c("FID" = "brnum")) |>
         arrange(match(FID, meth_merged$FID)) |>
         tibble::column_to_rownames("FID")
                                         # Write file
@@ -128,7 +128,7 @@ raw_assays  <- here("inputs/wgbs-data/caudate/raw/CpGassays.h5")
 BSobj       <- change_file_path(BSobj, raw_assays)
 
                                         # keep only adult AA
-pheno_file_path <- here("inputs/phenotypes/merged/_m/merged_phenotypes.csv")
+pheno_file_path <- here("inputs/phenotypes/_m/phenotypes-AA.tsv")
 filtered        <- filter_pheno(BSobj, pheno_file_path)
 
                                         # exclude low coverage sites
