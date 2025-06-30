@@ -85,10 +85,11 @@ for (num_indiv in num_indivs) {
     add.params = list(fill = "lightgray", alpha = 0.75),
     ggtheme = theme_pubr(base_size = 15, border = TRUE)
   ) +
-    facet_wrap(~h2_category, labeller = as_labeller(labels)) +
+    facet_wrap(~h2_category, labeller = as_labeller(labels), scales = "free_x") +
     ggtitle(paste("N =", num_indiv)) +
     labs(color = NULL) +
-    font("xy.title", face = "bold", size = 14)
+    font("xy.title", face = "bold", size = 14) + 
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
   
   plot_list[[as.character(num_indiv)]] <- p
 }
@@ -97,7 +98,7 @@ combined_plot <- ggarrange(plotlist = plot_list, ncol = 2, nrow = 2, labels = NU
 
 # Save combined plot
 plot_file <- file.path(out_path, "gcta_correlation_combined")
-save_plot(combined_plot, plot_file, w = 14, h = 10)
+save_plot(combined_plot, plot_file, w = 18, h = 10)
 
 # Combine and write results
 results_df <- bind_rows(results_list)
