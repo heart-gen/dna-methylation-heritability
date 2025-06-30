@@ -18,7 +18,7 @@ remove_ct_snps <- function(f_snp, meth_levels, pos) {
 filter_pheno <- function(meth_levels, brain_id, ances, demo, pc) {
   # keep AA only
   id2 <- intersect(intersect(ances$id[ances$group == "AA"], brain_id), 
-                   demo$BrNum[demo$Region == "Caudate" & demo$Age >= 17])
+                   demo$brnum[demo$region == "caudate" & demo$agedeath >= 17])
   meth_levels <- meth_levels[match(id2, brain_id), ]
   
   # align samples
@@ -65,8 +65,7 @@ cpg_meth <- here("heritability", "gcta", "caudate", "_m", "cpg",
                  paste0("chr_", chr), "cpg_meth.phen")
 cpg_names <- here("heritability", "gcta", "caudate", "_m", "cpg", 
                   paste0("chr_", chr), "cpg_pos.txt")
-pheno_file_path <- here("inputs", "phenotypes", "merged", 
-                        "_m", "merged_phenotypes.csv")
+pheno_file_path <- here("inputs", "phenotypes", "_m", "phenotypes-AA.tsv")
 f_ances <- here("inputs", "genetic-ancestry", 
                 "structure.out_ancestry_proportion_raceDemo_compare")
 f_snp <- paste0("/projects/b1213/resources/libd_data/wgbs/DEM2/snps_CT/chr", chr)
@@ -81,7 +80,7 @@ meth_levels <- meth_levels[, -c(1, 2)]
 pos <- read.table(cpg_names, header=FALSE)
 pos <- pos[-c(1, 2), , drop = FALSE]
 ances <- read.table(f_ances, header=TRUE)
-demo  <- read.csv(pheno_file_path, header = TRUE)
+demo  <- fread(pheno_file_path, header = TRUE)
 
 # remove CT snps at CpG sites
 filtered_cpg <- remove_ct_snps(f_snp, meth_levels, pos)
