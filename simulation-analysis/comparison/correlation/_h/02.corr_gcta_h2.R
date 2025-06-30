@@ -38,8 +38,8 @@ for (num_indiv in num_indivs) {
     mutate(p_adjusted_fdr = p.adjust(Pval_Variance, method = "fdr"),
       h2_category = case_when(
           p_adjusted_fdr >= 0.05 ~ "Low prediction",
-          Sum.of.V.G._Vp_Variance < 0.1 & p_adjusted_fdr < 0.05 ~ "Non-heritable",
-          Sum.of.V.G._Vp_Variance > 0.1 & p_adjusted_fdr < 0.05 ~ "Heritable"
+          target_heritability < 0.1 & p_adjusted_fdr < 0.05 ~ "Non-heritable",
+          target_heritability > 0.1 & p_adjusted_fdr < 0.05 ~ "Heritable"
     ))
   
   counts <- filtered %>%
