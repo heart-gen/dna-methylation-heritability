@@ -1,3 +1,13 @@
+## Load the package at the top of your script
+library("sessioninfo")
+
+## Reproducibility information
+print('Reproducibility information:')
+Sys.time()
+proc.time()
+options(width = 120)
+session_info()
+
 #!/bin/bash
 #SBATCH --output=run_second_half_slurm.log
 #SBATCH --mem=25G
