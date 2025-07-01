@@ -4,7 +4,7 @@
 
 #  After running 'install_software.sh', this should point to the directory
 #  where this repo was cloned, and not say "$PWD"
-ORIG_DIR=$PWD
+ORIG_DIR=/projects/p32505/users/elisa/opt
 
 export _JAVA_OPTIONS="-Xms8g -Xmx10g"
 
