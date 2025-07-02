@@ -9,8 +9,15 @@ options(width = 120)
 session_info()
 
 #!/bin/bash
-#SBATCH --output=run_second_half_slurm.log
-#SBATCH --mem=25G
+#SBATCH --account=b1042        # Replace with your allocation
+#SBATCH --partition=short       # Partition (queue) name
+#SBATCH --time=01:00:00         # Time limit hrs:min:sec
+#SBATCH --nodes=1               # Number of nodes
+#SBATCH --ntasks-per-node=1     # Number of cores (CPU)
+#SBATCH --mem=25G                # Memory limit
+#SBATCH --job-name=dna_methylation_pipeline_first_half  # Job name
+#SBATCH --output=run_second_half_slurm.log  # Pipeline output log
+#SBATCH --error=error_%j.log    # Standard error log
 
 #  After running 'install_software.sh', this should point to the directory
 #  where this repo was cloned, and not say "$PWD"
