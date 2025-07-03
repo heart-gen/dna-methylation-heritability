@@ -163,7 +163,7 @@ for (iter in 1:n_iter) {
                                         # Fit batch via elastic net
     X_batch <- as_FBM(G_clumped[, selected_snps])
     cv_fit  <- big_spLinReg(X_batch, residuals, alphas = seq(0.05, 1, 0.05),
-                            K = 5)
+                            K = 10)
     fit_summary <- summary(cv_fit)
 
                                         # Check for convergence issues
