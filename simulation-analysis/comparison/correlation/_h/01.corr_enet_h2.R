@@ -20,7 +20,7 @@ if (!dir.exists(out_path)) {
 
 results_list <- list()
 plot_list <- list()
-num_indivs <- c(100, 150, 200, 250, 500, 1000)
+num_indivs <- c(100, 150, 200, 250, 500, 1000, 5000)
 
 for (num_indiv in num_indivs) {
   
@@ -88,16 +88,24 @@ for (num_indiv in num_indivs) {
     ggtitle(paste("N =", num_indiv)) +
     labs(color = NULL) +
     font("xy.title", face = "bold", size = 14) +
-    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+    theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+    geom_hline(yintercept = 0.1, linetype = "dashed", color = "black") +
+    geom_vline(xintercept = 0.1, linetype = "dashed", color = "black")
   
   plot_list[[as.character(num_indiv)]] <- p
 }
+
+if (length(plot_list) < 8) {
+  blank_plot <- ggplot() + theme_void()
+  plot_list[["placeholder"]] <- blank_plot
+}
+
 # Combine all plots into a 2x3 grid
-combined_plot <- ggarrange(plotlist = plot_list, ncol = 3, nrow = 2, labels = NULL)
+combined_plot <- ggarrange(plotlist = plot_list, ncol = 4, nrow = 2, labels = NULL)
 
 # Save combined plot
 plot_file <- file.path(out_path, "elastic_net_correlation_combined")
-save_plot(combined_plot, plot_file, w = 18, h = 10)
+save_plot(combined_plot, plot_file, w = 20, h = 10)
 
 # Combine and write results
 results_df <- bind_rows(results_list)
