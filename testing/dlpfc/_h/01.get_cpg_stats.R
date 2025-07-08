@@ -16,15 +16,6 @@ suppressPackageStartupMessages({
 args <- commandArgs(trailingOnly = TRUE)
 chr  <- args[1]
 
-## Changes file path (for HDF5-backed assay data)
-change_file_path <- function(BSobj, raw_assays) {
-    var <- c("M", "Cov", "coef")
-    for (assay in var) {
-        BSobj@assays@data@listData[[assay]]@seed@seed@filepath <- raw_assays
-    }
-    return(BSobj)
-}
-
 ## Filters phenotype and BSseq samples
 filter_pheno <- function(BSobj, pheno_file_path) {
     pheno <- fread(pheno_file_path, header = TRUE)
@@ -130,10 +121,6 @@ for (subdir in subdirs) {
                                         # define output directories 
 out_covs  <- file.path(output_path, "covs",  paste0("chr_", chr))
 out_cpg   <- file.path(output_path, "cpg", paste0("chr_", chr))
-
-                                       # change file path for raw data
-raw_assays  <- here("inputs/wgbs-data/caudate/raw/CpGassays.h5")
-BSobj       <- change_file_path(BSobj, raw_assays)
 
                                         # keep only adult AA
 pheno_file_path <- here("inputs/phenotypes/_m/phenotypes-AA.tsv")
