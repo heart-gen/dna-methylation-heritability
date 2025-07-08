@@ -105,7 +105,7 @@ write_covar <- function(BSobj, pheno, id, meth_merged, out_covs) {
 
 ## Main
                                         # load data
-load(here("/inputs/wgbs-data/dlpfc", paste0("dlpfc_chr", chr, "BSobj_GenotypesDosage.rda")))
+load(here("inputs/wgbs-data/dlpfc", paste0("dlpfc_chr", chr, "BSobj_GenotypesDosage.rda")))
 output_path <- here("testing", "dlpfc", "_m")
 subdirs <- c("covs", "cpg")
 
