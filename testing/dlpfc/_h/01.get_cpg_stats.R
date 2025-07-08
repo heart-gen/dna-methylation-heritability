@@ -85,7 +85,7 @@ write_covar <- function(BSobj, pheno, id, meth_merged, out_covs) {
     out_qcov <- file.path(out_covs, "TOPMed_LIBD.AA.qcovar")
                                         # Filter data
     filtered_pheno <- pheno |>
-        select(brnum, sex, primarydx, agedeath) |> filter(brnum %in% id)
+        select(brnum, sex, primarydx, agedeath, snpPC1, snpPC2, snpPC3, snpPC4, snpPC5) |> filter(brnum %in% id)
                                         # Merge data
     meth_selected <- meth_merged |>
         inner_join(filtered_pheno, by= c("FID" = "brnum")) |>
@@ -96,7 +96,7 @@ write_covar <- function(BSobj, pheno, id, meth_merged, out_covs) {
     covar_merged |>
         write.table(file=out_cov, sep="\t", row.names=TRUE,
                     col.names=FALSE, quote=FALSE)
-    qcovar_merged <- meth_selected |> select(IID, Age)
+    qcovar_merged <- meth_selected |> select(IID, Age, snpPC1, snpPC2, snpPC3, snpPC4, snpPC5)
     qcovar_merged |>
         write.table(file=out_qcov, sep="\t", row.names=TRUE,
                     col.names=FALSE, quote=FALSE)
