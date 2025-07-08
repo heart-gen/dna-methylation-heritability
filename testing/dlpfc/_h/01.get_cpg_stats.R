@@ -1,5 +1,6 @@
 #### Calculate mean and SD of methylation values ####
 
+## Loads libraries
 suppressPackageStartupMessages({
     library('bsseq')
     library('HDF5Array')
@@ -11,10 +12,11 @@ suppressPackageStartupMessages({
     library(plinkr)
 })
 
+## Gets chromosome from command line
 args <- commandArgs(trailingOnly = TRUE)
 chr  <- args[1]
 
-## Function
+## Changes file path (for HDF5-backed assay data)
 change_file_path <- function(BSobj, raw_assays) {
     var <- c("M", "Cov", "coef")
     for (assay in var) {
@@ -23,6 +25,7 @@ change_file_path <- function(BSobj, raw_assays) {
     return(BSobj)
 }
 
+## Filters phenotype and BSseq samples
 filter_pheno <- function(BSobj, pheno_file_path) {
     pheno <- fread(pheno_file_path, header = TRUE)
     pheno_filtered <- pheno %>%
@@ -32,6 +35,7 @@ filter_pheno <- function(BSobj, pheno_file_path) {
     return(list(BSobj = BSobj, pheno = pheno_filtered, id = id))
 }
 
+## Excludes low coverage CpGs
 exclude_low_cov <- function(BSobj) {
     cov   <- getCoverage(BSobj)
     n     <- length(colData(BSobj)$brnum)
@@ -40,6 +44,7 @@ exclude_low_cov <- function(BSobj) {
     return(BSobj)
 }
 
+## Computes mean and SD of methylation
 DNAm_stats <- function(BSobj, out_stats) {
     M     <- as.matrix(getMeth(BSobj))
     sds   <- rowSds(M)
@@ -48,12 +53,14 @@ DNAm_stats <- function(BSobj, out_stats) {
     return(list(M = M, sds = sds, means = means))
 }
 
+## Extracts sample IDs from PLINK
 extract_fid_iid <- function(psam_file) {
     samples <- read_plink2_psam_file(psam_file)
     samples <- samples[, 1:2]
     return(samples)
 }
 
+## Writes methylation matrix as .phen file
 write_meth_to_phen <- function(BSobj, M, samples, out_cpg) {
   
                                         # get CpG positions
@@ -81,6 +88,7 @@ write_meth_to_phen <- function(BSobj, M, samples, out_cpg) {
     return(meth_merged)
 }
 
+## Writes covariate and quantitate covariate files
 write_covar <- function(BSobj, pheno, id, meth_merged, out_covs) {
     out_cov  <- file.path(out_covs, "TOPMed_LIBD.AA.covar")
     out_qcov <- file.path(out_covs, "TOPMed_LIBD.AA.qcovar")
