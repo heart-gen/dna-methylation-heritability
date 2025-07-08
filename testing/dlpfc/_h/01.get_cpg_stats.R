@@ -114,7 +114,7 @@ write_covar <- function(BSobj, pheno, id, meth_merged, out_covs) {
 
 ## Main
                                         # load data
-load(here("inputs/wgbs-data/caudate", paste0("Caudate_chr", chr, "_BSobj.rda")))
+load(here("/gpfs/projects/p32505/users/elisa/projects/dna-methylation-heritability/inputs/wgbs-data/dlpfc", paste0("dlpfc_chr", chr, "_BSobj_GenotypesDosage.rda")))
 output_path <- here("heritability", "gcta", "caudate", "_m")
 subdirs <- c("covs", "cpg")
 
