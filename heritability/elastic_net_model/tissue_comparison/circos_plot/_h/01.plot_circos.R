@@ -61,13 +61,19 @@ plot_circos_3tissue <- function(caudate, dlpfc, hippo){
     draw(lgd_points, x=unit(5, "mm"), y=unit(5, "mm"), just=c("left", "bottom"))
 }
 
+output_path <- here("heritability/elastic_net_model/tissue_comparison/circos_plot/_m/")
+
+if (!dir.exists(output_path)) {
+    dir.create(output_path, recursive = TRUE)
+}
+
 ####### MAIN
 main <- function(){
     caudate <- extract_bed("caudate")
     dlpfc   <- extract_bed("dlpfc")
     hippo   <- extract_bed("hippocampus")
                                         # plot
-    pdf(file = paste0("significant_circos_plot_3regions.pdf"),
+    pdf(file = file.path(output_path, "significant_circos_plot_3regions.pdf"),
         width = 10, height = 10)
     plot_circos_3tissue(caudate, dlpfc, hippo)
     dev.off()
