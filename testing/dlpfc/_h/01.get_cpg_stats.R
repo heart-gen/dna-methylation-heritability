@@ -92,7 +92,7 @@ write_covar <- function(BSobj, pheno, id, meth_merged, out_covs) {
         arrange(match(FID, meth_merged$FID)) |>
         tibble::column_to_rownames("FID")
                                         # Write file
-    covar_merged <- meth_selected |> select(IID, Sex, Dx)
+    covar_merged <- meth_selected |> select(IID, sex, primarydx)
     covar_merged |>
         write.table(file=out_cov, sep="\t", row.names=TRUE,
                     col.names=FALSE, quote=FALSE)
