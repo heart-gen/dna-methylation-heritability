@@ -3,7 +3,13 @@
 suppressPackageStartupMessages({
   library('data.table')
   library(here)
+  library(readr)
+  library(stringr)
 })
+
+                                        # get chr from command line arg
+args <- commandArgs(trailingOnly = TRUE)
+chr  <- args[1]
 
 # Function
 remove_ct_snps <- function(f_snp, meth_levels, pos) {
@@ -43,12 +49,12 @@ regress_pcs <- function(meth_levels, pc){
   return(pc_res)
 }
 
-residual_variance <- function(pc_res, pos, chr, output_path) {
+residual_variance <- function(pc_res, pos, chr, output_path, chunk_id) {
   # get variance for residual
   res_var <- apply(pc_res, 2, sd)
   
   # write to file
-  f_out <- file.path(output_path, "res_var.tsv")
+  f_out <- file.path(output_path, paste0("res_var_", chunk_id, ".tsv"))
   out <- data.frame(chr=chr, pos=pos, sd=res_var)
   write.table(out, f_out, col.names=FALSE, row.names=FALSE, sep="\t", quote=F)
   return(out)
@@ -74,25 +80,73 @@ pca <- here("heritability", "gcta", "caudate", "_m", "pca",
 
 # read data
 pc <- read.csv(pca)
-meth_levels <- fread(cpg_meth, header=TRUE, data.table=FALSE)
-brain_id <- meth_levels[, 1]
-meth_levels <- meth_levels[, -c(1, 2)]
 pos <- read.table(cpg_names, header=FALSE)
 pos <- pos[-c(1, 2), , drop = FALSE]
 ances <- read.table(f_ances, header=TRUE)
 demo  <- fread(pheno_file_path, header = TRUE)
 
 # remove CT snps at CpG sites
-filtered_cpg <- remove_ct_snps(f_snp, meth_levels, pos)
+#filtered_cpg <- remove_ct_snps(f_snp, meth_levels, pos)
 
 # filter and align samples
-filtered_samples <- filter_pheno(filtered_cpg$meth_levels, brain_id, ances, demo, pc)
+#filtered_samples <- filter_pheno(filtered_cpg$meth_levels, brain_id, ances, demo, pc)
   
 # regress out top5 PC
-pc_res <- regress_pcs(filtered_samples$meth_levels, filtered_samples$pc)
+#pc_res <- regress_pcs(filtered_samples$meth_levels, filtered_samples$pc)
 
 # calculate variance and write to file
-res_out <- residual_variance(pc_res, filtered_cpg$pos, chr, output_path)
+#res_out <- residual_variance(pc_res, filtered_cpg$pos, chr, output_path)
+
+tmp_dir <- here("heritability", "gcta", "caudate", "_m", "cpg", paste0("chr_", chr), "tmp_files")
+tmp_files <- list.files(tmp_dir, pattern = "^cpg_meth_.*\\.tsv$", full.names = TRUE)
+cat("Found", length(tmp_files), "chunks to read\n")
+
+for (chunk_path in tmp_files) {
+  cat("Processing:", chunk_path, "\n")
+  flush.console()
+  
+  chunk_data <- fread(chunk_path, header = TRUE, data.table = FALSE)
+  brain_id <- chunk_data[, 1]
+  meth_levels <- chunk_data[, -c(1, 2)]
+  
+  # Extract CpG indices from filename
+  idx <- as.integer(str_extract_all(basename(chunk_path), "\\d+")[[1]])
+  start_idx <- idx[1] - 2  # Adjust for skipped rows in pos
+  end_idx <- idx[2] - 2
+  
+  pos_chunk <- pos[start_idx:end_idx, , drop = FALSE]
+  
+  if (!all(colnames(meth_levels) == pos_chunk[, 1])) {
+     stop("CpG names in methylation matrix do not match position file.")
+  }
+  
+  if (ncol(meth_levels) != nrow(pos_chunk)) {
+    stop("Mismatch between meth_levels and pos_chunk: ", 
+         ncol(meth_levels), " vs ", nrow(pos_chunk))
+  }
+  
+  # Remove CT SNPs
+  filtered <- remove_ct_snps(f_snp, meth_levels, pos_chunk)
+  
+  # Filter and align phenotype
+  pheno <- filter_pheno(filtered$meth_levels, brain_id, ances, demo, pc)
+  
+  # Regress PCs
+  pc_res <- regress_pcs(pheno$meth_levels, pheno$pc)
+  
+  # Get chunk identifier for output
+  chunk_id <- str_extract(basename(chunk_path), "(?<=cpg_meth_)[0-9]+_[0-9]+")
+  
+  # Write variance output
+  residual_variance(pc_res, filtered$pos, chr, output_path, chunk_id)
+}
+
+res_files <- list.files(output_path, pattern = "^res_var_.*\\.tsv$", full.names = TRUE)
+res_combined <- rbindlist(lapply(res_files, fread))
+write.table(res_combined, file.path(output_path, "res_var_all.tsv"),
+            col.names=FALSE, row.names=FALSE, sep="\t", quote=FALSE)
+
+cat("Finished processing all chunks.\n")
 
 #### Reproducibility information ####
 print("Reproducibility information:")
