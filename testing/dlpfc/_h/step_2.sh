@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name=reformat.cpgs
-#SBATCH --output=reformat.cpgs.out
-#SBATCH --error=reformat.cpgs.err
+#SBATCH --output=logs/02.reformat_cpgs_%j.out
+#SBATCH --error=logs/02.reformat_cpgs_%j.err
 #SBATCH --time=01:00:00
 #SBATCH --mem=25G
 #SBATCH --cpus-per-task=1
