@@ -28,6 +28,26 @@ echo "Task id: ${SLURM_ARRAY_TASK_ID}"
 module purge
 module list
 
+# check chromosome size information
+
+WINDOW=500000
+CHR_SIZE=$(grep "^chr1[[:space:]]" $CHR_FILE | cut -f2)
+
+START_POS=$((START - WINDOW))
+END_POS=$((END + WINDOW))
+
+echo "Extracting SNPs from all subjects on $CHR: $START-$END ($WINDOW bp window)"
+
+if (( START_POS <= 0 )); then
+    echo "ERROR: Start position is below zero."
+    exit 1
+fi
+
+if (( END_POS >= CHR_SIZE )); then
+    echo "ERROR: End position exceeds Chromosome $CHR size."
+    exit 1
+fi
+
 # Set path variables
 ENV_PATH="/projects/p32505/opt/env"
 
