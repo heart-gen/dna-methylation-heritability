@@ -33,14 +33,15 @@ Ananlyis [`(GCTA)`](https://github.com/jianyangqt/gcta) software for heritabilit
 
 **Inputs:**
 - `BSobj.rda`
-- `merged_phenotypes.csv`
+- `phenotypes-AA.tsv`
 - `TOPMed_LIBD.AA.psam`
 
 **Generated Output Files:**
 - `cpg/`
     - `chr_*/`
         - `stats.rda:` SD and mean
-        - `cpg_meth.phen:` Methylation values (0-1) 
+        - `cpg_meth.phen:` Methylation values (0-1)
+        - `cpg_pos.txt:` Genomic position of CpG sites
 - `vmr/`
     - `chr_*/`
         - `vmr.bed`
@@ -80,6 +81,36 @@ Ananlyis [`(GCTA)`](https://github.com/jianyangqt/gcta) software for heritabilit
 
 ---
 
+### Script `02b.res_var.R`
+
+**Overview:**
+- Filters out CpG sites at C/T SNP sites
+- Regresses out top 5 principal components generated from `02.pca.R`
+- Calculates variance of residuals 
+
+**Inputs:**
+- `cpg/`
+    - `chr_*/`
+        - `cpg_meth.phen`
+        - `cpg_pos.txt`
+- `pca/`
+    - `chr_*/`
+        - `pc.csv:`
+- `phenotypes-AA.tsv`
+- `structure.out_ancestry_proportion_raceDemo_compare`
+- `snps_CT`
+    - `chr_*/`
+
+**Generated Output Files:**
+- `pca/`
+    - `chr_*/`
+        - `res_var_all.tsv`
+ 
+ **Submission:**
+ `sbatch ../_h/step_2b.sh`
+
+---
+
 ### Script `03.cal_vmr.R`
 
 **Overview:**
@@ -102,7 +133,7 @@ Ex.
 |1  |101308406                    |101308887|
 |1  |104411888                    |104413497|
 
-Generated using `cat ./chr_*/vmr.bed | sort -k1,1n > vmr_list.txt`
+Generated using `cat ./vmr/chr_*/vmr.bed | sort -k1,1n > vmr.bed`
 
 **Generated Output Files:**
 - `vmr/`
@@ -126,7 +157,7 @@ Generated using `cat ./chr_*/vmr.bed | sort -k1,1n > vmr_list.txt`
 - `TOPMed_LIBD.AA.psam`
 - `TOPMed_LIBD.AA.pvar`
 - `chromosome_sizes.txt`
-- `vmr_list.txt`
+- `vmr.bed`
 - `samples.txt`
 
 **Generated Output Files:**
@@ -160,7 +191,7 @@ Generated using `cat ./chr_*/vmr.bed | sort -k1,1n > vmr_list.txt`
 - `vmr/`
     - `chr_*/`
         - `${START}_${END}_meth.phen`
-- `vmr_list.txt`
+- `vmr.bed`
 
 **Generated Output Files:**
 - `h2/`
