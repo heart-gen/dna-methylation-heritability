@@ -3,5 +3,5 @@ if (suppressMessages(!require("UpSetR"))) suppressMessages(install.packages("UpS
 library("UpSetR")
 pdf("./f_0.5/Intervene_upset.pdf", width=14, height=8, onefile=FALSE, useDingbats=FALSE)
 expressionInput <- c('hippocampus'=2725,'dlpfc'=3628,'dlpfc&hippocampus'=4033,'caudate'=8118,'caudate&hippocampus'=802,'caudate&dlpfc'=706,'caudate&dlpfc&hippocampus'=1959)
-upset(fromExpression(expressionInput), nsets=3, nintersects=30, show.numbers="yes", main.bar.color="#ea5d4e", sets.bar.color="#317eab", empty.intersections=NULL, order.by = "freq", number.angles = 0, mainbar.y.label ="No. of Intersections", sets.x.label ="Set size")
+upset(fromExpression(expressionInput), nsets=3, nintersects=30, show.numbers="yes", main.bar.color="#36383B", sets.bar.color="#36383B", empty.intersections=NULL, order.by = "freq", number.angles = 0, mainbar.y.label ="No. of Intersections", sets.x.label ="Set size")
 invisible(dev.off())

@@ -45,6 +45,8 @@ for f in "${OVERLAP[@]}"; do
       -i ./*.bed \
       --bedtools-options f=$f \
       --save-overlaps \
+      --mbcolor "#36383B" \
+      --sbcolor "#36383B" \
       --output "$OUTDIR"
 
     if [ $? -ne 0 ]; then
@@ -64,6 +66,8 @@ for F in "${OVERLAP[@]}"; do
       -i ./*.bed \
       --bedtools-options F=$F \
       --save-overlaps \
+      --mbcolor "#36383B" \
+      --sbcolor "#36383B" \
       --output "$OUTDIR"
 
     if [ $? -ne 0 ]; then
