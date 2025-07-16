@@ -6,14 +6,14 @@
 #SBATCH --ntasks-per-node=1     # Number of cores (CPU)
 #SBATCH --mem=16G               # Memory limit
 #SBATCH --mail-type=FAIL
-#SBATCH --array=1-12078%250
+#SBATCH --array=1-11585%250
 #SBATCH --mail-user=alexis.bennett@northwestern.edu
 #SBATCH --job-name=extract_snp  # Job name
 #SBATCH --output=/dev/null      # Standard output log
 #SBATCH --error=/dev/null       # Standard error log
 
 ## Edit with your job command
-REGION_LIST="./vmr_list.txt"
+REGION_LIST="./vmr.bed"
 SAMPLE_LIST="./samples.txt"
 CHR_FILE="/projects/b1213/resources/genomes/human/gencode-v47/fasta/chromosome_sizes.txt"
 DATA="/projects/p32505/users/alexis/projects/dna-methylation-heritability/inputs/genotypes"
