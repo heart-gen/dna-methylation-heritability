@@ -7,7 +7,7 @@
 #SBATCH --mem=16G               # Memory limit
 #SBATCH --mail-type=FAIL
 #SBATCH --array=1-9974%250
-#SBATCH --mail-user=alexis.bennett@northwestern.edu
+#SBATCH --mail-user=elisajohnson2027@u.northwestern
 #SBATCH --job-name=extract_snp  # Job name
 #SBATCH --output=/dev/null      # Standard output log
 #SBATCH --error=/dev/null       # Standard error log
