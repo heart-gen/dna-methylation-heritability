@@ -61,21 +61,21 @@ residual_variance <- function(pc_res, pos, chr, output_path, chunk_id) {
 }
 
 # Main
-output_path <- here("heritability", "gcta", "caudate", "_m", "pca", paste0("chr_", chr))
+output_path <- here("heritability", "caudate", "_m", "pca", paste0("chr_", chr))
 if (!dir.exists(output_path)) {
   dir.create(output_path, recursive = TRUE)
 }
 
 # set file paths
-cpg_meth <- here("heritability", "gcta", "caudate", "_m", "cpg", 
+cpg_meth <- here("heritability", "caudate", "_m", "cpg", 
                  paste0("chr_", chr), "cpg_meth.phen")
-cpg_names <- here("heritability", "gcta", "caudate", "_m", "cpg", 
+cpg_names <- here("heritability", "caudate", "_m", "cpg", 
                   paste0("chr_", chr), "cpg_pos.txt")
 pheno_file_path <- here("inputs", "phenotypes", "_m", "phenotypes-AA.tsv")
 f_ances <- here("inputs", "genetic-ancestry", 
                 "structure.out_ancestry_proportion_raceDemo_compare")
 f_snp <- paste0("/projects/b1213/resources/libd_data/wgbs/DEM2/snps_CT/chr", chr)
-pca <- here("heritability", "gcta", "caudate", "_m", "pca", 
+pca <- here("heritability", "caudate", "_m", "pca", 
             paste0("chr_", chr), "pc.csv")
 
 # read data
@@ -85,21 +85,9 @@ pos <- pos[-c(1, 2), , drop = FALSE]
 ances <- read.table(f_ances, header=TRUE)
 demo  <- fread(pheno_file_path, header = TRUE)
 
-# remove CT snps at CpG sites
-#filtered_cpg <- remove_ct_snps(f_snp, meth_levels, pos)
-
-# filter and align samples
-#filtered_samples <- filter_pheno(filtered_cpg$meth_levels, brain_id, ances, demo, pc)
-  
-# regress out top5 PC
-#pc_res <- regress_pcs(filtered_samples$meth_levels, filtered_samples$pc)
-
-# calculate variance and write to file
-#res_out <- residual_variance(pc_res, filtered_cpg$pos, chr, output_path)
-
-tmp_dir <- here("heritability", "gcta", "caudate", "_m", "cpg", paste0("chr_", chr), "tmp_files")
+tmp_dir <- here("heritability", "caudate", "_m", "cpg", paste0("chr_", chr), "tmp_files")
 tmp_files <- list.files(tmp_dir, pattern = "^cpg_meth_.*\\.tsv$", full.names = TRUE)
-cat("Found", length(tmp_files), "chunks to read\n")
+cat("Found", length(tmp_files), "files to read\n")
 
 for (chunk_path in tmp_files) {
   cat("Processing:", chunk_path, "\n")
@@ -146,7 +134,7 @@ res_combined <- rbindlist(lapply(res_files, fread))
 write.table(res_combined, file.path(output_path, "res_var_all.tsv"),
             col.names=FALSE, row.names=FALSE, sep="\t", quote=FALSE)
 
-cat("Finished processing all chunks.\n")
+cat("Finished processing all files\n")
 
 #### Reproducibility information ####
 print("Reproducibility information:")

@@ -76,13 +76,13 @@ corr_pc_ances <- function(pc, gen_ances, idx, output_path) {
 ## Main
                                         # create output directories if they  
                                         # don't exist
-output_path <- here("heritability", "gcta", "caudate", "_m", "pca", paste0("chr_", chr))
+output_path <- here("heritability", "caudate", "_m", "pca", paste0("chr_", chr))
 if (!dir.exists(output_path)) {
     dir.create(output_path, recursive = TRUE)
 }
 
                                         # load sd of raw DNAm
-load(here("heritability", "gcta", "caudate", "_m", "cpg", paste0("chr_", chr), "stats.rda"))
+load(here("heritability", "caudate", "_m", "cpg", paste0("chr_", chr), "stats.rda"))
 v <- data.frame(chr = chr, start = start(BSobj), sd = sds)
 
                                         # get top 1M variable CpG

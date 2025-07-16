@@ -107,7 +107,7 @@ write_covar <- function(BSobj, pheno, id, meth_merged, out_covs) {
 ## Main
                                         # load data
 load(here("inputs/wgbs-data/caudate", paste0("Caudate_chr", chr, "_BSobj.rda")))
-output_path <- here("heritability", "gcta", "caudate", "_m")
+output_path <- here("heritability", "caudate", "_m")
 subdirs <- c("covs", "cpg")
 
                                         # create output directories if they  
