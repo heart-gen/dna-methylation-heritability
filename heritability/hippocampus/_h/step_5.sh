@@ -79,7 +79,6 @@ plink2 --pfile "$DATA/TOPMed_LIBD.AA" \
        --chr "$CHR" \
        --from-bp "$START_POS" \
        --to-bp "$END_POS" \
-       --make-bed \
        --out "$CHR_DIR/TOPMed_LIBD.AA.${START}_${END}"
 
 echo "Extracting SNPs from AA subjects on $CHR: $START-$END ($WINDOW bp window)"
@@ -90,7 +89,6 @@ plink2 --pfile "$DATA/TOPMed_LIBD.AA" \
        --from-bp "$START_POS" \
        --to-bp "$END_POS" \
        --keep "$SAMPLE_LIST" \
-       --make-bed \
        --out "$CHR_DIR/subset_TOPMed_LIBD.AA.${START}_${END}"
 
 log_message "**** Job ends ****"
