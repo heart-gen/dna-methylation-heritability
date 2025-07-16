@@ -13,7 +13,7 @@
 #SBATCH --error=/dev/null       # Standard error log
 
 ## Edit with your job command
-REGION_LIST="./vmr_list.txt"
+REGION_LIST="./vmr.bed"
 
 # Get the current sample name from the sample list
 REGION=$(sed -n "${SLURM_ARRAY_TASK_ID}p" $REGION_LIST)
@@ -55,7 +55,7 @@ ENV_PATH="/projects/p32505/opt/env"
 echo "Working on: Chromosome "$CHR:$START-$END 
 
 ## Activate conda environment
-conda run -p $ENV_PATH/r_env Rscript ../_h/03.cal_vmr.R $CHR $START $END
+conda run -p $ENV_PATH/r_env Rscript ../_h/03.extract_vmr.R $CHR $START $END
 if [ $? -ne 0 ]; then
     log_message "Error: Conda or script execution failed"
     exit 1
