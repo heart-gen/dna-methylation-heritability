@@ -26,3 +26,10 @@ for (chr in 1:22) {
   writeLines(modified_lines, output_file)
   cat("Wrote chromosome", chr, "to", output_file, "\n")
 }
+
+#### Reproducibility information ####
+print("Reproducibility information:")
+Sys.time()
+proc.time()
+options(width = 120)
+sessioninfo::session_info()
