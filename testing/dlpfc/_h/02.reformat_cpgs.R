@@ -14,8 +14,16 @@ for (chr in 1:22) {
     next
   }
   
-  # Read input numbers
-  numbers <- as.numeric(readLines(input_file))
+  # Read all lines and remove the first 2
+  all_lines <- readLines(input_file)
+  if (length(all_lines) <= 2) {
+    warning("Skipping chromosome ", chr, ": file has less than or equal to 2 lines.")
+    next
+  }
+  filtered_lines <- all_lines[-c(1,2)]
+  
+  # Convert to numeric
+  numbers <- as.numeric(filtered_lines)
   
   # Modify each line
   modified_lines <- mapply(function(x, i) {
