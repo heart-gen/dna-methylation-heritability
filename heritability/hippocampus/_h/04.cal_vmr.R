@@ -56,8 +56,8 @@ write_meth_to_phen <- function(BSobj, M, samples, out_phen) {
 ## Main
 
                                         # load raw DNAm
-load(here("heritability/gcta/dlpfc/_m/cpg", paste0("chr_", chr_num, "/stats.rda")))
-output_path <- here("heritability/gcta/dlpfc/_m/vmr", paste0("chr_", chr_num))
+load(here("heritability/hippocampus/_m/cpg", paste0("chr_", chr_num, "/stats.rda")))
+output_path <- here("heritability/hippocampus/_m/vmr", paste0("chr_", chr_num))
 
                                         # calculate DNAm for each VMR
 meth_reg <- calc_vmr_meth(BSobj, chr, start_pos, end_pos)
