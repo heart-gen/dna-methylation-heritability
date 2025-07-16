@@ -1,0 +1,64 @@
+2025-07-16 12:09:46 - **** Job starts ****
+**** QUEST info ****
+User: skc6679
+Job id: 8575979
+Job name: upset_plot
+Node name: 
+Hostname: qnode0027
+Task id: N/A
+No modules loaded
+2025-07-16 12:09:47 - Analyzing brain region overlap using Intervene for f=0.25
+
+Running UpSet module. Please wait...
+
+
+You are done! Please check your results @ ./f_0.25. 
+Thank you for using Intervene!
+
+
+2025-07-16 12:10:29 - Analyzing brain region overlap using Intervene for f=0.5
+
+Running UpSet module. Please wait...
+
+
+You are done! Please check your results @ ./f_0.5. 
+Thank you for using Intervene!
+
+
+2025-07-16 12:10:44 - Analyzing brain region overlap using Intervene for f=0.75
+
+Running UpSet module. Please wait...
+
+
+You are done! Please check your results @ ./f_0.75. 
+Thank you for using Intervene!
+
+
+2025-07-16 12:10:58 - Analyzing brain region overlap using Intervene for F=0.25
+
+Running UpSet module. Please wait...
+
+
+You are done! Please check your results @ ./F_0.25. 
+Thank you for using Intervene!
+
+
+2025-07-16 12:11:13 - Analyzing brain region overlap using Intervene for F=0.5
+
+Running UpSet module. Please wait...
+
+
+You are done! Please check your results @ ./F_0.5. 
+Thank you for using Intervene!
+
+
+2025-07-16 12:11:27 - Analyzing brain region overlap using Intervene for F=0.75
+
+Running UpSet module. Please wait...
+
+
+You are done! Please check your results @ ./F_0.75. 
+Thank you for using Intervene!
+
+
+2025-07-16 12:11:41 - **** Job ends ****
