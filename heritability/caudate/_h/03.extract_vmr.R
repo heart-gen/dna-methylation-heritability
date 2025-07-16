@@ -34,7 +34,8 @@ if (!dir.exists(output_path)) {
 }
 
                                         # load sd of pc residuals
-var_file <- here("heritability", "gcta", "caudate", "_m", "pca", paste0("chr_", chr), "res_var.tsv")
+var_file <- here("heritability", "gcta", "caudate", "_m", "pca", 
+                 paste0("chr_", chr), "res_var_all.tsv")
 res_var <- fread(var_file, header = FALSE)
 colnames(res_var) <- c("chr", "start", "sd")
 

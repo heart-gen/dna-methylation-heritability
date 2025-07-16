@@ -6,14 +6,14 @@
 #SBATCH --ntasks-per-node=1     # Number of cores (CPU)
 #SBATCH --mem=20G               # Memory limit
 #SBATCH --mail-type=FAIL
-#SBATCH --array=1-12078%250
+#SBATCH --array=1-11585%250
 #SBATCH --mail-user=alexis.bennett@northwestern.edu
 #SBATCH --job-name=cal_vmr  # Job name
 #SBATCH --output=/dev/null      # Standard output log
 #SBATCH --error=/dev/null       # Standard error log
 
 ## Edit with your job command
-REGION_LIST="./vmr_list.txt"
+REGION_LIST="./vmr.bed"
 
 # Get the current sample name from the sample list
 REGION=$(sed -n "${SLURM_ARRAY_TASK_ID}p" $REGION_LIST)
