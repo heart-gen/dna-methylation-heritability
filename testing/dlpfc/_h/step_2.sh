@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=reformat.cpgs
+#SBATCH --job-name=reformat_cpgs
 #SBATCH --output=logs/02.reformat_cpgs_%j.out
 #SBATCH --error=logs/02.reformat_cpgs_%j.err
 #SBATCH --time=01:00:00
@@ -7,6 +7,7 @@
 #SBATCH --cpus-per-task=1
 #SBATCH --partition=short
 #SBATCH --account=p32505
+#SBATCH --mail-user=elisajohnson2027@u.northwestern
 
 # Log function
 log_message() {
