@@ -18,7 +18,7 @@ chr  <- args[1]
 filter_pheno <- function(BSobj, pheno_file_path) {
     pheno <- fread(pheno_file_path, header = TRUE)
     pheno_filtered <- pheno %>%
-        filter(race == "AA", agedeath >= 17, region == "DLPFC")
+        filter(race == "AA", agedeath >= 17, region == "dlpfc")
     id    <- intersect(pheno_filtered$brnum, colData(BSobj)$brnum)
     BSobj <- BSobj[, colData(BSobj)$brnum %in% id]
     return(list(BSobj = BSobj, pheno = pheno_filtered, id = id))

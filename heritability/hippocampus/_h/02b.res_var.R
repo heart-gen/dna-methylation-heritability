@@ -24,7 +24,7 @@ remove_ct_snps <- function(f_snp, meth_levels, pos) {
 filter_pheno <- function(meth_levels, brain_id, ances, demo, pc) {
   # keep AA only
   id2 <- intersect(intersect(ances$id[ances$group == "AA"], brain_id), 
-                   demo$brnum[demo$region == "HIPPO" & demo$agedeath >= 17])
+                   demo$brnum[demo$region == "hippocampus" & demo$agedeath >= 17])
   meth_levels <- meth_levels[match(id2, brain_id), ]
   
   # align samples
