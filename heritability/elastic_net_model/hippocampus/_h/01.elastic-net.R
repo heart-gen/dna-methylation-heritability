@@ -5,40 +5,9 @@ library(bigsnpr)
 library(bigstatsr)
 
 ## --- Helper Functions --- ##
-get_error_list <- function(error_file_path = "../_h/snp-error-window.tsv") {
-                                        # Read error regions
-    if (file.exists(error_file_path)) {
-        error_regions <- read.table(error_file_path,header=TRUE,sep="\t") |>
-            dplyr::mutate(Chrom=as.numeric(gsub("chr", "", Chr)),
-                          Start=as.numeric(Start), End=as.numeric(End)) |>
-            dplyr::select(Chrom, Start, End)
-    } else {
-        message("Warning: Error regions file not found at: ",
-                error_file_path)
-        error_regions <- data.frame(Chrom = numeric(), Start = numeric(),
-                                    End = numeric())
-    }
-    return(error_regions)
-}
-
-check_if_blacklisted <- function(chrom_num, start_pos, end_pos, error_regions) {
-    if (nrow(error_regions) == 0) {
-        return(TRUE)
-    }
-    if (any(error_regions$Chrom == chrom_num &
-            error_regions$Start == start_pos &
-            error_regions$End == end_pos)) {
-        message("Skipping blacklisted region: ", chrom_num, ":",
-                start_pos, "-", end_pos)
-        return(FALSE)
-    } else {
-        return(TRUE) # Region is not blacklisted
-    }
-}
-
 get_vmr_list <- function(region) {
-    base_dir <- here("heritability/gcta", tolower(region), "_m")
-    vmr_file <- here(base_dir, "vmr_list.txt")
+    base_dir <- here("heritability", tolower(region), "_m")
+    vmr_file <- here(base_dir, "vmr.bed")
     if (!file.exists(vmr_file)) {
         stop("VMR list file not found: ", vmr_file)
     }
@@ -47,11 +16,11 @@ get_vmr_list <- function(region) {
 
 construct_data_path <- function(chrom_num, spos, epos, region, data_type) {
     chrom_dir <- paste0("chr_", chrom_num)
-    base_dir  <- here("heritability/gcta", tolower(region), "_m")
+    base_dir  <- here("heritability", tolower(region), "_m")
 
     if (tolower(data_type) == "plink") {
         inpath  <- "plink_format"
-        data_fn <- paste0("subset_TOPMed_LIBD.AA.", spos, "_", epos, ".bed")
+        data_fn <- paste0("subset_TOPMed_LIBD.AA.", spos, "_", epos, ".pgen")
     } else if (tolower(data_type) == "vmr") {
         inpath  <- "vmr"
         data_fn <- paste0(spos, "_", epos, "_meth.phen")
@@ -112,9 +81,6 @@ if (region == "") {
 RNGkind("L'Ecuyer-CMRG")
 set.seed(20250525 + task_id)
 
-                                        # Load error regions
-error_regions <- get_error_list()
-
                                         # Load VMR data
 vmr_list      <- get_vmr_list(region)
 if (task_id < 1 || task_id > nrow(vmr_list)) {
@@ -124,13 +90,6 @@ vmr_entry  <- vmr_list[task_id, ]
 chrom_num  <- vmr_entry[[1]]
 start_pos  <- vmr_entry[[2]]
 end_pos    <- vmr_entry[[3]]
-
-                                        # Check if the window is blacklisted
-if (!check_if_blacklisted(chrom_num, start_pos, end_pos, error_regions)) {
-    cat("Task ID ", task_id,
-        " corresponds to a blacklisted region. Exiting.\n")
-    quit(save = "no", status = 0) # Exit script cleanly
-}
 
                                         # Load genotypes
 geno_path <- construct_data_path(chrom_num, start_pos, end_pos, region,
