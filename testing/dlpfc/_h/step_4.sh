@@ -16,7 +16,7 @@
 REGION_LIST="/projects/p32505/users/elisa/projects/dna-methylation-heritability/testing/dlpfc/_m/cpg/chr_1/cpg_pos.txt"
 SAMPLE_LIST="/projects/p32505/users/elisa/projects/dna-methylation-heritability/testing/dlpfc/_m/covs/chr_1/samples.txt"
 CHR_FILE="/projects/b1213/resources/genomes/human/gencode-v47/fasta/chromosome_sizes.txt"
-DATA="/projects/p32505/users/elisa/projects/dna-methylation-heritability/inputs/genotypes"
+DATA="/projects/p32505/users/elisa/projects/dna-methylation-heritability/testing/dlpfc/_m/cpg/chr_1/cpg_pos_reformatted.txt"
 OUTPUT="./plink_format"
 
 # Get the current region name from the region list
