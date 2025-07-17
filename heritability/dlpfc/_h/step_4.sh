@@ -4,9 +4,9 @@
 #SBATCH --time=01:00:00         # Time limit hrs:min:sec
 #SBATCH --nodes=1               # Number of nodes
 #SBATCH --ntasks-per-node=1     # Number of cores (CPU)
-#SBATCH --mem=20G               # Memory limit
+#SBATCH --mem=10G               # Memory limit
 #SBATCH --mail-type=FAIL
-#SBATCH --array=1-11585%250
+#SBATCH --array=1-9513%250
 #SBATCH --mail-user=alexis.bennett@northwestern.edu
 #SBATCH --job-name=cal_vmr  # Job name
 #SBATCH --output=/dev/null      # Standard output log
