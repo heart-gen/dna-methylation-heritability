@@ -79,6 +79,7 @@ plink2 --pfile "$DATA/TOPMed_LIBD.AA" \
        --chr "$CHR" \
        --from-bp "$START_POS" \
        --to-bp "$END_POS" \
+       --make-pgen \
        --out "$CHR_DIR/TOPMed_LIBD.AA.${START}_${END}"
 
 echo "Extracting SNPs from AA subjects on $CHR: $START-$END ($WINDOW bp window)" 
@@ -88,6 +89,7 @@ plink2 --pfile "$DATA/TOPMed_LIBD.AA" \
        --chr "$CHR" \
        --from-bp "$START_POS" \
        --to-bp "$END_POS" \
+       --make-pgen \
        --keep "$SAMPLE_LIST" \
        --out "$CHR_DIR/subset_TOPMed_LIBD.AA.${START}_${END}"
 
