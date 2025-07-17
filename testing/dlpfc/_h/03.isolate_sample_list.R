@@ -5,8 +5,8 @@ library(here)
 for (chr in 1:22) {
   
   # Construct input and output file paths
-  input_file <- here("testing", "dlpfc", "_m", "cpg", paste0("chr_", chr), "cpg_pos.txt")
-  output_file <- here("testing", "dlpfc", "_m", "cpg", paste0("chr_", chr), "cpg_pos_reformatted.txt")
+  input_file <- here("testing", "dlpfc", "_m", "covs", paste0("chr_", chr), "TOPMed_LIBD.AA.covar")
+  output_file <- here("testing", "dlpfc", "_m", "covs", paste0("chr_", chr), "samples.txt")
   
   # Check if input file exists
   if (!file.exists(input_file)) {
