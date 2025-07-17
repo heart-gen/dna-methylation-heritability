@@ -4,30 +4,21 @@
 #SBATCH --time=01:00:00         # Time limit hrs:min:sec
 #SBATCH --nodes=1               # Number of nodes
 #SBATCH --ntasks-per-node=1     # Number of cores (CPU)
-#SBATCH --mem=20G               # Memory limit
+#SBATCH --mem=10G               # Memory limit
 #SBATCH --mail-type=FAIL
-#SBATCH --array=1-12078%250
+#SBATCH --array=1-22
 #SBATCH --mail-user=alexis.bennett@northwestern.edu
-#SBATCH --job-name=cal_vmr  # Job name
+#SBATCH --job-name=extract_vmr  # Job name
 #SBATCH --output=/dev/null      # Standard output log
 #SBATCH --error=/dev/null       # Standard error log
 
-## Edit with your job command
-REGION_LIST="./vmr.bed"
-
-# Get the current sample name from the sample list
-REGION=$(sed -n "${SLURM_ARRAY_TASK_ID}p" $REGION_LIST)
-CHR=$(echo "$REGION" | awk '{print $1}')
-START=$(echo "$REGION" | awk '{print $2}')
-END=$(echo "$REGION" | awk '{print $3}')
-
 # Create log directories for each chr
-LOG_DIR="logs/chr_${CHR}"
+LOG_DIR="logs/chr_${SLURM_ARRAY_TASK_ID}"
 mkdir -p "$LOG_DIR"
 
 # Redirect output and error logs to chr-specific log files
-exec > >(tee -a "$LOG_DIR/cal_vmr_${SLURM_ARRAY_TASK_ID}_out.log")
-exec 2> >(tee -a "$LOG_DIR/cal_vmr_${SLURM_ARRAY_TASK_ID}_err.log" >&2)
+exec > >(tee -a "$LOG_DIR/extract_vmr_${SLURM_ARRAY_TASK_ID}_out.log")
+exec 2> >(tee -a "$LOG_DIR/extract_vmr_${SLURM_ARRAY_TASK_ID}_err.log" >&2)
 
 # Log function
 log_message() {
@@ -52,10 +43,10 @@ module list
 # Set path variables
 ENV_PATH="/projects/p32505/opt/env"
 
-echo "Working on: Chromosome "$CHR:$START-$END 
+echo "Working on: Chromosome "$SLURM_ARRAY_TASK_ID
 
 ## Activate conda environment
-conda run -p $ENV_PATH/r_env Rscript ../_h/03.extract_vmr.R $CHR $START $END
+conda run -p $ENV_PATH/r_env Rscript ../_h/03.extract_vmr.R $SLURM_ARRAY_TASK_ID
 if [ $? -ne 0 ]; then
     log_message "Error: Conda or script execution failed"
     exit 1
