@@ -14,25 +14,17 @@ for (chr in 1:22) {
     next
   }
   
-  # Read all lines and remove the first 2
-  all_lines <- readLines(input_file)
-  if (length(all_lines) <= 2) {
-    warning("Skipping chromosome ", chr, ": file has less than or equal to 2 lines.")
-    next
-  }
-  filtered_lines <- all_lines[-c(1,2)]
+  # Read the .covar file (tab- or space-delimited, with header)
+  covar_data <- read.table(input_file, header = FALSE, stringsAsFactors = FALSE)
   
-  # Convert to numeric
-  numbers <- as.numeric(filtered_lines)
+  # Extract the first column (as a vector)
+  first_column <- covar_data[[1]]  # Or: covar_data[, 1]
   
-  # Modify each line
-  modified_lines <- mapply(function(x, i) {
-    paste0(chr, "\t", x - 500000, "\t", x + 500000, "\tR", i)
-  }, numbers, seq_along(numbers))
+  # Write the first column to the output file, one value per line
+  writeLines(as.character(first_column), con = output_file)
   
-  # Write output
-  writeLines(modified_lines, output_file)
-  cat("Wrote chromosome", chr, "to", output_file, "\n")
+  # Confirmation message
+  cat("First column extracted and saved to", output_file, "\n")
 }
 
 #### Reproducibility information ####
