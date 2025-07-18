@@ -34,8 +34,27 @@ def load_predicted(n_samples, method, heritable):
                 (pl.col("h2_unscaled") < 0.1) &
                 (pl.col("r_squared_cv") < 0.75)
             ).alias("predicted"))
-    else:
-        fn = None
+    elif method == "gcta"
+        fn = f"../../../{method}/"+\
+            "summary/_m/greml_summary.tsv"
+        df = pl.read_csv(fn, separator="\t")\
+               .select(["N", "pheno", "Sum.of.V.G._Vp_Variance", "Pval_Variance"])\
+               .rename({
+                   "pheno": "pheno_id",
+                   "Sum.of.V.G._Vp_Variance": "h2_unscaled",
+               })
+        if heritable:
+            return df.with_columns((
+                (pl.col("h2_unscaled") >= 0.1) &
+                (pl.col("Pval_Variance") < 0.05) &
+                (pl.col("N") == n_samples)
+            ).alias("predicted"))
+        else:
+            return df.with_columns((
+                (pl.col("h2_unscaled") < 0.1) &
+                (pl.col("Pval_Variance") < 0.05) &
+                (pl.col("N") == n_samples)
+            ).alias("predicted"))
         return None
 
 
@@ -71,16 +90,18 @@ def empirical_power(n_samples, method="elastic-net", heritable = True):
 
 
 def main():
-    results = []; method = "elastic-net"
-    for n in [100, 150, 200, 250, 500, 1000, 5000]:
-        power, type1_error = empirical_power(n, method)
-        results.append({
-            'sample_size': n,
-            'power': power,
-            'type1_error': type1_error,
-            'n_tested': 1000,
-            'method': method
-        })
+    methods = ["elastic-net", "gcta"]
+    results = []
+    for method in methods:
+        for n in [100, 150, 200, 250, 500, 1000, 5000]:
+            power, type1_error = empirical_power(n, method)
+            results.append({
+                'sample_size': n,
+                'power': power,
+                'type1_error': type1_error,
+                'n_tested': 1000,
+                'method': method
+            })
     power_df = pl.DataFrame(results)
     power_df.write_csv("power-analysis.tsv", separator="\t")
     # Session information
