@@ -40,7 +40,9 @@ for (num_indiv in num_indivs) {
           p_adjusted_fdr >= 0.05 ~ "Low prediction",
           target_heritability < 0.1 & p_adjusted_fdr < 0.05 ~ "Non-heritable",
           target_heritability > 0.1 & p_adjusted_fdr < 0.05 ~ "Heritable"
-    ))
+    ),
+      h2_category = factor(h2_category, levels = c("Heritable", "Non-heritable", "Low prediction"))
+    )
   
   counts <- filtered %>%
     group_by(h2_category) %>%
@@ -54,7 +56,7 @@ for (num_indiv in num_indivs) {
   if (nrow(filtered) < 3) {
     warning(paste("Not enough data for N =", num_indiv, "- skipping"))
     placeholder_plot <- ggplot() +
-    theme_void() +
+    theme_void(base_size = 15) +
     ggtitle(paste("N =", num_indiv)) +
     annotate("text", x = 0.5, y = 0.5, label = "NA", size = 6, hjust = 0.5) +
     theme(plot.title = element_text(hjust = 0.5))
@@ -84,7 +86,7 @@ for (num_indiv in num_indivs) {
 
   # Plot for each sample size
   p <- ggscatter(filtered, x = "target_heritability", y = "Sum.of.V.G._Vp_Variance",
-    add = "reg.line", size = 1, alpha = 0.5,
+    add = "reg.line", size = 1, alpha = 0.75,
     xlab = "True h²", ylab = "Estimated h²",
     conf.int = TRUE,
     cor.coef = TRUE, cor.coef.size = 4,
@@ -95,7 +97,7 @@ for (num_indiv in num_indivs) {
       label.x.npc = 0.05,
       label.y.npc = 0.95
     ),
-    add.params = list(fill = "#EEE5E1", alpha = 0.75),
+    add.params = list(fill = "lightgray", alpha = 0.75),
     ggtheme = theme_pubr(base_size = 15, border = TRUE)
   ) +
     facet_wrap(~h2_category, labeller = as_labeller(labels), scales = "free_x") +
@@ -117,7 +119,7 @@ combined_plot <- ggarrange(plotlist = plot_list, ncol = 4, nrow = 2, labels = NU
 
 # Save combined plot
 plot_file <- file.path(out_path, "gcta_correlation_combined")
-save_plot(combined_plot, plot_file, w = 18, h = 10)
+save_plot(combined_plot, plot_file, w = 20, h = 10)
 
 # Combine and write results
 results_df <- bind_rows(results_list)

@@ -36,10 +36,12 @@ for (num_indiv in num_indivs) {
 
   merged <- merged %>%
     mutate(h2_category = case_when(
-             r_squared_cv <= 0.75 ~ "Low prediction",
-             target_heritability < 0.1 & r_squared_cv > 0.75 ~ "Non-heritable",
-             target_heritability > 0.1 & r_squared_cv > 0.75 ~ "Heritable"
-           ))
+              r_squared_cv <= 0.75 ~ "Low prediction",
+              target_heritability < 0.1 & r_squared_cv > 0.75 ~ "Non-heritable",
+              target_heritability > 0.1 & r_squared_cv > 0.75 ~ "Heritable"
+           ),
+              h2_category = factor(h2_category, levels = c("Heritable", "Non-heritable", "Low prediction"))
+           )
   
   counts <- merged %>%
     group_by(h2_category) %>%
@@ -76,7 +78,7 @@ for (num_indiv in num_indivs) {
 
   # Plot for each sample size
   p <- ggscatter(merged, x = "target_heritability", y = "h2_unscaled",
-                 add = "reg.line", size = 1, alpha = 0.5,
+                 add = "reg.line", size = 1, alpha = 0.75,
                  xlab = "True h²", ylab = "Estimated h²",
                  conf.int = TRUE,
                  cor.coef = TRUE, cor.coef.size = 4,
@@ -87,7 +89,7 @@ for (num_indiv in num_indivs) {
                    label.x.npc = 0.05,
                    label.y.npc = 0.95
                  ),
-                 add.params = list(fill = "#EEE5E1", alpha = 0.75),
+                 add.params = list(fill = "lightgray", alpha = 0.75),
                  ggtheme = theme_pubr(base_size = 15, border = TRUE)
   ) +
     facet_wrap(~h2_category, labeller = as_labeller(labels), scales = "free_x") +
@@ -99,7 +101,7 @@ for (num_indiv in num_indivs) {
       axis.text.x = element_text(angle = 45, hjust = 1),
       plot.title = element_text(hjust = 0.5)
     ) +
-    ylim(0, 1) +
+    coord_cartesian(ylim = c(0, 1)) +
     geom_hline(yintercept = 0.1, linetype = "dashed", color = "#2A0F07")
   
   plot_list[[as.character(num_indiv)]] <- p
@@ -110,7 +112,7 @@ combined_plot <- ggarrange(plotlist = plot_list, ncol = 4, nrow = 2, labels = NU
 
 # Save combined plot
 plot_file <- file.path(out_path, "elastic_net_correlation_combined")
-save_plot(combined_plot, plot_file, w = 18, h = 10)
+save_plot(combined_plot, plot_file, w = 20, h = 10)
 
 # Combine and write results
 results_df <- bind_rows(results_list)
