@@ -3,6 +3,7 @@ import polars as pl
 import session_info
 from pyhere import here
 from sklearn.metrics import confusion_matrix
+from statsmodels.stats.multitest import multipletests
 
 def load_ground_truth(n_samples, heritable):
     fn = here("inputs/simulated-data/_m",
@@ -34,25 +35,30 @@ def load_predicted(n_samples, method, heritable):
                 (pl.col("h2_unscaled") < 0.1) &
                 (pl.col("r_squared_cv") < 0.75)
             ).alias("predicted"))
-    elif method == "gcta"
+    elif method == "gcta":
         fn = f"../../../{method}/"+\
-            "summary/_m/greml_summary.tsv"
+            "_m/summary/greml_summary.tsv"
         df = pl.read_csv(fn, separator="\t")\
-               .select(["N", "pheno", "Sum.of.V.G._Vp_Variance", "Pval_Variance"])\
+               .select(["N", "pheno", "Sum of V(G)_Vp_Variance", "Pval_Variance"])\
                .rename({
                    "pheno": "pheno_id",
-                   "Sum.of.V.G._Vp_Variance": "h2_unscaled",
+                   "Sum of V(G)_Vp_Variance": "h2_unscaled",
                })
+        df = df.with_columns(
+                pl.Series(
+                    "pval_fdr_adjusted", 
+                    multipletests(df["Pval_Variance"].to_numpy(), method="fdr_bh")[1])
+        )
         if heritable:
             return df.with_columns((
                 (pl.col("h2_unscaled") >= 0.1) &
-                (pl.col("Pval_Variance") < 0.05) &
+                (pl.col("pval_fdr_adjusted") < 0.05) &
                 (pl.col("N") == n_samples)
             ).alias("predicted"))
         else:
             return df.with_columns((
                 (pl.col("h2_unscaled") < 0.1) &
-                (pl.col("Pval_Variance") < 0.05) &
+                (pl.col("pval_fdr_adjusted") < 0.05) &
                 (pl.col("N") == n_samples)
             ).alias("predicted"))
         return None
