@@ -20,7 +20,7 @@ if (!dir.exists(out_path)) {
 
 results_list <- list()
 plot_list <- list()
-num_indivs <- c(100, 150, 200, 250, 500, 1000, 5000, 10000)
+num_indivs <- c(100, 150, 200, 250, 500, 1000, 5000)
 
 for (num_indiv in num_indivs) {
   
@@ -53,6 +53,13 @@ for (num_indiv in num_indivs) {
   
   if (nrow(filtered) < 3) {
     warning(paste("Not enough data for N =", num_indiv, "- skipping"))
+    placeholder_plot <- ggplot() +
+    theme_void() +
+    ggtitle(paste("N =", num_indiv)) +
+    annotate("text", x = 0.5, y = 0.5, label = "NA", size = 6, hjust = 0.5) +
+    theme(plot.title = element_text(hjust = 0.5))
+  
+    plot_list[[as.character(num_indiv)]] <- placeholder_plot
     next
   }
   
@@ -68,6 +75,13 @@ for (num_indiv in num_indivs) {
   
   results_list[[as.character(num_indiv)]] <- spearman
   
+  # Define palette
+  category_colors <- c(
+  "Heritable" = "#497C8A",
+  "Non-heritable" = "#8CA77B",
+  "Low prediction" = "#E3A27F"
+  )
+
   # Plot for each sample size
   p <- ggscatter(filtered, x = "target_heritability", y = "Sum.of.V.G._Vp_Variance",
     add = "reg.line", size = 1, alpha = 0.5,
@@ -79,22 +93,27 @@ for (num_indiv in num_indivs) {
     cor.coeff.args = list(
       label.sep = "\n",
       label.x.npc = 0.05,
-      label.y.npc = 0.95,
-      font.face = "bold"
+      label.y.npc = 0.95
     ),
-    add.params = list(fill = "lightgray", alpha = 0.75),
+    add.params = list(fill = "#EEE5E1", alpha = 0.75),
     ggtheme = theme_pubr(base_size = 15, border = TRUE)
   ) +
     facet_wrap(~h2_category, labeller = as_labeller(labels), scales = "free_x") +
+    scale_color_manual(values = category_colors) +
     ggtitle(paste("N =", num_indiv)) +
     labs(color = NULL) +
     font("xy.title", face = "bold", size = 14) + 
-    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+    theme(
+      axis.text.x = element_text(angle = 45, hjust = 1),
+      plot.title = element_text(hjust = 0.5)
+    ) +
+    coord_cartesian(ylim = c(0, 1)) +
+    geom_hline(yintercept = 0.1, linetype = "dashed", color = "#2A0F07")
   
   plot_list[[as.character(num_indiv)]] <- p
 }
 # Combine all plots into a 2x2 grid
-combined_plot <- ggarrange(plotlist = plot_list, ncol = 2, nrow = 2, labels = NULL)
+combined_plot <- ggarrange(plotlist = plot_list, ncol = 4, nrow = 2, labels = NULL)
 
 # Save combined plot
 plot_file <- file.path(out_path, "gcta_correlation_combined")
