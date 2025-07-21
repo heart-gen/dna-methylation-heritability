@@ -1,10 +1,10 @@
 #!/bin/bash
 #SBATCH --account=p32505        # Replace with your allocation
 #SBATCH --partition=short       # Partition (queue) name
-#SBATCH --time=04:00:00         # Time limit hrs:min:sec
+#SBATCH --time=01:00:00         # Time limit hrs:min:sec
 #SBATCH --nodes=1               # Number of nodes
 #SBATCH --ntasks-per-node=1     # Number of cores (CPU)
-#SBATCH --mem=24G               # Memory limit
+#SBATCH --mem=10G               # Memory limit
 #SBATCH --mail-type=FAIL
 #SBATCH --array=1-22
 #SBATCH --mail-user=alexis.bennett@northwestern.edu
@@ -38,7 +38,7 @@ echo "Task id: ${SLURM_ARRAY_TASK_ID}"
 ## List current modules for reproducibility
 
 module purge
-module list 
+module list
 
 # Set path variables
 ENV_PATH="/projects/p32505/opt/env"
@@ -57,7 +57,7 @@ NUM_COLS=$(head -1 "$METH_FILE" | tr '\t' '\n' | wc -l)
 
 # Loop over column chunks
 if ls "$OUT_DIR"/cpg_meth_*.tsv 1> /dev/null 2>&1; then
-  echo "Split files already exist, skipping splitting."
+    echo "Split files already exist, skipping splitting."
 else
     for ((i=3; i<=NUM_COLS; i+=SPLIT)); do
         start=$i
@@ -75,6 +75,7 @@ fi
 
 ## Activate conda environment
 conda run -p $ENV_PATH/r_env Rscript ../_h/02b.res_var.R $SLURM_ARRAY_TASK_ID
+
 if [ $? -ne 0 ]; then
     log_message "Error: Conda or script execution failed"
     exit 1
