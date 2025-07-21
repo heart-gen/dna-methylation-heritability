@@ -38,7 +38,7 @@ echo "Task id: ${SLURM_ARRAY_TASK_ID}"
 ## List current modules for reproducibility
 
 module purge
-module list 
+module list
 
 # Set path variables
 ENV_PATH="/projects/p32505/opt/env"
