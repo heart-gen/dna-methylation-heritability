@@ -7,6 +7,7 @@ suppressPackageStartupMessages({
   library(ggplot2)
 })
 
+## Function
 filter_sites <- function(enet) {
   vmr <- na.omit(enet)
   vmr <- vmr %>%
@@ -14,13 +15,18 @@ filter_sites <- function(enet) {
       r_squared_cv <= 0.75 ~ "Low prediction",
       h2_unscaled < 0.1 & r_squared_cv > 0.75 ~ "Non-heritable",
       h2_unscaled >= 0.1 & r_squared_cv > 0.75 ~ "Heritable"
-    ))
+    ),
+    h2_category = factor(h2_category, levels = c("Heritable", 
+                                                 "Non-heritable", 
+                                                 "Low prediction"))
+    )
   return(vmr)
 }
 
 cal_vmr_length <- function(vmr) {
   vmr <- vmr %>%
-    mutate(length = end - start)
+    mutate(length = end - start,
+           log10_length = log10(length))
   return(vmr)
 }
 
@@ -45,7 +51,9 @@ summarise_length <- function(vmr, tissue, out_path) {
       .groups = "drop"
     )
   print(summary_df)
-  write.csv(summary_df, file = file.path(out_path, paste0("vmr_length_summary_", tissue, ".csv")), 
+  write.csv(summary_df, 
+            file = file.path(out_path, 
+                             paste0("vmr_length_summary_", tissue, ".csv")), 
             row.names = FALSE)
 }
 
@@ -53,12 +61,14 @@ spearman_corr <- function(vmr, tissue, out_path) {
   spearman <- vmr %>% 
     group_by(h2_category) %>%
     summarise(
-      spearman_rho = cor.test(length, h2_unscaled, method = "spearman")$estimate,
-      p_value = cor.test(length, h2_unscaled, method = "spearman")$p.value,
+      spearman_rho = cor.test(log10_length, h2_unscaled, method = "spearman")$estimate,
+      spearman_p_value = cor.test(log10_length, h2_unscaled, method = "spearman")$p.value,
       n = n()
     )
   print(spearman)
-  write.csv(spearman, file = file.path(out_path, paste0("vmr_length_h2_corr_", tissue, ".csv")), 
+  write.csv(spearman, 
+            file = file.path(out_path, 
+                             paste0("vmr_length_h2_corr_", tissue, ".csv")), 
             row.names = FALSE)
 }
 
@@ -69,6 +79,13 @@ save_plot <- function(p, fn, w, h){
 }
 
 plot_density <- function(vmr, tissue) {
+  # Define palette
+  category_colors <- c(
+    "Heritable" = "#497C8A",
+    "Non-heritable" = "#8CA77B",
+    "Low prediction" = "#E3A27F"
+  )
+  
   counts <- vmr %>%
     group_by(h2_category) %>%
     summarise(n = n(), .groups = "drop")
@@ -78,17 +95,21 @@ plot_density <- function(vmr, tissue) {
     counts$h2_category
   )
   
-  p_hist <- gghistogram(vmr, x = "length", 
+  p_hist <- gghistogram(vmr, x = "log10_length", 
                         add_density = TRUE, rug = TRUE, 
                         add = "median",
                         color = "h2_category", fill = "h2_category",
                         ggtheme = theme_pubr(base_size = 15, border = TRUE),
                         xlab = "Length (BP)", ylab = "Count") +
     facet_wrap(~h2_category, labeller = as_labeller(labels), scales = "free_x") +
-    ggtitle(paste("VMR distribution:", tissue)) +
+    scale_color_manual(values = category_colors) +
+    ggtitle(paste("VMR length distribution:", tissue)) +
     labs(color = NULL, fill = NULL) +
     font("xy.title", face = "bold", size = 14) +
-    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+    theme(
+      axis.text.x = element_text(angle = 45, hjust = 1),
+      plot.title = element_text(hjust = 0.5)
+    )
   
   return(p_hist)
 }
@@ -103,16 +124,22 @@ plot_corr <- function(vmr, tissue) {
     counts$h2_category
   )
   
-  p_corr <- ggscatter(vmr, x = "length", y = "h2_unscaled",
-                      add = "reg.line", size = 1, alpha = 0.5,
+  # Define palette
+  category_colors <- c(
+    "Heritable" = "#497C8A",
+    "Non-heritable" = "#8CA77B",
+    "Low prediction" = "#E3A27F"
+  )
+  
+  p_corr <- ggscatter(vmr, x = "log10_length", y = "h2_unscaled",
+                      add = "reg.line", size = 1, alpha = 0.75,
                       xlab = "VMR Length (BP)", ylab = "Estimated h2", 
                       conf.int = TRUE,
                       cor.coef = TRUE, cor.coef.size = 4,
                       cor.coeff.args = list(
                         label.sep = "\n",
                         label.x.npc = 0.05,
-                        label.y.npc = 0.95,
-                        font.face = "bold"
+                        label.y.npc = 0.95
                       ),
                       cor.method = "spearman",
                       color = "h2_category",
@@ -120,15 +147,22 @@ plot_corr <- function(vmr, tissue) {
                       ggtheme = theme_pubr(base_size = 15, border = TRUE)
   ) +
     facet_wrap(~h2_category, labeller = as_labeller(labels), scales = "free_x") +
+    scale_color_manual(values = category_colors) +
     labs(color = NULL) +
     ggtitle(paste("VMR length correlation:", tissue)) +
     font("xy.title", face = "bold", size = 14) +
-    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+    theme(
+      axis.text.x = element_text(angle = 45, hjust = 1),
+      plot.title = element_text(hjust = 0.5)
+    ) +
+    coord_cartesian(ylim = c(0, 1)) +
+    geom_hline(yintercept = 0.1, linetype = "dashed", color = "#2A0F07")
   return(p_corr)
 }
 
-# Main
+## Main
 tissues <- c("caudate", "hippocampus", "dlpfc")
+
 out_path <- here("heritability/elastic_net_model/tissue_comparison/vmr_length/_m")
 if (!dir.exists(out_path)) {
   dir.create(out_path, recursive = TRUE)
@@ -145,9 +179,11 @@ for (tissue in tissues) {
   
   vmr <- filter_sites(enet)
   vmr <- cal_vmr_length(vmr)
+  
+  # Save VMRs > 5000bp
   vmr_long <- get_long_vmrs(vmr, tissue, out_path)
   
-  # Summarize
+  # Summarize length of vmrs
   summarise_length(vmr, tissue, out_path)
 
   # Spearman correlation test 
@@ -170,7 +206,6 @@ fn_hist <- file.path(out_path, "VMR_length_distribution")
 fn_corr <- file.path(out_path, "VMR_length_h2_correlation")
 save_plot(combined_hist, fn_hist, 20, 6)
 save_plot(combined_corr, fn_corr, 20, 6)
-
 
 #### Reproducibility information ####
 print("Reproducibility information:")
