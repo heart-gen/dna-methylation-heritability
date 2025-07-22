@@ -1,0 +1,24 @@
+2025-07-22 10:52:57 - **** Job starts ****
+**** QUEST info ****
+User: owb0346
+Job id: 9545380
+Job name: error_rate
+Node name: 
+Hostname: qnode0110
+Task id: N/A
+No modules loaded
+2025-07-22 10:52:58 - Calculating empirical power and type 1 error rate
+-----
+numpy               2.0.2
+polars              1.27.1
+pyhere              1.0.3
+session_info        1.0.0
+sklearn             1.6.1
+statsmodels         0.14.4
+-----
+Python 3.12.9 | packaged by conda-forge | (main, Mar  4 2025, 22:48:41) [GCC 13.3.0]
+Linux-4.18.0-553.36.1.el8_10.x86_64-x86_64-with-glibc2.28
+-----
+Session information updated at 2025-07-22 10:53
+
+2025-07-22 10:53:46 - **** Job ends ****
