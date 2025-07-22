@@ -37,12 +37,6 @@ save_plot <- function(p, fn, w, h){
   }
 }
 
-category_colors <- c(
-  "Heritable" = "#497C8A",
-  "Non-heritable" = "#8CA77B",
-  "Low prediction" = "#E3A27F"
-)
-
 ## Main
 tissues <- c("caudate", "hippocampus", "dlpfc")
 
@@ -70,48 +64,70 @@ for (tissue in tissues) {
 vmr_all <- bind_rows(vmr_all)
 vmr_all$group <- interaction(vmr_all$tissue, vmr_all$h2_category, sep = "-")
 
-dunn <- vmr_all %>%
-  dunn_test(log10_length ~ group, p.adjust.method = "fdr")
+heritability_test <- vmr_all %>%
+  group_by(tissue) %>%
+  pairwise_wilcox_test(log10_length ~ h2_category, p.adjust.method = "fdr") %>%
+  add_y_position()
 
-print(dunn)
+print(heritability_test)
 
-# Generate y positions for labels
-dunn_df <- dunn %>%
-  mutate(y.position = max(vmr_all$log10_length, na.rm = TRUE) + seq(0.1, by = 0.1, length.out = n()))
+heritability_colors <- c(
+  "Heritable" = "#497C8A",
+  "Non-heritable" = "#8CA77B",
+  "Low prediction" = "#E3A27F"
+)
 
-# Create significance labels
-dunn_df <- dunn_df %>%
-  mutate(p.signif = cut(p.adj,
-                        breaks = c(-Inf, 0.001, 0.01, 0.05, Inf),
-                        labels = c("***", "**", "*", "ns")))
-
-p <- ggplot(vmr_all, aes(x = tissue, y = log10_length, fill = h2_category)) +
-  geom_boxplot(position = position_dodge(0.8), outlier.shape = NA) +
-  geom_jitter(aes(color = h2_category), 
-              position = position_jitterdodge(jitter.width = 0.2, dodge.width = 0.8), 
-              size = 0.5, alpha = 0.3) +
-  scale_fill_manual(values = category_colors) +
-  scale_color_manual(values = category_colors) +
-  stat_pvalue_manual(
-    dunn_df,
-    label = "p.signif",
-    y.position = "y.position",
-    xmin = "group1",
-    xmax = "group2",
-    tip.length = 0.01
-  ) +
-  theme_pubr(base_size = 14, border = TRUE) +
+p_heritability <- ggviolin(vmr_all, x = "h2_category",
+                           y = "log10_length", fill = "h2_category", 
+                           color = "h2_category", facet.by = "tissue", 
+                           add = c("jitter", "median"), 
+                           alpha = 0.5, palette = heritability_colors, 
+                           trim = FALSE
+) +
+  stat_pvalue_manual(heritability_test, label = "p.adj.signif", tip.length = 0.01) +
+  theme_pubr(base_size = 15, border = TRUE) +
   labs(
-    title = "VMR Length Differences Across Tissues and Heritability Categories",
-    x = NULL,
-    y = "log10(VMR Length)",
-    fill = "Heritability Category",
-    color = "Heritability Category"
+    title = "VMR Length Differences Across Heritability Categories",
+    x = "Tissue", y = "log10(VMR Length)"
   ) +
   theme(
     axis.text.x = element_text(angle = 45, hjust = 1),
     plot.title = element_text(hjust = 0.5)
   )
 
-fn_box <- file.path(out_path, "VMR_length_comparisons")
-save_plot(p, fn_box, 14, 8)
+tissue_test <- vmr_all %>%
+  group_by(h2_category) %>%
+  pairwise_wilcox_test(log10_length ~ tissue, p.adjust.method = "fdr") %>%
+  add_y_position()
+
+print(tissue_test)
+
+tissue_colors <- c(
+  "caudate" = "#7372A6",
+  "dlpfc" = "#B36F61",
+  "hippocampus" = "#C5AC47"
+)
+
+p_tissue <- ggviolin(vmr_all, x = "tissue",
+                     y = "log10_length", fill = "tissue", color = "tissue",
+                     facet.by = "h2_category", add = c("jitter", "median"), 
+                     alpha = 0.5, palette = tissue_colors, 
+                     trim = FALSE
+) +
+  stat_pvalue_manual(tissue_test, label = "p.adj.signif", tip.length = 0.01) +
+  theme_pubr(base_size = 15, border = TRUE) +
+  labs(
+    title = "VMR Length Differences Across Tissues",
+    x = "Tissue", y = "log10(VMR Length)"
+  ) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    plot.title = element_text(hjust = 0.5)
+  )
+
+
+fn_heritability <- file.path(out_path, "VMR_length_heritability_comparisons")
+fn_tissue       <- file.path(out_path, "VMR_length_tissue_comparisons")
+save_plot(p_tissue, fn_tissue, 14, 8)
+save_plot(p_heritability, fn_heritability, 14, 8)
+
