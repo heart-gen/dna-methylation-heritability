@@ -8,7 +8,7 @@
 #SBATCH --mail-type=FAIL
 #SBATCH --mail-user=alexis.bennett@northwestern.edu
 #SBATCH --job-name=error_rate # Job name
-#SBATCH --output=logs/error_rate.%j.log # Standard output log
+#SBATCH --output=error_rate.%j.log # Standard output log
 
 # Log function
 log_message() {
