@@ -103,6 +103,7 @@ plot_density <- function(vmr, tissue) {
                         xlab = "Length (BP)", ylab = "Count") +
     facet_wrap(~h2_category, labeller = as_labeller(labels), scales = "free_x") +
     scale_color_manual(values = category_colors) +
+    scale_fill_manual(values = category_colors) +
     ggtitle(paste("VMR length distribution:", tissue)) +
     labs(color = NULL, fill = NULL) +
     font("xy.title", face = "bold", size = 14) +
@@ -148,6 +149,7 @@ plot_corr <- function(vmr, tissue) {
   ) +
     facet_wrap(~h2_category, labeller = as_labeller(labels), scales = "free_x") +
     scale_color_manual(values = category_colors) +
+    scale_fill_manual(values = category_colors) +
     labs(color = NULL) +
     ggtitle(paste("VMR length correlation:", tissue)) +
     font("xy.title", face = "bold", size = 14) +
