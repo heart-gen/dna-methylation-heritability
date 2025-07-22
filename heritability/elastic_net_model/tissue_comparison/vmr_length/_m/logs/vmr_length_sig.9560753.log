@@ -1,0 +1,38 @@
+2025-07-22 15:29:16 - **** Job starts ****
+**** QUEST info ****
+User: skc6679
+Job id: 9560753
+Job name: vmr_length_sig
+Node name: 
+Hostname: qnode0003
+Task id: N/A
+No modules loaded
+2025-07-22 15:29:17 - Comparing VMR length across tissues and heritability groups
+# A tibble: 9 × 12
+  tissue      .y.        group1 group2    n1    n2 statistic         p     p.adj
+  <chr>       <chr>      <chr>  <chr>  <int> <int>     <dbl>     <dbl>     <dbl>
+1 caudate     log10_len… Herit… Non-h…  4931  4945 15535799  3.53e-123 1.06e-122
+2 caudate     log10_len… Herit… Low p…  4931  1886  5657348. 1.12e- 43 1.68e- 43
+3 caudate     log10_len… Non-h… Low p…  4945  1886  4464945  7   e-  3 7   e-  3
+4 dlpfc       log10_len… Herit… Non-h…  5801  3766 11358940. 9.64e-  4 3   e-  3
+5 dlpfc       log10_len… Herit… Low p…  5801   860  2645519  4   e-  3 6   e-  3
+6 dlpfc       log10_len… Non-h… Low p…  3766   860  1657775  2.77e-  1 2.77e-  1
+7 hippocampus log10_len… Herit… Non-h…  5148  3521  9749557  1.99e-  9 5.97e-  9
+8 hippocampus log10_len… Herit… Low p…  5148  1011  2688383  9.6 e-  2 9.6 e-  2
+9 hippocampus log10_len… Non-h… Low p…  3521  1011  1716791  8.5 e-  2 9.6 e-  2
+# ℹ 3 more variables: p.adj.signif <chr>, y.position <dbl>, groups <named list>
+# A tibble: 9 × 12
+  h2_category    .y.       group1 group2    n1    n2 statistic        p    p.adj
+  <fct>          <chr>     <chr>  <chr>  <int> <int>     <dbl>    <dbl>    <dbl>
+1 Heritable      log10_le… cauda… dlpfc   4931  5801 14821110. 1   e- 3 2   e- 3
+2 Heritable      log10_le… cauda… hippo…  4931  5148 13471665  9.47e- 8 2.84e- 7
+3 Heritable      log10_le… dlpfc  hippo…  5801  5148 15330826. 1.6 e- 2 1.6 e- 2
+4 Non-heritable  log10_le… cauda… dlpfc   4945  3766  7202944. 1.74e-73 5.22e-73
+5 Non-heritable  log10_le… cauda… hippo…  4945  3521  7345310. 1.26e-34 1.89e-34
+6 Non-heritable  log10_le… dlpfc  hippo…  3766  3521  7079361  5.53e- 7 5.53e- 7
+7 Low prediction log10_le… cauda… dlpfc   1886   860   706290  5.54e- 8 1.24e- 7
+8 Low prediction log10_le… cauda… hippo…  1886  1011   838338. 8.29e- 8 1.24e- 7
+9 Low prediction log10_le… dlpfc  hippo…   860  1011   434942. 9.85e- 1 9.85e- 1
+# ℹ 3 more variables: p.adj.signif <chr>, y.position <dbl>, groups <named list>
+
+2025-07-22 15:30:02 - **** Job ends ****
