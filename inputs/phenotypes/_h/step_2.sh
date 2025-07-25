@@ -1,13 +1,13 @@
 #!/bin/bash
 #SBATCH --account=p32505
 #SBATCH --partition=short
-#SBATCH --job-name=extract_methyl
+#SBATCH --job-name=gen_phenotype
 #SBATCH --mail-type=FAIL
 #SBATCH --mail-user=kynon.benjamin@northwestern.edu
 #SBATCH --nodes=1
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=10gb
-#SBATCH --output=extract.%j.log
+#SBATCH --output=summary.%j.log
 #SBATCH --time=00:30:00
 
 # Function to echo with timestamp
@@ -34,11 +34,11 @@ module list
 # Set path variables
 log_message "**** Loading mamba environment ****"
 source /projects/p32505/opt/miniforge3/etc/profile.d/conda.sh
-conda activate /projects/p32505/opt/env/r_env
+conda activate /projects/p32505/opt/env/AI_env
 
 # Run main script
 log_message "**** Run Rscript ****"
-Rscript ../_h/00.extract_methyl_phenodata.R
+python ../_h/02.generate-phenotype-data.py
 
 if [ $? -ne 0 ]; then
     log_message "Error: Rscript execution failed"
