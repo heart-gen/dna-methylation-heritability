@@ -7,7 +7,8 @@
 #SBATCH --output=logs/elastic_h2_%A_%a.log
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
-#SBATCH --time=03:00:00
+#SBATCH --mem=10GB
+#SBATCH --time=00:30:00
 
 log_message() {
     echo "$(date '+%Y-%m-%d %H:%M:%S') - $1"
@@ -19,7 +20,7 @@ OFFSET=${OFFSET:-0} # fallback default to 0
 task_id=$((OFFSET + SLURM_ARRAY_TASK_ID - 1))
 export task_id
 
-echo "**** BRIDGES info ****"
+echo "**** Quest info ****"
 echo "User: ${USER}"
 echo "Job id: ${SLURM_JOBID}"
 echo "Job name: ${SLURM_JOB_NAME}"
