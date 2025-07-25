@@ -20,7 +20,7 @@ construct_data_path <- function(chrom_num, spos, epos, region, data_type) {
 
     if (tolower(data_type) == "plink") {
         inpath  <- "plink_format"
-        data_fn <- paste0("subset_TOPMed_LIBD.AA.", spos, "_", epos, ".pgen")
+        data_fn <- paste0("subset_TOPMed_LIBD.AA.", spos, "_", epos, ".bed")
     } else if (tolower(data_type) == "vmr") {
         inpath  <- "vmr"
         data_fn <- paste0(spos, "_", epos, "_meth.phen")

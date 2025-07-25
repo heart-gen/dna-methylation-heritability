@@ -3,11 +3,12 @@
 #SBATCH --partition=short
 #SBATCH --job-name=elastic_h2
 #SBATCH --mail-type=FAIL
-#SBATCH --mail-user=kynon.benjamin@northwestern.edu
+#SBATCH --mail-user=alexis.bennett@northwestern.edu
 #SBATCH --output=logs/elastic_h2_%A_%a.log
 #SBATCH --ntasks=1
+#SBATCH --mem=10GB
 #SBATCH --cpus-per-task=1
-#SBATCH --time=03:00:00
+#SBATCH --time=01:00:00
 
 log_message() {
     echo "$(date '+%Y-%m-%d %H:%M:%S') - $1"
