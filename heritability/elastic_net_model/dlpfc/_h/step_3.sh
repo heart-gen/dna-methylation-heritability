@@ -29,6 +29,7 @@ module list
 log_message "**** Cleaning directory ****"
 gzip -9v dlpfc_betas_elastic-net.tsv
 gzip -9v dlpfc_h2_elastic-net.tsv
-rm -r betas/ summary/ h2/
+tar -czvf dlpfc_logs_elastic-net.tar.gz logs/
+rm -r betas/ summary/ h2/ logs/
 
 log_message "**** Job ends ****"
