@@ -16,7 +16,7 @@
 REGION_LIST="./vmr.bed"
 SAMPLE_LIST="./samples.txt"
 CHR_FILE="/projects/b1213/resources/genomes/human/gencode-v47/fasta/chromosome_sizes.txt"
-DATA="/projects/p32505/users/alexis/projects/dna-methylation-heritability/inputs/genotypes"
+DATA="/projects/b1213/users/alexis/projects/dna-methylation-heritability/inputs/genotypes"
 OUTPUT="./plink_format"
 
 # Get the current region name from the region list
@@ -80,7 +80,10 @@ plink2 --pfile "$DATA/TOPMed_LIBD.AA" \
        --chr "$CHR" \
        --from-bp "$START_POS" \
        --to-bp "$END_POS" \
-       --make-pgen \
+       --make-bed \
+       --no-parents \
+       --no-sex \
+       --no-pheno \
        --out "$CHR_DIR/TOPMed_LIBD.AA.${START}_${END}"
 
 echo "Extracting SNPs from AA subjects on $CHR: $START-$END ($WINDOW bp window)" 
@@ -90,8 +93,11 @@ plink2 --pfile "$DATA/TOPMed_LIBD.AA" \
        --chr "$CHR" \
        --from-bp "$START_POS" \
        --to-bp "$END_POS" \
-       --make-pgen \
+       --make-bed \
        --keep "$SAMPLE_LIST" \
+       --no-parents \
+       --no-sex \
+       --no-pheno \
        --out "$CHR_DIR/subset_TOPMed_LIBD.AA.${START}_${END}"
 
 log_message "**** Job ends ****"
