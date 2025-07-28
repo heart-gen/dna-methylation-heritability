@@ -131,9 +131,11 @@ p <- ggplot(all_summary_with_failed, aes(x = N, y = count, fill = h2_category)) 
     y = "Count",
     fill = "Category"
   ) +
-  theme_pubr(base_size = 15, border = TRUE) +
-  font("xy.title", face = "bold", size = 14) + 
+  theme_minimal(base_size = 15) +
+  #font("xy.title", face = "bold", size = 14) + 
   theme(
+    panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+    panel.background = element_blank(),
     legend.title = element_text(hjust = 0.5),
     strip.placement = "outside",
     strip.background = element_blank(),
@@ -142,7 +144,7 @@ p <- ggplot(all_summary_with_failed, aes(x = N, y = count, fill = h2_category)) 
 
 # Save plot
 plot_file <- file.path(out_path, "simulated_data_stacked")
-save_plot(p, plot_file, w = 14, h = 6)
+save_plot(p, plot_file, w = 14, h = 8, dpi = 300)
 
 #### Reproducibility information ####
 print("Reproducibility information:")
