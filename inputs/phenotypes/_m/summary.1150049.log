@@ -1,0 +1,37 @@
+2025-08-08 11:40:55 - **** Job starts ****
+2025-08-08 11:40:55 - **** Quest info ****
+User: owb0346
+Job id: 1150049
+Job name: gen_phenotype
+Node name: 
+Hostname: qnode0150
+Task id: N/A
+2025-08-08 11:40:55 - **** Loading modules ****
+No modules loaded
+2025-08-08 11:40:59 - **** Loading mamba environment ****
+2025-08-08 11:41:32 - **** Run Rscript ****
+/gpfs/projects/b1213/users/kynon/projects/dna-methylation-heritability/inputs/phenotypes/_m/../_h/02.generate-phenotype-data.py:44: DeprecationWarning: The default coalesce behavior of left join will change to `False` in the next breaking release. Pass `coalesce=True` to keep the current behavior and silence this warning.
+  .join(load_snp_pcs(), left_on="brnum", right_on="#FID", how="left")\
+shape: (6, 4)
+┌─────────────┬───────────┬──────┬─────┐
+│ region      ┆ primarydx ┆ race ┆ n   │
+│ ---         ┆ ---       ┆ ---  ┆ --- │
+│ str         ┆ str       ┆ str  ┆ u32 │
+╞═════════════╪═══════════╪══════╪═════╡
+│ caudate     ┆ Control   ┆ AA   ┆ 95  │
+│ caudate     ┆ Schizo    ┆ AA   ┆ 65  │
+│ dlpfc       ┆ Control   ┆ AA   ┆ 69  │
+│ dlpfc       ┆ Schizo    ┆ AA   ┆ 43  │
+│ hippocampus ┆ Schizo    ┆ AA   ┆ 48  │
+│ hippocampus ┆ Control   ┆ AA   ┆ 69  │
+└─────────────┴───────────┴──────┴─────┘
+-----
+polars              0.20.31
+pyhere              1.0.3
+session_info        1.0.0
+-----
+Python 3.12.9 | packaged by conda-forge | (main, Mar  4 2025, 22:48:41) [GCC 13.3.0]
+Linux-4.18.0-553.36.1.el8_10.x86_64-x86_64-with-glibc2.28
+-----
+Session information updated at 2025-08-08 11:41
+2025-08-08 11:41:54 - **** Job ends ****
