@@ -9,6 +9,7 @@ suppressPackageStartupMessages({
     library(dplyr)
     library(genio)
     library(plinkr)
+    library(AnnotationHub)
 })
 
 args <- commandArgs(trailingOnly = TRUE)
@@ -30,6 +31,15 @@ filter_pheno <- function(BSobj, pheno_file_path) {
     id    <- intersect(pheno_filtered$brnum, colData(BSobj)$brnum)
     BSobj <- BSobj[, colData(BSobj)$brnum %in% id]
     return(list(BSobj = BSobj, pheno = pheno_filtered, id = id))
+}
+
+exclude_blacklist <- function(BSobj) {
+  ah         <- AnnotationHub()
+  query_data <- subset(ah, preparerclass == "excluderanges")
+  blacklist  <- query_data[["AH107305"]]
+  bb         <- findOverlaps(BSobj, blacklist)
+  BSobj      <- BSobj[-queryHits(bb),]
+  return(BSobj)
 }
 
 exclude_low_cov <- function(BSobj) {
@@ -131,8 +141,11 @@ BSobj       <- change_file_path(BSobj, raw_assays)
 pheno_file_path <- here("inputs/phenotypes/_m/phenotypes-AA.tsv")
 filtered        <- filter_pheno(BSobj, pheno_file_path)
 
+                                        # exclude hg38 ENCODE blacklist regions
+BSobj <- exclude_blacklist(filtered$BSobj)
+
                                         # exclude low coverage sites
-BSobj <- exclude_low_cov(filtered$BSobj)
+BSobj <- exclude_low_cov(BSobj)
 
                                         # calculate sd & mean of DNAm
 stats <- DNAm_stats(BSobj, file.path(out_cpg, "stats.rda"))
