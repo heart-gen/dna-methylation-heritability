@@ -36,19 +36,6 @@ filter_pheno <- function(meth_levels, brain_id, ances, demo, pc) {
     return(list(meth_levels = meth_levels, pc = pc_filt, ind = valid_ids))
 }
 
-## regress_pcs <- function(meth_levels, pc){
-##     pc_res  <- meth_levels
-##     for(i in 1:ncol(meth_levels)){
-##         if(! i %% 100){
-##             cat(i,"\n")
-##         }
-##         temp_df    <- data.frame(y = meth_levels[, i], pc[, 1:5]))
-##         model      <- lm(y ~ .,data=temp_df)
-##         pc_res[,i] <- resid(model)
-##     }
-##     return(pc_res)
-## }
-
 regress_pcs_vectorized <- function(meth_levels, pc_matrix) {
     meth_t <- t(meth_levels)
     design <- cbind(1, as.matrix(pc_matrix[, 1:5, drop = FALSE]))
@@ -80,12 +67,16 @@ f_ances <- here("inputs", "genetic-ancestry",
 f_snp <- paste0("/projects/b1213/resources/libd_data/wgbs/DEM2/snps_CT/chr",chr)
 pca <- here("heritability", "caudate", "_m", "pca",
             paste0("chr_", chr), "pc.csv")
+psam_file <- here("inputs/genotypes/TOPMed_LIBD.AA.psam")
 
                                         # Load data
-pc    <- fread(pca)
-pos   <- fread(cpg_names, header = FALSE)[-c(1, 2), , drop = FALSE]
-ances <- fread(f_ances,)
-demo  <- fread(pheno_file_path)
+pc        <- fread(pca)
+pos       <- fread(cpg_names, header = FALSE)[-c(1, 2), , drop = FALSE]
+ances     <- fread(f_ances)
+demo      <- fread(pheno_file_path)
+samples   <- fread(psam_file, header = FALSE, 
+                   col.names = c("FID", "IID", "PAT"))[, .(FID, IID)]
+
 
 tmp_dir   <- here("heritability", "caudate", "_m", "cpg", paste0("chr_", chr),
                   "tmp_files")
@@ -96,6 +87,9 @@ cat("Found", length(tmp_files), "files to read\n")
                                         # Process each chunk
 output_file <- file.path(output_path, "res_var_all.tsv")
 first_chunk <- TRUE
+
+cpg_path <- here("heritability", "caudate", "_m", "cpg", paste0("chr_", chr))
+res_meth_file <- file.path(cpg_path, paste0("res_cpg_meth.phen"))
 
 for (chunk_path in tmp_files) {
     cat("Processing:", chunk_path, "\n"); flush.console()
@@ -126,10 +120,19 @@ for (chunk_path in tmp_files) {
 
                                         # Regress PCs
     pc_res <- regress_pcs_vectorized(pheno$meth_levels, pheno$pc)
-
+    filtered_samples <- samples[match(pheno$ind, samples$IID), c("FID", "IID")]
+    res_chunk <- data.table::data.table(FID = filtered_samples$FID,
+                                        IID = filtered_samples$IID,
+                                        pc_res)
+    colnames(res_chunk) <- c("FID", "IID", as.character(filtered$pos[[1]]))
+    
                                         # Get chunk identifier for output
     chunk_id <- str_extract(basename(chunk_path), "(?<=cpg_meth_)[0-9]+_[0-9]+")
-
+    
+                                        # Write intermediate residuals
+    out_file_chunk <- file.path(tmp_dir, paste0("residuals_", chunk_id, ".tsv"))
+    fwrite(res_chunk, out_file_chunk, sep = "\t", quote = FALSE, col.names = TRUE)
+    
                                         # Calculate variances
     out <- residual_variance(pc_res, filtered$pos, chr, output_path, chunk_id)
     fwrite(
@@ -138,6 +141,16 @@ for (chunk_path in tmp_files) {
     first_chunk <- FALSE
     rm(chunk_data, meth_levels, pc_res, out); gc()
 }
+
+                                        # List all residual files
+chunk_files <- list.files(tmp_dir, pattern = "^residuals_.*\\.tsv$", full.names = TRUE)
+
+                                        # Read and merge by FID/IID
+residuals_only <- lapply(res_chunks_list, function(dt) dt[, -c("FID", "IID"), with = FALSE])
+combined_residuals <- cbind(ref_samples, do.call(cbind, residuals_only))
+
+                                        # Write combined matrix
+fwrite(combined_residuals, res_meth_file, sep = "\t", quote = FALSE)
 
 cat("Finished processing all files\n")
 
