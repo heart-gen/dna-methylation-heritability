@@ -120,7 +120,7 @@ for (chunk_path in tmp_files) {
 
                                         # Regress PCs
     pc_res <- regress_pcs_vectorized(pheno$meth_levels, pheno$pc)
-    filtered_samples <- samples[match(pheno$ind, samples$IID), c("FID", "IID")]
+    filtered_samples <- samples[match(pheno$ind, samples$FID), c("FID", "IID")]
     res_chunk <- data.table::data.table(FID = filtered_samples$FID,
                                         IID = filtered_samples$IID,
                                         pc_res)
@@ -144,6 +144,8 @@ for (chunk_path in tmp_files) {
 
                                         # List all residual files
 chunk_files <- list.files(tmp_dir, pattern = "^residuals_.*\\.tsv$", full.names = TRUE)
+res_chunks_list <- lapply(chunk_files, function(f) fread(f, header = TRUE))
+ref_samples <- res_chunks_list[[1]][, .(FID, IID)]
 
                                         # Read and merge by FID/IID
 residuals_only <- lapply(res_chunks_list, function(dt) dt[, -c("FID", "IID"), with = FALSE])
