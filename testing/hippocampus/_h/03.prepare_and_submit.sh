@@ -33,4 +33,4 @@ fi
 echo "Prepared mapping for $global_index jobs."
 
 # Submit as one big array
-sbatch --array=0-$((global_index - 1)) extract_snps_chunks_multi.slurm
+sbatch --array=0-$((global_index - 1)) extract_snps.sh
