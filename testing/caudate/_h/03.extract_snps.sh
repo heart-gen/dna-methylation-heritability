@@ -4,10 +4,10 @@
 #SBATCH --time=04:00:00
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=8
+#SBATCH --cpus-per-task=4
 #SBATCH --gres=gpu:a100:1
-#SBATCH --mem=16G
-#SBATCH --array=0-57
+#SBATCH --mem=8G
+#SBATCH --array=0-66
 #SBATCH --job-name=extract_snps_chunks
 #SBATCH --output=logs/chr_21/extract_snps_chunks_out.log
 #SBATCH --error=logs/chr_21/extract_snps_chunks_err.log
@@ -22,7 +22,7 @@ CHR="21"
 REGION_DIR="./chunked_cpg/chr_${CHR}"
 CHROM_SIZES="/projects/b1213/resources/genomes/human/gencode-v47/fasta/chromosome_sizes.txt"
 BASE_NAME="/projects/b1213/users/alexis/projects/dna-methylation-heritability/inputs/genotypes/TOPMed_LIBD.AA"
-SAMPLE_LIST="/projects/b1213/users/alexis/projects/dna-methylation-heritability/heritability/dlpfc/_m/samples.txt"
+SAMPLE_LIST="./samples.txt"
 OUTPUT_DIR="plink_outputs/chr_${CHR}"
 mkdir -p "$OUTPUT_DIR"
 
@@ -47,9 +47,6 @@ parallel -j ${SLURM_CPUS_PER_TASK} --colsep '\t' "
       --no-parents \
       --no-sex \
       --no-pheno \
-      --out $OUTPUT_DIR/chr${CHR}_region_{#}_snps
-" :::: "$FILTERED_CHUNK"
-
-rm "$FILTERED_CHUNK"
+      --out $OUTPUT_DIR/chr${CHR}_region_{#}_snps"
 
 log_message "**** Job ends ****"
