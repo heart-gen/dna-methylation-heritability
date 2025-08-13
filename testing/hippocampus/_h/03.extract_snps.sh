@@ -47,9 +47,6 @@ parallel -j ${SLURM_CPUS_PER_TASK} --colsep '\t' "
       --no-parents \
       --no-sex \
       --no-pheno \
-      --out $OUTPUT_DIR/chr${CHR}_region_{#}_snps
-" :::: "$FILTERED_CHUNK"
-
-rm "$FILTERED_CHUNK"
+      --out $OUTPUT_DIR/chr${CHR}_region_{#}_snps"
 
 log_message "**** Job ends ****"
