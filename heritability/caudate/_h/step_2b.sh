@@ -1,10 +1,10 @@
 #!/bin/bash
 #SBATCH --account=p32505        # Replace with your allocation
 #SBATCH --partition=short       # Partition (queue) name
-#SBATCH --time=00:30:00         # Time limit hrs:min:sec
+#SBATCH --time=04:00:00         # Time limit hrs:min:sec
 #SBATCH --nodes=1               # Number of nodes
 #SBATCH --ntasks-per-node=1     # Number of cores (CPU)
-#SBATCH --mem=10G               # Memory limit
+#SBATCH --mem=16G               # Memory limit
 #SBATCH --mail-type=FAIL
 #SBATCH --array=1-22
 #SBATCH --mail-user=alexis.bennett@northwestern.edu
