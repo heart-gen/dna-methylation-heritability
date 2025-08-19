@@ -4,7 +4,7 @@
 #SBATCH --time=02:00:00         # Time limit hrs:min:sec
 #SBATCH --nodes=1               # Number of nodes
 #SBATCH --ntasks-per-node=1     # Number of cores (CPU)
-#SBATCH --mem=16G               # Memory limit
+#SBATCH --mem=24G               # Memory limit
 #SBATCH --mail-type=FAIL
 #SBATCH --array=1-22
 #SBATCH --mail-user=alexis.bennett@northwestern.edu
