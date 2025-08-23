@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --account=p32505
 #SBATCH --partition=gengpu
-#$BATCH --gres=gpu:h100:1
+#SBATCH --gres=gpu:h100:1
 #SBATCH --job-name=permutation_eqtl
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=sierramannion2028@u.northwestern.edu ## Update!

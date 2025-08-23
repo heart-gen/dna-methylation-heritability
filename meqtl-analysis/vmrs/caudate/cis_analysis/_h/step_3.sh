@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --account=p32505
 #SBATCH --partition=gengpu
-#$BATCH --gres=gpu:h100:1
+#SBATCH --gres=gpu:h100:1
 #SBATCH --job-name=post_processing
 #SBATCH --mail-type=FAIL
 #SBATCH --mail-user=kynon.benjamin@northwestern.edu ## UPATE THIS
