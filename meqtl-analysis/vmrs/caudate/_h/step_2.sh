@@ -29,6 +29,7 @@ echo "Task id: ${SLURM_ARRAY_TASK_ID:-N/A}"
 log_message "**** Loading modules ****"
 
 module purge
+module load gcc/12.3.0-gcc
 module list
 
 # Set path variables
