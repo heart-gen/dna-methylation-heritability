@@ -65,7 +65,7 @@ extract_genotypes <- function(plink_base, samples, chrom, start, end) {
     bedfile <- paste0(out_prefix, ".bed")
     if (!file.exists(bedfile)) stop("PLINK extraction failed: .bed file not found.")
 
-    cat("Processing PLINK file:", basename(bedfile), "\n")
+    cat("Processing PLINK file:", basename(bedfile), "\n", flush = TRUE)
                                         # Use tempfile for backingfile to
                                         # avoid conflicts in array jobs
     backing_rds <- tempfile(fileext = ".rds")
@@ -178,7 +178,7 @@ for (i in seq_len(num_regions)) {
     chrom_num  <- chunk_regions$chr[i]
     start_pos  <- chunk_regions$start[i]
     end_pos    <- chunk_regions$end[i]
-    
+  
     pheno_scaled <- scale(pheno_raw)[, i] # Center and scale data
     
                                         # Extract genotypes
@@ -207,15 +207,15 @@ for (i in seq_len(num_regions)) {
     G_filtered[] <- G_temp[]
     
                                         # Impute missing values
-    cat("Imputing missing genotypes using mode...\n")
+    cat("Imputing missing genotypes using mode...\n", flush = TRUE)
     G_imputed <- snp_fastImputeSimple(G_filtered, method = "mode")
     
                                         # Run SNP clumping
     clumped_idx <- perform_snp_clumping(G_imputed, infos_filt, pheno_scaled)
     G_clumped   <- as_FBM(G_imputed[, clumped_idx])
     infos_filt  <- infos_filt[clumped_idx, ]
-    cat("Number of SNPs before clumping: ", ncol(G_imputed), "\n")
-    cat("Number of SNPs after clumping: ", ncol(G_clumped), "\n")
+    cat("Number of SNPs before clumping: ", ncol(G_imputed), "\n", flush = TRUE)
+    cat("Number of SNPs after clumping: ", ncol(G_clumped), "\n", flush = TRUE)
     
     if (ncol(G_clumped) == 0) {
       cat("No SNPs left after clumping. Exiting.\n")
@@ -224,7 +224,7 @@ for (i in seq_len(num_regions)) {
     }
     
     ## --- Boosting framework --- ##
-    cat("Starting boosting framework...\n")
+    cat("Starting boosting framework...\n", flush = TRUE)
     n_iter     <- 100  # Total boosting iterations
     batch_size <- min(1000, ncol(G_clumped)) # SNPs per batch
     
@@ -236,7 +236,7 @@ for (i in seq_len(num_regions)) {
     
                                           # Boosting loop
     for (iter in 1:n_iter) {
-      cat("Boosting iteration: ", iter, "\n")
+      cat("Boosting iteration: ", iter, "\n", flush = TRUE)
       # Top correlated SNPs
       if (length(residuals) != nrow(G_clumped)){
         stop("Residuals length does not match genotype matrix rows.")
@@ -259,9 +259,9 @@ for (i in seq_len(num_regions)) {
         best_betas <- summary(cv_fit, best.only = TRUE)$beta[[1]]
         global_idx <- selected_snps[kept_ind]
         
-        for(i in seq_along(global_idx)){
-          idx <- global_idx[i]
-          accumulated_betas[1, idx] <- accumulated_betas[1, idx] + best_betas[i]
+        for(j in seq_along(global_idx)){
+          idx <- global_idx[j]
+          accumulated_betas[1, idx] <- accumulated_betas[1, idx] + best_betas[j]
         }
                                           # Calculate incremental h2
         h2_estimates[iter] <- var(batch_pred)
@@ -269,11 +269,11 @@ for (i in seq_len(num_regions)) {
         h2_estimates[iter] <- 0
       }
       cat("Incremental h2 this iteration: ",
-          sprintf("%.5f", h2_estimates[iter]), "\n")
+          sprintf("%.5f", h2_estimates[iter]), "\n", flush = TRUE)
       
                                           # Early stopping condition
       if (iter > 10 && sd(tail(h2_estimates[1:iter], 5)) < 0.0001) {
-        cat("Early stopping criterion met at iteration: ", iter, "\n")
+        cat("Early stopping criterion met at iteration: ", iter, "\n", flush = TRUE)
         h2_estimates <- h2_estimates[1:iter] # Trim unused part
         break
       }
@@ -282,7 +282,7 @@ for (i in seq_len(num_regions)) {
     ## --- Final Model Refit and Evaluation --- ##
     r_squared_cv <- NA
     if (ncol(G_clumped) > 0) {
-      cat("Refitting final model using Ridge regression...\n")
+      cat("Refitting final model using Ridge regression...\n", flush = TRUE)
       final_model <- cv.glmnet(G_clumped[], pheno_scaled, alpha = 0,
                                nfolds = 5, standardize = TRUE)
       lambda_min  <- final_model$lambda.min
@@ -296,9 +296,9 @@ for (i in seq_len(num_regions)) {
         r_squared_cv <- cor(pheno_scaled[valid_idx], pred_cv[valid_idx])^2
       }
       cat(sprintf("Cross-validated R^2 from Ridge regression: %.4f\n",
-                  r_squared_cv))
+                  r_squared_cv), flush = TRUE)
     } else {
-      cat("Skipping Ridge regression as no SNPs are available.\n")
+      cat("Skipping Ridge regression as no SNPs are available.\n", flush = TRUE)
     }
     
     ## --- Heritability Estimates from Boosting --- ##
@@ -344,27 +344,28 @@ for (i in seq_len(num_regions)) {
       beta    = final_accumulated_betas
     )
     
+    region_idx <- i
+    out_idx <- sprintf("chunk_%03d_region_%03d", task_id, region_idx)
     dir.create("cpg_summary", recursive = TRUE, showWarnings = FALSE)
     write.table(task_summary_df,
-                file = sprintf(file.path("cpg_summary","task_summary_stats_%d.tsv"),
-                               task_id), sep = "\t", quote = F, row.names = F)
+                file = file.path("cpg_summary", paste0("task_summary_stats_", out_idx, ".tsv")),
+                sep = "\t", quote = FALSE, row.names = FALSE)
+    
     
     dir.create("cpg_h2", recursive = TRUE, showWarnings = FALSE)
     write.table(output_df,
-                file = sprintf(file.path("cpg_h2", "h2_estimates_%d.tsv"), task_id),
+                file = file.path("cpg_h2", paste0("h2_estimates_", out_idx, ".tsv")),
                 sep = "\t", quote = FALSE, row.names = FALSE)
     
     dir.create("cpg_betas", recursive = TRUE, showWarnings = FALSE)
     write.table(betas_df,
-                file = sprintf(file.path("cpg_betas", "betas_%d.tsv"), task_id),
+                file = file.path("cpg_betas", paste0("betas_", out_idx, ".tsv")),
                 sep = "\t", quote = FALSE, row.names = FALSE)
     
-    cat(sprintf("Total SNP-based h2 (unscaled): %.4f\n", h2_unscaled))
-    cat(sprintf("Final h2: %.4f\n", sum(h2_estimates)))
+    cat(sprintf("Total SNP-based h2 (unscaled): %.4f\n", h2_unscaled), flush = TRUE)
+    cat(sprintf("Final h2: %.4f\n", sum(h2_estimates)), flush = TRUE)
     
 }
-
-
 
                                         # Load Phenotype
 #pheno_path <- construct_data_path(chrom_num, start_pos, end_pos, region,
