@@ -31,6 +31,7 @@ echo "SLURM_ARRAY_TASK_ID: ${SLURM_ARRAY_TASK_ID}"
 echo "Computed task_id: ${task_id}"
 
 module purge
+module load plink/2.0-alpha-3.3
 module list
 
 ENV_PATH="/projects/p32505/opt/env"
