@@ -74,7 +74,7 @@ pc        <- fread(pca)
 pos       <- fread(cpg_names, header = FALSE)[-c(1, 2), , drop = FALSE]
 ances     <- fread(f_ances)
 demo      <- fread(pheno_file_path)
-samples   <- fread(psam_file, header = FALSE, 
+samples   <- fread(psam_file, header = TRUE, 
                    col.names = c("FID", "IID", "PAT"))[, .(FID, IID)]
 
 
