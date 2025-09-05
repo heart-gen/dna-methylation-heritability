@@ -119,7 +119,9 @@ perform_snp_clumping <- function(G_imputed, info, pheno_scaled) {
         G = G_imputed,
         infos.chr = info$chromosome,
         infos.pos = info$physical.pos,
-        S = stat
+        S = stat,
+        thr.r2 = 0.2,
+        size = 20
     )
     return(ind_keep)
 }
