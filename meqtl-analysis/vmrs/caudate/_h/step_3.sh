@@ -6,9 +6,9 @@
 #SBATCH --mail-user=alexis.bennett@northwestern.edu
 #SBATCH --nodes=1
 #SBATCH --cpus-per-task=1
-#SBATCH --mem=20gb
+#SBATCH --mem=5gb
 #SBATCH --output=logs/genotypes.%j.log
-#SBATCH --time=00:30:00
+#SBATCH --time=00:10:00
 
 # Function to echo with timestamp
 log_message() {
@@ -41,7 +41,7 @@ SAMPLES="../../../../heritability/caudate/_m/samples.txt"
 log_message "**** Format genotypes ****"
 mkdir -p $OUTDIR
 
-plink2 --pfile $GENOTYPES/TOPMed_LIBD \
+plink2 --pfile $GENOTYPES/TOPMed_LIBD.AA \
        --keep $SAMPLES --make-pgen \
        --no-parents \
        --no-sex \
