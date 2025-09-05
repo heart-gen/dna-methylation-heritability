@@ -9,7 +9,7 @@
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=40gb
 #SBATCH --output=logs/nominal-analysis.%j.log
-#SBATCH --time=04:00:00
+#SBATCH --time=01:00:00
 
 # Function to echo with timestamp
 log_message() {
@@ -40,7 +40,7 @@ eval "$(mamba shell hook --shell bash)"
 
 ENV_PATH="/projects/p32505/opt/env/eQTL_env"
 
-mamba run -p ${$ENV_PATH} python ../_h/01.eqtl_tensorqtl.py
+mamba run -p ${ENV_PATH} python ../_h/01.eqtl_tensorqtl.py
 ##python ../_h/01.eqtl_tensorqtl.py
 
 if [ $? -ne 0 ]; then

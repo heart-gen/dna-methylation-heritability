@@ -1,7 +1,7 @@
 #!/bin/bash
-#SBATCH --account=p32505
-#SBATCH --partition=gengpu
-#SBATCH --gres=gpu:h100:1
+#SBATCH --account=b1042
+#SBATCH --partition=genomics-gpu
+#SBATCH --gres=gpu:a100:1
 #SBATCH --job-name=conditional_analysis
 #SBATCH --mail-type=FAIL
 #SBATCH --mail-user=kynon.benjamin@northwestern.edu ## UPATE THIS
@@ -40,7 +40,7 @@ eval "$(mamba shell hook --shell bash)"
 
 ENV_PATH="/projects/p32505/opt/env/eQTL_env"
 
-mamba run -p ${$ENV_PATH} python ../_h/04.conditional_analysis.py
+mamba run -p ${ENV_PATH} python ../_h/04.conditional_analysis.py
 
 if [ $? -ne 0 ]; then
     log_message "Error: mamba or script execution failed"
