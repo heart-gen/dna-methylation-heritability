@@ -3,11 +3,11 @@
 #SBATCH --partition=short
 #SBATCH --job-name=format_expression
 #SBATCH --mail-type=ALL
-#SBATCH --mail-user=sierramannion2028@u.northwestern.edu
+#SBATCH --mail-user=alexis.bennett@northwestern.edu
 #SBATCH --nodes=1
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=10gb
-#SBATCH --output=formatting.%j.log
+#SBATCH --output=logs/formatting.%j.log
 #SBATCH --time=00:30:00
 
 # Function to echo with timestamp
@@ -36,12 +36,14 @@ module list
 log_message "**** Loading mamba environment ****"
 ENV_PATH="/projects/p32505/opt/env"
 BED="feature.bed"
+SAMPLES="../../../../heritability/caudate/_m/samples.txt"
 
 mamba run -p $ENV_PATH/AI_env \
       python ../_h/04.prepare_expression.py \
-      --feature gene --bed_file $BED -o ./ \
-      norm.gct sample_id_to_brnum.tsv \
-      vcf_chr_list.txt genes
+      ./normalized_methylation.tsv \
+      ./vcf_chr_list.txt -o ./ \
+      --bed_file ./feature.bed \
+      --sample_id_list $SAMPLES
 
 if [ $? -ne 0 ]; then
     log_message "Error: Python script execution failed"
