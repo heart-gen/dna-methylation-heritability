@@ -1,7 +1,7 @@
 #!/bin/bash
-#SBATCH --account=p32505
-#SBATCH --partition=gengpu
-#SBATCH --gres=gpu:h100:1
+#SBATCH --account=b1042
+#SBATCH --partition=genomics-gpu
+#SBATCH --gres=gpu:a100:1
 #SBATCH --job-name=permutation_eqtl
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=sierramannion2028@u.northwestern.edu ## Update!
@@ -9,7 +9,7 @@
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=40gb
 #SBATCH --output=logs/permutation.%j.log
-#SBATCH --time=48:00:00
+#SBATCH --time=2:00:00
 
 # Function to echo with timestamp
 log_message() {
@@ -41,7 +41,6 @@ eval "$(mamba shell hook --shell bash)"
 ENV_PATH="/projects/p32505/opt/env/eQTL_env"
 
 mamba run -p ${ENV_PATH} python ../_h/02.permutation_analysis.py
-##python ../_h/02.permutation_analysis.py
 
 if [ $? -ne 0 ]; then
     log_message "Error: mamba or script execution failed"; exit 1
