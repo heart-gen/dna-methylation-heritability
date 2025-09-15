@@ -35,16 +35,15 @@ module list
 # Set path variables
 log_message "**** Loading mamba environment ****"
 ENV_PATH="/projects/p32505/opt/env"
-BED="feature.bed"
-SAMPLES="../../../../heritability/caudate/_m/samples.txt"
 
 mamba run -p $ENV_PATH/AI_env \
       python ../_h/04.prepare_expression.py \
       ./normalized_methylation.tsv \
-      ./vcf_chr_list.txt -o ./ \
-      --bed_file ./feature.bed \
-      --sample_id_list $SAMPLES
-
+      ./vcf_chr_list.txt TOPMed_LIBD \
+      -o ./ --bed_file ./feature.bed \
+      --skip_sample_lookup \
+      --sample_id_list ./sample_brnum.txt
+      
 if [ $? -ne 0 ]; then
     log_message "Error: Python script execution failed"
     exit 1

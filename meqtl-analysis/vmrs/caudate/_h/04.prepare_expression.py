@@ -77,8 +77,6 @@ def main():
     )
     parser.add_argument('vmr_matrix',
                         help='Tab-delimited file with VMR methylation values (feature_id x samples)')
-    parser.add_argument('sample_participant_lookup',
-                        help='Lookup table linking VMR sample IDs to participant IDs')
     parser.add_argument('vcf_chr_list',
                         help='File with list of chromosomes in VCF')
     parser.add_argument('prefix',
@@ -87,6 +85,10 @@ def main():
                         help='Output directory')
     parser.add_argument('--sample_id_list', default=None,
                         help='Optional file listing sample IDs to include')
+    parser.add_argument('--sample_participant_lookup', default=None,
+                        help='Optional Lookup table linking VMR sample IDs to participant IDs')
+    parser.add_argument('--skip_sample_lookup', action='store_true',
+                        help='Skip mapping sample IDs if sample IDs already match')
     parser.add_argument('--bed_file',
                         help='BED file annotation with feature_id coordinates',
                         required=True)
@@ -96,20 +98,35 @@ def main():
     sample_ids = None
     if args.sample_id_list is not None:
         with open(args.sample_id_list) as f:
+            next(f)
             sample_ids = f.read().strip().split('\n')
             print(f'  * Restricting to {len(sample_ids)} samples', flush=True)
 
     vmr_df = read_vmr(args.vmr_matrix, sample_ids)
     print(f'  * Loaded {vmr_df.shape[0]} features across {vmr_df.shape[1]} samples', flush=True)
 
-    print('Mapping sample IDs to participants', flush=True)
-    sample_participant_lookup_s = pd.read_csv(
-        args.sample_participant_lookup,
-        sep='\t', index_col=0, dtype=str
-    ).squeeze("columns")
+    #print('Mapping sample IDs to participants', flush=True)
+    #sample_participant_lookup_s = pd.read_csv(
+    #    args.sample_participant_lookup,
+    #    sep='\t', index_col=0, dtype=str
+    #).squeeze("columns")
 
-    vmr_df = sort_samples(vmr_df, sample_participant_lookup_s, sort=False)
-    vmr_df.rename(columns=sample_participant_lookup_s.to_dict(), inplace=True)
+    #vmr_df = sort_samples(vmr_df, sample_participant_lookup_s, sort=False)
+    #vmr_df.rename(columns=sample_participant_lookup_s.to_dict(), inplace=True)
+
+    if not args.skip_sample_lookup:
+        if args.sample_participant_lookup is None:
+            raise ValueError("Sample participant lookup file must be provided unless --skip_sample_lookup is used.")
+        print('Mapping sample IDs to participants', flush=True)
+        sample_participant_lookup_s = pd.read_csv(
+            args.sample_participant_lookup,
+            sep='\t', index_col=0, dtype=str
+        ).squeeze("columns")
+
+        vmr_df = sort_samples(vmr_df, sample_participant_lookup_s, sort=False)
+        vmr_df.rename(columns=sample_participant_lookup_s.to_dict(), inplace=True)
+    else:
+        print("Skipping sample ID mapping", flush=True)   
 
     bed_template_df = get_bed(args.bed_file)
     print('  * Annotation loaded:', bed_template_df.shape, flush=True)

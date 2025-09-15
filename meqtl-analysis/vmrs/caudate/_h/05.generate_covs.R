@@ -58,7 +58,7 @@ pheno <- format_pheno(pheno_file_path)
 
                                         # Extract covariates
 sample_id <- here("meqtl-analysis", "vmrs", "caudate", "_m", 
-                  "sample_id_to_brnum.tsv")
+                  "sample_brnum.txt")
 covs <- get_covs(pheno, sample_id)
 out_covs   <- file.path(output_path, "vmrs.combined_covariates.txt")
 
