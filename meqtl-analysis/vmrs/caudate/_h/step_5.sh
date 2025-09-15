@@ -3,12 +3,12 @@
 #SBATCH --partition=short
 #SBATCH --job-name=prep_covs
 #SBATCH --mail-type=ALL
-#SBATCH --mail-user=sierramannion2028@u.northwestern.edu
+#SBATCH --mail-user=alexis.bennett@northwestern.edu
 #SBATCH --nodes=1
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=10gb
 #SBATCH --output=summary.%j.log
-#SBATCH --time=01:00:00
+#SBATCH --time=00:10:00
 
 log_message() {
     echo "$(date '+%Y-%m-%d %H:%M:%S') - $1"
@@ -34,7 +34,7 @@ module list
 log_message "**** Loading mamba environment ****"
 ENV_PATH="/projects/p32505/opt/env"
 
-mamba run -p ${ENV_PATH}/R_env Rscript ../_h/05.generate_covs.R
+mamba run -p ${ENV_PATH}/r_env Rscript ../_h/05.generate_covs.R
 
 if [ $? -ne 0 ]; then
     log_message "Error: Rscript execution failed"
