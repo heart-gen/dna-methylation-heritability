@@ -1,10 +1,10 @@
 #!/bin/bash
 #SBATCH --account=p32505
 #SBATCH --partition=gengpu
-#SBATCH --gres=gpu:h100:1
+#SBATCH --gres=gpu:a100:1
 #SBATCH --job-name=cis_mapping
 #SBATCH --mail-type=ALL
-#SBATCH --mail-user=sierramannion2028@u.northwestern.edu ## Update this
+#SBATCH --mail-user=alexis.bennett@northwestern.edu ## Update this
 #SBATCH --nodes=1
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=40gb
@@ -34,18 +34,20 @@ module load cuda/11.6.2-gcc-12.3.0
 module list
 
 # Set path variables
-log_message "**** Loading mamba environment ****" ## Might need to change mamba to conda
+log_message "**** Loading conda environment ****"
+
 source /projects/p32505/opt/miniforge3/etc/profile.d/conda.sh
-eval "$(mamba shell hook --shell bash)"
+conda activate /projects/p32505/opt/env/eQTL_env
+python ../_h/01.eqtl_tensorqtl.py
 
-ENV_PATH="/projects/p32505/opt/env/eQTL_env"
-
-mamba run -p ${ENV_PATH} python ../_h/01.eqtl_tensorqtl.py
-##python ../_h/01.eqtl_tensorqtl.py
+#ENV_PATH="/projects/p32505/opt/env/eQTL_env"
+#conda run -p ${ENV_PATH} python ../_h/01.eqtl_tensorqtl.py
 
 if [ $? -ne 0 ]; then
-    log_message "Error: mamba or script execution failed"
+    log_message "Error: Conda or script execution failed"
     exit 1
 fi
+
+conda deactivate
 
 log_message "**** Job ends ****"
