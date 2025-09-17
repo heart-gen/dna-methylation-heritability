@@ -1,14 +1,14 @@
 #!/bin/bash
 #SBATCH --account=p32505
 #SBATCH --partition=short
-#SBATCH --job-name=preprocess_expression
-#SBATCH --mail-type=FAIL
-#SBATCH --mail-user=sierramannion2028@u.northwestern.edu
+#SBATCH --job-name=preprocess_genotypes
+#SBATCH --mail-type=ALL
+#SBATCH --mail-user=alexis.bennett@northwestern.edu
 #SBATCH --nodes=1
 #SBATCH --cpus-per-task=1
-#SBATCH --mem=10gb
-#SBATCH --output=preprocess.%j.log
-#SBATCH --time=00:30:00
+#SBATCH --mem=5gb
+#SBATCH --output=logs/genotypes.%j.log
+#SBATCH --time=00:10:00
 
 # Function to echo with timestamp
 log_message() {
@@ -29,19 +29,23 @@ echo "Task id: ${SLURM_ARRAY_TASK_ID:-N/A}"
 log_message "**** Loading modules ****"
 
 module purge
-module load gcc/12.3.0-gcc
+module load plink/2.0-alpha-3.3
 module list
 
-# Set path variables
-log_message "**** Loading mamba environment ****"
-ENV_PATH="/projects/p32505/opt/env"
+plink2 --version
+## Edit with your job command
+OUTDIR="./protected_data"
+GENOTYPES="../../../../inputs/genotypes"
+SAMPLES="../../../../heritability/caudate/_m/samples.txt"
 
-# Ensure Mamba is properly initialized
-mamba run -p $ENV_PATH/AI_env python ../_h/02.preprocess_data.py
+log_message "**** Format genotypes ****"
+mkdir -p $OUTDIR
 
-if [ $? -ne 0 ]; then
-    log_message "Error: Python script execution failed"
-    exit 1
-fi
+plink2 --pfile $GENOTYPES/TOPMed_LIBD.AA \
+       --keep $SAMPLES --make-pgen \
+       --no-parents \
+       --no-sex \
+       --no-pheno \
+       --out $OUTDIR/TOPMed_LIBD
 
 log_message "**** Job ends ****"

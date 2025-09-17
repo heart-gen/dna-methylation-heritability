@@ -1,14 +1,14 @@
 #!/bin/bash
 #SBATCH --account=p32505
 #SBATCH --partition=short
-#SBATCH --job-name=preprocess_genotypes
+#SBATCH --job-name=format_expression
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=alexis.bennett@northwestern.edu
 #SBATCH --nodes=1
 #SBATCH --cpus-per-task=1
-#SBATCH --mem=5gb
-#SBATCH --output=logs/genotypes.%j.log
-#SBATCH --time=00:10:00
+#SBATCH --mem=10gb
+#SBATCH --output=logs/formatting.%j.log
+#SBATCH --time=00:30:00
 
 # Function to echo with timestamp
 log_message() {
@@ -29,23 +29,24 @@ echo "Task id: ${SLURM_ARRAY_TASK_ID:-N/A}"
 log_message "**** Loading modules ****"
 
 module purge
-module load plink/2.0-alpha-3.3
+module load htslib/1.16
 module list
 
-plink2 --version
-## Edit with your job command
-OUTDIR="./protected_data"
-GENOTYPES="../../../../inputs/genotypes"
-SAMPLES="../../../../heritability/caudate/_m/samples.txt"
+# Set path variables
+log_message "**** Loading mamba environment ****"
+ENV_PATH="/projects/p32505/opt/env"
 
-log_message "**** Format genotypes ****"
-mkdir -p $OUTDIR
-
-plink2 --pfile $GENOTYPES/TOPMed_LIBD.AA \
-       --keep $SAMPLES --make-pgen \
-       --no-parents \
-       --no-sex \
-       --no-pheno \
-       --out $OUTDIR/TOPMed_LIBD
+mamba run -p $ENV_PATH/AI_env \
+      python ../_h/03.prepare_expression.py \
+      ./normalized_methylation.tsv \
+      ./vcf_chr_list.txt vmrs \
+      -o ./ --bed_file ./feature.bed \
+      --skip_sample_lookup \
+      --sample_id_list ./sample_brnum.txt
+      
+if [ $? -ne 0 ]; then
+    log_message "Error: Python script execution failed"
+    exit 1
+fi
 
 log_message "**** Job ends ****"
