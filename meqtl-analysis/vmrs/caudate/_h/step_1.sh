@@ -41,4 +41,8 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+# Prepare sample lists
+cp ../../../../heritability/caudate/_m/samples.txt ./keepPsam.txt
+awk 'BEGIN {print "BrNum"} {print $1}' ./keepPsam.txt > ./sample_brnum.txt
+
 log_message "**** Job ends ****"

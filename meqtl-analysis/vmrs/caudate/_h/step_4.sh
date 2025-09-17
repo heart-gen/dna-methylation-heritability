@@ -1,16 +1,15 @@
 #!/bin/bash
 #SBATCH --account=p32505
 #SBATCH --partition=short
-#SBATCH --job-name=format_expression
+#SBATCH --job-name=prep_covs
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=alexis.bennett@northwestern.edu
 #SBATCH --nodes=1
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=10gb
-#SBATCH --output=logs/formatting.%j.log
-#SBATCH --time=00:30:00
+#SBATCH --output=summary.%j.log
+#SBATCH --time=00:10:00
 
-# Function to echo with timestamp
 log_message() {
     echo "$(date '+%Y-%m-%d %H:%M:%S') - $1"
 }
@@ -29,23 +28,16 @@ echo "Task id: ${SLURM_ARRAY_TASK_ID:-N/A}"
 log_message "**** Loading modules ****"
 
 module purge
-module load htslib/1.16
 module list
 
 # Set path variables
 log_message "**** Loading mamba environment ****"
 ENV_PATH="/projects/p32505/opt/env"
 
-mamba run -p $ENV_PATH/AI_env \
-      python ../_h/04.prepare_expression.py \
-      ./normalized_methylation.tsv \
-      ./vcf_chr_list.txt TOPMed_LIBD \
-      -o ./ --bed_file ./feature.bed \
-      --skip_sample_lookup \
-      --sample_id_list ./sample_brnum.txt
-      
+mamba run -p ${ENV_PATH}/r_env Rscript ../_h/04.generate_covs.R
+
 if [ $? -ne 0 ]; then
-    log_message "Error: Python script execution failed"
+    log_message "Error: Rscript execution failed"
     exit 1
 fi
 
