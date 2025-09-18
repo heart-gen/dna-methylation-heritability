@@ -7,7 +7,7 @@
 #SBATCH --nodes=1
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=10gb
-#SBATCH --output=summary.%j.log
+#SBATCH --output=logs/covs.%j.log
 #SBATCH --time=00:10:00
 
 log_message() {
