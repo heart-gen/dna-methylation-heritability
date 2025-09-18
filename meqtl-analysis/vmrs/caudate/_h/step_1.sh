@@ -35,7 +35,7 @@ module list
 log_message "**** Loading mamba environment ****"
 ENV_PATH="/projects/p32505/opt/env"
 
-mamba run -p $ENV_PATH/R_env Rscript ../_h/01.prepare_data.R ## change to conda if mamba errors
+mamba run -p $ENV_PATH/r_env Rscript ../_h/01.prepare_data.R ## change to conda if mamba errors
 if [ $? -ne 0 ]; then
     log_message "Error: Mamba or script execution failed"
     exit 1
