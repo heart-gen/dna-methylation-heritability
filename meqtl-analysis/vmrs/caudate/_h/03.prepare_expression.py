@@ -7,7 +7,7 @@ import os
 import subprocess
 import numpy as np
 import pandas as pd
-
+import session_info
 
 def read_vmr(vmr_file, sample_ids=None):
     """
@@ -140,6 +140,9 @@ def main():
     out_file = os.path.join(args.output_dir, args.prefix + '.methylation.bed')
     print('Writing BED file:', out_file, flush=True)
     write_bed(vmr_bed_df, out_file)
+
+    # Session information
+    session_info.show()
 
 
 if __name__ == '__main__':
