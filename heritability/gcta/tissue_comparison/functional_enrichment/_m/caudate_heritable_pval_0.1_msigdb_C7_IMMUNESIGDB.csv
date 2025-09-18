@@ -1,2 +1,0 @@
-"id","genome_fraction","observed_region_hits","fold_enrichment","p_value","p_adjust","mean_tss_dist","observed_gene_hits","gene_set_size","fold_enrichment_hyper","p_value_hyper","p_adjust_hyper"
-"GSE25123_CTRL_VS_IL4_AND_ROSIGLITAZONE_STIM_PPARG_KO_MACROPHAGE_UP",0.0200243844110872,5,11.8902650492171,5.01006249999936e-05,5.01006249999936e-05,66969,5,101,11.4851485148515,6.60007510462357e-05,6.60007510462357e-05
