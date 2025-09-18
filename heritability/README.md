@@ -1,35 +1,35 @@
-# GREML Heritability Testing
+# Elastic-net SNP Heritability Testing
 
 This project aims to quantify environmental and genetic
 contributions to DNA methylation in an African genetic ancestry (AA) cohort. 
 To this end, we developed a comprehensive pipeline to prepare publicly
-available whole genome bisulfite sequencing (WGBS), genotype, and ancestry data 
-and subsequently apply a genomic restricted maximum likelihood (GREML) mixed model 
-to estimate SNP heritability in the caudate nucleus, dorsolateral prefrontal cortext 
-(DLPFC), and the hippocampus. This pipeline leverages the Genome-wide Complex Trait 
-Ananlyis [`(GCTA)`](https://github.com/jianyangqt/gcta) software for heritability testing.  
+available whole genome bisulfite sequencing (WGBS), genotype, and ancestry 
+data and subsequently apply a GPU-based elastic net regression software 
+(https://github.com/heart-gen/GENBoostGPU) to estimate SNP heritability 
+in the caudate nucleus, dorsolateral prefrontal cortex (DLPFC), and the 
+hippocampus.
 
 ---
 
 ## Pipeline Overview
 
-- [01.extract_vmr.R](#Script-`01.extract_vmr.R`)
+- [01.get_cpg_stats](#Script-`01.get_cpg_stats.R`)
 - [02.pca.R](#Script-`02.pca.R`)
-- [03.cal_vmr.R](#Script-`03.cal_vmr.R`)
-- [04.extract_snps.sh](#Script-`04.extract_snps.sh`)
-- [05.greml.sh](#Script-`05.greml.sh`)
-- [06.summary.py](#Script-`06.summary.py`)
+- [02b.res_var.R](#Script-`02b.res_var.R`)
+- [03.extract_vmr.R](#Script-`03.extract_vmr.R`)
+- [04.cal_vmr.sh](#Script-`04.cal_vmr.sh`)
+- [05.extract_snps.sh](#Script-`05.extract_snps.sh`)
 
 ---
 
-### Script `01.extract_vmr.R`
+### Script `01.get_cpg_stats.R`
 
 **Overview:**
-- Load and filter the BSobj for selected sample
+- Load and filter the BSobj for selected samples
+- Exclude low coverage ENCFF356LFX exclusion list regions
 - Calculate methylation values for all CpG sites
 - Calculate SD and mean of DNA methylation
-- Extract variably methylated regions
-- Write covariate files 
+- Write covariate files
 
 **Inputs:**
 - `BSobj.rda`
@@ -42,9 +42,6 @@ Ananlyis [`(GCTA)`](https://github.com/jianyangqt/gcta) software for heritabilit
         - `stats.rda:` SD and mean
         - `cpg_meth.phen:` Methylation values (0-1)
         - `cpg_pos.txt:` Genomic position of CpG sites
-- `vmr/`
-    - `chr_*/`
-        - `vmr.bed`
 - `covs/`
     - `chr_*/`
         - `TOPMed_LIBD.AA.covar`
@@ -84,6 +81,7 @@ Ananlyis [`(GCTA)`](https://github.com/jianyangqt/gcta) software for heritabilit
 ### Script `02b.res_var.R`
 
 **Overview:**
+- Chunks data for memory optimization
 - Filters out CpG sites at C/T SNP sites
 - Regresses out top 5 principal components generated from `02.pca.R`
 - Calculates variance of residuals 
@@ -102,6 +100,9 @@ Ananlyis [`(GCTA)`](https://github.com/jianyangqt/gcta) software for heritabilit
     - `chr_*/`
 
 **Generated Output Files:**
+- `cpg/`
+    - `chr_*/`
+        - `res_cpg_meth.phen`
 - `pca/`
     - `chr_*/`
         - `res_var_all.tsv`
@@ -111,10 +112,31 @@ Ananlyis [`(GCTA)`](https://github.com/jianyangqt/gcta) software for heritabilit
 
 ---
 
-### Script `03.cal_vmr.R`
+### Script `03.extract_vmr.R`
 
 **Overview:**
-- Calculate methylation values for extracted VMR
+- Identify VMRs using residuals outputted from `02b.res_var.R`
+- Write to .bed file 
+
+**Inputs:**
+- `pca/`
+    - `chr_*/`
+        - `res_var_all.tsv`
+
+**Generated Output Files:**
+- `vmr/`
+    - `chr_*/`
+        - `vmr.bed`
+
+ **Submission:**
+ `sbatch ../_h/step_3.sh`
+
+---
+
+### Script `04.cal_vmr.R`
+
+**Overview:**
+- Calculate methylation values for extracted VMRs
 - Write to .phen file 
 
 **Inputs:**
@@ -122,8 +144,8 @@ Ananlyis [`(GCTA)`](https://github.com/jianyangqt/gcta) software for heritabilit
     - `chr_*/`
         - `stats.rda`
 - `TOPMed_LIBD.AA.psam`
-- `vmr_list.txt`: Tab-delimited file with 3 columns (chr, start, end)
-                  detailing all regions of interest
+- `vmr.bed`: Tab-delimited file with 3 columns (chr, start, end)
+             detailing all regions of interest
   
 Ex.
 |chr|start                        |end   |
@@ -141,11 +163,11 @@ Generated using `cat ./vmr/chr_*/vmr.bed | sort -k1,1n > vmr.bed`
         - `${START}_${END}_meth.phen`
 
  **Submission:**
- `sbatch ../_h/step_3.sh`
+ `sbatch ../_h/step_4.sh`
 
 ---
 
-### Script `04.extract_snps.sh`
+### Script `05.extract_snps.sh`
 
 **Overview:**
 - Use Plink to extract SNPs 500 kb around each VMR
@@ -166,66 +188,5 @@ Generated using `cat ./vmr/chr_*/vmr.bed | sort -k1,1n > vmr.bed`
         - `TOPMed_LIBD.AA.${START}_${END}`
  
  **Submission:**
- `sbatch ../_h/step_4.sh`
-
----
-
-### Script `05.greml.sh`
-
-**Overview:**
-- Calculate SNP LD scores and stratify based on individual SNP scores
-- Plot histogram of SNP LD scores for each region
-- Create genetic relation matricies (GRM) for each stratified group 
-- Perform GREML-LDMS analysis using multiple GRM
-
-**Inputs:**
-- `../_h/05.stratify_LD.R`
-- `plink_format/`
-    - `chr_*/`
-        - `TOPMed_LIBD.AA.${START}_${END}`
-        - `subset_TOPMed_LIBD.AA.${START}_${END}`
-- `covs/`
-    - `chr_*/`
-        - `TOPMed_LIBD.AA.covar`
-        - `TOPMed_LIBD.AA.qcovar`
-- `vmr/`
-    - `chr_*/`
-        - `${START}_${END}_meth.phen`
-- `vmr.bed`
-
-**Generated Output Files:**
-- `h2/`
-    - `chr_*/`
-        - `TOPMed_LIBD.AA.${START}_${END}.score.ld`
-        - `TOPMed_LIBD.AA.${START}_${END}_group{1-4}.grm.bin`
-        - `TOPMed_LIBD.AA.${START}_${END}_group{1-4}.grm.id`
-        - `TOPMed_LIBD.AA.${START}_${END}_group{1-4}.grm.N.bin`
-        - `TOPMed_LIBD.AA.${START}_${END}_group{1-4}.log`
-        - `TOPMed_LIBD.AA.${START}_${END}.log`
-        - `TOPMed_LIBD.AA.${START}_${END}.hsq`
-        - `${START}_${END}_multi_GRMs.txt`
-        - `hist/`
-            - `${START}_${END}_ld_hist.pdf`
-          
- **Submission:**
  `sbatch ../_h/step_5.sh`
-
----
-
-### Script `06.summary.py`
-
-**Overview:**
-- Compile results for all regions and write to .tsv file
-
-**Inputs:**
-- `h2/`
-    - `chr_*/`
-        - `TOPMed_LIBD.AA.${START}_${END}.hsq`
-
-**Generated Output Files:**
-- `summary/`
-    - `greml_summary.tsv`
-
- **Submission:**
- `sbatch ../_h/step_6.sh`
  
