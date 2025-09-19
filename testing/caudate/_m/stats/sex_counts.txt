@@ -1,0 +1,3 @@
+sex	count
+M	99
+F	54
