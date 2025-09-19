@@ -1,0 +1,3 @@
+sex	count
+M	68
+F	48
