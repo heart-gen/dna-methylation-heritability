@@ -1,0 +1,3 @@
+sex	count
+M	65
+F	46
