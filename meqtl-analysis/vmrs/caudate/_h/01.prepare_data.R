@@ -40,7 +40,7 @@ as.data.frame(pheno) |>
 #### Combine residualized methylation matrix
 
                                         # Read in .phen files
-meth_file_path <- here("heritability/caudate/_m_to_del/vmr")
+meth_file_path <- here("heritability/caudate/_m/vmr")
 meth_files <- list.files(path = meth_file_path, pattern = "_meth\\.phen$", 
                          recursive = TRUE, full.names = TRUE)
 
@@ -71,7 +71,7 @@ as.data.frame(meth_matrix) |> tibble::rownames_to_column("feature_id") |>
 #data.table::fwrite(meth_df, "norm_vmr.tsv", sep='\t', row.names=TRUE)
 
 #### Export annotation
-bed_file_path <- here("heritability/caudate/_m_to_del/vmr.bed")
+bed_file_path <- here("heritability/caudate/_m/vmr.bed")
 vmr_bed <- fread(bed_file_path, header = FALSE)
 colnames(vmr_bed) <- c("seqnames", "start", "end")
 
