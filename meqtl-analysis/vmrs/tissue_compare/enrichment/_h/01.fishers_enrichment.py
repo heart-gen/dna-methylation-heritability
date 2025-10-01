@@ -14,14 +14,15 @@ import session_info
 @lru_cache()
 def get_enet(tissue):
     # get vmrs
-    enet_fn = here(f"elastic_net_model/{tissue.lower()}/_m/{tissue.lower()}_betas_elastic-net.tsv.gz")
+    enet_fn = here(f"heritability/elastic_net_model/{tissue.lower()}/_m/{tissue.lower()}_summary_elastic-net.tsv")
     df = pd.read_csv(enet_fn, sep='\t')
+    df['chrom'] = 'chr' + df['chrom'].astype(str)
 
     # map vmr ids
     bed_fn = here(f"meqtl-analysis/vmrs/{tissue.lower()}/_m/feature.bed")
     bed = pd.read_csv(bed_fn, sep="\t", usecols=[0, 1, 2, 3], header=0)
-    bed.columns = ['phenotype_id', 'chr', 'start', 'stop']
-    merged_enet = pd.merge(df, bed, on=['chr', 'start', 'stop'], how='left')
+    bed.columns = ['phenotype_id', 'chrom', 'start', 'end']
+    merged_enet = pd.merge(df, bed, on=['chrom', 'start', 'end'], how='left')
 
     # assign h2 categories
     merged_enet['h2_category'] = merged_enet.apply(
@@ -36,13 +37,13 @@ def get_enet(tissue):
 
 @lru_cache()
 def get_meqtl(tissue):
-    fn = here(f"meqtl-analysis/vmrs/{tissue.lower()}/_m/TOPMed_LIBD.permutation.txt.gz")
+    fn = here(f"meqtl-analysis/vmrs/{tissue.lower()}/cis_analysis/_m/TOPMed_LIBD.permutation.txt.gz")
     return pd.read_csv(fn, sep='\t')
 
 @lru_cache()
 def merge_dataframe(tissue):
     return get_enet(tissue).merge(get_meqtl(tissue), 
-                                  left_on='phenotype_id', how='inner')
+                                  on='phenotype_id', how='inner')
 
 
 def cal_fishers_direction(direction, h2_cat, tissue):
