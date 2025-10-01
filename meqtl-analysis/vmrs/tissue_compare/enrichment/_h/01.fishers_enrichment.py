@@ -12,13 +12,13 @@ from statsmodels.stats.multitest import fdrcorrection
 import session_info
 
 @lru_cache()
-def get_enet():
+def get_enet(tissue):
     # get vmrs
-    enet_fn = here("elastic_net_model/caudate/_m/caudate_betas_elastic-net.tsv.gz")
+    enet_fn = here(f"elastic_net_model/{tissue.lower()}/_m/{tissue.lower()}_betas_elastic-net.tsv.gz")
     df = pd.read_csv(enet_fn, sep='\t')
 
     # map vmr ids
-    bed_fn = here("meqtl-analysis/vmrs/caudate/_m/feature.bed")
+    bed_fn = here(f"meqtl-analysis/vmrs/{tissue.lower()}/_m/feature.bed")
     bed = pd.read_csv(bed_fn, sep="\t", usecols=[0, 1, 2, 3], header=0)
     bed.columns = ['phenotype_id', 'chr', 'start', 'stop']
     merged_enet = pd.merge(df, bed, on=['chr', 'start', 'stop'], how='left')
@@ -35,17 +35,18 @@ def get_enet():
     return merged_enet
 
 @lru_cache()
-def get_meqtl():
-    fn = "../../_m/TOPMed_LIBD.permutation.txt.gz"
+def get_meqtl(tissue):
+    fn = here(f"meqtl-analysis/vmrs/{tissue.lower()}/_m/TOPMed_LIBD.permutation.txt.gz")
     return pd.read_csv(fn, sep='\t')
 
 @lru_cache()
-def merge_dataframe():
-    return get_enet().merge(get_meqtl(), left_on='phenotype_id', how='inner')
+def merge_dataframe(tissue):
+    return get_enet(tissue).merge(get_meqtl(tissue), 
+                                  left_on='phenotype_id', how='inner')
 
 
-def cal_fishers_direction(direction, h2_cat):
-    df = merge_dataframe()
+def cal_fishers_direction(direction, h2_cat, tissue):
+    df = merge_dataframe(tissue)
     if direction == 'Up':
         df = df[(df['slope'] > 0)].copy()
     elif direction == 'Down':
@@ -62,19 +63,22 @@ def cal_fishers_direction(direction, h2_cat):
 
 
 def calculate_enrichment():
-    h2_lt = []; dir_lt = []; fdr_lt = []; pval_lt = []; oddratio_lt = []
-    for h2_cat in ["Heritable", "Non-heritable", "Low prediction"]:
-        pvals = []
-        for direction in ['Up', 'Down', 'All']:
-                odd_ratio, pval = cal_fishers_direction(direction, h2_cat)
-                pvals.append(pval); h2_lt.append(h2_cat)
-                oddratio_lt.append(odd_ratio); dir_lt.append(direction)
-        _, fdr = fdrcorrection(pvals) # FDR correction per comparison and version
-        pval_lt = np.concatenate((pval_lt, pvals))
-        fdr_lt = np.concatenate((fdr_lt, fdr))
+    region_lt = []; h2_lt = []; dir_lt = []; fdr_lt = []; pval_lt = []; oddratio_lt = []
+    for tissue in ["Caudate", "DLPFC", "Hippocampus"]:
+        for h2_cat in ["Heritable", "Non-heritable", "Low prediction"]:
+            pvals = []
+            for direction in ['Up', 'Down', 'All']:
+                    odd_ratio, pval = cal_fishers_direction(direction, h2_cat, tissue)
+                    pvals.append(pval); h2_lt.append(h2_cat)
+                    oddratio_lt.append(odd_ratio); dir_lt.append(direction)
+                    region_lt.append(tissue)
+            _, fdr = fdrcorrection(pvals) # FDR correction per comparison and version
+            pval_lt = np.concatenate((pval_lt, pvals))
+            fdr_lt = np.concatenate((fdr_lt, fdr))
     # Generate dataframe
-    return pd.DataFrame({'h2_Category': h2_lt, 'OR': oddratio_lt,
-                         'PValue': pval_lt, "FDR": fdr_lt, 'Direction': dir_lt})
+    return pd.DataFrame({'Tissue': region_lt, 'h2_Category': h2_lt, 
+                         'OR': oddratio_lt, 'PValue': pval_lt, 
+                         "FDR": fdr_lt, 'Direction': dir_lt})
 
 
 def main():
