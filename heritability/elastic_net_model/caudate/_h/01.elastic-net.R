@@ -14,20 +14,14 @@ get_vmr_list <- function(region) {
     return(read.table(vmr_file, header=FALSE, stringsAsFactors=FALSE))
 }
 
-get_sample_list <- function(region) {
-    base_dir <- here("heritability", tolower(region), "_m")
-    sample_file <- here(base_dir, "samples.txt")
-    if (!file.exists(sample_file)) {
-        stop("Sample list file not found: ", sample_file)
-    }
-    return(sample_file)
-}
-
 construct_data_path <- function(chrom_num, spos, epos, region, data_type) {
     chrom_dir <- paste0("chr_", chrom_num)
     base_dir  <- here("heritability", tolower(region), "_m")
 
-    if (tolower(data_type) == "vmr") {
+    if (tolower(data_type) == "plink") {
+        inpath  <- "plink_format"
+        data_fn <- paste0("subset_TOPMed_LIBD.AA.", spos, "_", epos, ".bed")
+    } else if (tolower(data_type) == "vmr") {
         inpath  <- "vmr"
         data_fn <- paste0(spos, "_", epos, "_meth.phen")
     } else {
@@ -42,36 +36,14 @@ construct_data_path <- function(chrom_num, spos, epos, region, data_type) {
     return(data_path)
 }
 
-extract_genotypes <- function(plink_base, samples, chrom, start, end) {
-    temp_dir <- tempdir()
-    out_prefix <- tempfile(tmpdir = temp_dir)
-                                            # extract SNPs using plink
-
-    system2("plink", args = c(
-        "--bfile", plink_base,
-        "--chr", chrom,
-        "--from-bp", start,
-        "--to-bp", end,
-        "--make-bed",
-        "--keep", samples,
-        "--no-parents",
-        "--no-sex",
-        "--no-pheno",
-        "--out", out_prefix
-    ))
-
-    bedfile <- paste0(out_prefix, ".bed")
-    if (!file.exists(bedfile)) stop("PLINK extraction failed: .bed file not found.")
-
-    cat("Processing PLINK file:", basename(bedfile), "\n")
+load_genotypes <- function(geno_bed_path) {
+    cat("Processing PLINK file:", basename(geno_bed_path), "\n")
                                         # Use tempfile for backingfile to
                                         # avoid conflicts in array jobs
     backing_rds <- tempfile(fileext = ".rds")
-    rds_path    <- snp_readBed(bedfile,
+    rds_path    <- snp_readBed(geno_bed_path,
                                backingfile=sub("\\.rds$", "", backing_rds))
     return(snp_attach(rds_path))
-                                        # Remove intermediate plink files
-    file.remove(paste0(out_prefix, c(".bed", ".bim", ".fam", ".log")))
 }
 
 load_phenotypes <- function(vmr_data_path) {
@@ -119,12 +91,10 @@ chrom_num  <- vmr_entry[[1]]
 start_pos  <- vmr_entry[[2]]
 end_pos    <- vmr_entry[[3]]
 
-                                        # Load sample list
-samples <- get_sample_list(region)
-
                                         # Extract genotypes
-plink_base <- here("inputs", "genotypes", "TOPMed_LIBD.AA")
-bigSNP <- extract_genotypes(plink_base, samples, chrom_num, start_pos, end_pos)
+geno_path <- construct_data_path(chrom_num, start_pos, end_pos, region,
+                                 "PLINK")
+bigSNP    <- load_genotypes(geno_path)
 G         <- bigSNP$genotypes
 infos     <- bigSNP$map
 

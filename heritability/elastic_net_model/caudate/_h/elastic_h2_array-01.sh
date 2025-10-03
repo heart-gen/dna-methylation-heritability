@@ -7,8 +7,9 @@
 #SBATCH --mail-user=alexis.bennett@northwestern.edu
 #SBATCH --output=logs/elastic_h2_%A_%a.log
 #SBATCH --ntasks=1
+#SBATCH --array=1-11575%250
 #SBATCH --cpus-per-task=1
-#SBATCH --time=00:30:00
+#SBATCH --time=01:00:00
 
 log_message() {
     echo "$(date '+%Y-%m-%d %H:%M:%S') - $1"
@@ -16,8 +17,7 @@ log_message() {
 
 log_message "**** Job starts ****"
 
-OFFSET=${OFFSET:-0} # fallback default to 0
-task_id=$((OFFSET + SLURM_ARRAY_TASK_ID - 1))
+task_id=${SLURM_ARRAY_TASK_ID}
 export task_id
 
 echo "**** Quest info ****"
@@ -34,12 +34,12 @@ module purge
 module load plink/2.0-alpha-3.3
 module list
 
-ENV_PATH="/projects/p32505/opt/env"
+ENV_PATH="/projects/p32505/opt/envs"
 export region="caudate"
 export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
 export MKL_NUM_THREADS=$SLURM_CPUS_PER_TASK
 
 log_message "**** Run elastic net ****"
-conda run -p "${ENV_PATH}/r_env" Rscript ../_h/01.elastic-net.R
+conda run -p "${ENV_PATH}/epigenomics" Rscript ../_h/01.elastic-net.R
 
 log_message "**** Job ends ****"
