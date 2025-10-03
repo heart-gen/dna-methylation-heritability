@@ -1,3 +1,0 @@
-Statistic	Age
-Mean	49.17648648648648
-Standard Deviation	13.913779085930912
