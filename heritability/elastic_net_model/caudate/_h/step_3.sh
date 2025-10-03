@@ -3,7 +3,7 @@
 #SBATCH --partition=short
 #SBATCH --job-name=clean_dir
 #SBATCH --mail-type=FAIL
-#SBATCH --mail-user=kynon.benjamin@northwestern.edu
+#SBATCH --mail-user=alexis.bennett@northwestern.edu
 #SBATCH --output=logs/clean_data.%j.log
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1

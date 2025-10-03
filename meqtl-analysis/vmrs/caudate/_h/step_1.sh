@@ -3,11 +3,11 @@
 #SBATCH --partition=genomics
 #SBATCH --job-name=prepare_data
 #SBATCH --mail-type=FAIL ## If you want to have it email you for any reason
-#SBATCH --mail-user=sierramannion2028@u.northwestern.edu ## replace with your email
+#SBATCH --mail-user=alexis.bennett@northwestern.edu ## replace with your email
 #SBATCH --nodes=1
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=10gb
-#SBATCH --output=prepare.%j.log
+#SBATCH --output=logs/prepare.%j.log
 #SBATCH --time=00:05:00
 
 # Function to echo with timestamp
