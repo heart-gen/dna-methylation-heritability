@@ -3,6 +3,7 @@ import cudf
 import cupy as cp
 import numpy as np
 import pandas as pd
+import session_info
 from pyhere import here
 from pathlib import Path
 from genboostgpu.data_io import load_genotypes, load_phenotypes, save_results
@@ -34,33 +35,22 @@ def get_pheno_loc(num_samples):
     return mapped_df
 
 def run_single_loc(num_samples, pheno_id, chrom, start, end, 
+                   geno_arr, bim, fam,
                    outdir="results", window=500_000, by_hand=False):
 
     print(f"Running phenotype number {pheno_id}: chr{chrom}:{start}-{end}")
 
-    # load genotype + bim/fam
-    geno_path = construct_data_path(num_samples, "plink")
-    geno_df, bim, fam = load_genotypes(str(geno_path))
-
     # load phenotype
-    pheno_path = construct_data_path(num_samples, "vmr")
-    y = load_phenotypes(str(pheno_path), header=False).iloc[:, 2].to_cupy()
+    pheno_path = construct_data_path(num_samples, "phen")
+    y = load_phenotypes(str(pheno_path), header=True)[pheno_id].to_cupy()
     y = (y - y.mean()) / (y.std() + 1e-6)
 
     # filter cis window
-    geno_window, snps, snp_pos = filter_cis_window(geno_df, bim, chrom, start,
-                                                   window=window)
-    if geno_window is None or len(snps) == 0:
+    X, snps, snp_pos = filter_cis_window(geno_arr, bim, chrom, start,
+                                        end, window=window)
+    if X is None or len(snps) == 0:
         print("No SNPs in window")
         return None
-
-    # Convert so NaNs are perserved
-    try:
-        geno_arr = geno_window.to_numpy(dtype="float32")
-    except ValueError:
-        geno_arr = geno_window.to_arrow().to_pandas().to_numpy(dtype="float32")
-
-    X = cp.asarray(geno_arr)
 
     # preprocess
     if by_hand:
@@ -114,7 +104,13 @@ def main():
 
     if not num_samples:
         raise ValueError("NUM_SAMPLES environment variable must be set")
-    
+
+    # load genotype + bim/fam
+    geno_path = construct_data_path(num_samples, "plink")
+    geno_arr, bim, fam = load_genotypes(str(geno_path))
+
+    print("Loaded genotype matrix")
+
     pheno_loc_df = get_pheno_loc(num_samples)
     all_summaries = []
     for _, row in pheno_loc_df.iterrows():
@@ -123,7 +119,7 @@ def main():
         end      = row["end"]
         pheno_id = row["phenotype_id"]
         summary  = run_single_loc(num_samples, pheno_id, chrom, 
-                                  start, end, outdir="results", window=500_000)
+                                  start, end, geno_arr, bim, fam, outdir="results", window=500_000)
         if summary:
             all_summaries.append(summary)
 
@@ -131,6 +127,8 @@ def main():
         df = pd.DataFrame(all_summaries)
         df.to_csv("results/summary_all_vmrs.tsv", sep="\t", index=False)
 
+    # Session information
+    session_info.show()
 
 if __name__ == "__main__":
     main()
