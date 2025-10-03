@@ -1,3 +1,0 @@
-primarydx	Percentage
-Control	57.51633986928104
-Schizo	42.48366013071895
