@@ -9,8 +9,8 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=4
-#SBATCH --mem=40G
-#SBATCH --time=24:00:00
+#SBATCH --mem=20G
+#SBATCH --time=02:00:00
 
 log_message() {
     echo "$(date '+%Y-%m-%d %H:%M:%S') - $1"
@@ -38,7 +38,7 @@ source /projects/p32505/opt/miniforge3/etc/profile.d/conda.sh
 log_message "**** Run elastic net ****"
 conda activate /projects/p32505/opt/envs/ml
 export LD_LIBRARY_PATH=/projects/p32505/opt/envs/ml/lib:$LD_LIBRARY_PATH
-python ../_h/simu_test_100n.py
+python ../_h/boosting_elastic_net.py
 conda deactivate
 #ENV_PATH="/projects/p32505/opt/env"
 #conda run -p "${ENV_PATH}/AI_env" python ../_h/boosting_elastic_net.py
