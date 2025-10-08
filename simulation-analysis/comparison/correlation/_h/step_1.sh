@@ -31,12 +31,12 @@ module purge
 module list
 
 # Set path variables
-ENV_PATH="/projects/p32505/opt/env"
+ENV_PATH="/projects/p32505/opt/envs"
 
 log_message "Performing Spearman Correlation on heritability estimates of simulated data using elastic net"
 
 ## Activate conda environment
-conda run -p $ENV_PATH/r_env Rscript ../_h/01.corr_enet_h2.R
+conda run -p $ENV_PATH/epigenomics Rscript ../_h/01.corr_enet_h2.R
 
 if [ $? -ne 0 ]; then
     log_message "Error: Conda or script execution failed"
