@@ -6,7 +6,7 @@
 #SBATCH --ntasks-per-node=1     # Number of cores (CPU)
 #SBATCH --mem=10G               # Memory limit
 #SBATCH --mail-type=FAIL
-#SBATCH --array=1-9513%250
+#SBATCH --array=1-9977%250
 #SBATCH --mail-user=alexis.bennett@northwestern.edu
 #SBATCH --job-name=cal_vmr  # Job name
 #SBATCH --output=/dev/null      # Standard output log
