@@ -1,15 +1,16 @@
 #!/bin/bash
 #SBATCH --account=p32505
 #SBATCH --partition=gengpu
-#SBATCH --gres=gpu:a100:1
-#SBATCH --job-name=boosting_elastic_h2
+#SBATCH --gres=gpu:a100:2
+#SBATCH --job-name=simu_test_100n
 #SBATCH --mail-type=FAIL
 #SBATCH --mail-user=alexis.bennett@northwestern.edu
-#SBATCH --output=logs/boosting_elastic_h2_%A_%a.log
+#SBATCH --output=logs/simu_test_100n_%A_%a.log
 #SBATCH --nodes=1
-#SBATCH --cpus-per-task=1
+#SBATCH --ntasks-per-node=1
+#SBATCH --cpus-per-task=4
 #SBATCH --mem=40G
-#SBATCH --time=01:00:00
+#SBATCH --time=24:00:00
 
 log_message() {
     echo "$(date '+%Y-%m-%d %H:%M:%S') - $1"
@@ -27,7 +28,7 @@ echo "OFFSET: ${OFFSET}"
 echo "SLURM_ARRAY_TASK_ID: ${SLURM_ARRAY_TASK_ID}"
 
 module purge
-module load cuda/12.0.1-gcc-12.3.0
+module load cuda/12.4.1-gcc-12.3.0
 module list
 
 export NUM_SAMPLES=100
@@ -37,7 +38,7 @@ source /projects/p32505/opt/miniforge3/etc/profile.d/conda.sh
 log_message "**** Run elastic net ****"
 conda activate /projects/p32505/opt/envs/ml
 export LD_LIBRARY_PATH=/projects/p32505/opt/envs/ml/lib:$LD_LIBRARY_PATH
-python ../_h/boosting_elastic_net.py
+python ../_h/simu_test_100n.py
 conda deactivate
 #ENV_PATH="/projects/p32505/opt/env"
 #conda run -p "${ENV_PATH}/AI_env" python ../_h/boosting_elastic_net.py
