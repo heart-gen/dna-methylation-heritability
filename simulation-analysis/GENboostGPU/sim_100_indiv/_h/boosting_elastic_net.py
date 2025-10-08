@@ -2,6 +2,7 @@ import os
 import pandas as pd
 from pyhere import here
 from pathlib import Path
+import session_info
 
 from genboostgpu.data_io import load_genotypes
 from genboostgpu.orchestration import run_windows_with_dask
@@ -30,7 +31,7 @@ def get_pheno_loc(num_samples):
 def build_windows(num_samples):
     # load genotype + bim/fam
     geno_path = construct_data_path(num_samples, "plink")
-    geno_arr, bim, fam = load_genotypes(str(geno_path))
+    #geno_arr, bim, fam = load_genotypes(str(geno_path))
 
     # Load phenotypes
     pheno_path = construct_data_path(num_samples, "phen")
@@ -44,9 +45,7 @@ def build_windows(num_samples):
             "start": row["start"],
             "end": row["end"],
             "pheno_id": row["phenotype_id"],
-            "geno_arr": geno_arr,
-            "bim": bim,
-            "fam": fam,
+            "geno_path": geno_path,
             "pheno_path": pheno_path,
         })
     return windows
