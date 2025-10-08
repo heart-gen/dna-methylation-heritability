@@ -9,9 +9,9 @@ suppressPackageStartupMessages({
 })
 
 ## Function
-save_plot <- function(p, fn, w, h){
+save_plot <- function(p, fn, w, h, dpi){
   for(ext in c('.png', '.pdf')){
-    ggsave(file=paste0(fn,ext), plot=p, width=w, height=h)
+    ggsave(file=paste0(fn,ext), plot=p, width=w, height=h, dpi=dpi)
   }
 }
 
@@ -131,7 +131,7 @@ p <- ggplot(all_summary_with_failed, aes(x = N, y = count, fill = h2_category)) 
     y = "Count",
     fill = "Category"
   ) +
-  theme_minimal(base_size = 15) +
+  theme_minimal(base_size = 20) +
   #font("xy.title", face = "bold", size = 14) + 
   theme(
     panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
@@ -144,7 +144,7 @@ p <- ggplot(all_summary_with_failed, aes(x = N, y = count, fill = h2_category)) 
 
 # Save plot
 plot_file <- file.path(out_path, "simulated_data_stacked")
-save_plot(p, plot_file, w = 14, h = 8, dpi = 300)
+save_plot(p, plot_file, w = 10, h = 6, dpi = 300)
 
 #### Reproducibility information ####
 print("Reproducibility information:")
