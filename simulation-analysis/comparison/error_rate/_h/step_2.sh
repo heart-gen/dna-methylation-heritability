@@ -8,7 +8,7 @@
 #SBATCH --mail-type=FAIL
 #SBATCH --mail-user=alexis.bennett@northwestern.edu
 #SBATCH --job-name=plot_error_rate # Job name
-#SBATCH --output=plot_error_rate.%j.log # Standard output log
+#SBATCH --output=logs/plot_error_rate.%j.log # Standard output log
 
 # Log function
 log_message() {
@@ -31,12 +31,12 @@ module purge
 module list
 
 # Set path variables
-ENV_PATH="/projects/p32505/opt/env"
+ENV_PATH="/projects/p32505/opt/envs"
 
 log_message "Plotting error rate for Elastic net and GREML-LDMS"
 
 ## Activate conda environment
-conda run -p $ENV_PATH/r_env Rscript ../_h/02.plot_err.R
+conda run -p $ENV_PATH/epigenomics Rscript ../_h/02.plot_err.R
 
 if [ $? -ne 0 ]; then
     log_message "Error: Conda or script execution failed"
