@@ -1,0 +1,29 @@
+PLINK v2.00a3.3LM 64-bit Intel (3 Jun 2022)
+Options in effect:
+  --keep ../../../../heritability/dlpfc/_m/samples.txt
+  --make-pgen
+  --no-parents
+  --no-psam-pheno
+  --no-sex
+  --out ./protected_data/TOPMed_LIBD
+  --pfile ../../../../inputs/genotypes/TOPMed_LIBD.AA
+
+Hostname: qnode0129
+Working directory: /gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/meqtl-analysis/vmrs/dlpfc/_m
+Start time: Fri Sep 19 13:56:56 2025
+
+Random number seed: 1758308216
+193095 MiB RAM detected; reserving 96547 MiB for main workspace.
+Using up to 52 threads (change this with --threads).
+526 samples (0 females, 0 males, 526 ambiguous; 526 founders) loaded from
+../../../../inputs/genotypes/TOPMed_LIBD.AA.psam.
+15865072 variants loaded from ../../../../inputs/genotypes/TOPMed_LIBD.AA.pvar.
+Note: No phenotype data present.
+--keep: 111 samples remaining.
+111 samples (0 females, 0 males, 111 ambiguous; 111 founders) remaining after
+main filters.
+Writing ./protected_data/TOPMed_LIBD.psam ... done.
+Writing ./protected_data/TOPMed_LIBD.pvar ... done.
+Writing ./protected_data/TOPMed_LIBD.pgen ... done.
+
+End time: Fri Sep 19 13:57:08 2025
