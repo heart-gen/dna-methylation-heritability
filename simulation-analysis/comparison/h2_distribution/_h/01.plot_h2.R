@@ -64,21 +64,29 @@ plot_density <- function(enet_combined, num_indiv) {
     paste0(counts$h2_category, "\n(n = ", counts$n, ")"),
     counts$h2_category
   )
+  
+  category_colors <- c(
+    "All sites" = "#7B8C99",
+    "Heritable" = "#497C8A",
+    "Non-heritable" = "#8CA77B",
+    "Low prediction" = "#E3A27F"
+  )
 
   p_hist <- gghistogram(enet_combined, x = "h2_unscaled", 
                         add_density = TRUE, rug = TRUE, 
                         add = "median",
                         color = "h2_category", fill = "h2_category",
-                        ggtheme = theme_pubr(base_size = 15, border = TRUE),
+                        ggtheme = theme_pubr(base_size = 15),
                         xlab = "Estimated h²", ylab = "Count") +
-    facet_wrap(~h2_category, labeller = as_labeller(labels), scales = "free_x") +
     ggtitle(paste("N =", num_indiv)) +
-    labs(color = NULL, fill = NULL) +
-    font("xy.title", face = "bold", size = 14) +
-    geom_vline(xintercept = 0.15, linetype = "dashed", color = "black") +
+    labs(color = "h2 Category", fill = "h2 Category") +
+    geom_vline(xintercept = 0.1, linetype = "dashed", color = "black") +
+    scale_fill_manual(values = category_colors) +
+    scale_color_manual(values = category_colors) +
     theme(
       axis.text.x = element_text(angle = 45, hjust = 1),
-      plot.title = element_text(hjust = 0.5)
+      plot.title = element_text(hjust = 0.5),
+      legend.position = "right"
     )
   
   return(p_hist)
@@ -103,7 +111,7 @@ for (num_indiv in num_indivs) {
   
   # Summarize
   summarise_h2(enet_combined, as.character(num_indiv), out_path)
-
+  
   # Plotting
   p_hist <- plot_density(enet_combined, as.character(num_indiv))
   
@@ -111,14 +119,8 @@ for (num_indiv in num_indivs) {
   hist_plots[[as.character(num_indiv)]] <- p_hist
 }
 
-# Save plots
-if (length(hist_plots) < 8) {
-  blank_plot <- ggplot() + theme_void()
-  hist_plots[["placeholder"]] <- blank_plot
-}
-
 combined_hist <- ggarrange(plotlist = hist_plots, ncol = 4, nrow = 2)
-fn_hist <- file.path(out_path, "enet_h2_distribution")
+fn_hist <- file.path(out_path, "enet_h2_distribution_overlap")
 save_plot(combined_hist, fn_hist, 20, 10)
 
 #### Reproducibility information ####

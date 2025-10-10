@@ -14,7 +14,8 @@ suppressPackageStartupMessages({
 filter_heritability <- function(tissue,
                                 heritability_filter = "all",
                                 r2_filter = NULL,
-                                apply_h2_filter = FALSE) {
+                                apply_h2_filter = FALSE,
+                                get_low_pred = FALSE) {
                                         # Read in summary table
     vmr_file <- here("heritability/elastic_net_model",
                       tissue, "_m", paste0(tissue, "_summary_elastic-net.tsv"))
@@ -31,8 +32,12 @@ filter_heritability <- function(tissue,
     }
 
                                         # Filter by r2
-    if (r2_filter != "NULL") {
+    if (!is.null(r2_filter) && r2_filter != "NULL") {
+      if (get_low_pred) {
+        vmr <- dplyr::filter(vmr, r_squared_cv <= r2_filter)
+      } else {
         vmr <- dplyr::filter(vmr, r_squared_cv >= r2_filter)
+      }
     }
   
     return(vmr)
@@ -41,7 +46,7 @@ filter_heritability <- function(tissue,
 ## --- GO enrichment --- ##
 load_vmr_background <- function(tissue) {
                                         # Load the regions tested as background
-    vmr_file <- here("heritability/gcta", tissue, "_m/vmr_list.txt")
+    vmr_file <- here("heritability", tissue, "_m/vmr.bed")
     vmr_df   <- read.table(vmr_file)
     colnames(vmr_df) <- c("seqnames", "start", "end")
     vmr_gr <- plyranges::as_granges(vmr_df)
@@ -84,8 +89,8 @@ get_enrichment <- function(vmr_filtered, tissue, filter_label) {
 
 # Main
 tissues              <- c("caudate", "dlpfc", "hippocampus")
-heritability_filters <- c("all", "heritable", "non_heritable")
-r2_filters           <- c("NULL", 0.5, 0.75)
+heritability_filters <- c("all", "heritable", "non_heritable", "low_prediction")
+r2_filters           <- c("NULL", 0.75)
 apply_h2_options     <- c(TRUE, FALSE)
 
 # Create all possible combinations
@@ -95,14 +100,16 @@ filter_grid <- expand.grid(
     h2               = apply_h2_options,
     stringsAsFactors = FALSE
 ) %>%
-    # Filter out invalid combinations
+    # Keep only valid combinations 
     dplyr::filter(
-        !(hfilter == "all" & (r2 != "NULL" | h2 != FALSE)),
-        !(hfilter %in% c("heritable", "non_heritable") & r2 == "NULL" & h2 == FALSE)
+        (hfilter == "all" & (r2 != "NULL" | h2 == FALSE)) |
+        (hfilter %in% c("heritable", "non_heritable") & r2 != "NULL" & h2 == TRUE) |
+        (hfilter == "low_prediction" & (r2 != "NULL" | h2 == FALSE))
     ) %>%
     # Get labels for each combination
     rowwise() %>%
     mutate(
+        get_low_pred = hfilter == "low_prediction",
         label = {
             parts <- c(hfilter)
         if (h2) {
@@ -117,12 +124,12 @@ filter_grid <- expand.grid(
     ungroup()
 
 # Run analysis
-purrr::pwalk(filter_grid, function(hfilter, r2, h2, label) {
+purrr::pwalk(filter_grid, function(hfilter, r2, h2, label, get_low_pred) {
   for (tissue in tissues) {
     message("Running enrichment: ", tissue, " - ", label)
 
     # Apply the heritability and p-value filter
-    vmr_filtered <- filter_heritability(tissue, hfilter, r2, h2)
+    vmr_filtered <- filter_heritability(tissue, hfilter, r2, h2, get_low_pred)
     # Get enrichment for remaining data after filtering
     if (nrow(vmr_filtered) > 0) {
       get_enrichment(vmr_filtered, tissue, label)
