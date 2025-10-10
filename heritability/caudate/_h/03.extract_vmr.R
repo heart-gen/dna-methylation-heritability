@@ -36,7 +36,7 @@ if (!dir.exists(output_path)) {
                                         # load sd of pc residuals
 var_file <- here("heritability", "caudate", "_m", "pca", 
                  paste0("chr_", chr), "res_var_all.tsv")
-res_var <- fread(var_file, header = FALSE)
+res_var <- fread(var_file, select = 1:3, header = TRUE)
 colnames(res_var) <- c("chr", "start", "sd")
 
                                         # extract VMRs

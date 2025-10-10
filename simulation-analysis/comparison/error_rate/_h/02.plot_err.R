@@ -50,13 +50,16 @@ plot_error <- function(error_rate) {
                  "Type 2 Error" = "#D4BFAA")
     ) +
     labs(x = "Sample Size (N)",
-         y = "Value",
+         y = "Error Measurement",
          color = "Metric",
          shape = "Method",
          linetype = "Method") +
-    theme_minimal(base_size = 15) +
+    theme_minimal(base_size = 20) +
     theme(legend.position = "right", 
-          panel.grid.minor = element_blank())
+          panel.grid.major = element_blank(), 
+          panel.grid.minor = element_blank(),
+          axis.line = element_line(colour = "black", linewidth = 1, linetype = "solid"),
+          axis.text.x = element_text(angle = 45, hjust = 1))
   
   return(p)
 }
@@ -78,7 +81,7 @@ p <- plot_error(error_rate)
 
 # Save plot
 plot_file <- file.path(out_path, "simulated_error_rate")
-save_plot(p, plot_file, w = 10, h = 10, dpi = 300)
+save_plot(p, plot_file, w = 10, h = 6, dpi = 300)
 
 #### Reproducibility information ####
 print("Reproducibility information:")
