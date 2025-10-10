@@ -28,7 +28,7 @@ gen_data <- function(){
 memDF <- memoise::memoise(gen_data)
 
 plot_tile <- function(label, w, h){
-  df <- memDF() %>% filter(is.finite(`log2(OR)`))
+  df <- memDF() %>% filter(Direction == "All", is.finite(`log2(OR)`))
   
   y0 <- min(df$`log2(OR)`, na.rm = TRUE) - 0.1
   y1 <- max(df$`log2(OR)`, na.rm = TRUE) + 0.1
@@ -54,9 +54,10 @@ plot_tile <- function(label, w, h){
     )
   
   save_plot(tile_plot, paste0("tileplot_enrichment_",tolower(label)), w, h)
+  print(tile_plot)
 }
 ## Run script
-plot_tile("Heritability Category", 20, 22)
+plot_tile("Heritability Category", 10, 10)
 
 ## Reproducibility information
 Sys.time()

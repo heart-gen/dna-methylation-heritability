@@ -31,12 +31,12 @@ module purge
 module list
 
 # Set path variables
-ENV_PATH="/projects/p32505/opt/env"
+ENV_PATH="/projects/p32505/opt/envs"
 
 log_message "Plotting h2 distribution for all VMRs"
 
 ## Activate conda environment
-conda run -p $ENV_PATH/r_env Rscript ../_h/02.plot_all_sites.R
+conda run -p $ENV_PATH/epigenomics Rscript ../_h/02.plot_all_sites.R
 
 if [ $? -ne 0 ]; then
     log_message "Error: Conda or script execution failed"

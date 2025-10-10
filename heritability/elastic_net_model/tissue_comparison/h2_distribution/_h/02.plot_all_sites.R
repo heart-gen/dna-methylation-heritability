@@ -40,25 +40,34 @@ plot_density <- function(vmr, tissue) {
   counts <- vmr %>%
     group_by(tissue) %>%
     summarise(n = n(), .groups = "drop")
-  
+
+  counts$tissue_label <- ifelse(
+  tolower(counts$tissue) == "dlpfc", 
+  "DLPFC", 
+  tools::toTitleCase(counts$tissue)
+  )
+
   labels <- setNames(
-    paste0(counts$tissue, "\n(n = ", counts$n, ")"),
+    paste0(counts$tissue_label, "\n(n = ", counts$n, ")"),
     counts$tissue
   )
+
+  legend_labels <- setNames(counts$tissue_label, counts$tissue)
   
   p_hist <- gghistogram(vmr, x = "h2_unscaled", 
                         add_density = TRUE, rug = TRUE, 
                         add = "mean",
                         color = "tissue", fill = "tissue",
-                        ggtheme = theme_pubr(base_size = 15, border = TRUE),
+                        ggtheme = theme_pubr(base_size = 20, border = TRUE),
                         xlab = "Estimated h²", ylab = "Count") +
     facet_wrap(~tissue, labeller = as_labeller(labels), scales = "free_x") +
-    scale_color_manual(values = tissue_colors) +
-    scale_fill_manual(values = tissue_colors) +
-    ggtitle(paste("h2 distribution for all VMRs")) +
+    scale_color_manual(values = tissue_colors, labels = legend_labels) +
+    scale_fill_manual(values = tissue_colors, labels = legend_labels) +
     labs(color = NULL, fill = NULL) +
     font("xy.title", face = "bold", size = 14) +
     geom_vline(xintercept = 0.19, linetype = "dashed", color = "black") +
+    geom_vline(xintercept = 0.1, linetype = "dotted", 
+               color = "#8CA77B", size  = 2) +
     theme(
       axis.text.x = element_text(angle = 45, hjust = 1),
       plot.title = element_text(hjust = 0.5)
@@ -96,4 +105,4 @@ summarise_h2(vmr_all, out_path)
 # Save plot
 p_hist <- plot_density(vmr_all, tissue)
 fn_hist <- file.path(out_path, "all_VMR_h2_distribution")
-save_plot(p_hist, fn_hist, 14, 6)
+save_plot(p_hist, fn_hist, 10, 5)
