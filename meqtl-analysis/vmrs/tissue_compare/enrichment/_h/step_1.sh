@@ -30,7 +30,7 @@ module list
 
 source /projects/p32505/opt/miniforge3/etc/profile.d/conda.sh
 
-log_message "**** Run elastic net ****"
+log_message "**** Run fisher's exact ****"
 conda activate /projects/p32505/opt/envs/ml
 export LD_LIBRARY_PATH=$CONDA_PREFIX/lib:$LD_LIBRARY_PATH
 python ../_h/01.fishers_enrichment.py

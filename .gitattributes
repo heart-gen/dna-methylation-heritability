@@ -1,0 +1,7 @@
+inputs/simulated-data/_m/sim_100_indiv/simulated.covar filter=lfs diff=lfs merge=lfs -text
+inputs/simulated-data/_m/sim_100_indiv/simulated.phen filter=lfs diff=lfs merge=lfs -text
+inputs/simulated-data/_m/sim_100_indiv/simulated.qcovar filter=lfs diff=lfs merge=lfs -text
+inputs/simulated-data/_m/sim_100_indiv/snp_phenotype_mapping.tsv filter=lfs diff=lfs merge=lfs -text
+inputs/simulated-data/_m/sim_100_indiv/plink_sim/simulated.fam filter=lfs diff=lfs merge=lfs -text
+inputs/simulated-data/_m/sim_100_indiv/plink_sim/simulated.bed filter=lfs diff=lfs merge=lfs -text
+inputs/simulated-data/_m/sim_100_indiv/plink_sim/simulated.bim filter=lfs diff=lfs merge=lfs -text

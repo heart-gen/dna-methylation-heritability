@@ -29,8 +29,8 @@ calc_vmr_meth <- function(BSobj, chr, start_pos, end_pos) {
 }
 
 extract_fid_iid <- function(psam_file) {
-    samples <- read_plink2_psam_file(psam_file)
-    samples <- samples[, 1:2]
+    samples   <- fread(psam_file, header = FALSE, 
+                     col.names = c("FID", "IID", "PAT"))[, .(FID, IID)]
     return(samples)
 }
 
