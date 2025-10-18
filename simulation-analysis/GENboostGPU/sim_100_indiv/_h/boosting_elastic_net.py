@@ -54,7 +54,7 @@ def build_windows(num_samples):
 def tune_windows(num_samples):
     geno_path = construct_data_path(num_samples, "plink")
     geno_arr, bim, fam = load_genotypes(str(geno_path))
-    ##N = len(fam)
+    N = len(fam)
     windows = build_windows(num_samples)
     tw = select_tuning_windows(
         windows, bim, frac=0.05, n_min=60, n_max=300, window_size=500_000,
@@ -71,12 +71,23 @@ def tune_windows(num_samples):
             "subsample_frac": [0.7],      # keep fixed for now
             "batch_size":     [4096],     # keep fixed for now
         },
-stop={"patience": 5, "min_delta": 1e-4, "warmup": 5},
-    batch_size=4096
+        early_stop={"patience": 5, "min_delta": 1e-4, "warmup": 5},
+        batch_size=4096
     )
     print("Best alpha scale:", best)
 
-    return best
+    return windows, best, N
+
+
+def fixed_params_for_window(w, *, N=N, c_lambda=best["c_lambda"], c_ridge=best["c_ridge"]):
+    ## Needs bim move M
+    M = count_snps_in_window(
+        bim, w["chrom"], w["start"], w.get("end", w["start"]),
+        window_size=500_000, use_window=True
+    )
+    # Convert global (c_lambda, c_ridge) -> window-specific (alpha, l1_ratio)
+    alpha, l1r = enet_from_targets(M, N, c_lambda=c_lambda, c_ridge=c_ridge)
+    return alpha, l1r
 
 
 def main():
@@ -85,13 +96,39 @@ def main():
     if not num_samples:
         raise ValueError("NUM_SAMPLES environment variable must be set")
 
+    # Build and tune windows
+    windows, best, N = tune_windows(num_samples)
+
+    # Test run_single_window
+    results = []
+    for w in windows:
+        alpha, l1r = fixed_params_for_window(w, N=N, c_lambda=best["c_lambda"],
+                                             c_ridge=best["c_ridge"])
+        r = run_single_window(
+        chrom=w["chrom"], start=w["start"], end=w.get("end", w["start"]),
+        geno_arr=geno_arr, bim=bim, fam=fam,
+        pheno_path=w["pheno_path"], pheno_id=w["pheno_id"],
+        window_size=500_000, use_window=True,
+        # fixed hyperparams -> skip per-window tuning
+        fixed_alpha=alpha,
+        fixed_l1_ratio=l1r,
+        fixed_subsample=best["subsample_frac"],
+        batch_size=best["batch_size"],
+        n_trials=1, n_iter=100,
+        # optional early stop during production too
+        early_stop={"patience": 5, "min_delta": 1e-4, "warmup": 5},
+        save_full=True
+    )
+    if r is not None:
+        results.append(r)
+
     # Run with dask orchestration
     df = run_windows_with_dask(
         windows, outdir="results", window_size=500_000,
         n_iter=100, n_trials=10, use_window=False,
         save=True, prefix="simu_100"
     )
-    print(f"Completed {len(df)} VMRs")
+    print(f"Completed {len(df)} phenotypes")
     print(df.head())
 
     # Session information
