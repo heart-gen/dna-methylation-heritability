@@ -32,10 +32,8 @@ def get_pheno_loc(num_samples):
 
     return mapped_df
 
-def build_windows(num_samples):
-    # load genotype + bim/fam
-    # geno_path = construct_data_path(num_samples, "plink")
 
+def build_windows(num_samples):
     # Load phenotypes
     pheno_path = construct_data_path(num_samples, "phen")
 
@@ -56,7 +54,7 @@ def build_windows(num_samples):
 def tune_windows(num_samples):
     geno_path = construct_data_path(num_samples, "plink")
     geno_arr, bim, fam = load_genotypes(str(geno_path))
-    N = len(fam)
+    ##N = len(fam)
     windows = build_windows(num_samples)
     tw = select_tuning_windows(
         windows, bim, frac=0.05, n_min=60, n_max=300, window_size=500_000,
@@ -67,15 +65,13 @@ def tune_windows(num_samples):
         tuning_windows=tw,
         geno_arr=geno_arr, bim=bim, fam=fam,
         window_size=500_000, by_hand=False, use_window=False,
-        
-    # Limit grid to alpha-scale:
-    grid={
-        "c_lambda":       [0.5, 0.7, 1.0, 1.4, 2.0],
-        "c_ridge":        [1.0],      # keep EN balance fixed here
-        "subsample_frac": [0.7],      # keep fixed for now
-        "batch_size":     [4096],     # keep fixed for now
-    },
-    early_stop={"patience": 5, "min_delta": 1e-4, "warmup": 5},
+        grid={
+            "c_lambda":       [0.5, 0.7, 1.0, 1.4, 2.0],
+            "c_ridge":        [1.0],      # keep EN balance fixed here
+            "subsample_frac": [0.7],      # keep fixed for now
+            "batch_size":     [4096],     # keep fixed for now
+        },
+stop={"patience": 5, "min_delta": 1e-4, "warmup": 5},
     batch_size=4096
     )
     print("Best alpha scale:", best)
