@@ -51,11 +51,7 @@ def build_windows(num_samples):
     return windows
 
 
-def tune_windows(num_samples):
-    geno_path = construct_data_path(num_samples, "plink")
-    geno_arr, bim, fam = load_genotypes(str(geno_path))
-    N = len(fam)
-    windows = build_windows(num_samples)
+def tune_windows(windows, geno_arr, bim, fam):
     tw = select_tuning_windows(
         windows, bim, frac=0.05, n_min=60, n_max=300, window_size=500_000,
         use_window=False, n_bins=3, per_chrom_min=1, seed=13
@@ -76,10 +72,10 @@ def tune_windows(num_samples):
     )
     print("Best alpha scale:", best)
 
-    return windows, best, N
+    return best
 
 
-def fixed_params_for_window(w, *, N=N, c_lambda=best["c_lambda"], c_ridge=best["c_ridge"]):
+def fixed_params_for_window(w, bim, N, c_lambda=best["c_lambda"], c_ridge=best["c_ridge"]):
     ## Needs bim move M
     M = count_snps_in_window(
         bim, w["chrom"], w["start"], w.get("end", w["start"]),
@@ -96,31 +92,34 @@ def main():
     if not num_samples:
         raise ValueError("NUM_SAMPLES environment variable must be set")
 
+    # Load genotypes
+    geno_path = construct_data_path(num_samples, "plink")
+    geno_arr, bim, fam = load_genotypes(str(geno_path))
+    N = len(fam)
+    
     # Build and tune windows
-    windows, best, N = tune_windows(num_samples)
+    windows = build_windows(num_samples)
+    best = tune_windows(windows, geno_arr, bim, fam)
 
     # Test run_single_window
     results = []
     for w in windows:
-        alpha, l1r = fixed_params_for_window(w, N=N, c_lambda=best["c_lambda"],
+        alpha, l1r = fixed_params_for_window(w, bim, N, c_lambda=best["c_lambda"],
                                              c_ridge=best["c_ridge"])
         r = run_single_window(
-        chrom=w["chrom"], start=w["start"], end=w.get("end", w["start"]),
-        geno_arr=geno_arr, bim=bim, fam=fam,
-        pheno_path=w["pheno_path"], pheno_id=w["pheno_id"],
-        window_size=500_000, use_window=True,
-        # fixed hyperparams -> skip per-window tuning
-        fixed_alpha=alpha,
-        fixed_l1_ratio=l1r,
-        fixed_subsample=best["subsample_frac"],
-        batch_size=best["batch_size"],
-        n_trials=1, n_iter=100,
-        # optional early stop during production too
-        early_stop={"patience": 5, "min_delta": 1e-4, "warmup": 5},
-        save_full=True
-    )
-    if r is not None:
-        results.append(r)
+            chrom=w["chrom"], start=w["start"], end=w.get("end", w["start"]),
+            geno_arr=geno_arr, bim=bim, fam=fam,
+            pheno_path=w["pheno_path"], pheno_id=w["pheno_id"],
+            window_size=500_000, use_window=True,
+            # fixed hyperparams -> skip per-window tuning
+            fixed_alpha=alpha, fixed_l1_ratio=l1r,
+            fixed_subsample=best["subsample_frac"],
+            batch_size=best["batch_size"], n_trials=1, n_iter=100,
+            early_stop={"patience": 5, "min_delta": 1e-4, "warmup": 5},
+            save_full=True
+        )
+        if r is not None:
+            results.append(r)
 
     # Run with dask orchestration
     df = run_windows_with_dask(
