@@ -75,7 +75,7 @@ def tune_windows(windows, geno_arr, bim, fam):
     return best
 
 
-def fixed_params_for_window(w, bim, N, c_lambda=best["c_lambda"], c_ridge=best["c_ridge"]):
+def fixed_params_for_window(w, bim, N, c_lambda=None, c_ridge=None):
     ## Needs bim move M
     M = count_snps_in_window(
         bim, w["chrom"], w["start"], w.get("end", w["start"]),
