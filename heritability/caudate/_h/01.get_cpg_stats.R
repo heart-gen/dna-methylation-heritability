@@ -16,14 +16,6 @@ args <- commandArgs(trailingOnly = TRUE)
 chr  <- args[1]
 
 ## Function
-change_file_path <- function(BSobj, raw_assays) {
-    var <- c("M", "Cov", "coef")
-    for (assay in var) {
-        BSobj@assays@data@listData[[assay]]@seed@seed@filepath <- raw_assays
-    }
-    return(BSobj)
-}
-
 filter_pheno <- function(BSobj, pheno_file_path) {
     pheno <- fread(pheno_file_path, header = TRUE)
     pheno_filtered <- pheno %>%
@@ -31,15 +23,6 @@ filter_pheno <- function(BSobj, pheno_file_path) {
     id    <- intersect(pheno_filtered$brnum, colData(BSobj)$brnum)
     BSobj <- BSobj[, colData(BSobj)$brnum %in% id]
     return(list(BSobj = BSobj, pheno = pheno_filtered, id = id))
-}
-
-exclude_blacklist <- function(BSobj) {
-  ah         <- AnnotationHub()
-  query_data <- subset(ah, preparerclass == "excluderanges")
-  blacklist  <- query_data[["AH107305"]]
-  bb         <- findOverlaps(BSobj, blacklist)
-  BSobj      <- BSobj[-queryHits(bb),]
-  return(BSobj)
 }
 
 exclude_low_cov <- function(BSobj) {
@@ -120,6 +103,10 @@ load(here("inputs/wgbs-data/caudate", paste0("Caudate_chr", chr, "_BSobj.rda")))
 output_path <- here("heritability", "caudate", "_m")
 subdirs <- c("covs", "cpg")
 
+bsobj_fn <- file.path("/projects/b1213/resources/libd_data/wgbs/new-data/caudate/_m", 
+                       paste0("Caudate_chr", chr, "_BSobj.rda"))
+load(bsobj_fn)
+
                                         # create output directories if they  
                                         # don't exist
 for (subdir in subdirs) {
@@ -133,16 +120,9 @@ for (subdir in subdirs) {
 out_covs  <- file.path(output_path, "covs",  paste0("chr_", chr))
 out_cpg   <- file.path(output_path, "cpg", paste0("chr_", chr))
 
-                                       # change file path for raw data
-raw_assays  <- here("inputs/wgbs-data/caudate/raw/CpGassays.h5")
-BSobj       <- change_file_path(BSobj, raw_assays)
-
                                         # keep only adult AA
 pheno_file_path <- here("inputs/phenotypes/_m/phenotypes-AA.tsv")
 filtered        <- filter_pheno(BSobj, pheno_file_path)
-
-                                        # exclude hg38 ENCODE blacklist regions
-BSobj <- exclude_blacklist(filtered$BSobj)
 
                                         # exclude low coverage sites
 BSobj <- exclude_low_cov(BSobj)
