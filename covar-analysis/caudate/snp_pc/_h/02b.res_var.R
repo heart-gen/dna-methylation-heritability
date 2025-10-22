@@ -45,18 +45,19 @@ residual_variance <- function(pc_res, pos, chr, output_path, chunk_id) {
 }
 
 ## Main
-output_path <- here("covar-analysis", "caudate", "_m", "pca", paste0("chr_", chr))
+output_path <- here("covar-analysis", "caudate", "snp_pc", 
+                    "_m", "pca", paste0("chr_", chr))
 if (!dir.exists(output_path)) {
     dir.create(output_path, recursive = TRUE)
 }
 
                                         # Set file paths
-cpg_names <- here("covar-analysis", "caudate", "_m", "cpg",
+cpg_names <- here("covar-analysis", "caudate", "snp_pc", "_m", "cpg",
                   paste0("chr_", chr), "cpg_pos.txt")
 pheno_file_path <- here("inputs", "phenotypes", "_m", "phenotypes-AA.tsv")
 f_ances <- here("inputs", "genetic-ancestry",
                 "structure.out_ancestry_proportion_raceDemo_compare")
-pca <- here("covar-analysis", "caudate", "_m", "pca",
+pca <- here("covar-analysis", "caudate", "snp_pc", "_m", "pca",
             paste0("chr_", chr), "pc.csv")
 psam_file <- here("inputs/genotypes/TOPMed_LIBD.AA.psam")
 
@@ -69,8 +70,8 @@ samples   <- fread(psam_file, header = TRUE,
                    col.names = c("FID", "IID", "PAT"))[, .(FID, IID)]
 
 
-tmp_dir   <- here("covar-analysis", "caudate", "_m", "cpg", paste0("chr_", chr),
-                  "tmp_files")
+tmp_dir   <- here("covar-analysis", "caudate", "_m", "snp_pc", "cpg", 
+                paste0("chr_", chr), "tmp_files")
 tmp_files <- list.files(tmp_dir, pattern = "^cpg_meth_.*\\.tsv$",
                         full.names = TRUE)
 cat("Found", length(tmp_files), "files to read\n")
@@ -79,7 +80,7 @@ cat("Found", length(tmp_files), "files to read\n")
 output_file <- file.path(output_path, "res_var_all.tsv")
 first_chunk <- TRUE
 
-cpg_path <- here("covar-analysis", "caudate", "_m", "cpg", paste0("chr_", chr))
+cpg_path <- here("covar-analysis", "caudate", "snp_pc", "_m", "cpg", paste0("chr_", chr))
 res_meth_file <- file.path(cpg_path, paste0("res_cpg_meth.phen"))
 
 for (chunk_path in tmp_files) {
