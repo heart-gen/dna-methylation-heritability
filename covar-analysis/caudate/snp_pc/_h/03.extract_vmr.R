@@ -27,14 +27,14 @@ get_vmr <- function(v, out_vmr) {
 # Main
 
                                         # create output dir if doesn't exist
-output_path <- here("covar-analysis/caudate/_m/vmr", paste0("chr_", chr))
+output_path <- here("covar-analysis/caudate/snp_pc/_m/vmr", paste0("chr_", chr))
 
 if (!dir.exists(output_path)) {
     dir.create(output_path, recursive = TRUE)
 }
 
                                         # load sd of pc residuals
-var_file <- here("covar-analysis", "caudate", "_m", "pca", 
+var_file <- here("covar-analysis", "caudate", "snp_pc", "_m", "pca", 
                  paste0("chr_", chr), "res_var_all.tsv")
 res_var <- fread(var_file, select = 1:3, header = TRUE)
 colnames(res_var) <- c("chr", "start", "sd")
