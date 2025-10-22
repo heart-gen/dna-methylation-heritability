@@ -107,7 +107,7 @@ write_covar <- function(BSobj, pheno, id, meth_merged, out_covs) {
 ## Main
                                         # load data
 #load(here("inputs/wgbs-data/caudate", paste0("Caudate_chr", chr, "_BSobj.rda")))
-output_path <- here("covar-analysis", "caudate", "_m")
+output_path <- here("covar-analysis", "caudate", "snp_pc", "_m")
 subdirs <- c("covs", "cpg")
 
 bsobj_fn <- file.path("/projects/b1213/resources/libd_data/wgbs/new-data/caudate/_m", 

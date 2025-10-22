@@ -56,8 +56,8 @@ write_meth_to_phen <- function(BSobj, M, samples, out_phen) {
 ## Main
 
                                         # load raw DNAm
-load(here("covar-analysis/caudate/_m/cpg", paste0("chr_", chr_num, "/stats.rda")))
-output_path <- here("covar-analysis/caudate/_m/vmr", paste0("chr_", chr_num))
+load(here("covar-analysis/caudate/snp_pc/_m/cpg", paste0("chr_", chr_num, "/stats.rda")))
+output_path <- here("covar-analysis/caudate/snp_pc/_m/vmr", paste0("chr_", chr_num))
 
                                         # calculate DNAm for each VMR
 meth_reg <- calc_vmr_meth(BSobj, chr, start_pos, end_pos)
