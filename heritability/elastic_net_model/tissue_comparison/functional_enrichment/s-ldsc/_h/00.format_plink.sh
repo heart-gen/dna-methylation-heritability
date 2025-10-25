@@ -41,7 +41,7 @@ for chr in {1..22}; do
     echo "Processing chromosome: $chr"
 
     # Directory containing BIM files
-    plink_dir="/projects/b1213/users/alexis/projects/dna-methylation-heritability/heritability/caudate/_m/plink_files/chr_${chr}"
+    plink_dir="/projects/b1213/users/alexis/projects/dna-methylation-heritability/heritability/caudate/_m/plink_format/chr_${chr}"
     output_bim="$output_dir/chr_${chr}.bim"
 
     # Merge all .bim files in the directory
