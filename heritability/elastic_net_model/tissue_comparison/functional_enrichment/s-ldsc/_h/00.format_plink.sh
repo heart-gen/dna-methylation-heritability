@@ -5,7 +5,7 @@
 #SBATCH --nodes=1               # Number of nodes
 #SBATCH --ntasks-per-node=1     # Number of cores (CPU)
 #SBATCH --mem=1G                # Memory limit
-#SBATCH --job-name=02.multi_core  # Job name
+#SBATCH --job-name=format_plink  # Job name
 #SBATCH --output=output_%j.log  # Standard output log
 #SBATCH --error=error_%j.log    # Standard error log
 
@@ -24,6 +24,7 @@ echo "Node name: ${SLURM_NODENAME}"
 echo "Hostname: ${HOSTNAME}"
 echo "Task id: ${SLURM_ARRAY_TASK_ID:-N/A}"
 
+# Ensure the output directory exists
 output_dir=$(dirname "$output_prefix")
 mkdir -p "$output_dir"
 
@@ -32,5 +33,38 @@ input_file="/projects/b1213/users/alexis/projects/dna-methylation-heritability/h
 output_prefix="vmr"
 
 sort -k1,1 -k2,2n "$input_file" | awk '{print > "'"${output_prefix}"'_chr"$1".bed"}'
+
+echo "Sorted BED files have been created with prefix: $output_prefix"
+
+for chr in {1..22} X Y; do
+
+    echo "Processing chromosome: $chr"
+
+    # Directory containing BIM files
+    plink_dir="/projects/b1213/users/alexis/projects/dna-methylation-heritability/heritability/caudate/_m/plink_files/chr_${chr}"
+    output_bim="$output_dir/chr_${chr}.bim"
+
+    # Merge all .bim files in the directory
+    cat "$plink_dir"/*.bim > "$output_bim.tmp"
+
+    # Sort by the 4th column numerically
+    sort -k4,4n "$output_bim.tmp" > "$output_bim"
+
+    # Remove temporary file
+    rm "$output_bim.tmp"
+
+    echo "BIM files for chromosome $chr have been merged and sorted."
+
+    # Directory containing FAM files
+    output_fam="$output_dir/chr_${chr}.fam"
+
+    # Merge all .bim files in the directory
+    cat "$plink_dir"/*.fam > "$output_fam.tmp"
+
+    # Remove temporary file
+    rm "$output_fam.tmp"
+
+    echo "FAM files for chromosome $chr have been merged."
+done
 
 log_message "**** Job ends ****"
