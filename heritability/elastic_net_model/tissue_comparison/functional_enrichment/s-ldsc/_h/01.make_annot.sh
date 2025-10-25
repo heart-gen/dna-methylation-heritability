@@ -30,7 +30,7 @@ for chr in {1..22}; do
     echo "Processing chromosome ${chr}"
 
     python /projects/p32505/users/elisa/dna-methylation-heritability/heritability/elastic_net_model/tissue_comparison/functional_enrichment/s-ldsc/ldsc/make_annot.py \
-        --bed-file /projects/p32505/users/elisa/dna-methylation-heritability/heritability/elastic_net_model/tissue_comparison/functional_enrichment/s-ldsc/custom_annotations/caudate/caudate_vmr_gene_annotation_fixed.${chr}.bed \
+        --bed-file /projects/p32505/users/elisa/dna-methylation-heritability/heritability/elastic_net_model/tissue_comparison/functional_enrichment/s-ldsc/custom_annotations/caudate/caudate_vmr_gene_annotation_1based.${chr}.bed \
         --bimfile /projects/p32505/users/elisa/dna-methylation-heritability/heritability/elastic_net_model/tissue_comparison/functional_enrichment/s-ldsc/1000G_EUR_Phase3_plink/1000G.EUR.QC.${chr}.bim \
         --annot-file /projects/p32505/users/elisa/dna-methylation-heritability/heritability/elastic_net_model/tissue_comparison/functional_enrichment/s-ldsc/_m/caudate/annotations/caudate_vmr_gene_annotation.${chr}.annot.gz \
 
