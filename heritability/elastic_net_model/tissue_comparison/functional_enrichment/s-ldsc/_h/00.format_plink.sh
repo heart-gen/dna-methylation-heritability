@@ -4,10 +4,10 @@
 #SBATCH --time=01:00:00         # Time limit hrs:min:sec
 #SBATCH --nodes=1               # Number of nodes
 #SBATCH --ntasks-per-node=1     # Number of cores (CPU)
-#SBATCH --mem=1G                # Memory limit
+#SBATCH --mem=25G                # Memory limit
 #SBATCH --job-name=format_plink  # Job name
-#SBATCH --output=output_%j.log  # Standard output log
-#SBATCH --error=error_%j.log    # Standard error log
+#SBATCH --output=logs/format_plink/output_%j.log  # Standard output log
+#SBATCH --error=logs/format_plink/error_%j.log    # Standard error log
 
 # Log function
 log_message() {
@@ -36,7 +36,7 @@ sort -k1,1 -k2,2n "$input_file" | awk '{print > "'"${output_prefix}"'_chr"$1".be
 
 echo "Sorted BED files have been created with prefix: $output_prefix"
 
-for chr in {1..22} X Y; do
+for chr in {1..22}; do
 
     echo "Processing chromosome: $chr"
 

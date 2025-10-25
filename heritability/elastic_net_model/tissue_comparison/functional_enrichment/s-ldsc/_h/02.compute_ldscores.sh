@@ -4,10 +4,10 @@
 #SBATCH --time=01:00:00         # Time limit hrs:min:sec
 #SBATCH --nodes=1               # Number of nodes
 #SBATCH --ntasks-per-node=1     # Number of cores (CPU)
-#SBATCH --mem=1G                # Memory limit
-#SBATCH --job-name=02.multi_core  # Job name
-#SBATCH --output=output_%j.log  # Standard output log
-#SBATCH --error=error_%j.log    # Standard error log
+#SBATCH --mem=25G                # Memory limit
+#SBATCH --job-name=compute_ldscores  # Job name
+#SBATCH --output=logs/compute_ldscores/output_%j.log  # Standard output log
+#SBATCH --error=logs/compute_ldscores/error_%j.log    # Standard error log
 
 # Log function
 log_message() {
