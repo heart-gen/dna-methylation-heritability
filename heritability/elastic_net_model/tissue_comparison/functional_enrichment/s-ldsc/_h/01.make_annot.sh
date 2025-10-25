@@ -5,6 +5,7 @@
 #SBATCH --nodes=1               # Number of nodes
 #SBATCH --ntasks-per-node=1     # Number of cores (CPU)
 #SBATCH --mem=25G                # Memory limit
+#SBATCH --array=1-22            # Array job for chromosomes 1-22
 #SBATCH --job-name=make_annot  # Job name
 #SBATCH --output=logs/make_annot/output_%j.log  # Standard output log
 #SBATCH --error=logs/make_annot/error_%j.log    # Standard error log
@@ -22,6 +23,18 @@ echo "Job id: ${SLURM_JOBID}"
 echo "Job name: ${SLURM_JOB_NAME}"
 echo "Node name: ${SLURM_NODENAME}"
 echo "Hostname: ${HOSTNAME}"
-echo "Task id: ${SLURM_ARRAY_TASK_ID:-N/A}"
+echo "Task id: ${SLURM_ARRAY_TASK_ID}"
+
+output_dir="annotations"
+mkdir -p ${output_dir}
+
+echo Processing chromosome ${SLURM_ARRAY_TASK_ID}
+
+python /projects/p32505/users/elisa/dna-methylation-heritability/heritability/elastic_net_model/tissue_comparison/functional_enrichment/s-ldsc/ldsc/make_annot.py \
+    --bim /projects/p32505/users/elisa/dna-methylation-heritability/heritability/elastic_net_model/tissue_comparison/functional_enrichment/s-ldsc/_m/plink_files/chr_${SLURM_ARRAY_TASK_ID}.bim \
+    --out $output_dir/chr_${SLURM_ARRAY_TASK_ID} \
+    --bed /projects/p32505/users/elisa/dna-methylation-heritability/heritability/elastic_net_model/tissue_comparison/functional_enrichment/s-ldsc/_m/plink_files/chr_${SLURM_ARRAY_TASK_ID}.bed
+
+echo Annotation for chromosome ${SLURM_ARRAY_TASK_ID} created.
 
 log_message "**** Job ends ****"
