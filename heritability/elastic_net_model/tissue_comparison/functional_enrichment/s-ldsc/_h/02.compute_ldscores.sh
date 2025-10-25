@@ -34,7 +34,7 @@ python ldsc.py \
 	--ld-wind-cm 1 \
 	--annot /projects/p32505/users/elisa/dna-methylation-heritability/heritability/elastic_net_model/tissue_comparison/functional_enrichment/s-ldsc/_m/annotations/chr_${SLURM_ARRAY_TASK_ID}.annot.gz \
 	--thin-annot \
-	--out $output_dir/caudate \
+	--out $output_dir \
 	--print-snps /projects/p32505/users/elisa/dna-methylation-heritability/heritability/elastic_net_model/tissue_comparison/functional_enrichment/s-ldsc/w_hm3.snplist.gz
 
 log_message "**** Job ends ****"
