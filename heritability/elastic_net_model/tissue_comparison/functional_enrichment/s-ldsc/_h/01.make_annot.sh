@@ -27,7 +27,7 @@ echo "Task id: ${SLURM_ARRAY_TASK_ID:-N/A}"
 module load bedtools/2.30.0
 
 for chr in {1..22}; do
-    log_message "Processing chromosome ${chr}"
+    echo "Processing chromosome ${chr}"
 
     python /projects/p32505/users/elisa/dna-methylation-heritability/heritability/elastic_net_model/tissue_comparison/functional_enrichment/s-ldsc/ldsc/make_annot.py \
         --bed-file /projects/p32505/users/elisa/dna-methylation-heritability/heritability/elastic_net_model/tissue_comparison/functional_enrichment/s-ldsc/custom_annotations/caudate/caudate_vmr_gene_annotation.${chr}.bed \
