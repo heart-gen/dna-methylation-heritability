@@ -24,4 +24,13 @@ echo "Node name: ${SLURM_NODENAME}"
 echo "Hostname: ${HOSTNAME}"
 echo "Task id: ${SLURM_ARRAY_TASK_ID:-N/A}"
 
+output_dir=$(dirname "$output_prefix")
+mkdir -p "$output_dir"
+
+# Sort bed file by chromosome and range positions
+input_file="/projects/b1213/users/alexis/projects/dna-methylation-heritability/heritability/caudate/_m/vmr.bed"
+output_prefix="vmr"
+
+sort -k1,1 -k2,2n "$input_file" | awk '{print > "'"${output_prefix}"'_chr"$1".bed"}'
+
 log_message "**** Job ends ****"
