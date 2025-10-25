@@ -25,16 +25,18 @@ echo "Node name: ${SLURM_NODENAME}"
 echo "Hostname: ${HOSTNAME}"
 echo "Task id: ${SLURM_ARRAY_TASK_ID}"
 
+module load bedtools/2.30.0
+
 output_dir="annotations"
 mkdir -p ${output_dir}
 
 echo Processing chromosome ${SLURM_ARRAY_TASK_ID}
 
 python /projects/p32505/users/elisa/dna-methylation-heritability/heritability/elastic_net_model/tissue_comparison/functional_enrichment/s-ldsc/ldsc/make_annot.py \
+    --bed-file /projects/p32505/users/elisa/dna-methylation-heritability/heritability/elastic_net_model/tissue_comparison/functional_enrichment/s-ldsc/_m/plink_files/chr_${SLURM_ARRAY_TASK_ID}.bed \
     --bim /projects/p32505/users/elisa/dna-methylation-heritability/heritability/elastic_net_model/tissue_comparison/functional_enrichment/s-ldsc/_m/plink_files/chr_${SLURM_ARRAY_TASK_ID}.bim \
     --annot-file annotations/chr_${SLURM_ARRAY_TASK_ID}.annot.gz \
     --windowsize 500000
-
 
 echo Annotation for chromosome ${SLURM_ARRAY_TASK_ID} created.
 
