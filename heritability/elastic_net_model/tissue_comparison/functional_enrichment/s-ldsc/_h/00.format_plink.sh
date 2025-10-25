@@ -24,15 +24,11 @@ echo "Node name: ${SLURM_NODENAME}"
 echo "Hostname: ${HOSTNAME}"
 echo "Task id: ${SLURM_ARRAY_TASK_ID:-N/A}"
 
-# Ensure the output directory exists
-output_dir=$(dirname "$output_prefix")
-mkdir -p "$output_dir"
-
 echo "Processing chromosome: $chr"
 
 # Directory containing BIM files
 plink_dir="/projects/b1213/users/alexis/projects/dna-methylation-heritability/heritability/caudate/_m/plink_format/chr_${chr}"
-output_bim="$output_dir/chr_${chr}.bim"
+output_bim="plink_files/output_dir/chr_${chr}.bim"
 
 # Merge all .bim files in the directory
 cat "$plink_dir"/*.bim > "$output_bim.tmp"
@@ -46,7 +42,7 @@ rm "$output_bim.tmp"
 echo "BIM files for chromosome $chr have been merged and sorted."
 
 # Directory containing FAM files
-output_fam="$output_dir/chr_${chr}.fam"
+output_fam="plink_files/chr_${chr}.fam"
 
 # Merge all .bim files in the directory
 cat "$plink_dir"/*.fam > "$output_fam.tmp"
