@@ -27,7 +27,7 @@ echo "Task id: ${SLURM_ARRAY_TASK_ID}"
 
 module load bedtools/2.30.0
 
-output_dir="annotations"
+output_dir="custom_annotations"
 mkdir -p ${output_dir}
 
 echo Processing chromosome ${SLURM_ARRAY_TASK_ID}
