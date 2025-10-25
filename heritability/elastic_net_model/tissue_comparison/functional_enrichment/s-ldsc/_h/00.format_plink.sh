@@ -28,43 +28,32 @@ echo "Task id: ${SLURM_ARRAY_TASK_ID:-N/A}"
 output_dir=$(dirname "$output_prefix")
 mkdir -p "$output_dir"
 
-# Sort bed file by chromosome and range positions
-input_file="/projects/b1213/users/alexis/projects/dna-methylation-heritability/heritability/caudate/_m/vmr.bed"
-output_prefix="vmr"
+echo "Processing chromosome: $chr"
 
-sort -k1,1 -k2,2n "$input_file" | awk '{print > "'"${output_prefix}"'_chr"$1".bed"}'
+# Directory containing BIM files
+plink_dir="/projects/b1213/users/alexis/projects/dna-methylation-heritability/heritability/caudate/_m/plink_format/chr_${chr}"
+output_bim="$output_dir/chr_${chr}.bim"
 
-echo "Sorted BED files have been created with prefix: $output_prefix"
+# Merge all .bim files in the directory
+cat "$plink_dir"/*.bim > "$output_bim.tmp"
 
-for chr in {1..22}; do
+# Sort by the 4th column numerically
+sort -k4,4n "$output_bim.tmp" > "$output_bim"
 
-    echo "Processing chromosome: $chr"
+# Remove temporary file
+rm "$output_bim.tmp"
 
-    # Directory containing BIM files
-    plink_dir="/projects/b1213/users/alexis/projects/dna-methylation-heritability/heritability/caudate/_m/plink_format/chr_${chr}"
-    output_bim="$output_dir/chr_${chr}.bim"
+echo "BIM files for chromosome $chr have been merged and sorted."
 
-    # Merge all .bim files in the directory
-    cat "$plink_dir"/*.bim > "$output_bim.tmp"
+# Directory containing FAM files
+output_fam="$output_dir/chr_${chr}.fam"
 
-    # Sort by the 4th column numerically
-    sort -k4,4n "$output_bim.tmp" > "$output_bim"
+# Merge all .bim files in the directory
+cat "$plink_dir"/*.fam > "$output_fam.tmp"
 
-    # Remove temporary file
-    rm "$output_bim.tmp"
+# Remove temporary file
+rm "$output_fam.tmp"
 
-    echo "BIM files for chromosome $chr have been merged and sorted."
-
-    # Directory containing FAM files
-    output_fam="$output_dir/chr_${chr}.fam"
-
-    # Merge all .bim files in the directory
-    cat "$plink_dir"/*.fam > "$output_fam.tmp"
-
-    # Remove temporary file
-    rm "$output_fam.tmp"
-
-    echo "FAM files for chromosome $chr have been merged."
-done
+echo "FAM files for chromosome $chr have been merged."
 
 log_message "**** Job ends ****"
