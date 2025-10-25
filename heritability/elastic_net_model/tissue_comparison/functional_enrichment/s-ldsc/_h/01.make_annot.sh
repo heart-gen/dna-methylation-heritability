@@ -33,7 +33,9 @@ echo Processing chromosome ${SLURM_ARRAY_TASK_ID}
 python /projects/p32505/users/elisa/dna-methylation-heritability/heritability/elastic_net_model/tissue_comparison/functional_enrichment/s-ldsc/ldsc/make_annot.py \
     --bim /projects/p32505/users/elisa/dna-methylation-heritability/heritability/elastic_net_model/tissue_comparison/functional_enrichment/s-ldsc/_m/plink_files/chr_${SLURM_ARRAY_TASK_ID}.bim \
     --out $output_dir/chr_${SLURM_ARRAY_TASK_ID} \
-    --bed /projects/p32505/users/elisa/dna-methylation-heritability/heritability/elastic_net_model/tissue_comparison/functional_enrichment/s-ldsc/_m/plink_files/chr_${SLURM_ARRAY_TASK_ID}.bed
+    --annot-file /projects/p32505/users/elisa/dna-methylation-heritability/heritability/elastic_net_model/tissue_comparison/functional_enrichment/s-ldsc/_m/plink_files/chr_${SLURM_ARRAY_TASK_ID}.bed \
+    --windowsize 500000
+
 
 echo Annotation for chromosome ${SLURM_ARRAY_TASK_ID} created.
 
