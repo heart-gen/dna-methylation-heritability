@@ -5,6 +5,7 @@
 #SBATCH --nodes=1               # Number of nodes
 #SBATCH --ntasks-per-node=1     # Number of cores (CPU)
 #SBATCH --mem=25G                # Memory limit
+#SBATCH --array=1-22           # Array job for chromosomes 1 to 22
 #SBATCH --job-name=format_plink  # Job name
 #SBATCH --output=logs/format_plink/output_%j.log  # Standard output log
 #SBATCH --error=logs/format_plink/error_%j.log    # Standard error log
@@ -22,13 +23,13 @@ echo "Job id: ${SLURM_JOBID}"
 echo "Job name: ${SLURM_JOB_NAME}"
 echo "Node name: ${SLURM_NODENAME}"
 echo "Hostname: ${HOSTNAME}"
-echo "Task id: ${SLURM_ARRAY_TASK_ID:-N/A}"
+echo "Task id: ${SLURM_ARRAY_TASK_ID}"
 
-echo "Processing chromosome: $chr"
+echo "Processing chromosome: ${SLURM_ARRAY_TASK_ID}"
 
 # Directory containing BIM files
-plink_dir="/projects/b1213/users/alexis/projects/dna-methylation-heritability/heritability/caudate/_m/plink_format/chr_${chr}"
-output_bim="plink_files/output_dir/chr_${chr}.bim"
+plink_dir="/projects/b1213/users/alexis/projects/dna-methylation-heritability/heritability/caudate/_m/plink_format/chr_${SLUMR_ARRAY_TASK_ID}}"
+output_bim="plink_files/output_dir/chr_${SLURM_ARRAY_TASK_ID}}.bim"
 
 # Merge all .bim files in the directory
 cat "$plink_dir"/*.bim > "$output_bim.tmp"
@@ -42,7 +43,7 @@ rm "$output_bim.tmp"
 echo "BIM files for chromosome $chr have been merged and sorted."
 
 # Directory containing FAM files
-output_fam="plink_files/chr_${chr}.fam"
+output_fam="plink_files/chr_${SLURM_ARRAY_TASK_ID}.fam"
 
 # Merge all .bim files in the directory
 cat "$plink_dir"/*.fam > "$output_fam.tmp"
@@ -50,6 +51,6 @@ cat "$plink_dir"/*.fam > "$output_fam.tmp"
 # Remove temporary file
 rm "$output_fam.tmp"
 
-echo "FAM files for chromosome $chr have been merged."
+echo "FAM files for chromosome ${SLURM_ARRAY_TASK_ID} have been merged."
 
 log_message "**** Job ends ****"
