@@ -45,11 +45,8 @@ echo "BIM files for chromosome $chr have been merged and sorted."
 # Directory containing FAM files
 output_fam="plink_files/chr_${SLURM_ARRAY_TASK_ID}.fam"
 
-# Merge all .bim files in the directory
-cat "$plink_dir"/*.fam > "$output_fam.tmp"
-
-# Remove temporary file
-rm "$output_fam.tmp"
+# Merge all .fam files in the directory
+cat "$plink_dir"/*.fam > "$output_fam"
 
 echo "FAM files for chromosome ${SLURM_ARRAY_TASK_ID} have been merged."
 
