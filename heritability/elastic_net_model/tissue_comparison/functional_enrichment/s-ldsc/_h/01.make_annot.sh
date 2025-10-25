@@ -5,9 +5,9 @@
 #SBATCH --nodes=1               # Number of nodes
 #SBATCH --ntasks-per-node=1     # Number of cores (CPU)
 #SBATCH --mem=1G                # Memory limit
-#SBATCH --job-name=02.multi_core  # Job name
-#SBATCH --output=output_%j.log  # Standard output log
-#SBATCH --error=error_%j.log    # Standard error log
+#SBATCH --job-name=make_annot  # Job name
+#SBATCH --output=output_make_annot.log  # Standard output log
+#SBATCH --error=error_make_annot.log    # Standard error log
 
 # Log function
 log_message() {
@@ -24,12 +24,15 @@ echo "Node name: ${SLURM_NODENAME}"
 echo "Hostname: ${HOSTNAME}"
 echo "Task id: ${SLURM_ARRAY_TASK_ID:-N/A}"
 
+module load bedtools/2.30.0
+
 for chr in {1..22}; do
     log_message "Processing chromosome ${chr}"
 
     python /projects/p32505/users/elisa/dna-methylation-heritability/heritability/elastic_net_model/tissue_comparison/functional_enrichment/s-ldsc/ldsc/make_annot.py \
-        --bed-file /projects/p32505/users/elisa/dna-methylation-heritability/heritability/elastic_net_model/tissue_comparison/functional_enrichment/s-ldsc/custom_annotations/caudate_vmr_gene_annotation.${chr}.bed \
+        --bed-file /projects/p32505/users/elisa/dna-methylation-heritability/heritability/elastic_net_model/tissue_comparison/functional_enrichment/s-ldsc/custom_annotations/caudate/caudate_vmr_gene_annotation.${chr}.bed \
         --bimfile /projects/p32505/users/elisa/dna-methylation-heritability/heritability/elastic_net_model/tissue_comparison/functional_enrichment/s-ldsc/1000G_EUR_Phase3_plink/1000G.EUR.QC.${chr}.bim \
         --annot-file /projects/p32505/users/elisa/dna-methylation-heritability/heritability/elastic_net_model/tissue_comparison/functional_enrichment/s-ldsc/custom_annotations/caudate/my_annotation.${chr}.annot.gz
+done
 
 log_message "**** Job ends ****"
