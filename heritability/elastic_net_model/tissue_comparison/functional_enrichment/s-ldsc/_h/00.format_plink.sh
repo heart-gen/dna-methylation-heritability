@@ -28,8 +28,8 @@ echo "Task id: ${SLURM_ARRAY_TASK_ID}"
 echo "Processing chromosome: ${SLURM_ARRAY_TASK_ID}"
 
 # Directory containing BIM files
-plink_dir="/projects/b1213/users/alexis/projects/dna-methylation-heritability/heritability/caudate/_m/plink_format/chr_${SLUMR_ARRAY_TASK_ID}}"
-output_bim="plink_files/output_dir/chr_${SLURM_ARRAY_TASK_ID}}.bim"
+plink_dir="/projects/b1213/users/alexis/projects/dna-methylation-heritability/heritability/caudate/_m/plink_format/chr_${SLUMR_ARRAY_TASK_ID}"
+output_bim="plink_files/chr_${SLURM_ARRAY_TASK_ID}}.bim"
 
 # Merge all .bim files in the directory
 cat "$plink_dir"/*.bim > "$output_bim.tmp"
