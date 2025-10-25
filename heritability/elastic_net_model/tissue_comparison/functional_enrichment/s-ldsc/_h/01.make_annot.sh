@@ -24,4 +24,12 @@ echo "Node name: ${SLURM_NODENAME}"
 echo "Hostname: ${HOSTNAME}"
 echo "Task id: ${SLURM_ARRAY_TASK_ID:-N/A}"
 
+for chr in {1..22}; do
+    log_message "Processing chromosome ${chr}"
+
+    python /projects/p32505/users/elisa/dna-methylation-heritability/heritability/elastic_net_model/tissue_comparison/functional_enrichment/s-ldsc/ldsc/make_annot.py \
+        --bed-file /projects/p32505/users/elisa/dna-methylation-heritability/heritability/elastic_net_model/tissue_comparison/functional_enrichment/s-ldsc/custom_annotations/caudate_vmr_gene_annotation.${chr}.bed \
+        --bimfile /projects/p32505/users/elisa/dna-methylation-heritability/heritability/elastic_net_model/tissue_comparison/functional_enrichment/s-ldsc/1000G_EUR_Phase3_plink/1000G.EUR.QC.${chr}.bim \
+        --annot-file /projects/p32505/users/elisa/dna-methylation-heritability/heritability/elastic_net_model/tissue_comparison/functional_enrichment/s-ldsc/custom_annotations/caudate/my_annotation.${chr}.annot.gz
+
 log_message "**** Job ends ****"
