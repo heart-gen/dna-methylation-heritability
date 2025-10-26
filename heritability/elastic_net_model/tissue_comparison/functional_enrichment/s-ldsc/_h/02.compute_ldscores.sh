@@ -24,7 +24,7 @@ echo "Node name: ${SLURM_NODENAME}"
 echo "Hostname: ${HOSTNAME}"
 echo "Task id: ${SLURM_ARRAY_TASK_ID:-N/A}"
 
-mkdir ldscores
+mkdir -p ldscores
 
 for chr in {1..22}; do
 	echo "Processing chromosome ${chr}"
