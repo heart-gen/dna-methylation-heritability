@@ -6,8 +6,8 @@
 #SBATCH --ntasks-per-node=1     # Number of cores (CPU)
 #SBATCH --mem=1G                # Memory limit
 #SBATCH --job-name=make_annot  # Job name
-#SBATCH --output=output_%j.log  # Standard output log
-#SBATCH --error=error_%j.log    # Standard error log
+#SBATCH --output=logs/output_make_annot.log  # Standard output log
+#SBATCH --error=logs/error/make_annot_.log    # Standard error log
 
 # Log function
 log_message() {
