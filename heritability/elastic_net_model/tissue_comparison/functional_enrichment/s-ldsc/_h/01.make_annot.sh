@@ -28,10 +28,15 @@ module load bedtools/2.30.0
 
 mkdir -p annotation_files
 
-python make_annot.py \
-	--bed-file /projects/p32505/users/elisa/dna-methylation-heritability/heritability/elastic_net_model/tissue_comparison/functional_enrichment/s-ldsc/bedfiles/${chr}_caudate_vmr_gene_annotation.bed \
-	--bimfile /projects/p32505/users/elisa/dna-methylation-heritability/heritability/elastic_net_model/tissue_comparison/functional_enrichment/s-ldsc/GRCh38/plink_files//projects/p32505/users/elisa/dna-methylation-heritability/heritability/elastic_net_model/tissue_comparison/functional_enrichment/s-ldsc/GRCh38/plink_files/1000G.EUR.hg38.${chr}.bim \
-	--annot-file /projects/p32505/users/elisa/dna-methylation-heritability/heritability/elastic_net_model/tissue_comparison/functional_enrichment/s-ldsc/_m/annotation_files/${chr}_caudate_vmr_gene_annotation.annot.gz \
-    --windowsize 500000
+for chr in {1..22}; do
+	echo "Processing chromosome ${chr}"
+
+	python /projects/p32505/users/elisa/dna-methylation-heritability/heritability/elastic_net_model/tissue_comparison/functional_enrichment/s-ldsc/ldsc/make_annot.py \
+		--bed-file /projects/p32505/users/elisa/dna-methylation-heritability/heritability/elastic_net_model/tissue_comparison/functional_enrichment/s-ldsc/bed_files/${chr}_caudate_vmr_gene_annotation.bed \
+		--bimfile /projects/p32505/users/elisa/dna-methylation-heritability/heritability/elastic_net_model/tissue_comparison/functional_enrichment/s-ldsc/GRCh38/plink_files/1000G.EUR.hg38.${chr}.bim \
+		--annot-file /projects/p32505/users/elisa/dna-methylation-heritability/heritability/elastic_net_model/tissue_comparison/functional_enrichment/s-ldsc/_m/annotation_files/${chr}_caudate_vmr_gene_annotation.annot.gz \
+    	--windowsize 500000
+
+done
 
 log_message "**** Job ends ****"
