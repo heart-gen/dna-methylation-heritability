@@ -70,7 +70,7 @@ samples   <- fread(psam_file, header = TRUE,
                    col.names = c("FID", "IID", "PAT"))[, .(FID, IID)]
 
 
-tmp_dir   <- here("covar-analysis", "caudate", "_m", "no_snp_pc", "cpg", 
+tmp_dir   <- here("covar-analysis", "caudate", "no_snp_pc", "_m", "cpg", 
                 paste0("chr_", chr), "tmp_files")
 tmp_files <- list.files(tmp_dir, pattern = "^cpg_meth_.*\\.tsv$",
                         full.names = TRUE)
@@ -113,7 +113,7 @@ for (chunk_path in tmp_files) {
     res_chunk <- data.table::data.table(FID = filtered_samples$FID,
                                         IID = filtered_samples$IID,
                                         pc_res)
-    colnames(res_chunk) <- c("FID", "IID", as.character(filtered$pos[[1]]))
+    colnames(res_chunk) <- c("FID", "IID", as.character(pos_chunk[[1]]))
     
                                         # Get chunk identifier for output
     chunk_id <- str_extract(basename(chunk_path), "(?<=cpg_meth_)[0-9]+_[0-9]+")
@@ -123,7 +123,7 @@ for (chunk_path in tmp_files) {
     fwrite(res_chunk, out_file_chunk, sep = "\t", quote = FALSE, col.names = TRUE)
     
                                         # Calculate variances
-    out <- residual_variance(pc_res, filtered$pos, chr, output_path, chunk_id)
+    out <- residual_variance(pc_res, pos_chunk, chr, output_path, chunk_id)
     fwrite(
         out, output_file, append =!first_chunk,
         col.names = first_chunk, sep = "\t", quote = FALSE)
