@@ -3,6 +3,7 @@ import session_info
 import pandas as pd
 from pyhere import here
 from pathlib import Path
+import time
 
 from genboostgpu.vmr_runner import run_single_window
 from genboostgpu.hyperparams import enet_from_targets
@@ -97,11 +98,15 @@ def main():
     geno_arr, bim, fam = load_genotypes(str(geno_path))
     N = len(fam)
     
+    tuning_start_time = time.time()
     # Build and tune windows
     windows = build_windows(num_samples)
     best = tune_windows(windows, geno_arr, bim, fam)
 
+    print("Window tuning completed in %s seconds" % (time.time() - tuning_start_time))
+
     # Test run_single_window
+    single_window_start_time = time.time()
     results = []
     for w in windows:
         alpha, l1r = fixed_params_for_window(w, bim, N, c_lambda=best["c_lambda"],
@@ -121,13 +126,18 @@ def main():
         if r is not None:
             results.append(r)
 
+    print("10 phenotypes estimated in %s seconds" % (time.time() - single_window_start_time))
+
     # Run with dask orchestration
+    dask_start_time = time.time()
     df = run_windows_with_dask(
         windows, outdir="results", window_size=500_000,
+        geno_arr=geno_arr, bim=bim, fam=fam,
         n_iter=100, n_trials=10, use_window=False,
         save=True, prefix="simu_100"
     )
-    print(f"Completed {len(df)} phenotypes")
+
+    print(f"Completed {len(df)} phenotypes in {time.time() - dask_start_time:.2f} seconds")
     print(df.head())
 
     # Session information
