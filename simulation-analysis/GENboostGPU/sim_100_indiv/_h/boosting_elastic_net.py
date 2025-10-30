@@ -41,7 +41,7 @@ def build_windows(num_samples):
     # Build windows config list
     pheno_loc_df = get_pheno_loc(num_samples)
     windows = []
-    for _, row in pheno_loc_df[0:10].iterrows(): ## Test the first 10
+    for _, row in pheno_loc_df.iterrows():
         windows.append({
             "chrom": row["chrom"],
             "start": row["start"],
@@ -86,8 +86,19 @@ def fixed_params_for_window(w, bim, N, c_lambda=None, c_ridge=None):
     alpha, l1r = enet_from_targets(M, N, c_lambda=c_lambda, c_ridge=c_ridge)
     return alpha, l1r
 
+def make_fixed_fn(*, bim, N, c_lambda, c_ridge, window_size=500_000, use_window=True):
+    def _fn(w):
+        M = int(w.get("M_raw") or count_snps_in_window(
+            bim, w["chrom"], w["start"], w.get("end", w["start"]),
+            window_size=window_size, use_window=use_window
+        ))
+        if M <= 1:
+            return {}  # skip fixing if no SNPs
+        alpha, l1r = enet_from_targets(M, N, c_lambda=c_lambda, c_ridge=c_ridge)
+        return {"fixed_alpha": alpha, "fixed_l1_ratio": l1r}
+    return _fn
 
-def main():
+def main(SINGLE=False):
     num_samples = os.environ.get("NUM_SAMPLES")
 
     if not num_samples:
@@ -104,40 +115,50 @@ def main():
     best = tune_windows(windows, geno_arr, bim, fam)
 
     print("Window tuning completed in %s seconds" % (time.time() - tuning_start_time))
+    if SINGLE:
+        # Test run_single_window
+        single_window_start_time = time.time()
+        results = []
+        for w in windows:
+            alpha, l1r = fixed_params_for_window(w, bim, N, 
+                                                 c_lambda=best["c_lambda"],
+                                                 c_ridge=best["c_ridge"])
+            r = run_single_window(
+                chrom=w["chrom"], start=w["start"], end=w.get("end", w["start"]),
+                geno_arr=geno_arr, bim=bim, fam=fam,
+                pheno_path=w["pheno_path"], pheno_id=w["pheno_id"],
+                window_size=500_000, use_window=True,
+                # fixed hyperparams -> skip per-window tuning
+                fixed_alpha=alpha, fixed_l1_ratio=l1r,
+                fixed_subsample=best["subsample_frac"],
+                batch_size=best["batch_size"], n_trials=1, n_iter=100,
+                early_stop={"patience": 5, "min_delta": 1e-4, "warmup": 5},
+                save_full=True
+            )
+            if r is not None:
+                results.append(r)
+        df = pd.DataFrame([r for r in results if r is not None])
 
-    # Test run_single_window
-    single_window_start_time = time.time()
-    results = []
-    for w in windows:
-        alpha, l1r = fixed_params_for_window(w, bim, N, c_lambda=best["c_lambda"],
-                                             c_ridge=best["c_ridge"])
-        r = run_single_window(
-            chrom=w["chrom"], start=w["start"], end=w.get("end", w["start"]),
-            geno_arr=geno_arr, bim=bim, fam=fam,
-            pheno_path=w["pheno_path"], pheno_id=w["pheno_id"],
-            window_size=500_000, use_window=True,
-            # fixed hyperparams -> skip per-window tuning
-            fixed_alpha=alpha, fixed_l1_ratio=l1r,
-            fixed_subsample=best["subsample_frac"],
-            batch_size=best["batch_size"], n_trials=1, n_iter=100,
-            early_stop={"patience": 5, "min_delta": 1e-4, "warmup": 5},
-            save_full=True
+        print(f"Completed {len(df)} phenotypes in {time.time() - single_window_start_time:.2f} seconds in serial")
+    else:
+        # Run with dask orchestration
+        fixed_fn = make_fixed_fn(
+        bim=bim, N=N, c_lambda=best["c_lambda"],
+        c_ridge=best["c_ridge"], window_size=500_000, use_window=False
         )
-        if r is not None:
-            results.append(r)
 
-    print("10 phenotypes estimated in %s seconds" % (time.time() - single_window_start_time))
-
-    # Run with dask orchestration
-    dask_start_time = time.time()
-    df = run_windows_with_dask(
-        windows, outdir="results", window_size=500_000,
-        geno_arr=geno_arr, bim=bim, fam=fam,
-        n_iter=100, n_trials=10, use_window=False,
-        save=True, prefix="simu_100"
-    )
-
-    print(f"Completed {len(df)} phenotypes in {time.time() - dask_start_time:.2f} seconds")
+        dask_start_time = time.time()
+        df = run_windows_with_dask(
+            windows, geno_arr=geno_arr, bim=bim, fam=fam,
+            outdir="results", batch_size=best["batch_size"],
+            window_size=500_000, use_window=False,
+            fixed_params=fixed_fn, fixed_subsample=best["subsample_frac"],
+            early_stop={"patience": 5, "min_delta": 1e-4, "warmup": 5},
+            working_set={"K": 1024, "refresh": 10},
+            prefix="simu_100"
+        )
+        print(f"Completed {len(df)} phenotypes in {time.time() - dask_start_time:.2f} seconds using Dask orchestration")
+    
     print(df.head())
 
     # Session information
