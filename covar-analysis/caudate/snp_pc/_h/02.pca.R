@@ -17,7 +17,7 @@ get_top_meth <- function(BSobj, v) {
 
                                         # get top 1M variable CpG
     v_top  <- v[order(v$sd * -1), ]
-    v_top  <- v_top[1:10^6, ]
+    v_top  <- v_top[1:min(10^6, nrow(v_top)), ]
 
                                         # DNAm levels for top 1M
     tmp    <- v_top[v_top$chr == chr, ]
@@ -46,7 +46,7 @@ get_snp_pcs <- function(pc_file_path) {
 res_snp_pcs <- function(meth, snp_pcs) {
     meth <- meth[, colnames(meth) %in% snp_pcs$brnum]
     snp_pcs <- snp_pcs[match(colnames(meth), snp_pcs$brnum), 
-                       paste0("snpPC", 1:10)]
+                       paste0("snpPC", 1:3)]
     design <- cbind(1, as.matrix(snp_pcs))
     fit    <- limma::lmFit(meth, design)
     resids <- limma::residuals.MArrayLM(fit, meth)
@@ -60,7 +60,7 @@ res_snp_pcs <- function(meth, snp_pcs) {
     #  model    <- lm(meth[i, ] ~ pcs)
     #  res[i, ] <- resid(model)
     #}
-    return(t(resids))
+    return(resids)
 }
 
 pca <- function(res, output_path) {
@@ -107,11 +107,11 @@ meth_top <- get_top_meth(BSobj, v)
 
                                         # get SNP PCs
 pc_file_path <- here("inputs/phenotypes/_m/phenotypes-AA.tsv")
-snp_pc   <- get_snp_pcs(pc_file_path)
+snp_pcs   <- get_snp_pcs(pc_file_path)
 
                                         # residual after regressing out
                                         # SNP PCs
-res <- res_snp_pcs(meth_top$meth, snp_pc)
+res <- res_snp_pcs(meth_top$meth, snp_pcs)
 
                                         # perform and plot pca
 pc <- pca(res, output_path)
