@@ -1,0 +1,45 @@
+#!/bin/bash
+#SBATCH --account=p32505        # Replace with your allocation
+#SBATCH --partition=short       # Partition (queue) name
+#SBATCH --time=01:00:00         # Time limit hrs:min:sec
+#SBATCH --nodes=1               # Number of nodes
+#SBATCH --ntasks-per-node=1     # Number of cores (CPU)
+#SBATCH --mem=25G                # Memory limit
+#SBATCH --job-name=region_heritability  # Job name
+#SBATCH --output=logs/00.region_heritability_output.log  # Standard output log
+#SBATCH --error=logs/00.region_heritability_error.log    # Standard error log
+
+# Log function
+log_message() {
+    echo "$(date '+%Y-%m-%d %H:%M:%S') - $1"
+}
+
+log_message "**** Job starts ****"
+
+echo "**** QUEST info ****"
+echo "User: ${USER}"
+echo "Job id: ${SLURM_JOBID}"
+echo "Job name: ${SLURM_JOB_NAME}"
+echo "Node name: ${SLURM_NODENAME}"
+echo "Hostname: ${HOSTNAME}"
+echo "Task id: ${SLURM_ARRAY_TASK_ID:-N/A}"
+
+BRAIN_REGIONS=("caudate" "dlpfc" "hippocampus")
+
+for REGION in "${BRAIN_REGIONS[@]}"; do
+
+    PYTHON_SCRIPT="/projects/p32505/users/elisa/dna-methylation-heritability/heritability/elastic_net_model/tissue_comparison/functional_enrichment/s-ldsc/_h/00.region_heritability.py"
+    INPUT_FILE="/projects/b1213/users/alexis/projects/dna-methylation-heritability/heritability/elastic_net_model/${REGION}/_m/${REGION}_summary_elastic-net.tsv"
+    OUTPUT_DIR="/projects/p32505/users/elisa/dna-methylation-heritability/heritability/elastic_net_model/tissue_comparison/functional_enrichment/s-ldsc/_m/vmr/${REGION}"
+    mkdir -p "$OUTPUT_DIR"
+
+    echo "Running separation script for region: $REGION"
+    python3 "$PYTHON_SCRIPT" \
+        --input_file "$INPUT_FILE" \
+        --output_dir "$OUTPUT_DIR"
+
+    echo "Separation completed. Check files in $OUTPUT_DIR"
+
+done
+
+log_message "**** Job ends ****"
