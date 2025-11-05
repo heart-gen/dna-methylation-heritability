@@ -17,7 +17,7 @@ get_top_meth <- function(BSobj, v) {
 
                                         # get top 1M variable CpG
     v_top  <- v[order(v$sd * -1), ]
-    v_top  <- v_top[1:10^6, ]
+    v_top  <- v_top[1:min(10^6, nrow(v_top)), ]
 
                                         # DNAm levels for top 1M
     tmp    <- v_top[v_top$chr == chr, ]

@@ -136,6 +136,8 @@ f_snp <- paste0("/projects/b1213/resources/libd_data/wgbs/DEM2/snps_CT/chr",chr)
                                         # Remove CT SNPs for autosomal chr
 if (!chr %in% c("X", "Y")) {
   BSobj <- remove_ct_snps(f_snp, filtered$BSobj)
+} else {
+  BSobj <- filtered$BSobj
 }
                                         # exclude low coverage sites
 BSobj <- exclude_low_cov(BSobj)
