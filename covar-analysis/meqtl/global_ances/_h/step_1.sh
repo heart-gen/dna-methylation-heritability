@@ -33,16 +33,16 @@ module list
 
 # Set path variables
 log_message "**** Loading mamba environment ****"
-ENV_PATH="/projects/p32505/opt/env"
+ENV_PATH="/projects/p32505/opt/envs"
 
-mamba run -p $ENV_PATH/r_env Rscript ../_h/01.prepare_data.R ## change to conda if mamba errors
+mamba run -p $ENV_PATH/genomics Rscript ../_h/01.prepare_data.R ## change to conda if mamba errors
 if [ $? -ne 0 ]; then
     log_message "Error: Mamba or script execution failed"
     exit 1
 fi
 
 # Prepare sample lists
-cp ../../../../heritability/caudate/_m/samples.txt ./keepPsam.txt
+cp ../../../caudate/global_ances/_m/samples.txt ./keepPsam.txt
 awk 'BEGIN {print "BrNum"} {print $1}' ./keepPsam.txt > ./sample_brnum.txt
 
 log_message "**** Job ends ****"
