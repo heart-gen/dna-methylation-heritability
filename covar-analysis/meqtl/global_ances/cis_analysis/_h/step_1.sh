@@ -36,18 +36,13 @@ module list
 # Set path variables
 log_message "**** Loading conda environment ****"
 
-source /projects/p32505/opt/miniforge3/etc/profile.d/conda.sh
-conda activate /projects/p32505/opt/env/eQTL_env
-python ../_h/01.eqtl_tensorqtl.py
+ENV_PATH="/projects/p32505/opt/envs/genomics"
 
-#ENV_PATH="/projects/p32505/opt/env/eQTL_env"
-#conda run -p ${ENV_PATH} python ../_h/01.eqtl_tensorqtl.py
+conda run -p ${ENV_PATH} python ../_h/01.eqtl_tensorqtl.py
 
 if [ $? -ne 0 ]; then
     log_message "Error: Conda or script execution failed"
     exit 1
 fi
-
-conda deactivate
 
 log_message "**** Job ends ****"

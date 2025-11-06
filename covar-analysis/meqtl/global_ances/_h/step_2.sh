@@ -36,7 +36,7 @@ plink2 --version
 ## Edit with your job command
 OUTDIR="./protected_data"
 GENOTYPES="../../../../inputs/genotypes"
-SAMPLES="../../../../heritability/caudate/_m/samples.txt"
+SAMPLES="../../../caudate/global_ances/_m/samples.txt"
 
 log_message "**** Format genotypes ****"
 mkdir -p $OUTDIR

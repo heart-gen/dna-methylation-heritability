@@ -14,20 +14,20 @@ def get_genotypes():
 
 
 @lru_cache()
-def get_covars(feature = "vmrs"):
+def get_covars(feature = "global_ances"):
     covar_file = f"../../_m/{feature}.combined_covariates.txt"
     return pd.read_csv(covar_file, sep='\t', index_col=0).T
 
 
 @lru_cache()
-def get_phenotype(feature = "vmrs"):
+def get_phenotype(feature = "global_ances"):
     meth_bed = f"../../_m/{feature}.methylation.bed.gz"
     return read_phenotype_bed(meth_bed)
 
 
 def main():
     # Load data
-    feature = "vmrs"; prefix = "TOPMed_LIBD"
+    feature = "global_ances"; prefix = "TOPMed_LIBD"
     phenotype_df, phenotype_pos_df = get_phenotype(feature)
     genotype_df, variant_df = get_genotypes()
 

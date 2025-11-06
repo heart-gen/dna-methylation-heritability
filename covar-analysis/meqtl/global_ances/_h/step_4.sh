@@ -32,9 +32,9 @@ module list
 
 # Set path variables
 log_message "**** Loading mamba environment ****"
-ENV_PATH="/projects/p32505/opt/env"
+ENV_PATH="/projects/p32505/opt/envs"
 
-mamba run -p ${ENV_PATH}/r_env Rscript ../_h/04.generate_covs.R
+mamba run -p ${ENV_PATH}/genomics Rscript ../_h/04.generate_covs.R
 
 if [ $? -ne 0 ]; then
     log_message "Error: Rscript execution failed"

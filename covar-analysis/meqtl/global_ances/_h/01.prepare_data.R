@@ -9,7 +9,7 @@ suppressMessages({
 #### Main
 
                                         # Create output dir
-output_path <- here("meqtl-analysis", "vmrs", "caudate", "_m")
+output_path <- here("covar-analysis", "meqtl", "global_ances", "_m")
 
 if (!dir.exists(output_path)) {
   dir.create(output_path, recursive = TRUE)
@@ -22,7 +22,7 @@ if (!dir.exists(output_path)) {
 pheno_file_path <- here("inputs/phenotypes/_m/phenotypes-AA.tsv")
 pheno <- fread(pheno_file_path, header = TRUE)
 
-sample_file_path <- here("heritability/caudate/_m/samples.txt")
+sample_file_path <- here("covar-analysis/caudate/global_ances/_m/samples.txt")
 samples <- fread(sample_file_path, header = FALSE)
 colnames(samples) <- c("brnum", "fid")
 
@@ -40,7 +40,7 @@ as.data.frame(pheno) |>
 #### Combine residualized methylation matrix
 
                                         # Read in .phen files
-meth_file_path <- here("heritability/caudate/_m/vmr")
+meth_file_path <- here("covar-analysis/caudate/global_ances/_m/vmr")
 meth_files <- list.files(path = meth_file_path, pattern = "_meth\\.phen$", 
                          recursive = TRUE, full.names = TRUE)
 
@@ -71,7 +71,7 @@ as.data.frame(meth_matrix) |> tibble::rownames_to_column("feature_id") |>
 #data.table::fwrite(meth_df, "norm_vmr.tsv", sep='\t', row.names=TRUE)
 
 #### Export annotation
-bed_file_path <- here("heritability/caudate/_m/vmr.bed")
+bed_file_path <- here("covar-analysis/caudate/global_ances/_m/vmr.bed")
 vmr_bed <- fread(bed_file_path, header = FALSE)
 colnames(vmr_bed) <- c("seqnames", "start", "end")
 
