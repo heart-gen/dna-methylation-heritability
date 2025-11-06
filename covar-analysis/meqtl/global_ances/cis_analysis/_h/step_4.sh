@@ -35,9 +35,8 @@ module list
 
 # Set path variables
 log_message "**** Loading conda environment ****"
-#source /projects/p32505/opt/miniforge3/etc/profile.d/conda.sh
 
-ENV_PATH="/projects/p32505/opt/env/eQTL_env"
+ENV_PATH="/projects/p32505/opt/envs/genomics"
 
 conda run -p ${ENV_PATH} python ../_h/04.conditional_analysis.py
 
