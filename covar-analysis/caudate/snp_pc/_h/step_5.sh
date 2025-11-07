@@ -6,7 +6,7 @@
 #SBATCH --ntasks-per-node=1     # Number of cores (CPU)
 #SBATCH --mem=16G               # Memory limit
 #SBATCH --mail-type=FAIL
-#SBATCH --array=1-11575%250
+#SBATCH --array=1-12001%250
 #SBATCH --mail-user=alexis.bennett@northwestern.edu
 #SBATCH --job-name=extract_snp  # Job name
 #SBATCH --output=/dev/null      # Standard output log
@@ -76,16 +76,6 @@ if (( END_POS >= CHR_SIZE )); then
     exit 1
 fi
 
-plink2 --pfile "$DATA/TOPMed_LIBD.AA" \
-       --chr "$CHR" \
-       --from-bp "$START_POS" \
-       --to-bp "$END_POS" \
-       --make-bed \
-       --no-parents \
-       --no-sex \
-       --no-pheno \
-       --out "$CHR_DIR/TOPMed_LIBD.AA.${START}_${END}"
-
 echo "Extracting SNPs from AA subjects on $CHR: $START-$END ($WINDOW bp window)" 
 
 # Subset of SNPs in AA cohort
@@ -98,6 +88,6 @@ plink2 --pfile "$DATA/TOPMed_LIBD.AA" \
        --no-parents \
        --no-sex \
        --no-pheno \
-       --out "$CHR_DIR/subset_TOPMed_LIBD.AA.${START}_${END}"
+       --out "$CHR_DIR/TOPMed_LIBD.AA.${START}_${END}"
 
 log_message "**** Job ends ****"
