@@ -33,10 +33,13 @@ module load htslib/1.16
 module list
 
 # Set path variables
-log_message "**** Loading mamba environment ****"
+log_message "**** Loading conda environment ****"
 ENV_PATH="/projects/p32505/opt/envs"
 
-mamba run -p $ENV_PATH/ml \
+conda activate $ENV_PATH/ml
+
+export LD_LIBRARY_PATH=$CONDA_PREFIX/lib:$LD_LIBRARY_PATH
+
       python ../_h/03.prepare_expression.py \
       ./normalized_methylation.tsv \
       ./vcf_chr_list.txt vmrs \
@@ -48,5 +51,7 @@ if [ $? -ne 0 ]; then
     log_message "Error: Python script execution failed"
     exit 1
 fi
+
+conda deactivate
 
 log_message "**** Job ends ****"
