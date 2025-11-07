@@ -1,13 +1,13 @@
 #!/bin/bash
-#SBATCH --account=p32505        # Replace with your allocation
-#SBATCH --partition=short       # Partition (queue) name
-#SBATCH --time=01:00:00         # Time limit hrs:min:sec
-#SBATCH --nodes=1               # Number of nodes
-#SBATCH --ntasks-per-node=1     # Number of cores (CPU)
-#SBATCH --mem=25G                # Memory limit
-#SBATCH --job-name=make_annot  # Job name
-#SBATCH --output=logs/02.output_make_annot.log  # Standard output log
-#SBATCH --error=logs/02.error_make_annot_.log    # Standard error log
+#SBATCH --account=p32505
+#SBATCH --partition=short
+#SBATCH --time=01:00:00
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=1
+#SBATCH --mem=10G
+#SBATCH --job-name=make_annot
+#SBATCH --output=logs/02.output_make_annot.log
+#SBATCH --error=logs/02.error_make_annot_.log
 
 # Log function
 log_message() {
@@ -53,8 +53,8 @@ for REGION in "${BRAIN_REGIONS[@]}"; do
         --bimfile ${BIM_FILE} \
         --annot-file $OUT_DIR/${REGION}_${STATUS}.${CHR}.annot.gz \
         --windowsize 500000 \
-
-    done
+        
+		done
   done
 done
 
