@@ -28,8 +28,21 @@ get_top_meth <- function(BSobj, v) {
     return(list(BS = BS, meth = meth, id_top = id_top))
 }
 
-pca <- function(meth, output_path) {
-    pc <- prcomp(t(meth), scale. = TRUE, center = TRUE)
+get_ances <- function(ances_file_path, id_top) {
+    gen_ances <- read.table(ances_file_path, header=TRUE)
+    idx       <- match(id_top, gen_ances$id)
+    return(list(gen_ances = gen_ances, idx = idx))
+}
+
+res_ances <- function(meth, gen_ances, idx) {
+    design <- cbind(1, gen_ances$Afr[idx])
+    fit    <- limma::lmFit(meth, design)
+    resids <- limma::residuals.MArrayLM(fit, meth)
+    return(resids)
+}
+
+pca <- function(res, output_path) {
+    pc <- prcomp(t(res), scale. = TRUE, center = TRUE)
     print(cumsum(summary(pc)$importance[2,1:10]))
 
                                         # plot PCA
@@ -47,20 +60,28 @@ pca <- function(meth, output_path) {
 ## Main
                                         # create output directories if they  
                                         # don't exist
-output_path <- here("covar-analysis", "caudate", "no_snp_pc", "_m", "pca", paste0("chr_", chr))
+output_path <- here("covar-analysis", "caudate", "global_ances", "_m", "pca", paste0("chr_", chr))
 if (!dir.exists(output_path)) {
     dir.create(output_path, recursive = TRUE)
 }
 
                                         # load sd of raw DNAm
-load(here("covar-analysis", "caudate", "no_snp_pc", "_m", "cpg", paste0("chr_", chr), "stats.rda"))
+load(here("covar-analysis", "caudate", "global_ances", "_m", "cpg", paste0("chr_", chr), "stats.rda"))
 v <- data.frame(chr = chr, start = start(BSobj), sd = sds)
 
                                         # get top 1M variable CpG
 meth_top <- get_top_meth(BSobj, v)
 
+                                        # load genetic ancestry
+ances_file_path <- here("inputs/genetic-ancestry/structure.out_ancestry_proportion_raceDemo_compare")
+ances   <- get_ances(ances_file_path, meth_top$id_top)
+
+                                        # residual after regressing out
+                                        # Afr proportion
+res <- res_ances(meth_top$meth, ances$gen_ances, ances$idx)
+
                                         # perform and plot pca
-pc <- pca(meth_top$meth, output_path)
+pc <- pca(res, output_path)
 #    PC1     PC2     PC3     PC4     PC5     PC6     PC7     PC8     PC9    PC10 
 #0.06703 0.09666 0.11962 0.14005 0.15736 0.17040 0.18309 0.19547 0.20673 0.21757
 
