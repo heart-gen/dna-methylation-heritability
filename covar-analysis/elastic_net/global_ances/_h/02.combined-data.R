@@ -6,7 +6,8 @@ region  <- Sys.getenv("region")
 
                                         # Function
 read_data <- function(fn) {
-    return(readr::read_table(fn, show_col_types=FALSE))
+    return(readr::read_table(fn, show_col_types = FALSE,
+                    col_types = readr::cols(chrom = readr::col_character())))
 }
 
                                         # Loop through results directory
