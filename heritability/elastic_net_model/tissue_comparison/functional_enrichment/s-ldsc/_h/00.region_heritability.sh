@@ -1,13 +1,13 @@
 #!/bin/bash
-#SBATCH --account=p32505        # Replace with your allocation
-#SBATCH --partition=short       # Partition (queue) name
-#SBATCH --time=01:00:00         # Time limit hrs:min:sec
-#SBATCH --nodes=1               # Number of nodes
-#SBATCH --ntasks-per-node=1     # Number of cores (CPU)
-#SBATCH --mem=25G                # Memory limit
-#SBATCH --job-name=region_heritability  # Job name
-#SBATCH --output=logs/00.region_heritability_output.log  # Standard output log
-#SBATCH --error=logs/00.region_heritability_error.log    # Standard error log
+#SBATCH --account=p32505
+#SBATCH --partition=short
+#SBATCH --time=01:00:00
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=1
+#SBATCH --mem=10G
+#SBATCH --job-name=region_heritability
+#SBATCH --output=logs/00.region_heritability_output.log
+#SBATCH --error=logs/00.region_heritability_error.log
 
 # Log function
 log_message() {

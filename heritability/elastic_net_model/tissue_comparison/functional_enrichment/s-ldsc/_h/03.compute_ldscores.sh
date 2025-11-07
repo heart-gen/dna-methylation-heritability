@@ -1,14 +1,15 @@
 #!/bin/bash
-#SBATCH --account=p32505        # Replace with your allocation
-#SBATCH --partition=short       # Partition (queue) name
-#SBATCH --time=04:00:00         # Time limit hrs:min:sec
-#SBATCH --nodes=1               # Number of nodes
-#SBATCH --ntasks-per-node=1     # Number of cores (CPU)
-#SBATCH --mem=25G                # Memory limit
-#SBATCH --array=1-22               # Array job for chromosomes 1-22
-#SBATCH --job-name=compute_ldscores  # Job name
-#SBATCH --output=logs/03.output_compute_ldscores.%a.log  # Standard output log
-#SBATCH --error=logs/03.error_compute_ldscores.%a.log    # Standard error log
+#SBATCH --account=b1042
+#SBATCH --partition=genomics-gpu
+#SBATCH --time=08:00:00
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=1
+#SBATCH --mem=40G
+#SBATCH --array=1-22
+#SBATCH --job-name=compute_ldscores
+#SBATCH --gres=gpu:a100:1
+#SBATCH --output=logs/03.output_compute_ldscores.%a.log
+#SBATCH --error=logs/03.error_compute_ldscores.%a.log
 
 # Log function
 log_message() {
@@ -28,19 +29,16 @@ echo "Task id: ${SLURM_ARRAY_TASK_ID}"
 BRAIN_REGIONS=("caudate" "dlpfc" "hippocampus")
 HERITABILITY=("heritable" "non_heritable" "low_prediction")
 
-SCRIPT_DIR=/projects/p32505/users/elisa/dna-methylation-heritability/heritability/elastic_net_model/tissue_comparison/functional_enrichment/s-ldsc/ldsc
+SCRIPT=/projects/p32505/users/elisa/dna-methylation-heritability/heritability/elastic_net_model/tissue_comparison/functional_enrichment/s-ldsc/ldsc/ldsc.py
 BIM_DIR=/projects/p32505/users/elisa/dna-methylation-heritability/heritability/elastic_net_model/tissue_comparison/functional_enrichment/s-ldsc/GRCh38/plink_files
 HAPMAP3_SNPS=/projects/p32505/users/elisa/dna-methylation-heritability/heritability/elastic_net_model/tissue_comparison/functional_enrichment/s-ldsc/hm3_no_MHC.list.txt
 
 for REGION in "${BRAIN_REGIONS[@]}"; do
-
 	for STATUS in "${HERITABILITY[@]}"; do
 
     	OUT_DIR=/projects/p32505/users/elisa/dna-methylation-heritability/heritability/elastic_net_model/tissue_comparison/functional_enrichment/s-ldsc/_m/custom_ldscores/${REGION}/${STATUS}
 
-    	BIM_FILE=${BIM_DIR}/1000G.EUR.hg38.${SLURM_ARRAY_TASK_ID}.bim
-
-    	python $SCRIPT_DIR/ldsc.py \
+    	python $SCRIPT \
 			--l2 \
 			--bfile $BIM_DIR/1000G.EUR.hg38.${SLURM_ARRAY_TASK_ID} \
 			--ld-wind-cm 1 \
