@@ -67,6 +67,13 @@ resid_covariates <- function(covar_path, qcovar_path, pheno_raw) {
 }
 
 perform_snp_clumping <- function(G_imputed, info, pheno_scaled) {
+
+					# Convert X,Y chr to int
+    info$chromosome <- as.character(info$chromosome)
+    info$chromosome[info$chromosome == "X"] <- "23"
+    info$chromosome[info$chromosome == "Y"] <- "24"
+    info$chromosome <- as.integer(info$chromosome)    
+	
     corrs <- big_univLinReg(G_imputed, pheno_scaled)
     stat  <- abs(corrs$estim)
     ## Default parameters are 0.2 r2 threshold and windo of 500 kb
@@ -125,6 +132,7 @@ qcovar_path <- here("covar-analysis", "caudate", "no_snp_pc", "_m", "covs",
 pheno_resid <- resid_covariates(covar_path, qcovar_path, pheno_raw)
 
 pheno_scaled <- scale(pheno_resid)[, 1] # Center and scale data
+pheno_scaled <- as.numeric(pheno_scaled)
 
                                         # Filter out zero-variance SNPs
 snp_variances <- big_apply(
