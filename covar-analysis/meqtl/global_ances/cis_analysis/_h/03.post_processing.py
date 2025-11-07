@@ -17,7 +17,7 @@ def get_eqtl(prefix, perm_df):
 
 
 def main():
-    prefix = "TOPMed_LIBD"
+    prefix = "global_ances"
 
     # Load the permutation results
     perm_df = get_permutation_results(prefix)
