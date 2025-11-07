@@ -1,13 +1,13 @@
 #!/bin/bash
-#SBATCH --account=p32505        # Replace with your allocation
-#SBATCH --partition=short       # Partition (queue) name
-#SBATCH --time=01:00:00         # Time limit hrs:min:sec
-#SBATCH --nodes=1               # Number of nodes
-#SBATCH --ntasks-per-node=1     # Number of cores (CPU)
-#SBATCH --mem=30G                # Memory limit
-#SBATCH --job-name=partition_heritability  # Job name
-#SBATCH --output=logs/04.output_partition_heritability.log  # Standard output log
-#SBATCH --error=logs/04.error_partition_heritability.log    # Standard error log
+#SBATCH --account=p32505
+#SBATCH --partition=short
+#SBATCH --time=01:00:00
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=1
+#SBATCH --mem=10G
+#SBATCH --job-name=partition_heritability
+#SBATCH --output=logs/04.output_partition_heritability.log
+#SBATCH --error=logs/04.error_partition_heritability.log
 
 # Log function
 log_message() {
@@ -26,30 +26,45 @@ echo "Task id: ${SLURM_ARRAY_TASK_ID:-N/A}"
 
 BRAIN_REGIONS=("caudate" "dlpfc" "hippocampus")
 HERITABILITY=("heritable" "non_heritable" "low_prediction")
+DISEASES=("ad" "mdd" "scz")
 
-SCRIPT_DIR=/projects/p32505/users/elisa/dna-methylation-heritability/heritability/elastic_net_model/tissue_comparison/functional_enrichment/s-ldsc/ldsc
-SUMSTATS_DIR=/projects/p32505/users/elisa/dna-methylation-heritability/heritability/elastic_net_model/tissue_comparison/functional_enrichment/s-ldsc/_m/munged_sumstats
+SCRIPT=/projects/p32505/users/elisa/dna-methylation-heritability/heritability/elastic_net_model/tissue_comparison/functional_enrichment/s-ldsc/ldsc/ldsc.py
+SUMSTATS_DIR=/projects/p32505/users/elisa/dna-methylation-heritability/heritability/elastic_net_model/tissue_comparison/functional_enrichment/s-ldsc/_m/sumstats
 BASELINE_LD_DIR=/projects/p32505/users/elisa/dna-methylation-heritability/heritability/elastic_net_model/tissue_comparison/functional_enrichment/s-ldsc/GRCh38/baselineLD_v2.2
 WEIGHTS_DIR=/projects/p32505/users/elisa/dna-methylation-heritability/heritability/elastic_net_model/tissue_comparison/functional_enrichment/s-ldsc/GRCh38/weights
 FRQ_DIR=/projects/p32505/users/elisa/dna-methylation-heritability/heritability/elastic_net_model/tissue_comparison/functional_enrichment/s-ldsc/GRCh38/plink_files
 
-for REGION in "${BRAIN_REGIONS[@]}"; do
+for DISEASE in "${DISEASES[@]}"; do
+	echo "Processing disease: ${DISEASE}"
 
-	for STATUS in "${HERITABILITY[@]}"; do
+	for REGION in "${BRAIN_REGIONS[@]}"; do
 
-		CUSTOM_LD_DIR=/projects/p32505/users/elisa/dna-methylation-heritability/heritability/elastic_net_model/tissue_comparison/functional_enrichment/s-ldsc/_m/custom_ldscores/${REGION}/${STATUS}
-		OUT_DIR=/projects/p32505/users/elisa/dna-methylation-heritability/heritability/elastic_net_model/tissue_comparison/functional_enrichment/s-ldsc/_m/results/baseline
+		echo "Processing region: ${REGION}"
 
-		mkdir -p $OUT_DIR
+		for STATUS in "${HERITABILITY[@]}"; do
 
-		python $SCRIPT_DIR/ldsc.py \
-	    	--h2 $SUMSTATS_DIR/SCZ_GWAS_munged_filtered.sumstats.gz \
-	    	--ref-ld-chr $BASELINE_LD_DIR/baselineLD. \
-	    	--w-ld-chr $WEIGHTS_DIR/weights.hm3_noMHC. \
-			--frqfile-chr $FRQ_DIR/1000G.EUR.hg38. \
-			--thin-annot \
-			--overlap-annot \
-	    	--out $OUT_DIR/SCZ_baseline
+			echo "Processing status: ${STATUS}"
+
+			CUSTOM_LD_DIR=/projects/p32505/users/elisa/dna-methylation-heritability/heritability/elastic_net_model/tissue_comparison/functional_enrichment/s-ldsc/_m/custom_ldscores/${REGION}/${STATUS}
+			OUT_DIR=/projects/p32505/users/elisa/dna-methylation-heritability/heritability/elastic_net_model/tissue_comparison/functional_enrichment/s-ldsc/_m/results/${DISEASE}/${REGION}/${STATUS}
+
+			mkdir -p $OUT_DIR
+
+			for CHR in {1..22}; do
+
+			echo "Processing chromosome: ${CHR}"
+
+				python $SCRIPT \
+		    		--h2 $SUMSTATS_DIR/${DISEASE}.sumstats.gz \
+		    		--ref-ld $BASELINE_LD_DIR/baselineLD.${CHR} \
+		    		--ref-ld $CUSTOM_LD_DIR/${REGION}_${STATUS}.${CHR} \
+		    		--w-ld $WEIGHTS_DIR/weights.hm3_noMHC.${CHR} \
+					--frqfile $FRQ_DIR/1000G.EUR.hg38.${CHR} \
+					--overlap-annot \
+					--thin-annot \
+		    		--out $OUT_DIR/${DISEASE}_${REGION}_${STATUS}.${CHR}
+			done
+		done
 	done
 done
 
