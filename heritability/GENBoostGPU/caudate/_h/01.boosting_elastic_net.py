@@ -18,19 +18,9 @@ cp.random.seed(42)
 WINDOW_SIZE = 500_000
 EARLY_STOP = {"patience": 5, "min_delta": 1e-4, "warmup": 5}
 
-def get_error_list(error_file="../_h/snp-error-window.tsv"):
-    error_path = Path(error_file)
-    if error_path.exists():
-        df = pd.read_csv(error_path, sep="\t")
-        df["Chrom"] = df["Chr"].str.replace("chr", "", regex=False).astype(int)
-        return df[["Chrom", "Start", "End"]]
-    print(f"Warning: Error regions file not found: {error_file}")
-    return pd.DataFrame(columns=["Chrom", "Start", "End"])
-
-
 def get_vmr_list(region: str) -> pd.DataFrame:
-    base_dir = Path(here("heritability/gcta")) / region.lower() / "_m"
-    vmr_file = base_dir / "vmr_list.txt"
+    base_dir = Path(here("heritability")) / region.lower() / "_m"
+    vmr_file = base_dir / "vmr.bed"
     if not vmr_file.exists():
         raise FileNotFoundError(f"VMR list file not found: {vmr_file}")
     return pd.read_csv(vmr_file, sep="\t", header=None)
@@ -58,7 +48,7 @@ def load_fam(geno_path):
 
 def construct_data_path(chrom, start, end, region, dtype="plink"):
     chrom_dir = f"chr_{chrom}"
-    base_dir = Path(here("heritability/gcta")) / region.lower() / "_m"
+    base_dir = Path(here("heritability")) / region.lower() / "_m"
     if dtype.lower() == "plink":
         fn = f"subset_TOPMed_LIBD.AA.{start}_{end}.bed"
         return base_dir / "plink_format" / chrom_dir / fn
@@ -149,7 +139,6 @@ def main():
     if not region:
         raise ValueError("REGION environment variable must be set")
 
-    error_regions = get_error_list()
     vmr_list = get_vmr_list(region)
     windows, bim, fam = build_windows(region, vmr_list)
 
@@ -184,7 +173,7 @@ def main():
     )
 
     df = run_windows_with_dask(
-        windows, error_regions=error_regions, outdir="results",
+        windows, outdir="results",
         window_size=500_000, use_window=True,
         batch_size=best["batch_size"], fixed_params=fixed_fn,
         fixed_subsample=best["subsample_frac"],
