@@ -26,9 +26,6 @@ cols_to_keep = ["chrom", "start", "end"]
 heritable = heritable[cols_to_keep].copy()
 non_heritable = non_heritable[cols_to_keep].copy()
 
-# Optional: define low_prediction if you plan to use it later
-# low_prediction = df[(df["r_squared_cv"] <= 0.75)][cols_to_keep].copy()
-
 # Convert to "chr" format
 for df_subset in [heritable, non_heritable]:
     df_subset["chrom"] = df_subset["chrom"].astype(str).apply(lambda x: f"chr{x}" if not str(x).startswith("chr") else x)
@@ -56,7 +53,7 @@ for df_subset in [heritable, non_heritable]:
     df_subset.drop(columns=["start_hg19", "end_hg19"], inplace=True)
 
 # Sort by chromosome and position
-chrom_order = [f"chr{i}" for i in range(1, 23)] + ["chrX", "chrY"]
+chrom_order = [f"chr{i}" for i in range(1, 23)]
 for df_subset in [heritable, non_heritable]:
     df_subset["chrom"] = pd.Categorical(df_subset["chrom"], categories=chrom_order, ordered=True)
     df_subset.sort_values(by=["chrom", "start"], ascending=[True, True], inplace=True)
