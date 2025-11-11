@@ -6,8 +6,8 @@
 #SBATCH --ntasks-per-node=1
 #SBATCH --mem=10G
 #SBATCH --job-name=make_annot
-#SBATCH --output=logs/02.output_make_annot.log
-#SBATCH --error=logs/02.error_make_annot_.log
+#SBATCH --output=logs/02.output_%j.log
+#SBATCH --error=logs/02.error_%j.log
 
 # Log function
 log_message() {
