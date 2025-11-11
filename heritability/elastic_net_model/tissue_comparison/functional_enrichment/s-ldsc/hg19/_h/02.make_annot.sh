@@ -27,7 +27,7 @@ echo "Task id: ${SLURM_ARRAY_TASK_ID:-N/A}"
 module load bedtools/2.30.0
 
 BRAIN_REGIONS=("caudate" "dlpfc" "hippocampus")
-HERITABILITY=("heritable" "non_heritable")
+HERITABILITY=("heritable_hg19" "non_heritable_hg19")
 
 SCRIPT_DIR=../../ldsc
 BIM_DIR=../../resource/1000G_Phase3_plinkfiles
