@@ -25,8 +25,8 @@ echo "Node name: ${SLURM_NODENAME}"
 echo "Hostname: ${HOSTNAME}"
 echo "Task id: ${SLURM_ARRAY_TASK_ID}"
 
-BRAIN_REGIONS=("caudate")
-HERITABILITY=("heritable_lifted")
+BRAIN_REGIONS=("caudate" "dlpfc" "hippocampus")
+HERITABILITY=("heritable_hg19" "non_heritable_hg19")
 
 SCRIPT=../../ldsc/ldsc.py
 BIM_DIR=../../resource/1000G_Phase3_plinkfiles
