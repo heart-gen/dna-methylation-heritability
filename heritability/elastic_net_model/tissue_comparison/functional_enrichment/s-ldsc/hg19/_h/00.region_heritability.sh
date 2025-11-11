@@ -24,9 +24,6 @@ echo "Node name: ${SLURM_NODENAME}"
 echo "Hostname: ${HOSTNAME}"
 echo "Task id: ${SLURM_ARRAY_TASK_ID:-N/A}"
 
-conda init
-conda activate /projects/p32505/opt/envs/ml
-
 BRAIN_REGIONS=("caudate" "dlpfc" "hippocampus")
 
 for REGION in "${BRAIN_REGIONS[@]}"; do
@@ -44,7 +41,4 @@ for REGION in "${BRAIN_REGIONS[@]}"; do
     echo "Separation completed. Check files in $OUTPUT_DIR"
 
 done
-
-conda init
-conda deactivate
 log_message "**** Job ends ****"
