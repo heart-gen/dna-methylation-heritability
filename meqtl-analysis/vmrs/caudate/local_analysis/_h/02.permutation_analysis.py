@@ -14,22 +14,20 @@ def get_genotypes():
     return pgr.load_genotypes()[mask], variant_df[mask]
 
 
-def get_covars(feature = "genes"):
+def get_covars(feature = "vmrs"):
     covar_file = f"../../_m/{feature}.combined_covariates.txt"
     return pd.read_csv(covar_file, sep='\t', index_col=0).T
 
 
-def get_phenotype(feature = "genes"):
-    expr_bed = f"../../_m/{feature}.expression.bed.gz"
-    return read_phenotype_bed(expr_bed)
+def get_phenotype(feature = "vmrs"):
+    meth_bed = f"../../_m/{feature}.expression.bed.gz"
+    return read_phenotype_bed(meth_bed)
 
 
 def get_haplotypes(select_samples):
     """Make sure that samples match between haplotypes and genotypes."""
     rfmix_data_path = "/projects/b1213/resources/processed-data/" +\
         "local-ancestry/rfmix-version/_m/"
-    # rfmix_data_path = "/ocean/projects/bio250020p/shared/resources/" +\
-    #     "processed-data/local-ancestry/rfmix-version/_m/"
     binary_path = f"{rfmix_data_path}/binary_files"
     rfr = RFMixReader(prefix_path=rfmix_data_path,
                       binary_path=binary_path,
@@ -39,7 +37,7 @@ def get_haplotypes(select_samples):
 
 def main():
     # Load data
-    feature = "genes"
+    feature = "vmrs"
     covars_df = get_covars(feature)
     phenotype_df, phenotype_pos_df = get_phenotype(feature)
     genotype_df, variant_df = get_genotypes()
@@ -64,7 +62,6 @@ def main():
         res_df=perm_df, nominal_files=f"./{prefix}*.parquet",
         fdr=0.05, columns=cols # pre-select columns for speed
     )
-    print(f"{len(signif_pairs):,} pairs")
     signif_pairs.to_csv(f"{prefix}.signif_variants.txt.gz", sep="\t",
                         index=False)
 
@@ -89,7 +86,6 @@ def main():
         res_df=perm_df, nominal_files=f"./{prefix}*.parquet",
         fdr=0.05, columns=cols # pre-select columns for speed
     )
-    print(f"{len(signif_pairs):,} pairs")
     signif_pairs.to_csv(f"{prefix}.signif_variants.txt.gz", sep="\t",
                         index=False)
 
