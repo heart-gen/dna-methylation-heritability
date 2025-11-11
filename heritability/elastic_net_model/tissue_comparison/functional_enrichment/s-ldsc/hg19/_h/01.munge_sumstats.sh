@@ -25,19 +25,18 @@ echo "Hostname: ${HOSTNAME}"
 echo "Task id: ${SLURM_ARRAY_TASK_ID:-N/A}"
 
 SCRIPT=../../ldsc/munge_sumstats.py
-GWAS=../../gwas/scz_gwas.txt.gz
+GWAS=../../gwas/ad_gwas.txt.gz
 OUT_DIR=./sumstats
 mkdir -p $OUT_DIR
 
 python $SCRIPT \
     --sumstats $GWAS \
-    --out $OUT_DIR/scz \
-    --a1 A1 \
-    --a2 A2 \
-    --signed-sumstats BETA,0 \
-    --p PVAL \
-    --snp ID \
-    --N-cas-col NCAS \
-    --N-con-col NCON
+    --out $OUT_DIR/ad \
+    --a1 effect_allele \
+    --a2 other_allele \
+    --signed-sumstats beta,0 \
+    --p p_value \
+    --snp rsID \
+    --N 1126563
 
 log_message "**** Job ends ****"
