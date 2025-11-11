@@ -36,7 +36,8 @@ for REGION in "${BRAIN_REGIONS[@]}"; do
     echo "Running separation script for region: $REGION"
     python "$PYTHON_SCRIPT" \
         --input_file "$INPUT_FILE" \
-        --output_dir "$OUTPUT_DIR"
+        --output_dir "$OUTPUT_DIR" \
+        --chain_file hg38ToHg19.over.chain.gz
 
     echo "Separation completed. Check files in $OUTPUT_DIR"
 
