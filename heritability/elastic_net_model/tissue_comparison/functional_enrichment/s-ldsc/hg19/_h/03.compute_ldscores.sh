@@ -7,8 +7,8 @@
 #SBATCH --mem=10G
 #SBATCH --array=1-22
 #SBATCH --job-name=compute_ldscores
-#SBATCH --output=logs/03.output_compute_ldscores.%a.log
-#SBATCH --error=logs/03.error_compute_ldscores.%a.log
+#SBATCH --output=logs/03.output_%a.log
+#SBATCH --error=logs/03.error_%a.log
 
 # Log function
 log_message() {

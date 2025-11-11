@@ -6,8 +6,8 @@
 #SBATCH --ntasks-per-node=1
 #SBATCH --mem=20G
 #SBATCH --job-name=partition_heritability
-#SBATCH --output=logs/04.output_partition_heritability.log
-#SBATCH --error=logs/04.error_partition_heritability.log
+#SBATCH --output=logs/04.output_%j.log
+#SBATCH --error=logs/04.error_%j.log
 
 # Log function
 log_message() {

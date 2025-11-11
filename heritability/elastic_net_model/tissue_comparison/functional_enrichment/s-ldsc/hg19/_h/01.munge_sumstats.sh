@@ -6,8 +6,8 @@
 #SBATCH --ntasks-per-node=1
 #SBATCH --mem=10G
 #SBATCH --job-name=munge_sumstats
-#SBATCH --output=logs/01.output_munge_sumstats.log
-#SBATCH --error=logs/01.error_munge_sumstats.log
+#SBATCH --output=logs/01.output_%j.log
+#SBATCH --error=logs/01.error_%j.log
 
 # Log function
 log_message() {

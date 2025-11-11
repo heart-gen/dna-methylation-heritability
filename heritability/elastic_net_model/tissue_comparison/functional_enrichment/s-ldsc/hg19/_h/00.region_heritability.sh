@@ -6,8 +6,8 @@
 #SBATCH --ntasks-per-node=1
 #SBATCH --mem=10G
 #SBATCH --job-name=region_heritability
-#SBATCH --output=logs/00.region_heritability_output.log
-#SBATCH --error=logs/00.region_heritability_error.log
+#SBATCH --output=logs/00.output_%j.log
+#SBATCH --error=logs/00.error_%j.log
 
 # Log function
 log_message() {
@@ -24,6 +24,7 @@ echo "Node name: ${SLURM_NODENAME}"
 echo "Hostname: ${HOSTNAME}"
 echo "Task id: ${SLURM_ARRAY_TASK_ID:-N/A}"
 
+conda init
 conda activate /projects/p32505/opt/envs/ml
 
 BRAIN_REGIONS=("caudate" "dlpfc" "hippocampus")
@@ -44,5 +45,6 @@ for REGION in "${BRAIN_REGIONS[@]}"; do
 
 done
 
+conda init
 conda deactivate
 log_message "**** Job ends ****"
