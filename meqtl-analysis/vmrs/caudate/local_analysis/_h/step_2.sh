@@ -1,15 +1,15 @@
 #!/bin/bash
-#SBATCH --account=p32505
-#SBATCH --partition=gengpu
-#SBATCH --gres=gpu:h100:1
-#SBATCH --job-name=cis_mapping
+#SBATCH --account=b1042
+#SBATCH --partition=genomics-gpu
+#SBATCH --gres=gpu:a100:1
+#SBATCH --job-name=perm_mapping
 #SBATCH --mail-type=FAIL
 #SBATCH --mail-user=kynon.benjamin@northwestern.edu
 #SBATCH --nodes=1
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=40gb
 #SBATCH --output=logs/permutation-analysis.%j.log
-#SBATCH --time=02:00:00
+#SBATCH --time=06:00:00
 
 # Function to echo with timestamp
 log_message() {
