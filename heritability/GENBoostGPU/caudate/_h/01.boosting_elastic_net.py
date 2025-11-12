@@ -19,7 +19,7 @@ WINDOW_SIZE = 500_000
 EARLY_STOP = {"patience": 5, "min_delta": 1e-4, "warmup": 5}
 
 def get_vmr_list(region: str) -> pd.DataFrame:
-    base_dir = Path(here("heritability")) / region.lower() / "_m"
+    base_dir = Path("/projects/b1213/users/alexis/projects/dna-methylation-heritability/heritability") / region.lower() / "_m"
     vmr_file = base_dir / "vmr.bed"
     if not vmr_file.exists():
         raise FileNotFoundError(f"VMR list file not found: {vmr_file}")
@@ -48,7 +48,7 @@ def load_fam(geno_path):
 
 def construct_data_path(chrom, start, end, region, dtype="plink"):
     chrom_dir = f"chr_{chrom}"
-    base_dir = Path(here("heritability")) / region.lower() / "_m"
+    base_dir = Path("/projects/b1213/users/alexis/projects/dna-methylation-heritability/heritability") / region.lower() / "_m"
     if dtype.lower() == "plink":
         fn = f"subset_TOPMed_LIBD.AA.{start}_{end}.bed"
         return base_dir / "plink_format" / chrom_dir / fn
@@ -158,7 +158,6 @@ def main():
             "batch_size": [4096, 8192],
         },
         early_stop={"patience": 5, "min_delta": 1e-4, "warmup": 5},
-        use_window=True,
     )
 
     print("Best global parameters:", best)
