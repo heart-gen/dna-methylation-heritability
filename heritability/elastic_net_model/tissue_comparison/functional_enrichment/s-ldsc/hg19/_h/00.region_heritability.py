@@ -45,12 +45,17 @@ def liftover_coordinate(chrom, pos):
 for df_subset in [heritable, non_heritable]:
     df_subset["start_hg19"] = df_subset.apply(lambda x: liftover_coordinate(x["chrom"], x["start"]), axis=1)
     df_subset["end_hg19"] = df_subset.apply(lambda x: liftover_coordinate(x["chrom"], x["end"]), axis=1)
+    
     # Drop unmapped entries
     df_subset.dropna(subset=["start_hg19", "end_hg19"], inplace=True)
+    
     # Replace start/end with hg19 positions
     df_subset["start"] = df_subset["start_hg19"].astype(int)
     df_subset["end"] = df_subset["end_hg19"].astype(int)
     df_subset.drop(columns=["start_hg19", "end_hg19"], inplace=True)
+
+    # Remove rows where start > end
+    df_subset.drop(df_subset[df_subset["start"] > df_subset["end"]].index, inplace=True)
 
 # Sort by chromosome and position
 chrom_order = [f"chr{i}" for i in range(1, 23)]
