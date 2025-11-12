@@ -24,9 +24,9 @@ echo "Node name: ${SLURM_NODENAME}"
 echo "Hostname: ${HOSTNAME}"
 echo "Task id: ${SLURM_ARRAY_TASK_ID:-N/A}"
 
-BRAIN_REGIONS=("caudate")
-HERITABILITY=("heritable_lifted")
-DISEASES=("scz")
+BRAIN_REGIONS=("caudate" "dlpfc")
+HERITABILITY=("heritable_hg19" "non_heritable_hg19")
+DISEASES=("ad")
 
 SCRIPT=../../ldsc/ldsc.py
 SUMSTATS_DIR=./sumstats

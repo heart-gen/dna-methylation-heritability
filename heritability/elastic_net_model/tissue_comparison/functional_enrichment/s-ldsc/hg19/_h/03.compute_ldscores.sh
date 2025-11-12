@@ -1,11 +1,12 @@
 #!/bin/bash
-#SBATCH --account=p32505
-#SBATCH --partition=short
-#SBATCH --time=03:00:00
+#SBATCH --account=b1042
+#SBATCH --partition=genomics-gpu
+#SBATCH --time=08:00:00
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --mem=10G
 #SBATCH --array=1-22
+#SBATCH --gres=gpu:a100:1
 #SBATCH --job-name=compute_ldscores
 #SBATCH --output=logs/03.output_%a.log
 #SBATCH --error=logs/03.error_%a.log
