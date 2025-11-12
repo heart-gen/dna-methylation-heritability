@@ -18,6 +18,15 @@ cp.random.seed(42)
 WINDOW_SIZE = 500_000
 EARLY_STOP = {"patience": 5, "min_delta": 1e-4, "warmup": 5}
 
+def get_error_list(error_file):
+    error_path = Path(error_file)
+    if error_path.exists():
+        df = pd.read_csv(error_path, sep="\t", header=None)
+        df["Chrom"] = df["Chr"].str.replace("chr", "", regex=False).astype(int)
+        return df[["Chrom", "Start", "End"]]
+    print(f"Warning: Error regions file not found: {error_file}")
+    return pd.DataFrame(columns=["Chrom", "Start", "End"])
+
 def get_vmr_list(region: str) -> pd.DataFrame:
     base_dir = Path(here("heritability")) / region.lower() / "_m"
     vmr_file = base_dir / "vmr.bed"
@@ -139,7 +148,21 @@ def main():
     if not region:
         raise ValueError("REGION environment variable must be set")
 
+    error_file = Path(here("heritability")) / region.lower() / "_m" / "vmr_no_snps.bed"
+    error_regions = get_error_list(error_file)
     vmr_list = get_vmr_list(region)
+
+    # Filter regions with no SNPs
+    if not error_regions.empty:
+        vmr_list.columns = ["Chrom", "Start", "End"] 
+        merged = vmr_list.merge(error_regions, on=["Chrom", "Start", "End"],
+                                 how="left", indicator=True)
+        vmr_list = merged.loc[merged["_merge"] == "left_only", 
+                              ["Chrom", "Start", "End"]].reset_index(drop=True)
+        print(f"{len(vmr_list)} VMRs retained after regions with no SNPs")
+    else:
+        print("No error regions to filter — using full VMR list.")
+
     windows, bim, fam = build_windows(region, vmr_list)
 
     tuning_windows = select_tuning_windows(
