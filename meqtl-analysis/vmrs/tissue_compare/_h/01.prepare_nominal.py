@@ -19,7 +19,7 @@ def load_meqtl_parquet(region, localqtl=False):
         prefix = "TOPMed_LIBD.haps"
     else:
         prefix = "TOPMed_LIBD"
-    pattern = os.path.join(base_path, f"{prefix}.cis_qtl_pairs.chr*.parquet")
+    pattern = os.path.join(base_path, f"{prefix}.chr*.parquet")
     files = sorted(glob(pattern))
 
     if not files:
