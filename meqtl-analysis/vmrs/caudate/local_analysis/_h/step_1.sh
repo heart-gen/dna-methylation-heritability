@@ -4,7 +4,7 @@
 #SBATCH --gres=gpu:a100:1
 #SBATCH --job-name=cis_mapping
 #SBATCH --mail-type=FAIL
-#SBATCH --mail-user=kynon.benjamin@northwestern.edu
+#SBATCH --mail-user=elisajohnson2027@u.northwestern.edu
 #SBATCH --nodes=1
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=40gb
@@ -37,7 +37,7 @@ log_message "**** Loading conda environment ****"
 source /projects/p32505/opt/miniforge3/etc/profile.d/conda.sh
 conda activate /projects/p32505/opt/envs/genomics
 
-python ../_h/01.eqtl_localqtl.py
+python ../_h/01.meqtl_localqtl.py
 
 status=$?
 
