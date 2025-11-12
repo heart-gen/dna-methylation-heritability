@@ -7,7 +7,7 @@
 #SBATCH --nodes=1
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=50gb
-#SBATCH --output=logs/prepaprep_nominalre.%j.log
+#SBATCH --output=logs/prep_nominal.%j.log
 #SBATCH --time=10:00:00
 
 # Function to echo with timestamp
