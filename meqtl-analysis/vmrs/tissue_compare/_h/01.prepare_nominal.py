@@ -6,6 +6,7 @@ import session_info
 import argparse, os
 import pandas as pd
 from glob import glob
+from pathlib import Path
 
 # Brain regions to include
 BRAIN_REGIONS = ["caudate", "dlpfc", "hippocampus"]
@@ -44,7 +45,7 @@ def extract_meqtls(localqtl):
     return data
 
 
-def extract_dataframe(region_data, variable, label):
+def extract_dataframe(region_data, variable, label, outdir):
     """
     Combine the selected variable across regions into a single dataframe.
     """
@@ -59,7 +60,7 @@ def extract_dataframe(region_data, variable, label):
     for other in dfs[1:]:
         result = result.merge(other, on=["phenotype_id", "variant_id"])
 
-    output_file = f"{label}_nominal_3regions_AA.txt.gz"
+    output_file = outdir / f"{label}_nominal_3regions_AA.txt.gz"
     result.to_csv(output_file, sep='\t', index=False)
     print(f"Saved: {output_file}")
 
@@ -68,12 +69,13 @@ def main():
     # Parser
     parser = argparse.ArgumentParser()
     parser.add_argument('--localqtl', action='store_true')
+    parser.add_argument('--outdir', type=Path, default=Path("./"))
     args = parser.parse_args()
 
     # Extract data
     region_data = extract_meqtls(args.localqtl)
-    extract_dataframe(region_data, "slope", "bhat")
-    extract_dataframe(region_data, "slope_se", "shat")
+    extract_dataframe(region_data, "slope", "bhat", args.outdir)
+    extract_dataframe(region_data, "slope_se", "shat", args.outdir)
 
     # Session information
     session_info.show()
