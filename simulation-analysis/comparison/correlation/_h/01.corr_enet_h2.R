@@ -20,7 +20,7 @@ if (!dir.exists(out_path)) {
 
 results_list <- list()
 plot_list <- list()
-num_indivs <- c(100, 150, 200, 250, 500, 1000, 5000)
+num_indivs <- c(100, 250, 500, 5000)
 
 for (num_indiv in num_indivs) {
   
@@ -79,7 +79,7 @@ for (num_indiv in num_indivs) {
   # Plot for each sample size
   p <- ggscatter(merged, x = "target_heritability", y = "h2_unscaled",
                  add = "reg.line", size = 1, alpha = 0.75,
-                 xlab = "True h²", ylab = "Estimated h²",
+                 xlab = NULL, ylab = NULL,
                  conf.int = TRUE,
                  cor.coef = TRUE, cor.coef.size = 4,
                  cor.method = "spearman",
@@ -90,7 +90,7 @@ for (num_indiv in num_indivs) {
                    label.y.npc = 0.95
                  ),
                  add.params = list(fill = "lightgray", alpha = 0.75),
-                 ggtheme = theme_pubr(base_size = 15, border = TRUE)
+                 ggtheme = theme_pubr(base_size = 20, border = TRUE)
   ) +
     facet_wrap(~h2_category, labeller = as_labeller(labels), scales = "free_x") +
     scale_color_manual(values = category_colors) +
@@ -108,11 +108,18 @@ for (num_indiv in num_indivs) {
 }
 
 # Combine all plots into a 2x3 grid
-combined_plot <- ggarrange(plotlist = plot_list, ncol = 4, nrow = 2, labels = NULL)
+combined_plot <- ggarrange(plotlist = plot_list, ncol = 4, nrow = 2, 
+                           common.legend = TRUE, labels = NULL)
+
+combined_plot_annotated <- annotate_figure(
+  combined_plot,
+  left = text_grob("Estimated h²", rot = 90, size = 20),
+  bottom = text_grob("True h²", size = 20)
+)
 
 # Save combined plot
 plot_file <- file.path(out_path, "elastic_net_correlation_combined")
-save_plot(combined_plot, plot_file, w = 20, h = 10)
+save_plot(combined_plot, plot_file, w = 20, h = 4)
 
 # Combine and write results
 results_df <- bind_rows(results_list)
