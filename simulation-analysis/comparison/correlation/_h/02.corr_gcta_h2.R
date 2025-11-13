@@ -87,7 +87,7 @@ for (num_indiv in num_indivs) {
   # Plot for each sample size
   p <- ggscatter(filtered, x = "target_heritability", y = "Sum.of.V.G._Vp_Variance",
     add = "reg.line", size = 1, alpha = 0.75,
-    xlab = "True h²", ylab = "Estimated h²",
+    xlab = NULL, ylab = NULL,
     conf.int = TRUE,
     cor.coef = TRUE, cor.coef.size = 4,
     cor.method = "spearman",
@@ -115,7 +115,14 @@ for (num_indiv in num_indivs) {
   plot_list[[as.character(num_indiv)]] <- p
 }
 # Combine all plots into a 2x2 grid
-combined_plot <- ggarrange(plotlist = plot_list, ncol = 4, nrow = 2, labels = NULL)
+combined_plot <- ggarrange(plotlist = plot_list, ncol = 4, nrow = 2, 
+                           common.legend = TRUE, labels = NULL)
+
+combined_plot_annotated <- annotate_figure(
+  combined_plot,
+  left = text_grob("Estimated h²", rot = 90, size = 20),
+  bottom = text_grob("True h²", size = 20)
+)
 
 # Save combined plot
 plot_file <- file.path(out_path, "gcta_correlation_combined")
