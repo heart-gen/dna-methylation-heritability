@@ -37,7 +37,8 @@ log_message "**** Loading conda environment ****"
 source /projects/p32505/opt/miniforge3/etc/profile.d/conda.sh
 conda activate /projects/p32505/opt/envs/rnaseq
 
-Rscript ../_h/02.compute_mash_model_variables.R
+INPUT="general"
+Rscript ../_h/02.compute_mash_model_variables.R $INPUT
 
 if [ $? -ne 0 ]; then
     log_message "Error: Conda or script execution failed"

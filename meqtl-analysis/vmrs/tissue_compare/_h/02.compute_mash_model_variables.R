@@ -7,26 +7,27 @@ suppressPackageStartupMessages({
     library(ggpubr)
 })
 
-save_img <- function(image, fn, w = 7, h = 7) {
+save_img <- function(image, output_dir, fn, w = 7, h = 7) {
     for (ext in c(".svg", ".pdf")) {
-        ggsave(file = paste0(fn, ext), plot = image, width = w, height = h)
+        ggsave(file = file.path(output_dir, paste0(fn, ext)),
+               plot = image, width = w, height = h)
     }
 }
 
-get_bhat <- function(file = "bhat_nominal_3regions_AA.txt.gz") {
-    data.table::fread(file, header = TRUE, sep = "\t") |>
+get_bhat <- function(input_dir, file = "bhat_nominal_3regions_AA.txt.gz") {
+    data.table::fread(file.path(input_dir, file), header = TRUE, sep = "\t") |>
         mutate(effect = paste(phenotype_id, variant_id, sep = "_")) |>
         distinct(effect, .keep_all = TRUE)
 }
 
-get_shat <- function(file = "shat_nominal_3regions_AA.txt.gz") {
-    data.table::fread(file, header = TRUE, sep = "\t") |>
+get_shat <- function(input_dir, file = "shat_nominal_3regions_AA.txt.gz") {
+    data.table::fread(file.path(input_dir, file), header = TRUE, sep = "\t") |>
         mutate(effect = paste(phenotype_id, variant_id, sep = "_")) |>
         distinct(effect, .keep_all = TRUE)
 }
 
-plot_mixture_prop <- function(m) {
-    fn <- "barplot_estimated_pi"
+plot_mixture_prop <- function(m, output_dir) {
+    fn <- file.path(output_dir, "barplot_estimated_pi")
     df <- get_estimated_pi(m) |> as.data.frame() |>
         tibble::rownames_to_column("Model")
 
@@ -37,24 +38,24 @@ plot_mixture_prop <- function(m) {
         label = TRUE, label.pos = "out", lab.nb.digits = 2
     ) + font("y.title", face = "bold") + rotate_x_text(45)
 
-    save_img(brp, fn, 7, 7)
+    save_img(brp, output_dir, fn, 7, 7)
 }
 
-run_mashr <- function(seed, percentage) {
+run_mashr <- function(seed, percentage, input_dir, output_dir) {
     set.seed(seed)
                                         # Load prepared dat
     message("Load prepared data")
-    bhat <- get_bhat() |>
+    bhat <- get_bhat(input_dir) |>
         tibble::column_to_rownames("effect") |>
         select(-phenotype_id, -variant_id) |>
         as.matrix()
 
-    shat <- get_shat() |>
+    shat <- get_shat(input_dir) |>
         tibble::column_to_rownames("effect") |>
         select(-phenotype_id, -variant_id) |>
         as.matrix()
 
-    save(bhat, shat, file = "bhat_shat.RData")
+    save(bhat, shat, file = file.path(output_dir, "bhat_shat.RData"))
     n_conditions <- ncol(bhat)
 
                                         # Prepare random and strong subsets
@@ -109,7 +110,7 @@ run_mashr <- function(seed, percentage) {
                                         # Posterior summaries
     message("Compute posterior summaries")
     m2 <- mash(data_strong, g = get_fitted_g(m), fixg = TRUE)
-    save(m, Vhat, file = "model_variables.RData")
+    save(m, Vhat, file = file.path(output_dir, "model_variables.RData"))
     rm(data_strong, m, Vhat)
     gc(verbose = TRUE)
 
@@ -121,27 +122,52 @@ run_mashr <- function(seed, percentage) {
     message("Save significant results")
     sig_idx <- get_significant_results(m2)
     print(length(sig_idx))
-    save(m2, file = "mashr_meta_results.RData")
+    save(m2, file = file.path(output_dir, "mashr_meta_results.RData"))
 
     # Export LFSR and posterior means
     message("Export LFSR + posterior means")
     m2$result$lfsr |> as.data.frame() |>
         tibble::rownames_to_column("effect") |>
-        data.table::fwrite("lfsr.strong_signals.tsv", sep = "\t")
+        data.table::fwrite(file.path(output_dir, "lfsr.strong_signals.tsv"),
+                           sep = "\t")
     m2$result$PosteriorMean |> as.data.frame() |>
         tibble::rownames_to_column("effect") |>
-        data.table::fwrite("posterior_mean.strong_signals.tsv", sep = "\t")
+        data.table::fwrite(file.path(output_dir, "posterior_mean.strong_signals.tsv"),
+                           sep = "\t")
 
                                         # Mixture proportions
     message("Estimate mixture proportions")
     print(get_estimated_pi(m2))
-    plot_mixture_prop(m2)
+    plot_mixture_prop(m2, output_dir)
 }
 
-## Run mashr for specific feature
-seed       <- 20251113L
-percentage <- 0.05
-run_mashr(seed, percentage)
+## Parse command-line arguments
+args <- commandArgs(trailingOnly = TRUE)
+
+if (length(args) < 1) {
+    stop("
+Usage: Rscript 02.compute_mash_model_variables.R <input_dir> [output_dir] [seed] [percentage]
+
+Required:
+  input_dir       Directory containing bhat/shat files
+
+Optional:
+  output_dir      Where results go (default = input_dir)
+  seed            Default = 20220422
+  percentage      Random subset percentage, default = 0.05
+")
+}
+
+input_dir   <- normalizePath(args[1], mustWork = TRUE)
+output_dir  <- ifelse(length(args) >= 2, normalizePath(args[2], mustWork = FALSE), input_dir)
+seed        <- ifelse(length(args) >= 3, as.integer(args[3]), 20220422L)
+percentage  <- ifelse(length(args) >= 4, as.numeric(args[4]), 0.05)
+
+if (!dir.exists(output_dir)) {
+    dir.create(output_dir, recursive = TRUE)
+}
+
+run_mashr(seed, percentage, input_dir, output_dir)
 
 ## Reproducibility information
 Sys.time()
