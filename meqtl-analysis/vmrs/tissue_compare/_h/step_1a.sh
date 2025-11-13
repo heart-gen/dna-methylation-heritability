@@ -36,7 +36,10 @@ log_message "**** Loading conda environment ****"
 
 source /projects/p32505/opt/miniforge3/etc/profile.d/conda.sh
 conda activate /projects/p32505/opt/envs/genomics
-python ../_h/01.prepare_nominal.py --localqtl
+
+OUTDIR="local"
+mkdir -p $OUTDIR
+python ../_h/01.prepare_nominal.py --localqtl --outdir $OUTDIR
 
 if [ $? -ne 0 ]; then
     log_message "Error: Conda or script execution failed"
