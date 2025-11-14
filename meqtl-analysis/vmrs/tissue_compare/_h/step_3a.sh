@@ -6,8 +6,8 @@
 #SBATCH --mail-user=elisajohnson2027@u.northwestern.edu ## replace with your email
 #SBATCH --nodes=1
 #SBATCH --cpus-per-task=1
-#SBATCH --mem=150gb
-#SBATCH --output=logs/prep_model_variables.%j.log
+#SBATCH --mem=30gb
+#SBATCH --output=logs/allpairs.chunk_data.%j.log
 #SBATCH --time=01:00:00
 
 # Function to echo with timestamp
@@ -38,7 +38,10 @@ source /projects/p32505/opt/miniforge3/etc/profile.d/conda.sh
 conda activate /projects/p32505/opt/envs/rnaseq
 
 INPUT="local"
-Rscript ../_h/02.compute_mash_model_variables.R $INPUT
+OUTDIR="${INPUT}/temp"
+mkdir -p ${OUTPUT}
+
+Rscript ../_h/03.generate_chunks.R --chunk_size 500 --input $INPUT --output $OUTDIR
 
 if [ $? -ne 0 ]; then
     log_message "Error: Conda or script execution failed"
