@@ -1,6 +1,6 @@
 #!/bin/bash
-#SBATCH --account=b1042
-#SBATCH --partition=genomics
+#SBATCH --account=p32505
+#SBATCH --partition=short
 #SBATCH --job-name=prep_nominal
 #SBATCH --mail-type=FAIL ## If you want to have it email you for any reason
 #SBATCH --mail-user=elisajohnson2027@u.northwestern.edu ## replace with your email
