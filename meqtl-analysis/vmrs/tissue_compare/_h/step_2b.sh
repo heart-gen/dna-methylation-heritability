@@ -8,7 +8,7 @@
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=150gb
 #SBATCH --output=logs/prep_model_variables.%j.log
-#SBATCH --time=10:00:00
+#SBATCH --time=01:00:00
 
 # Function to echo with timestamp
 log_message() {
