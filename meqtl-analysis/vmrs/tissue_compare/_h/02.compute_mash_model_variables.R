@@ -27,7 +27,7 @@ get_shat <- function(input_dir, file = "shat_nominal_3regions_AA.txt.gz") {
 }
 
 plot_mixture_prop <- function(m, output_dir) {
-    fn <- file.path(output_dir, "barplot_estimated_pi")
+    fn <- "barplot_estimated_pi"
     df <- get_estimated_pi(m) |> as.data.frame() |>
         tibble::rownames_to_column("Model")
 
