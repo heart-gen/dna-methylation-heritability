@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --account=p32505
 #SBATCH --partition=short
-#SBATCH --time=01:00:00
+#SBATCH --time=04:00:00
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --mem=20G
@@ -24,9 +24,9 @@ echo "Node name: ${SLURM_NODENAME}"
 echo "Hostname: ${HOSTNAME}"
 echo "Task id: ${SLURM_ARRAY_TASK_ID:-N/A}"
 
-BRAIN_REGIONS=("caudate" "dlpfc")
+DISEASES=("ad" "md" "scz")
+BRAIN_REGIONS=("caudate" "dlpfc" "hippocampus")
 HERITABILITY=("heritable_hg19" "non_heritable_hg19")
-DISEASES=("ad")
 
 SCRIPT=../../ldsc/ldsc.py
 SUMSTATS_DIR=./sumstats
