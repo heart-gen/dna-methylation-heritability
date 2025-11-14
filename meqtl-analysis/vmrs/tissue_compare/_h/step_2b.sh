@@ -3,7 +3,7 @@
 #SBATCH --partition=genomics
 #SBATCH --job-name=prep_model_variables
 #SBATCH --mail-type=FAIL ## If you want to have it email you for any reason
-#SBATCH --mail-user=alexis.bennett@northwestern.edu ## replace with your email
+#SBATCH --mail-user=elisajohnson2027@u.northwestern.edu ## replace with your email
 #SBATCH --nodes=1
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=150gb
