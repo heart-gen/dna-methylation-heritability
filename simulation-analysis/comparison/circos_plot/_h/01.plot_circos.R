@@ -5,6 +5,7 @@ suppressPackageStartupMessages({
     library(circlize)
     library(data.table)
     library(ComplexHeatmap)
+    library(RColorBrewer)
 })
 
 extract_bed <- function(num_indiv){
@@ -34,9 +35,9 @@ plot_circos_7samples <- function(samples_list){
                                         # initialize with ideogram
                                         # use hg38, default is hg19
     circos.initializeWithIdeogram(species="hg38")
-    herit_colors <- c("Heritable" = "#497C8A", "Non-heritable" = "#8CA77B")
+    herit_colors <- c("Heritable" = "#0072B2", "Non-heritable" = "#1B9E77")
     
-    bg_colors <- brewer.pal(n = length(samples_list), "Greys")
+    bg_colors <- brewer.pal(n = length(samples_list), "Set3")
                                         # Plot each sample size as a track
     for (i in seq_along(samples_list)) {
       target <- samples_list[[i]]
