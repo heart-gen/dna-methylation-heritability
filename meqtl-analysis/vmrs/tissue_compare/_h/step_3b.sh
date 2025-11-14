@@ -37,11 +37,11 @@ log_message "**** Loading conda environment ****"
 source /projects/p32505/opt/miniforge3/etc/profile.d/conda.sh
 conda activate /projects/p32505/opt/envs/rnaseq
 
-INPUT="local"
+INPUT="general"
 OUTDIR="${INPUT}/temp"
 mkdir -p ${OUTDIR}
 
-Rscript ../_h/03.generate_chunks.R "local" "$OUTDIR" 500
+Rscript ../_h/03.generate_chunks.R "general" "$OUTDIR" 500
 
 if [ $? -ne 0 ]; then
     log_message "Error: Conda or script execution failed"
