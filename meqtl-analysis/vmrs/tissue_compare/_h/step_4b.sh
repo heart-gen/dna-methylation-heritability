@@ -38,7 +38,7 @@ log_message "**** Loading conda environment ****"
 source /projects/p32505/opt/miniforge3/etc/profile.d/conda.sh
 conda activate /projects/p32505/opt/envs/rnaseq
 
-MODEL="local"
+MODEL="general"
 OUTDIR="${MODEL}/temp"
 mkdir -p ${OUTPUT}
 
