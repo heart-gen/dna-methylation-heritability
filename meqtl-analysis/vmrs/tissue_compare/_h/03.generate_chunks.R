@@ -1,7 +1,3 @@
-suppressPackageStartupMessages({
-    library(argparse)
-})
-
 chunk_data <- function(chunk_size, input_dir, output_dir){
     load(file.path(input_dir, "bhat_shat.RData"))
     chunks = split(1:dim(bhat)[1],
@@ -15,19 +11,32 @@ chunk_data <- function(chunk_size, input_dir, output_dir){
     }
 }
 
+## Parse command-line arguments
+args <- commandArgs(trailingOnly = TRUE)
 
-## Create parser object
-parser <- ArgumentParser()
-parser$add_argument("-c", "--chunk_size", type="integer", default=250,
-                    help="Chunk size used for parallel run [default: %default]")
-parser$add_argument("-o", "--output", type="character", default="output",
-                    help="Output directory for files [default: %default]")
-parser$add_argument("-i", "--input", type="character", default="input",
-                    help="Output directory for files [default: %default]")
-args <- parser$parse_args()
+if (length(args) < 1) {
+    stop("
+Usage: Rscript 03.generate_chunks.R <input_dir> <output_dir> [chunk_size]
+
+Required:
+  input_dir       Directory containing bhat/shat files
+  output_dir      Where the chunks will go
+
+Optional:
+  chunk_size      Default = 250
+")
+}
+
+input_dir   <- normalizePath(args[1], mustWork = TRUE)
+output_dir  <- normalizePath(args[2], mustWork = TRUE)
+chunk_size  <- ifelse(length(args) >= 3, as.integer(args[3]), 250)
+
+if (!dir.exists(output_dir)) {
+    dir.create(output_dir, recursive = TRUE)
+}
 
 ## Run mashr for specific feature
-chunk_data(args$chunk_size, args$input, args$output)
+chunk_data(chunk_size, input_dir, output_dir)
 
 ## Reproducibility information
 Sys.time()
