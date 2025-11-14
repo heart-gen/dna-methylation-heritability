@@ -20,7 +20,7 @@ if (!dir.exists(out_path)) {
 
 results_list <- list()
 plot_list <- list()
-num_indivs <- c(100, 250, 500, 5000)
+num_indivs <- c(100, 150, 200, 250, 500, 1000, 5000)
 
 for (num_indiv in num_indivs) {
   
@@ -92,14 +92,18 @@ for (num_indiv in num_indivs) {
                  add.params = list(fill = "lightgray", alpha = 0.75),
                  ggtheme = theme_pubr(base_size = 20, border = TRUE)
   ) +
-    facet_wrap(~h2_category, labeller = as_labeller(labels), scales = "free_x") +
+    facet_wrap(~h2_category, scales = "free_x") +
     scale_color_manual(values = category_colors) +
-    ggtitle(paste("N =", num_indiv)) +
+    #ggtitle(paste("N =", num_indiv)) +
     labs(color = NULL) +
     font("xy.title", face = "bold", size = 14) +
     theme(
+      axis.title.x = element_blank(),
+      axis.title.y = element_blank(),
       axis.text.x = element_text(angle = 45, hjust = 1),
-      plot.title = element_text(hjust = 0.5)
+      plot.title = element_text(hjust = 0.5),
+      strip.text = element_blank(),
+      strip.background = element_blank()
     ) +
     coord_cartesian(ylim = c(0, 1)) +
     geom_hline(yintercept = 0.1, linetype = "dashed", color = "#2A0F07")
@@ -108,7 +112,7 @@ for (num_indiv in num_indivs) {
 }
 
 # Combine all plots into a 2x3 grid
-combined_plot <- ggarrange(plotlist = plot_list, ncol = 4, nrow = 2, 
+combined_plot <- ggarrange(plotlist = plot_list, ncol = 1, nrow = 7, 
                            common.legend = TRUE, labels = NULL)
 
 combined_plot_annotated <- annotate_figure(
@@ -119,7 +123,7 @@ combined_plot_annotated <- annotate_figure(
 
 # Save combined plot
 plot_file <- file.path(out_path, "elastic_net_correlation_combined")
-save_plot(combined_plot, plot_file, w = 20, h = 4)
+save_plot(combined_plot_annotated, plot_file, w = 6, h = 20)
 
 # Combine and write results
 results_df <- bind_rows(results_list)
