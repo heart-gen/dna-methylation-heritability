@@ -36,14 +36,14 @@ module list
 log_message "**** Loading conda environment ****"
 
 source /projects/p32505/opt/miniforge3/etc/profile.d/conda.sh
-conda activate /projects/p32505/opt/envs/rnaseq
+conda activate /projects/p32505/opt/envs/genomics
 
 MODEL="local"
 OUTDIR="${MODEL}/temp"
 mkdir -p ${OUTPUT}
 
 LABELS=("lfsr" "posterior_mean")
-Rscript ../_h/05.combine_results.py --input-dir $OUTDIR --output-dir $MODEL \
+python ../_h/05.combine_results.py --input-dir $OUTDIR --output-dir $MODEL \
         --label ${LABELS[${SLURM_ARRAY_TASK_ID}]}
 
 if [ $? -ne 0 ]; then
