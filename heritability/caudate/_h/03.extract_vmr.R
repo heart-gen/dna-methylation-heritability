@@ -1,4 +1,4 @@
-#### Extract VMRs ####
+#### Extract variably methylated regions ####
 
 suppressPackageStartupMessages({
     library('data.table')
@@ -8,7 +8,7 @@ suppressPackageStartupMessages({
 args <- commandArgs(trailingOnly = TRUE)
 chr  <- args[1]
 
-# Function
+## Function
 get_vmr <- function(v, out_vmr) {
   sdCut  <- quantile(v[, 3], prob = 0.99, na.rm = TRUE)
   vmrs   <- c()
@@ -24,7 +24,7 @@ get_vmr <- function(v, out_vmr) {
   return(vmr)
 }
 
-# Main
+## Main
 
                                         # create output dir if doesn't exist
 output_path <- here("heritability/caudate/_m/vmr", paste0("chr_", chr))
