@@ -17,7 +17,7 @@ get_top_meth <- function(BSobj, v) {
 
                                         # get top 1M variable CpG
     v_top  <- v[order(v$sd * -1), ]
-    v_top  <- v_top[1:10^6, ]
+    v_top  <- v_top[1:min(10^6, nrow(v_top)), ]
 
                                         # DNAm levels for top 1M
     tmp    <- v_top[v_top$chr == chr, ]
@@ -28,22 +28,30 @@ get_top_meth <- function(BSobj, v) {
     return(list(BS = BS, meth = meth, id_top = id_top))
 }
 
-get_ances <- function(ances_file_path, id_top) {
-    gen_ances <- read.table(ances_file_path, header=TRUE)
-    idx       <- match(id_top, gen_ances$id)
-    return(list(gen_ances = gen_ances, idx = idx))
+get_snp_pcs <- function(pc_file_path) {
+    pc_cols <- paste0("snpPC", 1:10)
+    snp_pcs <- fread(pc_file_path, header=TRUE)[
+      race == "AA" & agedeath >= 17 & region == "caudate",
+      c("brnum", pc_cols), with = FALSE
+    ]
+    na_samples <- snp_pcs$brnum[rowSums(is.na(snp_pcs)) > 0]
+
+    if(length(na_samples) > 0) {
+      message("Removing samples with NA values: ", paste(na_samples))
+      snp_pcs <- snp_pcs[!brnum %in% na_samples]
+    }
+    return(snp_pcs)
 }
 
-res_ances <- function(meth, gen_ances, idx) {
-    res <- meth
-    for(i in 1:nrow(meth)) {
-      if (i %% 10000 == 0) {
-        cat(i, "\n")
-      }
-      model    <- lm(meth[i, ] ~ gen_ances$Afr[idx])
-      res[i, ] <- resid(model)
-    }
-    return(res)
+res_snp_pcs <- function(meth, snp_pcs) {
+    meth <- meth[, colnames(meth) %in% snp_pcs$brnum]
+    snp_pcs <- snp_pcs[match(colnames(meth), snp_pcs$brnum), 
+                       paste0("snpPC", 1:3)]
+    design <- cbind(1, as.matrix(snp_pcs))
+    fit    <- limma::lmFit(meth, design)
+    resids <- limma::residuals.MArrayLM(fit, meth)
+
+    return(resids)
 }
 
 pca <- function(res, output_path) {
@@ -62,17 +70,6 @@ pca <- function(res, output_path) {
     return(pc)
 }
 
-corr_pc_ances <- function(pc, gen_ances, idx, output_path) {
-    res <- matrix(NA, nrow=ncol(pc$x), ncol=2)
-    colnames(res) <- c("Correlation", "p-value")
-    for(i in 1:ncol(pc$x)){
-      tmp       <- cor.test(gen_ances$Afr[idx], pc$x[, i])
-      res[i, 1] <- tmp$estimate
-      res[i, 2] <- tmp$p.value
-    }
-    write.csv(res, file = file.path(output_path, "pc_ances_cor.csv"))
-}
-
 ## Main
                                         # create output directories if they  
                                         # don't exist
@@ -88,21 +85,18 @@ v <- data.frame(chr = chr, start = start(BSobj), sd = sds)
                                         # get top 1M variable CpG
 meth_top <- get_top_meth(BSobj, v)
 
-                                        # load genetic ancestry
-ances_file_path <- here("inputs/genetic-ancestry/structure.out_ancestry_proportion_raceDemo_compare")
-ances   <- get_ances(ances_file_path, meth_top$id_top)
+                                        # get SNP PCs
+pc_file_path <- here("inputs/phenotypes/_m/phenotypes-AA.tsv")
+snp_pcs   <- get_snp_pcs(pc_file_path)
 
                                         # residual after regressing out
-                                        # Afr proportion
-res <- res_ances(meth_top$meth, ances$gen_ances, ances$idx)
+                                        # top 3 SNP PCs
+res <- res_snp_pcs(meth_top$meth, snp_pcs)
 
                                         # perform and plot pca
 pc <- pca(res, output_path)
-#PC1     PC2     PC3     PC4     PC5     PC6     PC7     PC8     PC9    PC10 
-#0.05648 0.08545 0.11074 0.13106 0.15105 0.16687 0.17921 0.19071 0.20140 0.21163 
-
-                                        # correlation of pc with ancestry
-corr_pc_ances(pc, ances$gen_ances, ances$idx, output_path)
+#    PC1     PC2     PC3     PC4     PC5     PC6     PC7     PC8     PC9    PC10 
+#0.06703 0.09666 0.11962 0.14005 0.15736 0.17040 0.18309 0.19547 0.20673 0.21757 
 
 #### Reproducibility information ####
 print("Reproducibility information:")
