@@ -79,7 +79,7 @@ cat("Found", length(tmp_files), "files to read\n")
 output_file <- file.path(output_path, "res_var_all.tsv")
 first_chunk <- TRUE
 
-cpg_path <- here("covar-analysis", "caudate", "snp_pc", "_m", "cpg", paste0("chr_", chr))
+cpg_path <- here("heritability", "caudate", "_m", "cpg", paste0("chr_", chr))
 res_meth_file <- file.path(cpg_path, paste0("res_cpg_meth.phen"))
 
 for (chunk_path in tmp_files) {
