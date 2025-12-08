@@ -9,7 +9,6 @@ suppressPackageStartupMessages({
 })
 
 ## Function
-
 filter_sites <- function(enet) {
   vmr <- na.omit(enet)
   vmr <- vmr %>% 
@@ -105,6 +104,24 @@ groups <- meth_df |>
   inner_join(vmr, by = c("chr" = "chrom", "start", "end"))
 merged <- groups |>
   inner_join(pheno, "brnum")
+
+                                        # Write df to file
+out_table <- file.path(out_path, paste0("vmr_env_assoc-AA.tsv"))
+fwrite(merged, out_table, sep = "\t", quote = FALSE)
+
+                                        # Basic boxplot for exploratory
+p <- ggplot(data=subset(merged, !is.na(smoking)), aes(x = smoking, y = meth)) +
+  facet_wrap(~h2_category) +
+  geom_boxplot()
+p
+
+merged %>% 
+  group_by(smoking, h2_category) %>%
+  summarize(
+    count = n(),
+    mean = mean(meth),
+    sd = sd(meth)
+  )
 
 #### Reproducibility ####
 print("Reproducibility information:")
