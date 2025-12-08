@@ -49,7 +49,8 @@ merge_meth <- function(meth_files){
     df <- df %>%
       mutate(chr   = as.integer(sub("chr_","", chr)),
              start = as.integer(pos[1]),
-             end   = as.integer(pos[2]))
+             end   = as.integer(pos[2]),
+             feature_id = paste0("VMR", i))
     meth_list[[i]] <- df
   }
                                         # Bind meth matrix
@@ -101,12 +102,13 @@ meth_df        <- merge_meth(meth_files)
                                         # Merge with h2 groups and 
                                         # environmental variables
 groups <- meth_df |>
-  inner_join(vmr, by = c("chr" = "chrom", "start", "end"))
+  inner_join(vmr, "feature_id")
 merged <- groups |>
-  inner_join(pheno, "brnum")
+  inner_join(pheno, "brnum") |>
+  arrange(feature_id)
 
                                         # Write df to file
-out_table <- file.path(out_path, paste0("vmr_env_assoc-AA.tsv"))
+out_table <- file.path(out_path, paste0("vmr_env_assoc-AA.tsv.gz"))
 fwrite(merged, out_table, sep = "\t", quote = FALSE)
 
                                         # Basic boxplot for exploratory
