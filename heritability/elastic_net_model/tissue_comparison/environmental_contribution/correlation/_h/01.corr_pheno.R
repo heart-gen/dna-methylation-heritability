@@ -21,7 +21,7 @@ filter_sites <- function(enet) {
     h2_category = factor(h2_category,
                          levels = c("Heritable", "Non-heritable", "Low prediction"))
     ) %>% 
-    filter(h2_category == c("Non-heritable", "Low prediction"))
+    filter(h2_category %in% c("Non-heritable", "Low prediction"))
   
   return(vmr)
 }
@@ -102,7 +102,7 @@ meth_df        <- merge_meth(meth_files)
                                         # Merge with h2 groups and 
                                         # environmental variables
 groups <- meth_df |>
-  inner_join(vmr, "feature_id")
+  inner_join(vmr, by = c("chr" = "chrom", "start", "end"))
 merged <- groups |>
   inner_join(pheno, "brnum") |>
   arrange(feature_id)
