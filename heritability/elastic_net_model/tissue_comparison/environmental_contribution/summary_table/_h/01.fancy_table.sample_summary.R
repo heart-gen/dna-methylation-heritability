@@ -55,12 +55,12 @@ pheno_df <- clean_table(pheno_file_path, vars_to_include)
 
                                          # Generate pretty tables
 fn <- "environmental_factors.table"
-pp <- pheno_df |> select(!c("agedeath", "education")) |>
+pp <- pheno_df |> select(!c("education")) |>
     mutate(sex=factor(sex, labels=c("Female", "Male")),
            primarydx=factor(forcats::fct_drop(primarydx), labels=c("CTL", "SCZ"))) |>
     tbl_summary(by="region", missing="no",
                 label = list(
-                  sex ~ "Sex", primarydx ~ "Diagnosis", smoking ~ "Smoking",
+                  agedeath ~ "Age", sex ~ "Sex", primarydx ~ "Diagnosis", smoking ~ "Smoking",
                   codeine ~ "Codeine", morphine ~ "Morphine", cocaine ~ "Cocaine",
                   ethanol ~ "Ethanol", amphetamines ~ "Amphetamines",
                   antipsychotics ~ "Antipsychotics", nicotine ~ "Nicotine",
