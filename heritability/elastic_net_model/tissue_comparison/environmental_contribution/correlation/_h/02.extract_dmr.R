@@ -20,7 +20,10 @@ get_dmr <- function(pheno_matrix, var) {
   meth_levels <- meth_levels[ , -1]
   
   pheno_matrix <- pheno_matrix %>% drop_na(var) %>%
-    distinct(brnum, .keep_all = TRUE)
+    distinct(brnum, .keep_all = TRUE) %>%
+    mutate(education = as.numeric(as.factor(education))) %>%
+    mutate(marital_status = as.numeric(as.factor(marital_status)))
+  
                                         # Differential DNAm for env phenos
   meth_t <- t(meth_levels)
   
@@ -31,10 +34,8 @@ get_dmr <- function(pheno_matrix, var) {
   fit    <- limma::lmFit(meth_t, design)
   fit    <- eBayes(fit)
   
-  
-  res <- as.data.frame(fit)
-  
                                         # FDR correction
+  res <- as.data.frame(fit)
   res$fdr <- p.adjust(res$p.value.x2, method="fdr")
 
   return(res)
@@ -59,7 +60,7 @@ vars_to_include <- c(
 pheno_matrix_fn <- here("heritability", "elastic_net_model", "tissue_comparison",
                         "environmental_contribution", "correlation", "_m",
                         "vmr_env_assoc-AA.tsv.gz")
-pheno_matrix <- fread(pheno_matrix_fn)
+pheno_matrix <- fread(pheno_matrix_fn, na.strings = c(NA, ""))
 vmr_ids <- pheno_matrix %>% distinct(feature_id)
 
 for (env in vars_to_include) {
@@ -73,13 +74,13 @@ for (env in vars_to_include) {
   print(paste("At FDR < 0.1 there are", sum(res$fdr < 0.1), "signficant DMRs"))
   print(paste("At p < 0.05 there are", sum(res$p.value.x2 < 0.05), "signficant DMRs"))
   
-  # Output significant dmrs
+                                        # Output significant dmrs
   merged <- as.data.frame(cbind(vmr_ids, res)) %>%
     left_join(select(pheno_matrix, chr, start, end, feature_id), multiple = "first") %>%
     select("feature_id", "chr", "start", "end", everything())
   
-  out_dmr <- file.path(out_path, paste0(env, "_dmr.csv"))
-  write.csv(merged, out_dmr)
+  out_dmr <- file.path(out_path, paste0(env, "_dmr.tsv"))
+  fwrite(merged, out_dmr)
 }
 
 #### Reproducibility ####
