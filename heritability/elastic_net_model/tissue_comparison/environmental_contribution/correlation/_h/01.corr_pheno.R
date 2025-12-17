@@ -134,6 +134,39 @@ merged %>%
     sd = sd(meth)
   )
 
+merged <- merged %>% drop_na(smoking)
+
+                                        # Initialize results matrix
+feature_ids <- unique(merged$feature_id)
+results <- matrix(NA, nrow=length(feature_ids), ncol=4)
+rownames(results) <- feature_ids
+colnames(results) <- c("beta","se", "t", "p")
+
+                                        # Grouped logistic regression
+for (vmr in feature_ids) {
+  print(paste("Running logistic regression on", vmr, "as a function of smoking"))
+  
+  vmr_merged <- merged %>% filter(feature_id == vmr)
+  logit      <- glm(meth ~ smoking + agedeath + sex + primarydx, data = vmr_merged)
+  
+  env_summary <- summary(logit)$coefficients["smokingTRUE", ]
+  results[vmr, ] <- c(env_summary["Estimate"], env_summary["Std. Error"], 
+                      env_summary["t value"], env_summary["Pr(>|t|)"])
+}
+
+                                        # FDR correction
+results <- results %>% as.data.frame() %>%
+  mutate(fdr = p.adjust(p, method = "fdr"))
+
+                                        # Count significant VMRs
+print(paste("At FDR < 0.05 there are", sum(results$fdr < 0.05), "signficant VMRs"))
+print(paste("At FDR < 0.1 there are", sum(results$fdr < 0.1), "signficant VMRs"))
+print(paste("At p < 0.05 there are", sum(results$p < 0.05), "signficant VMRs"))
+  
+                                        # Write results
+out_logit <- file.path(out_path, paste0("smoking_logit.tsv.gz"))
+fwrite(results, out_logit)
+  
 #### Reproducibility ####
 print("Reproducibility information:")
 Sys.time()
