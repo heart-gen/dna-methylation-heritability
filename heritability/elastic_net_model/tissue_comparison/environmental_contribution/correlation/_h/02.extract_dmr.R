@@ -79,7 +79,7 @@ for (env in vars_to_include) {
     left_join(select(pheno_matrix, chr, start, end, feature_id), multiple = "first") %>%
     select("feature_id", "chr", "start", "end", everything())
   
-  out_dmr <- file.path(out_path, paste0(env, "_dmr.tsv"))
+  out_dmr <- file.path(out_path, paste0(env, "_dmr.tsv.gz"))
   fwrite(merged, out_dmr)
 }
 
