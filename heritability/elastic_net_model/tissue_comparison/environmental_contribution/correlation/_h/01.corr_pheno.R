@@ -20,8 +20,7 @@ filter_sites <- function(enet) {
     ),
     h2_category = factor(h2_category,
                          levels = c("Heritable", "Non-heritable", "Low prediction"))
-    ) %>% 
-    filter(h2_category %in% c("Non-heritable", "Low prediction"))
+    )
   
   return(vmr)
 }
@@ -30,6 +29,16 @@ clean_pheno <- function(pheno_file_path, tissue, vars){
   pheno_df <- fread(pheno_file_path, header = TRUE) |>
     select(all_of(vars_to_include)) |>
     filter(agedeath > 17, region == tissue) |>
+    mutate(education = case_when(
+      education %in% c("7th", "8th", "Less than 7th") ~ "Less than high school",
+      education %in% c("9th", "10th", "11th", "12th") ~ "Some high school",
+      education %in% c("H.S. diploma","GED") ~ "High School",
+      education %in% c("1 yr college", "3 yrs college", "Associate's or 2 yrs college") ~ "Some college",
+      education == "Bachelor's" ~ "Bachelor's",
+      education == "Master's" ~ "Master's",
+      education %in% c("JD", "PhD") ~ "Doctorate"
+    )
+    ) |>
     mutate_if(is.character, as.factor)
   
   return(pheno_df)
