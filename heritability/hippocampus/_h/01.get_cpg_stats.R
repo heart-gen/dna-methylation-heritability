@@ -107,8 +107,8 @@ write_covar <- function(BSobj, pheno, id, meth_merged, out_covs) {
 
 ## Main
                                         # load data
-load(here("inputs/wgbs-data/hippocampus", 
-          paste0("Hippocampus_chr", chr, "_BSobj.rda")))
+load(here("inputs/wgbs-data/hippocampus/_m", 
+          paste0("hippocampus_chr", chr, "_BSobj.rda")))
 output_path <- here("heritability", "hippocampus", "_m")
 subdirs <- c("covs", "cpg")
 
