@@ -121,10 +121,10 @@ out_table <- file.path(out_path, paste0("vmr_env_assoc-AA.tsv.gz"))
 fwrite(merged, out_table, sep = "\t", quote = FALSE)
 
                                         # Basic boxplot for exploratory
-p <- ggplot(data=subset(merged, !is.na(smoking)), aes(x = smoking, y = meth)) +
-  facet_wrap(~h2_category) +
-  geom_boxplot()
-p
+#p <- ggplot(data=subset(merged, !is.na(smoking)), aes(x = smoking, y = meth)) +
+#  facet_wrap(~h2_category) +
+#  geom_boxplot()
+#p
 
 merged %>% 
   group_by(smoking, h2_category) %>%
@@ -137,10 +137,10 @@ merged %>%
 merged <- merged %>% drop_na(smoking)
 
                                         # Initialize results matrix
-feature_ids <- unique(merged$feature_id)
-results <- matrix(NA, nrow=length(feature_ids), ncol=4)
-rownames(results) <- feature_ids
-colnames(results) <- c("beta","se", "t", "p")
+feature_ids <- unique(merged$feature_id) 
+results <- data.frame(matrix(NA, nrow=length(feature_ids), ncol=4)) 
+results <- cbind(feature_ids, results) 
+colnames(results) <- c("feature_id", "beta","se", "t", "p")
 
                                         # Grouped logistic regression
 for (vmr in feature_ids) {
@@ -150,8 +150,12 @@ for (vmr in feature_ids) {
   logit      <- glm(meth ~ smoking + agedeath + sex + primarydx, data = vmr_merged)
   
   env_summary <- summary(logit)$coefficients["smokingTRUE", ]
-  results[vmr, ] <- c(env_summary["Estimate"], env_summary["Std. Error"], 
-                      env_summary["t value"], env_summary["Pr(>|t|)"])
+  results[results$feature_id == vmr, c("beta","se", "t", "p")] <- c(
+      env_summary["Estimate"], 
+      env_summary["Std. Error"], 
+      env_summary["t value"], 
+      env_summary["Pr(>|t|)"]
+  )
 }
 
                                         # FDR correction
@@ -162,9 +166,16 @@ results <- results %>% as.data.frame() %>%
 print(paste("At FDR < 0.05 there are", sum(results$fdr < 0.05), "signficant VMRs"))
 print(paste("At FDR < 0.1 there are", sum(results$fdr < 0.1), "signficant VMRs"))
 print(paste("At p < 0.05 there are", sum(results$p < 0.05), "signficant VMRs"))
-  
+ 
+                                        # Add positions back in
+pos <- merged %>%
+  select(feature_id, chr, start, end) %>%
+  distinct()
+results <- pos %>%
+  inner_join(results, "feature_id")
+
                                         # Write results
-out_logit <- file.path(out_path, paste0("smoking_logit.tsv.gz"))
+out_logit <- file.path(out_path, paste0("smoking_logit.csv.gz"))
 fwrite(results, out_logit)
   
 #### Reproducibility ####
