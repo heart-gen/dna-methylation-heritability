@@ -7,10 +7,10 @@ save_plot <- function(p, fn, w, h){
     }
 }
 
-load_meqtl_enrichment <- function(){
+load_annotation_enrichment <- function(){
     return(data.table::fread("annotation_vmr_enrichment_analysis.txt"))
 }
-memENRICH <- memoise::memoise(load_meqtl_enrichment)
+memENRICH <- memoise::memoise(load_annotation_enrichment)
 
 gen_data <- function(){
     err = 0.0000001
