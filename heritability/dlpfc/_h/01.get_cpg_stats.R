@@ -107,7 +107,10 @@ write_covar <- function(BSobj, pheno, id, meth_merged, out_covs) {
 
 ## Main
                                         # load data
-load(here("inputs/wgbs-data/dlpfc/_m", paste0("dlpfc_chr", chr, "_BSobj.rda")))
+assays_dir <- here("inputs/wgbs-data/dlpfc/_m", 
+                   paste0("dlpfc_chr", chr, "_BSobj.rda"))
+BSobj <- loadHDF5SummarizedExperiment(dir = assays_dir)
+
 output_path <- here("heritability", "dlpfc", "_m")
 subdirs <- c("covs", "cpg")
 
