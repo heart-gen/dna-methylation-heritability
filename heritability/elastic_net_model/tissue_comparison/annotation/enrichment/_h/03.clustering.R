@@ -8,11 +8,10 @@ suppressPackageStartupMessages({
   library(dendextend)
 })
 
+# Function 
 load_annotation_enrichment <- function(){
   return(data.table::fread("annotation_vmr_enrichment_analysis.txt"))
 }
-
-annot <- memoise::memoise(load_annotation_enrichment)
 
 gen_data <- function(){
   err = 0.0000001
@@ -26,8 +25,50 @@ gen_data <- function(){
   return(dt)
 }
 
+plot_dendrogram <- function(df, tissue, h2_cols, output_path) {
+  tissue_df <- df %>%
+    filter(Tissue == tissue)
+  hc <- as.dendrogram(hclust(dist(tissue_df[, 8])))
+  
+  h2_cols <- c(
+    "Heritable" = "#497C8A",
+    "Non-heritable" = "#8CA77B",
+    "Low prediction" = "#E3A27F"
+  )
+  labels(hc) <- tissue_df$Annotation
+  labels_colors(hc) <- h2_cols[tissue_df$h2_Category]
+  
+  pdf(file = file.path(output_path, paste0(tissue, "_hc.pdf")))
+  plot(hc, cex = 0.7)
+  dev.off()
+  
+  return(hc)
+}
+
+pca <- function(df, tissue, h2_cols, output_path) {
+  filtered <- df %>%
+    filter(Tissue == tissue) %>%
+    select("log2(OR)", "-log10(FDR)")
+  pc <- prcomp(filtered, scale = TRUE)
+  print(summary(pc))
+  
+  pdf(file = file.path(output_path, paste0(tissue, "_pca.pdf")))
+  plot(pc$x[, 1], pc$x[, 2], col = h2_cols[df$h2_Category])
+  dev.off()
+  
+  return(pc)
+}
+
+# Main
+annot <- memoise::memoise(load_annotation_enrichment)
 memDF <- memoise::memoise(gen_data)
 df <- memDF() %>% filter(is.finite(`log2(OR)`))
+
+output_path <- here("heritability", "elastic_net_model", "tissue_comparison",
+                    "annotation", "enrichment", "_m")
+if (!dir.exists(output_path)) {
+  dir.create(output_path, recursive = TRUE)
+}
 
 # Exploratory plots
 hc <- hclust(dist(df[, 8])) %>%
@@ -46,65 +87,20 @@ cluster <- cutree(hc, k = 3)
 table(cluster)
 
 # Brain region dendrogram comparison
-dlpfc <- df %>%
-  filter(Tissue == "DLPFC")
-hc_dlpfc <- as.dendrogram(hclust(dist(dlpfc[, 8])))
-
+tissues <- c("Caudate", "DLPFC", "Hippocampus")
 h2_cols <- c(
   "Heritable" = "#497C8A",
   "Non-heritable" = "#8CA77B",
   "Low prediction" = "#E3A27F"
 )
-labels(hc_dlpfc) <- dlpfc$Annotation
-labels_colors(hc_dlpfc) <- h2_cols[dlpfc$h2_Category]
-plot(hc_dlpfc, cex = 0.7)
 
-caudate <- df %>%
-  filter(Tissue == "Caudate")
-hc_caudate <- as.dendrogram(hclust(dist(caudate[, 8])))
-labels(hc_caudate) <- caudate$Annotation
-labels_colors(hc_caudate) <- h2_cols[caudate$h2_Category]
-plot(hc_caudate, cex = 0.7)
-
-hippo <- df %>%
-  filter(Tissue == "Hippocampus")
-hc_hippo <- as.dendrogram(hclust(dist(hippo[, 8])))
-labels(hc_hippo) <- hippo$Annotation
-labels_colors(hc_hippo) <- h2_cols[hippo$h2_Category]
-plot(hc_hippo, cex = 0.7)
+for (tissue in tissues) {
+  hc <- plot_dendrogram(df, tissue, h2_cols, output_path)
+  pc <- pca(df, tissue, h2_cols, output_path)
+}
 
 dend_diff(hc_caudate, hc_dlpfc)
 tanglegram(hc_dlpfc, hc_hippo)
-
-# PCA testing
-caudate_pc <- caudate %>%
-  select("log2(OR)", "-log10(FDR)")
-pc_caudate <- prcomp(caudate_pc, scale = TRUE)
-summary(pc_caudate)
-
-plot(pc_caudate$x[, 1], pc_caudate$x[, 2], col = h2_cols[df$h2_Category])
-
-dlpfc_pc <- dlpfc %>%
-  select("log2(OR)", "-log10(FDR)")
-pc_dlpfc <- prcomp(dlpfc_pc, scale = TRUE)
-summary(pc_dlpfc)
-
-plot(pc_dlpfc$x[, 1], pc_dlpfc$x[, 2], col = cols[df$h2_Category])
-
-hippo_pc <- hippo %>%
-  select("log2(OR)", "-log10(FDR)")
-pc_hippo <- prcomp(hippo_pc, scale = TRUE)
-summary(pc_hippo)
-
-plot(pc_hippo$x[, 1], pc_hippo$x[, 2], col = cols[df$h2_Category])
-
-caudate_pc_test <- caudate_vmrs %>%
-  select_if(is.numeric) %>%
-  select(-start, -end)
-
-pc_caudate <- prcomp(caudate_pc_test)
-summary(pc_caudate)
-plot(pc_caudate$x[, 1], pc_caudate$x[, 2])
 
 # UMAP testing
 
