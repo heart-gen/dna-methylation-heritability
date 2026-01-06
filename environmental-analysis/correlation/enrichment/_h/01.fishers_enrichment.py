@@ -14,8 +14,9 @@ import session_info
 @lru_cache()
 def get_enet(tissue):
     # get vmrs
-    enet_fn = here(f"heritability/elastic_net_model/{tissue.lower()}/_m/{tissue.lower()}_summary_elastic-net.tsv")
+    enet_fn = here(f"heritability/elastic_net_model/{tissue.lower()}/_m_to_del/{tissue.lower()}_summary_elastic-net.tsv")
     df = pd.read_csv(enet_fn, sep='\t')
+    df.dropna()
     df['chrom'] = 'chr' + df['chrom'].astype(str)
 
     # assign h2 categories
@@ -31,7 +32,7 @@ def get_enet(tissue):
 
 @lru_cache()
 def get_vmrs():
-    fn = here(f"heritability/elastic_net_model/tissue_comparison/environmental_contribution/correlation/_m/smoking_logit.csv.gz")
+    fn = here(f"environmental-analysis/correlation/_m/smoking_logit.csv.gz")
     vmrs = pd.read_csv(fn, sep=',') 
     vmrs['test'] = 'logit'
     vmrs['sig'] = vmrs['p'] < 0.05
@@ -39,7 +40,7 @@ def get_vmrs():
 
 @lru_cache()
 def get_dmrs():
-    fn = here(f"heritability/elastic_net_model/tissue_comparison/environmental_contribution/correlation/_m/smoking_dmr.csv.gz")
+    fn = here(f"environmental-analysis/correlation/_m/smoking_dmr.csv.gz")
     dmrs = pd.read_csv(fn, sep=',')
     dmrs['test'] = 'dmr'
     dmrs['sig'] = dmrs['p.value.x2'] < 0.05
@@ -56,7 +57,6 @@ def merge_dataframe(tissue):
 
     df = env.pivot_table(values='sig', columns='test', fill_value=0,
                          index=['chr', 'start', 'end'])
-    print(df.head())
     
     return df.merge(get_enet(tissue), 
                     left_on=['chr', 'start', 'end'],
