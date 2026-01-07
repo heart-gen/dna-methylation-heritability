@@ -93,7 +93,7 @@ for (tissue in tissues) {
   vmr <- read.table(enet_file, sep = "\t", header = TRUE)
     
   # Store vmrs across all tissues
-  vmr$tissue <- tissue
+  vmr$region <- tissue
   vmr_all[[tissue]] <- vmr
 }
 
@@ -106,3 +106,9 @@ summarise_h2(vmr_all, out_path)
 p_hist <- plot_density(vmr_all, tissue)
 fn_hist <- file.path(out_path, "all_VMR_h2_distribution")
 save_plot(p_hist, fn_hist, 10, 5)
+
+## Reproducibility information
+Sys.time()
+proc.time()
+options(width = 120)
+sessioninfo::session_info()
