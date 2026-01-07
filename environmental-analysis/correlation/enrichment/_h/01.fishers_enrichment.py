@@ -16,7 +16,7 @@ def get_enet(tissue):
     # get vmrs
     enet_fn = here(f"heritability/elastic_net_model/{tissue.lower()}/_m_to_del/{tissue.lower()}_summary_elastic-net.tsv")
     df = pd.read_csv(enet_fn, sep='\t')
-    df.dropna()
+    df = df.dropna()
     df['chrom'] = 'chr' + df['chrom'].astype(str)
 
     # assign h2 categories
@@ -58,6 +58,8 @@ def merge_dataframe(tissue):
     df = env.pivot_table(values='sig', columns='test', fill_value=0,
                          index=['chr', 'start', 'end'])
     
+    df["both"] = ((df['logit'] == 1) & (df['dmr'] == 1)).astype(int)
+    
     return df.merge(get_enet(tissue), 
                     left_on=['chr', 'start', 'end'],
                     right_on=['chrom', 'start', 'end'],
@@ -80,7 +82,7 @@ def calculate_enrichment():
     for tissue in ["Caudate"]:
         for h2_cat in ["Heritable", "Non-heritable", "Low prediction"]:
             pvals = []
-            for test in ["Logit", "DMR"]:
+            for test in ["Logit", "DMR", "Both"]:
                 for env in ["Smoking"]:
                     odd_ratio, pval = cal_fishers_annot(tissue, test, h2_cat)
                     pvals.append(pval); h2_lt.append(h2_cat)
