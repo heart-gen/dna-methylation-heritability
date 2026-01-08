@@ -28,7 +28,7 @@ filter_sites <- function(enet) {
 clean_pheno <- function(pheno_file_path, tissue, vars){
   pheno_df <- fread(pheno_file_path, header = TRUE) |>
     select(all_of(vars_to_include)) |>
-    filter(agedeath > 17, region == tissue) |>
+    filter(agedeath > 17, region == tissue) |> #switch to 3 bins, one hot encode vs. high school group
     mutate(education = case_when(
       education %in% c("7th", "8th", "Less than 7th") ~ "Less than high school",
       education %in% c("9th", "10th", "11th", "12th") ~ "Some high school",
@@ -77,15 +77,14 @@ save_plot <- function(p, fn, w=8, h=6) {
 ## Main
 tissue <- c("caudate")
 
-out_path <- here("heritability", "elastic_net_model", "tissue_comparison",
-                "environmental_contribution", "correlation", "_m")
+out_path <- here("environmental-analysis", "correlation", "_m")
 if (!dir.exists(out_path)) {
   dir.create(out_path, recursive = TRUE)
 }
 
                                         # Read in summary table
 enet_file <- here("heritability/elastic_net_model/", 
-                  paste0(tissue, "/_m/", tissue, "_summary_elastic-net.tsv"))
+                  paste0(tissue, "/_m_to_del/", tissue, "_summary_elastic-net.tsv"))
 enet <- read.table(enet_file, sep = "\t", header = TRUE)
 
 vmr <- filter_sites(enet)
@@ -103,7 +102,7 @@ pheno_file_path <- here("inputs/phenotypes/_m/phenotypes-AA.tsv")
 pheno <- clean_pheno(pheno_file_path, tissue, vars_to_include)
 
                                         # Get meth matrix
-meth_file_path <- here("heritability/caudate/_m/vmr")
+meth_file_path <- here("heritability/caudate/_m_to_del/vmr")
 meth_files     <- list.files(path = meth_file_path, pattern = "_meth\\.phen$", 
                          recursive = TRUE, full.names = TRUE)
 meth_df        <- merge_meth(meth_files)
@@ -126,57 +125,64 @@ fwrite(merged, out_table, sep = "\t", quote = FALSE)
 #  geom_boxplot()
 #p
 
-merged %>% 
-  group_by(smoking, h2_category) %>%
-  summarize(
-    count = n(),
-    mean = mean(meth),
-    sd = sd(meth)
-  )
-
-merged <- merged %>% drop_na(smoking)
-
-                                        # Initialize results matrix
-feature_ids <- unique(merged$feature_id) 
-results <- data.frame(matrix(NA, nrow=length(feature_ids), ncol=4)) 
-results <- cbind(feature_ids, results) 
-colnames(results) <- c("feature_id", "beta","se", "t", "p")
-
-                                        # Grouped logistic regression
-for (vmr in feature_ids) {
-  print(paste("Running logistic regression on", vmr, "as a function of smoking"))
+testing_envs <- c(
+  "smoking", "codeine", "morphine", "cocaine", "ethanol", "antipsychotics",
+  "nicotine", "amphetamines", "education", "marital_status"
+)
   
-  vmr_merged <- merged %>% filter(feature_id == vmr)
-  logit      <- glm(meth ~ smoking + agedeath + sex + primarydx, data = vmr_merged)
+for (env in testing_envs) {
+  merged %>% 
+    group_by(across(all_of(env)), h2_category) %>%
+    summarize(
+      count = n(),
+      mean = mean(meth),
+      sd = sd(meth)
+    )
   
-  env_summary <- summary(logit)$coefficients["smokingTRUE", ]
-  results[results$feature_id == vmr, c("beta","se", "t", "p")] <- c(
+  merged <- merged %>% drop_na(env)
+  
+  # Initialize results matrix
+  feature_ids <- unique(merged$feature_id) 
+  results <- data.frame(matrix(NA, nrow=length(feature_ids), ncol=4)) 
+  results <- cbind(feature_ids, results) 
+  colnames(results) <- c("feature_id", "beta","se", "t", "p")
+  
+  # Grouped logistic regression
+  for (vmr in feature_ids) {
+    print(paste("Running logistic regression on", vmr, "as a function of", env))
+    
+    vmr_merged <- merged %>% filter(feature_id == vmr)
+    model <- as.formula(paste("meth ~", env, "+ agedeath + sex + primarydx"))
+    logit <- glm(model, data = vmr_merged)
+    
+    env_summary <- summary(logit)$coefficients[paste0(env, "TRUE"), ]
+    results[results$feature_id == vmr, c("beta","se", "t", "p")] <- c(
       env_summary["Estimate"], 
       env_summary["Std. Error"], 
       env_summary["t value"], 
       env_summary["Pr(>|t|)"]
-  )
+    )
+  }
+  # FDR correction
+  results <- results %>% as.data.frame() %>%
+    mutate(fdr = p.adjust(p, method = "fdr"))
+  
+  # Count significant VMRs
+  print(paste("At FDR < 0.05 there are", sum(results$fdr < 0.05), "signficant VMRs"))
+  print(paste("At FDR < 0.1 there are", sum(results$fdr < 0.1), "signficant VMRs"))
+  print(paste("At p < 0.05 there are", sum(results$p < 0.05), "signficant VMRs"))
+  
+  # Add positions back in
+  pos <- merged %>%
+    select(feature_id, chr, start, end) %>%
+    distinct()
+  results <- pos %>%
+    inner_join(results, "feature_id")
+  
+  # Write results
+  out_logit <- file.path(out_path, paste0(env, "_logit.csv.gz"))
+  fwrite(results, out_logit)
 }
-
-                                        # FDR correction
-results <- results %>% as.data.frame() %>%
-  mutate(fdr = p.adjust(p, method = "fdr"))
-
-                                        # Count significant VMRs
-print(paste("At FDR < 0.05 there are", sum(results$fdr < 0.05), "signficant VMRs"))
-print(paste("At FDR < 0.1 there are", sum(results$fdr < 0.1), "signficant VMRs"))
-print(paste("At p < 0.05 there are", sum(results$p < 0.05), "signficant VMRs"))
- 
-                                        # Add positions back in
-pos <- merged %>%
-  select(feature_id, chr, start, end) %>%
-  distinct()
-results <- pos %>%
-  inner_join(results, "feature_id")
-
-                                        # Write results
-out_logit <- file.path(out_path, paste0("smoking_logit.csv.gz"))
-fwrite(results, out_logit)
   
 #### Reproducibility ####
 print("Reproducibility information:")
