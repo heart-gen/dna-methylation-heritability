@@ -1,5 +1,6 @@
 library(ggplot2)
 library(tidyverse)
+library(tools)
 
 save_plot <- function(p, fn, w, h){
     for(ext in c(".pdf", ".png")){
@@ -28,7 +29,11 @@ gen_data <- function(){
 memDF <- memoise::memoise(gen_data)
 
 plot_tile <- function(label, w, h){
-  df <- memDF() %>% filter(is.finite(`log2(OR)`))
+  df <- memDF() %>% filter(is.finite(`log2(OR)`)) %>%
+    mutate(Annotation = gsub("^hg38_genes_|^hg38_", "", Annotation),
+           Annotation = gsub("_", " ", Annotation),
+           Annotation = ifelse(Annotation %in% c("5UTRs", "3UTRs"),
+                               Annotation, toTitleCase(Annotation)))
   
   y0 <- min(df$`log2(OR)`, na.rm = TRUE) - 0.1
   y1 <- max(df$`log2(OR)`, na.rm = TRUE) + 0.1
@@ -57,7 +62,7 @@ plot_tile <- function(label, w, h){
   print(tile_plot)
 }
 ## Run script
-plot_tile("annotation", 10, 10)
+plot_tile("annotation", 12, 8)
 
 ## Reproducibility information
 Sys.time()
