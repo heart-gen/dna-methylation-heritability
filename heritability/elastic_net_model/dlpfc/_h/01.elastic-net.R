@@ -20,7 +20,7 @@ construct_data_path <- function(chrom_num, spos, epos, region, data_type) {
 
     if (tolower(data_type) == "plink") {
         inpath  <- "plink_format"
-        data_fn <- paste0("subset_TOPMed_LIBD.AA.", spos, "_", epos, ".bed")
+        data_fn <- paste0("TOPMed_LIBD.AA.", spos, "_", epos, ".bed")
     } else if (tolower(data_type) == "vmr") {
         inpath  <- "vmr"
         data_fn <- paste0(spos, "_", epos, "_meth.phen")
@@ -52,7 +52,27 @@ load_phenotypes <- function(vmr_data_path) {
     return(pheno[, 3])
 }
 
+resid_covariates <- function(covar_path, qcovar_path, pheno_raw) {
+    covar  <- read.table(covar_path, header=FALSE)
+    colnames(covar) <- c("FID", "IID", "Sex", "Dx")
+
+    qcovar  <- read.table(qcovar_path, header=FALSE)
+    colnames(qcovar) <- c("FID", "IID", "Age")
+
+    covars <- merge(covar, qcovar, by = c("FID", "IID"), sort = FALSE)
+    covars$pheno <- pheno_raw
+    pheno_resid <- resid(lm(pheno ~ Age + Sex + Dx, data = covars))
+    
+    return(pheno_resid)
+}
+
 perform_snp_clumping <- function(G_imputed, info, pheno_scaled) {
+                                        # Convert X,Y chr to int
+    info$chromosome <- as.character(info$chromosome)
+    info$chromosome[info$chromosome == "X"] <- "23"
+    info$chromosome[info$chromosome == "Y"] <- "24"
+    info$chromosome <- as.integer(info$chromosome)
+
     corrs <- big_univLinReg(G_imputed, pheno_scaled)
     stat  <- abs(corrs$estim)
     ## Default parameters are 0.2 r2 threshold and windo of 500 kb
@@ -102,7 +122,16 @@ infos     <- bigSNP$map
 pheno_path <- construct_data_path(chrom_num, start_pos, end_pos, region,
                                  "VMR")
 pheno_raw  <- load_phenotypes(pheno_path)
-pheno_scaled <- scale(pheno_raw)[, 1] # Center and scale data
+
+                                        # Residualize covariates
+covar_path <- here("heritability", "dlpfc", "_m", "covs",
+                    "chr_1", "TOPMed_LIBD.AA.covar")
+qcovar_path <- here("heritability", "dlpfc", "_m", "covs",
+                    "chr_1", "TOPMed_LIBD.AA.qcovar")
+pheno_resid <- resid_covariates(covar_path, qcovar_path, pheno_raw)
+
+pheno_scaled <- scale(pheno_resid)[, 1] # Center and scale data
+pheno_scaled <- as.numeric(pheno_scaled)
 
                                         # Filter out zero-variance SNPs
 snp_variances <- big_apply(

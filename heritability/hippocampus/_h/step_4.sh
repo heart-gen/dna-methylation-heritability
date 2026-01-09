@@ -50,12 +50,12 @@ module purge
 module list 
 
 # Set path variables
-ENV_PATH="/projects/p32505/opt/env"
+ENV_PATH="/projects/p32505/opt/envs"
 
 echo "Working on: Chromosome "$CHR:$START-$END 
 
 ## Activate conda environment
-conda run -p $ENV_PATH/r_env Rscript ../_h/04.cal_vmr.R $CHR $START $END
+conda run -p $ENV_PATH/epigenomics Rscript ../_h/04.cal_vmr.R $CHR $START $END
 if [ $? -ne 0 ]; then
     log_message "Error: Conda or script execution failed"
     exit 1
