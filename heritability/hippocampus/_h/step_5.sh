@@ -12,7 +12,7 @@
 #SBATCH --output=/dev/null      # Standard output log
 #SBATCH --error=/dev/null       # Standard error log
 
-## Edit with your job command
+## Define paths
 REGION_LIST="./vmr.bed"
 SAMPLE_LIST="./samples.txt"
 CHR_FILE="/projects/b1213/resources/genomes/human/gencode-v47/fasta/chromosome_sizes.txt"
@@ -57,13 +57,12 @@ module load plink/2.0-alpha-3.3
 module list
 
 # check chromosome size information
+
 WINDOW=500000
 CHR_SIZE=$(grep "^chr1[[:space:]]" $CHR_FILE | cut -f2)
 
 START_POS=$((START - WINDOW))
 END_POS=$((END + WINDOW))
-
-echo "Extracting SNPs from all subjects on $CHR: $START-$END ($WINDOW bp window)"
 
 if (( START_POS <= 0 )); then
     echo "ERROR: Start position is below zero."
@@ -75,17 +74,7 @@ if (( END_POS >= CHR_SIZE )); then
     exit 1
 fi
 
-plink2 --pfile "$DATA/TOPMed_LIBD.AA" \
-       --chr "$CHR" \
-       --from-bp "$START_POS" \
-       --to-bp "$END_POS" \
-       --make-bed \
-       --no-parents \
-       --no-sex \
-       --no-pheno \
-       --out "$CHR_DIR/TOPMed_LIBD.AA.${START}_${END}"
-
-echo "Extracting SNPs from AA subjects on $CHR: $START-$END ($WINDOW bp window)"
+echo "Extracting SNPs from AA subjects on $CHR: $START-$END ($WINDOW bp window)" 
 
 # Subset of SNPs in AA cohort
 plink2 --pfile "$DATA/TOPMed_LIBD.AA" \
@@ -97,6 +86,6 @@ plink2 --pfile "$DATA/TOPMed_LIBD.AA" \
        --no-parents \
        --no-sex \
        --no-pheno \
-       --out "$CHR_DIR/subset_TOPMed_LIBD.AA.${START}_${END}"
+       --out "$CHR_DIR/TOPMed_LIBD.AA.${START}_${END}"
 
 log_message "**** Job ends ****"
