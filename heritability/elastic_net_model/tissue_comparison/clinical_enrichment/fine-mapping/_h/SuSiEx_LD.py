@@ -37,7 +37,7 @@ def parse_param():
             elif opt == "--ref_file": param_dict['ref_file'] = arg
             elif opt == "--ld_file": param_dict['ld_file'] = arg
             elif opt == "--chr": param_dict['chr'] = int(arg)
-            elif opt == "--bp": param_dict['bp'] = map(int, arg.split(','))
+            elif opt == "--bp": param_dict['bp'] = list(map(int, arg.split(',')))
             elif opt == "--plink": param_dict['plink'] = arg
             elif opt == "--maf": param_dict['maf'] = float(arg)
     else:
