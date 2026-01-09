@@ -1,11 +1,11 @@
 #!/bin/bash
 #SBATCH --account=p32505
 #SBATCH --partition=short
-#SBATCH --job-name=combine_files
+#SBATCH --job-name=make_plots
 #SBATCH --mail-type=FAIL
 #SBATCH --mail-user=elisajohnson2027@u.northwestern.edu
-#SBATCH --output=logs/05.output_combine_files.log
-#SBATCH --error=logs/05.error_combine_files.log
+#SBATCH --output=logs/05.output_make_plots.log
+#SBATCH --error=logs/05.error_make_plots.log
 #SBATCH --nodes=1
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=5G
