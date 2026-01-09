@@ -13,14 +13,6 @@ args <- commandArgs(trailingOnly = TRUE)
 chr  <- args[1]
 
 ## Function
-remove_ct_snps <- function(f_snp, meth_levels, pos) {
-    snp <- fread(f_snp, header = FALSE, data.table = FALSE)[, 1]
-    keep_idx <- !pos[[1]] %in% snp
-    meth_levels <- meth_levels[, keep_idx, drop = FALSE]
-    pos <- pos[keep_idx, , drop = FALSE]
-    return(list(meth_levels = meth_levels, pos = pos))
-}
-
 filter_pheno <- function(meth_levels, brain_id, ances, demo, pc) {
                                         # Filter ancestry and phenotypes
     demo  <- demo[region == "hippocampus" & agedeath >= 17]
@@ -59,15 +51,14 @@ if (!dir.exists(output_path)) {
 }
 
                                         # Set file paths
-cpg_names <- here("heritability", "hippocampus", "_m", "cpg",
-                  paste0("chr_", chr), "cpg_pos.txt")
+cpg_names       <- here("heritability", "hippocampus", "_m", "cpg",
+                        paste0("chr_", chr), "cpg_pos.txt")
 pheno_file_path <- here("inputs", "phenotypes", "_m", "phenotypes-AA.tsv")
-f_ances <- here("inputs", "genetic-ancestry",
-                "structure.out_ancestry_proportion_raceDemo_compare")
-f_snp <- paste0("/projects/b1213/resources/libd_data/wgbs/DEM2/snps_CT/chr",chr)
-pca <- here("heritability", "hippocampus", "_m", "pca",
-            paste0("chr_", chr), "pc.csv")
-psam_file <- here("inputs/genotypes/TOPMed_LIBD.AA.psam")
+f_ances         <- here("inputs", "genetic-ancestry",
+                        "structure.out_ancestry_proportion_raceDemo_compare")
+pca             <- here("heritability", "hippocampus", "_m", "pca",
+                        paste0("chr_", chr), "pc.csv")
+psam_file       <- here("inputs/genotypes/TOPMed_LIBD.AA.psam")
 
                                         # Load data
 pc        <- fread(pca)
@@ -99,7 +90,7 @@ for (chunk_path in tmp_files) {
     meth_levels <- as.matrix(chunk_data[, -c(1, 2), with = FALSE])
 
                                         # Extract CpG indices from filename
-    idx <- as.integer(str_extract_all(basename(chunk_path), "\\d+")[[1]])
+    idx       <- as.integer(str_extract_all(basename(chunk_path), "\\d+")[[1]])
     pos_chunk <- pos[(idx[1] - 2):(idx[2] - 2), , drop = FALSE]
 
     if (!identical(colnames(meth_levels), as.character(pos_chunk[[1]]))) {
@@ -112,11 +103,8 @@ for (chunk_path in tmp_files) {
              ncol(meth_levels), " vs ", nrow(pos_chunk))
     }
 
-                                        # Remove CT SNPs
-    filtered <- remove_ct_snps(f_snp, meth_levels, pos_chunk)
-
                                         # Filter and align phenotype
-    pheno <- filter_pheno(filtered$meth_levels, brain_id, ances, demo, pc)
+    pheno <- filter_pheno(meth_levels, brain_id, ances, demo, pc)
 
                                         # Regress PCs
     pc_res <- regress_pcs_vectorized(pheno$meth_levels, pheno$pc)
@@ -124,7 +112,7 @@ for (chunk_path in tmp_files) {
     res_chunk <- data.table::data.table(FID = filtered_samples$FID,
                                         IID = filtered_samples$IID,
                                         pc_res)
-    colnames(res_chunk) <- c("FID", "IID", as.character(filtered$pos[[1]]))
+    colnames(res_chunk) <- c("FID", "IID", as.character(pos_chunk[[1]]))
     
                                         # Get chunk identifier for output
     chunk_id <- str_extract(basename(chunk_path), "(?<=cpg_meth_)[0-9]+_[0-9]+")
@@ -134,7 +122,7 @@ for (chunk_path in tmp_files) {
     fwrite(res_chunk, out_file_chunk, sep = "\t", quote = FALSE, col.names = TRUE)
     
                                         # Calculate variances
-    out <- residual_variance(pc_res, filtered$pos, chr, output_path, chunk_id)
+    out <- residual_variance(pc_res, pos_chunk, chr, output_path, chunk_id)
     fwrite(
         out, output_file, append =!first_chunk,
         col.names = first_chunk, sep = "\t", quote = FALSE)
