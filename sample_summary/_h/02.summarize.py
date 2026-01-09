@@ -10,24 +10,21 @@ def get_pheno():
     return pl.read_csv(here("sample_summary","_m/phenotype_data.tsv"),
                        separator="\t", has_header=True)
 
-
 def main():
     ## Main
     with open("sample_breakdown.log", "w") as f:
-        dx = get_pheno().select(["Dx", "Race", "Sex", "Age", "RIN"])
-        print(dx.group_by(["Dx"]).agg(pl.len()).to_pandas().to_string(),
+        dx = get_pheno().select(["region", "primarydx", "sex", "agedeath"])
+        print(dx.group_by(["region"]).agg(pl.len()).to_pandas().to_string(),
               file=f)
-        print(dx.group_by(["Dx", "Sex"]).agg(pl.len()).to_pandas().to_string(),
+        print(dx.group_by(["region", "primarydx"]).agg(pl.len()).to_pandas().to_string(),
               file=f)
-        print(dx.group_by(["Dx", "Race"]).agg(pl.len()).to_pandas().to_string(),
+        print(dx.group_by(["region", "primarydx", "sex"]).agg(pl.len()).to_pandas().to_string(),
               file=f)
         print("Mean:", file=f)
-        print(dx.group_by(["Dx"]).agg([pl.col("Age").mean().alias("Age_mean"),
-                                       pl.col("RIN").mean().alias("RIN_mean")])\
+        print(dx.group_by(["region"]).agg([pl.col("agedeath").mean().alias("Age_mean")])\
               .to_pandas().to_string(), file=f)
         print("Standard deviation", file=f)
-        print(dx.group_by(["Dx"]).agg([pl.col("Age").std().alias("Age_mean"),
-                                       pl.col("RIN").std().alias("RIN_mean")])\
+        print(dx.group_by(["region"]).agg([pl.col("agedeath").std().alias("Age_mean")])\
               .to_pandas().to_string(), file=f)
         ## Session information
         session_info.show()

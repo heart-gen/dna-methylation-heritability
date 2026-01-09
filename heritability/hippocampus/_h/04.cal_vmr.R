@@ -2,14 +2,10 @@
 
 suppressPackageStartupMessages({
     library('bsseq')
-    library('HDF5Array')
-    library(DelayedMatrixStats)
     library('data.table')
-    library(scales)
     library(GenomicRanges)
     library(dplyr)
     library(genio)
-    library(plinkr)
     library(here)
 })
 

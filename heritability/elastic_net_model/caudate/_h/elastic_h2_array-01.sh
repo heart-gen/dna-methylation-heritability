@@ -7,7 +7,7 @@
 #SBATCH --mail-user=alexis.bennett@northwestern.edu
 #SBATCH --output=logs/elastic_h2_%A_%a.log
 #SBATCH --ntasks=1
-#SBATCH --array=1-11575%250
+#SBATCH --array=1-12001%300
 #SBATCH --cpus-per-task=1
 #SBATCH --time=01:00:00
 
