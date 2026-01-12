@@ -69,7 +69,7 @@ if (!dir.exists(output_path)) {
   dir.create(output_path, recursive = TRUE)
 }
 
-h2_categories <- c("Heritable", "Non-heritable", "Low Prediction")
+h2_categories <- c("Heritable", "Non-heritable", "Low prediction")
 tissue_cols <- c(
   "Caudate" = "#B36F61",
   "DLPFC" = "#7372A6",
