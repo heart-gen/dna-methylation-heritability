@@ -46,7 +46,7 @@ plot_dendrogram <- function(df, tissue, h2_cols, output_path) {
   labels(hc) <- tissue_df$Annotation
   labels_colors(hc) <- h2_cols[tissue_df$h2_Category]
   
-  pdf(file = file.path(output_path, paste0(tolower(tissue), "_hc.pdf")))
+  pdf(file = file.path(output_path, "hc", paste0(tolower(tissue), "_hc.pdf")))
   plot(hc, cex = 0.7)
   dev.off()
   
@@ -96,8 +96,12 @@ df <- memDF() %>% filter(is.finite(`log2(OR)`))
 
 output_path <- here("heritability", "elastic_net_model", "tissue_comparison",
                     "annotation", "enrichment", "_m")
-if (!dir.exists(output_path)) {
-  dir.create(output_path, recursive = TRUE)
+subdirs <- c("hc", "pca")
+for (subdir in subdirs){
+  subdir_path <- file.path(output_path, subdir)
+  if (!dir.exists(subdir_path)) {
+    dir.create(subdir_path, recursive = TRUE)
+  }
 }
 
 # Exploratory plots
@@ -127,7 +131,7 @@ h2_cols <- c(
 for (tissue in tissues) {
   hc <- plot_dendrogram(df, tissue, h2_cols, output_path)
   p <- pca(df, tissue, h2_cols, output_path)
-  pca_fn <- file.path(output_path, paste0(tolower(tissue), "_pca"))
+  pca_fn <- file.path(output_path, "pca", paste0(tolower(tissue), "_pca"))
   save_plot(p, pca_fn, w = 10, h = 6, dpi = 300)
 }
 
