@@ -7,7 +7,6 @@ suppressPackageStartupMessages({
   library(tidyverse)
   library(ggplot2)
   library(ggpubr)
-  library(rlang)
 })
 
 # Function 
@@ -33,7 +32,7 @@ save_plot <- function(p, fn, w, h){
   }
 }
 
-plot_scatter <- function(df, h2_cat, tissue1, tissue2){
+plot_scatter <- function(df, h2_cat, tissue1, tissue2, output_path){
   pivot <- df %>%
     filter(h2_Category == h2_cat) %>%
     select(Tissue, Annotation, `log2(OR)`) %>%
@@ -42,9 +41,10 @@ plot_scatter <- function(df, h2_cat, tissue1, tissue2){
   xlab = paste0("log2(OR)\n", tissue1)
   ylab = paste0("log2(OR)\n", tissue2)
   
-  fn = paste(h2_cat, "effectsize_scatter", tolower(tissue1), tolower(tissue2), sep="_")
+  fn = file.path(output_path, paste(tolower(h2_cat), "effectsize_scatter", 
+             tolower(tissue1), tolower(tissue2), sep="_"))
   
-  pp <- ggscatter(pivot, x = !!sym(tissue1), y = !!sym(tissue2), add = "reg.line", 
+  pp <- ggscatter(pivot, x = tissue1, y = tissue2, add = "reg.line", 
                   size = 1, xlab = xlab, ylab = ylab, panel.labs.font=list(face="bold"),
                   add.params=list(color = "blue", fill = "lightgray"),
                   conf.int = TRUE, cor.coef = TRUE, cor.coef.size = 3,
@@ -54,18 +54,21 @@ plot_scatter <- function(df, h2_cat, tissue1, tissue2){
 }
 
 # Main
+output_path <- here("heritability", "elastic_net_model", "tissue_comparison",
+                    "annotation", "enrichment", "_m", "scatter_plot")
+if (!dir.exists(output_path)) {
+  dir.create(output_path, recursive = TRUE)
+}
+
 annot <- memoise::memoise(load_annotation_enrichment)
 memDF <- memoise::memoise(gen_data)
 df <- memDF() %>% filter(is.finite(`log2(OR)`))
-
-#df %>%
-#  arrange(Tissue, `log2(OR)`)
 
 for (h2_cat in c("Heritable", "Non-heritable", "Low prediction")){
   for (tissue1 in c("Caudate", "DLPFC", "Hippocampus")){
     for (tissue2 in c("DLPFC", "Hippocampus")){
       if (tissue1 != tissue2){
-        plot_scatter(df, h2_cat, tissue1, tissue2)
+        plot_scatter(df, h2_cat, tissue1, tissue2, output_path)
       }
     }
   }
