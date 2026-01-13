@@ -7,7 +7,7 @@
 #SBATCH --output=logs/elastic_h2_%A_%a.log
 #SBATCH --ntasks=1
 #SBATCH --mem=10GB
-#SBATCH --array=1-9576%300
+#SBATCH --array=1-10216%300
 #SBATCH --cpus-per-task=1
 #SBATCH --time=00:30:00
 
