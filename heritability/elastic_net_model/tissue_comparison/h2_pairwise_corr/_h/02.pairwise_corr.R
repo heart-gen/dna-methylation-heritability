@@ -18,30 +18,31 @@ save_plot <- function(p, fn, w, h){
 }
 
 get_overlaps <- function(vmr_all, tissue1, tissue2){
-  shared_1 <- fread("F_0.5/caudate_hippocampus_overlap_0.5.bed",
-                    select = 1:3, col.names = c("chr", "start", "end")) |>
-    mutate(VMR_id = row_number())
-  shared_2 <- fread("F_0.5/caudate_hippocampus_overlap_0.5.bed",
-                    select = 4:6, col.names = c("chr", "start", "end")) |>
-    mutate(VMR_id = row_number())
+  overlap_fn <- paste0("F_0.5/", tissue1, "_", tissue2, "_overlap_0.5.bed")
+  shared_tissue1 <- fread(overlap_fn, select = 1:3, 
+                          col.names = c("chr", "start", "end")) |>
+                    mutate(VMR_id = row_number())
+  shared_tissue2 <- fread(overlap_fn, select = 4:6, 
+                          col.names = c("chr", "start", "end")) |>
+                    mutate(VMR_id = row_number())
   
-  caudate <- vmr_all %>%
+  vmr_tissue1 <- vmr_all %>%
     filter(tissue == tissue1)
   
-  hippo <- vmr_all %>%
+  vmr_tissue2 <- vmr_all %>%
     filter(tissue == tissue2)
   
-  merged1 <- caudate %>%
-    right_join(shared_1, by = c("chrom" = "chr", "start", "end")) %>%
+  merged_tissue1 <- vmr_tissue1 %>%
+    right_join(shared_tissue1, by = c("chrom" = "chr", "start", "end")) %>%
     arrange(VMR_id)
   
-  merged2 <- hippo %>%
-    right_join(shared_2, by = c("chrom" = "chr", "start", "end")) %>%
+  merged_tissue2 <- vmr_tissue2 %>%
+    right_join(shared_tissue2, by = c("chrom" = "chr", "start", "end")) %>%
     arrange(VMR_id)
   
   h2_df <- data.frame(
-    h2_tissue1 = merged1$h2_unscaled,
-    h2_tissue2 = merged2$h2_unscaled
+    h2_tissue1 = merged_tissue1$h2_unscaled,
+    h2_tissue2 = merged_tissue2$h2_unscaled
   )
   
   return(h2_df)
@@ -57,7 +58,7 @@ spearman_corr <- function(h2_df, tissue1, tissue2, out_path){
   print(spearman)
   write.csv(spearman, 
             file = file.path(out_path, 
-                             paste0("h2_corr_", tissue1, "_", tissue2, ".csv")), 
+                             paste0("all_vmr_h2_corr_", tissue1, "_", tissue2, ".csv")), 
             row.names = FALSE)
 }
 
@@ -65,7 +66,7 @@ plot_corr <- function(h2_df, tissue1, tissue2, output_path){
   xlab = paste0("h2\n", tissue1)
   ylab = paste0("h2\n", tissue2)
   
-  fn = file.path(output_path, paste("h2_corr", tolower(tissue1), 
+  fn = file.path(output_path, paste("all_vmr_h2_corr", tolower(tissue1), 
                                     tolower(tissue2), sep="_"))
   
   pp <- ggscatter(h2_df, x = "h2_tissue1", y = "h2_tissue2", add = "reg.line", 
@@ -113,8 +114,8 @@ vmr_all <- vmr_all %>%
   )
 
 for (h2_cat in c("Heritable", "Non-heritable", "Low prediction")){
-  for (tissue1 in c("caudate")){
-    for (tissue2 in c("hippocampus")){
+  for (tissue1 in c("caudate", "hippocampus")){
+    for (tissue2 in c("hippocampus", "dlpfc")){
       if (tissue1 != tissue2){
         h2_df <- get_overlaps(vmr_all, tissue1, tissue2)
         spearman_corr(h2_df, tissue1, tissue2, out_path)
