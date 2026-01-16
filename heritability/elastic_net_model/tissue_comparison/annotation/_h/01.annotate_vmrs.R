@@ -8,13 +8,14 @@ suppressPackageStartupMessages({
     library(rtracklayer)
     library(txdbmaker)
     library(annotatr)
+    library(tidyr)
 })
 
-# Function
+## Function
 load_vmrs <- function(tissue) {
                                         # combine vmr bed files from all chr
-  vmr_files <- here(paste0("heritability/", tissue, "/_m_to_del/vmr/chr_", 1:22, 
-                           "/vmr.bed"))
+  vmr_files <- here(paste0("heritability/", tissue, "/_m/vmr/chr_", 
+			   c(1:22, "X", "Y"), "/vmr.bed"))
   
   vmr_list  <- lapply(vmr_files, function(f) {
     if (file.exists(f)) {
@@ -117,7 +118,7 @@ format_annotations <- function(merged, out_file) {
   fwrite(wide, out_file, sep = "\t")
 }
 
-# Main
+## Main
   
                                         # create output dir if it doesn't exist
 out_path <- here("heritability/elastic_net_model/tissue_comparison/annotation/_m")
@@ -125,8 +126,6 @@ out_path <- here("heritability/elastic_net_model/tissue_comparison/annotation/_m
 if (!dir.exists(out_path)) {
   dir.create(out_path, recursive = TRUE)
 }
-
-#annotation_fn <- "/projects/b1213/resources/genomes/human/gencode-v47/gtf/gencode.v47.primary_assembly.annotation.gtf"
 
 tissues <- c("dlpfc", "caudate", "hippocampus")
 
