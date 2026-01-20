@@ -1,4 +1,4 @@
-"h2_category","n","mean_num_snps","median_num_snps"
-"Heritable",5446,506.923980903415,478
-"Non-heritable",4136,573.003868471954,547
-"Low prediction",1767,225.096774193548,226
+"h2_category","n","mean_num_snps","sd_num_snps","median_num_snps"
+"Heritable",4579,511.405328674383,197.931595492225,483
+"Non-heritable",4895,569.537691521961,190.885062884742,543
+"Low prediction",2267,220.458314953683,90.8130598083656,220
