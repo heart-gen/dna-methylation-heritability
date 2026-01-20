@@ -37,6 +37,7 @@ summarise_num_snps <- function(vmr, tissue, out_path) {
     summarise(
       n = n(),
       mean_num_snps = mean(num_snps, na.rm = TRUE),
+      sd_num_snps = sd(num_snps, na.rm = TRUE),
       median_num_snps = median(num_snps, na.rm = TRUE),
       .groups = "drop"
     )
