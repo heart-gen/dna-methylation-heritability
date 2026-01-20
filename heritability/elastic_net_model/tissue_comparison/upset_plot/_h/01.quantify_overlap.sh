@@ -28,30 +28,74 @@ echo "Task id: ${SLURM_ARRAY_TASK_ID:-N/A}"
 ## List current modules for reproducibility
 
 module purge
+module load bedtools/2.31.1
 module list
 
 # Set path variables
 log_message "Calculating brain region overlap"
-conda activate /projects/p32505/opt/envs/genomics
-export LD_LIBRARY_PATH=$CONDA_PREFIX/lib:$LD_LIBRARY_PATH
+#conda activate /projects/p32505/opt/envs/genomics
+#export LD_LIBRARY_PATH=$CONDA_PREFIX/lib:$LD_LIBRARY_PATH
 
 REGIONS=(caudate hippocampus dlpfc)
 OVERLAP=(0.25 0.5 0.75)
 
-# Extract tissue specific
+# Copy bed files
+for TISSUE in "${REGIONS[@]}"; do
+	cp ../../../../${TISSUE}/_m/vmr.bed ./${TISSUE}_unsorted.bed
+	sort -k1,1 -k2,2n ./${TISSUE}_unsorted.bed > ./${TISSUE}.bed
+done
+
 for f in "${OVERLAP[@]}"; do
     OUTDIR="./f_${f}"
-    mkdir -p "$OUTDIR"/{sets,jaccard,percent_overlap}
+    mkdir -p "$OUTDIR"/{sets,jaccard}
 
-	# Counts
+	# Extract tissue specific VMRs
 	bedtools intersect -a caudate.bed -b hippocampus.bed dlpfc.bed \
-	-v -f $f > $OUTDIR/sets/caudate_specific_${f}.bed
+	-v -f $f > $OUTDIR/sets/caudate_specific.bed
 
 	bedtools intersect -a hippocampus.bed -b caudate.bed dlpfc.bed \
-	-v -f $f > $OUTDIR/sets/hippocampus_specific_${f}.bed
+	-v -f $f > $OUTDIR/sets/hippocampus_specific.bed
 
-	bedtools intersect -a dlpfc.bed -b hippocampus.bed dlpfc.bed \
-	-v -f $f > $OUTDIR/sets/dlpfc_specific_${f}.bed
+	bedtools intersect -a dlpfc.bed -b hippocampus.bed caudate.bed \
+	-v -f $f > $OUTDIR/sets/dlpfc_specific.bed
+
+	# Extract shared VMRs in 2 tissues
+	bedtools intersect -a caudate.bed -b hippocampus.bed -f $f -wo | \
+	bedtools intersect -a - -b dlpfc.bed \
+	-v -f $f > $OUTDIR/sets/caudate_hippocampus_overlap.bed
+
+	bedtools intersect -a caudate.bed -b dlpfc.bed -f $f -wo | \
+	bedtools intersect -a - -b hippocampus.bed \
+	-v -f $f > $OUTDIR/sets/caudate_dlpfc_overlap.bed
+
+	bedtools intersect -a hippocampus.bed -b dlpfc.bed -f $f -wo | \
+	bedtools intersect -a - -b caudate.bed \
+	-v -f $f > $OUTDIR/sets/hippocampus_dlpfc_overlap.bed
+
+	bedtools jaccard \
+		-a <(bedtools intersect -a caudate.bed -b dlpfc.bed -v -f $f | sort -k1,1 -k2,2n) \
+		-b <(bedtools intersect -a hippocampus.bed -b dlpfc.bed -v -f $f | sort -k1,1 -k2,2n) \
+		-f $f > $OUTDIR/jaccard/caudate_hippocampus_jaccard.tsv
+
+	bedtools jaccard \
+		-a <(bedtools intersect -a caudate.bed -b hippocampus.bed -v -f $f | sort -k1,1 -k2,2n) \
+		-b <(bedtools intersect -a dlpfc.bed -b hippocampus.bed -v -f $f | sort -k1,1 -k2,2n) \
+		-f $f > $OUTDIR/jaccard/caudate_dlpfc_jaccard.tsv
+
+	bedtools jaccard \
+		-a <(bedtools intersect -a hippocampus.bed -b caudate.bed -v -f $f | sort -k1,1 -k2,2n) \
+		-b <(bedtools intersect -a dlpfc.bed -b caudate.bed -v -f $f | sort -k1,1 -k2,2n) \
+		-f $f > $OUTDIR/jaccard/hippocampus_dlpfc_jaccard.tsv
+
+	# Extract shared VMRs in all tissues
+	bedtools intersect -a caudate.bed -b dlpfc.bed -f $f -wo | \
+	bedtools intersect -a - -b hippocampus.bed \
+	-f $f -wo > $OUTDIR/sets/3tissues_overlap.bed
+
+	bedtools jaccard \
+		-a <(bedtools intersect -a caudate.bed -b hippocampus.bed -f $f | sort -k1,1 -k2,2n) \
+		-b dlpfc.bed \
+		-f $f > $OUTDIR/jaccard/3tissues_jaccard.tsv
 
     if [ $? -ne 0 ]; then
     log_message "Error: Conda or script execution failed"
@@ -60,18 +104,56 @@ for f in "${OVERLAP[@]}"; do
 done
 
 for F in "${OVERLAP[@]}"; do
-    OUTDIR="./f_${F}"
+    OUTDIR="./F_${F}"
     mkdir -p "$OUTDIR"/{sets,jaccard,percent_overlap}    
 
-	# Counts
+	# Extract tissue specific VMRs
 	bedtools intersect -a caudate.bed -b hippocampus.bed dlpfc.bed \
-	-v -F $F > $OUTDIR/sets/caudate_specific_${F}.bed
+	-v -F $F > $OUTDIR/sets/caudate_specific.bed
 
 	bedtools intersect -a hippocampus.bed -b caudate.bed dlpfc.bed \
-	-v -F $F > $OUTDIR/sets/hippocampus_specific_${F}.bed
+	-v -F $F > $OUTDIR/sets/hippocampus_specific.bed
 
-	bedtools intersect -a dlpfc.bed -b hippocampus.bed dlpfc.bed \
-	-v -F $F > $OUTDIR/sets/dlpfc_specific_${F}.bed
+	bedtools intersect -a dlpfc.bed -b hippocampus.bed caudate.bed \
+	-v -F $F > $OUTDIR/sets/dlpfc_specific.bed
+
+	# Extract shared VMRs in 2 tissues
+	bedtools intersect -a caudate.bed -b hippocampus.bed -F $F -wo | \
+	bedtools intersect -a - -b dlpfc.bed \
+	-v -F $F > $OUTDIR/sets/caudate_hippocampus_overlap.bed
+
+	bedtools intersect -a caudate.bed -b dlpfc.bed -F $F -wo | \
+	bedtools intersect -a - -b hippocampus.bed \
+	-v -F $F > $OUTDIR/sets/caudate_dlpfc_overlap.bed
+
+	bedtools intersect -a hippocampus.bed -b dlpfc.bed -F $F -wo | \
+	bedtools intersect -a - -b caudate.bed \
+	-v -F $F > $OUTDIR/sets/hippocampus_dlpfc_overlap.bed
+
+	bedtools jaccard \
+		-a <(bedtools intersect -a caudate.bed -b dlpfc.bed -v -F $F | sort -k1,1 -k2,2n) \
+		-b <(bedtools intersect -a hippocampus.bed -b dlpfc.bed -v -F $F | sort -k1,1 -k2,2n) \
+		-F $F > $OUTDIR/jaccard/caudate_hippocampus_jaccard.tsv
+
+	bedtools jaccard \
+		-a <(bedtools intersect -a caudate.bed -b hippocampus.bed -v -F $F | sort -k1,1 -k2,2n) \
+		-b <(bedtools intersect -a dlpfc.bed -b hippocampus.bed -v -F $F | sort -k1,1 -k2,2n) \
+		-F $F > $OUTDIR/jaccard/caudate_dlpfc_jaccard.tsv
+
+	bedtools jaccard \
+		-a <(bedtools intersect -a hippocampus.bed -b caudate.bed -v -F $F | sort -k1,1 -k2,2n) \
+		-b <(bedtools intersect -a dlpfc.bed -b caudate.bed -v -F $F | sort -k1,1 -k2,2n) \
+		-F $F > $OUTDIR/jaccard/hippocampus_dlpfc_jaccard.tsv
+
+	# Extract shared VMRs in all tissues
+	bedtools intersect -a caudate.bed -b dlpfc.bed -F $F -wo | \
+	bedtools intersect -a - -b hippocampus.bed \
+	-F $F -wo > $OUTDIR/sets/3tissues_overlap.bed
+
+	bedtools jaccard \
+		-a <(bedtools intersect -a caudate.bed -b hippocampus.bed -F $F | sort -k1,1 -k2,2n) \
+		-b dlpfc.bed \
+		-F $F > $OUTDIR/jaccard/3tissues_jaccard.tsv
 
     if [ $? -ne 0 ]; then
     log_message "Error: Conda or script execution failed"
@@ -79,20 +161,6 @@ for F in "${OVERLAP[@]}"; do
     fi
 done
 
-# Extract shared VMRs in 2 tissues
-	bedtools intersect -a caudate.bed -b hippocampus.bed \
-	-u -F $F > $OUTDIR/sets/caudate_hippocampus_overlap_${F}.bed
-
-	bedtools jaccard -a caudate.bed -b hippocampus.bed \
-	-F $F > $OUTDIR/jaccard/caudate_hippocampus_jaccard_${F}.bed
-
-# Extract shared VMRs in all tissues
-	bedtools intersect -a dlpfc.bed -b hippocampus.bed dlpfc.bed \
-	-u -F $F > $OUTDIR/sets/3tissues_overlap_${F}.bed
-
-	bedtools jaccard -a caudate.bed -b hippocampus.bed dlpfc.bed \
-	-F $F > $OUTDIR/jaccard/3tissues_jaccard_${F}.bed
-
-conda deactivate
+#conda deactivate
 
 log_message "**** Job ends ****"
