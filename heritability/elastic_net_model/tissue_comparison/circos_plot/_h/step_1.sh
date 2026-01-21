@@ -30,13 +30,13 @@ module purge
 module list
 
 # Set path variables
-ENV_PATH="/projects/p32505/opt/env"
+ENV_PATH="/projects/p32505/opt/envs"
 
 ## Edit with your job command
 echo "**** Run circos plot script ****"
 
 ## Activate conda environment
-conda run -p $ENV_PATH/r_env Rscript ../_h/01.plot_circos.R
+conda run -p $ENV_PATH/epigenomics Rscript ../_h/01.plot_circos.R
 
 if [ $? -ne 0 ]; then
     log_message "Error: Conda or script execution failed"
