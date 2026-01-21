@@ -19,7 +19,7 @@ filter_heritability <- function(tissue,
                                         # Read in summary table
     vmr_file <- here("heritability/elastic_net_model",
                       tissue, "_m", paste0(tissue, "_summary_elastic-net.tsv"))
-    vmr <- read.table(vmr_file, sep = "\t", header = TRUE)
+    vmr <- read.table(vmr_file, sep = "\t", header = TRUE) %>% na.omit()
 
                                         # Filter by heritability
     if (apply_h2_filter) {
@@ -36,7 +36,7 @@ filter_heritability <- function(tissue,
       if (get_low_pred) {
         vmr <- dplyr::filter(vmr, r_squared_cv <= r2_filter)
       } else {
-        vmr <- dplyr::filter(vmr, r_squared_cv >= r2_filter)
+        vmr <- dplyr::filter(vmr, r_squared_cv > r2_filter)
       }
     }
   
@@ -77,13 +77,13 @@ get_enrichment <- function(vmr_filtered, tissue, filter_label) {
                    background = background_df)
       tb  <- getEnrichmentTable(res)
       new_gs <- gsub(":", "_", gs)
-      outfile <- paste0(tissue, "_", filter_label, "_", new_gs, ".csv")
-      write.csv(
-        tb,
-        file = here("heritability/elastic_net_model/tissue_comparison",
-		    "functional_enrichment/_m", outfile),
-        row.names = FALSE
-      )
+      out_path <- here("heritability", "elastic_net_model", "tissue_comparison",
+                      "functional_enrichment", "_m", new_gs)
+      if (!dir.exists(out_path)) {
+        dir.create(out_path, recursive = TRUE)
+      }
+      outfile <- paste0(tissue, "_", filter_label, ".csv")
+      write.csv(tb, file = file.path(out_path, outfile), row.names = FALSE)
     }
 }
 
