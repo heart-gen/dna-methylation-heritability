@@ -26,15 +26,15 @@ echo "Task id: ${SLURM_ARRAY_TASK_ID:-N/A}"
 
 INPUT_FILE=/projects/p32505/users/elisa/dna-methylation-heritability/heritability/elastic_net_model/tissue_comparison/clinical_enrichment/fine-mapping/SuSiEx/examples/AFR.sumstats.txt
 
-echo "**** Preparing input for liftOver ****"
+# Converts sumstats file to BED format
 awk 'BEGIN{OFS="\t"} NR>1 {print "chr"$1, $3-1, $3, $2, $9, "."}' $INPUT_FILE > AFR.bed
 
-echo "**** Running liftOver ****"
+# Runs liftOver
 conda activate /projects/p32505/opt/envs/epigenomics
 /projects/p32505/opt/envs/epigenomics/lib/R/bin/Rscript ../_h/liftOver.R
 conda deactivate
 
-echo "**** Processing liftOver output ****"
+# Converts lifted BED back to sumstats format
 awk 'BEGIN{OFS="\t"} {print $4, $3}' AFR_lifted.bed > snp2bp.txt
 
 awk 'BEGIN{FS=OFS="\t"}
