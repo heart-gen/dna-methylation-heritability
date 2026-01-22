@@ -16,7 +16,7 @@ save_plot <- function(p, fn, w, h){
 get_top_GO <- function(tissue, h2_cat, gene_set){
   err <- 1e-15
   fn  <- here(file.path("heritability/elastic_net_model/tissue_comparison/functional_enrichment/_m", 
-                        paste0(tolower(tissue), "_", h2_cat, "_h2_r2_0.75_", gene_set, ".csv")))
+                        gene_set, paste0(tolower(tissue), "_", h2_cat, ".csv")))
   return(data.table::fread(fn) |>
            filter(stringr::str_detect(id, "^GO")) |>
            filter(p_adjust < 0.05) |>
@@ -26,8 +26,8 @@ get_top_GO <- function(tissue, h2_cat, gene_set){
 
 get_top_KEGG <- function(tissue, h2_cat){
   err <- 1e-15
-  fn  <- here(file.path("heritability/elastic_net_model/tissue_comparison/functional_enrichment/_m", 
-                        paste0(tolower(tissue), "_", h2_cat, "_h2_r2_0.75_KEGG.csv")))
+  fn  <- here(file.path("heritability/elastic_net_model/tissue_comparison/functional_enrichment/_m/KEGG", 
+                        paste0(tolower(tissue), "_", h2_cat, ".csv")))
   
   # Load KEGG pathway descriptions
   kegg_map <- read.delim("https://rest.kegg.jp/list/pathway/hsa", 
@@ -82,22 +82,24 @@ plot_enrichment <- function(gene_set, h2_cat){
         guides(
           colour = guide_legend(override.aes = list(size = 6))
         ) +
-        theme_bw(base_size=15) +
+        theme_bw(base_size=20) +
         theme(axis.title=element_text(face='bold'),
               strip.text=element_text(face='bold'))
     return(gg1)
 }
 
 # Main
-out_path = here("heritability/elastic_net_model/tissue_comparison/functional_enrichment/_m/plots")
-if (!dir.exists(out_path)) {
-        dir.create(out_path, recursive = TRUE)
-}
-
 for (h2_cat in c("heritable", "non_heritable", "low_prediction")){
   for (gene_set in c("GO_BP", "GO_MF", "KEGG")){
+    # create subdirs for plots
+    out_path = here("heritability/elastic_net_model/tissue_comparison/functional_enrichment/_m/", gene_set, "plots")
+    if (!dir.exists(out_path)) {
+      dir.create(out_path, recursive = TRUE)
+    }
+    
+    # plot enrichment
     gg = plot_enrichment(gene_set, h2_cat)
-    fn = file.path(out_path, paste0(h2_cat, "_VMRs_r2_0.75.", gene_set, ".stacked"))
+    fn = file.path(out_path, paste0(h2_cat, "_VMRs", ".stacked"))
     save_plot(gg, fn, 14, 6)
   }
 }
