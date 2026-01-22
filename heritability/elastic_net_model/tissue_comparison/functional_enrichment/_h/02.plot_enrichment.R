@@ -71,13 +71,16 @@ generate_dataframe <- function(gene_set, h2_cat){
 
 plot_enrichment <- function(gene_set, h2_cat){
     dt <- generate_dataframe(gene_set, h2_cat)
-    cbPalette <- brewer.pal(4, "Set1")
+    tissue_cols <- c(
+      "Caudate" = "#B36F61",
+      "DLPFC" = "#7372A6",
+      "Hippocampus" = "#E3C962"
+    )
     gg1 = ggplot(dt, aes(x=Log10, y=description, color=Tissue,
                          size=fold_enrichment)) +
         geom_point(shape=18, alpha=0.8) +
         labs(y='', x='-Log10 (Adjusted P-value)', size="Enrichment") +
-        scale_colour_manual(name="Brain Region", values=cbPalette,
-                            labels=c("Caudate","DLPFC","Hippocampus")) +
+        scale_colour_manual(name="Brain Region", values=tissue_cols) +
         scale_size_continuous(range = c(2, 10)) +
         guides(
           colour = guide_legend(override.aes = list(size = 6))
@@ -89,7 +92,7 @@ plot_enrichment <- function(gene_set, h2_cat){
 }
 
 # Main
-for (h2_cat in c("heritable", "non_heritable", "low_prediction")){
+for (h2_cat in c("heritable", "non_heritable", "low_prediction", "all")){
   for (gene_set in c("GO_BP", "GO_MF", "KEGG")){
     # create subdirs for plots
     out_path = here("heritability/elastic_net_model/tissue_comparison/functional_enrichment/_m/", gene_set, "plots")
@@ -100,7 +103,7 @@ for (h2_cat in c("heritable", "non_heritable", "low_prediction")){
     # plot enrichment
     gg = plot_enrichment(gene_set, h2_cat)
     fn = file.path(out_path, paste0(h2_cat, "_VMRs", ".stacked"))
-    save_plot(gg, fn, 14, 6)
+    save_plot(gg, fn, 14, 8)
   }
 }
 
