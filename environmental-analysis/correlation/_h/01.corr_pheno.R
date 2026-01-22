@@ -12,7 +12,7 @@ suppressPackageStartupMessages({
 filter_sites <- function(enet) {
   vmr <- na.omit(enet)
   vmr <- vmr %>% 
-    select(chrom, start, end, h2_unscaled, r_squared_cv) %>% 
+    dplyr::select(chrom, start, end, h2_unscaled, r_squared_cv) %>% 
     mutate(h2_category = case_when(
       r_squared_cv <= 0.75 ~ "Low prediction",
       h2_unscaled < 0.1 & r_squared_cv > 0.75 ~ "Non-heritable",
@@ -27,16 +27,14 @@ filter_sites <- function(enet) {
 
 clean_pheno <- function(pheno_file_path, tissue, vars){
   pheno_df <- fread(pheno_file_path, header = TRUE) |>
-    select(all_of(vars_to_include)) |>
-    filter(agedeath > 17, region == tissue) |> #switch to 3 bins, one hot encode vs. high school group
+    dplyr::select(all_of(vars_to_include)) |>
+    filter(agedeath > 17, region == tissue) |>
     mutate(education = case_when(
-      education %in% c("7th", "8th", "Less than 7th") ~ "Less than high school",
-      education %in% c("9th", "10th", "11th", "12th") ~ "Some high school",
+      education %in% c("7th", "8th", "Less than 7th",
+                       "9th", "10th", "11th", "12th") ~ "Less than high school",
       education %in% c("H.S. diploma","GED") ~ "High School",
-      education %in% c("1 yr college", "3 yrs college", "Associate's or 2 yrs college") ~ "Some college",
-      education == "Bachelor's" ~ "Bachelor's",
-      education == "Master's" ~ "Master's",
-      education %in% c("JD", "PhD") ~ "Doctorate"
+      education %in% c("1 yr college", "3 yrs college", "Associate's or 2 yrs college",
+                       "Bachelor's", "Master's", "JD", "PhD") ~ "More than high school"
     )
     ) |>
     mutate_if(is.character, as.factor)
@@ -84,7 +82,7 @@ if (!dir.exists(out_path)) {
 
                                         # Read in summary table
 enet_file <- here("heritability/elastic_net_model/", 
-                  paste0(tissue, "/_m_to_del/", tissue, "_summary_elastic-net.tsv"))
+                  paste0(tissue, "/_m/", tissue, "_summary_elastic-net.tsv"))
 enet <- read.table(enet_file, sep = "\t", header = TRUE)
 
 vmr <- filter_sites(enet)
@@ -100,12 +98,19 @@ vars_to_include <- c(
                                         # Get phenotype data
 pheno_file_path <- here("inputs/phenotypes/_m/phenotypes-AA.tsv")
 pheno <- clean_pheno(pheno_file_path, tissue, vars_to_include)
+                    
+                                        # Add global ances
+f_ances   <- here("inputs", "genetic-ancestry",
+                  "structure.out_ancestry_proportion_raceDemo_compare")
+ances     <- fread(f_ances) %>% filter(group == "AA")
+pheno_test <- left_join(pheno, ances, by = c("brnum" = "id"))
 
                                         # Get meth matrix
-meth_file_path <- here("heritability/caudate/_m_to_del/vmr")
+meth_file_path <- here("heritability/caudate/_m/vmr")
 meth_files     <- list.files(path = meth_file_path, pattern = "_meth\\.phen$", 
                          recursive = TRUE, full.names = TRUE)
 meth_df        <- merge_meth(meth_files)
+meth_df <- meth_df %>% mutate(chr = as.character(chr))
 
                                         # Merge with h2 groups and 
                                         # environmental variables
@@ -120,14 +125,14 @@ out_table <- file.path(out_path, paste0("vmr_env_assoc-AA.tsv.gz"))
 fwrite(merged, out_table, sep = "\t", quote = FALSE)
 
                                         # Basic boxplot for exploratory
-#p <- ggplot(data=subset(merged, !is.na(smoking)), aes(x = smoking, y = meth)) +
+#p <- ggplot(data=subset(merged, !is.na(education)), aes(x = education, y = meth)) +
 #  facet_wrap(~h2_category) +
 #  geom_boxplot()
 #p
 
 testing_envs <- c(
   "smoking", "codeine", "morphine", "cocaine", "ethanol", "antipsychotics",
-  "nicotine", "amphetamines", "education", "marital_status"
+  "nicotine", "amphetamines", "education", "marital_status", "Afr"
 )
   
 for (env in testing_envs) {
@@ -143,9 +148,7 @@ for (env in testing_envs) {
   
   # Initialize results matrix
   feature_ids <- unique(merged$feature_id) 
-  results <- data.frame(matrix(NA, nrow=length(feature_ids), ncol=4)) 
-  results <- cbind(feature_ids, results) 
-  colnames(results) <- c("feature_id", "beta","se", "t", "p")
+  results <- tibble() 
   
   # Grouped logistic regression
   for (vmr in feature_ids) {
@@ -155,13 +158,14 @@ for (env in testing_envs) {
     model <- as.formula(paste("meth ~", env, "+ agedeath + sex + primarydx"))
     logit <- glm(model, data = vmr_merged)
     
-    env_summary <- summary(logit)$coefficients[paste0(env, "TRUE"), ]
-    results[results$feature_id == vmr, c("beta","se", "t", "p")] <- c(
-      env_summary["Estimate"], 
-      env_summary["Std. Error"], 
-      env_summary["t value"], 
-      env_summary["Pr(>|t|)"]
-    )
+    env_summary <- as.data.frame(summary(logit)$coefficients)
+    env_summary$var <- rownames(env_summary)
+    env_summary <- env_summary %>%
+      filter(grepl(paste0("^", env), var)) %>%
+      mutate(feature_id = vmr, env = env, beta = Estimate, se = `Std. Error`,
+             t = `t value`, p = `Pr(>|t|)`)
+    
+    results <- bind_rows(results, env_summary)
   }
   # FDR correction
   results <- results %>% as.data.frame() %>%
@@ -174,7 +178,7 @@ for (env in testing_envs) {
   
   # Add positions back in
   pos <- merged %>%
-    select(feature_id, chr, start, end) %>%
+    dplyr::select(feature_id, chr, start, end) %>%
     distinct()
   results <- pos %>%
     inner_join(results, "feature_id")
