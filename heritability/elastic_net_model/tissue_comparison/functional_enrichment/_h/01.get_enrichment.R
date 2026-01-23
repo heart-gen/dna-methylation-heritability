@@ -11,33 +11,24 @@ suppressPackageStartupMessages({
 })
 
 ## --- Function --- ##
-filter_heritability <- function(tissue,
-                                heritability_filter = "all",
-                                r2_filter = NULL,
-                                apply_h2_filter = FALSE,
-                                get_low_pred = FALSE) {
+filter_heritability <- function(tissue, heritability_filter) {
+  
                                         # Read in summary table
     vmr_file <- here("heritability/elastic_net_model",
                       tissue, "_m", paste0(tissue, "_summary_elastic-net.tsv"))
-    vmr <- read.table(vmr_file, sep = "\t", header = TRUE)
+    vmr <- read.table(vmr_file, sep = "\t", header = TRUE) %>% na.omit()
 
-                                        # Filter by heritability
-    if (apply_h2_filter) {
-        h2_thresh  <- 0.1
-        if (heritability_filter == "heritable") {
-            vmr <- dplyr::filter(vmr, h2_unscaled >= h2_thresh)
-        } else if (heritability_filter == "non_heritable") {
-            vmr <- dplyr::filter(vmr, h2_unscaled < h2_thresh)
-        }
-    }
-
-                                        # Filter by r2
-    if (!is.null(r2_filter) && r2_filter != "NULL") {
-      if (get_low_pred) {
-        vmr <- dplyr::filter(vmr, r_squared_cv <= r2_filter)
-      } else {
-        vmr <- dplyr::filter(vmr, r_squared_cv >= r2_filter)
-      }
+                                        # Filter by h2_category
+    h2_thresh  <- 0.1
+    r2_thresh  <- 0.75
+    if (heritability_filter == "heritable") {
+        vmr <- vmr %>% filter(h2_unscaled >= h2_thresh & r_squared_cv > r2_thresh)
+    } else if (heritability_filter == "non_heritable") {
+        vmr <- vmr %>% filter(h2_unscaled < h2_thresh & r_squared_cv > r2_thresh)
+    } else if (heritability_filter == "low_prediction") {
+        vmr <- vmr %>% filter(r_squared_cv <= r2_thresh)
+    } else if (heritability_filter == "all") {
+        vmr <- vmr
     }
   
     return(vmr)
@@ -54,7 +45,7 @@ load_vmr_background <- function(tissue) {
     return(vmr_gr)
 }
 
-get_enrichment <- function(vmr_filtered, tissue, filter_label) {
+get_enrichment <- function(vmr_filtered, tissue, hfilter) {
     vmr_filtered <- vmr_filtered[, c("chrom", "start", "end")]
     colnames(vmr_filtered) <- c("seqnames", "start", "end")
     vmr <- plyranges::as_granges(vmr_filtered)
@@ -77,67 +68,35 @@ get_enrichment <- function(vmr_filtered, tissue, filter_label) {
                    background = background_df)
       tb  <- getEnrichmentTable(res)
       new_gs <- gsub(":", "_", gs)
-      outfile <- paste0(tissue, "_", filter_label, "_", new_gs, ".csv")
-      write.csv(
-        tb,
-        file = here("heritability/elastic_net_model/tissue_comparison",
-		    "functional_enrichment/_m", outfile),
-        row.names = FALSE
-      )
+      out_path <- here("heritability", "elastic_net_model", "tissue_comparison",
+                      "functional_enrichment", "_m", new_gs)
+      if (!dir.exists(out_path)) {
+        dir.create(out_path, recursive = TRUE)
+      }
+      outfile <- paste0(tissue, "_", hfilter, ".csv")
+      write.csv(tb, file = file.path(out_path, outfile), row.names = FALSE)
     }
 }
 
 # Main
 tissues              <- c("caudate", "dlpfc", "hippocampus")
 heritability_filters <- c("all", "heritable", "non_heritable", "low_prediction")
-r2_filters           <- c("NULL", 0.75)
-apply_h2_options     <- c(TRUE, FALSE)
-
-# Create all possible combinations
-filter_grid <- expand.grid(
-    hfilter          = heritability_filters,
-    r2               = r2_filters,
-    h2               = apply_h2_options,
-    stringsAsFactors = FALSE
-) %>%
-    # Keep only valid combinations 
-    dplyr::filter(
-        (hfilter == "all" & (r2 != "NULL" | h2 == FALSE)) |
-        (hfilter %in% c("heritable", "non_heritable") & r2 != "NULL" & h2 == TRUE) |
-        (hfilter == "low_prediction" & (r2 != "NULL" | h2 == FALSE))
-    ) %>%
-    # Get labels for each combination
-    rowwise() %>%
-    mutate(
-        get_low_pred = hfilter == "low_prediction",
-        label = {
-            parts <- c(hfilter)
-        if (h2) {
-            parts <- c(parts, "h2")
-        }
-        if (r2 != "NULL") {
-            parts <- c(parts, "r2", as.character(r2))
-        }
-        paste(parts, collapse = "_")
-      }
-    ) %>%
-    ungroup()
 
 # Run analysis
-purrr::pwalk(filter_grid, function(hfilter, r2, h2, label, get_low_pred) {
-  for (tissue in tissues) {
-    message("Running enrichment: ", tissue, " - ", label)
-
-    # Apply the heritability and p-value filter
-    vmr_filtered <- filter_heritability(tissue, hfilter, r2, h2, get_low_pred)
+for (tissue in tissues) {
+  for (hfilter in heritability_filters) {
+    message("Running enrichment: ", tissue, " - ", hfilter)
+      
+    # Stratify VMRs based on heritability 
+    vmr_filtered <- filter_heritability(tissue, hfilter)
     # Get enrichment for remaining data after filtering
     if (nrow(vmr_filtered) > 0) {
-      get_enrichment(vmr_filtered, tissue, label)
+      get_enrichment(vmr_filtered, tissue, hfilter)
     } else {
-      message("No data left after filtering for ", tissue, " - ",label)
+      message("No data left after filtering for ", tissue, " - ", hfilter)
     }
   }
-})
+}
 
 # Reproducibility info
 Sys.time()

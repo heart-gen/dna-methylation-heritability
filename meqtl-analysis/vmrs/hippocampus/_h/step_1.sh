@@ -33,9 +33,9 @@ module list
 
 # Set path variables
 log_message "**** Loading conda environment ****"
-ENV_PATH="/projects/p32505/opt/env"
+ENV_PATH="/projects/p32505/opt/envs"
 
-conda run -p $ENV_PATH/r_env Rscript ../_h/01.prepare_data.R
+conda run -p $ENV_PATH/epigenomics Rscript ../_h/01.prepare_data.R
 if [ $? -ne 0 ]; then
     log_message "Error: conda or script execution failed"
     exit 1

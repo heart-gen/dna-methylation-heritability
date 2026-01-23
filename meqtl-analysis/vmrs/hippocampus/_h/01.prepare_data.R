@@ -89,7 +89,7 @@ data.table::fwrite(annot, out_vmr, sep='\t', row.names=TRUE)
 
 #### Export chr list
 out_chr <- file.path(output_path, "vcf_chr_list.txt")
-chr_list <- paste0("chr", c(1:22))
+chr_list <- paste0("chr", c(1:22, "X", "Y"))
 write.table(chr_list, file = out_chr, quote = FALSE, 
             row.names = FALSE, col.names = FALSE)
 

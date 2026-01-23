@@ -34,9 +34,9 @@ module list
 
 # Set path variables
 log_message "**** Loading conda environment ****"
-ENV_PATH="/projects/p32505/opt/env"
+ENV_PATH="/projects/p32505/opt/envs"
 
-conda run -p $ENV_PATH/AI_env \
+conda run -p $ENV_PATH/genomics \
       python ../_h/03.prepare_expression.py \
       ./normalized_methylation.tsv \
       ./vcf_chr_list.txt vmrs \
