@@ -2,14 +2,10 @@
 
 suppressPackageStartupMessages({
     library('bsseq')
-    library('HDF5Array')
-    library(DelayedMatrixStats)
     library('data.table')
-    library(scales)
     library(GenomicRanges)
     library(dplyr)
     library(genio)
-    library(plinkr)
     library(here)
 })
 
@@ -30,7 +26,7 @@ calc_vmr_meth <- function(BSobj, chr, start_pos, end_pos) {
 
 extract_fid_iid <- function(psam_file) {
     samples   <- fread(psam_file, header = FALSE, 
-                     col.names = c("FID", "IID", "PAT"))[, .(FID, IID)]
+                       col.names = c("FID", "IID", "PAT"))[, .(FID, IID)]
     return(samples)
 }
 

@@ -9,8 +9,8 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=4
-#SBATCH --mem=20G
-#SBATCH --time=02:00:00
+#SBATCH --mem=40G
+#SBATCH --time=10:00:00
 
 log_message() {
     echo "$(date '+%Y-%m-%d %H:%M:%S') - $1"
@@ -37,10 +37,22 @@ source /projects/p32505/opt/miniforge3/etc/profile.d/conda.sh
 
 log_message "**** Run elastic net ****"
 conda activate /projects/p32505/opt/envs/ml
+
 export LD_LIBRARY_PATH=/projects/p32505/opt/envs/ml/lib:$LD_LIBRARY_PATH
+SCRATCH_BASE="/scratch/$USER"
+JOB_TMP="${SCRATCH_BASE}/tmp_${SLURM_JOB_ID:-interactive}"
+mkdir -p "$JOB_TMP"
+
+export TMPDIR="$JOB_TMP"
+export DASK_TEMPORARY_DIRECTORY="$TMPDIR"
+export DASK_DISTRIBUTED__WORKER__TEMPORARY_DIRECTORY="$TMPDIR"
+
+# Helper on HPC
+export UCX_TLS=tcp
+export DASK_DISTRIBUTED__COMM__TIMEOUTS__CONNECT="60s"
+export DASK_DISTRIBUTED__COMM__TIMEOUTS__TCP="60s"
+
 python ../_h/boosting_elastic_net.py
 conda deactivate
-#ENV_PATH="/projects/p32505/opt/env"
-#conda run -p "${ENV_PATH}/AI_env" python ../_h/boosting_elastic_net.py
 
 log_message "**** Job ends ****"

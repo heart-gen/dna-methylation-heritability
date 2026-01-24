@@ -7,13 +7,15 @@ suppressPackageStartupMessages({
     library(bumphunter)
     library(rtracklayer)
     library(txdbmaker)
+    library(annotatr)
+    library(tidyr)
 })
 
-# Function
+## Function
 load_vmrs <- function(tissue) {
                                         # combine vmr bed files from all chr
-  vmr_files <- here(paste0("heritability/", tissue, "/_m/vmr/chr_", 1:22, 
-                           "/vmr.bed"))
+  vmr_files <- here(paste0("heritability/", tissue, "/_m/vmr/chr_", 
+			   c(1:22, "X", "Y"), "/vmr.bed"))
   
   vmr_list  <- lapply(vmr_files, function(f) {
     if (file.exists(f)) {
@@ -35,34 +37,88 @@ load_vmrs <- function(tissue) {
   
 }
 
-load_annotations <- function(annotation_fn) {
+load_annotations <- function() {
   
-                                        # load gene annotations 
-  txdb <- makeTxDbFromGFF(annotation_fn, format = "gtf")
-  annotated_genes <- annotateTranscripts(txdb, annotationPackage = "org.Hs.eg.db")
+                                        # load genic annotations  
+  genic <- build_annotations(
+    genome = "hg38",
+    annotations = "hg38_basicgenes"
+  )
   
-  return(annotated_genes)
+                                        # load intergenic annotations
+  intergenic <- build_annotations(
+    genome = "hg38",
+    annotations = "hg38_genes_intergenic"
+  )
+  
+                                        # load cpg annotations
+  cpg_islands <- build_annotations(
+    genome = "hg38",
+    annotations = "hg38_cpgs"
+  )
+  
+                                        # load FANTOM5 enhancer annotations
+  enhancers <- build_annotations(
+    genome = "hg38",
+    annotations = "hg38_enhancers_fantom"
+  )
+  
+                                        # compile annotations
+  annots <- c(genic, intergenic, cpg_islands, enhancers)
+  
+  return(annots)
 }
 
-annotate_vmrs <- function(vmr_gr, annotated_genes, out_file) {
+annotate_vmrs <- function(vmr_gr, enet, annots, out_file) {
   
-                                        # find nearest genes/transcripts
-  matched <- matchGenes(vmr_gr, annotated_genes)
+                                        # annotate vmrs
+  annotated_vmrs <- annotate_regions(
+    regions = vmr_gr,
+    annotations = annots,
+    ignore.strand = TRUE)
   
-                                        # extract vmr positions                                          
-  vmr     <- data.table(chr = as.character(seqnames(vmr_gr)),
-                        start = start(vmr_gr),
-                        end = end(vmr_gr))
+                                        # get h2 categories
+  enet <- na.omit(enet)
+  enet <- enet %>% 
+    dplyr::select(chrom, start, end, h2_unscaled, r_squared_cv) %>% 
+    dplyr::rename("chr" = "chrom") %>%
+    mutate(chr = paste0("chr", chr)) %>%
+    mutate(h2_category = case_when(
+      r_squared_cv <= 0.75 ~ "Low prediction",
+      h2_unscaled < 0.1 & r_squared_cv > 0.75 ~ "Non-heritable",
+      h2_unscaled >= 0.1 & r_squared_cv > 0.75 ~ "Heritable"
+    ),
+    h2_category = factor(h2_category,
+                         levels = c("Heritable", "Non-heritable", "Low prediction"))
+    )
   
-                                        # merge annotations with vmr positions  
-  matched <- cbind(vmr, matched)
+                                        # merge annotations with h2  
+  annot_df <- data.frame(annotated_vmrs)
+  merged   <- annot_df %>%
+    left_join(enet, by = c("seqnames" = "chr", "start", "end"))
   
                                         # write annotations to file
-  fwrite(matched, out_file, sep = "\t")
-  return(matched)
+  fwrite(merged, out_file, sep = "\t")
+  return(merged)
 }
 
-# Main
+format_annotations <- function(merged, out_file) {
+  
+                                        # pivot wide
+  wide <- merged %>%
+    dplyr::select(seqnames, start, end, annot.type, h2_category) %>%
+    mutate(val = 1) %>%
+    pivot_wider(
+      names_from = annot.type,
+      values_from = val, 
+      values_fn = max,
+      values_fill = 0     
+    )
+                                        # write formatted annotations
+  fwrite(wide, out_file, sep = "\t")
+}
+
+## Main
   
                                         # create output dir if it doesn't exist
 out_path <- here("heritability/elastic_net_model/tissue_comparison/annotation/_m")
@@ -71,16 +127,28 @@ if (!dir.exists(out_path)) {
   dir.create(out_path, recursive = TRUE)
 }
 
-annotation_fn <- "/projects/b1213/resources/genomes/human/gencode-v47/gtf/gencode.v47.primary_assembly.annotation.gtf"
-
 tissues <- c("dlpfc", "caudate", "hippocampus")
 
 for (tissue in tissues) {
-  out_file         <- file.path(out_path, 
-                                paste0(tissue, "_vmr_gene_annotation_match_genes.tsv"))
-  vmr_gr           <- load_vmrs(tissue)
-  annotated_genes  <- load_annotations(annotation_fn)
-  matched          <- annotate_vmrs(vmr_gr, annotated_genes, out_file)
+  out_annot  <- file.path(out_path, 
+                         paste0(tissue, "_vmr_annotations_hg38.tsv"))
+  out_wide   <- file.path(out_path, 
+                          paste0(tissue, "_vmr_annotations_hg38_wide.tsv"))
+  vmr_gr    <- load_vmrs(tissue)
+  annots    <- load_annotations()
+  
+  enet_file <- here("heritability/elastic_net_model/", 
+                    paste0(tissue, "/_m/", tissue, "_summary_elastic-net.tsv"))
+  enet      <- read.table(enet_file, sep = "\t", header = TRUE)
+  
+  merged    <- annotate_vmrs(vmr_gr, enet, annots, out_annot)
+  
+  summary <- merged %>%
+    group_by(h2_category, annot.type) %>%
+    summarise(n = n())
+  print(summary)
+  
+  wide <- format_annotations(merged, out_wide)
 }
 
 #### Reproducibility information
