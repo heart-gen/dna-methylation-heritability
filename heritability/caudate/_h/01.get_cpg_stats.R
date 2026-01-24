@@ -16,14 +16,6 @@ args <- commandArgs(trailingOnly = TRUE)
 chr  <- args[1]
 
 ## Function
-change_file_path <- function(BSobj, raw_assays) {
-    var <- c("M", "Cov", "coef")
-    for (assay in var) {
-        BSobj@assays@data@listData[[assay]]@seed@seed@filepath <- raw_assays
-    }
-    return(BSobj)
-}
-
 filter_pheno <- function(BSobj, pheno_file_path) {
     pheno <- fread(pheno_file_path, header = TRUE)
     pheno_filtered <- pheno %>%
@@ -33,13 +25,11 @@ filter_pheno <- function(BSobj, pheno_file_path) {
     return(list(BSobj = BSobj, pheno = pheno_filtered, id = id))
 }
 
-exclude_blacklist <- function(BSobj) {
-  ah         <- AnnotationHub()
-  query_data <- subset(ah, preparerclass == "excluderanges")
-  blacklist  <- query_data[["AH107305"]]
-  bb         <- findOverlaps(BSobj, blacklist)
-  BSobj      <- BSobj[-queryHits(bb),]
-  return(BSobj)
+remove_ct_snps <- function(f_snp, BSobj) {
+    snp <- fread(f_snp, header = FALSE, data.table = FALSE)[, 1]
+    idx <- is.element(start(filtered$BSobj), snp)
+    BSobj <- BSobj[!idx,]
+    return(BSobj)
 }
 
 exclude_low_cov <- function(BSobj) {
@@ -59,8 +49,9 @@ DNAm_stats <- function(BSobj, out_stats) {
 }
 
 extract_fid_iid <- function(psam_file) {
-    samples <- read_plink2_psam_file(psam_file)
+    samples <- fread(psam_file, header = FALSE)
     samples <- samples[, 1:2]
+    colnames(samples) <- c("FID", "IID")
     return(samples)
 }
 
@@ -116,7 +107,7 @@ write_covar <- function(BSobj, pheno, id, meth_merged, out_covs) {
 
 ## Main
                                         # load data
-load(here("inputs/wgbs-data/caudate", paste0("Caudate_chr", chr, "_BSobj.rda")))
+load(here("inputs/wgbs-data/caudate/_m", paste0("caudate_chr", chr, "_BSobj.rda")))
 output_path <- here("heritability", "caudate", "_m")
 subdirs <- c("covs", "cpg")
 
@@ -133,17 +124,18 @@ for (subdir in subdirs) {
 out_covs  <- file.path(output_path, "covs",  paste0("chr_", chr))
 out_cpg   <- file.path(output_path, "cpg", paste0("chr_", chr))
 
-                                       # change file path for raw data
-raw_assays  <- here("inputs/wgbs-data/caudate/raw/CpGassays.h5")
-BSobj       <- change_file_path(BSobj, raw_assays)
-
                                         # keep only adult AA
 pheno_file_path <- here("inputs/phenotypes/_m/phenotypes-AA.tsv")
 filtered        <- filter_pheno(BSobj, pheno_file_path)
 
-                                        # exclude hg38 ENCODE blacklist regions
-BSobj <- exclude_blacklist(filtered$BSobj)
+f_snp <- paste0("/projects/b1213/resources/libd_data/wgbs/DEM2/snps_CT/chr",chr)
 
+                                        # Remove CT SNPs for autosomal chr
+if (!chr %in% c("X", "Y")) {
+  BSobj <- remove_ct_snps(f_snp, filtered$BSobj)
+} else {
+  BSobj <- filtered$BSobj
+}
                                         # exclude low coverage sites
 BSobj <- exclude_low_cov(BSobj)
 
