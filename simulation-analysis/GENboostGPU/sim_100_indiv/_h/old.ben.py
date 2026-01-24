@@ -86,6 +86,19 @@ def fixed_params_for_window(w, bim, N, c_lambda=None, c_ridge=None):
     return alpha, l1r
 
 
+def make_fixed_fn(*, bim, N, c_lambda, c_ridge, window_size=500_000, use_window=True):
+    def _fn(w):
+        M = int(w.get("M_raw") or count_snps_in_window(
+            bim, w["chrom"], w["start"], w.get("end", w["start"]),
+            window_size=window_size, use_window=use_window
+        ))
+        if M <= 1:
+            return {}  # skip fixing if no SNPs
+        alpha, l1r = enet_from_targets(M, N, c_lambda=c_lambda, c_ridge=c_ridge)
+        return {"fixed_alpha": alpha, "fixed_l1_ratio": l1r}
+    return _fn
+
+
 def main():
     num_samples = os.environ.get("NUM_SAMPLES")
 
@@ -95,7 +108,7 @@ def main():
     # Load genotypes
     geno_path = construct_data_path(num_samples, "plink")
     geno_arr, bim, fam = load_genotypes(str(geno_path))
-    N = len(fam)
+    N = len(fam) if fam is not None else int(getattr(geno_arr, "shape", [0])[0])
     
     # Build and tune windows
     windows = build_windows(num_samples)
@@ -122,11 +135,21 @@ def main():
             results.append(r)
 
     # Run with dask orchestration
-    df = run_windows_with_dask(
-        windows, outdir="results", window_size=500_000,
-        n_iter=100, n_trials=10, use_window=False,
-        save=True, prefix="simu_100"
+    fixed_fn = make_fixed_fn(
+        bim=bim, N=N, c_lambda=best["c_lambda"],
+        c_ridge=best["c_ridge"], window_size=500_000, use_window=False
     )
+
+    df = run_windows_with_dask(
+        windows, geno_arr=geno_arr, bim=bim, fam=fam,
+        outdir="results", batch_size=best["batch_size"],
+        window_size=500_000, use_window=False,
+        fixed_params=fixed_fn, fixed_subsample=best["subsample_frac"],
+        early_stop={"patience": 5, "min_delta": 1e-4, "warmup": 5},
+        working_set={"K": 1024, "refresh": 10},
+        prefix="simu_100"
+    )
+
     print(f"Completed {len(df)} phenotypes")
     print(df.head())
 
