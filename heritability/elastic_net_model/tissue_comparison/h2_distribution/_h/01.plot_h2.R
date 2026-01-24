@@ -62,9 +62,9 @@ plot_density <- function(vmr, tissue) {
 
   p_hist <- gghistogram(vmr, x = "h2_unscaled", 
                         add_density = TRUE, rug = TRUE, 
-                        add = "median",
+                        add = "mean",
                         color = "h2_category", fill = "h2_category",
-                        ggtheme = theme_pubr(base_size = 15, border = TRUE),
+                        ggtheme = theme_pubr(base_size = 20, border = TRUE),
                         xlab = "Estimated h²", ylab = "Count") +
     facet_wrap(~h2_category, labeller = as_labeller(labels), scales = "free_x") +
     scale_color_manual(values = category_colors) +
