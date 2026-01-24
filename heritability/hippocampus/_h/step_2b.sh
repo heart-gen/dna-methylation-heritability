@@ -6,19 +6,31 @@
 #SBATCH --ntasks-per-node=1     # Number of cores (CPU)
 #SBATCH --mem=16G               # Memory limit
 #SBATCH --mail-type=FAIL
-#SBATCH --array=1-22
+#SBATCH --array=1-24
 #SBATCH --mail-user=alexis.bennett@northwestern.edu
 #SBATCH --job-name=res_var  # Job name
 #SBATCH --output=/dev/null      # Standard output log
 #SBATCH --error=/dev/null       # Standard error log
 
+# Map chr names 
+if [ "$SLURM_ARRAY_TASK_ID" -le 22 ]; then
+    CHR="$SLURM_ARRAY_TASK_ID"
+elif [ "$SLURM_ARRAY_TASK_ID" -eq 23 ]; then
+    CHR="X"
+elif [ "$SLURM_ARRAY_TASK_ID" -eq 24 ]; then
+    CHR="Y"
+else
+    echo "Invalid SLURM_ARRAY_TASK_ID: $SLURM_ARRAY_TASK_ID"
+    exit 1
+fi
+
 # Create log directories for each chr
-LOG_DIR="logs/chr_${SLURM_ARRAY_TASK_ID}"
+LOG_DIR="logs/chr_${CHR}"
 mkdir -p "$LOG_DIR"
 
 # Redirect output and error logs to chr-specific log files
-exec > >(tee -a "$LOG_DIR/res_var_${SLURM_ARRAY_TASK_ID}_out.log")
-exec 2> >(tee -a "$LOG_DIR/res_var_${SLURM_ARRAY_TASK_ID}_err.log" >&2)
+exec > >(tee -a "$LOG_DIR/res_var_${CHR}_out.log")
+exec 2> >(tee -a "$LOG_DIR/res_var_${CHR}_err.log" >&2)
 
 # Log function
 log_message() {
@@ -38,18 +50,18 @@ echo "Task id: ${SLURM_ARRAY_TASK_ID}"
 ## List current modules for reproducibility
 
 module purge
-module list 
+module list
 
 # Set path variables
-ENV_PATH="/projects/p32505/opt/env"
-CPG_DIR="./cpg/chr_${SLURM_ARRAY_TASK_ID}"
+ENV_PATH="/projects/p32505/opt/envs"
+CPG_DIR="./cpg/chr_${CHR}"
 METH_FILE="${CPG_DIR}/cpg_meth.phen"
 SPLIT=5000
 OUT_DIR="${CPG_DIR}/tmp_files"
 
 mkdir -p "$OUT_DIR"
 
-echo "Working on: Chromosome $SLURM_ARRAY_TASK_ID"
+echo "Working on: Chromosome $CHR"
 echo "Splitting methylation matrix into columns of $SPLIT"
 
 # Get number of columns (based on header)
@@ -57,7 +69,7 @@ NUM_COLS=$(head -1 "$METH_FILE" | tr '\t' '\n' | wc -l)
 
 # Loop over column chunks
 if ls "$OUT_DIR"/cpg_meth_*.tsv 1> /dev/null 2>&1; then
-  echo "Split files already exist, skipping splitting."
+    echo "Split files already exist, skipping splitting."
 else
     for ((i=3; i<=NUM_COLS; i+=SPLIT)); do
         start=$i
@@ -74,7 +86,8 @@ else
 fi
 
 ## Activate conda environment
-conda run -p $ENV_PATH/r_env Rscript ../_h/02b.res_var.R $SLURM_ARRAY_TASK_ID
+conda run -p $ENV_PATH/epigenomics Rscript ../_h/02b.res_var.R $CHR
+
 if [ $? -ne 0 ]; then
     log_message "Error: Conda or script execution failed"
     exit 1

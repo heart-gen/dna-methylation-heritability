@@ -90,7 +90,8 @@ for (tissue in tissues) {
   # Read in summary table
   enet_file <- here("heritability/elastic_net_model/", 
                     paste0(tissue, "/_m/", tissue, "_summary_elastic-net.tsv"))
-  vmr <- read.table(enet_file, sep = "\t", header = TRUE)
+  vmr <- read.table(enet_file, sep = "\t", header = TRUE, 
+                    colClasses = c(chrom = "character")) |> na.omit()
     
   # Store vmrs across all tissues
   vmr$tissue <- tissue
@@ -104,5 +105,11 @@ summarise_h2(vmr_all, out_path)
 
 # Save plot
 p_hist <- plot_density(vmr_all, tissue)
-fn_hist <- file.path(out_path, "all_VMR_h2_distribution")
+fn_hist <- file.path(out_path, "all_sites_vmr_h2_distribution")
 save_plot(p_hist, fn_hist, 10, 5)
+
+## Reproducibility information
+Sys.time()
+proc.time()
+options(width = 120)
+sessioninfo::session_info()
