@@ -29,13 +29,19 @@ extract_bed <- function(tissue){
 }
 
 plot_circos_3tissue <- function(caudate, dlpfc, hippo, col, ylim){
+                                            # set custom gap for y axis labels
+    chrs <- paste0("chr", c(1:22, "X", "Y"))
+    gap <- rep(1, length(chrs))
+    names(gap) <- chrs
+    gap["chrY"] <- 7
+  
     lgd_points = Legend(at=c("Caudate nucleus", "DLPFC", "Hippocampus"),
-                        type="points", legend_gp=gpar(col = c("#7372A6", "#B36F61", "green")),
+                        type="points", legend_gp=gpar(col = c("#7372A6", "#B36F61", "#C5AC47")),
                         title_position="topleft", title="Tissue",
                         background="#FFFFFF")
     circos.clear() # clear plot if there is any
     circos.par("start.degree" = 0, "cell.padding" = c(0, 0, 0, 0),
-               "track.height" = 0.15) # rotate 90 degrees
+               "track.height" = 0.15, gap.degree = gap) # rotate 90 degrees
     # initialize with ideogram
     # use hg38, default is hg19
     circos.initializeWithIdeogram(species="hg38")
@@ -45,6 +51,7 @@ plot_circos_3tissue <- function(caudate, dlpfc, hippo, col, ylim){
                           circos.genomicLines(region, value,
                                               type = "segment", col = col, lwd = 2, ...)
                           circos.lines(CELL_META$cell.xlim, c(0.1, 0.1), lty = 2, col = "black")
+                  			  circos.yaxis(labels.cex = 0.6, side = "left", sector.index = "chr1")
     })
     circos.genomicTrack(dlpfc, ylim = ylim, bg.border="#B36F61",
                         bg.col=add_transparency("#B36F61", transparency=0.8),
@@ -52,6 +59,7 @@ plot_circos_3tissue <- function(caudate, dlpfc, hippo, col, ylim){
                           circos.genomicLines(region, value,
                                               type = "segment", lwd = 2, col = col, ...)
                           circos.lines(CELL_META$cell.xlim, c(0.1, 0.1), lty = 2, col = "black")
+                          circos.yaxis(labels.cex = 0.6, side = "left", sector.index = "chr1")
     })
     circos.genomicTrack(hippo, ylim = ylim, bg.border="#C5AC47",
                         bg.col=add_transparency("#C5AC47", transparency=0.8),
@@ -59,6 +67,7 @@ plot_circos_3tissue <- function(caudate, dlpfc, hippo, col, ylim){
                           circos.genomicLines(region, value,
                                               type = "segment", lwd = 2, col = col, ...)
                           circos.lines(CELL_META$cell.xlim, c(0.1, 0.1), lty = 2, col = "black")
+                          circos.yaxis(labels.cex = 0.6, side = "left", sector.index = "chr1")
     })
     draw(lgd_points, x=unit(5, "mm"), y=unit(5, "mm"), just=c("left", "bottom"))
 }

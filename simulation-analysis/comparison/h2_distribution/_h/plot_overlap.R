@@ -23,7 +23,7 @@ if (!dir.exists(out_path)) {
 }
 
 # Read in and filter summary tables
-num_indivs <- c(100, 250, 500, 5000)
+num_indivs <- c(100, 150, 200, 250, 500, 1000, 5000)
 enet_list <- list()
 target_list <- list()
 
@@ -132,7 +132,7 @@ for (n in num_indivs) {
   
 }
 
-combined_hist <- ggarrange(plotlist = plot_list, ncol = 2, nrow = 2,
+combined_hist <- ggarrange(plotlist = plot_list, ncol = 4, nrow = 2,
                            common.legend = TRUE, legend = "top")
 
 combined_hist_annotated <- annotate_figure(
@@ -142,5 +142,5 @@ combined_hist_annotated <- annotate_figure(
 )
 
 fn_hist <- file.path(out_path, "simulated_h2_distribution")
-save_plot(combined_hist_annotated, fn_hist, 8, 6, dpi = 300)
+save_plot(combined_hist_annotated, fn_hist, 14, 8, dpi = 300)
 

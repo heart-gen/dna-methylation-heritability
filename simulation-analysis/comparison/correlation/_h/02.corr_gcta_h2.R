@@ -87,7 +87,7 @@ for (num_indiv in num_indivs) {
   # Plot for each sample size
   p <- ggscatter(filtered, x = "target_heritability", y = "Sum.of.V.G._Vp_Variance",
     add = "reg.line", size = 1, alpha = 0.75,
-    xlab = "True h²", ylab = "Estimated h²",
+    xlab = NULL, ylab = NULL,
     conf.int = TRUE,
     cor.coef = TRUE, cor.coef.size = 4,
     cor.method = "spearman",
@@ -98,16 +98,20 @@ for (num_indiv in num_indivs) {
       label.y.npc = 0.95
     ),
     add.params = list(fill = "lightgray", alpha = 0.75),
-    ggtheme = theme_pubr(base_size = 15, border = TRUE)
+    ggtheme = theme_pubr(base_size = 20, border = TRUE)
   ) +
-    facet_wrap(~h2_category, labeller = as_labeller(labels), scales = "free_x") +
+    facet_wrap(~h2_category, scales = "free_x") +
     scale_color_manual(values = category_colors) +
-    ggtitle(paste("N =", num_indiv)) +
+    #ggtitle(paste("N =", num_indiv)) +
     labs(color = NULL) +
     font("xy.title", face = "bold", size = 14) + 
     theme(
+      axis.title.x = element_blank(),
+      axis.title.y = element_blank(),
       axis.text.x = element_text(angle = 45, hjust = 1),
-      plot.title = element_text(hjust = 0.5)
+      plot.title = element_text(hjust = 0.5),
+      strip.text = element_blank(),
+      strip.background = element_blank()
     ) +
     coord_cartesian(ylim = c(0, 1)) +
     geom_hline(yintercept = 0.1, linetype = "dashed", color = "#2A0F07")
@@ -115,11 +119,18 @@ for (num_indiv in num_indivs) {
   plot_list[[as.character(num_indiv)]] <- p
 }
 # Combine all plots into a 2x2 grid
-combined_plot <- ggarrange(plotlist = plot_list, ncol = 4, nrow = 2, labels = NULL)
+combined_plot <- ggarrange(plotlist = plot_list, ncol = 1, nrow = 7, 
+                           common.legend = TRUE, labels = NULL)
+
+combined_plot_annotated <- annotate_figure(
+  combined_plot,
+  left = text_grob("Estimated h²", rot = 90, size = 20),
+  bottom = text_grob("True h²", size = 20)
+)
 
 # Save combined plot
 plot_file <- file.path(out_path, "gcta_correlation_combined")
-save_plot(combined_plot, plot_file, w = 20, h = 10)
+save_plot(combined_plot_annotated, plot_file, w = 6, h = 20)
 
 # Combine and write results
 results_df <- bind_rows(results_list)
