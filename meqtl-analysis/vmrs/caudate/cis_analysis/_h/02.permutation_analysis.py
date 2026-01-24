@@ -24,7 +24,7 @@ class SimpleLogger(object):
 
 @lru_cache()
 def get_genotypes():
-    plink_prefix_path = "../../_m/protected_data/TOPMed_LIBD"
+    plink_prefix_path = "/projects/b1213/users/alexis/projects/dna-methylation-heritability/meqtl-analysis/vmrs/caudate/_m/protected_data/TOPMed_LIBD"
     pgr = pgen.PgenReader(plink_prefix_path)
     variant_df = pgr.variant_df
     variant_df.loc[:, "chrom"] = "chr" + variant_df.chrom
@@ -33,13 +33,13 @@ def get_genotypes():
 
 @lru_cache()
 def get_covars(feature = "vmrs"):
-    covar_file = f"../../_m/{feature}.combined_covariates.txt"
+    covar_file = f"/projects/b1213/users/alexis/projects/dna-methylation-heritability/meqtl-analysis/vmrs/caudate/_m/{feature}.combined_covariates.txt"
     return pd.read_csv(covar_file, sep='\t', index_col=0).T
 
 
 @lru_cache()
 def get_phenotype(feature = "vmrs"):
-    meth_bed = f"../../_m/{feature}.methylation.bed.gz"
+    meth_bed = f"/projects/b1213/users/alexis/projects/dna-methylation-heritability/meqtl-analysis/vmrs/caudate/_m/{feature}.methylation.bed.gz"
     return read_phenotype_bed(meth_bed)
 
 
