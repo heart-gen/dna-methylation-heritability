@@ -21,7 +21,7 @@ def get_covars(feature = "vmrs"):
 
 @lru_cache()
 def get_phenotype(feature = "vmrs"):
-    meth_bed = f"/projects/b1213/users/alexis/dna-methylation-heritability/meqtl-analysis/vmrs/hippocampus/_m/{feature}.methylation.bed.gz"
+    meth_bed = f"/projects/b1213/users/alexis/projects/dna-methylation-heritability/meqtl-analysis/vmrs/hippocampus/_m/{feature}.methylation.bed.gz"
     return read_phenotype_bed(meth_bed)
 
 
