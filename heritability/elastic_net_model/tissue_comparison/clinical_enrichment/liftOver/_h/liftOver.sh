@@ -4,7 +4,7 @@
 #SBATCH --time=01:00:00         # Time limit hrs:min:sec
 #SBATCH --nodes=1               # Number of nodes
 #SBATCH --ntasks-per-node=1     # Number of cores (CPU)
-#SBATCH --mem=1G                # Memory limit
+#SBATCH --mem=5G                # Memory limit
 #SBATCH --job-name=liftOver  # Job name
 #SBATCH --output=logs/output_%j.log  # Standard output log
 #SBATCH --error=logs/error_%j.log    # Standard error log
@@ -34,18 +34,29 @@ conda activate /projects/p32505/opt/envs/epigenomics
 /projects/p32505/opt/envs/epigenomics/lib/R/bin/Rscript ../_h/liftOver.R
 conda deactivate
 
-awk '{
-  chr=$1; gsub("chr","",chr);
-  bp=$2+1;
-  split($4,a,":");
-  print chr, a[1]":"bp":"a[3]":"a[4], bp
-}' OFS='\t' gwas_lifted.bed > lifted.coords
+awk '{print $4, $3}' gwas_lifted.bed > lifted.map
 
-awk 'NR>1{print $2,$5,$6,$7,$8,$9}' OFS='\t' $INPUT_FILE | sort > stats.txt
-sort lifted.coords > coords.txt
+awk '
+NR==FNR {
+    newpos[$1]=$2
+    next
+}
+NR==1 {
+    print
+    next
+}
+{
+    split($2, a, ":")     # a[1]=id, a[2]=old bp, a[3]=A1, a[4]=A2
+    bp38 = newpos[$2]
 
-join -1 1 -2 1 coords.txt stats.txt > gwas.sumstats.txt
+    if (bp38 != "") {
+        $2 = a[1] ":" bp38 ":" a[3] ":" a[4]  # new SNP ID
+        $3 = bp38                              # new bp column
+    }
+    print
+}
+' OFS="\t" lifted.map $INPUT_FILE > gwas.sumstats.txt
 
-rm gwas.bed gwas_lifted.bed lifted.coords stats.txt coords.txt
+rm gwas.bed gwas_lifted.bed lifted.map
 
 log_message "**** Job ends ****"
