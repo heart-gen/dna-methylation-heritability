@@ -8,7 +8,7 @@ suppressPackageStartupMessages({
   library(tidyr)
 })
 
-## Function
+## Function           
 filter_sites <- function(enet) {
   vmr <- na.omit(enet)
   vmr <- vmr %>% 
@@ -103,7 +103,7 @@ pheno <- clean_pheno(pheno_file_path, tissue, vars_to_include)
 f_ances   <- here("inputs", "genetic-ancestry",
                   "structure.out_ancestry_proportion_raceDemo_compare")
 ances     <- fread(f_ances) %>% filter(group == "AA")
-pheno_test <- left_join(pheno, ances, by = c("brnum" = "id"))
+pheno <- left_join(pheno, ances, by = c("brnum" = "id"))
 
                                         # Get meth matrix
 meth_file_path <- here("heritability/caudate/_m/vmr")
@@ -124,15 +124,63 @@ merged <- groups |>
 out_table <- file.path(out_path, paste0("vmr_env_assoc-AA.tsv.gz"))
 fwrite(merged, out_table, sep = "\t", quote = FALSE)
 
-                                        # Basic boxplot for exploratory
-#p <- ggplot(data=subset(merged, !is.na(education)), aes(x = education, y = meth)) +
-#  facet_wrap(~h2_category) +
-#  geom_boxplot()
-#p
 
+####### Covariate testing #########
+
+                                        # Define covariates
+covars <- "agedeath + sex + primarydx + Afr"
+
+                                        # Initialize results matrix
+cov_results <- tibble() 
+feature_ids <- unique(merged$feature_id)
+
+for (vmr in feature_ids) {
+  print(paste("Running null logistic regression on", vmr))
+  
+  vmr_merged <- merged %>% filter(feature_id == vmr)
+  
+  # Test control variables
+  cov_model <- as.formula(paste("meth ~", covars))
+  cov_logit <- glm(cov_model, data = vmr_merged)
+  
+  cov_summary <- as.data.frame(summary(cov_logit)$coefficients)
+  cov_summary$var <- rownames(cov_summary)
+  cov_summary <- cov_summary %>%
+    filter(var != "(Intercept)") %>%
+    mutate(feature_id = vmr, beta = Estimate, se = `Std. Error`,
+           t = `t value`, p = `Pr(>|t|)`)
+  
+  cov_results <- bind_rows(cov_results, cov_summary)
+}
+
+                                        # FDR correction
+cov_results <- cov_results %>% as.data.frame() %>%
+  mutate(fdr = p.adjust(p, method = "fdr"))
+
+                                        # Add positions back in
+pos <- merged %>%
+  dplyr::select(feature_id, chr, start, end) %>%
+  distinct()
+cov_results <- pos %>%
+  inner_join(cov_results, "feature_id")
+
+cov_names <- unique(cov_results$var)
+
+for (cov in cov_names){
+  cov_filtered <- cov_results %>% filter(var == cov)
+ 
+  # Write results
+  out_cov_logit <- file.path(out_path, paste0(cov, "_logit.csv.gz"))
+  fwrite(cov_filtered, out_cov_logit)
+}
+
+####### Environmental testing #########
+
+                                        # Define environmental vars
 testing_envs <- c(
-  "smoking", "codeine", "morphine", "cocaine", "ethanol", "antipsychotics",
-  "nicotine", "amphetamines", "education", "marital_status", "Afr"
+  "smoking", "codeine", "morphine", "cocaine", "ethanol", "antipsychotics", 
+  "nicotine", "amphetamines", "education", "marital_status", "hx_sexual_abuse",
+  "hx_physical_abuse", "hx_other_trauma", "hx_military_service", "fsiq"
 )
   
 for (env in testing_envs) {
@@ -144,48 +192,49 @@ for (env in testing_envs) {
       sd = sd(meth)
     )
   
-  merged <- merged %>% drop_na(env)
+  merged_env <- merged %>% drop_na(env)
   
   # Initialize results matrix
-  feature_ids <- unique(merged$feature_id) 
-  results <- tibble() 
+  env_results <- tibble() 
   
   # Grouped logistic regression
   for (vmr in feature_ids) {
     print(paste("Running logistic regression on", vmr, "as a function of", env))
     
-    vmr_merged <- merged %>% filter(feature_id == vmr)
-    model <- as.formula(paste("meth ~", env, "+ agedeath + sex + primarydx"))
-    logit <- glm(model, data = vmr_merged)
+    vmr_merged <- merged_env %>% filter(feature_id == vmr)
     
-    env_summary <- as.data.frame(summary(logit)$coefficients)
+    # Test environmental variables
+    env_model <- as.formula(paste("meth ~", env, "+", covars))
+    env_logit <- glm(env_model, data = vmr_merged)
+    
+    env_summary <- as.data.frame(summary(env_logit)$coefficients)
     env_summary$var <- rownames(env_summary)
     env_summary <- env_summary %>%
       filter(grepl(paste0("^", env), var)) %>%
       mutate(feature_id = vmr, env = env, beta = Estimate, se = `Std. Error`,
              t = `t value`, p = `Pr(>|t|)`)
     
-    results <- bind_rows(results, env_summary)
+    env_results <- bind_rows(env_results, env_summary)
   }
   # FDR correction
-  results <- results %>% as.data.frame() %>%
+  env_results <- env_results %>% as.data.frame() %>%
     mutate(fdr = p.adjust(p, method = "fdr"))
   
   # Count significant VMRs
-  print(paste("At FDR < 0.05 there are", sum(results$fdr < 0.05), "signficant VMRs"))
-  print(paste("At FDR < 0.1 there are", sum(results$fdr < 0.1), "signficant VMRs"))
-  print(paste("At p < 0.05 there are", sum(results$p < 0.05), "signficant VMRs"))
+  print(paste("At FDR < 0.05 there are", sum(env_results$fdr < 0.05), "signficant VMRs"))
+  print(paste("At FDR < 0.1 there are", sum(env_results$fdr < 0.1), "signficant VMRs"))
+  print(paste("At p < 0.05 there are", sum(env_results$p < 0.05), "signficant VMRs"))
   
   # Add positions back in
-  pos <- merged %>%
+  pos <- merged_env %>%
     dplyr::select(feature_id, chr, start, end) %>%
     distinct()
-  results <- pos %>%
-    inner_join(results, "feature_id")
+  env_results <- pos %>%
+    inner_join(env_results, "feature_id")
   
   # Write results
   out_logit <- file.path(out_path, paste0(env, "_logit.csv.gz"))
-  fwrite(results, out_logit)
+  fwrite(env_results, out_logit)
 }
   
 #### Reproducibility ####
