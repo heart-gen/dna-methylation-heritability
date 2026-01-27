@@ -24,11 +24,28 @@ echo "Node name: ${SLURM_NODENAME}"
 echo "Hostname: ${HOSTNAME}"
 echo "Task id: ${SLURM_ARRAY_TASK_ID:-N/A}"
 
-INPUT_FILE=/projects/p32505/users/elisa/dna-methylation-heritability/heritability/elastic_net_model/tissue_comparison/clinical_enrichment/fine-mapping/SuSiEx/examples/AFR.sumstats.txt
+INPUT_FILE=/projects/b1213/users/elisa/dna-methylation-heritability/heritability/elastic_net_model/tissue_comparison/clinical_enrichment/fine-mapping/SuSiEx/examples/AFR.sumstats.txt
+
+awk 'BEGIN{OFS="\t"} NR>1 {print "chr"$1, $3-1, $3, $2}' $INPUT_FILE \
+| sort -k1,1 -k2,2n > gwas.bed
 
 # Runs liftOver
 conda activate /projects/p32505/opt/envs/epigenomics
 /projects/p32505/opt/envs/epigenomics/lib/R/bin/Rscript ../_h/liftOver.R
 conda deactivate
+
+awk '{
+  chr=$1; gsub("chr","",chr);
+  bp=$2+1;
+  split($4,a,":");
+  print chr, a[1]":"bp":"a[3]":"a[4], bp
+}' OFS='\t' gwas_lifted.bed > lifted.coords
+
+awk 'NR>1{print $2,$5,$6,$7,$8,$9}' OFS='\t' $INPUT_FILE | sort > stats.txt
+sort lifted.coords > coords.txt
+
+join -1 1 -2 1 coords.txt stats.txt > gwas.sumstats.txt
+
+rm gwas.bed gwas_lifted.bed lifted.coords stats.txt coords.txt
 
 log_message "**** Job ends ****"
