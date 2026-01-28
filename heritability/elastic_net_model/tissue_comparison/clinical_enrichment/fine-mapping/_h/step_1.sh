@@ -26,7 +26,7 @@ echo "Hostname: ${HOSTNAME}"
 echo "Task id: ${SLURM_ARRAY_TASK_ID:-N/A}"
 
 # Define reference directory based on chromosome number
-REF_DIR=/projects/b1213/users/alexis/projects/dna-methylation-heritability/heritability/caudate/_m/plink_format/chr_${SLURM_ARRAY_TASK_ID}
+REF_DIR=/projects/b1213/users/alexis/projects/dna-methylation-heritability/heritability/hippocampus/_m/plink_format/chr_${SLURM_ARRAY_TASK_ID}
 
 # Loop through each BED file in the reference directory
 for file in "$REF_DIR"/TOPMed_LIBD.AA.*.bed; do
@@ -42,7 +42,7 @@ for file in "$REF_DIR"/TOPMed_LIBD.AA.*.bed; do
 	fi
 
 	# Create output directory for LD matrices
-	OUT_DIR=ld_matrices/chr_$SLURM_ARRAY_TASK_ID/$START"_"$END
+	OUT_DIR=ld_matrices/hippocampus/chr_$SLURM_ARRAY_TASK_ID/$START"_"$END
 	mkdir -p $OUT_DIR
 
 	# Define 500kb window around the VMR
