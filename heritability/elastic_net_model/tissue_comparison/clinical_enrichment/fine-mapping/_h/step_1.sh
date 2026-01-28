@@ -1,14 +1,14 @@
 #!/bin/bash
 #SBATCH --account=p32505        # Replace with your allocation
 #SBATCH --partition=short       # Partition (queue) name
-#SBATCH --time=02:30:00         # Time limit hrs:min:sec
+#SBATCH --time=01:00:00         # Time limit hrs:min:sec
 #SBATCH --nodes=1               # Number of nodes
 #SBATCH --ntasks-per-node=1     # Number of cores (CPU)
 #SBATCH --mem=25G                # Memory limit
 #SBATCH --job-name=cal_ld  # Job name
 #SBATCH --output=logs/output_%j.log  # Standard output log
 #SBATCH --error=logs/error_%j.log    # Standard error log
-#SBATCH --array=1-22         # Array job range (if needed)
+#SBATCH --array=1-22          # Array job range
 
 # Log function
 log_message() {
@@ -25,16 +25,14 @@ echo "Node name: ${SLURM_NODENAME}"
 echo "Hostname: ${HOSTNAME}"
 echo "Task id: ${SLURM_ARRAY_TASK_ID:-N/A}"
 
-mkdir -p cal_ld
-cd cal_ld
-mkdir -p chr_${SLURM_ARRAY_TASK_ID}
-cd ..
-
+# Define reference directory based on chromosome number
 REF_DIR=/projects/b1213/users/alexis/projects/dna-methylation-heritability/heritability/caudate/_m/plink_format/chr_${SLURM_ARRAY_TASK_ID}
 
+# Loop through each BED file in the reference directory
 for file in "$REF_DIR"/TOPMed_LIBD.AA.*.bed; do
 	filename=$(basename "$file")
 
+	# Extract START and END positions from filename
 	if [[ $filename =~ ([0-9]+)_([0-9]+)\. ]]; then
 		START=${BASH_REMATCH[1]}
 		END=${BASH_REMATCH[2]}
@@ -43,17 +41,22 @@ for file in "$REF_DIR"/TOPMed_LIBD.AA.*.bed; do
 		echo "File $filename does not match the expected pattern."
 	fi
 
-	START_POSITION=$((START - 500000))
-	END_POSITION=$((END + 500000))
+	# Create output directory for LD matrices
+	OUT_DIR=ld_matrices/chr_$SLURM_ARRAY_TASK_ID/$START"_"$END
+	mkdir -p $OUT_DIR
 
+	# Define 500kb window around the VMR
+	START_POS=$((START - 500000))
+	END_POS=$((END + 500000))
+
+	# Calculate LD matrix using SuSiEx_LD.py
 	python ../SuSiEx/utilities/SuSiEx_LD.py \
 		--ref_file=$REF_DIR/TOPMed_LIBD.AA.${START}_${END} \
-		--ld_file=cal_ld/chr_${SLURM_ARRAY_TASK_ID}/TOPMed_LIBD.AA.${START}_${END} \
-		--chr=${SLURM_ARRAY_TASK_ID} \
-		--bp=$START_POSITION,$END_POSITION \
+		--ld_file=$OUT_DIR/TOPMed_LIBD.AA.${START}_${END} \
+		--chr=$SLURM_ARRAY_TASK_ID \
+		--bp=${START_POS},${END_POS} \
 		--plink=../SuSiEx/utilities/plink \
 		--maf=0.005
-
 done
 
 log_message "**** Job ends ****"
