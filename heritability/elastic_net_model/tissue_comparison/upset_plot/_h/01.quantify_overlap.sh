@@ -60,37 +60,36 @@ for f in "${OVERLAP[@]}"; do
 	-v -f $f > $OUTDIR/sets/dlpfc_specific.bed
 
 	# Extract shared VMRs in 2 tissues
-	bedtools intersect -a caudate.bed -b hippocampus.bed -f $f -wo | \
-	bedtools intersect -a - -b dlpfc.bed \
-	-v -f $f > $OUTDIR/sets/caudate_hippocampus_overlap.bed
+	bedtools intersect -a caudate.bed -b hippocampus.bed -f $f -wo \
+	> $OUTDIR/sets/caudate_hippocampus_overlap.bed
 
-	bedtools intersect -a caudate.bed -b dlpfc.bed -f $f -wo | \
-	bedtools intersect -a - -b hippocampus.bed \
-	-v -f $f > $OUTDIR/sets/caudate_dlpfc_overlap.bed
+	bedtools intersect -a caudate.bed -b dlpfc.bed -f $f -wo \
+	> $OUTDIR/sets/caudate_dlpfc_overlap.bed
 
-	bedtools intersect -a hippocampus.bed -b dlpfc.bed -f $f -wo | \
-	bedtools intersect -a - -b caudate.bed \
-	-v -f $f > $OUTDIR/sets/hippocampus_dlpfc_overlap.bed
+	bedtools intersect -a hippocampus.bed -b dlpfc.bed -f $f -wo \
+	> $OUTDIR/sets/hippocampus_dlpfc_overlap.bed
 
 	bedtools jaccard \
-		-a <(bedtools intersect -a caudate.bed -b dlpfc.bed -v -f $f | sort -k1,1 -k2,2n) \
-		-b <(bedtools intersect -a hippocampus.bed -b dlpfc.bed -v -f $f | sort -k1,1 -k2,2n) \
+		-a caudate.bed -b hippocampus.bed \
 		-f $f > $OUTDIR/jaccard/caudate_hippocampus_jaccard.tsv
 
 	bedtools jaccard \
-		-a <(bedtools intersect -a caudate.bed -b hippocampus.bed -v -f $f | sort -k1,1 -k2,2n) \
-		-b <(bedtools intersect -a dlpfc.bed -b hippocampus.bed -v -f $f | sort -k1,1 -k2,2n) \
+		-a caudate.bed -b dlpfc.bed \
 		-f $f > $OUTDIR/jaccard/caudate_dlpfc_jaccard.tsv
 
 	bedtools jaccard \
-		-a <(bedtools intersect -a hippocampus.bed -b caudate.bed -v -f $f | sort -k1,1 -k2,2n) \
-		-b <(bedtools intersect -a dlpfc.bed -b caudate.bed -v -f $f | sort -k1,1 -k2,2n) \
+		-a hippocampus.bed -b dlpfc.bed \
 		-f $f > $OUTDIR/jaccard/hippocampus_dlpfc_jaccard.tsv
 
 	# Extract shared VMRs in all tissues
-	bedtools intersect -a caudate.bed -b dlpfc.bed -f $f -wo | \
+	bedtools intersect -a caudate.bed -b dlpfc.bed -f $f -u | \
 	bedtools intersect -a - -b hippocampus.bed \
-	-f $f -wo > $OUTDIR/sets/3tissues_overlap.bed
+	-f $f -u > $OUTDIR/sets/3tissues_overlap.bed
+
+	bedtools multiinter \
+		-header -names Caudate DLPFC Hippocampus \
+		-i $OUTDIR/sets/3tissues_overlap.bed dlpfc.bed hippocampus.bed \
+		> $OUTDIR/sets/multiinter_3tissues_overlap.bed
 
 	bedtools jaccard \
 		-a <(bedtools intersect -a caudate.bed -b hippocampus.bed -f $f | sort -k1,1 -k2,2n) \
@@ -118,37 +117,36 @@ for F in "${OVERLAP[@]}"; do
 	-v -F $F > $OUTDIR/sets/dlpfc_specific.bed
 
 	# Extract shared VMRs in 2 tissues
-	bedtools intersect -a caudate.bed -b hippocampus.bed -F $F -wo | \
-	bedtools intersect -a - -b dlpfc.bed \
-	-v -F $F > $OUTDIR/sets/caudate_hippocampus_overlap.bed
+	bedtools intersect -a caudate.bed -b hippocampus.bed -F $F -wo \
+	> $OUTDIR/sets/caudate_hippocampus_overlap.bed
 
-	bedtools intersect -a caudate.bed -b dlpfc.bed -F $F -wo | \
-	bedtools intersect -a - -b hippocampus.bed \
-	-v -F $F > $OUTDIR/sets/caudate_dlpfc_overlap.bed
+	bedtools intersect -a caudate.bed -b dlpfc.bed -F $F -wo \
+	> $OUTDIR/sets/caudate_dlpfc_overlap.bed
 
-	bedtools intersect -a hippocampus.bed -b dlpfc.bed -F $F -wo | \
-	bedtools intersect -a - -b caudate.bed \
-	-v -F $F > $OUTDIR/sets/hippocampus_dlpfc_overlap.bed
+	bedtools intersect -a hippocampus.bed -b dlpfc.bed -F $F -wo \
+	> $OUTDIR/sets/hippocampus_dlpfc_overlap.bed
 
 	bedtools jaccard \
-		-a <(bedtools intersect -a caudate.bed -b dlpfc.bed -v -F $F | sort -k1,1 -k2,2n) \
-		-b <(bedtools intersect -a hippocampus.bed -b dlpfc.bed -v -F $F | sort -k1,1 -k2,2n) \
+		-a caudate.bed -b hippocampus.bed \
 		-F $F > $OUTDIR/jaccard/caudate_hippocampus_jaccard.tsv
 
 	bedtools jaccard \
-		-a <(bedtools intersect -a caudate.bed -b hippocampus.bed -v -F $F | sort -k1,1 -k2,2n) \
-		-b <(bedtools intersect -a dlpfc.bed -b hippocampus.bed -v -F $F | sort -k1,1 -k2,2n) \
+		-a caudate.bed -b dlpfc.bed \
 		-F $F > $OUTDIR/jaccard/caudate_dlpfc_jaccard.tsv
 
 	bedtools jaccard \
-		-a <(bedtools intersect -a hippocampus.bed -b caudate.bed -v -F $F | sort -k1,1 -k2,2n) \
-		-b <(bedtools intersect -a dlpfc.bed -b caudate.bed -v -F $F | sort -k1,1 -k2,2n) \
+		-a hippocampus.bed -b dlpfc.bed \
 		-F $F > $OUTDIR/jaccard/hippocampus_dlpfc_jaccard.tsv
 
 	# Extract shared VMRs in all tissues
-	bedtools intersect -a caudate.bed -b dlpfc.bed -F $F -wo | \
+	bedtools intersect -a caudate.bed -b dlpfc.bed -F $F -u | \
 	bedtools intersect -a - -b hippocampus.bed \
-	-F $F -wo > $OUTDIR/sets/3tissues_overlap.bed
+	-F $F -u > $OUTDIR/sets/3tissues_overlap.bed
+
+	bedtools multiinter \
+		-header -names Caudate DLPFC Hippocampus \
+		-i $OUTDIR/sets/3tissues_overlap.bed dlpfc.bed hippocampus.bed \
+		> $OUTDIR/sets/multiinter_3tissues_overlap.bed
 
 	bedtools jaccard \
 		-a <(bedtools intersect -a caudate.bed -b hippocampus.bed -F $F | sort -k1,1 -k2,2n) \
