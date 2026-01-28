@@ -13,8 +13,6 @@ get_vmrs <- function(tissue){
   enet_file <- here("heritability/elastic_net_model/", 
                     paste0(tolower(tissue), "/_m/", tolower(tissue), "_summary_elastic-net.tsv"))
   vmr <- data.table::fread(enet_file) %>%
-    mutate(chrom = paste0("chr", chrom)) %>%
-    rename(chr = chrom) %>%
     na.omit() %>%
     mutate(h2_category = case_when(
       r_squared_cv <= 0.75 ~ "Low prediction",
@@ -23,6 +21,30 @@ get_vmrs <- function(tissue){
     ))
   
   return(vmr)
+}
+
+merge_meth <- function(meth_files){
+  meth_list <- vector("list", length(meth_files))
+  for (i in seq_along(meth_files)) {
+    file  <- meth_files[i]
+    # Get pos from filename
+    chr   <- basename(dirname(file))
+    pos   <- strsplit(sub("_meth\\.phen$", "", basename(file)), "_")[[1]]
+    df    <- fread(meth_files[i], select = c("V1", "V3"))
+    colnames(df) <- c("brnum", "meth")
+    
+    # Add in vmr pos
+    df <- df %>%
+      mutate(chr   = as.integer(sub("chr_","", chr)),
+             start = as.integer(pos[1]),
+             end   = as.integer(pos[2]),
+             feature_id = paste0("VMR", i))
+    meth_list[[i]] <- df
+  }
+  # Bind meth matrix
+  meth_df <- rbindlist(meth_list, use.names = TRUE, fill = TRUE)
+  
+  return(meth_df)
 }
 
 save_plot <- function(p, fn, w, h, dpi){
@@ -34,8 +56,8 @@ save_plot <- function(p, fn, w, h, dpi){
 pca <- function(df, tissue, h2_cols, output_path) {
   filtered <- df %>%
     filter(region == tissue) %>%
-    select("h2_unscaled", "r_squared_cv", h2_category)
-  pc <- prcomp(filtered[, c("h2_unscaled", "r_squared_cv")], scale = TRUE)
+    dplyr::select(meth, r_squared_cv, h2_category)
+  pc <- prcomp(filtered[, c("meth")], scale = TRUE)
   print(summary(pc))
 
   # format df for plotting 
@@ -49,7 +71,7 @@ pca <- function(df, tissue, h2_cols, output_path) {
                color = `Heritability Category`, 
                fill = `Heritability Category`, 
                shape = `Heritability Category`)) +
-    geom_point(size = 5) +
+    geom_point(size = 2) +
     labs(x = "PC1",
          y = "PC2",
          color = "Heritability Category",
@@ -88,9 +110,20 @@ h2_cols <- c(
 
 for (tissue in tissues) {
   vmr <- get_vmrs(tissue)
-  p <- pca(vmr, tissue, h2_cols, output_path)
-  pca_fn <- file.path(output_path, paste0(tolower(tissue), "_pca"))
-  save_plot(p, pca_fn, w = 10, h = 6, dpi = 300)
+  
+  #meth_file_path <- here("heritability", tissue, "_m/vmr")
+  #meth_files     <- list.files(path = meth_file_path, pattern = "_meth\\.phen$", 
+  #                             recursive = TRUE, full.names = TRUE)
+  #meth_df        <- merge_meth(meth_files)
+  
+  # Merge with h2 groups and 
+  merged_df <- meth_df |>
+    inner_join(vmr, by = c("chr" = "chrom", "start", "end"))
+  
+  p <- pca(merged_df, tissue, h2_cols, output_path)
+  print(p)
+  pca_fn <- file.path(output_path, paste0(tolower(tissue), "_pca_meth"))
+  #save_plot(p, pca_fn, w = 10, h = 6, dpi = 300)
 }
 
 ## Reproducibility information
