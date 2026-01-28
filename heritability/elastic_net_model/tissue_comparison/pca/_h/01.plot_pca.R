@@ -35,7 +35,7 @@ merge_meth <- function(meth_files){
     
     # Add in vmr pos
     df <- df %>%
-      mutate(chr   = as.integer(sub("chr_","", chr)),
+      mutate(chr   = as.character(sub("chr_","", chr)),
              start = as.integer(pos[1]),
              end   = as.integer(pos[2]),
              feature_id = paste0("VMR", i))
@@ -55,14 +55,25 @@ save_plot <- function(p, fn, w, h, dpi){
 
 pca <- function(df, tissue, h2_cols, output_path) {
   filtered <- df %>%
-    filter(region == tissue) %>%
-    dplyr::select(meth, r_squared_cv, h2_category)
-  pc <- prcomp(filtered[, c("meth")], scale = TRUE)
+    filter(region == tolower(tissue)) %>%
+    dplyr::select(brnum, meth, feature_id, h2_category)
+  
+  meth <- filtered %>%
+    pivot_wider(names_from = brnum, values_from = meth) %>%
+    column_to_rownames("feature_id")
+  
+  h2 <- filtered %>%
+    distinct(feature_id, h2_category) %>%
+    column_to_rownames("feature_id")
+  
+  meth_matrix <- as.matrix(meth %>% select(where(is.numeric)))
+  
+  pc <- prcomp(meth_matrix, scale = TRUE, center = TRUE)
   print(summary(pc))
 
   # format df for plotting 
-  pc_df <- as.data.frame(pc$x[ , 1:2])
-  pc_df <- cbind(pc_df, filtered$h2_category)
+  pc_df <- as.data.frame(pc$x[ , 1:2]) %>%
+    mutate(h2_category = h2[rownames(pc_df), "h2_category"])
   colnames(pc_df) <- c("PC1", "PC2", "Heritability Category")
   
   # plot pca
@@ -95,13 +106,7 @@ if (!dir.exists(output_path)) {
     dir.create(output_path, recursive = TRUE)
 }
 
-tissue_cols <- c(
-  "Caudate" = "#B36F61",
-  "DLPFC" = "#7372A6",
-  "Hippocampus" = "#E3C962"
-)
-
-tissues <- c("caudate", "DLPFC", "Hippocampus")
+tissues <- c("Caudate", "DLPFC", "Hippocampus")
 h2_cols <- c(
   "Heritable" = "#497C8A",
   "Non-heritable" = "#8CA77B",
@@ -109,21 +114,24 @@ h2_cols <- c(
 )
 
 for (tissue in tissues) {
+  # Get VMRs
   vmr <- get_vmrs(tissue)
   
-  #meth_file_path <- here("heritability", tissue, "_m/vmr")
-  #meth_files     <- list.files(path = meth_file_path, pattern = "_meth\\.phen$", 
-  #                             recursive = TRUE, full.names = TRUE)
-  #meth_df        <- merge_meth(meth_files)
+  # Get methylation values
+  meth_file_path <- here("heritability", tolower(tissue), "_m/vmr")
+  meth_files     <- list.files(path = meth_file_path, pattern = "_meth\\.phen$", 
+                               recursive = TRUE, full.names = TRUE)
+  meth_df        <- merge_meth(meth_files)
   
-  # Merge with h2 groups and 
+  # Merge with h2 groups
   merged_df <- meth_df |>
     inner_join(vmr, by = c("chr" = "chrom", "start", "end"))
   
+  # PCA
   p <- pca(merged_df, tissue, h2_cols, output_path)
   print(p)
   pca_fn <- file.path(output_path, paste0(tolower(tissue), "_pca_meth"))
-  #save_plot(p, pca_fn, w = 10, h = 6, dpi = 300)
+  save_plot(p, pca_fn, w = 10, h = 6, dpi = 300)
 }
 
 ## Reproducibility information
