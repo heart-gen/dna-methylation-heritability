@@ -8,7 +8,7 @@
 #SBATCH --nodes=1
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=10G
-#SBATCH --time=00:10:00
+#SBATCH --time=00:30:00
 
 log_message() {
     echo "$(date '+%Y-%m-%d %H:%M:%S') - $1"
