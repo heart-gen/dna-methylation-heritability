@@ -39,10 +39,53 @@ log_message "Calculating brain region overlap"
 REGIONS=(caudate hippocampus dlpfc)
 OVERLAP=(0.25 0.5 0.75)
 
+## Function
+extract_tissue_specific(){
+	local tissue1=$1 tissue2=$2 tissue3=$3 overlap=$4 out_file=$5
+	bedtools intersect -a "$tissue1" -b "$tissue2" "$tissue3" \
+	-f "$overlap" -v > "$out_file"
+}
+
+extract_pairwise_overlap(){
+	local tissue1=$1 tissue2=$2 overlap=$3 out_file=$4
+	bedtools intersect -a "$tissue1" -b "$tissue2" \
+	-f "$overlap" -wo > "$out_file"
+}
+
+extract_3tissue(){
+	local tissue1=$1 tissue2=$2 tissue3=$3 overlap=$4 out_bed=$5 out_jaccard=$6
+	local tmp_bed="${out_bed}.tmp"
+
+	bedtools intersect -a "$tissue1" -b "$tissue2" -f "$overlap" -u | \
+	bedtools intersect -a - -b "$tissue3" -f "$overlap" -u > "$tmp_bed"
+
+	bedtools multiinter \
+		-header -names "$tissue1" "$tissue2" "$tissue3" \
+		-i "$tmp_bed" "$tissue2" "$tissue3" > "$out_bed"
+
+	bedtools jaccard \
+		-a <(bedtools intersect -a "$tissue1" -b "$tissue2" -f "$overlap" | \
+		sort -k1,1 -k2,2n) \
+		-b "$tissue3" -f "$overlap" > "$out_jaccard"
+}
+
+jaccard(){
+	local tissue1=$1 tissue2=$2 overlap=$3 out_file=$4
+	bedtools jaccard -a "$tissue1" -b "$tissue2" \
+	-f "$overlap" > "$out_file"
+}
+
+## Main
 # Copy bed files
 for TISSUE in "${REGIONS[@]}"; do
-	cp ../../../../${TISSUE}/_m/vmr.bed ./${TISSUE}_unsorted.bed
-	sort -k1,1 -k2,2n ./${TISSUE}_unsorted.bed > ./${TISSUE}.bed
+	BED="./${TISSUE}.bed"
+	if [ ! -f "$BED" ]; then
+		log_message "Sorting bed file for ${TISSUE}."
+		cp ../../../../${TISSUE}/_m/vmr.bed ./${TISSUE}_unsorted.bed
+		sort -k1,1 -k2,2n ./${TISSUE}_unsorted.bed > ./${TISSUE}.bed
+	else
+		log_message "Bed file already exists. Skipping."
+	fi
 done
 
 for f in "${OVERLAP[@]}"; do
@@ -50,108 +93,33 @@ for f in "${OVERLAP[@]}"; do
     mkdir -p "$OUTDIR"/{sets,jaccard}
 
 	# Extract tissue specific VMRs
-	bedtools intersect -a caudate.bed -b hippocampus.bed dlpfc.bed \
-	-v -f $f > $OUTDIR/sets/caudate_specific.bed
-
-	bedtools intersect -a hippocampus.bed -b caudate.bed dlpfc.bed \
-	-v -f $f > $OUTDIR/sets/hippocampus_specific.bed
-
-	bedtools intersect -a dlpfc.bed -b hippocampus.bed caudate.bed \
-	-v -f $f > $OUTDIR/sets/dlpfc_specific.bed
+	extract_tissue_specific caudate.bed hippocampus.bed dlpfc.bed \
+	"$f" "$OUTDIR/sets/caudate_specific.bed"
+	extract_tissue_specific hippocampus.bed caudate.bed dlpfc.bed \
+	"$f" "$OUTDIR/sets/hippocampus_specific.bed"
+	extract_tissue_specific dlpfc.bed caudate.bed hippocampus.bed \
+	"$f" "$OUTDIR/sets/dlpfc_specific.bed"
 
 	# Extract shared VMRs in 2 tissues
-	bedtools intersect -a caudate.bed -b hippocampus.bed -f $f -wo \
-	> $OUTDIR/sets/caudate_hippocampus_overlap.bed
+	extract_pairwise_overlap caudate.bed hippocampus.bed \
+	"$f" "$OUTDIR/sets/caudate_hippocampus_overlap.bed"
+	extract_pairwise_overlap caudate.bed dlpfc.bed \
+	"$f" "$OUTDIR/sets/caudate_dlpfc_overlap.bed"
+	extract_pairwise_overlap hippocampus.bed dlpfc.bed \
+	"$f" "$OUTDIR/sets/hippocampus_dlpfc_overlap.bed"
 
-	bedtools intersect -a caudate.bed -b dlpfc.bed -f $f -wo \
-	> $OUTDIR/sets/caudate_dlpfc_overlap.bed
-
-	bedtools intersect -a hippocampus.bed -b dlpfc.bed -f $f -wo \
-	> $OUTDIR/sets/hippocampus_dlpfc_overlap.bed
-
-	bedtools jaccard \
-		-a caudate.bed -b hippocampus.bed \
-		-f $f > $OUTDIR/jaccard/caudate_hippocampus_jaccard.tsv
-
-	bedtools jaccard \
-		-a caudate.bed -b dlpfc.bed \
-		-f $f > $OUTDIR/jaccard/caudate_dlpfc_jaccard.tsv
-
-	bedtools jaccard \
-		-a hippocampus.bed -b dlpfc.bed \
-		-f $f > $OUTDIR/jaccard/hippocampus_dlpfc_jaccard.tsv
+	# Calculate pairwise jaccard
+	jaccard caudate.bed hippocampus.bed \
+	"$f" "$OUTDIR/jaccard/caudate_hippocampus_jaccard.tsv"
+	jaccard caudate.bed dlpfc.bed \
+	"$f" "$OUTDIR/jaccard/caudate_dlpfc_jaccard.tsv"
+	jaccard hippocampus.bed dlpfc.bed \
+	"$f" "$OUTDIR/jaccard/hippocampus_dlpfc_jaccard.tsv"
 
 	# Extract shared VMRs in all tissues
-	bedtools intersect -a caudate.bed -b dlpfc.bed -f $f -u | \
-	bedtools intersect -a - -b hippocampus.bed \
-	-f $f -u > $OUTDIR/sets/3tissues_overlap.bed
-
-	bedtools multiinter \
-		-header -names Caudate DLPFC Hippocampus \
-		-i $OUTDIR/sets/3tissues_overlap.bed dlpfc.bed hippocampus.bed \
-		> $OUTDIR/sets/multiinter_3tissues_overlap.bed
-
-	bedtools jaccard \
-		-a <(bedtools intersect -a caudate.bed -b hippocampus.bed -f $f | sort -k1,1 -k2,2n) \
-		-b dlpfc.bed \
-		-f $f > $OUTDIR/jaccard/3tissues_jaccard.tsv
-
-    if [ $? -ne 0 ]; then
-    log_message "Error: Conda or script execution failed"
-    exit 1
-    fi
-done
-
-for F in "${OVERLAP[@]}"; do
-    OUTDIR="./F_${F}"
-    mkdir -p "$OUTDIR"/{sets,jaccard,percent_overlap}    
-
-	# Extract tissue specific VMRs
-	bedtools intersect -a caudate.bed -b hippocampus.bed dlpfc.bed \
-	-v -F $F > $OUTDIR/sets/caudate_specific.bed
-
-	bedtools intersect -a hippocampus.bed -b caudate.bed dlpfc.bed \
-	-v -F $F > $OUTDIR/sets/hippocampus_specific.bed
-
-	bedtools intersect -a dlpfc.bed -b hippocampus.bed caudate.bed \
-	-v -F $F > $OUTDIR/sets/dlpfc_specific.bed
-
-	# Extract shared VMRs in 2 tissues
-	bedtools intersect -a caudate.bed -b hippocampus.bed -F $F -wo \
-	> $OUTDIR/sets/caudate_hippocampus_overlap.bed
-
-	bedtools intersect -a caudate.bed -b dlpfc.bed -F $F -wo \
-	> $OUTDIR/sets/caudate_dlpfc_overlap.bed
-
-	bedtools intersect -a hippocampus.bed -b dlpfc.bed -F $F -wo \
-	> $OUTDIR/sets/hippocampus_dlpfc_overlap.bed
-
-	bedtools jaccard \
-		-a caudate.bed -b hippocampus.bed \
-		-F $F > $OUTDIR/jaccard/caudate_hippocampus_jaccard.tsv
-
-	bedtools jaccard \
-		-a caudate.bed -b dlpfc.bed \
-		-F $F > $OUTDIR/jaccard/caudate_dlpfc_jaccard.tsv
-
-	bedtools jaccard \
-		-a hippocampus.bed -b dlpfc.bed \
-		-F $F > $OUTDIR/jaccard/hippocampus_dlpfc_jaccard.tsv
-
-	# Extract shared VMRs in all tissues
-	bedtools intersect -a caudate.bed -b dlpfc.bed -F $F -u | \
-	bedtools intersect -a - -b hippocampus.bed \
-	-F $F -u > $OUTDIR/sets/3tissues_overlap.bed
-
-	bedtools multiinter \
-		-header -names Caudate DLPFC Hippocampus \
-		-i $OUTDIR/sets/3tissues_overlap.bed dlpfc.bed hippocampus.bed \
-		> $OUTDIR/sets/multiinter_3tissues_overlap.bed
-
-	bedtools jaccard \
-		-a <(bedtools intersect -a caudate.bed -b hippocampus.bed -F $F | sort -k1,1 -k2,2n) \
-		-b dlpfc.bed \
-		-F $F > $OUTDIR/jaccard/3tissues_jaccard.tsv
+	extract_3tissue caudate.bed hippocampus.bed dlpfc.bed \
+	"$f" "$OUTDIR/sets/3tissues_overlap.bed" \
+	"$OUTDIR/jaccard/3tissues_jaccard.tsv"
 
     if [ $? -ne 0 ]; then
     log_message "Error: Conda or script execution failed"
