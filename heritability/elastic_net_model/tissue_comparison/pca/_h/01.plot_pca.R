@@ -11,7 +11,7 @@ suppressPackageStartupMessages({
 # Function 
 get_vmrs <- function(tissue){
   enet_file <- here("heritability/elastic_net_model/", 
-                    paste0(tolower(tissue), "/_m/", tolower(tissue), "_summary_elastic-net.tsv"))
+                    paste0(tissue, "/_m/", tissue, "_summary_elastic-net.tsv"))
   vmr <- data.table::fread(enet_file) %>%
     na.omit() %>%
     mutate(h2_category = case_when(
@@ -53,9 +53,8 @@ save_plot <- function(p, fn, w, h, dpi){
   }
 }
 
-pca <- function(df, tissue, h2_cols, output_path) {
+pca <- function(df, h2_cols, output_path) {
   filtered <- df %>%
-    filter(region == tolower(tissue)) %>%
     dplyr::select(brnum, meth, feature_id, h2_category)
   
   meth <- filtered %>%
@@ -72,8 +71,8 @@ pca <- function(df, tissue, h2_cols, output_path) {
   print(summary(pc))
 
   # format df for plotting 
-  pc_df <- as.data.frame(pc$x[ , 1:2]) %>%
-    mutate(h2_category = h2[rownames(pc_df), "h2_category"])
+  pc_df <- as.data.frame(pc$x[ , 1:2])
+  pc_df$h2_category <- h2[rownames(pc_df), "h2_category"]
   colnames(pc_df) <- c("PC1", "PC2", "Heritability Category")
   
   # plot pca
@@ -106,7 +105,7 @@ if (!dir.exists(output_path)) {
     dir.create(output_path, recursive = TRUE)
 }
 
-tissues <- c("Caudate", "DLPFC", "Hippocampus")
+tissues <- c("caudate", "dlpfc", "hippocampus")
 h2_cols <- c(
   "Heritable" = "#497C8A",
   "Non-heritable" = "#8CA77B",
@@ -118,7 +117,7 @@ for (tissue in tissues) {
   vmr <- get_vmrs(tissue)
   
   # Get methylation values
-  meth_file_path <- here("heritability", tolower(tissue), "_m/vmr")
+  meth_file_path <- here("heritability", tissue, "_m/vmr")
   meth_files     <- list.files(path = meth_file_path, pattern = "_meth\\.phen$", 
                                recursive = TRUE, full.names = TRUE)
   meth_df        <- merge_meth(meth_files)
@@ -128,9 +127,8 @@ for (tissue in tissues) {
     inner_join(vmr, by = c("chr" = "chrom", "start", "end"))
   
   # PCA
-  p <- pca(merged_df, tissue, h2_cols, output_path)
-  print(p)
-  pca_fn <- file.path(output_path, paste0(tolower(tissue), "_pca_meth"))
+  p <- pca(merged_df, h2_cols, output_path)
+  pca_fn <- file.path(output_path, paste0(tissue, "_pca_meth"))
   save_plot(p, pca_fn, w = 10, h = 6, dpi = 300)
 }
 
