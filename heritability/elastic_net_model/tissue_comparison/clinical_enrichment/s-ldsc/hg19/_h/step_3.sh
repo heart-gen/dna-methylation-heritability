@@ -20,7 +20,7 @@
 # =============================================================================
 
 # Source configuration
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SCRIPT_DIR="/ocean/projects/bio250020p/kbenjamin/projects/dna-methylation-heritability/heritability/elastic_net_model/tissue_comparison/clinical_enrichment/s-ldsc/hg19/_h"
 source "${SCRIPT_DIR}/config.sh"
 
 log_message "**** Job starts ****"
