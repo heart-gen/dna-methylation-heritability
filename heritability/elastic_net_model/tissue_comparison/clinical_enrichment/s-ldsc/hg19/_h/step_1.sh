@@ -1,13 +1,11 @@
 #!/bin/bash
-#SBATCH --account=bio250020p
 #SBATCH --partition=RM-shared
 #SBATCH --time=02:00:00
-#SBATCH --nodes=1
-#SBATCH --ntasks-per-node=1
-#SBATCH --mem=16G
+#SBATCH --ntasks-per-node=8
 #SBATCH --job-name=munge_sumstats
-#SBATCH --output=logs/01.output_%j.log
-#SBATCH --error=logs/01.error_%j.log
+#SBATCH --mail-type=FAIL
+#SBATCH --mail-user=kj.benjamin90@gmail.com
+#SBATCH --output=logs/munge_stats.%j.log
 
 # =============================================================================
 # Step 1: Munge GWAS Summary Statistics
@@ -22,6 +20,13 @@ source "${SCRIPT_DIR}/config.sh"
 
 log_message "**** Job starts ****"
 print_job_info
+
+module purge
+module load anaconda3/2024.10-1
+module list
+
+log_message "**** Loading conda environment ****"
+conda activate /ocean/projects/bio250020p/shared/opt/env/genomics
 
 # Create output directory
 OUT_DIR="./sumstats"
@@ -54,18 +59,20 @@ python "$MUNGE_SCRIPT" \
     --chunksize 500000
 
 # --- Schizophrenia (SCZ) ---
-# Source: CLOZUK + PGC2 (Pardiñas et al. 2018)
-# Columns: SNP, Freq.A1, CHR, BP, A1, A2, OR, SE, P
+# Source: PGC3 (Trubetskoy et al. 2022 Nature)
+# Columns: CHROM, ID, POS, A1, A2, FCAS, FCON, IMPINFO, BETA, SE, PVAL, NCAS, NCON, NEFF
 log_message "Processing: Schizophrenia (scz)"
 python "$MUNGE_SCRIPT" \
-    --sumstats "${GWAS_BASE}/PGC/SCZ/CLOZUK_PGC2/primary.qc1_filt" \
+    --sumstats "${GWAS_BASE}/PGC/SCZ/PGC3/PGC3_SCZ_wave3.european.autosome.public.v3.vcf.tsv.gz" \
     --out "${OUT_DIR}/scz" \
     --a1 A1 \
     --a2 A2 \
-    --signed-sumstats OR,1 \
-    --p P \
-    --snp SNP \
-    --frq Freq.A1 \
+    --signed-sumstats BETA,0 \
+    --p PVAL \
+    --snp ID \
+    --frq FCAS \
+    --N-cas-col NCAS \
+    --N-con-col NCON \
     --merge-alleles "${RESOURCE_DIR}/w_hm3.snplist" \
     --chunksize 500000
 
@@ -205,13 +212,30 @@ python "$MUNGE_SCRIPT" \
     --merge-alleles "${RESOURCE_DIR}/w_hm3.snplist" \
     --chunksize 500000
 
+# --- Stroke ---
+# Source: ISGC METASTROKE (Malik et al. 2016) - All strokes
+# Columns: variant_id, panel_variant_id, chromosome, position, effect_allele, non_effect_allele, current_build, frequency, sample_size, zscore, pvalue
+log_message "Processing: Stroke (stroke)"
+python "$MUNGE_SCRIPT" \
+    --sumstats "${GWAS_BASE}/imputed_gwas_hg38_1.1/imputed_ISGC_Malik_2016_METASTROKE_all_strokes.txt.gz" \
+    --out "${OUT_DIR}/stroke" \
+    --a1 effect_allele \
+    --a2 non_effect_allele \
+    --signed-sumstats zscore,0 \
+    --p pvalue \
+    --snp variant_id \
+    --frq frequency \
+    --N-col sample_size \
+    --merge-alleles "${RESOURCE_DIR}/w_hm3.snplist" \
+    --chunksize 500000
+
 # -----------------------------------------------------------------------------
 # Verify outputs
 # -----------------------------------------------------------------------------
 log_message "Verifying munged summary statistics..."
 echo ""
 echo "=== Munged Summary Statistics ==="
-for disease in ad scz mdd bip pd ms ra asthma cad htn; do
+for disease in ad scz mdd bip pd ms ra asthma cad htn stroke; do
     if [[ -f "${OUT_DIR}/${disease}.sumstats.gz" ]]; then
         n_snps=$(zcat "${OUT_DIR}/${disease}.sumstats.gz" | wc -l)
         echo "[OK] ${disease}: $((n_snps - 1)) SNPs"
