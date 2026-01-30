@@ -28,9 +28,10 @@ get_null_dmr <- function(pheno_matrix) {
   # Differential DNAm for env phenos
   meth_t <- t(meth_levels)
   
-  design <- cbind(1, as.factor(pheno_matrix$primarydx), 
-                  pheno_matrix$agedeath, 
-                  as.factor(pheno_matrix$sex))
+  design <- cbind(1, dx = as.factor(pheno_matrix$primarydx), 
+                  age = pheno_matrix$agedeath, 
+                  sex = as.factor(pheno_matrix$sex),
+                  ances = pheno_matrix$Afr)
   fit    <- limma::lmFit(meth_t, design)
   fit    <- eBayes(fit)
   
@@ -72,7 +73,8 @@ get_dmr <- function(pheno_matrix, var) {
   design <- cbind(1, pheno_matrix[[var]], 
                   as.factor(pheno_matrix$primarydx), 
                   pheno_matrix$agedeath, 
-                  as.factor(pheno_matrix$sex))
+                  as.factor(pheno_matrix$sex),
+                  pheno_matrix$Afr)
   fit    <- limma::lmFit(meth_t, design)
   fit    <- eBayes(fit)
   
@@ -85,8 +87,7 @@ get_dmr <- function(pheno_matrix, var) {
 
 ## Main
                                         # Create output path
-out_path <- here("heritability", "elastic_net_model", "tissue_comparison",
-                 "environmental_contribution", "correlation", "_m")
+out_path <- here("environmental-analysis", "correlation", "_m")
 if (!dir.exists(out_path)) {
   dir.create(out_path, recursive = TRUE)
 }
@@ -103,12 +104,6 @@ pheno_matrix_fn <- here("environmental-analysis", "correlation", "_m",
                         "vmr_env_assoc-AA.tsv.gz")
 pheno_matrix <- fread(pheno_matrix_fn, na.strings = c(NA, ""))
 
-                                        # Add global ances
-f_ances   <- here("inputs", "genetic-ancestry",
-                  "structure.out_ancestry_proportion_raceDemo_compare")
-ances     <- fread(f_ances) %>% filter(group == "AA")
-pheno_matrix <- left_join(pheno_matrix, ances, by = c("brnum" = "id"))
-
                                         # Get VMR IDs
 vmr_ids <- pheno_matrix %>% distinct(feature_id)
 
@@ -123,13 +118,18 @@ summary <- coef_res %>%
             sig_p = sum(p.value < 0.05))
 print(summary)
 
-# Output significant dmrs
-cov_merged <- as.data.frame(cbind(vmr_ids, coef_res)) %>%
-  left_join(select(pheno_matrix, chr, start, end, feature_id), multiple = "first") %>%
-  select("feature_id", "chr", "start", "end", everything())
+covs_to_include <- c("age", "sex", "dx", "ances")
 
-out_cov_dmr <- file.path(out_path, "cov_dmr.csv.gz")
-fwrite(cov_merged, out_cov_dmr)
+# Output significant dmrs
+for (cov in covs_to_include){
+  cov_merged <- coef_res %>%
+    filter(var == cov) %>%
+    left_join(select(pheno_matrix, chr, start, end, feature_id), multiple = "first") %>%
+    select("feature_id", "chr", "start", "end", everything())
+  
+  out_cov_dmr <- file.path(out_path, paste0(cov, "_dmr.csv.gz"))
+  fwrite(cov_merged, out_cov_dmr)
+}
 
 # Run DMR analysis for environmental vars
 for (env in vars_to_include) {
@@ -146,7 +146,9 @@ for (env in vars_to_include) {
                                         # Output significant dmrs
   merged <- as.data.frame(cbind(vmr_ids, res)) %>%
     left_join(select(pheno_matrix, chr, start, end, feature_id), multiple = "first") %>%
-    select("feature_id", "chr", "start", "end", everything())
+    mutate(var = env)
+    select("feature_id", "chr", "start", "end", "coefficients.x2", "p.value.x2", "fdr") %>%
+    rename(coefficients = coefficients.x2, p.value = p.value.x2)
   
   out_dmr <- file.path(out_path, paste0(env, "_dmr.csv.gz"))
   fwrite(merged, out_dmr)
