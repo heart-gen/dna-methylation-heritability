@@ -76,18 +76,6 @@ jaccard(){
 }
 
 ## Main
-# Copy bed files
-for TISSUE in "${REGIONS[@]}"; do
-	BED="./${TISSUE}.bed"
-	if [ ! -f "$BED" ]; then
-		log_message "Sorting bed file for ${TISSUE}."
-		cp ../../../../${TISSUE}/_m/vmr.bed ./${TISSUE}_unsorted.bed
-		sort -k1,1 -k2,2n ./${TISSUE}_unsorted.bed > ./${TISSUE}.bed
-	else
-		log_message "Bed file already exists. Skipping."
-	fi
-done
-
 for f in "${OVERLAP[@]}"; do
 	for FLAG in "-f" "-F"; do 
 		OUTDIR="./${FLAG//-/}_${f}"
