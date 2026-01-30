@@ -5,16 +5,12 @@ import pandas as pd
 import numpy as np
 
 def filter_vmr(enet):
-    vmr = enet.dropna()
+    vmr = enet.dropna().copy()
 
-    conditions = [
-        vmr[(vmr["h2_unscaled"] >= 0.1) & (vmr["r_squared_cv"] > 0.75)],
-        vmr[(vmr["h2_unscaled"] < 0.1) & (vmr["r_squared_cv"] > 0.75)],
-        vmr[vmr["r_squared_cv"] < 0.75]
-    ]
-    categories = ["heritable", "non-heritable", "low_prediction"]
-
-    vmr["h2_category"] = np.select(conditions, categories)
+    vmr.loc[(vmr["h2_unscaled"] >= 0.1) & (vmr["r_squared_cv"] > 0.75), "h2_category"] = "heritable"
+    vmr.loc[(vmr["h2_unscaled"] < 0.1) & (vmr["r_squared_cv"] > 0.75), "h2_category"] = "non-heritable"
+    vmr.loc[(vmr["r_squared_cv"] <= 0.75), "h2_category"] = "low_prediction"
+    
     return vmr
     
 def sort_by_genomic_position(df):
