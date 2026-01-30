@@ -1,13 +1,11 @@
 #!/bin/bash
-#SBATCH --account=bio250020p
 #SBATCH --partition=RM-shared
 #SBATCH --time=02:00:00
-#SBATCH --nodes=1
-#SBATCH --ntasks-per-node=1
-#SBATCH --mem=10G
+#SBATCH --ntasks-per-node=5
 #SBATCH --job-name=make_annot
-#SBATCH --output=logs/02.output_%j.log
-#SBATCH --error=logs/02.error_%j.log
+#SBATCH --mail-type=FAIL
+#SBATCH --mail-user=kj.benjamin90@gmail.com
+#SBATCH --output=logs/make_annot.%j.log
 
 # =============================================================================
 # Step 2: Create LDSC Annotation Files
@@ -18,14 +16,19 @@
 # =============================================================================
 
 # Source configuration
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SCRIPT_DIR="/ocean/projects/bio250020p/kbenjamin/projects/dna-methylation-heritability/heritability/elastic_net_model/tissue_comparison/clinical_enrichment/s-ldsc/hg19/_h"
 source "${SCRIPT_DIR}/config.sh"
 
 log_message "**** Job starts ****"
 print_job_info
 
-# Load bedtools module
-module load bedtools/2.30.0 2>/dev/null || true
+module purge
+module load anaconda3/2024.10-1
+module load bedtools/2.30.0
+module list
+
+log_message "**** Loading conda environment ****"
+conda activate /ocean/projects/bio250020p/shared/opt/env/genomics
 
 # Validate resources
 if ! validate_resources; then
