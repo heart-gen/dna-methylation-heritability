@@ -6,4 +6,5 @@ inputs/simulated-data/_m/sim_100_indiv/plink_sim/simulated.fam filter=lfs diff=l
 inputs/simulated-data/_m/sim_100_indiv/plink_sim/simulated.bed filter=lfs diff=lfs merge=lfs -text
 inputs/simulated-data/_m/sim_100_indiv/plink_sim/simulated.bim filter=lfs diff=lfs merge=lfs -text
 *elastic-net.tsv.gz filter=lfs diff=lfs merge=lfs -text
+inputs/supportfiles/_m/hg38ToHg19.over.chain filter=lfs diff=lfs merge=lfs -text
 pd_hg19.txt.gz filter=lfs diff=lfs merge=lfs -text
