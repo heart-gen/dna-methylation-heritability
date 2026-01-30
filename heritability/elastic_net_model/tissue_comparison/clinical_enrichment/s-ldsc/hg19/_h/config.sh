@@ -25,7 +25,7 @@ export FRQ_DIR="${RESOURCE_DIR}/1000G_Phase3_frq"
 export HAPMAP3_SNPS="${RESOURCE_DIR}/w_hm3.snplist"
 
 # Liftover chain file (existing file in project)
-export CHAIN_FILE="/ocean/projects/bio250020p/kbenjamin/projects/DNAm-biomarkers-SCZ/inputs/supportfiles/_m/hg38ToHg19.over.chain"
+export CHAIN_FILE="/ocean/projects/bio250020p/kbenjamin/projects/dna-methylation-heritability/inputs/supportfiles/_m/hg38ToHg19.over.chain"
 # Alternative if downloaded:
 # export CHAIN_FILE="${LIFTOVER_DIR}/hg38ToHg19.over.chain.gz"
 
