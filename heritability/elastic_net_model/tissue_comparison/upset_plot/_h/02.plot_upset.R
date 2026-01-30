@@ -4,96 +4,47 @@ suppressPackageStartupMessages({
   library(data.table)
   library(magrittr)
   library(ComplexHeatmap)
+  library(UpSetR)
+  library(ggplot2)
+  library(ComplexUpset)
+  library(tibble)
 })
 
-get_vmrs <- function(fn){
+## Function
+count_intersections <- function(fn){
     vmrs <- fread(fn)
-    vmrs$vmr_id <- paste(vmrs$V1, vmrs$V2, vmrs$V3, sep = "_")
-    return(vmrs)
+    return(nrow(vmrs))
 }
 
-caudate <- get_vmrs("./F_0.25/sets/caudate_specific.bed")
-dlpfc <- get_vmrs("./F_0.25/sets/dlpfc_specific.bed")
-hippo <- get_vmrs("./F_0.25/sets/hippocampus_specific.bed")
+# Formatting
 
-prep_heatmap <- function(){
-    lt = list(Caudate = caudate$vmr_id,
-              DLPFC=dlpfc$vmr_id, Hippocampus=hippo$vmr_id)
-    m = make_comb_mat(lt)
-    return(m)
+# Plot Upset
+plot_upset <- function(sets){
+  pdf("VMR_upsetR_plot.pdf", width = 6, height = 4)
+  UpSetR::upset(
+    fromExpression(sets),
+    order.by = "freq",
+    sets = c("Caudate", "DLPFC", "Hippocampus")
+  )
+  dev.off()
 }
 
-plot_upset <- function(){
-    m <- prep_heatmap()
-    cbb_palette <- c("#000000", "#E69F00", "#56B4E9", "#009E73",
-                     "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
-                                        # Right annotation
-    right_annot = upset_right_annotation(
-        m, ylim = c(0, 10000),
-        gp = gpar(fill = "black"),
-        annotation_name_side = "top",
-        axis_param = list(side = "top"))
-                                        # Top annotation
-    top_annot = upset_top_annotation(
-        m, height=unit(7, "cm"),
-        ylim = c(0, 10000),
-        gp=gpar(fill=cbb_palette[comb_degree(m)]),
-        annotation_name_rot = 90)
-                                        # Plotting
-    pdf('TOPMed_upset_vmrs.pdf', width=8, height=4)
-    ht = draw(UpSet(m, pt_size=unit(4, "mm"), lwd=3,
-                    comb_col=cbb_palette[comb_degree(m)],
-                    set_order = c("Caudate", "DLPFC", "Hippocampus"),
-                    comb_order = order(-comb_size(m)),
-                    row_names_gp = gpar(fontsize = 14, fontface='bold'),
-                    right_annotation = right_annot, top_annotation = top_annot))
-    od = column_order(ht); cs = comb_size(m)
-    decorate_annotation("intersection_size", {
-        grid.text(cs[od], x = seq_along(cs),
-                  y = unit(cs[od], "native") + unit(6, "pt"),
-                  default.units="native", just="bottom", gp=gpar(fontsize=11))
-    })
-    dev.off()
-}
+# Testing complex upset
+df <- as.data.frame(fromExpression(sets))
+ComplexUpset::upset(df, intersect = c("Caudate", "DLPFC", "Hippocampus"))
 
-plot_upset_transposed <- function(){
-    m <- prep_heatmap()
-    cbb_palette <- c("#000000", "#E69F00", "#56B4E9", "#009E73",
-                     "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
-                                        # Right annotation
-    right_ha = rowAnnotation(
-        "Intersection\nsize" = anno_barplot(comb_size(m), border=F,
-                                            ylim = c(0, 10000),
-                                            gp=gpar(fill=cbb_palette[comb_degree(m)]),
-                                            width = unit(7, "cm")))
-                                        # Top annotation
-    top_ha = HeatmapAnnotation(
-        "Set size" = anno_barplot(set_size(m), border=F,
-                                  ylim = c(0, 10000),
-                                  gp = gpar(fill = "black"),
-                                  height = unit(2, "cm")),
-        gap = unit(2, "mm"), annotation_name_side = "left",
-        annotation_name_rot = 90)
-                                        # Plotting
-    pdf('TOPMed_upset_vmrs.pdf', width=5, height=10)
-    ht = draw(UpSet(t(m), pt_size=unit(5, "mm"), lwd=3,
-                    comb_order = order(-comb_size(m)),
-                    comb_col=cbb_palette[comb_degree(m)],
-                    set_order = c("Caudate", "DLPFC", "Hippocampus"),
-                    row_names_gp = gpar(fontsize = 16, fontface='bold'),
-                    right_annotation = right_ha, top_annotation = top_ha))
-    od = rev(row_order(ht)); cs = comb_size(m)
-    decorate_annotation("Intersection\nsize", {
-        grid.text(cs[od], y = seq_along(cs),
-                  x = unit(cs[od], "native") + unit(6, "pt"),
-                  default.units="native", just="left", gp=gpar(fontsize=11))
-    })
-    dev.off()
-}
+## Main
+sets <- c(
+  Caudate = count_intersections("./f_0.25/sets/caudate_specific.bed"),
+  DLPFC = count_intersections("./f_0.25/sets/dlpfc_specific.bed"),
+  Hippocampus = count_intersections("./f_0.25/sets/hippocampus_specific.bed"),
+  `Caudate&Hippocampus` = count_intersections("./f_0.25/sets/caudate_hippocampus_overlap.bed"),
+  `Caudate&DLPFC` = count_intersections("./f_0.25/sets/caudate_dlpfc_overlap.bed"),
+  `Hippocampus&DLPFC` = count_intersections("./f_0.25/sets/hippocampus_dlpfc_overlap.bed"),
+  `Caudate&Hippocampus&DLPFC` = count_intersections("./f_0.25/sets/3tissues_overlap.bed.tmp")
+)
 
-###### MAIN
-plot_upset()
-plot_upset_transposed()
+plot_upset(sets)
 
 #### Reproducibility information
 Sys.time()
