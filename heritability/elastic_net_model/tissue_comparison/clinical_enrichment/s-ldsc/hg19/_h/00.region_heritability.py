@@ -68,7 +68,7 @@ def main():
     non_heritable = non_heritable[cols_to_keep].copy()
     low_prediction = low_prediction[cols_to_keep].copy()
 
-    lo = LiftOver(chain_file)
+    lo = LiftOver(str(chain_file))
 
     heritable = process_subset(heritable, lo)
     non_heritable = process_subset(non_heritable, lo)
