@@ -1,0 +1,67 @@
+2026-01-30 17:39:31 - **** Job starts ****
+**** PSC Bridges-2 info ****
+User: kbenjamin
+Job id: 37254154
+Job name: region_heritability
+Node name: 
+Hostname: r021
+Task id: N/A
+
+Currently Loaded Modules:
+  1) anaconda3/2024.10-1
+
+ 
+
+2026-01-30 17:39:32 - **** Loading conda environment ****
+2026-01-30 17:39:33 - Processing region: caudate
+2026-01-30 17:39:33 -   Input: ../../../../../caudate/_m/caudate_summary_elastic-net.tsv
+2026-01-30 17:39:33 -   Output: ./vmr/caudate
+2026-01-30 17:39:33 -   Chain file: ../../../../../../../inputs/supportfiles/_m/hg38ToHg19.over.chain
+Separation and liftover complete! Files saved without headers.
+Heritable group: 4570 rows → vmr/caudate/heritable_hg19.bed
+Non-heritable group: 4878 rows → vmr/caudate/non_heritable_hg19.bed
+Low prediction group: 2223 rows → vmr/caudate/low_prediction_hg19.bed
+-----
+pandas              2.3.3
+pyliftover          0.4.1
+session_info        v1.0.1
+-----
+Python 3.11.14 | packaged by conda-forge | (main, Oct 22 2025, 22:46:25) [GCC 14.3.0]
+Linux-4.18.0-553.22.1.el8_10.x86_64-x86_64-with-glibc2.28
+-----
+Session information updated at 2026-01-30 17:40
+2026-01-30 17:40:25 - Processing region: dlpfc
+2026-01-30 17:40:25 -   Input: ../../../../../dlpfc/_m/dlpfc_summary_elastic-net.tsv
+2026-01-30 17:40:25 -   Output: ./vmr/dlpfc
+2026-01-30 17:40:25 -   Chain file: ../../../../../../../inputs/supportfiles/_m/hg38ToHg19.over.chain
+Separation and liftover complete! Files saved without headers.
+Heritable group: 5003 rows → vmr/dlpfc/heritable_hg19.bed
+Non-heritable group: 3534 rows → vmr/dlpfc/non_heritable_hg19.bed
+Low prediction group: 963 rows → vmr/dlpfc/low_prediction_hg19.bed
+-----
+pandas              2.3.3
+pyliftover          0.4.1
+session_info        v1.0.1
+-----
+Python 3.11.14 | packaged by conda-forge | (main, Oct 22 2025, 22:46:25) [GCC 14.3.0]
+Linux-4.18.0-553.22.1.el8_10.x86_64-x86_64-with-glibc2.28
+-----
+Session information updated at 2026-01-30 17:40
+2026-01-30 17:40:30 - Processing region: hippocampus
+2026-01-30 17:40:30 -   Input: ../../../../../hippocampus/_m/hippocampus_summary_elastic-net.tsv
+2026-01-30 17:40:30 -   Output: ./vmr/hippocampus
+2026-01-30 17:40:30 -   Chain file: ../../../../../../../inputs/supportfiles/_m/hg38ToHg19.over.chain
+Separation and liftover complete! Files saved without headers.
+Heritable group: 5045 rows → vmr/hippocampus/heritable_hg19.bed
+Non-heritable group: 3657 rows → vmr/hippocampus/non_heritable_hg19.bed
+Low prediction group: 1070 rows → vmr/hippocampus/low_prediction_hg19.bed
+-----
+pandas              2.3.3
+pyliftover          0.4.1
+session_info        v1.0.1
+-----
+Python 3.11.14 | packaged by conda-forge | (main, Oct 22 2025, 22:46:25) [GCC 14.3.0]
+Linux-4.18.0-553.22.1.el8_10.x86_64-x86_64-with-glibc2.28
+-----
+Session information updated at 2026-01-30 17:40
+2026-01-30 17:40:35 - **** Job ends ****
