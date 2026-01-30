@@ -21,8 +21,12 @@ source "../_h/config.sh"
 log_message "**** Job starts ****"
 print_job_info
 
-# Create logs directory if it doesn't exist
-mkdir -p logs
+module purge
+module load anaconda3/2024.10-1
+module list
+
+log_message "**** Loading conda environment ****"
+conda activate /ocean/projects/bio250020p/shared/opt/env/genomics
 
 # Python script for region heritability separation
 PYTHON_SCRIPT="../_h/00.region_heritability.py"
