@@ -1,13 +1,11 @@
 #!/bin/bash
-#SBATCH --account=bio250020p
 #SBATCH --partition=RM-shared
 #SBATCH --time=01:00:00
-#SBATCH --nodes=1
-#SBATCH --ntasks-per-node=1
-#SBATCH --mem=10G
+#SBATCH --ntasks-per-node=5
 #SBATCH --job-name=region_heritability
-#SBATCH --output=logs/00.output_%j.log
-#SBATCH --error=logs/00.error_%j.log
+#SBATCH --mail-type=FAIL
+#SBATCH --mail-user=kj.benjamin90@gmail.com
+#SBATCH --output=logs/region_heritability.%j.log
 
 # =============================================================================
 # Step 0: Separate VMRs by heritability status and liftover to hg19
@@ -18,8 +16,7 @@
 # =============================================================================
 
 # Source configuration
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "${SCRIPT_DIR}/config.sh"
+source "../_h/config.sh"
 
 log_message "**** Job starts ****"
 print_job_info
@@ -28,17 +25,17 @@ print_job_info
 mkdir -p logs
 
 # Python script for region heritability separation
-PYTHON_SCRIPT="${SCRIPT_DIR}/00.region_heritability.py"
+PYTHON_SCRIPT="../_h/00.region_heritability.py"
 
 # Chain file for liftover (hg38 to hg19)
-CHAIN_FILE="/ocean/projects/bio250020p/kbenjamin/projects/DNAm-biomarkers-SCZ/inputs/supportfiles/_m/hg38ToHg19.over.chain"
+CHAIN_FILE="../../../../../../../inputs/supportfiles/_m/hg38ToHg19.over.chain"
 
 # Process each brain region
 for REGION in "${BRAIN_REGIONS[@]}"; do
     log_message "Processing region: $REGION"
 
     # Input file path
-    INPUT_FILE="/ocean/projects/bio250020p/kbenjamin/projects/dna-methylation-heritability/heritability/elastic_net_model/${REGION}/_m/${REGION}_summary_elastic-net.tsv"
+    INPUT_FILE="../../../../../${REGION}/_m/${REGION}_summary_elastic-net.tsv"
 
     # Output directory
     OUTPUT_DIR="./vmr/${REGION}"
@@ -59,16 +56,6 @@ for REGION in "${BRAIN_REGIONS[@]}"; do
         --input_file "$INPUT_FILE" \
         --output_dir "$OUTPUT_DIR" \
         --chain_file "$CHAIN_FILE"
-
-    # Verify output files were created
-    if [[ -f "${OUTPUT_DIR}/heritable_hg19.bed" ]] && [[ -f "${OUTPUT_DIR}/non_heritable_hg19.bed" ]]; then
-        log_message "  Successfully created BED files:"
-        log_message "    - heritable_hg19.bed: $(wc -l < "${OUTPUT_DIR}/heritable_hg19.bed") regions"
-        log_message "    - non_heritable_hg19.bed: $(wc -l < "${OUTPUT_DIR}/non_heritable_hg19.bed") regions"
-    else
-        log_message "  WARNING: Expected output files not found"
-    fi
-
 done
 
 log_message "**** Job ends ****"
