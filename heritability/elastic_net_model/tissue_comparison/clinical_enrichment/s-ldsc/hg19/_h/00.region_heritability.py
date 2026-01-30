@@ -1,7 +1,7 @@
 import argparse
-from pathlib import Path
 import session_info
 import pandas as pd
+from pathlib import Path
 from pyliftover import LiftOver
 
 
@@ -59,8 +59,8 @@ def main():
 
     df = pd.read_csv(input_file, sep='\t')
 
-    heritable = df[(df["h2_unscaled"] >= 0.1) & (df["r_squared_cv"] > 0.75)]
-    non_heritable = df[(df["h2_unscaled"] < 0.1) & (df["r_squared_cv"] > 0.75)]
+    heritable = df[(df["h2_unscaled"] >= 0.1) & (df["r_squared_cv"] >= 0.75)]
+    non_heritable = df[(df["h2_unscaled"] < 0.1) & (df["r_squared_cv"] >= 0.75)]
     low_prediction = df[df["r_squared_cv"] < 0.75]
 
     cols_to_keep = ["chrom", "start", "end"]
