@@ -50,6 +50,21 @@ BRAIN_REGIONS=(caudate hippocampus dlpfc)
 for REGION in "${BRAIN_REGIONS[@]}"; do
     log_message "Processing region: $REGION"
 
+	# Copy bed files
+	OUT_BED="./bed"
+	mkdir -p "$OUT_BED"
+
+	BED="./bed/${REGION}.bed"
+	if [ ! -f "$BED" ]; then
+		log_message "Sorting bed file of all VMRs for ${REGION}."
+		cp ../../../../${REGION}/_m/vmr.bed ./${REGION}_unsorted.bed
+		sort -k1,1 -k2,2n ./${REGION}_unsorted.bed > ./${REGION}.bed
+	else
+		log_message "Bed file already exists. Skipping."
+	fi
+
+	log_message "Partitioning bed files for each heritability class"
+	
     # Input file path
     INPUT_FILE="../../../../elastic_net_model/${REGION}/_m/${REGION}_summary_elastic-net.tsv"
 
