@@ -1,11 +1,14 @@
 #!/bin/bash
-#SBATCH --partition=RM-shared
-#SBATCH --time=01:00:00
-#SBATCH --ntasks-per-node=5
-#SBATCH --job-name=region_heritability
+#SBATCH --account=p32505        # Replace with your allocation
+#SBATCH --partition=short       # Partition (queue) name
+#SBATCH --time=00:10:00         # Time limit hrs:min:sec
+#SBATCH --nodes=1               # Number of nodes
+#SBATCH --ntasks-per-node=1     # Number of cores (CPU)
+#SBATCH --mem=5G                # Memory limit
+#SBATCH --job-name=partition_heritability
 #SBATCH --mail-type=FAIL
-#SBATCH --mail-user=kj.benjamin90@gmail.com
-#SBATCH --output=logs/region_heritability.%j.log
+#SBATCH --mail-user=alexis.bennett@northwestern.edu
+#SBATCH --output=logs/partition_heritability.%j.log
 
 # =============================================================================
 # Step 0: Separate VMRs by heritability status
@@ -14,31 +17,41 @@
 # separates VMRs into heritable and non-heritable categories
 # =============================================================================
 
-# Source configuration
-source "../_h/config.sh"
+# Log function
+log_message() {
+    echo "$(date '+%Y-%m-%d %H:%M:%S') - $1"
+}
 
 log_message "**** Job starts ****"
-print_job_info
 
-# Create logs directory if it doesn't exist
-mkdir -p logs
+echo "**** QUEST info ****"
+echo "User: ${USER}"
+echo "Job id: ${SLURM_JOBID}"
+echo "Job name: ${SLURM_JOB_NAME}"
+echo "Node name: ${SLURM_NODENAME}"
+echo "Hostname: ${HOSTNAME}"
+echo "Task id: ${SLURM_ARRAY_TASK_ID:-N/A}"
 
-# Python script for region heritability separation
-PYTHON_SCRIPT="../_h/00.region_heritability.py"
+## List current modules for reproducibility
 
-# Chain file for liftover (hg38 to hg19)
-CHAIN_FILE="../../../../../../../inputs/supportfiles/_m/hg38ToHg19.over.chain"
+module purge
+module list
+
+# Set path variables
+ENV_PATH="/projects/p32505/opt/envs"
+
+# Output directory
+    OUTPUT_DIR="./bed"
+    mkdir -p "$OUTPUT_DIR"
+
+BRAIN_REGIONS=(caudate hippocampus dlpfc)
 
 # Process each brain region
 for REGION in "${BRAIN_REGIONS[@]}"; do
     log_message "Processing region: $REGION"
 
     # Input file path
-    INPUT_FILE="../../../../../${REGION}/_m/${REGION}_summary_elastic-net.tsv"
-
-    # Output directory
-    OUTPUT_DIR="./vmr/${REGION}"
-    mkdir -p "$OUTPUT_DIR"
+    INPUT_FILE="../../../../elastic_net_model/${REGION}/_m/${REGION}_summary_elastic-net.tsv"
 
     # Verify input file exists
     if [[ ! -f "$INPUT_FILE" ]]; then
@@ -46,15 +59,16 @@ for REGION in "${BRAIN_REGIONS[@]}"; do
         continue
     fi
 
-    log_message "  Input: $INPUT_FILE"
-    log_message "  Output: $OUTPUT_DIR"
-    log_message "  Chain file: $CHAIN_FILE"
-
     # Run separation script
-    python "$PYTHON_SCRIPT" \
+    conda run -p $ENV_PATH/genomics python ../_h/00.prepare_bed.py \
         --input_file "$INPUT_FILE" \
         --output_dir "$OUTPUT_DIR" \
-        --chain_file "$CHAIN_FILE"
+		--region "$REGION"
+
+	if [ $? -ne 0 ]; then
+    log_message "Error: Conda or script execution failed"
+    exit 1
+	fi
 done
 
 log_message "**** Job ends ****"
