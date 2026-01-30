@@ -1,10 +1,7 @@
 #!/bin/bash
-#SBATCH --account=bio250020p
 #SBATCH --partition=RM-shared
 #SBATCH --time=04:00:00
-#SBATCH --nodes=1
-#SBATCH --ntasks-per-node=1
-#SBATCH --mem=8G
+#SBATCH --ntasks-per-node=4
 #SBATCH --job-name=download_ldsc_resources
 #SBATCH --output=logs/download_resources.output_%j.log
 #SBATCH --error=logs/download_resources.error_%j.log
