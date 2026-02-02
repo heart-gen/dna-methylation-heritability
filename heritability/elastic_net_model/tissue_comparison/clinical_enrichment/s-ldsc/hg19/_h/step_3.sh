@@ -1,22 +1,18 @@
 #!/bin/bash
-#SBATCH --account=bio250020p
-#SBATCH --partition=GPU-shared
+#SBATCH --partition=RM-shared
 #SBATCH --time=08:00:00
-#SBATCH --nodes=1
-#SBATCH --ntasks-per-node=1
-#SBATCH --mem=10G
+#SBATCH --ntasks-per-node=5
 #SBATCH --array=1-22
-#SBATCH --gpus=1
 #SBATCH --job-name=compute_ldscores
-#SBATCH --output=logs/03.output_%a.log
-#SBATCH --error=logs/03.error_%a.log
+#SBATCH --mail-type=FAIL
+#SBATCH --mail-user=kj.benjamin90@gmail.com
+#SBATCH --output=logs/compute_ldscores.%A_%a.log
 
 # =============================================================================
 # Step 3: Compute LD Scores
 # =============================================================================
 # This script computes LD scores for the custom annotations using ldsc.py.
 # Runs as a SLURM array job with one task per chromosome (1-22).
-# Uses GPU partition for faster computation.
 # =============================================================================
 
 # Source configuration
@@ -25,6 +21,13 @@ source "${SCRIPT_DIR}/config.sh"
 
 log_message "**** Job starts ****"
 print_job_info
+
+module purge
+module load anaconda3/2024.10-1
+module list
+
+log_message "**** Loading conda environment ****"
+conda activate /ocean/projects/bio250020p/shared/opt/env/genomics
 
 # Current chromosome from array task ID
 CHR=${SLURM_ARRAY_TASK_ID}
@@ -40,8 +43,8 @@ fi
 LDSC_SCRIPT="${LDSC_DIR}/ldsc.py"
 
 # Resource paths
-BIM_DIR="${RESOURCE_DIR}/1000G_Phase3_plinkfiles"
-HAPMAP3_SNPS="${RESOURCE_DIR}/w_hm3.snplist"
+BIM_DIR="${RESOURCE_DIR}/1000G_EUR_Phase3_plink"
+HAPMAP3_SNPS="${RESOURCE_DIR}/hm3_no_MHC.list.txt"
 
 # Process each brain region and heritability status
 for REGION in "${BRAIN_REGIONS[@]}"; do

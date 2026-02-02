@@ -40,7 +40,7 @@ fi
 ANNOT_SCRIPT="${LDSC_DIR}/make_annot.py"
 
 # Resource paths
-BIM_DIR="${RESOURCE_DIR}/1000G_Phase3_plinkfiles"
+BIM_DIR="${RESOURCE_DIR}/1000G_EUR_Phase3_plink"
 
 # Process each brain region and heritability status
 for REGION in "${BRAIN_REGIONS[@]}"; do
