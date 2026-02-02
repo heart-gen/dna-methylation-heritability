@@ -44,7 +44,7 @@ LDSC_WRAPPER="${SCRIPT_DIR}/ldsc_wrapper.py"
 
 # Resource paths
 BIM_DIR="${RESOURCE_DIR}/1000G_EUR_Phase3_plink"
-HAPMAP3_SNPS="${RESOURCE_DIR}/hm3_no_MHC.list.txt"
+HAPMAP3_SNPS="${RESOURCE_DIR}/w_hm3.snplist"
 
 # Process each brain region and heritability status
 for REGION in "${BRAIN_REGIONS[@]}"; do
@@ -75,14 +75,17 @@ for REGION in "${BRAIN_REGIONS[@]}"; do
         fi
 
         log_message "    Computing LD scores..."
-        python "$LDSC_WRAPPER" "$LDSC_DIR" ldsc.py \
+        if ! python "$LDSC_WRAPPER" "$LDSC_DIR" ldsc.py \
             --l2 \
             --bfile "${BIM_DIR}/1000G.EUR.QC.${CHR}" \
             --ld-wind-cm 1 \
             --annot "$ANNOT_FILE" \
             --thin-annot \
             --out "$OUT_PREFIX" \
-            --print-snps "$HAPMAP3_SNPS"
+            --print-snps "$HAPMAP3_SNPS"; then
+            log_message "    ERROR: LD score computation failed for $REGION $STATUS chr$CHR"
+            continue
+        fi
     done
 done
 
