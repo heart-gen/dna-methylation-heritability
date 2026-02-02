@@ -1,0 +1,45 @@
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./munge_sumstats.py \
+--sumstats ./sumstats/pd_hg19.txt.gz \
+--out ./sumstats/pd \
+--merge-alleles /ocean/projects/bio250020p/shared/resources/ldsc/w_hm3.snplist \
+--chunksize 500000 \
+--snp variant_id \
+--N-col sample_size \
+--a1 effect_allele \
+--a2 non_effect_allele \
+--p pvalue \
+--frq frequency \
+--signed-sumstats zscore,0 
+
+Interpreting column names as follows:
+variant_id:	Variant ID (e.g., rs number)
+effect_allele:	Allele 1, interpreted as ref allele for signed sumstat.
+non_effect_allele:	Allele 2, interpreted as non-ref allele for signed sumstat.
+frequency:	Allele frequency
+sample_size:	Sample size
+zscore:	Directional summary statistic as specified by --signed-sumstats.
+pvalue:	p-Value
+n_cases:	Number of cases
+
+Reading list of SNPs for allele merge from /ocean/projects/bio250020p/shared/resources/ldsc/w_hm3.snplist
+Read 1190321 SNPs for allele merge.
+Reading sumstats from ./sumstats/pd_hg19.txt.gz into memory 500000 SNPs at a time.
+
+ERROR converting summary statistics:
+
+Traceback (most recent call last):
+  File "<string>", line 720, in munge_sumstats
+  File "<string>", line 276, in parse_dat
+ValueError: Columns ['P'] are expected to be numeric
+
+
+Conversion finished at Mon Feb  2 14:31:06 2026
+Total time elapsed: 2.78s
