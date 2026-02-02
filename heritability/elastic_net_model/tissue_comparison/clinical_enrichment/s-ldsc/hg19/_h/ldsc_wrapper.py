@@ -97,18 +97,27 @@ if not hasattr(pd.Series, 'ix'):
 
 # Now run the requested LDSC script
 if __name__ == '__main__':
+    import os
+
     if len(sys.argv) < 3:
         print("Usage: python ldsc_wrapper.py <ldsc_dir> <script.py> [args...]")
+        print("       python ldsc_wrapper.py <ldsc_dir> /path/to/script.py [args...]")
         sys.exit(1)
 
     ldsc_dir = sys.argv[1]
     script_name = sys.argv[2]
-    script_path = f'{ldsc_dir}/{script_name}'
+
+    # If script_name is an absolute path, use it directly
+    # Otherwise, combine with ldsc_dir
+    if os.path.isabs(script_name):
+        script_path = script_name
+    else:
+        script_path = f'{ldsc_dir}/{script_name}'
 
     # Update argv so the script sees correct arguments
     sys.argv = [script_path] + sys.argv[3:]
 
-    # Add ldsc directory to path
+    # Add ldsc directory to path (for imports like ldscore, ldsc modules)
     sys.path.insert(0, ldsc_dir)
 
     # Execute the requested script
