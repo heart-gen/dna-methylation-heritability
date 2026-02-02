@@ -44,7 +44,7 @@ export HERITABILITY=("heritable_hg19" "non_heritable_hg19" "low_prediction_hg19"
 # -----------------------------------------------------------------------------
 # Core diseases for S-LDSC analysis spanning neuronal, immune, and vascular categories
 
-export DISEASES=("ad" "scz" "mdd" "bip" "pd" "ms" "ra" "asthma" "cad" "htn")
+export DISEASES=("ad" "scz" "mdd" "bip" "pd" "ms" "ra" "asthma" "cad" "stroke")
 
 # Full disease names for reporting
 declare -A DISEASE_NAMES=(
@@ -57,7 +57,7 @@ declare -A DISEASE_NAMES=(
     ["ra"]="Rheumatoid Arthritis"
     ["asthma"]="Asthma"
     ["cad"]="Coronary Artery Disease"
-    ["htn"]="Hypertension"
+    ["stroke"]="Stroke"
 )
 export DISEASE_NAMES
 
@@ -72,7 +72,7 @@ declare -A DISEASE_CATEGORIES=(
     ["ra"]="immune"
     ["asthma"]="immune"
     ["cad"]="vascular"
-    ["htn"]="vascular"
+    ["stroke"]="vascular"
 )
 export DISEASE_CATEGORIES
 
@@ -84,7 +84,7 @@ export DISEASE_CATEGORIES
 
 declare -A GWAS_FILES=(
     ["ad"]="${GWAS_DIR}/PGC/AD/data/PGCALZ2sumstatsExcluding23andMe.txt.gz"
-    ["scz"]="${GWAS_DIR}/PGC/SCZ/CLOZUK_PGC2/primary.qc1_filt"
+    ["scz"]="${GWAS_DIR}/PGC/SCZ/PGC3/PGC3_SCZ_wave3.european.autosome.public.v3.vcf.tsv.gz"
     ["mdd"]="${GWAS_DIR}/mdd/jamapsy_Giannakopoulou_2021_exclude_whi_23andMe.txt.gz"
     ["bip"]="${GWAS_DIR}/bip/pgc-bip2021-all.vcf.tsv.gz"
     ["pd"]="${GWAS_DIR}/imputed_gwas_hg38_1.1/imputed_UKB_20002_1262_self_reported_parkinsons_disease.txt.gz"
@@ -92,7 +92,7 @@ declare -A GWAS_FILES=(
     ["ra"]="${GWAS_DIR}/imputed_gwas_hg38_1.1/imputed_RA_OKADA_TRANS_ETHNIC.txt.gz"
     ["asthma"]="${GWAS_DIR}/imputed_gwas_hg38_1.1/imputed_GABRIEL_Asthma.txt.gz"
     ["cad"]="${GWAS_DIR}/imputed_gwas_hg38_1.1/imputed_CARDIoGRAM_C4D_CAD_ADDITIVE.txt.gz"
-    ["htn"]="${GWAS_DIR}/imputed_gwas_hg38_1.1/imputed_ICBP_SystolicPressure.txt.gz"
+    ["stroke"]="${GWAS_DIR}/imputed_gwas_hg38_1.1/imputed_ISGC_Malik_2016_METASTROKE_all_strokes.txt.gz"
 )
 export GWAS_FILES
 

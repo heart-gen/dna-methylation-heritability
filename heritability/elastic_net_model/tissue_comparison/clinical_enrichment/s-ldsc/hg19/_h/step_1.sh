@@ -81,6 +81,7 @@ fi
 # --- Schizophrenia (SCZ) ---
 # Source: PGC3 (Trubetskoy et al. 2022 Nature)
 # Columns: CHROM, ID, POS, A1, A2, FCAS, FCON, IMPINFO, BETA, SE, PVAL, NCAS, NCON, NEFF
+# NOTE: VCF format with 73 ## header lines that must be skipped
 log_message "Processing: Schizophrenia (scz)"
 python "$LDSC_WRAPPER" "$LDSC_DIR" "$LOCAL_MUNGE" \
     --sumstats "${GWAS_BASE}/PGC/SCZ/PGC3/PGC3_SCZ_wave3.european.autosome.public.v3.vcf.tsv.gz" \
@@ -94,7 +95,8 @@ python "$LDSC_WRAPPER" "$LDSC_DIR" "$LOCAL_MUNGE" \
     --N-cas-col NCAS \
     --N-con-col NCON \
     --merge-alleles "$HM3_SNPLIST" \
-    --chunksize 500000
+    --chunksize 500000 \
+    --skip-rows 73
 
 # --- Major Depressive Disorder (MDD) ---
 # Source: PGC MDD3 (Giannakopoulou et al. 2021)
@@ -118,6 +120,7 @@ python "$LDSC_WRAPPER" "$LDSC_DIR" "$LOCAL_MUNGE" \
 # --- Bipolar Disorder (BIP) ---
 # Source: PGC BIP 2021 (Mullins et al. 2021)
 # Columns: #CHROM, POS, ID, A1, A2, BETA, SE, PVAL, NGT, FCAS, FCON, IMPINFO, NEFFDIV2, NCAS, NCON
+# NOTE: VCF format with 72 ## header lines that must be skipped
 log_message "Processing: Bipolar Disorder (bip)"
 python "$LDSC_WRAPPER" "$LDSC_DIR" "$LOCAL_MUNGE" \
     --sumstats "${GWAS_BASE}/bip/pgc-bip2021-all.vcf.tsv.gz" \
@@ -131,14 +134,57 @@ python "$LDSC_WRAPPER" "$LDSC_DIR" "$LOCAL_MUNGE" \
     --N-cas-col NCAS \
     --N-con-col NCON \
     --merge-alleles "$HM3_SNPLIST" \
-    --chunksize 500000
+    --chunksize 500000 \
+    --skip-rows 72
 
 # --- Parkinson's Disease (PD) ---
 # Source: UK Biobank imputed (self-reported)
 # Columns: variant_id, panel_variant_id, chromosome, position, effect_allele, non_effect_allele, current_build, frequency, sample_size, zscore, pvalue
+# NOTE: File is in hg38 coordinates - requires liftover to hg19 before munging
 log_message "Processing: Parkinson's Disease (pd)"
+PD_GWAS_HG38="${GWAS_BASE}/imputed_gwas_hg38_1.1/imputed_UKB_20002_1262_self_reported_parkinsons_disease.txt.gz"
+PD_GWAS_HG19="${OUT_DIR}/pd_hg19.txt.gz"
+CHAIN_FILE="${SCRIPT_DIR}/../../../../../../../inputs/supportfiles/_m/hg38ToHg19.over.chain"
+
+# Liftover PD GWAS from hg38 to hg19
+if [[ ! -f "$PD_GWAS_HG19" ]]; then
+    log_message "  Lifting over PD GWAS from hg38 to hg19..."
+    python -c "
+import pandas as pd
+import gzip
+from pyliftover import LiftOver
+
+lo = LiftOver('${CHAIN_FILE}')
+
+def liftover_pos(chrom, pos):
+    try:
+        chrom_str = f'chr{chrom}' if not str(chrom).startswith('chr') else str(chrom)
+        result = lo.convert_coordinate(chrom_str, int(pos))
+        if result and len(result) > 0:
+            return int(result[0][1])
+        return None
+    except:
+        return None
+
+# Read in chunks to handle large file
+chunks = []
+for chunk in pd.read_csv('${PD_GWAS_HG38}', sep='\t', chunksize=500000):
+    chunk['position_hg19'] = chunk.apply(lambda x: liftover_pos(x['chromosome'], x['position']), axis=1)
+    chunk = chunk.dropna(subset=['position_hg19'])
+    chunk['position'] = chunk['position_hg19'].astype(int)
+    chunk = chunk.drop(columns=['position_hg19'])
+    chunks.append(chunk)
+    print(f'  Processed chunk: {len(chunk)} SNPs retained')
+
+df = pd.concat(chunks, ignore_index=True)
+print(f'  Total SNPs after liftover: {len(df)}')
+df.to_csv('${PD_GWAS_HG19}', sep='\t', index=False, compression='gzip')
+print('  Liftover complete!')
+"
+fi
+
 python "$LDSC_WRAPPER" "$LDSC_DIR" "$LOCAL_MUNGE" \
-    --sumstats "${GWAS_BASE}/imputed_gwas_hg38_1.1/imputed_UKB_20002_1262_self_reported_parkinsons_disease.txt.gz" \
+    --sumstats "$PD_GWAS_HG19" \
     --out "${OUT_DIR}/pd" \
     --a1 effect_allele \
     --a2 non_effect_allele \
@@ -219,21 +265,9 @@ python "$LDSC_WRAPPER" "$LDSC_DIR" "$LOCAL_MUNGE" \
     --chunksize 500000
 
 # --- Hypertension (HTN) ---
-# Source: ICBP Systolic Blood Pressure
-# Columns: variant_id, panel_variant_id, chromosome, position, effect_allele, non_effect_allele, current_build, frequency, sample_size, zscore, pvalue
-log_message "Processing: Hypertension (htn)"
-python "$LDSC_WRAPPER" "$LDSC_DIR" "$LOCAL_MUNGE" \
-    --sumstats "${GWAS_BASE}/imputed_gwas_hg38_1.1/imputed_ICBP_SystolicPressure.txt.gz" \
-    --out "${OUT_DIR}/htn" \
-    --a1 effect_allele \
-    --a2 non_effect_allele \
-    --signed-sumstats zscore,0 \
-    --p pvalue \
-    --snp variant_id \
-    --frq frequency \
-    --N-col sample_size \
-    --merge-alleles "$HM3_SNPLIST" \
-    --chunksize 500000
+# REMOVED: No hg19 GWAS available. The imputed_ICBP_SystolicPressure.txt.gz is hg38
+# and has no matching SNPs in the hg19 HapMap3 reference.
+# Replaced with Stroke as the second vascular trait.
 
 # --- Stroke ---
 # Source: ISGC METASTROKE (Malik et al. 2016) - All strokes
@@ -258,7 +292,8 @@ python "$LDSC_WRAPPER" "$LDSC_DIR" "$LOCAL_MUNGE" \
 log_message "Verifying munged summary statistics..."
 echo ""
 echo "=== Munged Summary Statistics ==="
-for disease in ad scz mdd bip pd ms ra asthma cad htn stroke; do
+# Note: htn replaced with stroke as vascular trait (no hg19 HTN GWAS available)
+for disease in ad scz mdd bip pd ms ra asthma cad stroke; do
     if [[ -f "${OUT_DIR}/${disease}.sumstats.gz" ]]; then
         n_snps=$(zcat "${OUT_DIR}/${disease}.sumstats.gz" | wc -l)
         echo "[OK] ${disease}: $((n_snps - 1)) SNPs"
