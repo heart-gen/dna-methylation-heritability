@@ -18,11 +18,11 @@ export LIFTOVER_DIR="/ocean/projects/bio250020p/shared/resources/liftover"
 # -----------------------------------------------------------------------------
 # LDSC Resource Paths
 # -----------------------------------------------------------------------------
-export BIM_DIR="${RESOURCE_DIR}/1000G_Phase3_plinkfiles"
+export BIM_DIR="${RESOURCE_DIR}/1000G_EUR_Phase3_plink"
 export BASELINE_LD_DIR="${RESOURCE_DIR}/1000G_Phase3_baselineLD_v2.2_ldscores"
 export WEIGHTS_DIR="${RESOURCE_DIR}/1000G_Phase3_weights_hm3_no_MHC"
 export FRQ_DIR="${RESOURCE_DIR}/1000G_Phase3_frq"
-export HAPMAP3_SNPS="${RESOURCE_DIR}/w_hm3.snplist"
+export HAPMAP3_SNPS="${RESOURCE_DIR}/hm3_no_MHC.list.txt"
 
 # Liftover chain file (existing file in project)
 export CHAIN_FILE="/ocean/projects/bio250020p/kbenjamin/projects/dna-methylation-heritability/inputs/supportfiles/_m/hg38ToHg19.over.chain"
