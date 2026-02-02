@@ -30,8 +30,8 @@ if ! validate_resources; then
     exit 1
 fi
 
-# LDSC script
-LDSC_SCRIPT="${LDSC_DIR}/ldsc.py"
+# LDSC wrapper (patches pandas/Python 3 compatibility issues)
+LDSC_WRAPPER="${SCRIPT_DIR}/ldsc_wrapper.py"
 
 # Resource paths
 BASELINE_LD_DIR="${RESOURCE_DIR}/1000G_Phase3_baselineLD_v2.2_ldscores"
@@ -93,7 +93,7 @@ for DISEASE in "${DISEASES[@]}"; do
             fi
 
             log_message "      Running S-LDSC..."
-            python "$LDSC_SCRIPT" \
+            python "$LDSC_WRAPPER" "$LDSC_DIR" ldsc.py \
                 --h2 "$SUMSTATS_FILE" \
                 --ref-ld-chr "${BASELINE_LD_DIR}/baselineLD.,${CUSTOM_LD_DIR}/${REGION}_${STATUS}." \
                 --w-ld-chr "${WEIGHTS_DIR}/weights.hm3_noMHC." \
