@@ -32,7 +32,7 @@ conda activate /ocean/projects/bio250020p/shared/opt/env/genomics
 
 # Set temp directory for pybedtools (prevents /var/tmp issues on HPC)
 # Options: Set USE_SHARED_TMP=1 to use shared project tmp, otherwise uses SCRATCH
-USE_SHARED_TMP=0
+USE_SHARED_TMP=1
 SHARED_TMP="/ocean/projects/bio250020p/shared/tmp"
 
 if [[ "$USE_SHARED_TMP" -eq 1 ]] && [[ -d "$SHARED_TMP" ]]; then
