@@ -55,7 +55,7 @@ python "$LDSC_WRAPPER" "$LDSC_DIR" munge_sumstats.py \
     --signed-sumstats z,0 \
     --p p \
     --N-col N \
-    --merge-alleles "${RESOURCE_DIR}/w_hm3.snplist" \
+    --merge-alleles "${RESOURCE_DIR}/hm3_no_MHC.list.txt" \
     --chunksize 500000
 
 # --- Schizophrenia (SCZ) ---
@@ -73,7 +73,7 @@ python "$LDSC_WRAPPER" "$LDSC_DIR" munge_sumstats.py \
     --frq FCAS \
     --N-cas-col NCAS \
     --N-con-col NCON \
-    --merge-alleles "${RESOURCE_DIR}/w_hm3.snplist" \
+    --merge-alleles "${RESOURCE_DIR}/hm3_no_MHC.list.txt" \
     --chunksize 500000
 
 # --- Major Depressive Disorder (MDD) ---
@@ -89,7 +89,7 @@ python "$LDSC_WRAPPER" "$LDSC_DIR" munge_sumstats.py \
     --p P.SE \
     --snp MarkerName \
     --frq Freq1 \
-    --merge-alleles "${RESOURCE_DIR}/w_hm3.snplist" \
+    --merge-alleles "${RESOURCE_DIR}/hm3_no_MHC.list.txt" \
     --chunksize 500000
 
 # --- Bipolar Disorder (BIP) ---
@@ -107,7 +107,7 @@ python "$LDSC_WRAPPER" "$LDSC_DIR" munge_sumstats.py \
     --frq FCAS \
     --N-cas-col NCAS \
     --N-con-col NCON \
-    --merge-alleles "${RESOURCE_DIR}/w_hm3.snplist" \
+    --merge-alleles "${RESOURCE_DIR}/hm3_no_MHC.list.txt" \
     --chunksize 500000
 
 # --- Parkinson's Disease (PD) ---
@@ -124,7 +124,7 @@ python "$LDSC_WRAPPER" "$LDSC_DIR" munge_sumstats.py \
     --snp variant_id \
     --frq frequency \
     --N-col sample_size \
-    --merge-alleles "${RESOURCE_DIR}/w_hm3.snplist" \
+    --merge-alleles "${RESOURCE_DIR}/hm3_no_MHC.list.txt" \
     --chunksize 500000
 
 # --- Multiple Sclerosis (MS) ---
@@ -141,7 +141,7 @@ python "$LDSC_WRAPPER" "$LDSC_DIR" munge_sumstats.py \
     --snp variant_id \
     --frq frequency \
     --N-col sample_size \
-    --merge-alleles "${RESOURCE_DIR}/w_hm3.snplist" \
+    --merge-alleles "${RESOURCE_DIR}/hm3_no_MHC.list.txt" \
     --chunksize 500000
 
 # --- Rheumatoid Arthritis (RA) ---
@@ -158,7 +158,7 @@ python "$LDSC_WRAPPER" "$LDSC_DIR" munge_sumstats.py \
     --snp variant_id \
     --frq frequency \
     --N-col sample_size \
-    --merge-alleles "${RESOURCE_DIR}/w_hm3.snplist" \
+    --merge-alleles "${RESOURCE_DIR}/hm3_no_MHC.list.txt" \
     --chunksize 500000
 
 # --- Asthma ---
@@ -175,7 +175,7 @@ python "$LDSC_WRAPPER" "$LDSC_DIR" munge_sumstats.py \
     --snp variant_id \
     --frq frequency \
     --N-col sample_size \
-    --merge-alleles "${RESOURCE_DIR}/w_hm3.snplist" \
+    --merge-alleles "${RESOURCE_DIR}/hm3_no_MHC.list.txt" \
     --chunksize 500000
 
 # --- Coronary Artery Disease (CAD) ---
@@ -192,7 +192,7 @@ python "$LDSC_WRAPPER" "$LDSC_DIR" munge_sumstats.py \
     --snp variant_id \
     --frq frequency \
     --N-col sample_size \
-    --merge-alleles "${RESOURCE_DIR}/w_hm3.snplist" \
+    --merge-alleles "${RESOURCE_DIR}/hm3_no_MHC.list.txt" \
     --chunksize 500000
 
 # --- Hypertension (HTN) ---
@@ -209,7 +209,7 @@ python "$LDSC_WRAPPER" "$LDSC_DIR" munge_sumstats.py \
     --snp variant_id \
     --frq frequency \
     --N-col sample_size \
-    --merge-alleles "${RESOURCE_DIR}/w_hm3.snplist" \
+    --merge-alleles "${RESOURCE_DIR}/hm3_no_MHC.list.txt" \
     --chunksize 500000
 
 # --- Stroke ---
@@ -226,7 +226,7 @@ python "$LDSC_WRAPPER" "$LDSC_DIR" munge_sumstats.py \
     --snp variant_id \
     --frq frequency \
     --N-col sample_size \
-    --merge-alleles "${RESOURCE_DIR}/w_hm3.snplist" \
+    --merge-alleles "${RESOURCE_DIR}/hm3_no_MHC.list.txt" \
     --chunksize 500000
 
 # -----------------------------------------------------------------------------
