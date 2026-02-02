@@ -7,6 +7,7 @@ LDSC was written for Python 2 and older pandas versions. This wrapper patches:
 2. DataFrame.ix - removed in pandas 1.0, restored as alias to .loc/.iloc
 3. np.matrix deprecation warnings - suppressed
 4. gzip.open() - use text mode by default for Python 2 compatibility
+5. bitarray.decode() - returns iterator in Python 3, patched ldscore module handles this
 
 Usage:
     python ldsc_wrapper.py <ldsc_dir> <script_name> [args...]
@@ -119,6 +120,11 @@ if __name__ == '__main__':
 
     # Add ldsc directory to path (for imports like ldscore, ldsc modules)
     sys.path.insert(0, ldsc_dir)
+
+    # Add the wrapper's directory to path FIRST so our patched ldscore module
+    # takes precedence over the original (fixes bitarray.decode() Python 3 issue)
+    wrapper_dir = os.path.dirname(os.path.abspath(__file__))
+    sys.path.insert(0, wrapper_dir)
 
     # Execute the requested script
     exec(open(script_path).read())
