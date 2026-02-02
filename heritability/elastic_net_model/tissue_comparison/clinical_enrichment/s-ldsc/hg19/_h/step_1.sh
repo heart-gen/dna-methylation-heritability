@@ -28,15 +28,12 @@ module list
 log_message "**** Loading conda environment ****"
 conda activate /ocean/projects/bio250020p/shared/opt/env/genomics
 
-# Fix Python 3 import compatibility for LDSC
-export PYTHONPATH="${LDSC_DIR}/ldscore:${PYTHONPATH}"
-
 # Create output directory
 OUT_DIR="./sumstats"
 mkdir -p "$OUT_DIR"
 
-# LDSC munge script
-MUNGE_SCRIPT="${LDSC_DIR}/munge_sumstats.py"
+# LDSC wrapper (patches pandas/Python 3 compatibility issues)
+LDSC_WRAPPER="${SCRIPT_DIR}/ldsc_wrapper.py"
 
 # GWAS directory base
 GWAS_BASE="/ocean/projects/bio250020p/shared/resources/gwas"
@@ -50,7 +47,7 @@ GWAS_BASE="/ocean/projects/bio250020p/shared/resources/gwas"
 # Source: PGC ALZ2 (Kunkle et al. 2019)
 # Columns: chr, PosGRCh37, testedAllele, otherAllele, z, p, N
 log_message "Processing: Alzheimer's Disease (ad)"
-python "$MUNGE_SCRIPT" \
+python "$LDSC_WRAPPER" "$LDSC_DIR" munge_sumstats.py \
     --sumstats "${GWAS_BASE}/PGC/AD/data/PGCALZ2sumstatsExcluding23andMe.txt.gz" \
     --out "${OUT_DIR}/ad" \
     --a1 testedAllele \
@@ -65,7 +62,7 @@ python "$MUNGE_SCRIPT" \
 # Source: PGC3 (Trubetskoy et al. 2022 Nature)
 # Columns: CHROM, ID, POS, A1, A2, FCAS, FCON, IMPINFO, BETA, SE, PVAL, NCAS, NCON, NEFF
 log_message "Processing: Schizophrenia (scz)"
-python "$MUNGE_SCRIPT" \
+python "$LDSC_WRAPPER" "$LDSC_DIR" munge_sumstats.py \
     --sumstats "${GWAS_BASE}/PGC/SCZ/PGC3/PGC3_SCZ_wave3.european.autosome.public.v3.vcf.tsv.gz" \
     --out "${OUT_DIR}/scz" \
     --a1 A1 \
@@ -83,7 +80,7 @@ python "$MUNGE_SCRIPT" \
 # Source: PGC MDD3 (Giannakopoulou et al. 2021)
 # Columns: MarkerName, chr, pos, Allele1, Allele2, Freq1, Effect, StdErr, P.SE
 log_message "Processing: Major Depressive Disorder (mdd)"
-python "$MUNGE_SCRIPT" \
+python "$LDSC_WRAPPER" "$LDSC_DIR" munge_sumstats.py \
     --sumstats "${GWAS_BASE}/mdd/jamapsy_Giannakopoulou_2021_exclude_whi_23andMe.txt.gz" \
     --out "${OUT_DIR}/mdd" \
     --a1 Allele1 \
@@ -99,7 +96,7 @@ python "$MUNGE_SCRIPT" \
 # Source: PGC BIP 2021 (Mullins et al. 2021)
 # Columns: #CHROM, POS, ID, A1, A2, BETA, SE, PVAL, NGT, FCAS, FCON, IMPINFO, NEFFDIV2, NCAS, NCON
 log_message "Processing: Bipolar Disorder (bip)"
-python "$MUNGE_SCRIPT" \
+python "$LDSC_WRAPPER" "$LDSC_DIR" munge_sumstats.py \
     --sumstats "${GWAS_BASE}/bip/pgc-bip2021-all.vcf.tsv.gz" \
     --out "${OUT_DIR}/bip" \
     --a1 A1 \
@@ -117,7 +114,7 @@ python "$MUNGE_SCRIPT" \
 # Source: UK Biobank imputed (self-reported)
 # Columns: variant_id, panel_variant_id, chromosome, position, effect_allele, non_effect_allele, current_build, frequency, sample_size, zscore, pvalue
 log_message "Processing: Parkinson's Disease (pd)"
-python "$MUNGE_SCRIPT" \
+python "$LDSC_WRAPPER" "$LDSC_DIR" munge_sumstats.py \
     --sumstats "${GWAS_BASE}/imputed_gwas_hg38_1.1/imputed_UKB_20002_1262_self_reported_parkinsons_disease.txt.gz" \
     --out "${OUT_DIR}/pd" \
     --a1 effect_allele \
@@ -134,7 +131,7 @@ python "$MUNGE_SCRIPT" \
 # Source: IMMUNOBASE
 # Columns: variant_id, panel_variant_id, chromosome, position, effect_allele, non_effect_allele, current_build, frequency, sample_size, zscore, pvalue
 log_message "Processing: Multiple Sclerosis (ms)"
-python "$MUNGE_SCRIPT" \
+python "$LDSC_WRAPPER" "$LDSC_DIR" munge_sumstats.py \
     --sumstats "${GWAS_BASE}/imputed_gwas_hg38_1.1/imputed_IMMUNOBASE_Multiple_sclerosis_hg19.txt.gz" \
     --out "${OUT_DIR}/ms" \
     --a1 effect_allele \
@@ -151,7 +148,7 @@ python "$MUNGE_SCRIPT" \
 # Source: OKADA trans-ethnic
 # Columns: variant_id, panel_variant_id, chromosome, position, effect_allele, non_effect_allele, current_build, frequency, sample_size, zscore, pvalue
 log_message "Processing: Rheumatoid Arthritis (ra)"
-python "$MUNGE_SCRIPT" \
+python "$LDSC_WRAPPER" "$LDSC_DIR" munge_sumstats.py \
     --sumstats "${GWAS_BASE}/imputed_gwas_hg38_1.1/imputed_RA_OKADA_TRANS_ETHNIC.txt.gz" \
     --out "${OUT_DIR}/ra" \
     --a1 effect_allele \
@@ -168,7 +165,7 @@ python "$MUNGE_SCRIPT" \
 # Source: GABRIEL consortium
 # Columns: variant_id, panel_variant_id, chromosome, position, effect_allele, non_effect_allele, current_build, frequency, sample_size, zscore, pvalue
 log_message "Processing: Asthma (asthma)"
-python "$MUNGE_SCRIPT" \
+python "$LDSC_WRAPPER" "$LDSC_DIR" munge_sumstats.py \
     --sumstats "${GWAS_BASE}/imputed_gwas_hg38_1.1/imputed_GABRIEL_Asthma.txt.gz" \
     --out "${OUT_DIR}/asthma" \
     --a1 effect_allele \
@@ -185,7 +182,7 @@ python "$MUNGE_SCRIPT" \
 # Source: CARDIoGRAM C4D
 # Columns: variant_id, panel_variant_id, chromosome, position, effect_allele, non_effect_allele, current_build, frequency, sample_size, zscore, pvalue
 log_message "Processing: Coronary Artery Disease (cad)"
-python "$MUNGE_SCRIPT" \
+python "$LDSC_WRAPPER" "$LDSC_DIR" munge_sumstats.py \
     --sumstats "${GWAS_BASE}/imputed_gwas_hg38_1.1/imputed_CARDIoGRAM_C4D_CAD_ADDITIVE.txt.gz" \
     --out "${OUT_DIR}/cad" \
     --a1 effect_allele \
@@ -202,7 +199,7 @@ python "$MUNGE_SCRIPT" \
 # Source: ICBP Systolic Blood Pressure
 # Columns: variant_id, panel_variant_id, chromosome, position, effect_allele, non_effect_allele, current_build, frequency, sample_size, zscore, pvalue
 log_message "Processing: Hypertension (htn)"
-python "$MUNGE_SCRIPT" \
+python "$LDSC_WRAPPER" "$LDSC_DIR" munge_sumstats.py \
     --sumstats "${GWAS_BASE}/imputed_gwas_hg38_1.1/imputed_ICBP_SystolicPressure.txt.gz" \
     --out "${OUT_DIR}/htn" \
     --a1 effect_allele \
@@ -219,7 +216,7 @@ python "$MUNGE_SCRIPT" \
 # Source: ISGC METASTROKE (Malik et al. 2016) - All strokes
 # Columns: variant_id, panel_variant_id, chromosome, position, effect_allele, non_effect_allele, current_build, frequency, sample_size, zscore, pvalue
 log_message "Processing: Stroke (stroke)"
-python "$MUNGE_SCRIPT" \
+python "$LDSC_WRAPPER" "$LDSC_DIR" munge_sumstats.py \
     --sumstats "${GWAS_BASE}/imputed_gwas_hg38_1.1/imputed_ISGC_Malik_2016_METASTROKE_all_strokes.txt.gz" \
     --out "${OUT_DIR}/stroke" \
     --a1 effect_allele \

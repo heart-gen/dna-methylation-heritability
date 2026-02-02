@@ -39,8 +39,8 @@ if ! validate_resources; then
     exit 1
 fi
 
-# LDSC script
-LDSC_SCRIPT="${LDSC_DIR}/ldsc.py"
+# LDSC wrapper (patches pandas/Python 3 compatibility issues)
+LDSC_WRAPPER="${SCRIPT_DIR}/ldsc_wrapper.py"
 
 # Resource paths
 BIM_DIR="${RESOURCE_DIR}/1000G_EUR_Phase3_plink"
@@ -75,7 +75,7 @@ for REGION in "${BRAIN_REGIONS[@]}"; do
         fi
 
         log_message "    Computing LD scores..."
-        python "$LDSC_SCRIPT" \
+        python "$LDSC_WRAPPER" "$LDSC_DIR" ldsc.py \
             --l2 \
             --bfile "${BIM_DIR}/1000G.EUR.QC.${CHR}" \
             --ld-wind-cm 1 \
