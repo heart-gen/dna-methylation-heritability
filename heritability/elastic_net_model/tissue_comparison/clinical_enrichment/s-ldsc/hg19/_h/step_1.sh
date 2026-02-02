@@ -28,6 +28,9 @@ module list
 log_message "**** Loading conda environment ****"
 conda activate /ocean/projects/bio250020p/shared/opt/env/genomics
 
+# Fix Python 3 import compatibility for LDSC
+export PYTHONPATH="${LDSC_DIR}/ldscore:${PYTHONPATH}"
+
 # Create output directory
 OUT_DIR="./sumstats"
 mkdir -p "$OUT_DIR"
