@@ -33,7 +33,7 @@ module list
 # Set path variables
 ENV_PATH="/projects/p32505/opt/envs"
 
-log_message "Calculating pairiwse h2 values across brain regions"
+log_message "Calculating percent overlap of VMRs across brain regions"
 
 ## Activate conda environment
 conda run -p $ENV_PATH/genomics python ../_h/01b.percent_overlap.py

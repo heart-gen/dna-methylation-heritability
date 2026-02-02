@@ -2,33 +2,50 @@
 This script calculates the percent overlap of VMRs
 across brain regions
 """
-
+import pandas as pd
+from pathlib import Path
 import session_info
 
-input_fn = "./F_0.5/sets/caudate_hippocampus_overlap.bed" 
-output_fn = "./F_0.5/percent_overlap/caudate_hippocampus_overlap.tsv" 
+def get_bed(bed_file):
+    cols = ["chromA", "startA", "endA", "chromB", "startB", "endB", "overlap"]
+    return pd.read_csv(bed_file, sep="\t", header=None, names=cols)
 
-with open(input_fn) as f, open(output_fn, "w") as out:
-    out.write("chrom\tstartA\tendA\tstartB\tendB\toverlap\tpctA\tpctB\treciprocal_overlap\n")
-    for line in f:
-        cols = line.strip().split()
-        
-        start_a, end_a = int(cols[1]), int(cols[2])
-        start_b, end_b = int(cols[4]), int(cols[5])
-        overlap = int(cols[6])
+def annot_overlap(bed_df):
+    # Percent overlap for each VMR
+    bed_df["lenA"] = bed_df.endA - bed_df.startA
+    bed_df["lenB"] = bed_df.endB - bed_df.startB
+    bed_df["pctA"] = (bed_df.overlap / bed_df.lenA) * 100
+    bed_df["pctB"] = (bed_df.overlap / bed_df.lenB) * 100
 
-        len_a = end_a - start_a
-        len_b = end_b - start_b
+    # Reciprocal overlap
+    bed_df["reciprocal"] = bed_df[["pctA", "pctB"]].min(axis=1)
+    return bed_df
 
-        # Percent overlap for each VMR
-        pct_a = (overlap / len_a) * 100
-        pct_b = (overlap / len_b) * 100
+def main():
+    for threshold_dir in Path(".").glob("*_0.*"):
+        input_dir = threshold_dir / "sets"
+        out_dir = threshold_dir / "percent_overlap"
 
-        # Reciprocal overlap
-        reciprocal = min(pct_a, pct_b)
+        out_dir.mkdir(exist_ok=True)
 
-        out.write(f"{cols[0]}\t{start_a}\t{end_a}\t{start_b}\t{end_b}\t{overlap}\t"
-                  f"{pct_a:.2f}\t{pct_b:.2f}\t{reciprocal:.2f}\n")
+        for bed_file in input_dir.glob("*overlap*.bed"):
+            if "3tissues" in bed_file.name:
+                print(f"{bed_file} is not pairwise. Skipping.")
+                continue
 
-# Session information
-session_info.show()
+            output_fn = out_dir / bed_file.with_suffix(".tsv").name
+            
+            # Read in bed 
+            df = get_bed(bed_file)
+
+            # Calculate percent overlap
+            df = annot_overlap(df)
+
+            # Write dataframe
+            df.to_csv(output_fn, sep="\t", index=False)
+
+    # Session information
+    session_info.show()
+
+if __name__ == "__main__":
+    main()
