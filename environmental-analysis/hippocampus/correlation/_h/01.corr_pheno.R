@@ -31,10 +31,16 @@ clean_pheno <- function(pheno_file_path, tissue, vars){
     filter(agedeath > 17, region == tissue) |>
     mutate(education = case_when(
       education %in% c("7th", "8th", "Less than 7th",
-                       "9th", "10th", "11th", "12th") ~ "Less than high school",
-      education %in% c("H.S. diploma","GED") ~ "High School",
+                       "9th", "10th", "11th", "12th") ~ "less_than_hs",
+      education %in% c("H.S. diploma","GED") ~ "hs",
       education %in% c("1 yr college", "3 yrs college", "Associate's or 2 yrs college",
-                       "Bachelor's", "Master's", "JD", "PhD") ~ "More than high school"
+                       "Bachelor's", "Master's", "JD", "PhD") ~ "more_than_hs"
+    )
+    ) |>
+    mutate(marital_status = case_when(
+      marital_status %in% c("Single") ~ "single",
+      marital_status %in% c("Married") ~ "married",
+      marital_status %in% c("Divorced", "Separated", "Widowed") ~ "previously_married"
     )
     ) |>
     mutate_if(is.character, as.factor)
@@ -73,9 +79,9 @@ save_plot <- function(p, fn, w=8, h=6) {
 }
 
 ## Main
-tissue <- c("caudate")
+tissue <- c("hippocampus")
 
-out_path <- here("environmental-analysis", "correlation", "_m")
+out_path <- here("environmental-analysis", "hippocampus", "correlation", "_m")
 if (!dir.exists(out_path)) {
   dir.create(out_path, recursive = TRUE)
 }
@@ -106,7 +112,7 @@ ances     <- fread(f_ances) %>% filter(group == "AA")
 pheno <- left_join(pheno, ances, by = c("brnum" = "id"))
 
                                         # Get meth matrix
-meth_file_path <- here("heritability/caudate/_m/vmr")
+meth_file_path <- here("heritability/hippocampus/_m/vmr")
 meth_files     <- list.files(path = meth_file_path, pattern = "_meth\\.phen$", 
                          recursive = TRUE, full.names = TRUE)
 meth_df        <- merge_meth(meth_files)
