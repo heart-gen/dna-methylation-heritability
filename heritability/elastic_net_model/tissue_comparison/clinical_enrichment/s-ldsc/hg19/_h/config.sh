@@ -33,7 +33,7 @@ export CHAIN_FILE="/ocean/projects/bio250020p/kbenjamin/projects/dna-methylation
 # Brain Regions and Heritability Status
 # -----------------------------------------------------------------------------
 export BRAIN_REGIONS=("caudate" "dlpfc" "hippocampus")
-export HERITABILITY=("heritable_hg19" "non_heritable_hg19", "low_prediction_hg19")
+export HERITABILITY=("heritable_hg19" "non_heritable_hg19" "low_prediction_hg19")
 
 # -----------------------------------------------------------------------------
 # Disease/Trait Configuration (10 traits)

@@ -6,6 +6,7 @@ LDSC was written for Python 2 and older pandas versions. This wrapper patches:
 1. pd.set_option() - 'precision' -> 'display.precision', etc.
 2. DataFrame.ix - removed in pandas 1.0, restored as alias to .loc/.iloc
 3. np.matrix deprecation warnings - suppressed
+4. gzip.open() - use text mode by default for Python 2 compatibility
 
 Usage:
     python ldsc_wrapper.py <ldsc_dir> <script_name> [args...]
@@ -16,10 +17,26 @@ Examples:
 """
 import sys
 import warnings
+import gzip
 
 # Suppress numpy matrix deprecation warnings
 warnings.filterwarnings('ignore', category=PendingDeprecationWarning)
 warnings.filterwarnings('ignore', message='.*matrix subclass.*')
+
+# 0. Patch gzip.open to use text mode by default (Python 2 compatibility)
+# In Python 2, gzip.open returned strings; in Python 3, it returns bytes by default
+_original_gzip_open = gzip.open
+
+def _patched_gzip_open(filename, mode='rb', *args, **kwargs):
+    """Patch gzip.open to use text mode for compatibility with Python 2-era code."""
+    # If mode is default 'rb' or just 'r', convert to text mode
+    if mode in ('rb', 'r'):
+        mode = 'rt'
+    elif mode == 'wb':
+        mode = 'wt'
+    return _original_gzip_open(filename, mode, *args, **kwargs)
+
+gzip.open = _patched_gzip_open
 
 # Patch pandas before ldsc imports it
 import pandas as pd
