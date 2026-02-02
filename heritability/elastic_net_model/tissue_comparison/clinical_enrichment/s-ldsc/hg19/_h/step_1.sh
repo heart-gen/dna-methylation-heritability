@@ -35,8 +35,14 @@ mkdir -p "$OUT_DIR"
 # LDSC wrapper (patches pandas/Python 3 compatibility issues)
 LDSC_WRAPPER="${SCRIPT_DIR}/ldsc_wrapper.py"
 
+# Local munge_sumstats.py (Python 3 / pandas 2.x compatible)
+LOCAL_MUNGE="${SCRIPT_DIR}/munge_sumstats.py"
+
 # GWAS directory base
 GWAS_BASE="/ocean/projects/bio250020p/shared/resources/gwas"
+
+# HapMap3 SNP list with alleles (SNP, A1, A2 columns required for --merge-alleles)
+HM3_SNPLIST="${RESOURCE_DIR}/w_hm3.snplist"
 
 # -----------------------------------------------------------------------------
 # Munge each GWAS file
@@ -46,23 +52,37 @@ GWAS_BASE="/ocean/projects/bio250020p/shared/resources/gwas"
 # --- Alzheimer's Disease (AD) ---
 # Source: PGC ALZ2 (Kunkle et al. 2019)
 # Columns: chr, PosGRCh37, testedAllele, otherAllele, z, p, N
+# NOTE: This file has NO SNP column (rs IDs) - it only has chr:position
+# We need to use a pre-processed file or skip this trait
+# For now, using a different Alzheimer's GWAS that has rs IDs
 log_message "Processing: Alzheimer's Disease (ad)"
-python "$LDSC_WRAPPER" "$LDSC_DIR" munge_sumstats.py \
-    --sumstats "${GWAS_BASE}/PGC/AD/data/PGCALZ2sumstatsExcluding23andMe.txt.gz" \
-    --out "${OUT_DIR}/ad" \
-    --a1 testedAllele \
-    --a2 otherAllele \
-    --signed-sumstats z,0 \
-    --p p \
-    --N-col N \
-    --merge-alleles "${RESOURCE_DIR}/hm3_no_MHC.list.txt" \
-    --chunksize 500000
+# Check if we have a sumstats file with SNP IDs
+if [[ -f "${GWAS_BASE}/PGC/AD/data/PGCALZ2sumstatsExcluding23andMe.with_rsid.txt.gz" ]]; then
+    python "$LDSC_WRAPPER" "$LDSC_DIR" "$LOCAL_MUNGE" \
+        --sumstats "${GWAS_BASE}/PGC/AD/data/PGCALZ2sumstatsExcluding23andMe.with_rsid.txt.gz" \
+        --out "${OUT_DIR}/ad" \
+        --a1 testedAllele \
+        --a2 otherAllele \
+        --signed-sumstats z,0 \
+        --p p \
+        --N-col N \
+        --merge-alleles "$HM3_SNPLIST" \
+        --chunksize 500000
+else
+    # Use the pre-munged PASS Alzheimer's sumstats if available
+    if [[ -f "${RESOURCE_DIR}/sumstats/PASS_Alzheimer.sumstats.gz" ]]; then
+        log_message "Using pre-munged PASS_Alzheimer.sumstats.gz"
+        cp "${RESOURCE_DIR}/sumstats/PASS_Alzheimer.sumstats.gz" "${OUT_DIR}/ad.sumstats.gz"
+    else
+        log_message "WARNING: AD GWAS file lacks SNP column and no alternative found. Skipping."
+    fi
+fi
 
 # --- Schizophrenia (SCZ) ---
 # Source: PGC3 (Trubetskoy et al. 2022 Nature)
 # Columns: CHROM, ID, POS, A1, A2, FCAS, FCON, IMPINFO, BETA, SE, PVAL, NCAS, NCON, NEFF
 log_message "Processing: Schizophrenia (scz)"
-python "$LDSC_WRAPPER" "$LDSC_DIR" munge_sumstats.py \
+python "$LDSC_WRAPPER" "$LDSC_DIR" "$LOCAL_MUNGE" \
     --sumstats "${GWAS_BASE}/PGC/SCZ/PGC3/PGC3_SCZ_wave3.european.autosome.public.v3.vcf.tsv.gz" \
     --out "${OUT_DIR}/scz" \
     --a1 A1 \
@@ -73,14 +93,15 @@ python "$LDSC_WRAPPER" "$LDSC_DIR" munge_sumstats.py \
     --frq FCAS \
     --N-cas-col NCAS \
     --N-con-col NCON \
-    --merge-alleles "${RESOURCE_DIR}/hm3_no_MHC.list.txt" \
+    --merge-alleles "$HM3_SNPLIST" \
     --chunksize 500000
 
 # --- Major Depressive Disorder (MDD) ---
 # Source: PGC MDD3 (Giannakopoulou et al. 2021)
 # Columns: MarkerName, chr, pos, Allele1, Allele2, Freq1, Effect, StdErr, P.SE
+# NOTE: File lacks N column. Using N from paper: 166,773 cases + 507,679 controls
 log_message "Processing: Major Depressive Disorder (mdd)"
-python "$LDSC_WRAPPER" "$LDSC_DIR" munge_sumstats.py \
+python "$LDSC_WRAPPER" "$LDSC_DIR" "$LOCAL_MUNGE" \
     --sumstats "${GWAS_BASE}/mdd/jamapsy_Giannakopoulou_2021_exclude_whi_23andMe.txt.gz" \
     --out "${OUT_DIR}/mdd" \
     --a1 Allele1 \
@@ -89,14 +110,16 @@ python "$LDSC_WRAPPER" "$LDSC_DIR" munge_sumstats.py \
     --p P.SE \
     --snp MarkerName \
     --frq Freq1 \
-    --merge-alleles "${RESOURCE_DIR}/hm3_no_MHC.list.txt" \
+    --N-cas 166773 \
+    --N-con 507679 \
+    --merge-alleles "$HM3_SNPLIST" \
     --chunksize 500000
 
 # --- Bipolar Disorder (BIP) ---
 # Source: PGC BIP 2021 (Mullins et al. 2021)
 # Columns: #CHROM, POS, ID, A1, A2, BETA, SE, PVAL, NGT, FCAS, FCON, IMPINFO, NEFFDIV2, NCAS, NCON
 log_message "Processing: Bipolar Disorder (bip)"
-python "$LDSC_WRAPPER" "$LDSC_DIR" munge_sumstats.py \
+python "$LDSC_WRAPPER" "$LDSC_DIR" "$LOCAL_MUNGE" \
     --sumstats "${GWAS_BASE}/bip/pgc-bip2021-all.vcf.tsv.gz" \
     --out "${OUT_DIR}/bip" \
     --a1 A1 \
@@ -107,14 +130,14 @@ python "$LDSC_WRAPPER" "$LDSC_DIR" munge_sumstats.py \
     --frq FCAS \
     --N-cas-col NCAS \
     --N-con-col NCON \
-    --merge-alleles "${RESOURCE_DIR}/hm3_no_MHC.list.txt" \
+    --merge-alleles "$HM3_SNPLIST" \
     --chunksize 500000
 
 # --- Parkinson's Disease (PD) ---
 # Source: UK Biobank imputed (self-reported)
 # Columns: variant_id, panel_variant_id, chromosome, position, effect_allele, non_effect_allele, current_build, frequency, sample_size, zscore, pvalue
 log_message "Processing: Parkinson's Disease (pd)"
-python "$LDSC_WRAPPER" "$LDSC_DIR" munge_sumstats.py \
+python "$LDSC_WRAPPER" "$LDSC_DIR" "$LOCAL_MUNGE" \
     --sumstats "${GWAS_BASE}/imputed_gwas_hg38_1.1/imputed_UKB_20002_1262_self_reported_parkinsons_disease.txt.gz" \
     --out "${OUT_DIR}/pd" \
     --a1 effect_allele \
@@ -124,14 +147,14 @@ python "$LDSC_WRAPPER" "$LDSC_DIR" munge_sumstats.py \
     --snp variant_id \
     --frq frequency \
     --N-col sample_size \
-    --merge-alleles "${RESOURCE_DIR}/hm3_no_MHC.list.txt" \
+    --merge-alleles "$HM3_SNPLIST" \
     --chunksize 500000
 
 # --- Multiple Sclerosis (MS) ---
 # Source: IMMUNOBASE
 # Columns: variant_id, panel_variant_id, chromosome, position, effect_allele, non_effect_allele, current_build, frequency, sample_size, zscore, pvalue
 log_message "Processing: Multiple Sclerosis (ms)"
-python "$LDSC_WRAPPER" "$LDSC_DIR" munge_sumstats.py \
+python "$LDSC_WRAPPER" "$LDSC_DIR" "$LOCAL_MUNGE" \
     --sumstats "${GWAS_BASE}/imputed_gwas_hg38_1.1/imputed_IMMUNOBASE_Multiple_sclerosis_hg19.txt.gz" \
     --out "${OUT_DIR}/ms" \
     --a1 effect_allele \
@@ -141,14 +164,14 @@ python "$LDSC_WRAPPER" "$LDSC_DIR" munge_sumstats.py \
     --snp variant_id \
     --frq frequency \
     --N-col sample_size \
-    --merge-alleles "${RESOURCE_DIR}/hm3_no_MHC.list.txt" \
+    --merge-alleles "$HM3_SNPLIST" \
     --chunksize 500000
 
 # --- Rheumatoid Arthritis (RA) ---
 # Source: OKADA trans-ethnic
 # Columns: variant_id, panel_variant_id, chromosome, position, effect_allele, non_effect_allele, current_build, frequency, sample_size, zscore, pvalue
 log_message "Processing: Rheumatoid Arthritis (ra)"
-python "$LDSC_WRAPPER" "$LDSC_DIR" munge_sumstats.py \
+python "$LDSC_WRAPPER" "$LDSC_DIR" "$LOCAL_MUNGE" \
     --sumstats "${GWAS_BASE}/imputed_gwas_hg38_1.1/imputed_RA_OKADA_TRANS_ETHNIC.txt.gz" \
     --out "${OUT_DIR}/ra" \
     --a1 effect_allele \
@@ -158,14 +181,14 @@ python "$LDSC_WRAPPER" "$LDSC_DIR" munge_sumstats.py \
     --snp variant_id \
     --frq frequency \
     --N-col sample_size \
-    --merge-alleles "${RESOURCE_DIR}/hm3_no_MHC.list.txt" \
+    --merge-alleles "$HM3_SNPLIST" \
     --chunksize 500000
 
 # --- Asthma ---
 # Source: GABRIEL consortium
 # Columns: variant_id, panel_variant_id, chromosome, position, effect_allele, non_effect_allele, current_build, frequency, sample_size, zscore, pvalue
 log_message "Processing: Asthma (asthma)"
-python "$LDSC_WRAPPER" "$LDSC_DIR" munge_sumstats.py \
+python "$LDSC_WRAPPER" "$LDSC_DIR" "$LOCAL_MUNGE" \
     --sumstats "${GWAS_BASE}/imputed_gwas_hg38_1.1/imputed_GABRIEL_Asthma.txt.gz" \
     --out "${OUT_DIR}/asthma" \
     --a1 effect_allele \
@@ -175,14 +198,14 @@ python "$LDSC_WRAPPER" "$LDSC_DIR" munge_sumstats.py \
     --snp variant_id \
     --frq frequency \
     --N-col sample_size \
-    --merge-alleles "${RESOURCE_DIR}/hm3_no_MHC.list.txt" \
+    --merge-alleles "$HM3_SNPLIST" \
     --chunksize 500000
 
 # --- Coronary Artery Disease (CAD) ---
 # Source: CARDIoGRAM C4D
 # Columns: variant_id, panel_variant_id, chromosome, position, effect_allele, non_effect_allele, current_build, frequency, sample_size, zscore, pvalue
 log_message "Processing: Coronary Artery Disease (cad)"
-python "$LDSC_WRAPPER" "$LDSC_DIR" munge_sumstats.py \
+python "$LDSC_WRAPPER" "$LDSC_DIR" "$LOCAL_MUNGE" \
     --sumstats "${GWAS_BASE}/imputed_gwas_hg38_1.1/imputed_CARDIoGRAM_C4D_CAD_ADDITIVE.txt.gz" \
     --out "${OUT_DIR}/cad" \
     --a1 effect_allele \
@@ -192,14 +215,14 @@ python "$LDSC_WRAPPER" "$LDSC_DIR" munge_sumstats.py \
     --snp variant_id \
     --frq frequency \
     --N-col sample_size \
-    --merge-alleles "${RESOURCE_DIR}/hm3_no_MHC.list.txt" \
+    --merge-alleles "$HM3_SNPLIST" \
     --chunksize 500000
 
 # --- Hypertension (HTN) ---
 # Source: ICBP Systolic Blood Pressure
 # Columns: variant_id, panel_variant_id, chromosome, position, effect_allele, non_effect_allele, current_build, frequency, sample_size, zscore, pvalue
 log_message "Processing: Hypertension (htn)"
-python "$LDSC_WRAPPER" "$LDSC_DIR" munge_sumstats.py \
+python "$LDSC_WRAPPER" "$LDSC_DIR" "$LOCAL_MUNGE" \
     --sumstats "${GWAS_BASE}/imputed_gwas_hg38_1.1/imputed_ICBP_SystolicPressure.txt.gz" \
     --out "${OUT_DIR}/htn" \
     --a1 effect_allele \
@@ -209,14 +232,14 @@ python "$LDSC_WRAPPER" "$LDSC_DIR" munge_sumstats.py \
     --snp variant_id \
     --frq frequency \
     --N-col sample_size \
-    --merge-alleles "${RESOURCE_DIR}/hm3_no_MHC.list.txt" \
+    --merge-alleles "$HM3_SNPLIST" \
     --chunksize 500000
 
 # --- Stroke ---
 # Source: ISGC METASTROKE (Malik et al. 2016) - All strokes
 # Columns: variant_id, panel_variant_id, chromosome, position, effect_allele, non_effect_allele, current_build, frequency, sample_size, zscore, pvalue
 log_message "Processing: Stroke (stroke)"
-python "$LDSC_WRAPPER" "$LDSC_DIR" munge_sumstats.py \
+python "$LDSC_WRAPPER" "$LDSC_DIR" "$LOCAL_MUNGE" \
     --sumstats "${GWAS_BASE}/imputed_gwas_hg38_1.1/imputed_ISGC_Malik_2016_METASTROKE_all_strokes.txt.gz" \
     --out "${OUT_DIR}/stroke" \
     --a1 effect_allele \
@@ -226,7 +249,7 @@ python "$LDSC_WRAPPER" "$LDSC_DIR" munge_sumstats.py \
     --snp variant_id \
     --frq frequency \
     --N-col sample_size \
-    --merge-alleles "${RESOURCE_DIR}/hm3_no_MHC.list.txt" \
+    --merge-alleles "$HM3_SNPLIST" \
     --chunksize 500000
 
 # -----------------------------------------------------------------------------
