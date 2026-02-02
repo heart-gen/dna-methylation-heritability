@@ -76,44 +76,47 @@ jaccard(){
 }
 
 ## Main
+BED_DIR="./bed_files"
 for f in "${OVERLAP[@]}"; do
 	for FLAG in "-f" "-F"; do 
-		OUTDIR="./${FLAG//-/}_${f}"
-		mkdir -p "$OUTDIR"/{sets,jaccard}
+		for H2_CAT in "all" "heritable" "non-heritable" "low_prediction"; do
+			OUTDIR="./${FLAG//-/}_${f}"
+			mkdir -p "$OUTDIR"/{sets,jaccard}
 
-		# Extract tissue specific VMRs
-		extract_tissue_specific caudate.bed hippocampus.bed dlpfc.bed \
-		"$f" "$OUTDIR/sets/caudate_specific.bed"
-		extract_tissue_specific hippocampus.bed caudate.bed dlpfc.bed \
-		"$f" "$OUTDIR/sets/hippocampus_specific.bed"
-		extract_tissue_specific dlpfc.bed caudate.bed hippocampus.bed \
-		"$f" "$OUTDIR/sets/dlpfc_specific.bed"
+			# Extract tissue specific VMRs
+			extract_tissue_specific $BED_DIR/caudate_${H2_CAT}.bed $BED_DIR/hippocampus_${H2_CAT}.bed $BED_DIR/dlpfc_${H2_CAT}.bed \
+			"$f" "$OUTDIR/sets/caudate_specific_${H2_CAT}.bed"
+			extract_tissue_specific $BED_DIR/hippocampus_${H2_CAT}.bed $BED_DIR/caudate_${H2_CAT}.bed $BED_DIR/dlpfc_${H2_CAT}.bed \
+			"$f" "$OUTDIR/sets/hippocampus_specific_${H2_CAT}.bed"
+			extract_tissue_specific $BED_DIR/dlpfc_${H2_CAT}.bed $BED_DIR/caudate_${H2_CAT}.bed $BED_DIR/hippocampus_${H2_CAT}.bed \
+			"$f" "$OUTDIR/sets/dlpfc_specific_${H2_CAT}.bed"
 
-		# Extract shared VMRs in 2 tissues
-		extract_pairwise_overlap caudate.bed hippocampus.bed \
-		"$f" "$OUTDIR/sets/caudate_hippocampus_overlap.bed"
-		extract_pairwise_overlap caudate.bed dlpfc.bed \
-		"$f" "$OUTDIR/sets/caudate_dlpfc_overlap.bed"
-		extract_pairwise_overlap hippocampus.bed dlpfc.bed \
-		"$f" "$OUTDIR/sets/hippocampus_dlpfc_overlap.bed"
+			# Extract shared VMRs in 2 tissues
+			extract_pairwise_overlap $BED_DIR/caudate_${H2_CAT}.bed $BED_DIR/hippocampus_${H2_CAT}.bed \
+			"$f" "$OUTDIR/sets/caudate_hippocampus_overlap_${H2_CAT}.bed"
+			extract_pairwise_overlap $BED_DIR/caudate_${H2_CAT}.bed $BED_DIR/dlpfc_${H2_CAT}.bed \
+			"$f" "$OUTDIR/sets/caudate_dlpfc_overlap_${H2_CAT}.bed"
+			extract_pairwise_overlap $BED_DIR/hippocampus_${H2_CAT}.bed $BED_DIR/dlpfc_${H2_CAT}.bed \
+			"$f" "$OUTDIR/sets/hippocampus_dlpfc_overlap_${H2_CAT}.bed"
 
-		# Calculate pairwise jaccard
-		jaccard caudate.bed hippocampus.bed \
-		"$f" "$OUTDIR/jaccard/caudate_hippocampus_jaccard.tsv"
-		jaccard caudate.bed dlpfc.bed \
-		"$f" "$OUTDIR/jaccard/caudate_dlpfc_jaccard.tsv"
-		jaccard hippocampus.bed dlpfc.bed \
-		"$f" "$OUTDIR/jaccard/hippocampus_dlpfc_jaccard.tsv"
+			# Calculate pairwise jaccard
+			jaccard $BED_DIR/caudate_${H2_CAT}.bed $BED_DIR/hippocampus_${H2_CAT}.bed \
+			"$f" "$OUTDIR/jaccard/caudate_hippocampus_jaccard_${H2_CAT}.tsv"
+			jaccard $BED_DIR/caudate_${H2_CAT}.bed $BED_DIR/dlpfc_${H2_CAT}.bed \
+			"$f" "$OUTDIR/jaccard/caudate_dlpfc_jaccard_${H2_CAT}.tsv"
+			jaccard $BED_DIR/hippocampus_${H2_CAT}.bed $BED_DIR/dlpfc_${H2_CAT}.bed \
+			"$f" "$OUTDIR/jaccard/hippocampus_dlpfc_jaccard_${H2_CAT}.tsv"
 
-		# Extract shared VMRs in all tissues
-		extract_3tissue caudate.bed hippocampus.bed dlpfc.bed \
-		"$f" "$OUTDIR/sets/3tissues_overlap.bed" \
-		"$OUTDIR/jaccard/3tissues_jaccard.tsv"
+			# Extract shared VMRs in all tissues
+			extract_3tissue $BED_DIR/caudate_${H2_CAT}.bed $BED_DIR/hippocampus_${H2_CAT}.bed $BED_DIR/dlpfc_${H2_CAT}.bed \
+			"$f" "$OUTDIR/sets/3tissues_overlap_${H2_CAT}.bed" \
+			"$OUTDIR/jaccard/3tissues_jaccard_${H2_CAT}.tsv"
 
-		if [ $? -ne 0 ]; then
-		log_message "Error: Conda or script execution failed"
-		exit 1
-		fi
+			if [ $? -ne 0 ]; then
+			log_message "Error: Conda or script execution failed"
+			exit 1
+			fi
+		done
 	done
 done
 
