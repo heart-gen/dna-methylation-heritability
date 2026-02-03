@@ -18,17 +18,15 @@ count_intersections <- function(fn){
 # Formatting
 
 # Plot Upset
-plot_upset <- function(sets, fn, w, h){
-  for(ext in c('.pdf')){
-    pdf(file=paste0(fn, ext), width=w, height=h)
-    grid::grid.newpage()
-    UpSetR::upset(
-      fromExpression(sets),
-      order.by = "freq",
-      sets = c("Caudate", "DLPFC", "Hippocampus")
-    )
-    dev.off()
-  }
+plot_upset <- function(sets, fn){
+  pdf(fn, width = 6, height = 4)
+  upset <- UpSetR::upset(
+    fromExpression(sets),
+    order.by = "freq",
+    sets = c("Caudate", "DLPFC", "Hippocampus")
+  )
+  print(upset)
+  dev.off()
 }
 
 # Testing complex upset
@@ -42,24 +40,27 @@ if (!dir.exists(out_path)) {
 }
 
 option_flags <- c("F_0.25", "F_0.5", "F_0.75", "f_0.25", "f_0.5", "f_0.75")
+h2_categories <- c("heritable", "non-heritable", "low_prediction", "all")
 
 for (flag in option_flags) {
-  
-  # Get overlapping VMRs
-  sets <- c(
-    Caudate = count_intersections(paste0("./", flag, "/sets/caudate_specific.bed")),
-    DLPFC = count_intersections(paste0("./", flag, "/sets/dlpfc_specific.bed")),
-    Hippocampus = count_intersections(paste0("./", flag, "/sets/hippocampus_specific.bed")),
-    `Caudate&Hippocampus` = count_intersections(paste0("./", flag, "/sets/caudate_hippocampus_overlap.bed")),
-    `Caudate&DLPFC` = count_intersections(paste0("./", flag, "/sets/caudate_dlpfc_overlap.bed")),
-    `Hippocampus&DLPFC` = count_intersections(paste0("./", flag, "/sets/hippocampus_dlpfc_overlap.bed")),
-    `Caudate&Hippocampus&DLPFC` = count_intersections(paste0("./", flag, "/sets/3tissues_overlap.bed.tmp"))
-  )
-  
-  # Plot upset
-  out_upset <- file.path(out_path, flag, "VMR_upsetR")
-  plot_upset(sets, out_upset, 6, 4)
+  for (h2_cat in h2_categories){
+    
+    # Get overlapping VMRs
+    sets <- c(
+      Caudate = count_intersections(paste0("./", flag, "/sets/caudate_specific_", h2_cat, ".bed")),
+      DLPFC = count_intersections(paste0("./", flag, "/sets/dlpfc_specific_", h2_cat, ".bed")),
+      Hippocampus = count_intersections(paste0("./", flag, "/sets/hippocampus_specific_", h2_cat, ".bed")),
+      `Caudate&Hippocampus` = count_intersections(paste0("./", flag, "/sets/caudate_hippocampus_overlap_", h2_cat, ".bed")),
+      `Caudate&DLPFC` = count_intersections(paste0("./", flag, "/sets/caudate_dlpfc_overlap_", h2_cat, ".bed")),
+      `Hippocampus&DLPFC` = count_intersections(paste0("./", flag, "/sets/hippocampus_dlpfc_overlap_", h2_cat, ".bed")),
+      `Caudate&Hippocampus&DLPFC` = count_intersections(paste0("./", flag, "/sets/3tissues_overlap_", h2_cat, ".bed.tmp"))
+    )
+    
+    # Plot upset
+    out_upset <- file.path(out_path, flag, paste0("VMR_upsetR_", h2_cat, ".pdf"))
+    plot_upset(sets, out_upset)
 
+  }
 }
 
 #### Reproducibility information
