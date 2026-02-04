@@ -1,0 +1,853 @@
+2026-02-02 13:08:50 - **** Job starts ****
+**** PSC Bridges-2 info ****
+User: kbenjamin
+Job id: 37298303
+Job name: make_annot
+Node name: 
+Hostname: r364
+Task id: N/A
+
+Currently Loaded Modules:
+  1) anaconda3/2024.10-1   2) bedtools/2.30.0
+
+ 
+
+2026-02-02 13:08:51 - **** Loading conda environment ****
+2026-02-02 13:08:52 - Using TMPDIR: /ocean/projects/bio250020p/shared/tmp
+Validating resources...
+All resources validated successfully.
+2026-02-02 13:08:52 - Processing region: caudate
+2026-02-02 13:08:52 -   Processing status: heritable_hg19
+2026-02-02 13:08:52 -     Filtering and sorting BED file...
+2026-02-02 13:08:52 -     Filtered BED file: 4541 valid entries
+2026-02-02 13:08:52 -     Processing chromosome 1...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:10:08 -     Processing chromosome 2...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:10:30 -     Processing chromosome 3...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:10:50 -     Processing chromosome 4...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:11:10 -     Processing chromosome 5...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:11:29 -     Processing chromosome 6...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:11:50 -     Processing chromosome 7...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:12:09 -     Processing chromosome 8...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:12:28 -     Processing chromosome 9...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:12:47 -     Processing chromosome 10...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:13:05 -     Processing chromosome 11...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:13:23 -     Processing chromosome 12...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:13:41 -     Processing chromosome 13...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:13:58 -     Processing chromosome 14...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:14:15 -     Processing chromosome 15...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:14:31 -     Processing chromosome 16...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:14:48 -     Processing chromosome 17...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:15:04 -     Processing chromosome 18...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:15:21 -     Processing chromosome 19...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:15:37 -     Processing chromosome 20...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:15:53 -     Processing chromosome 21...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:16:07 -     Processing chromosome 22...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:16:21 -   Processing status: non_heritable_hg19
+2026-02-02 13:16:21 -     Filtering and sorting BED file...
+2026-02-02 13:16:22 -     Filtered BED file: 4843 valid entries
+2026-02-02 13:16:22 -     Processing chromosome 1...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:16:43 -     Processing chromosome 2...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:17:05 -     Processing chromosome 3...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:17:26 -     Processing chromosome 4...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:17:46 -     Processing chromosome 5...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:18:05 -     Processing chromosome 6...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:18:26 -     Processing chromosome 7...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:18:45 -     Processing chromosome 8...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:19:06 -     Processing chromosome 9...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:19:24 -     Processing chromosome 10...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:19:42 -     Processing chromosome 11...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:20:00 -     Processing chromosome 12...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:20:19 -     Processing chromosome 13...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:20:36 -     Processing chromosome 14...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:20:52 -     Processing chromosome 15...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:21:08 -     Processing chromosome 16...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:21:24 -     Processing chromosome 17...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:21:40 -     Processing chromosome 18...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:21:57 -     Processing chromosome 19...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:22:11 -     Processing chromosome 20...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:22:27 -     Processing chromosome 21...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:22:42 -     Processing chromosome 22...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:22:56 -   Processing status: low_prediction_hg19
+2026-02-02 13:22:56 -     Filtering and sorting BED file...
+2026-02-02 13:22:57 -     Filtered BED file: 1869 valid entries
+2026-02-02 13:22:57 -     Processing chromosome 1...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:23:18 -     Processing chromosome 2...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:23:39 -     Processing chromosome 3...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:23:58 -     Processing chromosome 4...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:24:18 -     Processing chromosome 5...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:24:38 -     Processing chromosome 6...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:24:58 -     Processing chromosome 7...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:25:18 -     Processing chromosome 8...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:25:36 -     Processing chromosome 9...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:25:53 -     Processing chromosome 10...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:26:12 -     Processing chromosome 11...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:26:30 -     Processing chromosome 12...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:26:49 -     Processing chromosome 13...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:27:05 -     Processing chromosome 14...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:27:21 -     Processing chromosome 15...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:27:38 -     Processing chromosome 16...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:27:54 -     Processing chromosome 17...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:28:11 -     Processing chromosome 18...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:28:27 -     Processing chromosome 19...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:28:42 -     Processing chromosome 20...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:28:58 -     Processing chromosome 21...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:29:12 -     Processing chromosome 22...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:29:27 - Processing region: dlpfc
+2026-02-02 13:29:27 -   Processing status: heritable_hg19
+2026-02-02 13:29:27 -     Filtering and sorting BED file...
+2026-02-02 13:29:27 -     Filtered BED file: 4994 valid entries
+2026-02-02 13:29:27 -     Processing chromosome 1...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:29:49 -     Processing chromosome 2...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:30:10 -     Processing chromosome 3...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:30:30 -     Processing chromosome 4...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:30:51 -     Processing chromosome 5...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:31:11 -     Processing chromosome 6...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:31:31 -     Processing chromosome 7...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:31:50 -     Processing chromosome 8...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:32:08 -     Processing chromosome 9...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:32:26 -     Processing chromosome 10...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:32:45 -     Processing chromosome 11...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:33:04 -     Processing chromosome 12...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:33:20 -     Processing chromosome 13...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:33:37 -     Processing chromosome 14...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:33:54 -     Processing chromosome 15...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:34:10 -     Processing chromosome 16...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:34:27 -     Processing chromosome 17...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:34:43 -     Processing chromosome 18...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:34:58 -     Processing chromosome 19...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:35:14 -     Processing chromosome 20...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:35:29 -     Processing chromosome 21...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:35:45 -     Processing chromosome 22...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:35:59 -   Processing status: non_heritable_hg19
+2026-02-02 13:35:59 -     Filtering and sorting BED file...
+2026-02-02 13:35:59 -     Filtered BED file: 3515 valid entries
+2026-02-02 13:35:59 -     Processing chromosome 1...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:36:19 -     Processing chromosome 2...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:36:40 -     Processing chromosome 3...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:36:59 -     Processing chromosome 4...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:37:20 -     Processing chromosome 5...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:37:40 -     Processing chromosome 6...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:37:59 -     Processing chromosome 7...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:38:17 -     Processing chromosome 8...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:38:36 -     Processing chromosome 9...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:38:54 -     Processing chromosome 10...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:39:11 -     Processing chromosome 11...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:39:28 -     Processing chromosome 12...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:39:46 -     Processing chromosome 13...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:40:03 -     Processing chromosome 14...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:40:19 -     Processing chromosome 15...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:40:35 -     Processing chromosome 16...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:40:50 -     Processing chromosome 17...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:41:05 -     Processing chromosome 18...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:41:21 -     Processing chromosome 19...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:41:36 -     Processing chromosome 20...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:41:52 -     Processing chromosome 21...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:42:07 -     Processing chromosome 22...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:42:21 -   Processing status: low_prediction_hg19
+2026-02-02 13:42:21 -     Filtering and sorting BED file...
+2026-02-02 13:42:21 -     Filtered BED file: 857 valid entries
+2026-02-02 13:42:21 -     Processing chromosome 1...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:42:41 -     Processing chromosome 2...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:43:04 -     Processing chromosome 3...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:43:24 -     Processing chromosome 4...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:43:44 -     Processing chromosome 5...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:44:02 -     Processing chromosome 6...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:44:22 -     Processing chromosome 7...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:44:41 -     Processing chromosome 8...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:44:59 -     Processing chromosome 9...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:45:16 -     Processing chromosome 10...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:45:34 -     Processing chromosome 11...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:45:52 -     Processing chromosome 12...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:46:10 -     Processing chromosome 13...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:46:27 -     Processing chromosome 14...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:46:43 -     Processing chromosome 15...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:46:58 -     Processing chromosome 16...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:47:14 -     Processing chromosome 17...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:47:30 -     Processing chromosome 18...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:47:46 -     Processing chromosome 19...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:48:01 -     Processing chromosome 20...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:48:17 -     Processing chromosome 21...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:48:31 -     Processing chromosome 22...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:48:45 - Processing region: hippocampus
+2026-02-02 13:48:45 -   Processing status: heritable_hg19
+2026-02-02 13:48:45 -     Filtering and sorting BED file...
+2026-02-02 13:48:46 -     Filtered BED file: 5039 valid entries
+2026-02-02 13:48:46 -     Processing chromosome 1...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:49:06 -     Processing chromosome 2...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:49:27 -     Processing chromosome 3...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:49:48 -     Processing chromosome 4...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:50:08 -     Processing chromosome 5...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:50:27 -     Processing chromosome 6...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:50:47 -     Processing chromosome 7...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:51:06 -     Processing chromosome 8...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:51:25 -     Processing chromosome 9...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:51:43 -     Processing chromosome 10...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:52:00 -     Processing chromosome 11...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:52:19 -     Processing chromosome 12...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:52:37 -     Processing chromosome 13...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:52:54 -     Processing chromosome 14...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:53:10 -     Processing chromosome 15...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:53:27 -     Processing chromosome 16...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:53:43 -     Processing chromosome 17...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:54:00 -     Processing chromosome 18...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:54:16 -     Processing chromosome 19...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:54:32 -     Processing chromosome 20...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:54:50 -     Processing chromosome 21...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:55:05 -     Processing chromosome 22...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:55:20 -   Processing status: non_heritable_hg19
+2026-02-02 13:55:20 -     Filtering and sorting BED file...
+2026-02-02 13:55:20 -     Filtered BED file: 3639 valid entries
+2026-02-02 13:55:20 -     Processing chromosome 1...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:55:42 -     Processing chromosome 2...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:56:04 -     Processing chromosome 3...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:56:23 -     Processing chromosome 4...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:56:43 -     Processing chromosome 5...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:57:03 -     Processing chromosome 6...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:57:24 -     Processing chromosome 7...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:57:43 -     Processing chromosome 8...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:58:01 -     Processing chromosome 9...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:58:18 -     Processing chromosome 10...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:58:36 -     Processing chromosome 11...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:58:54 -     Processing chromosome 12...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:59:12 -     Processing chromosome 13...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:59:29 -     Processing chromosome 14...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 13:59:46 -     Processing chromosome 15...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 14:00:02 -     Processing chromosome 16...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 14:00:18 -     Processing chromosome 17...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 14:00:35 -     Processing chromosome 18...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 14:00:51 -     Processing chromosome 19...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 14:01:06 -     Processing chromosome 20...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 14:01:21 -     Processing chromosome 21...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 14:01:36 -     Processing chromosome 22...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 14:01:51 -   Processing status: low_prediction_hg19
+2026-02-02 14:01:51 -     Filtering and sorting BED file...
+2026-02-02 14:01:51 -     Filtered BED file: 951 valid entries
+2026-02-02 14:01:51 -     Processing chromosome 1...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 14:02:12 -     Processing chromosome 2...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 14:02:33 -     Processing chromosome 3...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 14:02:53 -     Processing chromosome 4...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 14:03:14 -     Processing chromosome 5...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 14:03:33 -     Processing chromosome 6...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 14:03:52 -     Processing chromosome 7...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 14:04:11 -     Processing chromosome 8...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 14:04:30 -     Processing chromosome 9...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 14:04:48 -     Processing chromosome 10...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 14:05:06 -     Processing chromosome 11...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 14:05:24 -     Processing chromosome 12...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 14:05:41 -     Processing chromosome 13...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 14:05:58 -     Processing chromosome 14...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 14:06:15 -     Processing chromosome 15...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 14:06:31 -     Processing chromosome 16...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 14:06:50 -     Processing chromosome 17...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 14:07:06 -     Processing chromosome 18...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 14:07:22 -     Processing chromosome 19...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 14:07:37 -     Processing chromosome 20...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 14:07:53 -     Processing chromosome 21...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 14:08:08 -     Processing chromosome 22...
+/ocean/projects/bio250020p/shared/opt/ldsc/make_annot.py:21: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  df_bim = pd.read_csv(args.bimfile,
+making annot file
+2026-02-02 14:08:22 - Verifying annotation files...
+
+=== Annotation Files ===
+[OK] caudate/heritable_hg19: 22 annotation files
+[OK] caudate/non_heritable_hg19: 22 annotation files
+[OK] caudate/low_prediction_hg19: 22 annotation files
+[OK] dlpfc/heritable_hg19: 22 annotation files
+[OK] dlpfc/non_heritable_hg19: 22 annotation files
+[OK] dlpfc/low_prediction_hg19: 22 annotation files
+[OK] hippocampus/heritable_hg19: 22 annotation files
+[OK] hippocampus/non_heritable_hg19: 22 annotation files
+[OK] hippocampus/low_prediction_hg19: 22 annotation files
+2026-02-02 14:08:22 - **** Job ends ****
