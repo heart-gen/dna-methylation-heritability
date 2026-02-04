@@ -53,7 +53,7 @@ save_plot <- function(p, fn, w, h, dpi){
   }
 }
 
-pca <- function(df, h2_cols, output_path) {
+get_pca <- function(df, tissue, output_path) {
   filtered <- df %>%
     dplyr::select(brnum, meth, feature_id, h2_category)
   
@@ -69,23 +69,32 @@ pca <- function(df, h2_cols, output_path) {
   
   pc <- prcomp(meth_matrix, scale = TRUE, center = TRUE)
   print(summary(pc))
-
-  # format df for plotting 
-  pc_df <- as.data.frame(pc$x[ , 1:2])
+  
+  pc_df <- as.data.frame(pc$x)
   pc_df$h2_category <- h2[rownames(pc_df), "h2_category"]
-  colnames(pc_df) <- c("PC1", "PC2", "Heritability Category")
+  pc_df <- tibble::rownames_to_column(pc_df, "feature_id")
+  
+  # write file
+  fwrite(pc_df, sep = "\t", file = file.path(output_path, 
+                                             paste0(tissue, "_meth_pc.tsv")))
+
+  return(pc_df)
+}
+
+plot_pca <- function(pc_df, h2_cols, output_path) {
+  # format df for plotting 
+  pc_df <- pc_df %>%
+    select("PC1", "PC2", "h2_category")
   
   # plot pca
   p <- pc_df %>%
     ggplot(aes(x = PC1, y = PC2, 
-               color = `Heritability Category`, 
-               fill = `Heritability Category`, 
-               shape = `Heritability Category`)) +
-    geom_point(size = 2) +
+               color = `h2_category`, 
+               fill = `h2_category`)) +
+    geom_point(size = 2, alpha = 0.4) +
     labs(x = "PC1",
          y = "PC2",
-         color = "Heritability Category",
-         shape = "Heritability Category") +
+         color = "Heritability Category") +
     scale_fill_manual(values = h2_cols) +
     scale_color_manual(values = h2_cols) +
     theme_minimal(base_size = 20) +
@@ -127,7 +136,8 @@ for (tissue in tissues) {
     inner_join(vmr, by = c("chr" = "chrom", "start", "end"))
   
   # PCA
-  p <- pca(merged_df, h2_cols, output_path)
+  pc_df  <- get_pca(merged_df, tissue, output_path)
+  p      <- plot_pca(pc_df, h2_cols, output_path)
   pca_fn <- file.path(output_path, paste0(tissue, "_pca_meth"))
   save_plot(p, pca_fn, w = 10, h = 6, dpi = 300)
 }
