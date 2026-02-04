@@ -222,7 +222,8 @@ for (env in testing_envs) {
     env_summary$var <- rownames(env_summary)
     env_summary <- env_summary %>%
       filter(grepl(paste0("^", env), var)) %>%
-      mutate(feature_id = vmr, env = env, beta = Estimate, se = `Std. Error`,
+      mutate(feature_id = vmr, env = env) %>%
+      rename(beta = Estimate, se = `Std. Error`,
              t = `t value`, p = `Pr(>|t|)`)
     
     env_results <- bind_rows(env_results, env_summary)
