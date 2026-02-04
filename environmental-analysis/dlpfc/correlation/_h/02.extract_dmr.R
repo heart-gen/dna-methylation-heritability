@@ -31,7 +31,7 @@ get_null_dmr <- function(pheno_matrix) {
   design <- cbind(1, dx = as.factor(pheno_matrix$primarydx), 
                   age = pheno_matrix$agedeath, 
                   sex = as.factor(pheno_matrix$sex),
-                  ances = pheno_matrix$Afr)
+                  afr_ances = pheno_matrix$Afr)
   fit    <- limma::lmFit(meth_t, design)
   fit    <- eBayes(fit)
   
@@ -118,7 +118,7 @@ summary <- coef_res %>%
             sig_p = sum(p.value < 0.05))
 print(summary)
 
-covs_to_include <- c("age", "sex", "dx", "ances")
+covs_to_include <- c("age", "sex", "dx", "afr_ances")
 
 # Output significant dmrs
 for (cov in covs_to_include){
