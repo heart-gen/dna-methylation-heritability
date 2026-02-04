@@ -43,6 +43,7 @@ clean_pheno <- function(pheno_file_path, tissue, vars){
       marital_status %in% c("Divorced", "Separated", "Widowed") ~ "previously_married"
     )
     ) |>
+    rename(age = agedeath, dx = primarydx) |>
     mutate_if(is.character, as.factor)
   
   return(pheno_df)
@@ -109,7 +110,8 @@ pheno <- clean_pheno(pheno_file_path, tissue, vars_to_include)
 f_ances   <- here("inputs", "genetic-ancestry",
                   "structure.out_ancestry_proportion_raceDemo_compare")
 ances     <- fread(f_ances) %>% filter(group == "AA")
-pheno <- left_join(pheno, ances, by = c("brnum" = "id"))
+pheno <- left_join(pheno, ances, by = c("brnum" = "id")) %>%
+  rename(afr_ances = Afr)
 
                                         # Get meth matrix
 meth_file_path <- here("heritability/dlpfc/_m/vmr")
@@ -134,7 +136,7 @@ fwrite(merged, out_table, sep = "\t", quote = FALSE)
 ####### Covariate testing #########
 
                                         # Define covariates
-covars <- "agedeath + sex + primarydx + Afr"
+covars <- "age + sex + dx + afr_ances"
 
                                         # Initialize results matrix
 cov_results <- tibble() 
@@ -153,7 +155,8 @@ for (vmr in feature_ids) {
   cov_summary$var <- rownames(cov_summary)
   cov_summary <- cov_summary %>%
     filter(var != "(Intercept)") %>%
-    mutate(feature_id = vmr, beta = Estimate, se = `Std. Error`,
+    mutate(feature_id = vmr) %>%
+    rename(beta = Estimate, se = `Std. Error`,
            t = `t value`, p = `Pr(>|t|)`)
   
   cov_results <- bind_rows(cov_results, cov_summary)
@@ -168,12 +171,14 @@ pos <- merged %>%
   dplyr::select(feature_id, chr, start, end) %>%
   distinct()
 cov_results <- pos %>%
-  inner_join(cov_results, "feature_id")
+  inner_join(cov_results, "feature_id") %>%
+  mutate(var = recode(var, "sexM" = "sex"),
+         var = recode(var, "dxSchizo" = "dx"))
 
 cov_names <- unique(cov_results$var)
 
 for (cov in cov_names){
-  cov_filtered <- cov_results %>% filter(var == cov)
+  cov_filtered <- cov_results %>% filter(startsWith(var, cov))
  
   # Write results
   out_cov_logit <- file.path(out_path, paste0(cov, "_logit.csv.gz"))
