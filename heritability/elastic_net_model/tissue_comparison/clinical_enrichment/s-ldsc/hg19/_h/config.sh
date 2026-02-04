@@ -22,11 +22,12 @@ export BIM_DIR="${RESOURCE_DIR}/1000G_EUR_Phase3_plink"
 export BASELINE_LD_DIR="${RESOURCE_DIR}/1000G_Phase3_baselineLD_v2.2_ldscores"
 export WEIGHTS_DIR="${RESOURCE_DIR}/1000G_Phase3_weights_hm3_no_MHC"
 export FRQ_DIR="${RESOURCE_DIR}/1000G_Phase3_frq"
-# HapMap3 SNP list with alleles (required for --merge-alleles)
+# HapMap3 SNP list with alleles (required for --merge-alleles in munge_sumstats)
 # The w_hm3.snplist file has SNP, A1, A2 columns
-export HAPMAP3_SNPS="${RESOURCE_DIR}/w_hm3.snplist"
-# Old file with just SNP IDs (no alleles) - don't use for --merge-alleles
-# export HAPMAP3_SNPS_IDS_ONLY="${RESOURCE_DIR}/hm3_no_MHC.list.txt"
+export HAPMAP3_SNPS_ALLELES="${RESOURCE_DIR}/w_hm3.snplist"
+# HapMap3 SNP list with just SNP IDs (required for --print-snps in ldsc.py)
+# Single-column format, no header
+export HAPMAP3_SNPS="${RESOURCE_DIR}/hm3_no_MHC.list.txt"
 
 # Liftover chain file (existing file in project)
 export CHAIN_FILE="/ocean/projects/bio250020p/kbenjamin/projects/dna-methylation-heritability/inputs/supportfiles/_m/hg38ToHg19.over.chain"
