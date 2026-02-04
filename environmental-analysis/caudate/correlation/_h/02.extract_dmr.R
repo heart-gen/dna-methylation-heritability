@@ -31,7 +31,7 @@ get_null_dmr <- function(pheno_matrix) {
   design <- cbind(1, dx = as.factor(pheno_matrix$primarydx), 
                   age = pheno_matrix$agedeath, 
                   sex = as.factor(pheno_matrix$sex),
-                  ances = pheno_matrix$Afr)
+                  afr_ances = pheno_matrix$Afr)
   fit    <- limma::lmFit(meth_t, design)
   fit    <- eBayes(fit)
   
@@ -87,7 +87,7 @@ get_dmr <- function(pheno_matrix, var) {
 
 ## Main
                                         # Create output path
-out_path <- here("environmental-analysis", "correlation", "_m")
+out_path <- here("environmental-analysis", "caudate", "correlation", "_m")
 if (!dir.exists(out_path)) {
   dir.create(out_path, recursive = TRUE)
 }
@@ -100,7 +100,7 @@ vars_to_include <- c(
 )
 
                                         # Get phenotype matrix
-pheno_matrix_fn <- here("environmental-analysis", "correlation", "_m",
+pheno_matrix_fn <- here("environmental-analysis", "caudate", "correlation", "_m",
                         "vmr_env_assoc-AA.tsv.gz")
 pheno_matrix <- fread(pheno_matrix_fn, na.strings = c(NA, ""))
 
@@ -118,7 +118,7 @@ summary <- coef_res %>%
             sig_p = sum(p.value < 0.05))
 print(summary)
 
-covs_to_include <- c("age", "sex", "dx", "ances")
+covs_to_include <- c("age", "sex", "dx", "afr_ances")
 
 # Output significant dmrs
 for (cov in covs_to_include){
