@@ -11,7 +11,7 @@ def load_methyl_pheno():
 
 def load_snp_pcs():
     # Data with genotypes
-    fn = here("inputs/genotypes/TOPMed_LIBD.AA.eigenvec")
+    fn = here("inputs/genotypes/all_individuals/TOPMed_LIBD.eigenvec")
     df = pl.read_csv(fn, separator="\t")
     rename_dict = {
         col: "snpPC" + col[2:]
