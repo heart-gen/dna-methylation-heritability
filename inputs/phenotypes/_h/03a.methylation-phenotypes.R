@@ -30,10 +30,10 @@ fnames <- c("hippocampus/_m/hippocampus_chr21_BSobj",
             "dlpfc/_m/dlpfc_chr21_BSobj")
 df1 <- load_methyl_rda(fn1) |>
     dplyr::select(c("brnum", "agedeath", "sex", "race", "primarydx",
-                    "pmi", "batch", "region"))
+                    "pmi", "region"))
 df2 <- purrr::map_dfr(fnames, load_methyl_h5) |>
     dplyr::select(c("brnum", "agedeath", "sex", "race", "primarydx",
-                    "pmi", "batch", "region"))
+                    "pmi", "region"))
 
 dplyr::bind_rows(df1, df2) |>
     data.table::fwrite("phenotypes-DNAm-all.tsv", sep="\t")
