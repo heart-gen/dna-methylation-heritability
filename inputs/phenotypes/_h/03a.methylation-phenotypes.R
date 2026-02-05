@@ -3,7 +3,7 @@
 
 load_methyl_rda <- function(fn) {
     load(here::here("inputs/wgbs-data", fn))
-    tissue      <- dirname(fn)
+    tissue      <- dirname(dirname(fn))
     sample_data <- bsseq::pData(BSobj) |>
         as.data.frame() |> dplyr::filter(race %in% c("AA", "CAUC")) |>
         dplyr::mutate_if(is.character, as.factor) |>
@@ -13,11 +13,13 @@ load_methyl_rda <- function(fn) {
 }
 
 load_methyl_h5 <- function(fn) {
-    fn_path     <- here::here("inputs/wgbs-data", fn)
-    BSobj       <- HDF5Array::loadHDF5SummarizedExperiment(dir = fn_path)
-    tissue      <- dirname(fn)
-    sample_data <- bsseq::pData(BSobj) |>
-        as.data.frame() |> dplyr::filter(race %in% c("AA", "CAUC")) |>
+    fn_path <- here::here("inputs/wgbs-data", fn)
+    BSobj   <- HDF5Array::loadHDF5SummarizedExperiment(dir = fn_path)
+    tissue  <- dirname(dirname(fn))
+    pheno   <- data.table::fread("../_h/protected-data/phenotype.csv")
+    sample_data <- bsseq::pData(BSobj) |> as.data.frame() |>
+        dplyr::left_join(pheno, by=c("brnum")) |>
+        dplyr::filter(race %in% c("AA", "CAUC")) |>
         dplyr::mutate_if(is.character, as.factor) |>
         dplyr::mutate(region = tissue)
     sample_data$race <- gsub("CAUC", "EA", sample_data$race)
@@ -29,9 +31,11 @@ load_methyl_h5 <- function(fn) {
 fn1    <- "caudate/_m/caudate_chr21_BSobj.rda"
 fnames <- c("hippocampus/_m/hippocampus_chr21_BSobj",
             "dlpfc/_m/dlpfc_chr21_BSobj")
+
 df1 <- load_methyl_rda(fn1) |>
     dplyr::select(c("brnum", "agedeath", "sex", "race", "primarydx",
                     "pmi", "region"))
+
 df2 <- purrr::map_dfr(fnames, load_methyl_h5) |>
     dplyr::select(c("brnum", "agedeath", "sex", "race", "primarydx",
                     "pmi", "region"))
