@@ -13,7 +13,8 @@ load_methyl_rda <- function(fn) {
 }
 
 load_methyl_h5 <- function(fn) {
-    BSobj       <- HDF5Array::loadHDF5SummarizedExperiment(dir = fn)
+    fn_path     <- here::here("inputs/wgbs-data", fn)
+    BSobj       <- HDF5Array::loadHDF5SummarizedExperiment(dir = fn_path)
     tissue      <- dirname(fn)
     sample_data <- bsseq::pData(BSobj) |>
         as.data.frame() |> dplyr::filter(race %in% c("AA", "CAUC")) |>
