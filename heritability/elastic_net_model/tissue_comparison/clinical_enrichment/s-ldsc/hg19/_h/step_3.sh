@@ -89,4 +89,5 @@ for REGION in "${BRAIN_REGIONS[@]}"; do
     done
 done
 
+conda deactivate
 log_message "**** Job ends ****"

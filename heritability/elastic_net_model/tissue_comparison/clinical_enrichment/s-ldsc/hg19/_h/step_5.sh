@@ -1,12 +1,10 @@
 #!/bin/bash
-#SBATCH --account=bio250020p
 #SBATCH --partition=RM-shared
 #SBATCH --job-name=make_plots
-#SBATCH --output=logs/05.output_make_plots.log
-#SBATCH --error=logs/05.error_make_plots.log
-#SBATCH --nodes=1
-#SBATCH --cpus-per-task=1
-#SBATCH --mem=8G
+#SBATCH --mail-type=FAIL
+#SBATCH --mail-user=kj.benjamin90@gmail.com
+#SBATCH --output=logs/make_plots.log
+#SBATCH --ntasks-per-node=4
 #SBATCH --time=00:30:00
 
 # =============================================================================
@@ -120,6 +118,7 @@ if [[ ! -f "$PLOT_SCRIPT" ]]; then
 else
     python "$PLOT_SCRIPT"
 fi
+conda deactivate
 
 # -----------------------------------------------------------------------------
 # Summary

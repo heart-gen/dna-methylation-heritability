@@ -1,13 +1,11 @@
 #!/bin/bash
-#SBATCH --account=bio250020p
 #SBATCH --partition=RM-shared
 #SBATCH --time=04:00:00
-#SBATCH --nodes=1
-#SBATCH --ntasks-per-node=1
-#SBATCH --mem=20G
+#SBATCH --ntasks-per-node=10
 #SBATCH --job-name=partition_heritability
-#SBATCH --output=logs/04.output_%j.log
-#SBATCH --error=logs/04.error_%j.log
+#SBATCH --mail-type=FAIL
+#SBATCH --mail-user=kj.benjamin90@gmail.com
+#SBATCH --output=logs/partitiona_heritability.%j.log
 
 # =============================================================================
 # Step 4: Partition Heritability with S-LDSC
@@ -119,6 +117,7 @@ for DISEASE in "${DISEASES[@]}"; do
     done
 done
 
+conda deactive
 # -----------------------------------------------------------------------------
 # Verify outputs
 # -----------------------------------------------------------------------------
