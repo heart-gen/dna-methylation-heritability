@@ -178,7 +178,7 @@ for chunk in pd.read_csv('${PD_GWAS_HG38}', sep='\t', chunksize=500000):
 
 df = pd.concat(chunks, ignore_index=True)
 print(f'  Total SNPs after liftover: {len(df)}')
-df.to_csv('${PD_GWAS_HG19}', sep='\t', index=False, compression='gzip')
+df.to_csv('${PD_GWAS_HG19}', sep='\t', index=False, compression='gzip', na_rep='NA')
 print('  Liftover complete!')
 "
 fi

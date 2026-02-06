@@ -24,12 +24,14 @@ source "${SCRIPT_DIR}/config.sh"
 log_message "**** Job starts ****"
 print_job_info
 
-# 10 diseases spanning neuronal, immune, and vascular categories
-DISEASES=("ad" "scz" "mdd" "bip" "pd" "ms" "ra" "asthma" "cad" "htn")
+module purge
+module load anaconda3/2024.10-1
+module list
 
-# Brain regions and heritability status
-BRAIN_REGIONS=("caudate" "dlpfc" "hippocampus")
-HERITABILITY=("heritable_hg19" "non_heritable_hg19")
+log_message "**** Loading conda environment ****"
+conda activate /ocean/projects/bio250020p/shared/opt/env/genomics
+
+# DISEASES, BRAIN_REGIONS, and HERITABILITY arrays are defined in config.sh
 
 # -----------------------------------------------------------------------------
 # Dynamically generate file list
@@ -84,32 +86,7 @@ if [[ ! -f "$PLOT_SCRIPT" ]]; then
     # Header
     echo -e "Disease\tDisease_Name\tCategory\tRegion\tHeritability_Status\tCategory_Name\tProp_SNPs\tProp_h2\tProp_h2_std_error\tEnrichment\tEnrichment_std_error\tEnrichment_p" > "$OUTPUT_FILE"
 
-    # Disease name mapping
-    declare -A DISEASE_NAMES=(
-        ["ad"]="Alzheimer's Disease"
-        ["scz"]="Schizophrenia"
-        ["mdd"]="Major Depression"
-        ["bip"]="Bipolar Disorder"
-        ["pd"]="Parkinson's Disease"
-        ["ms"]="Multiple Sclerosis"
-        ["ra"]="Rheumatoid Arthritis"
-        ["asthma"]="Asthma"
-        ["cad"]="Coronary Artery Disease"
-        ["htn"]="Hypertension"
-    )
-
-    declare -A DISEASE_CATEGORIES=(
-        ["ad"]="neuronal"
-        ["scz"]="neuronal"
-        ["mdd"]="neuronal"
-        ["bip"]="neuronal"
-        ["pd"]="neuronal"
-        ["ms"]="immune"
-        ["ra"]="immune"
-        ["asthma"]="immune"
-        ["cad"]="vascular"
-        ["htn"]="vascular"
-    )
+    # DISEASE_NAMES and DISEASE_CATEGORIES are defined in config.sh
 
     # Process each result file
     for FILE in "${LDSC_FILES[@]}"; do
@@ -151,10 +128,10 @@ log_message "Generating summary..."
 echo ""
 echo "=== S-LDSC Analysis Summary ==="
 echo ""
-echo "Diseases analyzed: ${#DISEASES[@]}"
+echo "Diseases analyzed: ${#DISEASES[@]} (${DISEASES[*]})"
 echo "  Neuronal: ad, scz, mdd, bip, pd"
 echo "  Immune: ms, ra, asthma"
-echo "  Vascular: cad, htn"
+echo "  Vascular: cad, stroke"
 echo ""
 echo "Brain regions: ${BRAIN_REGIONS[*]}"
 echo "Heritability status: ${HERITABILITY[*]}"
