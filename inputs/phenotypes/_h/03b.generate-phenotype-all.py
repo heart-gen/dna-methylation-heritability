@@ -5,7 +5,7 @@ from pyhere import here
 
 def load_methyl_pheno():
     # Replace to load general information
-    fn = "../_m/phenotypes-DNAm.tsv"
+    fn = "../_m/phenotypes-DNAm-all.tsv"
     return pl.read_csv(fn, separator="\t")
 
 
@@ -47,7 +47,7 @@ def main():
           .agg([pl.len().alias("n")]).sort("region"))
 
     # Save data
-    df.write_csv("phenotypes-AA.tsv", separator="\t")
+    df.write_csv("phenotypes-all.tsv", separator="\t")
 
     # Session information
     session_info.show()
