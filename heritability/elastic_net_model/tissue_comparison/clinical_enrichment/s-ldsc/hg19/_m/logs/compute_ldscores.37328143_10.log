@@ -1,0 +1,643 @@
+2026-02-03 19:38:10 - **** Job starts ****
+**** PSC Bridges-2 info ****
+User: kbenjamin
+Job id: 37328262
+Job name: compute_ldscores
+Node name: 
+Hostname: r307
+Task id: 10
+
+Currently Loaded Modules:
+  1) anaconda3/2024.10-1
+
+ 
+
+2026-02-03 19:38:11 - **** Loading conda environment ****
+2026-02-03 19:38:11 - Processing chromosome: 10
+Validating resources...
+All resources validated successfully.
+2026-02-03 19:38:11 - Processing region: caudate
+2026-02-03 19:38:11 -   Processing status: heritable_hg19
+2026-02-03 19:38:11 -     Computing LD scores...
+/ocean/projects/bio250020p/shared/opt/ldsc/ldscore/parse.py:266: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  self.df = pd.read_csv(fname, header=self.__header__, usecols=self.__usecols__,
+/ocean/projects/bio250020p/shared/opt/ldsc/ldscore/parse.py:266: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  self.df = pd.read_csv(fname, header=self.__header__, usecols=self.__usecols__,
+/ocean/projects/bio250020p/shared/opt/ldsc/ldscore/parse.py:266: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  self.df = pd.read_csv(fname, header=self.__header__, usecols=self.__usecols__,
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out ./custom_ldscores/caudate/heritable_hg19/caudate_heritable_hg19.10 \
+--bfile /ocean/projects/bio250020p/shared/resources/ldsc/1000G_EUR_Phase3_plink/1000G.EUR.QC.10 \
+--l2  \
+--ld-wind-cm 1.0 \
+--print-snps /ocean/projects/bio250020p/shared/resources/ldsc/hm3_no_MHC.list.txt \
+--annot ./custom_ldscores/caudate/heritable_hg19/caudate_heritable_hg19.10.annot.gz \
+--thin-annot  
+
+Beginning analysis at Tue Feb  3 19:39:24 2026
+Read list of 510501 SNPs from /ocean/projects/bio250020p/shared/resources/ldsc/1000G_EUR_Phase3_plink/1000G.EUR.QC.10.bim
+Read 1 annotations for 510501 SNPs from ./custom_ldscores/caudate/heritable_hg19/caudate_heritable_hg19.10.annot.gz
+Read list of 489 individuals from /ocean/projects/bio250020p/shared/resources/ldsc/1000G_EUR_Phase3_plink/1000G.EUR.QC.10.fam
+Reading genotypes from /ocean/projects/bio250020p/shared/resources/ldsc/1000G_EUR_Phase3_plink/1000G.EUR.QC.10.bed
+After filtering, 510501 SNPs remain
+Estimating LD Score.
+Reading list of 1217311 SNPs for which to print LD Scores from /ocean/projects/bio250020p/shared/resources/ldsc/hm3_no_MHC.list.txt
+After merging with --print-snps, LD Scores for 64067 SNPs will be printed.
+Writing LD Scores for 64067 SNPs to ./custom_ldscores/caudate/heritable_hg19/caudate_heritable_hg19.10.l2.ldscore.gz
+
+Summary of LD Scores in ./custom_ldscores/caudate/heritable_hg19/caudate_heritable_hg19.10.l2.ldscore.gz
+         MAF       L2
+mean  0.2328   0.4683
+std   0.1426   2.0718
+min   0.0051  -0.2042
+25%   0.1074   0.0000
+50%   0.2198   0.0145
+75%   0.3538   0.1400
+max   0.5000  57.7780
+
+MAF/LD Score Correlation Matrix
+        MAF      L2
+MAF  1.0000  0.0939
+L2   0.0939  1.0000
+
+Annotation Correlation Matrix
+       ANNOT
+ANNOT    1.0
+
+Annotation Matrix Column Sums
+ANNOT    1529
+
+Summary of Annotation Matrix Row Sums
+count    510501.0000
+mean          0.0030
+std           0.0546
+min           0.0000
+25%           0.0000
+50%           0.0000
+75%           0.0000
+max           1.0000
+Analysis finished at Tue Feb  3 19:40:43 2026
+Total time elapsed: 1.0m:19.64s
+2026-02-03 19:40:44 -   Processing status: non_heritable_hg19
+2026-02-03 19:40:44 -     Computing LD scores...
+/ocean/projects/bio250020p/shared/opt/ldsc/ldscore/parse.py:266: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  self.df = pd.read_csv(fname, header=self.__header__, usecols=self.__usecols__,
+/ocean/projects/bio250020p/shared/opt/ldsc/ldscore/parse.py:266: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  self.df = pd.read_csv(fname, header=self.__header__, usecols=self.__usecols__,
+/ocean/projects/bio250020p/shared/opt/ldsc/ldscore/parse.py:266: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  self.df = pd.read_csv(fname, header=self.__header__, usecols=self.__usecols__,
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out ./custom_ldscores/caudate/non_heritable_hg19/caudate_non_heritable_hg19.10 \
+--bfile /ocean/projects/bio250020p/shared/resources/ldsc/1000G_EUR_Phase3_plink/1000G.EUR.QC.10 \
+--l2  \
+--ld-wind-cm 1.0 \
+--print-snps /ocean/projects/bio250020p/shared/resources/ldsc/hm3_no_MHC.list.txt \
+--annot ./custom_ldscores/caudate/non_heritable_hg19/caudate_non_heritable_hg19.10.annot.gz \
+--thin-annot  
+
+Beginning analysis at Tue Feb  3 19:40:54 2026
+Read list of 510501 SNPs from /ocean/projects/bio250020p/shared/resources/ldsc/1000G_EUR_Phase3_plink/1000G.EUR.QC.10.bim
+Read 1 annotations for 510501 SNPs from ./custom_ldscores/caudate/non_heritable_hg19/caudate_non_heritable_hg19.10.annot.gz
+Read list of 489 individuals from /ocean/projects/bio250020p/shared/resources/ldsc/1000G_EUR_Phase3_plink/1000G.EUR.QC.10.fam
+Reading genotypes from /ocean/projects/bio250020p/shared/resources/ldsc/1000G_EUR_Phase3_plink/1000G.EUR.QC.10.bed
+After filtering, 510501 SNPs remain
+Estimating LD Score.
+Reading list of 1217311 SNPs for which to print LD Scores from /ocean/projects/bio250020p/shared/resources/ldsc/hm3_no_MHC.list.txt
+After merging with --print-snps, LD Scores for 64067 SNPs will be printed.
+Writing LD Scores for 64067 SNPs to ./custom_ldscores/caudate/non_heritable_hg19/caudate_non_heritable_hg19.10.l2.ldscore.gz
+
+Summary of LD Scores in ./custom_ldscores/caudate/non_heritable_hg19/caudate_non_heritable_hg19.10.l2.ldscore.gz
+         MAF       L2
+mean  0.2328   0.0987
+std   0.1426   0.4688
+min   0.0051  -0.1048
+25%   0.1074   0.0000
+50%   0.2198   0.0000
+75%   0.3538   0.0175
+max   0.5000  14.3146
+
+MAF/LD Score Correlation Matrix
+        MAF      L2
+MAF  1.0000  0.0466
+L2   0.0466  1.0000
+
+Annotation Correlation Matrix
+       ANNOT
+ANNOT    1.0
+
+Annotation Matrix Column Sums
+ANNOT    625
+
+Summary of Annotation Matrix Row Sums
+count    510501.0000
+mean          0.0012
+std           0.0350
+min           0.0000
+25%           0.0000
+50%           0.0000
+75%           0.0000
+max           1.0000
+Analysis finished at Tue Feb  3 19:42:04 2026
+Total time elapsed: 1.0m:10.180000000000007s
+2026-02-03 19:42:04 -   Processing status: low_prediction_hg19
+2026-02-03 19:42:04 -     Computing LD scores...
+/ocean/projects/bio250020p/shared/opt/ldsc/ldscore/parse.py:266: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  self.df = pd.read_csv(fname, header=self.__header__, usecols=self.__usecols__,
+/ocean/projects/bio250020p/shared/opt/ldsc/ldscore/parse.py:266: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  self.df = pd.read_csv(fname, header=self.__header__, usecols=self.__usecols__,
+/ocean/projects/bio250020p/shared/opt/ldsc/ldscore/parse.py:266: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  self.df = pd.read_csv(fname, header=self.__header__, usecols=self.__usecols__,
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out ./custom_ldscores/caudate/low_prediction_hg19/caudate_low_prediction_hg19.10 \
+--bfile /ocean/projects/bio250020p/shared/resources/ldsc/1000G_EUR_Phase3_plink/1000G.EUR.QC.10 \
+--l2  \
+--ld-wind-cm 1.0 \
+--print-snps /ocean/projects/bio250020p/shared/resources/ldsc/hm3_no_MHC.list.txt \
+--annot ./custom_ldscores/caudate/low_prediction_hg19/caudate_low_prediction_hg19.10.annot.gz \
+--thin-annot  
+
+Beginning analysis at Tue Feb  3 19:42:06 2026
+Read list of 510501 SNPs from /ocean/projects/bio250020p/shared/resources/ldsc/1000G_EUR_Phase3_plink/1000G.EUR.QC.10.bim
+Read 1 annotations for 510501 SNPs from ./custom_ldscores/caudate/low_prediction_hg19/caudate_low_prediction_hg19.10.annot.gz
+Read list of 489 individuals from /ocean/projects/bio250020p/shared/resources/ldsc/1000G_EUR_Phase3_plink/1000G.EUR.QC.10.fam
+Reading genotypes from /ocean/projects/bio250020p/shared/resources/ldsc/1000G_EUR_Phase3_plink/1000G.EUR.QC.10.bed
+After filtering, 510501 SNPs remain
+Estimating LD Score.
+Reading list of 1217311 SNPs for which to print LD Scores from /ocean/projects/bio250020p/shared/resources/ldsc/hm3_no_MHC.list.txt
+After merging with --print-snps, LD Scores for 64067 SNPs will be printed.
+Writing LD Scores for 64067 SNPs to ./custom_ldscores/caudate/low_prediction_hg19/caudate_low_prediction_hg19.10.l2.ldscore.gz
+
+Summary of LD Scores in ./custom_ldscores/caudate/low_prediction_hg19/caudate_low_prediction_hg19.10.l2.ldscore.gz
+         MAF      L2
+mean  0.2328  0.0565
+std   0.1426  0.3599
+min   0.0051 -0.0573
+25%   0.1074  0.0000
+50%   0.2198  0.0000
+75%   0.3538  0.0000
+max   0.5000  8.5354
+
+MAF/LD Score Correlation Matrix
+        MAF      L2
+MAF  1.0000  0.0276
+L2   0.0276  1.0000
+
+Annotation Correlation Matrix
+       ANNOT
+ANNOT    1.0
+
+Annotation Matrix Column Sums
+ANNOT    158
+
+Summary of Annotation Matrix Row Sums
+count    510501.0000
+mean          0.0003
+std           0.0176
+min           0.0000
+25%           0.0000
+50%           0.0000
+75%           0.0000
+max           1.0000
+Analysis finished at Tue Feb  3 19:43:16 2026
+Total time elapsed: 1.0m:9.290000000000006s
+2026-02-03 19:43:16 - Processing region: dlpfc
+2026-02-03 19:43:16 -   Processing status: heritable_hg19
+2026-02-03 19:43:16 -     Computing LD scores...
+/ocean/projects/bio250020p/shared/opt/ldsc/ldscore/parse.py:266: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  self.df = pd.read_csv(fname, header=self.__header__, usecols=self.__usecols__,
+/ocean/projects/bio250020p/shared/opt/ldsc/ldscore/parse.py:266: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  self.df = pd.read_csv(fname, header=self.__header__, usecols=self.__usecols__,
+/ocean/projects/bio250020p/shared/opt/ldsc/ldscore/parse.py:266: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  self.df = pd.read_csv(fname, header=self.__header__, usecols=self.__usecols__,
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out ./custom_ldscores/dlpfc/heritable_hg19/dlpfc_heritable_hg19.10 \
+--bfile /ocean/projects/bio250020p/shared/resources/ldsc/1000G_EUR_Phase3_plink/1000G.EUR.QC.10 \
+--l2  \
+--ld-wind-cm 1.0 \
+--print-snps /ocean/projects/bio250020p/shared/resources/ldsc/hm3_no_MHC.list.txt \
+--annot ./custom_ldscores/dlpfc/heritable_hg19/dlpfc_heritable_hg19.10.annot.gz \
+--thin-annot  
+
+Beginning analysis at Tue Feb  3 19:43:18 2026
+Read list of 510501 SNPs from /ocean/projects/bio250020p/shared/resources/ldsc/1000G_EUR_Phase3_plink/1000G.EUR.QC.10.bim
+Read 1 annotations for 510501 SNPs from ./custom_ldscores/dlpfc/heritable_hg19/dlpfc_heritable_hg19.10.annot.gz
+Read list of 489 individuals from /ocean/projects/bio250020p/shared/resources/ldsc/1000G_EUR_Phase3_plink/1000G.EUR.QC.10.fam
+Reading genotypes from /ocean/projects/bio250020p/shared/resources/ldsc/1000G_EUR_Phase3_plink/1000G.EUR.QC.10.bed
+After filtering, 510501 SNPs remain
+Estimating LD Score.
+Reading list of 1217311 SNPs for which to print LD Scores from /ocean/projects/bio250020p/shared/resources/ldsc/hm3_no_MHC.list.txt
+After merging with --print-snps, LD Scores for 64067 SNPs will be printed.
+Writing LD Scores for 64067 SNPs to ./custom_ldscores/dlpfc/heritable_hg19/dlpfc_heritable_hg19.10.l2.ldscore.gz
+
+Summary of LD Scores in ./custom_ldscores/dlpfc/heritable_hg19/dlpfc_heritable_hg19.10.l2.ldscore.gz
+         MAF       L2
+mean  0.2328   0.3966
+std   0.1426   2.0614
+min   0.0051  -0.1792
+25%   0.1074   0.0000
+50%   0.2198   0.0112
+75%   0.3538   0.1065
+max   0.5000  64.4631
+
+MAF/LD Score Correlation Matrix
+        MAF      L2
+MAF  1.0000  0.0653
+L2   0.0653  1.0000
+
+Annotation Correlation Matrix
+       ANNOT
+ANNOT    1.0
+
+Annotation Matrix Column Sums
+ANNOT    1387
+
+Summary of Annotation Matrix Row Sums
+count    510501.0000
+mean          0.0027
+std           0.0521
+min           0.0000
+25%           0.0000
+50%           0.0000
+75%           0.0000
+max           1.0000
+Analysis finished at Tue Feb  3 19:44:41 2026
+Total time elapsed: 1.0m:22.78s
+2026-02-03 19:44:41 -   Processing status: non_heritable_hg19
+2026-02-03 19:44:41 -     Computing LD scores...
+/ocean/projects/bio250020p/shared/opt/ldsc/ldscore/parse.py:266: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  self.df = pd.read_csv(fname, header=self.__header__, usecols=self.__usecols__,
+/ocean/projects/bio250020p/shared/opt/ldsc/ldscore/parse.py:266: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  self.df = pd.read_csv(fname, header=self.__header__, usecols=self.__usecols__,
+/ocean/projects/bio250020p/shared/opt/ldsc/ldscore/parse.py:266: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  self.df = pd.read_csv(fname, header=self.__header__, usecols=self.__usecols__,
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out ./custom_ldscores/dlpfc/non_heritable_hg19/dlpfc_non_heritable_hg19.10 \
+--bfile /ocean/projects/bio250020p/shared/resources/ldsc/1000G_EUR_Phase3_plink/1000G.EUR.QC.10 \
+--l2  \
+--ld-wind-cm 1.0 \
+--print-snps /ocean/projects/bio250020p/shared/resources/ldsc/hm3_no_MHC.list.txt \
+--annot ./custom_ldscores/dlpfc/non_heritable_hg19/dlpfc_non_heritable_hg19.10.annot.gz \
+--thin-annot  
+
+Beginning analysis at Tue Feb  3 19:44:43 2026
+Read list of 510501 SNPs from /ocean/projects/bio250020p/shared/resources/ldsc/1000G_EUR_Phase3_plink/1000G.EUR.QC.10.bim
+Read 1 annotations for 510501 SNPs from ./custom_ldscores/dlpfc/non_heritable_hg19/dlpfc_non_heritable_hg19.10.annot.gz
+Read list of 489 individuals from /ocean/projects/bio250020p/shared/resources/ldsc/1000G_EUR_Phase3_plink/1000G.EUR.QC.10.fam
+Reading genotypes from /ocean/projects/bio250020p/shared/resources/ldsc/1000G_EUR_Phase3_plink/1000G.EUR.QC.10.bed
+After filtering, 510501 SNPs remain
+Estimating LD Score.
+Reading list of 1217311 SNPs for which to print LD Scores from /ocean/projects/bio250020p/shared/resources/ldsc/hm3_no_MHC.list.txt
+After merging with --print-snps, LD Scores for 64067 SNPs will be printed.
+Writing LD Scores for 64067 SNPs to ./custom_ldscores/dlpfc/non_heritable_hg19/dlpfc_non_heritable_hg19.10.l2.ldscore.gz
+
+Summary of LD Scores in ./custom_ldscores/dlpfc/non_heritable_hg19/dlpfc_non_heritable_hg19.10.l2.ldscore.gz
+         MAF       L2
+mean  0.2328   0.0978
+std   0.1426   0.5152
+min   0.0051  -0.0734
+25%   0.1074   0.0000
+50%   0.2198   0.0000
+75%   0.3538   0.0188
+max   0.5000  13.3958
+
+MAF/LD Score Correlation Matrix
+        MAF      L2
+MAF  1.0000  0.0568
+L2   0.0568  1.0000
+
+Annotation Correlation Matrix
+       ANNOT
+ANNOT    1.0
+
+Annotation Matrix Column Sums
+ANNOT    532
+
+Summary of Annotation Matrix Row Sums
+count    510501.0000
+mean          0.0010
+std           0.0323
+min           0.0000
+25%           0.0000
+50%           0.0000
+75%           0.0000
+max           1.0000
+Analysis finished at Tue Feb  3 19:45:54 2026
+Total time elapsed: 1.0m:11.790000000000006s
+2026-02-03 19:45:55 -   Processing status: low_prediction_hg19
+2026-02-03 19:45:55 -     Computing LD scores...
+/ocean/projects/bio250020p/shared/opt/ldsc/ldscore/parse.py:266: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  self.df = pd.read_csv(fname, header=self.__header__, usecols=self.__usecols__,
+/ocean/projects/bio250020p/shared/opt/ldsc/ldscore/parse.py:266: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  self.df = pd.read_csv(fname, header=self.__header__, usecols=self.__usecols__,
+/ocean/projects/bio250020p/shared/opt/ldsc/ldscore/parse.py:266: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  self.df = pd.read_csv(fname, header=self.__header__, usecols=self.__usecols__,
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out ./custom_ldscores/dlpfc/low_prediction_hg19/dlpfc_low_prediction_hg19.10 \
+--bfile /ocean/projects/bio250020p/shared/resources/ldsc/1000G_EUR_Phase3_plink/1000G.EUR.QC.10 \
+--l2  \
+--ld-wind-cm 1.0 \
+--print-snps /ocean/projects/bio250020p/shared/resources/ldsc/hm3_no_MHC.list.txt \
+--annot ./custom_ldscores/dlpfc/low_prediction_hg19/dlpfc_low_prediction_hg19.10.annot.gz \
+--thin-annot  
+
+Beginning analysis at Tue Feb  3 19:45:57 2026
+Read list of 510501 SNPs from /ocean/projects/bio250020p/shared/resources/ldsc/1000G_EUR_Phase3_plink/1000G.EUR.QC.10.bim
+Read 1 annotations for 510501 SNPs from ./custom_ldscores/dlpfc/low_prediction_hg19/dlpfc_low_prediction_hg19.10.annot.gz
+Read list of 489 individuals from /ocean/projects/bio250020p/shared/resources/ldsc/1000G_EUR_Phase3_plink/1000G.EUR.QC.10.fam
+Reading genotypes from /ocean/projects/bio250020p/shared/resources/ldsc/1000G_EUR_Phase3_plink/1000G.EUR.QC.10.bed
+After filtering, 510501 SNPs remain
+Estimating LD Score.
+Reading list of 1217311 SNPs for which to print LD Scores from /ocean/projects/bio250020p/shared/resources/ldsc/hm3_no_MHC.list.txt
+After merging with --print-snps, LD Scores for 64067 SNPs will be printed.
+Writing LD Scores for 64067 SNPs to ./custom_ldscores/dlpfc/low_prediction_hg19/dlpfc_low_prediction_hg19.10.l2.ldscore.gz
+
+Summary of LD Scores in ./custom_ldscores/dlpfc/low_prediction_hg19/dlpfc_low_prediction_hg19.10.l2.ldscore.gz
+         MAF      L2
+mean  0.2328  0.0288
+std   0.1426  0.2104
+min   0.0051 -0.0413
+25%   0.1074  0.0000
+50%   0.2198  0.0000
+75%   0.3538  0.0000
+max   0.5000  5.1436
+
+MAF/LD Score Correlation Matrix
+        MAF      L2
+MAF  1.0000 -0.0022
+L2  -0.0022  1.0000
+
+Annotation Correlation Matrix
+       ANNOT
+ANNOT    1.0
+
+Annotation Matrix Column Sums
+ANNOT    74
+
+Summary of Annotation Matrix Row Sums
+count    510501.0000
+mean          0.0001
+std           0.0120
+min           0.0000
+25%           0.0000
+50%           0.0000
+75%           0.0000
+max           1.0000
+Analysis finished at Tue Feb  3 19:47:02 2026
+Total time elapsed: 1.0m:4.969999999999999s
+2026-02-03 19:47:02 - Processing region: hippocampus
+2026-02-03 19:47:02 -   Processing status: heritable_hg19
+2026-02-03 19:47:02 -     Computing LD scores...
+/ocean/projects/bio250020p/shared/opt/ldsc/ldscore/parse.py:266: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  self.df = pd.read_csv(fname, header=self.__header__, usecols=self.__usecols__,
+/ocean/projects/bio250020p/shared/opt/ldsc/ldscore/parse.py:266: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  self.df = pd.read_csv(fname, header=self.__header__, usecols=self.__usecols__,
+/ocean/projects/bio250020p/shared/opt/ldsc/ldscore/parse.py:266: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  self.df = pd.read_csv(fname, header=self.__header__, usecols=self.__usecols__,
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out ./custom_ldscores/hippocampus/heritable_hg19/hippocampus_heritable_hg19.10 \
+--bfile /ocean/projects/bio250020p/shared/resources/ldsc/1000G_EUR_Phase3_plink/1000G.EUR.QC.10 \
+--l2  \
+--ld-wind-cm 1.0 \
+--print-snps /ocean/projects/bio250020p/shared/resources/ldsc/hm3_no_MHC.list.txt \
+--annot ./custom_ldscores/hippocampus/heritable_hg19/hippocampus_heritable_hg19.10.annot.gz \
+--thin-annot  
+
+Beginning analysis at Tue Feb  3 19:47:04 2026
+Read list of 510501 SNPs from /ocean/projects/bio250020p/shared/resources/ldsc/1000G_EUR_Phase3_plink/1000G.EUR.QC.10.bim
+Read 1 annotations for 510501 SNPs from ./custom_ldscores/hippocampus/heritable_hg19/hippocampus_heritable_hg19.10.annot.gz
+Read list of 489 individuals from /ocean/projects/bio250020p/shared/resources/ldsc/1000G_EUR_Phase3_plink/1000G.EUR.QC.10.fam
+Reading genotypes from /ocean/projects/bio250020p/shared/resources/ldsc/1000G_EUR_Phase3_plink/1000G.EUR.QC.10.bed
+After filtering, 510501 SNPs remain
+Estimating LD Score.
+Reading list of 1217311 SNPs for which to print LD Scores from /ocean/projects/bio250020p/shared/resources/ldsc/hm3_no_MHC.list.txt
+After merging with --print-snps, LD Scores for 64067 SNPs will be printed.
+Writing LD Scores for 64067 SNPs to ./custom_ldscores/hippocampus/heritable_hg19/hippocampus_heritable_hg19.10.l2.ldscore.gz
+
+Summary of LD Scores in ./custom_ldscores/hippocampus/heritable_hg19/hippocampus_heritable_hg19.10.l2.ldscore.gz
+         MAF       L2
+mean  0.2328   0.3315
+std   0.1426   1.4184
+min   0.0051  -0.1299
+25%   0.1074   0.0000
+50%   0.2198   0.0078
+75%   0.3538   0.0913
+max   0.5000  46.5468
+
+MAF/LD Score Correlation Matrix
+        MAF      L2
+MAF  1.0000  0.0725
+L2   0.0725  1.0000
+
+Annotation Correlation Matrix
+       ANNOT
+ANNOT    1.0
+
+Annotation Matrix Column Sums
+ANNOT    1277
+
+Summary of Annotation Matrix Row Sums
+count    510501.0000
+mean          0.0025
+std           0.0500
+min           0.0000
+25%           0.0000
+50%           0.0000
+75%           0.0000
+max           1.0000
+Analysis finished at Tue Feb  3 19:48:26 2026
+Total time elapsed: 1.0m:22.239999999999995s
+2026-02-03 19:48:26 -   Processing status: non_heritable_hg19
+2026-02-03 19:48:26 -     Computing LD scores...
+/ocean/projects/bio250020p/shared/opt/ldsc/ldscore/parse.py:266: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  self.df = pd.read_csv(fname, header=self.__header__, usecols=self.__usecols__,
+/ocean/projects/bio250020p/shared/opt/ldsc/ldscore/parse.py:266: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  self.df = pd.read_csv(fname, header=self.__header__, usecols=self.__usecols__,
+/ocean/projects/bio250020p/shared/opt/ldsc/ldscore/parse.py:266: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  self.df = pd.read_csv(fname, header=self.__header__, usecols=self.__usecols__,
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out ./custom_ldscores/hippocampus/non_heritable_hg19/hippocampus_non_heritable_hg19.10 \
+--bfile /ocean/projects/bio250020p/shared/resources/ldsc/1000G_EUR_Phase3_plink/1000G.EUR.QC.10 \
+--l2  \
+--ld-wind-cm 1.0 \
+--print-snps /ocean/projects/bio250020p/shared/resources/ldsc/hm3_no_MHC.list.txt \
+--annot ./custom_ldscores/hippocampus/non_heritable_hg19/hippocampus_non_heritable_hg19.10.annot.gz \
+--thin-annot  
+
+Beginning analysis at Tue Feb  3 19:48:29 2026
+Read list of 510501 SNPs from /ocean/projects/bio250020p/shared/resources/ldsc/1000G_EUR_Phase3_plink/1000G.EUR.QC.10.bim
+Read 1 annotations for 510501 SNPs from ./custom_ldscores/hippocampus/non_heritable_hg19/hippocampus_non_heritable_hg19.10.annot.gz
+Read list of 489 individuals from /ocean/projects/bio250020p/shared/resources/ldsc/1000G_EUR_Phase3_plink/1000G.EUR.QC.10.fam
+Reading genotypes from /ocean/projects/bio250020p/shared/resources/ldsc/1000G_EUR_Phase3_plink/1000G.EUR.QC.10.bed
+After filtering, 510501 SNPs remain
+Estimating LD Score.
+Reading list of 1217311 SNPs for which to print LD Scores from /ocean/projects/bio250020p/shared/resources/ldsc/hm3_no_MHC.list.txt
+After merging with --print-snps, LD Scores for 64067 SNPs will be printed.
+Writing LD Scores for 64067 SNPs to ./custom_ldscores/hippocampus/non_heritable_hg19/hippocampus_non_heritable_hg19.10.l2.ldscore.gz
+
+Summary of LD Scores in ./custom_ldscores/hippocampus/non_heritable_hg19/hippocampus_non_heritable_hg19.10.l2.ldscore.gz
+         MAF      L2
+mean  0.2328  0.0983
+std   0.1426  0.4202
+min   0.0051 -0.0603
+25%   0.1074  0.0000
+50%   0.2198  0.0001
+75%   0.3538  0.0230
+max   0.5000  9.4850
+
+MAF/LD Score Correlation Matrix
+        MAF      L2
+MAF  1.0000  0.0724
+L2   0.0724  1.0000
+
+Annotation Correlation Matrix
+       ANNOT
+ANNOT    1.0
+
+Annotation Matrix Column Sums
+ANNOT    540
+
+Summary of Annotation Matrix Row Sums
+count    510501.0000
+mean          0.0011
+std           0.0325
+min           0.0000
+25%           0.0000
+50%           0.0000
+75%           0.0000
+max           1.0000
+Analysis finished at Tue Feb  3 19:49:41 2026
+Total time elapsed: 1.0m:12.129999999999995s
+2026-02-03 19:49:41 -   Processing status: low_prediction_hg19
+2026-02-03 19:49:41 -     Computing LD scores...
+/ocean/projects/bio250020p/shared/opt/ldsc/ldscore/parse.py:266: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  self.df = pd.read_csv(fname, header=self.__header__, usecols=self.__usecols__,
+/ocean/projects/bio250020p/shared/opt/ldsc/ldscore/parse.py:266: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  self.df = pd.read_csv(fname, header=self.__header__, usecols=self.__usecols__,
+/ocean/projects/bio250020p/shared/opt/ldsc/ldscore/parse.py:266: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  self.df = pd.read_csv(fname, header=self.__header__, usecols=self.__usecols__,
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out ./custom_ldscores/hippocampus/low_prediction_hg19/hippocampus_low_prediction_hg19.10 \
+--bfile /ocean/projects/bio250020p/shared/resources/ldsc/1000G_EUR_Phase3_plink/1000G.EUR.QC.10 \
+--l2  \
+--ld-wind-cm 1.0 \
+--print-snps /ocean/projects/bio250020p/shared/resources/ldsc/hm3_no_MHC.list.txt \
+--annot ./custom_ldscores/hippocampus/low_prediction_hg19/hippocampus_low_prediction_hg19.10.annot.gz \
+--thin-annot  
+
+Beginning analysis at Tue Feb  3 19:49:43 2026
+Read list of 510501 SNPs from /ocean/projects/bio250020p/shared/resources/ldsc/1000G_EUR_Phase3_plink/1000G.EUR.QC.10.bim
+Read 1 annotations for 510501 SNPs from ./custom_ldscores/hippocampus/low_prediction_hg19/hippocampus_low_prediction_hg19.10.annot.gz
+Read list of 489 individuals from /ocean/projects/bio250020p/shared/resources/ldsc/1000G_EUR_Phase3_plink/1000G.EUR.QC.10.fam
+Reading genotypes from /ocean/projects/bio250020p/shared/resources/ldsc/1000G_EUR_Phase3_plink/1000G.EUR.QC.10.bed
+After filtering, 510501 SNPs remain
+Estimating LD Score.
+Reading list of 1217311 SNPs for which to print LD Scores from /ocean/projects/bio250020p/shared/resources/ldsc/hm3_no_MHC.list.txt
+After merging with --print-snps, LD Scores for 64067 SNPs will be printed.
+Writing LD Scores for 64067 SNPs to ./custom_ldscores/hippocampus/low_prediction_hg19/hippocampus_low_prediction_hg19.10.l2.ldscore.gz
+
+Summary of LD Scores in ./custom_ldscores/hippocampus/low_prediction_hg19/hippocampus_low_prediction_hg19.10.l2.ldscore.gz
+         MAF      L2
+mean  0.2328  0.0291
+std   0.1426  0.2346
+min   0.0051 -0.0349
+25%   0.1074  0.0000
+50%   0.2198  0.0000
+75%   0.3538  0.0000
+max   0.5000  5.9317
+
+MAF/LD Score Correlation Matrix
+        MAF      L2
+MAF  1.0000 -0.0146
+L2  -0.0146  1.0000
+
+Annotation Correlation Matrix
+       ANNOT
+ANNOT    1.0
+
+Annotation Matrix Column Sums
+ANNOT    81
+
+Summary of Annotation Matrix Row Sums
+count    510501.0000
+mean          0.0002
+std           0.0126
+min           0.0000
+25%           0.0000
+50%           0.0000
+75%           0.0000
+max           1.0000
+Analysis finished at Tue Feb  3 19:50:46 2026
+Total time elapsed: 1.0m:3.0700000000000003s
+2026-02-03 19:50:46 - **** Job ends ****
