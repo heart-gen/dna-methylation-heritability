@@ -1,0 +1,596 @@
+2026-02-05 12:02:05 - **** Job starts ****
+**** PSC Bridges-2 info ****
+User: kbenjamin
+Job id: 37360360
+Job name: munge_sumstats
+Node name: 
+Hostname: r013
+Task id: N/A
+
+Currently Loaded Modules:
+  1) anaconda3/2024.10-1
+
+ 
+
+2026-02-05 12:02:06 - **** Loading conda environment ****
+2026-02-05 12:02:07 - Processing: Alzheimer's Disease (ad)
+2026-02-05 12:02:07 - Using pre-munged PASS_Alzheimer.sumstats.gz
+2026-02-05 12:02:07 - Processing: Schizophrenia (scz)
+<string>:462: FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version of pandas. Value '[True True True ... True True True]' has dtype incompatible with bool, please explicitly cast to a compatible dtype first.
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./munge_sumstats.py \
+--sumstats /ocean/projects/bio250020p/shared/resources/gwas/PGC/SCZ/PGC3/PGC3_SCZ_wave3.european.autosome.public.v3.vcf.tsv.gz \
+--out ./sumstats/scz \
+--merge-alleles /ocean/projects/bio250020p/shared/resources/ldsc/w_hm3.snplist \
+--chunksize 500000 \
+--snp ID \
+--N-cas-col NCAS \
+--N-con-col NCON \
+--a1 A1 \
+--a2 A2 \
+--p PVAL \
+--frq FCAS \
+--signed-sumstats BETA,0 \
+--skip-rows 73 
+
+Interpreting column names as follows:
+ID:	Variant ID (e.g., rs number)
+A1:	Allele 1, interpreted as ref allele for signed sumstat.
+A2:	Allele 2, interpreted as non-ref allele for signed sumstat.
+FCAS:	Allele frequency
+BETA:	Directional summary statistic as specified by --signed-sumstats.
+PVAL:	p-Value
+NCAS:	Number of cases
+NCON:	Number of controls
+
+Reading list of SNPs for allele merge from /ocean/projects/bio250020p/shared/resources/ldsc/w_hm3.snplist
+Read 1190321 SNPs for allele merge.
+Reading sumstats from /ocean/projects/bio250020p/shared/resources/gwas/PGC/SCZ/PGC3/PGC3_SCZ_wave3.european.autosome.public.v3.vcf.tsv.gz into memory 500000 SNPs at a time.
+................ done
+Read 7659767 SNPs from --sumstats file.
+Removed 6488419 SNPs not in --merge-alleles.
+Removed 0 SNPs with missing values.
+Removed 0 SNPs with INFO <= 0.9.
+Removed 0 SNPs with MAF <= 0.01.
+Removed 0 SNPs with out-of-bounds p-values.
+Removed 0 variants that were not SNPs or were strand-ambiguous.
+1171348 SNPs remain.
+Removed 0 SNPs with duplicated rs numbers (1171348 SNPs remain).
+Removed 2408 SNPs with N < 87095.99999999999 (1168940 SNPs remain).
+Median value of SIGNED_SUMSTATS was -0.0005001250416822, which seems sensible.
+Removed 3 SNPs whose alleles did not match --merge-alleles (1168937 SNPs remain).
+Writing summary statistics for 1190321 SNPs (1168937 with nonmissing beta) to ./sumstats/scz.sumstats.gz.
+
+Metadata:
+Mean chi^2 = 2.06
+Lambda GC = 1.748
+Max chi^2 = 174.587
+3510 Genome-wide significant SNPs (some may have been removed by filtering).
+
+Conversion finished at Thu Feb  5 12:03:55 2026
+Total time elapsed: 45.83s
+2026-02-05 12:03:56 - Processing: Major Depressive Disorder (mdd)
+<string>:462: FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version of pandas. Value '[True True True ... True True True]' has dtype incompatible with bool, please explicitly cast to a compatible dtype first.
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./munge_sumstats.py \
+--sumstats /ocean/projects/bio250020p/shared/resources/gwas/mdd/jamapsy_Giannakopoulou_2021_exclude_whi_23andMe.txt.gz \
+--N-cas 166773.0 \
+--N-con 507679.0 \
+--out ./sumstats/mdd \
+--merge-alleles /ocean/projects/bio250020p/shared/resources/ldsc/w_hm3.snplist \
+--chunksize 500000 \
+--snp MarkerName \
+--a1 Allele1 \
+--a2 Allele2 \
+--p P.SE \
+--frq Freq1 \
+--signed-sumstats Effect,0 
+
+Interpreting column names as follows:
+MarkerName:	Variant ID (e.g., rs number)
+Allele1:	Allele 1, interpreted as ref allele for signed sumstat.
+Allele2:	Allele 2, interpreted as non-ref allele for signed sumstat.
+Freq1:	Allele frequency
+Effect:	Directional summary statistic as specified by --signed-sumstats.
+P.SE:	p-Value
+
+Reading list of SNPs for allele merge from /ocean/projects/bio250020p/shared/resources/ldsc/w_hm3.snplist
+Read 1190321 SNPs for allele merge.
+Reading sumstats from /ocean/projects/bio250020p/shared/resources/gwas/mdd/jamapsy_Giannakopoulou_2021_exclude_whi_23andMe.txt.gz into memory 500000 SNPs at a time.
+................ done
+Read 7922500 SNPs from --sumstats file.
+Removed 6858454 SNPs not in --merge-alleles.
+Removed 0 SNPs with missing values.
+Removed 0 SNPs with INFO <= 0.9.
+Removed 5507 SNPs with MAF <= 0.01.
+Removed 0 SNPs with out-of-bounds p-values.
+Removed 3 variants that were not SNPs or were strand-ambiguous.
+1058536 SNPs remain.
+Removed 3 SNPs with duplicated rs numbers (1058533 SNPs remain).
+Median value of SIGNED_SUMSTATS was 0.0, which seems sensible.
+Removed 0 SNPs whose alleles did not match --merge-alleles (1058533 SNPs remain).
+Writing summary statistics for 1190321 SNPs (1058533 with nonmissing beta) to ./sumstats/mdd.sumstats.gz.
+
+Metadata:
+Mean chi^2 = 1.042
+Lambda GC = 1.033
+Max chi^2 = 34.179
+3 Genome-wide significant SNPs (some may have been removed by filtering).
+
+Conversion finished at Thu Feb  5 12:04:39 2026
+Total time elapsed: 40.59s
+2026-02-05 12:04:40 - Processing: Bipolar Disorder (bip)
+<string>:462: FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version of pandas. Value '[True True True ... True True True]' has dtype incompatible with bool, please explicitly cast to a compatible dtype first.
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./munge_sumstats.py \
+--sumstats /ocean/projects/bio250020p/shared/resources/gwas/bip/pgc-bip2021-all.vcf.tsv.gz \
+--out ./sumstats/bip \
+--merge-alleles /ocean/projects/bio250020p/shared/resources/ldsc/w_hm3.snplist \
+--chunksize 500000 \
+--snp ID \
+--N-cas-col NCAS \
+--N-con-col NCON \
+--a1 A1 \
+--a2 A2 \
+--p PVAL \
+--frq FCAS \
+--signed-sumstats BETA,0 \
+--skip-rows 72 
+
+Interpreting column names as follows:
+ID:	Variant ID (e.g., rs number)
+A1:	Allele 1, interpreted as ref allele for signed sumstat.
+A2:	Allele 2, interpreted as non-ref allele for signed sumstat.
+BETA:	Directional summary statistic as specified by --signed-sumstats.
+PVAL:	p-Value
+FCAS:	Allele frequency
+NCAS:	Number of cases
+NCON:	Number of controls
+
+Reading list of SNPs for allele merge from /ocean/projects/bio250020p/shared/resources/ldsc/w_hm3.snplist
+Read 1190321 SNPs for allele merge.
+Reading sumstats from /ocean/projects/bio250020p/shared/resources/gwas/bip/pgc-bip2021-all.vcf.tsv.gz into memory 500000 SNPs at a time.
+................ done
+Read 7608183 SNPs from --sumstats file.
+Removed 6438403 SNPs not in --merge-alleles.
+Removed 0 SNPs with missing values.
+Removed 0 SNPs with INFO <= 0.9.
+Removed 0 SNPs with MAF <= 0.01.
+Removed 0 SNPs with out-of-bounds p-values.
+Removed 0 variants that were not SNPs or were strand-ambiguous.
+1169780 SNPs remain.
+Removed 0 SNPs with duplicated rs numbers (1169780 SNPs remain).
+Removed 3323 SNPs with N < 275644.00000000006 (1166457 SNPs remain).
+Median value of SIGNED_SUMSTATS was -0.0003000450090019, which seems sensible.
+Removed 1 SNPs whose alleles did not match --merge-alleles (1166456 SNPs remain).
+Writing summary statistics for 1190321 SNPs (1166456 with nonmissing beta) to ./sumstats/bip.sumstats.gz.
+
+Metadata:
+Mean chi^2 = 1.6
+Lambda GC = 1.452
+Max chi^2 = 78.87
+640 Genome-wide significant SNPs (some may have been removed by filtering).
+
+Conversion finished at Thu Feb  5 12:05:32 2026
+Total time elapsed: 50.72s
+2026-02-05 12:05:33 - Processing: Parkinson's Disease (pd)
+2026-02-05 12:05:33 -   Lifting over PD GWAS from hg38 to hg19...
+  Processed chunk: 496927 SNPs retained
+  Processed chunk: 497953 SNPs retained
+  Processed chunk: 499880 SNPs retained
+  Processed chunk: 498093 SNPs retained
+  Processed chunk: 499662 SNPs retained
+  Processed chunk: 499492 SNPs retained
+  Processed chunk: 499266 SNPs retained
+  Processed chunk: 496745 SNPs retained
+  Processed chunk: 496834 SNPs retained
+  Processed chunk: 499925 SNPs retained
+  Processed chunk: 494043 SNPs retained
+  Processed chunk: 498341 SNPs retained
+  Processed chunk: 498652 SNPs retained
+  Processed chunk: 499565 SNPs retained
+  Processed chunk: 499601 SNPs retained
+  Processed chunk: 496441 SNPs retained
+  Processed chunk: 498790 SNPs retained
+  Processed chunk: 348020 SNPs retained
+  Total SNPs after liftover: 8818230
+  Liftover complete!
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./munge_sumstats.py \
+--sumstats ./sumstats/pd_hg19.txt.gz \
+--out ./sumstats/pd \
+--merge-alleles /ocean/projects/bio250020p/shared/resources/ldsc/w_hm3.snplist \
+--chunksize 500000 \
+--snp variant_id \
+--N-col sample_size \
+--a1 effect_allele \
+--a2 non_effect_allele \
+--p pvalue \
+--frq frequency \
+--signed-sumstats zscore,0 
+
+Interpreting column names as follows:
+variant_id:	Variant ID (e.g., rs number)
+effect_allele:	Allele 1, interpreted as ref allele for signed sumstat.
+non_effect_allele:	Allele 2, interpreted as non-ref allele for signed sumstat.
+frequency:	Allele frequency
+sample_size:	Sample size
+zscore:	Directional summary statistic as specified by --signed-sumstats.
+pvalue:	p-Value
+n_cases:	Number of cases
+
+Reading list of SNPs for allele merge from /ocean/projects/bio250020p/shared/resources/ldsc/w_hm3.snplist
+Read 1190321 SNPs for allele merge.
+Reading sumstats from ./sumstats/pd_hg19.txt.gz into memory 500000 SNPs at a time.
+.................. done
+
+ERROR converting summary statistics:
+
+Traceback (most recent call last):
+  File "<string>", line 720, in munge_sumstats
+  File "<string>", line 328, in parse_dat
+  File "/ocean/projects/bio250020p/shared/opt/env/genomics/lib/python3.11/site-packages/pandas/core/reshape/concat.py", line 382, in concat
+    op = _Concatenator(
+         ^^^^^^^^^^^^^^
+  File "/ocean/projects/bio250020p/shared/opt/env/genomics/lib/python3.11/site-packages/pandas/core/reshape/concat.py", line 445, in __init__
+    objs, keys = self._clean_keys_and_objs(objs, keys)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/ocean/projects/bio250020p/shared/opt/env/genomics/lib/python3.11/site-packages/pandas/core/reshape/concat.py", line 507, in _clean_keys_and_objs
+    raise ValueError("No objects to concatenate")
+ValueError: No objects to concatenate
+
+
+Conversion finished at Thu Feb  5 12:11:05 2026
+Total time elapsed: 24.53s
+Traceback (most recent call last):
+  File "/ocean/projects/bio250020p/kbenjamin/projects/dna-methylation-heritability/heritability/elastic_net_model/tissue_comparison/clinical_enrichment/s-ldsc/hg19/_h/ldsc_wrapper.py", line 67, in <module>
+    exec(open(script_path).read())
+  File "<string>", line 780, in <module>
+  File "<string>", line 720, in munge_sumstats
+  File "<string>", line 328, in parse_dat
+  File "/ocean/projects/bio250020p/shared/opt/env/genomics/lib/python3.11/site-packages/pandas/core/reshape/concat.py", line 382, in concat
+    op = _Concatenator(
+         ^^^^^^^^^^^^^^
+  File "/ocean/projects/bio250020p/shared/opt/env/genomics/lib/python3.11/site-packages/pandas/core/reshape/concat.py", line 445, in __init__
+    objs, keys = self._clean_keys_and_objs(objs, keys)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/ocean/projects/bio250020p/shared/opt/env/genomics/lib/python3.11/site-packages/pandas/core/reshape/concat.py", line 507, in _clean_keys_and_objs
+    raise ValueError("No objects to concatenate")
+ValueError: No objects to concatenate
+2026-02-05 12:11:05 - Processing: Multiple Sclerosis (ms)
+<string>:462: FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version of pandas. Value '[True True True ... True True True]' has dtype incompatible with bool, please explicitly cast to a compatible dtype first.
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./munge_sumstats.py \
+--sumstats /ocean/projects/bio250020p/shared/resources/gwas/imputed_gwas_hg38_1.1/imputed_IMMUNOBASE_Multiple_sclerosis_hg19.txt.gz \
+--out ./sumstats/ms \
+--merge-alleles /ocean/projects/bio250020p/shared/resources/ldsc/w_hm3.snplist \
+--chunksize 500000 \
+--snp variant_id \
+--N-col sample_size \
+--a1 effect_allele \
+--a2 non_effect_allele \
+--p pvalue \
+--frq frequency \
+--signed-sumstats zscore,0 
+
+Interpreting column names as follows:
+variant_id:	Variant ID (e.g., rs number)
+effect_allele:	Allele 1, interpreted as ref allele for signed sumstat.
+non_effect_allele:	Allele 2, interpreted as non-ref allele for signed sumstat.
+frequency:	Allele frequency
+sample_size:	Sample size
+zscore:	Directional summary statistic as specified by --signed-sumstats.
+pvalue:	p-Value
+n_cases:	Number of cases
+
+Reading list of SNPs for allele merge from /ocean/projects/bio250020p/shared/resources/ldsc/w_hm3.snplist
+Read 1190321 SNPs for allele merge.
+Reading sumstats from /ocean/projects/bio250020p/shared/resources/gwas/imputed_gwas_hg38_1.1/imputed_IMMUNOBASE_Multiple_sclerosis_hg19.txt.gz into memory 500000 SNPs at a time.
+.................. done
+Read 8867478 SNPs from --sumstats file.
+Removed 5620 SNPs not in --merge-alleles.
+Removed 8638647 SNPs with missing values.
+Removed 0 SNPs with INFO <= 0.9.
+Removed 0 SNPs with MAF <= 0.01.
+Removed 0 SNPs with out-of-bounds p-values.
+Removed 0 variants that were not SNPs or were strand-ambiguous.
+223211 SNPs remain.
+Removed 0 SNPs with duplicated rs numbers (223211 SNPs remain).
+Removed 0 SNPs with N < 18065.333333333332 (223211 SNPs remain).
+Median value of SIGNED_SUMSTATS was 0.0, which seems sensible.
+Removed 0 SNPs whose alleles did not match --merge-alleles (223211 SNPs remain).
+Writing summary statistics for 1190321 SNPs (223211 with nonmissing beta) to ./sumstats/ms.sumstats.gz.
+
+Metadata:
+Mean chi^2 = 1.105
+Lambda GC = 1.042
+Max chi^2 = 412.908
+72 Genome-wide significant SNPs (some may have been removed by filtering).
+
+Conversion finished at Thu Feb  5 12:11:43 2026
+Total time elapsed: 36.41s
+2026-02-05 12:11:44 - Processing: Rheumatoid Arthritis (ra)
+<string>:462: FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version of pandas. Value '[True True True ... True True True]' has dtype incompatible with bool, please explicitly cast to a compatible dtype first.
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./munge_sumstats.py \
+--sumstats /ocean/projects/bio250020p/shared/resources/gwas/imputed_gwas_hg38_1.1/imputed_RA_OKADA_TRANS_ETHNIC.txt.gz \
+--out ./sumstats/ra \
+--merge-alleles /ocean/projects/bio250020p/shared/resources/ldsc/w_hm3.snplist \
+--chunksize 500000 \
+--snp variant_id \
+--N-col sample_size \
+--a1 effect_allele \
+--a2 non_effect_allele \
+--p pvalue \
+--frq frequency \
+--signed-sumstats zscore,0 
+
+Interpreting column names as follows:
+variant_id:	Variant ID (e.g., rs number)
+effect_allele:	Allele 1, interpreted as ref allele for signed sumstat.
+non_effect_allele:	Allele 2, interpreted as non-ref allele for signed sumstat.
+frequency:	Allele frequency
+sample_size:	Sample size
+zscore:	Directional summary statistic as specified by --signed-sumstats.
+pvalue:	p-Value
+n_cases:	Number of cases
+
+Reading list of SNPs for allele merge from /ocean/projects/bio250020p/shared/resources/ldsc/w_hm3.snplist
+Read 1190321 SNPs for allele merge.
+Reading sumstats from /ocean/projects/bio250020p/shared/resources/gwas/imputed_gwas_hg38_1.1/imputed_RA_OKADA_TRANS_ETHNIC.txt.gz into memory 500000 SNPs at a time.
+.................. done
+Read 8857562 SNPs from --sumstats file.
+Removed 5177181 SNPs not in --merge-alleles.
+Removed 2528061 SNPs with missing values.
+Removed 0 SNPs with INFO <= 0.9.
+Removed 0 SNPs with MAF <= 0.01.
+Removed 0 SNPs with out-of-bounds p-values.
+Removed 0 variants that were not SNPs or were strand-ambiguous.
+1152320 SNPs remain.
+Removed 0 SNPs with duplicated rs numbers (1152320 SNPs remain).
+Removed 0 SNPs with N < 53866.0 (1152320 SNPs remain).
+Median value of SIGNED_SUMSTATS was 0.0, which seems sensible.
+Removed 0 SNPs whose alleles did not match --merge-alleles (1152320 SNPs remain).
+Writing summary statistics for 1190321 SNPs (1152320 with nonmissing beta) to ./sumstats/ra.sumstats.gz.
+
+Metadata:
+Mean chi^2 = 1.211
+Lambda GC = 1.048
+Max chi^2 = 1143.797
+1270 Genome-wide significant SNPs (some may have been removed by filtering).
+
+Conversion finished at Thu Feb  5 12:12:35 2026
+Total time elapsed: 48.69s
+2026-02-05 12:12:35 - Processing: Asthma (asthma)
+<string>:462: FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version of pandas. Value '[True True True ... True True True]' has dtype incompatible with bool, please explicitly cast to a compatible dtype first.
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./munge_sumstats.py \
+--sumstats /ocean/projects/bio250020p/shared/resources/gwas/imputed_gwas_hg38_1.1/imputed_GABRIEL_Asthma.txt.gz \
+--out ./sumstats/asthma \
+--merge-alleles /ocean/projects/bio250020p/shared/resources/ldsc/w_hm3.snplist \
+--chunksize 500000 \
+--snp variant_id \
+--N-col sample_size \
+--a1 effect_allele \
+--a2 non_effect_allele \
+--p pvalue \
+--frq frequency \
+--signed-sumstats zscore,0 
+
+Interpreting column names as follows:
+variant_id:	Variant ID (e.g., rs number)
+effect_allele:	Allele 1, interpreted as ref allele for signed sumstat.
+non_effect_allele:	Allele 2, interpreted as non-ref allele for signed sumstat.
+frequency:	Allele frequency
+sample_size:	Sample size
+zscore:	Directional summary statistic as specified by --signed-sumstats.
+pvalue:	p-Value
+n_cases:	Number of cases
+
+Reading list of SNPs for allele merge from /ocean/projects/bio250020p/shared/resources/ldsc/w_hm3.snplist
+Read 1190321 SNPs for allele merge.
+Reading sumstats from /ocean/projects/bio250020p/shared/resources/gwas/imputed_gwas_hg38_1.1/imputed_GABRIEL_Asthma.txt.gz into memory 500000 SNPs at a time.
+.................. done
+Read 8867646 SNPs from --sumstats file.
+Removed 23109 SNPs not in --merge-alleles.
+Removed 8338262 SNPs with missing values.
+Removed 0 SNPs with INFO <= 0.9.
+Removed 0 SNPs with MAF <= 0.01.
+Removed 0 SNPs with out-of-bounds p-values.
+Removed 0 variants that were not SNPs or were strand-ambiguous.
+506275 SNPs remain.
+Removed 0 SNPs with duplicated rs numbers (506275 SNPs remain).
+Removed 0 SNPs with N < 17650.0 (506275 SNPs remain).
+Median value of SIGNED_SUMSTATS was 0.0, which seems sensible.
+Removed 0 SNPs whose alleles did not match --merge-alleles (506275 SNPs remain).
+Writing summary statistics for 1190321 SNPs (506275 with nonmissing beta) to ./sumstats/asthma.sumstats.gz.
+
+Metadata:
+Mean chi^2 = 1.067
+Lambda GC = 1.056
+Max chi^2 = 76.048
+56 Genome-wide significant SNPs (some may have been removed by filtering).
+
+Conversion finished at Thu Feb  5 12:13:16 2026
+Total time elapsed: 38.9s
+2026-02-05 12:13:16 - Processing: Coronary Artery Disease (cad)
+<string>:462: FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version of pandas. Value '[True True True ... True True True]' has dtype incompatible with bool, please explicitly cast to a compatible dtype first.
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./munge_sumstats.py \
+--sumstats /ocean/projects/bio250020p/shared/resources/gwas/imputed_gwas_hg38_1.1/imputed_CARDIoGRAM_C4D_CAD_ADDITIVE.txt.gz \
+--out ./sumstats/cad \
+--merge-alleles /ocean/projects/bio250020p/shared/resources/ldsc/w_hm3.snplist \
+--chunksize 500000 \
+--snp variant_id \
+--N-col sample_size \
+--a1 effect_allele \
+--a2 non_effect_allele \
+--p pvalue \
+--frq frequency \
+--signed-sumstats zscore,0 
+
+Interpreting column names as follows:
+variant_id:	Variant ID (e.g., rs number)
+effect_allele:	Allele 1, interpreted as ref allele for signed sumstat.
+non_effect_allele:	Allele 2, interpreted as non-ref allele for signed sumstat.
+frequency:	Allele frequency
+sample_size:	Sample size
+zscore:	Directional summary statistic as specified by --signed-sumstats.
+pvalue:	p-Value
+n_cases:	Number of cases
+
+Reading list of SNPs for allele merge from /ocean/projects/bio250020p/shared/resources/ldsc/w_hm3.snplist
+Read 1190321 SNPs for allele merge.
+Reading sumstats from /ocean/projects/bio250020p/shared/resources/gwas/imputed_gwas_hg38_1.1/imputed_CARDIoGRAM_C4D_CAD_ADDITIVE.txt.gz into memory 500000 SNPs at a time.
+.................. done
+Read 8855157 SNPs from --sumstats file.
+Removed 5333033 SNPs not in --merge-alleles.
+Removed 2359968 SNPs with missing values.
+Removed 0 SNPs with INFO <= 0.9.
+Removed 116 SNPs with MAF <= 0.01.
+Removed 0 SNPs with out-of-bounds p-values.
+Removed 0 variants that were not SNPs or were strand-ambiguous.
+1162040 SNPs remain.
+Removed 0 SNPs with duplicated rs numbers (1162040 SNPs remain).
+Removed 0 SNPs with N < 122870.0 (1162040 SNPs remain).
+Median value of SIGNED_SUMSTATS was 0.0121524953283369, which seems sensible.
+Removed 0 SNPs whose alleles did not match --merge-alleles (1162040 SNPs remain).
+Writing summary statistics for 1190321 SNPs (1162040 with nonmissing beta) to ./sumstats/cad.sumstats.gz.
+
+Metadata:
+Mean chi^2 = 1.126
+Lambda GC = 1.048
+Max chi^2 = 443.1
+382 Genome-wide significant SNPs (some may have been removed by filtering).
+
+Conversion finished at Thu Feb  5 12:14:16 2026
+Total time elapsed: 57.93s
+2026-02-05 12:14:17 - Processing: Stroke (stroke)
+<string>:462: FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version of pandas. Value '[True True True ... True True True]' has dtype incompatible with bool, please explicitly cast to a compatible dtype first.
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./munge_sumstats.py \
+--sumstats /ocean/projects/bio250020p/shared/resources/gwas/imputed_gwas_hg38_1.1/imputed_ISGC_Malik_2016_METASTROKE_all_strokes.txt.gz \
+--out ./sumstats/stroke \
+--merge-alleles /ocean/projects/bio250020p/shared/resources/ldsc/w_hm3.snplist \
+--chunksize 500000 \
+--snp variant_id \
+--N-col sample_size \
+--a1 effect_allele \
+--a2 non_effect_allele \
+--p pvalue \
+--frq frequency \
+--signed-sumstats zscore,0 
+
+Interpreting column names as follows:
+variant_id:	Variant ID (e.g., rs number)
+effect_allele:	Allele 1, interpreted as ref allele for signed sumstat.
+non_effect_allele:	Allele 2, interpreted as non-ref allele for signed sumstat.
+frequency:	Allele frequency
+sample_size:	Sample size
+zscore:	Directional summary statistic as specified by --signed-sumstats.
+pvalue:	p-Value
+n_cases:	Number of cases
+
+Reading list of SNPs for allele merge from /ocean/projects/bio250020p/shared/resources/ldsc/w_hm3.snplist
+Read 1190321 SNPs for allele merge.
+Reading sumstats from /ocean/projects/bio250020p/shared/resources/gwas/imputed_gwas_hg38_1.1/imputed_ISGC_Malik_2016_METASTROKE_all_strokes.txt.gz into memory 500000 SNPs at a time.
+.................. done
+Read 8853387 SNPs from --sumstats file.
+Removed 974816 SNPs not in --merge-alleles.
+Removed 6845069 SNPs with missing values.
+Removed 0 SNPs with INFO <= 0.9.
+Removed 0 SNPs with MAF <= 0.01.
+Removed 0 SNPs with out-of-bounds p-values.
+Removed 0 variants that were not SNPs or were strand-ambiguous.
+1033502 SNPs remain.
+Removed 0 SNPs with duplicated rs numbers (1033502 SNPs remain).
+Removed 0 SNPs with N < 19755.333333333332 (1033502 SNPs remain).
+Median value of SIGNED_SUMSTATS was 0.0157924145460128, which seems sensible.
+Removed 0 SNPs whose alleles did not match --merge-alleles (1033502 SNPs remain).
+Writing summary statistics for 1190321 SNPs (1033502 with nonmissing beta) to ./sumstats/stroke.sumstats.gz.
+
+Metadata:
+Mean chi^2 = 1.039
+Lambda GC = 1.031
+Max chi^2 = 30.59
+8 Genome-wide significant SNPs (some may have been removed by filtering).
+
+Conversion finished at Thu Feb  5 12:15:04 2026
+Total time elapsed: 44.65s
+2026-02-05 12:15:04 - Verifying munged summary statistics...
+
+=== Munged Summary Statistics ===
+[OK] ad: 1136070 SNPs
+[OK] scz: 1190321 SNPs
+[OK] mdd: 1190321 SNPs
+[OK] bip: 1190321 SNPs
+[MISSING] pd
+[OK] ms: 1190321 SNPs
+[OK] ra: 1190321 SNPs
+[OK] asthma: 1190321 SNPs
+[OK] cad: 1190321 SNPs
+[OK] stroke: 1190321 SNPs
+2026-02-05 12:15:06 - **** Job ends ****
