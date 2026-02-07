@@ -44,7 +44,7 @@ LDSC_WRAPPER="${SCRIPT_DIR}/ldsc_wrapper.py"
 
 # Resource paths
 BIM_DIR="${RESOURCE_DIR}/1000G_EUR_Phase3_plink"
-HAPMAP3_SNPS="${RESOURCE_DIR}/w_hm3.snplist"
+HAPMAP3_SNPS="${RESOURCE_DIR}/hm3_no_MHC.list.txt"
 
 # Process each brain region and heritability status
 for REGION in "${BRAIN_REGIONS[@]}"; do
@@ -89,4 +89,5 @@ for REGION in "${BRAIN_REGIONS[@]}"; do
     done
 done
 
+conda deactivate
 log_message "**** Job ends ****"

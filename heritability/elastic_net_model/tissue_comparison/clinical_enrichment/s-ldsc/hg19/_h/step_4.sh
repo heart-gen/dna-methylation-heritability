@@ -1,20 +1,18 @@
 #!/bin/bash
-#SBATCH --account=bio250020p
 #SBATCH --partition=RM-shared
 #SBATCH --time=04:00:00
-#SBATCH --nodes=1
-#SBATCH --ntasks-per-node=1
-#SBATCH --mem=20G
+#SBATCH --ntasks-per-node=10
 #SBATCH --job-name=partition_heritability
-#SBATCH --output=logs/04.output_%j.log
-#SBATCH --error=logs/04.error_%j.log
+#SBATCH --mail-type=FAIL
+#SBATCH --mail-user=kj.benjamin90@gmail.com
+#SBATCH --output=logs/partitiona_heritability.%j.log
 
 # =============================================================================
 # Step 4: Partition Heritability with S-LDSC
 # =============================================================================
 # This script runs stratified LD score regression (S-LDSC) to partition
 # heritability for each disease/trait across brain regions and heritability
-# status. Processes 10 diseases x 3 regions x 2 heritability = 60 analyses.
+# status. Processes 10 diseases x 3 regions x 3 heritability statuses = 90 analyses.
 # =============================================================================
 
 # Source configuration
@@ -23,6 +21,13 @@ source "${SCRIPT_DIR}/config.sh"
 
 log_message "**** Job starts ****"
 print_job_info
+
+module purge
+module load anaconda3/2024.10-1
+module list
+
+log_message "**** Loading conda environment ****"
+conda activate /ocean/projects/bio250020p/shared/opt/env/genomics
 
 # Validate resources
 if ! validate_resources; then
@@ -41,8 +46,7 @@ FRQ_DIR="${RESOURCE_DIR}/1000G_Phase3_frq"
 # Summary statistics directory
 SUMSTATS_DIR="./sumstats"
 
-# 10 diseases spanning neuronal, immune, and vascular categories
-DISEASES=("ad" "scz" "mdd" "bip" "pd" "ms" "ra" "asthma" "cad" "htn")
+# DISEASES array is defined in config.sh
 
 # Counter for progress
 total=$((${#DISEASES[@]} * ${#BRAIN_REGIONS[@]} * ${#HERITABILITY[@]}))
@@ -113,6 +117,7 @@ for DISEASE in "${DISEASES[@]}"; do
     done
 done
 
+conda deactive
 # -----------------------------------------------------------------------------
 # Verify outputs
 # -----------------------------------------------------------------------------
@@ -136,21 +141,22 @@ for DISEASE in "${DISEASES[@]}"; do
                 case $DISEASE in
                     ad|scz|mdd|bip|pd) ((neuronal_count++)) ;;
                     ms|ra|asthma) ((immune_count++)) ;;
-                    cad|htn) ((vascular_count++)) ;;
+                    cad|stroke) ((vascular_count++)) ;;
                 esac
             fi
         done
     done
 done
 
+n_statuses=${#HERITABILITY[@]}
 echo "Category breakdown:"
-echo "  Neuronal (ad, scz, mdd, bip, pd): ${neuronal_count}/30 results"
-echo "  Immune (ms, ra, asthma): ${immune_count}/18 results"
-echo "  Vascular (cad, htn): ${vascular_count}/12 results"
+echo "  Neuronal (ad, scz, mdd, bip, pd): ${neuronal_count}/$((5 * 3 * n_statuses)) results"
+echo "  Immune (ms, ra, asthma): ${immune_count}/$((3 * 3 * n_statuses)) results"
+echo "  Vascular (cad, stroke): ${vascular_count}/$((2 * 3 * n_statuses)) results"
 echo ""
-echo "Total: ${total_count}/60 results"
+echo "Total: ${total_count}/${total} results"
 
-if [[ $total_count -eq 60 ]]; then
+if [[ $total_count -eq $total ]]; then
     echo ""
     echo "[OK] All S-LDSC analyses completed successfully"
 else
