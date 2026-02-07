@@ -1,12 +1,11 @@
 #!/usr/bin/env python
 """
-Wrapper for LDSC scripts to fix pandas/Python 3 compatibility issues.
+Wrapper for LDSC scripts to fix remaining Python 3 compatibility issues.
 
-LDSC was written for Python 2 and older pandas versions. This wrapper patches:
-1. pd.set_option() - 'precision' -> 'display.precision', etc.
-2. DataFrame.ix - removed in pandas 1.0, restored as alias to .loc/.iloc
-3. np.matrix deprecation warnings - suppressed
-4. gzip.open() - use text mode by default for Python 2 compatibility
+The main LDSC code has been updated for Python 3 and pandas 2.x compatibility.
+This wrapper handles remaining compatibility issues:
+1. np.matrix deprecation warnings - suppressed
+2. gzip.open() - use text mode by default for Python 2-era code
 
 Usage:
     python ldsc_wrapper.py <ldsc_dir> <script_name> [args...]
@@ -19,11 +18,11 @@ import sys
 import warnings
 import gzip
 
-# Suppress numpy matrix deprecation warnings
+# Suppress numpy matrix deprecation warnings (still used for string formatting in some places)
 warnings.filterwarnings('ignore', category=PendingDeprecationWarning)
 warnings.filterwarnings('ignore', message='.*matrix subclass.*')
 
-# 0. Patch gzip.open to use text mode by default (Python 2 compatibility)
+# Patch gzip.open to use text mode by default (Python 2 compatibility)
 # In Python 2, gzip.open returned strings; in Python 3, it returns bytes by default
 _original_gzip_open = gzip.open
 
@@ -37,62 +36,6 @@ def _patched_gzip_open(filename, mode='rb', *args, **kwargs):
     return _original_gzip_open(filename, mode, *args, **kwargs)
 
 gzip.open = _patched_gzip_open
-
-# Patch pandas before ldsc imports it
-import pandas as pd
-import numpy as np
-
-# 1. Patch pd.set_option for renamed options
-_original_set_option = pd.set_option
-
-def _patched_set_option(key, *args, **kwargs):
-    """Translate old pandas option names to new ones."""
-    option_map = {
-        'precision': 'display.precision',
-        'max_rows': 'display.max_rows',
-        'max_columns': 'display.max_columns',
-        'max_colwidth': 'display.max_colwidth',
-    }
-    if key in option_map:
-        key = option_map[key]
-    return _original_set_option(key, *args, **kwargs)
-
-pd.set_option = _patched_set_option
-
-
-# 2. Restore deprecated .ix accessor (removed in pandas 1.0)
-# .ix was a mixed integer/label indexer; we approximate with .loc
-class _IXIndexer:
-    """Compatibility shim for deprecated pandas .ix accessor."""
-    def __init__(self, df):
-        self._df = df
-
-    def __getitem__(self, key):
-        # Handle tuple keys (row, col)
-        if isinstance(key, tuple):
-            row_key, col_key = key
-            # Use iloc for integer slices, loc otherwise
-            if isinstance(row_key, slice) and isinstance(row_key.start, (int, type(None))):
-                if isinstance(col_key, slice) and isinstance(col_key.start, (int, type(None))):
-                    return self._df.iloc[row_key, col_key]
-                elif isinstance(col_key, list) and all(isinstance(c, int) for c in col_key):
-                    return self._df.iloc[row_key, col_key]
-            return self._df.loc[key]
-        return self._df.loc[key]
-
-    def __setitem__(self, key, value):
-        if isinstance(key, tuple):
-            self._df.loc[key] = value
-        else:
-            self._df.loc[key] = value
-
-
-# Add .ix property to DataFrame if it doesn't exist
-if not hasattr(pd.DataFrame, 'ix'):
-    pd.DataFrame.ix = property(lambda self: _IXIndexer(self))
-
-if not hasattr(pd.Series, 'ix'):
-    pd.Series.ix = property(lambda self: self.loc)
 
 
 # Now run the requested LDSC script

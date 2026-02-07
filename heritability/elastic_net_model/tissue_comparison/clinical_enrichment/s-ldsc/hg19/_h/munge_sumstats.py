@@ -136,11 +136,19 @@ describe_cname = {
 numeric_cols = ['P', 'N', 'N_CAS', 'N_CON', 'Z', 'OR', 'BETA', 'LOG_ODDS', 'INFO', 'FRQ', 'SIGNED_SUMSTAT', 'NSTUDY']
 
 
-def read_header(fh):
-    '''Read the first line of a file and returns a list with the column names.'''
+def read_header(fh, skip_rows=0):
+    '''Read the first line of a file and returns a list with the column names.
+
+    Args:
+        fh: File path
+        skip_rows: Number of rows to skip before reading header (e.g., for VCF ## headers)
+    '''
     (openfunc, compression) = get_compression(fh)
     # Handle both text and binary mode
     f = openfunc(fh)
+    # Skip the specified number of rows
+    for _ in range(skip_rows):
+        f.readline()
     line = f.readline()
     f.close()
     if isinstance(line, bytes):
@@ -537,6 +545,8 @@ parser.add_argument('--a1-inc', default=False, action='store_true',
                     help='A1 is the increasing allele.')
 parser.add_argument('--keep-maf', default=False, action='store_true',
                     help='Keep the MAF column (if one exists).')
+parser.add_argument('--skip-rows', default=0, type=int,
+                    help='Number of rows to skip at the beginning of the file (e.g., for VCF ## headers).')
 
 
 # set p = False for testing in order to prevent printing
@@ -568,7 +578,7 @@ def munge_sumstats(args, p=True):
             header = header[0:-1]+'\n'
             log.log(header)
 
-        file_cnames = read_header(args.sumstats)  # note keys not cleaned
+        file_cnames = read_header(args.sumstats, skip_rows=args.skip_rows)  # note keys not cleaned
         flag_cnames, signed_sumstat_null = parse_flag_cnames(log, args)
         if args.ignore:
             ignore_cnames = [clean_header(x) for x in args.ignore.split(',')]
@@ -700,10 +710,12 @@ def munge_sumstats(args, p=True):
         # they're read as floats
         signed_sumstat_cols = [k for k,v in cname_translation.items() if v=='SIGNED_SUMSTAT']
         # FIXED: Use sep=r'\s+' instead of deprecated delim_whitespace=True
+        # Skip rows if specified (for VCF files with ## header lines)
         dat_gen = pd.read_csv(args.sumstats, sep=r'\s+', header=0,
                 compression=compression, usecols=cname_translation.keys(),
                 na_values=['.', 'NA'], iterator=True, chunksize=args.chunksize,
-                dtype={c:np.float64 for c in signed_sumstat_cols})
+                dtype={c:np.float64 for c in signed_sumstat_cols},
+                skiprows=args.skip_rows)
 
         dat = parse_dat(dat_gen, cname_translation, merge_alleles, log, args)
         if len(dat) == 0:

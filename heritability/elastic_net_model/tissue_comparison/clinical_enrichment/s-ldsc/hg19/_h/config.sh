@@ -22,11 +22,12 @@ export BIM_DIR="${RESOURCE_DIR}/1000G_EUR_Phase3_plink"
 export BASELINE_LD_DIR="${RESOURCE_DIR}/1000G_Phase3_baselineLD_v2.2_ldscores"
 export WEIGHTS_DIR="${RESOURCE_DIR}/1000G_Phase3_weights_hm3_no_MHC"
 export FRQ_DIR="${RESOURCE_DIR}/1000G_Phase3_frq"
-# HapMap3 SNP list with alleles (required for --merge-alleles)
+# HapMap3 SNP list with alleles (required for --merge-alleles in munge_sumstats)
 # The w_hm3.snplist file has SNP, A1, A2 columns
-export HAPMAP3_SNPS="${RESOURCE_DIR}/w_hm3.snplist"
-# Old file with just SNP IDs (no alleles) - don't use for --merge-alleles
-# export HAPMAP3_SNPS_IDS_ONLY="${RESOURCE_DIR}/hm3_no_MHC.list.txt"
+export HAPMAP3_SNPS_ALLELES="${RESOURCE_DIR}/w_hm3.snplist"
+# HapMap3 SNP list with just SNP IDs (required for --print-snps in ldsc.py)
+# Single-column format, no header
+export HAPMAP3_SNPS="${RESOURCE_DIR}/hm3_no_MHC.list.txt"
 
 # Liftover chain file (existing file in project)
 export CHAIN_FILE="/ocean/projects/bio250020p/kbenjamin/projects/dna-methylation-heritability/inputs/supportfiles/_m/hg38ToHg19.over.chain"
@@ -44,7 +45,7 @@ export HERITABILITY=("heritable_hg19" "non_heritable_hg19" "low_prediction_hg19"
 # -----------------------------------------------------------------------------
 # Core diseases for S-LDSC analysis spanning neuronal, immune, and vascular categories
 
-export DISEASES=("ad" "scz" "mdd" "bip" "pd" "ms" "ra" "asthma" "cad" "htn")
+export DISEASES=("ad" "scz" "mdd" "bip" "pd" "ms" "ra" "asthma" "cad" "stroke")
 
 # Full disease names for reporting
 declare -A DISEASE_NAMES=(
@@ -57,7 +58,7 @@ declare -A DISEASE_NAMES=(
     ["ra"]="Rheumatoid Arthritis"
     ["asthma"]="Asthma"
     ["cad"]="Coronary Artery Disease"
-    ["htn"]="Hypertension"
+    ["stroke"]="Stroke"
 )
 export DISEASE_NAMES
 
@@ -72,7 +73,7 @@ declare -A DISEASE_CATEGORIES=(
     ["ra"]="immune"
     ["asthma"]="immune"
     ["cad"]="vascular"
-    ["htn"]="vascular"
+    ["stroke"]="vascular"
 )
 export DISEASE_CATEGORIES
 
@@ -84,7 +85,7 @@ export DISEASE_CATEGORIES
 
 declare -A GWAS_FILES=(
     ["ad"]="${GWAS_DIR}/PGC/AD/data/PGCALZ2sumstatsExcluding23andMe.txt.gz"
-    ["scz"]="${GWAS_DIR}/PGC/SCZ/CLOZUK_PGC2/primary.qc1_filt"
+    ["scz"]="${GWAS_DIR}/PGC/SCZ/PGC3/PGC3_SCZ_wave3.european.autosome.public.v3.vcf.tsv.gz"
     ["mdd"]="${GWAS_DIR}/mdd/jamapsy_Giannakopoulou_2021_exclude_whi_23andMe.txt.gz"
     ["bip"]="${GWAS_DIR}/bip/pgc-bip2021-all.vcf.tsv.gz"
     ["pd"]="${GWAS_DIR}/imputed_gwas_hg38_1.1/imputed_UKB_20002_1262_self_reported_parkinsons_disease.txt.gz"
@@ -92,7 +93,7 @@ declare -A GWAS_FILES=(
     ["ra"]="${GWAS_DIR}/imputed_gwas_hg38_1.1/imputed_RA_OKADA_TRANS_ETHNIC.txt.gz"
     ["asthma"]="${GWAS_DIR}/imputed_gwas_hg38_1.1/imputed_GABRIEL_Asthma.txt.gz"
     ["cad"]="${GWAS_DIR}/imputed_gwas_hg38_1.1/imputed_CARDIoGRAM_C4D_CAD_ADDITIVE.txt.gz"
-    ["htn"]="${GWAS_DIR}/imputed_gwas_hg38_1.1/imputed_ICBP_SystolicPressure.txt.gz"
+    ["stroke"]="${GWAS_DIR}/imputed_gwas_hg38_1.1/imputed_ISGC_Malik_2016_METASTROKE_all_strokes.txt.gz"
 )
 export GWAS_FILES
 
