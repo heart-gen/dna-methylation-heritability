@@ -30,19 +30,18 @@ plot_dist <- function(pct_overlap, tissue1, tissue2, h2_cat, flag){
   
   threshold_pct <- (as.numeric(sub(".*_", "", flag)) * 100)
   
-  p <- ggviolin(pct_long, x = "option",
-                y = "percent", fill = "option", 
-                color = "option", 
-                add = c("jitter", "median"), 
-                alpha = 0.5, trim = FALSE
-  ) +
+  p <- gghistogram(pct_long, x = "percent",
+                   add_density = TRUE, rug = TRUE,
+                   add = "median", fill = "option",
+                   color = "option") +
+    facet_wrap(~option) + 
     theme_pubr(base_size = 15, border = TRUE) +
     labs(
       title = paste("Percent overlap distribution for", tissue1, "vs.", tissue2),
       subtitle = paste(h2_cat, "VMRs"),
-      y = "Percent overlap (%)"
+      x = "Percent overlap (%)"
     ) +
-    geom_hline(yintercept = threshold_pct, linetype = "dashed", color = "black") +
+    geom_vline(xintercept = threshold_pct, linetype = "dashed", color = "black") +
     theme(
       axis.text.x = element_text(angle = 45, hjust = 1),
       plot.title = element_text(hjust = 0.5),
