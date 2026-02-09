@@ -13,7 +13,7 @@ args <- commandArgs(trailingOnly = TRUE)
 chr  <- args[1]
 
 ## Function
-filter_pheno <- function(meth_levels, brain_id, ances, demo, pc) {
+filter_pheno <- function(meth_levels, brain_id, demo, pc) {
                                         # Filter ancestry and phenotypes
     demo  <- demo[region == "dlpfc" & agedeath >= 17]
 
@@ -54,8 +54,6 @@ if (!dir.exists(output_path)) {
 cpg_names <- here("vmr-analysis", "all_individuals", "dlpfc", "_m", "cpg",
                   paste0("chr_", chr), "cpg_pos.txt")
 pheno_file_path <- here("inputs", "phenotypes", "_m", "phenotypes-all.tsv")
-f_ances <- here("inputs", "genetic-ancestry",
-                "structure.out_ancestry_proportion_raceDemo_compare")
 pca <- here("vmr-analysis", "all_individuals", "dlpfc", "_m", "pca",
             paste0("chr_", chr), "pc.csv")
 psam_file <- here("inputs/genotypes/all_individuals/TOPMed_LIBD.psam")
@@ -63,7 +61,6 @@ psam_file <- here("inputs/genotypes/all_individuals/TOPMed_LIBD.psam")
                                         # Load data
 pc        <- fread(pca)
 pos       <- fread(cpg_names, header = FALSE)[-c(1, 2), , drop = FALSE]
-ances     <- fread(f_ances)
 demo      <- fread(pheno_file_path)
 samples   <- fread(psam_file, header = TRUE, 
                    col.names = c("FID", "IID", "PAT"))[, .(FID, IID)]
@@ -79,7 +76,8 @@ cat("Found", length(tmp_files), "files to read\n")
 output_file <- file.path(output_path, "res_var_all.tsv")
 first_chunk <- TRUE
 
-cpg_path <- here("heritability", "dlpfc", "_m", "cpg", paste0("chr_", chr))
+cpg_path <- here("vmr-analysis", "all_individuals", "dlpfc", "_m", 
+                "cpg", paste0("chr_", chr))
 res_meth_file <- file.path(cpg_path, paste0("res_cpg_meth.phen"))
 
 for (chunk_path in tmp_files) {
@@ -104,7 +102,7 @@ for (chunk_path in tmp_files) {
     }
 
                                         # Filter and align phenotype
-    pheno <- filter_pheno(meth_levels, brain_id, ances, demo, pc)
+    pheno <- filter_pheno(meth_levels, brain_id, demo, pc)
 
                                         # Regress PCs
     pc_res <- regress_pcs_vectorized(pheno$meth_levels, pheno$pc)
