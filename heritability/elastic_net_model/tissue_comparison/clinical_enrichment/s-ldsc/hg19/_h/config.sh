@@ -9,11 +9,11 @@
 # -----------------------------------------------------------------------------
 # Base Paths
 # -----------------------------------------------------------------------------
+## TODO Update this for your own repo!!!!
 export PROJECT_BASE="/ocean/projects/bio250020p/kbenjamin/projects/dna-methylation-heritability"
-export LDSC_DIR="/ocean/projects/bio250020p/shared/opt/ldsc"
-export RESOURCE_DIR="/ocean/projects/bio250020p/shared/resources/ldsc"
-export GWAS_DIR="/ocean/projects/bio250020p/shared/resources/gwas"
-export LIFTOVER_DIR="/ocean/projects/bio250020p/shared/resources/liftover"
+export LDSC_DIR="/projects/p32505/opt/ldsc"
+export RESOURCE_DIR="/projects/b1213/resources/ldsc"
+export GWAS_DIR="/projects/b1213/resources/gwas"
 
 # -----------------------------------------------------------------------------
 # LDSC Resource Paths
@@ -30,9 +30,7 @@ export HAPMAP3_SNPS_ALLELES="${RESOURCE_DIR}/w_hm3.snplist"
 export HAPMAP3_SNPS="${RESOURCE_DIR}/hm3_no_MHC.list.txt"
 
 # Liftover chain file (existing file in project)
-export CHAIN_FILE="/ocean/projects/bio250020p/kbenjamin/projects/dna-methylation-heritability/inputs/supportfiles/_m/hg38ToHg19.over.chain"
-# Alternative if downloaded:
-# export CHAIN_FILE="${LIFTOVER_DIR}/hg38ToHg19.over.chain.gz"
+export CHAIN_FILE="${PROJECT_BASE}/inputs/supportfiles/_m/hg38ToHg19.over.chain"
 
 # -----------------------------------------------------------------------------
 # Brain Regions and Heritability Status
