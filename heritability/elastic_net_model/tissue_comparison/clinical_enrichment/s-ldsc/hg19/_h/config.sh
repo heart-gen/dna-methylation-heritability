@@ -1,6 +1,6 @@
 #!/bin/bash
 # =============================================================================
-# S-LDSC Pipeline Configuration for PSC Bridges-2
+# S-LDSC Pipeline Configuration for QUEST
 # =============================================================================
 # Shared configuration file with all paths, disease/region arrays, and
 # validation functions for the VMR clinical enrichment S-LDSC analysis.
@@ -10,7 +10,7 @@
 # Base Paths
 # -----------------------------------------------------------------------------
 ## TODO Update this for your own repo!!!!
-export PROJECT_BASE="/ocean/projects/bio250020p/kbenjamin/projects/dna-methylation-heritability"
+export PROJECT_BASE="/path/to/dna-methylation-heritability"
 export LDSC_DIR="/projects/p32505/opt/ldsc"
 export RESOURCE_DIR="/projects/b1213/resources/ldsc"
 export GWAS_DIR="/projects/b1213/resources/gwas"
