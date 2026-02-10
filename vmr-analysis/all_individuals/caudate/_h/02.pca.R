@@ -31,7 +31,7 @@ get_top_meth <- function(BSobj, v) {
 get_snp_pcs <- function(pc_file_path) {
     pc_cols <- paste0("snpPC", 1:10)
     snp_pcs <- fread(pc_file_path, header=TRUE)[
-      race == "AA" & agedeath >= 17 & region == "caudate",
+      agedeath >= 17 & region == "caudate",
       c("brnum", pc_cols), with = FALSE
     ]
     na_samples <- snp_pcs$brnum[rowSums(is.na(snp_pcs)) > 0]
@@ -73,13 +73,13 @@ pca <- function(res, output_path) {
 ## Main
                                         # create output directories if they  
                                         # don't exist
-output_path <- here("vmr-analysis", "all-individuals", "caudate", "_m", "pca", paste0("chr_", chr))
+output_path <- here("vmr-analysis", "all_individuals", "caudate", "_m", "pca", paste0("chr_", chr))
 if (!dir.exists(output_path)) {
     dir.create(output_path, recursive = TRUE)
 }
 
                                         # load sd of raw DNAm
-load(here("vmr-analysis", "all-individuals", "caudate", "_m", "cpg", paste0("chr_", chr), "stats.rda"))
+load(here("vmr-analysis", "all_individuals", "caudate", "_m", "cpg", paste0("chr_", chr), "stats.rda"))
 v <- data.frame(chr = chr, start = start(BSobj), sd = sds)
 
                                         # get top 1M variable CpG
