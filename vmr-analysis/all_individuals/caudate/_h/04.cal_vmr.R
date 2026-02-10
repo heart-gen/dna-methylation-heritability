@@ -52,9 +52,9 @@ write_meth_to_phen <- function(BSobj, M, samples, out_phen) {
 ## Main
 
                                         # load raw DNAm
-load(here("vmr-analysis", "all-individuals", "caudate", "_m", "cpg", 
+load(here("vmr-analysis", "all_individuals", "caudate", "_m", "cpg", 
           paste0("chr_", chr_num, "/stats.rda")))
-output_path <- here("vmr-analysis", "all-individuals", "caudate", "_m", 
+output_path <- here("vmr-analysis", "all_individuals", "caudate", "_m", 
                     "vmr", paste0("chr_", chr_num))
 
                                         # calculate DNAm for each VMR
