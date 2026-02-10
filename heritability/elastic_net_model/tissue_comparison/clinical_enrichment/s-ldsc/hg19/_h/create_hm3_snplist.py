@@ -15,7 +15,7 @@ import os
 import sys
 
 # Paths
-RESOURCE_DIR = "/ocean/projects/bio250020p/shared/resources/ldsc"
+RESOURCE_DIR = "/projects/b1213/resources/ldsc"
 BIM_DIR = os.path.join(RESOURCE_DIR, "1000G_EUR_Phase3_plink")
 HM3_SNPS_FILE = os.path.join(RESOURCE_DIR, "hm3_no_MHC.list.txt")
 OUTPUT_FILE = os.path.join(RESOURCE_DIR, "w_hm3.snplist")

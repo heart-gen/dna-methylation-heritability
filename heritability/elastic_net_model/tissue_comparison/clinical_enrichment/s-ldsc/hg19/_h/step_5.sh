@@ -1,10 +1,11 @@
 #!/bin/bash
-#SBATCH --partition=RM-shared
+#SBATCH --account=p32505
+#SBATCH --partition=short
 #SBATCH --job-name=make_plots
 #SBATCH --mail-type=FAIL
 #SBATCH --mail-user=kj.benjamin90@gmail.com
 #SBATCH --output=logs/make_plots.log
-#SBATCH --ntasks-per-node=4
+#SBATCH --mem=10gb
 #SBATCH --time=00:30:00
 
 # =============================================================================
@@ -16,7 +17,8 @@
 # =============================================================================
 
 # Source configuration
-SCRIPT_DIR="/ocean/projects/bio250020p/kbenjamin/projects/dna-methylation-heritability/heritability/elastic_net_model/tissue_comparison/clinical_enrichment/s-ldsc/hg19/_h"
+PROJECT_BASE="/path/to/dna-methylation-heritability"
+SCRIPT_DIR="${PROJECT_BASE}/heritability/elastic_net_model/tissue_comparison/clinical_enrichment/s-ldsc/hg19/_h"
 source "${SCRIPT_DIR}/config.sh"
 
 log_message "**** Job starts ****"
@@ -27,10 +29,9 @@ module load anaconda3/2024.10-1
 module list
 
 log_message "**** Loading conda environment ****"
-conda activate /ocean/projects/bio250020p/shared/opt/env/genomics
+conda activate /projects/p32505/opt/envs/genomics
 
 # DISEASES, BRAIN_REGIONS, and HERITABILITY arrays are defined in config.sh
-
 # -----------------------------------------------------------------------------
 # Dynamically generate file list
 # -----------------------------------------------------------------------------

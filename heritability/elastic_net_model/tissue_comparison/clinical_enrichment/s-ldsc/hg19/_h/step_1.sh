@@ -1,7 +1,8 @@
 #!/bin/bash
-#SBATCH --partition=RM-shared
+#SBATCH --account=p32505
+#SBATCH --partition=short
 #SBATCH --time=02:00:00
-#SBATCH --ntasks-per-node=8
+#SBATCH --mem=20gb
 #SBATCH --job-name=munge_sumstats
 #SBATCH --mail-type=FAIL
 #SBATCH --mail-user=kj.benjamin90@gmail.com
@@ -15,7 +16,8 @@
 # =============================================================================
 
 # Source configuration
-SCRIPT_DIR="/ocean/projects/bio250020p/kbenjamin/projects/dna-methylation-heritability/heritability/elastic_net_model/tissue_comparison/clinical_enrichment/s-ldsc/hg19/_h"
+PROJECT_BASE="/path/to/dna-methylation-heritability"
+SCRIPT_DIR="${PROJECT_BASE}/heritability/elastic_net_model/tissue_comparison/clinical_enrichment/s-ldsc/hg19/_h"
 source "${SCRIPT_DIR}/config.sh"
 
 log_message "**** Job starts ****"
@@ -26,7 +28,7 @@ module load anaconda3/2024.10-1
 module list
 
 log_message "**** Loading conda environment ****"
-conda activate /ocean/projects/bio250020p/shared/opt/env/genomics
+conda activate /projects/p32505/opt/envs/genomics
 
 # Create output directory
 OUT_DIR="./sumstats"
@@ -39,7 +41,7 @@ LDSC_WRAPPER="${SCRIPT_DIR}/ldsc_wrapper.py"
 LOCAL_MUNGE="${SCRIPT_DIR}/munge_sumstats.py"
 
 # GWAS directory base
-GWAS_BASE="/ocean/projects/bio250020p/shared/resources/gwas"
+GWAS_BASE="projects/b1213/resources/gwas"
 
 # HapMap3 SNP list with alleles (SNP, A1, A2 columns required for --merge-alleles)
 HM3_SNPLIST="${RESOURCE_DIR}/w_hm3.snplist"

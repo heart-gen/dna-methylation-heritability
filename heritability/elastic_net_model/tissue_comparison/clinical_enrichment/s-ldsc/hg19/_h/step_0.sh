@@ -1,7 +1,8 @@
 #!/bin/bash
-#SBATCH --partition=RM-shared
+#SBATCH --account=p32505
+#SBATCH --partition=short
 #SBATCH --time=01:00:00
-#SBATCH --ntasks-per-node=5
+#SBATCH --mem=10gb
 #SBATCH --job-name=region_heritability
 #SBATCH --mail-type=FAIL
 #SBATCH --mail-user=kj.benjamin90@gmail.com
@@ -16,7 +17,9 @@
 # =============================================================================
 
 # Source configuration
-source "../_h/config.sh"
+PROJECT_BASE="/path/to/dna-methylation-heritability"
+SCRIPT_DIR="${PROJECT_BASE}/heritability/elastic_net_model/tissue_comparison/clinical_enrichment/s-ldsc/hg19/_h"
+source "${SCRIPT_DIR}/config.sh"
 
 log_message "**** Job starts ****"
 print_job_info
@@ -26,7 +29,7 @@ module load anaconda3/2024.10-1
 module list
 
 log_message "**** Loading conda environment ****"
-conda activate /ocean/projects/bio250020p/shared/opt/env/genomics
+conda activate /projects/p32505/opt/envs/genomics
 
 # Python script for region heritability separation
 PYTHON_SCRIPT="../_h/00.region_heritability.py"
