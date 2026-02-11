@@ -65,7 +65,7 @@ for (flag in option_flags) {
         if (tissue1 != tissue2){
           pct_overlap <- get_overlaps(flag, tissue1, tissue2, h2_cat)
           out_dist <- file.path(out_path, flag, "percent_overlap",
-                                paste0("VMR_distribution_", h2_cat))
+                                paste0("VMR_distribution_", tissue1, "_", tissue2, "_", h2_cat))
           p <- plot_dist(pct_overlap, tissue1, tissue2, h2_cat, flag)
           save_plot(p, out_dist, 8, 6, 300)
         }
