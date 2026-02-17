@@ -54,7 +54,7 @@ if ! validate_resources; then
 fi
 
 # LDSC annotation script
-ANNOT_SCRIPT="${LDSC_DIR}/make_annot.py"
+ANNOT_SCRIPT="${SCRIPT_DIR}/make_annot_continuous.py"
 
 # Resource paths
 BIM_DIR="${RESOURCE_DIR}/1000G_EUR_Phase3_plink"
