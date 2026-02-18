@@ -63,7 +63,7 @@ def main():
     non_heritable = df[(df["h2_unscaled"] < 0.1) & (df["r_squared_cv"] >= 0.75)]
     low_prediction = df[df["r_squared_cv"] < 0.75]
 
-    cols_to_keep = ["chrom", "start", "end"]
+    cols_to_keep = ["chrom", "start", "end", "h2_unscaled"]
     heritable = heritable[cols_to_keep].copy()
     non_heritable = non_heritable[cols_to_keep].copy()
     low_prediction = low_prediction[cols_to_keep].copy()

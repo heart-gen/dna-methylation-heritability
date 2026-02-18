@@ -10,6 +10,7 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 from statsmodels.stats.multitest import multipletests
+from scipy.stats import norm
 
 
 def combine_ldsc_files(file_list_path, output_path="combined_ldsc_results.tsv"):
@@ -102,6 +103,37 @@ def filter_significant_enrichment(
     sig_df = df_valid[(df_valid["FDR"] < fdr_threshold) & (df_valid["Enrichment"] > 1)]
     sig_df.to_csv(output_path, sep="\t", index=False)
     print("Rows passing filter:", sig_df.shape[0])
+
+    filtered_df = sig_df[~sig_df['Category'].isin(exclude_categories)]
+    return filtered_df
+
+
+def filter_significant_tau(
+    input_path, output_path="ldsc_significant_tau.tsv",
+    fdr_threshold=0.05, exclude_categories=None
+):
+    """
+    Filter LDSC results for significant tau (Coefficient) effects using
+    two-sided p-values derived from Coefficient_z-score.
+    """
+    if exclude_categories is None:
+        exclude_categories = ["MAF_Adj_ASMCL2_0"]
+
+    df = pd.read_csv(input_path, sep="\t")
+    print("Total rows:", df.shape[0])
+    print("Rows with valid Coefficient_z-score:", df['Coefficient_z-score'].notna().sum())
+
+    df_valid = df[df["Coefficient_z-score"].notna()].copy()
+    df_valid["Tau_p"] = 2 * norm.sf(df_valid["Coefficient_z-score"].abs())
+    df_valid["Tau_FDR"] = df_valid.groupby(
+        ["Disorder", "BrainRegion", "h2Metric"]
+    )["Tau_p"].transform(
+        lambda x: multipletests(x, method="fdr_bh")[1]
+    )
+
+    sig_df = df_valid[df_valid["Tau_FDR"] < fdr_threshold]
+    sig_df.to_csv(output_path, sep="\t", index=False)
+    print("Rows passing tau filter:", sig_df.shape[0])
 
     filtered_df = sig_df[~sig_df['Category'].isin(exclude_categories)]
     return filtered_df
@@ -229,6 +261,9 @@ def main():
     # Filter for significant enrichment
     filtered_df = filter_significant_enrichment("combined_ldsc_results.tsv")
 
+    # Filter for significant tau (Coefficient) effects
+    filtered_tau_df = filter_significant_tau("combined_ldsc_results.tsv")
+
     # Create summary table
     summary_df = create_summary_table(filtered_df)
 
@@ -241,4 +276,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
