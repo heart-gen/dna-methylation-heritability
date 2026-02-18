@@ -43,14 +43,14 @@ clean_table <- function(pheno_file_path, vars){
 ## Main
                                         # Get variables of interest
 vars_to_include <- c(
-  "agedeath", "sex","primarydx","region","smoking","codeine","morphine",
+  "race", "agedeath", "sex","primarydx","region","smoking","codeine","morphine",
   "cocaine","ethanol","antipsychotics","nicotine","amphetamines",
   "education","marital_status","hx_sexual_abuse","hx_physical_abuse",
   "hx_other_trauma","hx_military_service","fsiq"
 )
 
                                         # Generate phenotype data
-pheno_file_path <- here("inputs/phenotypes/_m/phenotypes-AA.tsv")
+pheno_file_path <- here("inputs/phenotypes/_m/phenotypes-all.tsv")
 pheno_df <- clean_table(pheno_file_path, vars_to_include)
 
                                          # Generate pretty tables
@@ -58,20 +58,23 @@ fn <- "environmental_factors.table"
 pp <- pheno_df |> select(!c("education")) |>
     mutate(sex=factor(sex, labels=c("Female", "Male")),
            primarydx=factor(forcats::fct_drop(primarydx), labels=c("CTL", "SCZ"))) |>
-    tbl_summary(by="region", missing="no",
-                label = list(
-                  agedeath ~ "Age", sex ~ "Sex", primarydx ~ "Diagnosis", smoking ~ "Smoking",
-                  codeine ~ "Codeine", morphine ~ "Morphine", cocaine ~ "Cocaine",
-                  ethanol ~ "Ethanol", amphetamines ~ "Amphetamines",
-                  antipsychotics ~ "Antipsychotics", nicotine ~ "Nicotine",
-                  hx_military_service ~ "Military Service", hx_other_trauma ~ "Other Trauma",
-                  hx_physical_abuse ~ "Physical Abuse", hx_sexual_abuse ~ "Sexual Abuse",
-                  education_group ~ "Education", marital_status ~ "Marital Status",
-                  fsiq ~ "FSIQ"),
-                statistic=all_continuous() ~ c("{mean} ({sd})")) |>
-    modify_header(all_stat_cols()~"**{level}**<br>N = {n}") |>
-    modify_spanning_header(all_stat_cols()~"**Brain Region**") |>
-    bold_labels() |> italicize_levels()
+  tbl_strata(strata=region,
+             ~.x |>  
+                  tbl_summary(by="race", missing="no",
+                                label = list(
+                                  agedeath ~ "Age", sex ~ "Sex", primarydx ~ "Diagnosis", smoking ~ "Smoking",
+                                  codeine ~ "Codeine", morphine ~ "Morphine", cocaine ~ "Cocaine",
+                                  ethanol ~ "Ethanol", amphetamines ~ "Amphetamines",
+                                  antipsychotics ~ "Antipsychotics", nicotine ~ "Nicotine",
+                                  hx_military_service ~ "Military Service", hx_other_trauma ~ "Other Trauma",
+                                  hx_physical_abuse ~ "Physical Abuse", hx_sexual_abuse ~ "Sexual Abuse",
+                                  education_group ~ "Education", marital_status ~ "Marital Status",
+                                  fsiq ~ "FSIQ"),
+                                statistic=all_continuous() ~ c("{mean} ({sd})")) |>
+                    modify_header(all_stat_cols()~"**{level}**<br>N = {n}") |>
+                    modify_spanning_header(all_stat_cols()~"**Brain Region**") |>
+                    bold_labels() |> italicize_levels()
+  )
 save_table(pp, fn)
 
 #### Reproducibility information
