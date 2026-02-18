@@ -5,7 +5,7 @@
 #SBATCH --mem=10gb
 #SBATCH --job-name=make_annot
 #SBATCH --mail-type=FAIL
-#SBATCH --mail-user=kj.benjamin90@gmail.com
+#SBATCH --mail-user=elisajohnson2027@u.northwestern.edu
 #SBATCH --output=logs/make_annot.%j.log
 
 # =============================================================================
@@ -17,7 +17,7 @@
 # =============================================================================
 
 # Source configuration
-PROJECT_BASE="/path/to/dna-methylation-heritability"
+PROJECT_BASE="/projects/b1213/users/elisa/dna-methylation-heritability"
 SCRIPT_DIR="${PROJECT_BASE}/heritability/elastic_net_model/tissue_comparison/clinical_enrichment/s-ldsc/hg19/_h"
 source "${SCRIPT_DIR}/config.sh"
 
@@ -25,11 +25,12 @@ log_message "**** Job starts ****"
 print_job_info
 
 module purge
-module load anaconda3/2024.10-1
-module load bedtools/2.30.0
+#module load anaconda3/2024.10-1
+module load bedtools/2.31.1
 module list
 
 log_message "**** Loading conda environment ****"
+source /projects/p32505/opt/miniforge3/etc/profile.d/conda.sh
 conda activate /projects/p32505/opt/envs/genomics
 
 # Set temp directory for pybedtools (prevents /var/tmp issues on HPC)
