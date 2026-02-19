@@ -82,13 +82,14 @@ save_plot <- function(p, fn, w=8, h=6) {
 ## Main
 tissue <- c("caudate")
 
-out_path <- here("environmental-analysis", "caudate", "correlation", "_m")
+out_path <- here("environmental-analysis", "all_individuals", "caudate",
+                 "correlation", "_m")
 if (!dir.exists(out_path)) {
   dir.create(out_path, recursive = TRUE)
 }
 
                                         # Read in summary table
-enet_file <- here("heritability/elastic_net_model/", 
+enet_file <- here("heritability/elastic_net_model/all_individuals", 
                   paste0(tissue, "/_m/", tissue, "_summary_elastic-net.tsv"))
 enet <- read.table(enet_file, sep = "\t", header = TRUE)
 
@@ -96,25 +97,24 @@ vmr <- filter_sites(enet)
 
                                         # Define variables of interest
 vars_to_include <- c(
-  "brnum", "agedeath", "sex","primarydx","region","smoking","codeine","morphine",
-  "cocaine","ethanol","antipsychotics","nicotine","amphetamines",
+  "race", "brnum", "agedeath", "sex","primarydx","region","smoking","codeine","morphine", "cocaine","ethanol","antipsychotics","nicotine","amphetamines",
   "education","marital_status","hx_sexual_abuse","hx_physical_abuse",
   "hx_other_trauma","hx_military_service","fsiq"
 )
 
                                         # Get phenotype data
-pheno_file_path <- here("inputs/phenotypes/_m/phenotypes-AA.tsv")
+pheno_file_path <- here("inputs/phenotypes/_m/phenotypes-all.tsv")
 pheno <- clean_pheno(pheno_file_path, tissue, vars_to_include)
                     
                                         # Add global ances
 f_ances   <- here("inputs", "genetic-ancestry",
                   "structure.out_ancestry_proportion_raceDemo_compare")
-ances     <- fread(f_ances) %>% filter(group == "AA")
+ances     <- fread(f_ances)
 pheno <- left_join(pheno, ances, by = c("brnum" = "id")) %>%
-  rename(afr_ances = Afr)
+  rename(afr_ances = Afr, eur_ances = Eur)
 
                                         # Get meth matrix
-meth_file_path <- here("heritability/caudate/_m/vmr")
+meth_file_path <- here("vmr-analysis/all_individuals/caudate/_m/vmr")
 meth_files     <- list.files(path = meth_file_path, pattern = "_meth\\.phen$", 
                          recursive = TRUE, full.names = TRUE)
 meth_df        <- merge_meth(meth_files)
@@ -129,7 +129,7 @@ merged <- groups |>
   arrange(feature_id)
 
                                         # Write df to file
-out_table <- file.path(out_path, paste0("vmr_env_assoc-AA.tsv.gz"))
+out_table <- file.path(out_path, paste0("vmr_env_assoc-all.tsv.gz"))
 fwrite(merged, out_table, sep = "\t", quote = FALSE)
 
 
