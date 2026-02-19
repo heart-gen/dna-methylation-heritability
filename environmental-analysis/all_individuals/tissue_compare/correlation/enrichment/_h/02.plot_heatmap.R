@@ -1,6 +1,11 @@
-library(ggplot2)
-library(tidyverse)
+#### Plot enrichment of environmental phenotypes  ####
 
+suppressPackageStartupMessages({
+    library(ggplot2)
+    library(tidyverse)
+    library(data.table)
+})
+  
 save_plot <- function(p, fn, w, h){
     for(ext in c(".pdf", ".png")){
         ggsave(filename=paste0(fn,ext), plot=p, width=w, height=h)
@@ -8,12 +13,13 @@ save_plot <- function(p, fn, w, h){
 }
 
 load_env_enrichment <- function(){
-    return(data.table::fread("education_higher_vmr_enrichment_analysis.txt"))
+    return(fread("smoking_vmr_enrichment_analysis.txt"))
 }
 memENRICH <- memoise::memoise(load_env_enrichment)
 
 gen_data <- function(){
     err = 0.0000001
+
     dt <- memENRICH() %>% mutate(across(where(is.character), as.factor)) %>%
         mutate(h2_Category=fct_relevel(h2_Category, rev), `-log10(PValue)`= -log10(PValue),
                `OR Percentile`= OR / (1+OR), p.fdr.sig=FDR < 0.05,
@@ -43,7 +49,7 @@ plot_tile <- function(label, w, h){
                          values = scales::rescale(c(y0, 0, y1)),
                          limits = c(y0, y1),
                          name = "log2(OR)") +
-    #facet_grid(. ~ h2_Category) +
+    facet_grid(. ~ Tissue) +
     labs(x = "Heritability Category", y = "Test") +
     theme_minimal(base_size = 20) +
     theme(
@@ -53,11 +59,11 @@ plot_tile <- function(label, w, h){
       strip.text = element_text(face = "bold", size = 22)
     )
   
-  save_plot(tile_plot, paste0("tileplot_enrichment_",tolower(label)), w, h)
-  print(tile_plot)
+  save_plot(tile_plot, paste0(tolower(label), "_tileplot_enrichment"), w, h)
+  #print(tile_plot)
 }
 ## Run script
-plot_tile("education_higher", 10, 10)
+plot_tile("smoking", 10, 10)
 
 ## Reproducibility information
 Sys.time()
