@@ -16,8 +16,7 @@
 # =============================================================================
 
 # Source configuration
-PROJECT_BASE="/path/to/dna-methylation-heritability"
-SCRIPT_DIR="${PROJECT_BASE}/heritability/elastic_net_model/tissue_comparison/clinical_enrichment/s-ldsc/hg19/_h"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/config.sh"
 
 log_message "**** Job starts ****"
@@ -41,10 +40,17 @@ LDSC_WRAPPER="${SCRIPT_DIR}/ldsc_wrapper.py"
 LOCAL_MUNGE="${SCRIPT_DIR}/munge_sumstats.py"
 
 # GWAS directory base
-GWAS_BASE="projects/b1213/resources/gwas"
+GWAS_BASE="${GWAS_DIR}"
 
 # HapMap3 SNP list with alleles (SNP, A1, A2 columns required for --merge-alleles)
 HM3_SNPLIST="${RESOURCE_DIR}/w_hm3.snplist"
+
+run_munge() {
+    if ! "$@"; then
+        log_message "ERROR: munge_sumstats failed"
+        exit 1
+    fi
+}
 
 # -----------------------------------------------------------------------------
 # Munge each GWAS file
@@ -52,32 +58,26 @@ HM3_SNPLIST="${RESOURCE_DIR}/w_hm3.snplist"
 # Each GWAS has different column formats, so we handle them individually
 
 # --- Alzheimer's Disease (AD) ---
-# Source: PGC ALZ2 (Kunkle et al. 2019)
-# Columns: chr, PosGRCh37, testedAllele, otherAllele, z, p, N
-# NOTE: This file has NO SNP column (rs IDs) - it only has chr:position
-# We need to use a pre-processed file or skip this trait
-# For now, using a different Alzheimer's GWAS that has rs IDs
+# Source: Bellenguez et al. 2022 (GWAS Catalog harmonized file, GRCh38)
+# Build handling: use harmonized rsIDs (hm_rsid), which are build-independent for LDSC.
 log_message "Processing: Alzheimer's Disease (ad)"
-# Check if we have a sumstats file with SNP IDs
-if [[ -f "${GWAS_BASE}/PGC/AD/data/PGCALZ2sumstatsExcluding23andMe.with_rsid.txt.gz" ]]; then
-    python "$LDSC_WRAPPER" "$LDSC_DIR" "$LOCAL_MUNGE" \
-        --sumstats "${GWAS_BASE}/PGC/AD/data/PGCALZ2sumstatsExcluding23andMe.with_rsid.txt.gz" \
+AD_GWAS="${GWAS_BASE}/alz/bellenguez2022/35379992-GCST90027158-MONDO_0004975.h.tsv.gz"
+if [[ -f "$AD_GWAS" ]]; then
+    run_munge python "$LDSC_WRAPPER" "$LDSC_DIR" "$LOCAL_MUNGE" \
+        --sumstats "$AD_GWAS" \
         --out "${OUT_DIR}/ad" \
-        --a1 testedAllele \
-        --a2 otherAllele \
-        --signed-sumstats z,0 \
-        --p p \
-        --N-col N \
+        --a1 hm_effect_allele \
+        --a2 hm_other_allele \
+        --signed-sumstats hm_beta,0 \
+        --p p_value \
+        --snp hm_rsid \
+        --frq hm_effect_allele_frequency \
+        --N-cas-col n_cas \
+        --N-con-col n_con \
         --merge-alleles "$HM3_SNPLIST" \
         --chunksize 500000
 else
-    # Use the pre-munged PASS Alzheimer's sumstats if available
-    if [[ -f "${RESOURCE_DIR}/sumstats/PASS_Alzheimer.sumstats.gz" ]]; then
-        log_message "Using pre-munged PASS_Alzheimer.sumstats.gz"
-        cp "${RESOURCE_DIR}/sumstats/PASS_Alzheimer.sumstats.gz" "${OUT_DIR}/ad.sumstats.gz"
-    else
-        log_message "WARNING: AD GWAS file lacks SNP column and no alternative found. Skipping."
-    fi
+    log_message "WARNING: AD GWAS not found (${AD_GWAS}). Skipping until download completes."
 fi
 
 # --- Schizophrenia (SCZ) ---
@@ -85,7 +85,7 @@ fi
 # Columns: CHROM, ID, POS, A1, A2, FCAS, FCON, IMPINFO, BETA, SE, PVAL, NCAS, NCON, NEFF
 # NOTE: VCF format with 73 ## header lines that must be skipped
 log_message "Processing: Schizophrenia (scz)"
-python "$LDSC_WRAPPER" "$LDSC_DIR" "$LOCAL_MUNGE" \
+run_munge python "$LDSC_WRAPPER" "$LDSC_DIR" "$LOCAL_MUNGE" \
     --sumstats "${GWAS_BASE}/PGC/SCZ/PGC3/PGC3_SCZ_wave3.european.autosome.public.v3.vcf.tsv.gz" \
     --out "${OUT_DIR}/scz" \
     --a1 A1 \
@@ -105,7 +105,7 @@ python "$LDSC_WRAPPER" "$LDSC_DIR" "$LOCAL_MUNGE" \
 # Columns: MarkerName, chr, pos, Allele1, Allele2, Freq1, Effect, StdErr, P.SE
 # NOTE: File lacks N column. Using N from paper: 166,773 cases + 507,679 controls
 log_message "Processing: Major Depressive Disorder (mdd)"
-python "$LDSC_WRAPPER" "$LDSC_DIR" "$LOCAL_MUNGE" \
+run_munge python "$LDSC_WRAPPER" "$LDSC_DIR" "$LOCAL_MUNGE" \
     --sumstats "${GWAS_BASE}/mdd/jamapsy_Giannakopoulou_2021_exclude_whi_23andMe.txt.gz" \
     --out "${OUT_DIR}/mdd" \
     --a1 Allele1 \
@@ -124,7 +124,7 @@ python "$LDSC_WRAPPER" "$LDSC_DIR" "$LOCAL_MUNGE" \
 # Columns: #CHROM, POS, ID, A1, A2, BETA, SE, PVAL, NGT, FCAS, FCON, IMPINFO, NEFFDIV2, NCAS, NCON
 # NOTE: VCF format with 72 ## header lines that must be skipped
 log_message "Processing: Bipolar Disorder (bip)"
-python "$LDSC_WRAPPER" "$LDSC_DIR" "$LOCAL_MUNGE" \
+run_munge python "$LDSC_WRAPPER" "$LDSC_DIR" "$LOCAL_MUNGE" \
     --sumstats "${GWAS_BASE}/bip/pgc-bip2021-all.vcf.tsv.gz" \
     --out "${OUT_DIR}/bip" \
     --a1 A1 \
@@ -140,69 +140,33 @@ python "$LDSC_WRAPPER" "$LDSC_DIR" "$LOCAL_MUNGE" \
     --skip-rows 72
 
 # --- Parkinson's Disease (PD) ---
-# Source: UK Biobank imputed (self-reported)
-# Columns: variant_id, panel_variant_id, chromosome, position, effect_allele, non_effect_allele, current_build, frequency, sample_size, zscore, pvalue
-# NOTE: File is in hg38 coordinates - requires liftover to hg19 before munging
+# Source: GCST009325 harmonized file (GRCh38)
+# Build handling: use rsid column to avoid coordinate-build mismatch in hg19 LDSC pipeline.
 log_message "Processing: Parkinson's Disease (pd)"
-PD_GWAS_HG38="${GWAS_BASE}/imputed_gwas_hg38_1.1/imputed_UKB_20002_1262_self_reported_parkinsons_disease.txt.gz"
-PD_GWAS_HG19="${OUT_DIR}/pd_hg19.txt.gz"
-CHAIN_FILE="${SCRIPT_DIR}/../../../../../../../inputs/supportfiles/_m/hg38ToHg19.over.chain"
-
-# Liftover PD GWAS from hg38 to hg19
-if [[ ! -f "$PD_GWAS_HG19" ]]; then
-    log_message "  Lifting over PD GWAS from hg38 to hg19..."
-    python -c "
-import pandas as pd
-import gzip
-from pyliftover import LiftOver
-
-lo = LiftOver('${CHAIN_FILE}')
-
-def liftover_pos(chrom, pos):
-    try:
-        chrom_str = f'chr{chrom}' if not str(chrom).startswith('chr') else str(chrom)
-        result = lo.convert_coordinate(chrom_str, int(pos))
-        if result and len(result) > 0:
-            return int(result[0][1])
-        return None
-    except:
-        return None
-
-# Read in chunks to handle large file
-chunks = []
-for chunk in pd.read_csv('${PD_GWAS_HG38}', sep='\t', chunksize=500000):
-    chunk['position_hg19'] = chunk.apply(lambda x: liftover_pos(x['chromosome'], x['position']), axis=1)
-    chunk = chunk.dropna(subset=['position_hg19'])
-    chunk['position'] = chunk['position_hg19'].astype(int)
-    chunk = chunk.drop(columns=['position_hg19'])
-    chunks.append(chunk)
-    print(f'  Processed chunk: {len(chunk)} SNPs retained')
-
-df = pd.concat(chunks, ignore_index=True)
-print(f'  Total SNPs after liftover: {len(df)}')
-df.to_csv('${PD_GWAS_HG19}', sep='\t', index=False, compression='gzip', na_rep='NA')
-print('  Liftover complete!')
-"
-fi
-
-python "$LDSC_WRAPPER" "$LDSC_DIR" "$LOCAL_MUNGE" \
-    --sumstats "$PD_GWAS_HG19" \
+PD_GWAS="${GWAS_BASE}/PD/data/GCST009325.h.tsv.gz"
+if [[ ! -f "$PD_GWAS" ]]; then
+    log_message "WARNING: PD GWAS not found (${PD_GWAS}). Skipping."
+else
+run_munge python "$LDSC_WRAPPER" "$LDSC_DIR" "$LOCAL_MUNGE" \
+    --sumstats "$PD_GWAS" \
     --out "${OUT_DIR}/pd" \
     --a1 effect_allele \
-    --a2 non_effect_allele \
-    --signed-sumstats zscore,0 \
-    --p pvalue \
-    --snp variant_id \
-    --frq frequency \
-    --N-col sample_size \
+    --a2 other_allele \
+    --signed-sumstats beta,0 \
+    --p p_value \
+    --snp rsid \
+    --frq effect_allele_frequency \
+    --N-cas-col N_cases \
+    --N-con-col N_controls \
     --merge-alleles "$HM3_SNPLIST" \
     --chunksize 500000
+fi
 
 # --- Multiple Sclerosis (MS) ---
 # Source: IMMUNOBASE
 # Columns: variant_id, panel_variant_id, chromosome, position, effect_allele, non_effect_allele, current_build, frequency, sample_size, zscore, pvalue
 log_message "Processing: Multiple Sclerosis (ms)"
-python "$LDSC_WRAPPER" "$LDSC_DIR" "$LOCAL_MUNGE" \
+run_munge python "$LDSC_WRAPPER" "$LDSC_DIR" "$LOCAL_MUNGE" \
     --sumstats "${GWAS_BASE}/imputed_gwas_hg38_1.1/imputed_IMMUNOBASE_Multiple_sclerosis_hg19.txt.gz" \
     --out "${OUT_DIR}/ms" \
     --a1 effect_allele \
@@ -219,7 +183,7 @@ python "$LDSC_WRAPPER" "$LDSC_DIR" "$LOCAL_MUNGE" \
 # Source: OKADA trans-ethnic
 # Columns: variant_id, panel_variant_id, chromosome, position, effect_allele, non_effect_allele, current_build, frequency, sample_size, zscore, pvalue
 log_message "Processing: Rheumatoid Arthritis (ra)"
-python "$LDSC_WRAPPER" "$LDSC_DIR" "$LOCAL_MUNGE" \
+run_munge python "$LDSC_WRAPPER" "$LDSC_DIR" "$LOCAL_MUNGE" \
     --sumstats "${GWAS_BASE}/imputed_gwas_hg38_1.1/imputed_RA_OKADA_TRANS_ETHNIC.txt.gz" \
     --out "${OUT_DIR}/ra" \
     --a1 effect_allele \
@@ -236,7 +200,7 @@ python "$LDSC_WRAPPER" "$LDSC_DIR" "$LOCAL_MUNGE" \
 # Source: GABRIEL consortium
 # Columns: variant_id, panel_variant_id, chromosome, position, effect_allele, non_effect_allele, current_build, frequency, sample_size, zscore, pvalue
 log_message "Processing: Asthma (asthma)"
-python "$LDSC_WRAPPER" "$LDSC_DIR" "$LOCAL_MUNGE" \
+run_munge python "$LDSC_WRAPPER" "$LDSC_DIR" "$LOCAL_MUNGE" \
     --sumstats "${GWAS_BASE}/imputed_gwas_hg38_1.1/imputed_GABRIEL_Asthma.txt.gz" \
     --out "${OUT_DIR}/asthma" \
     --a1 effect_allele \
@@ -253,7 +217,7 @@ python "$LDSC_WRAPPER" "$LDSC_DIR" "$LOCAL_MUNGE" \
 # Source: CARDIoGRAM C4D
 # Columns: variant_id, panel_variant_id, chromosome, position, effect_allele, non_effect_allele, current_build, frequency, sample_size, zscore, pvalue
 log_message "Processing: Coronary Artery Disease (cad)"
-python "$LDSC_WRAPPER" "$LDSC_DIR" "$LOCAL_MUNGE" \
+run_munge python "$LDSC_WRAPPER" "$LDSC_DIR" "$LOCAL_MUNGE" \
     --sumstats "${GWAS_BASE}/imputed_gwas_hg38_1.1/imputed_CARDIoGRAM_C4D_CAD_ADDITIVE.txt.gz" \
     --out "${OUT_DIR}/cad" \
     --a1 effect_allele \
@@ -272,21 +236,48 @@ python "$LDSC_WRAPPER" "$LDSC_DIR" "$LOCAL_MUNGE" \
 # Replaced with Stroke as the second vascular trait.
 
 # --- Stroke ---
-# Source: ISGC METASTROKE (Malik et al. 2016) - All strokes
-# Columns: variant_id, panel_variant_id, chromosome, position, effect_allele, non_effect_allele, current_build, frequency, sample_size, zscore, pvalue
+# Source: Malik et al. 2018 ischemic stroke (build37 formatted GWAS Catalog file)
+# Build handling: this specific file is build37/hg19, so no liftover is required.
 log_message "Processing: Stroke (stroke)"
-python "$LDSC_WRAPPER" "$LDSC_DIR" "$LOCAL_MUNGE" \
-    --sumstats "${GWAS_BASE}/imputed_gwas_hg38_1.1/imputed_ISGC_Malik_2016_METASTROKE_all_strokes.txt.gz" \
-    --out "${OUT_DIR}/stroke" \
-    --a1 effect_allele \
-    --a2 non_effect_allele \
-    --signed-sumstats zscore,0 \
-    --p pvalue \
-    --snp variant_id \
-    --frq frequency \
-    --N-col sample_size \
-    --merge-alleles "$HM3_SNPLIST" \
-    --chunksize 500000
+STROKE_GWAS="${GWAS_BASE}/stroke/29531354-GCST005843-HP_0002140-build37.f.tsv.gz"
+if [[ -f "$STROKE_GWAS" ]]; then
+    run_munge python "$LDSC_WRAPPER" "$LDSC_DIR" "$LOCAL_MUNGE" \
+        --sumstats "$STROKE_GWAS" \
+        --out "${OUT_DIR}/stroke" \
+        --a1 effect_allele \
+        --a2 other_allele \
+        --signed-sumstats beta,0 \
+        --p p_value \
+        --snp variant_id \
+        --frq effect_allele_frequency \
+        --N 517525 \
+        --merge-alleles "$HM3_SNPLIST" \
+        --chunksize 500000
+else
+    log_message "WARNING: Stroke GWAS not found (${STROKE_GWAS}). Skipping until download completes."
+fi
+
+# --- Height (Control) ---
+# Source: UK Biobank standing height (hg38 imputed file)
+# Build handling: use rsIDs (variant_id) with HM3 merge in hg19 LDSC reference space.
+log_message "Processing: Height (height control)"
+HEIGHT_GWAS="${GWAS_BASE}/imputed_gwas_hg38_1.1/imputed_UKB_50_Standing_height.txt.gz"
+if [[ -f "$HEIGHT_GWAS" ]]; then
+    run_munge python "$LDSC_WRAPPER" "$LDSC_DIR" "$LOCAL_MUNGE" \
+        --sumstats "$HEIGHT_GWAS" \
+        --out "${OUT_DIR}/height" \
+        --a1 effect_allele \
+        --a2 non_effect_allele \
+        --signed-sumstats zscore,0 \
+        --p pvalue \
+        --snp variant_id \
+        --frq frequency \
+        --N-col sample_size \
+        --merge-alleles "$HM3_SNPLIST" \
+        --chunksize 500000
+else
+    log_message "WARNING: Height GWAS not found (${HEIGHT_GWAS}). Skipping."
+fi
 
 # -----------------------------------------------------------------------------
 # Verify outputs
@@ -294,8 +285,7 @@ python "$LDSC_WRAPPER" "$LDSC_DIR" "$LOCAL_MUNGE" \
 log_message "Verifying munged summary statistics..."
 echo ""
 echo "=== Munged Summary Statistics ==="
-# Note: htn replaced with stroke as vascular trait (no hg19 HTN GWAS available)
-for disease in ad scz mdd bip pd ms ra asthma cad stroke; do
+for disease in ad scz mdd bip pd ms ra asthma cad stroke height; do
     if [[ -f "${OUT_DIR}/${disease}.sumstats.gz" ]]; then
         n_snps=$(zcat "${OUT_DIR}/${disease}.sumstats.gz" | wc -l)
         echo "[OK] ${disease}: $((n_snps - 1)) SNPs"
