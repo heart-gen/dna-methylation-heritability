@@ -24,10 +24,10 @@ log_message "**** Job starts ****"
 print_job_info
 
 module purge
-module load anaconda3/2024.10-1
 module list
 
 log_message "**** Loading conda environment ****"
+source /projects/p32505/opt/miniforge3/etc/profile.d/conda.sh
 conda activate /projects/p32505/opt/envs/genomics
 
 # Validate resources
@@ -168,4 +168,5 @@ else
     echo "[INCOMPLETE] Some analyses are missing. Check logs for errors."
 fi
 
+conda deactivate
 log_message "**** Job ends ****"

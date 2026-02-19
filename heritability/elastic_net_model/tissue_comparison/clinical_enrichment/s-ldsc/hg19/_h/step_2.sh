@@ -24,11 +24,11 @@ log_message "**** Job starts ****"
 print_job_info
 
 module purge
-module load anaconda3/2024.10-1
-module load bedtools/2.30.0
+module load bedtools/2.31.1
 module list
 
 log_message "**** Loading conda environment ****"
+source /projects/p32505/opt/miniforge3/etc/profile.d/conda.sh
 conda activate /projects/p32505/opt/envs/genomics
 
 # Set temp directory for pybedtools (prevents /var/tmp issues on HPC)
@@ -133,4 +133,5 @@ for REGION in "${BRAIN_REGIONS[@]}"; do
     done
 done
 
+conda deactivate
 log_message "**** Job ends ****"
