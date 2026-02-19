@@ -13,12 +13,11 @@
 # =============================================================================
 # This script runs stratified LD score regression (S-LDSC) to partition
 # heritability for each disease/trait across brain regions and heritability
-# status. Processes 10 diseases x 3 regions x 3 heritability statuses = 90 analyses.
+# status. Processes 11 traits x 3 regions x 3 heritability statuses = 99 analyses.
 # =============================================================================
 
 # Source configuration
-PROJECT_BASE="/path/to/dna-methylation-heritability"
-SCRIPT_DIR="${PROJECT_BASE}/heritability/elastic_net_model/tissue_comparison/clinical_enrichment/s-ldsc/hg19/_h"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/config.sh"
 
 log_message "**** Job starts ****"
@@ -119,7 +118,7 @@ for DISEASE in "${DISEASES[@]}"; do
     done
 done
 
-conda deactive
+conda deactivate
 # -----------------------------------------------------------------------------
 # Verify outputs
 # -----------------------------------------------------------------------------
@@ -132,6 +131,7 @@ echo ""
 neuronal_count=0
 immune_count=0
 vascular_count=0
+control_count=0
 total_count=0
 
 for DISEASE in "${DISEASES[@]}"; do
@@ -144,6 +144,7 @@ for DISEASE in "${DISEASES[@]}"; do
                     ad|scz|mdd|bip|pd) ((neuronal_count++)) ;;
                     ms|ra|asthma) ((immune_count++)) ;;
                     cad|stroke) ((vascular_count++)) ;;
+                    height) ((control_count++)) ;;
                 esac
             fi
         done
@@ -155,6 +156,7 @@ echo "Category breakdown:"
 echo "  Neuronal (ad, scz, mdd, bip, pd): ${neuronal_count}/$((5 * 3 * n_statuses)) results"
 echo "  Immune (ms, ra, asthma): ${immune_count}/$((3 * 3 * n_statuses)) results"
 echo "  Vascular (cad, stroke): ${vascular_count}/$((2 * 3 * n_statuses)) results"
+echo "  Control (height): ${control_count}/$((1 * 3 * n_statuses)) results"
 echo ""
 echo "Total: ${total_count}/${total} results"
 

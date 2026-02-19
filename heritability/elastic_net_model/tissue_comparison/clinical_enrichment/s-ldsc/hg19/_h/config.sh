@@ -9,8 +9,8 @@
 # -----------------------------------------------------------------------------
 # Base Paths
 # -----------------------------------------------------------------------------
-## TODO Update this for your own repo!!!!
-export PROJECT_BASE="/path/to/dna-methylation-heritability"
+CONFIG_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+export PROJECT_BASE="${PROJECT_BASE:-$(cd "${CONFIG_DIR}/../../../../../../.." && pwd)}"
 export LDSC_DIR="/projects/p32505/opt/ldsc"
 export RESOURCE_DIR="/projects/b1213/resources/ldsc"
 export GWAS_DIR="/projects/b1213/resources/gwas"
@@ -39,11 +39,12 @@ export BRAIN_REGIONS=("caudate" "dlpfc" "hippocampus")
 export HERITABILITY=("heritable_hg19" "non_heritable_hg19" "low_prediction_hg19")
 
 # -----------------------------------------------------------------------------
-# Disease/Trait Configuration (10 traits)
+# Disease/Trait Configuration (11 traits)
 # -----------------------------------------------------------------------------
-# Core diseases for S-LDSC analysis spanning neuronal, immune, and vascular categories
+# Core diseases for S-LDSC analysis spanning neuronal, immune, vascular,
+# and control categories.
 
-export DISEASES=("ad" "scz" "mdd" "bip" "pd" "ms" "ra" "asthma" "cad" "stroke")
+export DISEASES=("ad" "scz" "mdd" "bip" "pd" "ms" "ra" "asthma" "cad" "stroke" "height")
 
 # Full disease names for reporting
 declare -A DISEASE_NAMES=(
@@ -57,6 +58,7 @@ declare -A DISEASE_NAMES=(
     ["asthma"]="Asthma"
     ["cad"]="Coronary Artery Disease"
     ["stroke"]="Stroke"
+    ["height"]="Standing Height (Control)"
 )
 export DISEASE_NAMES
 
@@ -72,6 +74,7 @@ declare -A DISEASE_CATEGORIES=(
     ["asthma"]="immune"
     ["cad"]="vascular"
     ["stroke"]="vascular"
+    ["height"]="control"
 )
 export DISEASE_CATEGORIES
 
@@ -82,16 +85,17 @@ export DISEASE_CATEGORIES
 # munge_sumstats.py arguments. See step_1.sh for specific formatting.
 
 declare -A GWAS_FILES=(
-    ["ad"]="${GWAS_DIR}/PGC/AD/data/PGCALZ2sumstatsExcluding23andMe.txt.gz"
+    ["ad"]="${GWAS_DIR}/alz/bellenguez2022/35379992-GCST90027158-MONDO_0004975.h.tsv.gz"
     ["scz"]="${GWAS_DIR}/PGC/SCZ/PGC3/PGC3_SCZ_wave3.european.autosome.public.v3.vcf.tsv.gz"
     ["mdd"]="${GWAS_DIR}/mdd/jamapsy_Giannakopoulou_2021_exclude_whi_23andMe.txt.gz"
     ["bip"]="${GWAS_DIR}/bip/pgc-bip2021-all.vcf.tsv.gz"
-    ["pd"]="${GWAS_DIR}/imputed_gwas_hg38_1.1/imputed_UKB_20002_1262_self_reported_parkinsons_disease.txt.gz"
+    ["pd"]="${GWAS_DIR}/PD/data/GCST009325.h.tsv.gz"
     ["ms"]="${GWAS_DIR}/imputed_gwas_hg38_1.1/imputed_IMMUNOBASE_Multiple_sclerosis_hg19.txt.gz"
     ["ra"]="${GWAS_DIR}/imputed_gwas_hg38_1.1/imputed_RA_OKADA_TRANS_ETHNIC.txt.gz"
     ["asthma"]="${GWAS_DIR}/imputed_gwas_hg38_1.1/imputed_GABRIEL_Asthma.txt.gz"
     ["cad"]="${GWAS_DIR}/imputed_gwas_hg38_1.1/imputed_CARDIoGRAM_C4D_CAD_ADDITIVE.txt.gz"
-    ["stroke"]="${GWAS_DIR}/imputed_gwas_hg38_1.1/imputed_ISGC_Malik_2016_METASTROKE_all_strokes.txt.gz"
+    ["stroke"]="${GWAS_DIR}/stroke/29531354-GCST005843-HP_0002140-build37.f.tsv.gz"
+    ["height"]="${GWAS_DIR}/imputed_gwas_hg38_1.1/imputed_UKB_50_Standing_height.txt.gz"
 )
 export GWAS_FILES
 

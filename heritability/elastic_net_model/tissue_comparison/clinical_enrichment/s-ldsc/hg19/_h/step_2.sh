@@ -17,8 +17,7 @@
 # =============================================================================
 
 # Source configuration
-PROJECT_BASE="/path/to/dna-methylation-heritability"
-SCRIPT_DIR="${PROJECT_BASE}/heritability/elastic_net_model/tissue_comparison/clinical_enrichment/s-ldsc/hg19/_h"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/config.sh"
 
 log_message "**** Job starts ****"
