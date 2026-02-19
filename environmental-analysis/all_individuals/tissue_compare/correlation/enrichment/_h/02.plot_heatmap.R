@@ -13,7 +13,7 @@ save_plot <- function(p, fn, w, h){
 }
 
 load_env_enrichment <- function(){
-    return(fread("smoking_vmr_enrichment_analysis.txt"))
+    return(fread("vmr_enrichment_analysis.txt"))
 }
 memENRICH <- memoise::memoise(load_env_enrichment)
 
@@ -34,7 +34,7 @@ gen_data <- function(){
 memDF <- memoise::memoise(gen_data)
 
 plot_tile <- function(label, w, h){
-  df <- memDF() %>% filter(is.finite(`log2(OR)`))
+  df <- memDF() %>% filter(Env == label) %>% filter(is.finite(`log2(OR)`))
   
   y0 <- min(df$`log2(OR)`, na.rm = TRUE) - 0.1
   y1 <- max(df$`log2(OR)`, na.rm = TRUE) + 0.1
@@ -62,8 +62,18 @@ plot_tile <- function(label, w, h){
   save_plot(tile_plot, paste0(tolower(label), "_tileplot_enrichment"), w, h)
   #print(tile_plot)
 }
-## Run script
-plot_tile("smoking", 10, 10)
+
+## Main
+envs <- c("smoking", "educationless_than_hs", "educationmore_than_hs", 
+          "marital_statussingle", "marital_statuspreviously_married", "codeine", 
+          "morphine", "cocaine", "ethanol", "antipsychotics","nicotine",
+          "amphetamines", "hx_sexual_abuse", "hx_physical_abuse", 
+          "hx_other_trauma", "hx_military_service")
+
+for (label in envs){
+  plot_tile(label, 10, 10)
+}
+
 
 ## Reproducibility information
 Sys.time()
