@@ -14,7 +14,7 @@ import session_info
 @lru_cache()
 def get_enet(tissue):
     # get vmrs
-    enet_fn = here(f"heritability/elastic_net_model/{tissue.lower()}/_m/{tissue.lower()}_summary_elastic-net.tsv")
+    enet_fn = here(f"heritability/elastic_net_model/all_individuals/{tissue.lower()}/_m/{tissue.lower()}_summary_elastic-net.tsv")
     df = pd.read_csv(enet_fn, sep='\t')
     df = df.dropna()
     df['chrom'] = 'chr' + df['chrom'].astype(str)
@@ -31,29 +31,28 @@ def get_enet(tissue):
     return df
 
 @lru_cache()
-def get_vmrs():
-    fn = here(f"environmental-analysis/correlation/_m/education_logit.csv.gz")
+def get_vmrs(tissue):
+    fn = here(f"environmental-analysis/all_individuals/{tissue.lower()}/correlation/_m/smoking_logit.csv.gz")
     vmrs = pd.read_csv(fn, sep=',') 
-    vmrs = vmrs[vmrs['var'] == 'educationMore than high school']
     vmrs['test'] = 'logit'
     vmrs['sig'] = vmrs['p'] < 0.05
     return vmrs
 
 @lru_cache()
-def get_dmrs():
-    fn = here(f"environmental-analysis/correlation/_m/education_dmr.csv.gz")
+def get_dmrs(tissue):
+    fn = here(f"environmental-analysis/all_individuals/{tissue.lower()}/correlation/_m/smoking_dmr.csv.gz")
     dmrs = pd.read_csv(fn, sep=',')
     dmrs['test'] = 'dmr'
     dmrs['sig'] = dmrs['p.value'] < 0.05
     return dmrs
 
 @lru_cache()
-def concat_dataframe():
-    return pd.concat([get_vmrs(), get_dmrs()])
+def concat_dataframe(tissue):
+    return pd.concat([get_vmrs(tissue), get_dmrs(tissue)])
 
 @lru_cache()
 def merge_dataframe(tissue):
-    env = concat_dataframe()
+    env = concat_dataframe(tissue)
     env['chr'] = 'chr' + env['chr'].astype(str)
 
     df = env.pivot_table(values='sig', columns='test', fill_value=0,
@@ -80,11 +79,11 @@ def cal_fishers_annot(tissue, test, h2_cat):
 def calculate_enrichment():
     region_lt = []; h2_lt = []; test_lt = []; fdr_lt = []; pval_lt = []; oddratio_lt = []; env_lt = []
 
-    for tissue in ["Caudate"]:
+    for tissue in ["Caudate", "Hippocampus", "DLPFC"]:
         for h2_cat in ["Heritable", "Non-heritable", "Low prediction"]:
             pvals = []
             for test in ["Logit", "DMR", "Both"]:
-                for env in ["Education"]:
+                for env in ["Smoking"]:
                     odd_ratio, pval = cal_fishers_annot(tissue, test, h2_cat)
                     pvals.append(pval); h2_lt.append(h2_cat)
                     oddratio_lt.append(odd_ratio); test_lt.append(test)
@@ -98,7 +97,7 @@ def calculate_enrichment():
                          "FDR": fdr_lt, 'Test': test_lt, 'Env': env_lt})
 
 def main():
-    calculate_enrichment().to_csv('education_higher_vmr_enrichment_analysis.txt', sep='\t', index=False)
+    calculate_enrichment().to_csv('smoking_vmr_enrichment_analysis.txt', sep='\t', index=False)
 
     # Session information
     session_info.show()
