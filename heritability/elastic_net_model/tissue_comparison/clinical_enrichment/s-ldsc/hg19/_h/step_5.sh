@@ -73,7 +73,7 @@ log_message "File list written to ldsc_file_list.txt"
 log_message "Running plotting script..."
 
 # Check if Python script exists
-PLOT_SCRIPT="${SCRIPT_DIR}/05.make_plots.py"
+PLOT_SCRIPT="${SCRIPT_DIR}/make_plots.py"
 if [[ ! -f "$PLOT_SCRIPT" ]]; then
     log_message "WARNING: Plotting script not found: $PLOT_SCRIPT"
     log_message "Creating combined results table only..."

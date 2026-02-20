@@ -31,7 +31,7 @@ source /projects/p32505/opt/miniforge3/etc/profile.d/conda.sh
 conda activate /projects/p32505/opt/envs/genomics
 
 # Python script for region heritability separation
-PYTHON_SCRIPT="${SCRIPT_DIR}/00.region_heritability.py"
+PYTHON_SCRIPT="${SCRIPT_DIR}/region_heritability.py"
 
 # Process each brain region
 for REGION in "${BRAIN_REGIONS[@]}"; do
