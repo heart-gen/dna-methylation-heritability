@@ -17,32 +17,28 @@
 # =============================================================================
 
 # Source configuration
-PROJECT_BASE="/path/to/dna-methylation-heritability"
-SCRIPT_DIR="${PROJECT_BASE}/heritability/elastic_net_model/tissue_comparison/clinical_enrichment/s-ldsc/hg19/_h"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/config.sh"
 
 log_message "**** Job starts ****"
 print_job_info
 
 module purge
-module load anaconda3/2024.10-1
 module list
 
 log_message "**** Loading conda environment ****"
+source /projects/p32505/opt/miniforge3/etc/profile.d/conda.sh
 conda activate /projects/p32505/opt/envs/genomics
 
 # Python script for region heritability separation
-PYTHON_SCRIPT="../_h/00.region_heritability.py"
-
-# Chain file for liftover (hg38 to hg19)
-CHAIN_FILE="../../../../../../../inputs/supportfiles/_m/hg38ToHg19.over.chain"
+PYTHON_SCRIPT="${SCRIPT_DIR}/00.region_heritability.py"
 
 # Process each brain region
 for REGION in "${BRAIN_REGIONS[@]}"; do
     log_message "Processing region: $REGION"
 
     # Input file path
-    INPUT_FILE="../../../../../${REGION}/_m/${REGION}_summary_elastic-net.tsv"
+    INPUT_FILE="$(get_input_file "$REGION")"
 
     # Output directory
     OUTPUT_DIR="./vmr/${REGION}"
@@ -65,4 +61,5 @@ for REGION in "${BRAIN_REGIONS[@]}"; do
         --chain_file "$CHAIN_FILE"
 done
 
+conda deactivate
 log_message "**** Job ends ****"

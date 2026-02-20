@@ -17,18 +17,17 @@
 # =============================================================================
 
 # Source configuration
-PROJECT_BASE="/path/to/dna-methylation-heritability"
-SCRIPT_DIR="${PROJECT_BASE}/heritability/elastic_net_model/tissue_comparison/clinical_enrichment/s-ldsc/hg19/_h"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/config.sh"
 
 log_message "**** Job starts ****"
 print_job_info
 
 module purge
-module load anaconda3/2024.10-1
 module list
 
 log_message "**** Loading conda environment ****"
+source /projects/p32505/opt/miniforge3/etc/profile.d/conda.sh
 conda activate /projects/p32505/opt/envs/genomics
 
 # DISEASES, BRAIN_REGIONS, and HERITABILITY arrays are defined in config.sh
@@ -132,6 +131,7 @@ echo "Diseases analyzed: ${#DISEASES[@]} (${DISEASES[*]})"
 echo "  Neuronal: ad, scz, mdd, bip, pd"
 echo "  Immune: ms, ra, asthma"
 echo "  Vascular: cad, stroke"
+echo "  Control: height"
 echo ""
 echo "Brain regions: ${BRAIN_REGIONS[*]}"
 echo "Heritability status: ${HERITABILITY[*]}"
