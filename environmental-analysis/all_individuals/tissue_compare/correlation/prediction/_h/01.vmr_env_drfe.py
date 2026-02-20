@@ -210,8 +210,7 @@ def main():
     ]
 
     # Get unique regions (sorted for reproducibility)
-    all_regions = sorted(df["region"].dropna().unique())
-    print(f"Found {len(all_regions)} regions: {all_regions}")
+    all_regions = ["Caudate", "Hippocampus", "DLPFC"]
 
     # SLURM array job support: process single region if SLURM_ARRAY_TASK_ID is set
     slurm_task_id = os.environ.get("SLURM_ARRAY_TASK_ID")
