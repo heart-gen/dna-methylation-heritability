@@ -17,22 +17,13 @@
 # =============================================================================
 
 # Source configuration
-<<<<<<< HEAD
-PROJECT_BASE="/projects/b1213/users/elisa/dna-methylation-heritability"
-SCRIPT_DIR="${PROJECT_BASE}/heritability/elastic_net_model/tissue_comparison/clinical_enrichment/s-ldsc/hg19/_h"
-=======
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
->>>>>>> 4fad99769b5077f96561ffca0ecf3f43e992d01e
 source "${SCRIPT_DIR}/config.sh"
 
 log_message "**** Job starts ****"
 print_job_info
 
 module purge
-<<<<<<< HEAD
-#module load anaconda3/2024.10-1
-=======
->>>>>>> 4fad99769b5077f96561ffca0ecf3f43e992d01e
 module load bedtools/2.31.1
 module list
 
