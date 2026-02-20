@@ -32,23 +32,6 @@ def load_data(data_path):
     for c in bool_cols:
         df[c] = df[c].map({True: 1, False: 0})
 
-    # Education: 3-category
-    edu_map = {
-        "Less than high school": "less_than_hs",
-        "High School": "hs",
-        "More than high school": "more_than_hs"
-    }
-    df["education_3cat"] = df["education"].map(edu_map)
-
-    # Marital status: 3-category
-    marital_map = {
-        "Single": "single",
-        "Married": "married",
-        "Divorced": "previously_married",
-        "Separated": "previously_married",
-        "Widowed": "previously_married"
-    }
-    df["marital_3cat"] = df["marital_status"].map(marital_map)
     return df
 
 
@@ -214,7 +197,6 @@ def aggregate_fold_results(fold_results):
 
 def main():
     # Configuration
-    DATA_PATH = Path("../../_m/vmr_env_assoc-AA.tsv.gz")
     OUTDIR = Path("drfe_results")
     OUTDIR.mkdir(exist_ok=True)
 
@@ -225,17 +207,11 @@ def main():
     ENV_VARS = [
         "sex", "primarydx", "smoking", "codeine", "morphine",
         "cocaine", "ethanol", "antipsychotics", "nicotine",
-        "amphetamines", "education_3cat", "marital_3cat",
+        "amphetamines", "education", "marital_status",
     ]
 
-    # Load data
-    print("Loading data...")
-    df = load_data(DATA_PATH)
-    print(f"Loaded {len(df)} rows")
-
     # Get unique regions (sorted for reproducibility)
-    all_regions = sorted(df["region"].dropna().unique())
-    print(f"Found {len(all_regions)} regions: {all_regions}")
+    all_regions = ["Caudate", "Hippocampus", "DLPFC"]
 
     # SLURM array job support: process single region if SLURM_ARRAY_TASK_ID is set
     slurm_task_id = os.environ.get("SLURM_ARRAY_TASK_ID")
@@ -257,7 +233,13 @@ def main():
         for h2_cat in df["h2_category"].dropna().unique():
             print(f"\nProcessing: {region} / {h2_cat}")
 
-            sub = df[(df["region"] == region) & (df["h2_category"] == h2_cat)]
+            # Load data
+            DATA_PATH = Path(f"../../../../{region.lower()}/correlation/_m/vmr_env_assoc-AA.tsv.gz")
+            print("Loading data...")
+            df = load_data(DATA_PATH)
+            print(f"Loaded {len(df)} rows")
+
+            sub = df[(df["h2_category"] == h2_cat)]
             X = filter_features(sub, FEATURE_MIN_FRAC, MIN_FEATURE_VAR)
 
             if X.shape[1] < 10:
