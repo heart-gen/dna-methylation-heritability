@@ -24,39 +24,27 @@ echo "Node name: ${SLURM_NODENAME}"
 echo "Hostname: ${HOSTNAME}"
 echo "Task id: ${SLURM_ARRAY_TASK_ID:-N/A}"
 
-INPUT_FILE=/projects/b1213/users/elisa/dna-methylation-heritability/heritability/elastic_net_model/tissue_comparison/clinical_enrichment/fine-mapping/SuSiEx/examples/AFR.sumstats.txt
+INPUT_FILE=$1
 
-awk 'BEGIN{OFS="\t"} NR>1 {print "chr"$1, $3-1, $3, $2}' $INPUT_FILE \
-| sort -k1,1 -k2,2n > gwas.bed
+zcat $INPUT_FILE | \
+awk 'NR>1 {print $1"\t"$2-1"\t"$3"\t"$4}' \
+> gwas.bed
 
 # Runs liftOver
-conda activate /projects/p32505/opt/envs/epigenomics
-/projects/p32505/opt/envs/epigenomics/lib/R/bin/Rscript ../_h/liftOver.R
+conda activate /projects/p32505/opt/envs/genomics
+liftOver gwas.bed ../hg19ToHg38.over.chain.gz lifted.bed gwas.bed
 conda deactivate
 
-awk '{print $4, $3}' gwas_lifted.bed > lifted.map
+awk '{print $1"\t"$2}' lifted.bed > new_positions.txt
 
-awk '
-NR==FNR {
-    newpos[$1]=$2
-    next
-}
-NR==1 {
-    print
-    next
-}
+zcat $INPUT_FILE | \
+awk 'BEGIN{OFS="\t"}
+NR==FNR {pos[$1]=$2; next}
+NR==1 {print; next}
 {
-    split($2, a, ":")     # a[1]=id, a[2]=old bp, a[3]=A1, a[4]=A2
-    bp38 = newpos[$2]
-
-    if (bp38 != "") {
-        $2 = a[1] ":" bp38 ":" a[3] ":" a[4]  # new SNP ID
-        $3 = bp38                              # new bp column
-    }
+    if($1 in pos) $4=pos[$1];
     print
-}
-' OFS="\t" lifted.map $INPUT_FILE > gwas.sumstats.txt
-
-rm gwas.bed gwas_lifted.bed lifted.map
+}' new_positions.txt - | \
+gzip > gwas_lifted.txt.gz
 
 log_message "**** Job ends ****"
