@@ -63,8 +63,32 @@ run_munge() {
 log_message "Processing: Alzheimer's Disease (ad)"
 AD_GWAS="${GWAS_BASE}/alz/bellenguez2022/35379992-GCST90027158-MONDO_0004975.h.tsv.gz"
 if [[ -f "$AD_GWAS" ]]; then
+    # The AD file includes both hm_rsid and variant_id (duplicate rsid columns).
+    # Create a cleaned, single-rsid version to avoid ambiguous SNP column detection.
+    AD_GWAS_CLEAN="${OUT_DIR}/ad.single_rsid.tsv.gz"
+    if [[ ! -f "$AD_GWAS_CLEAN" ]]; then
+        log_message "Cleaning AD GWAS: dropping variant_id to keep hm_rsid only"
+        AD_GWAS="$AD_GWAS" AD_GWAS_CLEAN="$AD_GWAS_CLEAN" python - <<'PY'
+import gzip
+import os
+
+src = os.environ["AD_GWAS"]
+dst = os.environ["AD_GWAS_CLEAN"]
+
+with gzip.open(src, "rt") as fin, gzip.open(dst, "wt") as fout:
+    header = fin.readline().rstrip("\n").split("\t")
+    if "variant_id" in header and "hm_rsid" in header:
+        keep_idx = [i for i, c in enumerate(header) if c != "variant_id"]
+    else:
+        keep_idx = list(range(len(header)))
+    fout.write("\t".join(header[i] for i in keep_idx) + "\n")
+    for line in fin:
+        parts = line.rstrip("\n").split("\t")
+        fout.write("\t".join(parts[i] for i in keep_idx) + "\n")
+PY
+    fi
     run_munge python "$LDSC_WRAPPER" "$LDSC_DIR" "$LOCAL_MUNGE" \
-        --sumstats "$AD_GWAS" \
+        --sumstats "$AD_GWAS_CLEAN" \
         --out "${OUT_DIR}/ad" \
         --a1 hm_effect_allele \
         --a2 hm_other_allele \
