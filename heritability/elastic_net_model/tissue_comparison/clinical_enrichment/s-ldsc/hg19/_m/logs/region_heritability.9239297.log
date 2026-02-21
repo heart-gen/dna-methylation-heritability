@@ -1,6 +1,0 @@
-/var/spool/slurmd/job9239297/slurm_script: line 21: /var/spool/slurmd/job9239297/config.sh: No such file or directory
-/var/spool/slurmd/job9239297/slurm_script: line 23: log_message: command not found
-/var/spool/slurmd/job9239297/slurm_script: line 24: print_job_info: command not found
-No modules loaded
-/var/spool/slurmd/job9239297/slurm_script: line 29: log_message: command not found
-/var/spool/slurmd/job9239297/slurm_script: line 65: log_message: command not found
