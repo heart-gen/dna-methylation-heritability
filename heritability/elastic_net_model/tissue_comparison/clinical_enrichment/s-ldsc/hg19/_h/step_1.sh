@@ -5,7 +5,7 @@
 #SBATCH --mem=20gb
 #SBATCH --job-name=munge_sumstats
 #SBATCH --mail-type=FAIL
-#SBATCH --mail-user=kj.benjamin90@gmail.com
+#SBATCH --mail-user=elisajohnson2027@u.northwestern.edu
 #SBATCH --output=logs/munge_stats.%j.log
 
 # =============================================================================
@@ -63,11 +63,11 @@ run_munge() {
 log_message "Processing: Alzheimer's Disease (ad)"
 AD_GWAS="${GWAS_BASE}/alz/bellenguez2022/35379992-GCST90027158-MONDO_0004975.h.tsv.gz"
 if [[ -f "$AD_GWAS" ]]; then
-    # The AD file includes both hm_rsid and variant_id (duplicate rsid columns).
+    # The AD file includes both hm_x and x (duplicate columns).
     # Create a cleaned, single-rsid version to avoid ambiguous SNP column detection.
     AD_GWAS_CLEAN="${OUT_DIR}/ad.single_rsid.tsv.gz"
     if [[ ! -f "$AD_GWAS_CLEAN" ]]; then
-        log_message "Cleaning AD GWAS: dropping variant_id to keep hm_rsid only"
+        log_message "Cleaning AD GWAS: dropping x to keep hm_x only"
         AD_GWAS="$AD_GWAS" AD_GWAS_CLEAN="$AD_GWAS_CLEAN" python - <<'PY'
 import gzip
 import os
@@ -75,13 +75,35 @@ import os
 src = os.environ["AD_GWAS"]
 dst = os.environ["AD_GWAS_CLEAN"]
 
+# Define duplicate column pairs: (keep, drop)
+duplicate_pairs = [
+    ("hm_rsid", "variant_id"),
+    ("hm_chrom", "chromosome"),
+    ("hm_pos", "base_pair_location"),
+    ("hm_other_allele", "other_allele"),
+    ("hm_effect_allele", "effect_allele"),
+    ("hm_beta", "beta"),
+    ("hm_odds_ratio", "odds_ratio"),
+    ("hm_ci_lower", "ci_lower"),
+    ("hm_ci_upper", "ci_upper"),
+    ("hm_effect_allele_frequency", "effect_allele_frequency"),
+]
+
 with gzip.open(src, "rt") as fin, gzip.open(dst, "wt") as fout:
     header = fin.readline().rstrip("\n").split("\t")
-    if "variant_id" in header and "hm_rsid" in header:
-        keep_idx = [i for i, c in enumerate(header) if c != "variant_id"]
-    else:
-        keep_idx = list(range(len(header)))
+
+    # Determine which columns to drop
+    drop_cols = set()
+    for keep, drop in duplicate_pairs:
+        if keep in header and drop in header:
+            drop_cols.add(drop)
+
+    keep_idx = [i for i, col in enumerate(header) if col not in drop_cols]
+
+    # Write cleaned header
     fout.write("\t".join(header[i] for i in keep_idx) + "\n")
+
+    # Write cleaned rows
     for line in fin:
         parts = line.rstrip("\n").split("\t")
         fout.write("\t".join(parts[i] for i in keep_idx) + "\n")
@@ -168,22 +190,59 @@ run_munge python "$LDSC_WRAPPER" "$LDSC_DIR" "$LOCAL_MUNGE" \
 # Build handling: use rsid column to avoid coordinate-build mismatch in hg19 LDSC pipeline.
 log_message "Processing: Parkinson's Disease (pd)"
 PD_GWAS="${GWAS_BASE}/PD/data/GCST009325.h.tsv.gz"
-if [[ ! -f "$PD_GWAS" ]]; then
-    log_message "WARNING: PD GWAS not found (${PD_GWAS}). Skipping."
+if [[ -f "$PD_GWAS" ]]; then
+    # The PD file includes both hm_x and x (duplicate columns).
+    # Create a cleaned, single-rsid version to avoid ambiguous SNP column detection.
+    PD_GWAS_CLEAN="${OUT_DIR}/pd.single_rsid.tsv.gz"
+    if [[ ! -f "$PD_GWAS_CLEAN" ]]; then
+        log_message "Cleaning PD GWAS: dropping x to keep hm_x only"
+        PD_GWAS="$PD_GWAS" PD_GWAS_CLEAN="$PD_GWAS_CLEAN" python - <<'PY'
+import gzip
+import os
+
+src = os.environ["PD_GWAS"]
+dst = os.environ["PD_GWAS_CLEAN"]
+
+# Define duplicate column pairs: (keep, drop)
+duplicate_pairs = [
+    ("rsid", "variant_id"),
+]
+
+with gzip.open(src, "rt") as fin, gzip.open(dst, "wt") as fout:
+    header = fin.readline().rstrip("\n").split("\t")
+
+    # Determine which columns to drop
+    drop_cols = set()
+    for keep, drop in duplicate_pairs:
+        if keep in header and drop in header:
+            drop_cols.add(drop)
+
+    keep_idx = [i for i, col in enumerate(header) if col not in drop_cols]
+
+    # Write cleaned header
+    fout.write("\t".join(header[i] for i in keep_idx) + "\n")
+
+    # Write cleaned rows
+    for line in fin:
+        parts = line.rstrip("\n").split("\t")
+        fout.write("\t".join(parts[i] for i in keep_idx) + "\n")
+PY
+    fi
+    run_munge python "$LDSC_WRAPPER" "$LDSC_DIR" "$LOCAL_MUNGE" \
+        --sumstats "$PD_GWAS_CLEAN" \
+        --out "${OUT_DIR}/pd" \
+        --a1 effect_allele \
+        --a2 other_allele \
+        --signed-sumstats beta,0 \
+        --p p_value \
+        --snp rsid \
+        --frq effect_allele_frequency \
+        --N-cas-col N_cases \
+        --N-con-col N_controls \
+        --merge-alleles "$HM3_SNPLIST" \
+        --chunksize 500000
 else
-run_munge python "$LDSC_WRAPPER" "$LDSC_DIR" "$LOCAL_MUNGE" \
-    --sumstats "$PD_GWAS" \
-    --out "${OUT_DIR}/pd" \
-    --a1 effect_allele \
-    --a2 other_allele \
-    --signed-sumstats beta,0 \
-    --p p_value \
-    --snp rsid \
-    --frq effect_allele_frequency \
-    --N-cas-col N_cases \
-    --N-con-col N_controls \
-    --merge-alleles "$HM3_SNPLIST" \
-    --chunksize 500000
+    log_message "WARNING: PD GWAS not found (${PD_GWAS}). Skipping until download completes."
 fi
 
 # --- Multiple Sclerosis (MS) ---
