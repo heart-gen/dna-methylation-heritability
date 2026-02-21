@@ -342,7 +342,7 @@ fi
 
 # --- Height (Control) ---
 # Source: UK Biobank standing height (hg38 imputed file)
-# Build handling: use rsIDs (variant_id) with HM3 merge in hg19 LDSC reference space.
+# No HM3 merge.
 log_message "Processing: Height (height control)"
 HEIGHT_GWAS="${GWAS_BASE}/imputed_gwas_hg38_1.1/imputed_UKB_50_Standing_height.txt.gz"
 CHAIN_FILE=/projects/b1213/users/elisa/dna-methylation-heritability/heritability/elastic_net_model/tissue_comparison/clinical_enrichment/liftOver/hg38ToHg19.over.chain.gz
@@ -376,7 +376,6 @@ if [[ -f "$OUT_DIR/height_lifted.txt.gz" ]]; then
         --snp variant_id \
         --frq frequency \
         --N-col sample_size \
-        --merge-alleles "$HM3_SNPLIST" \
         --chunksize 500000
 else
     log_message "WARNING: Height GWAS not found (${OUT_DIR}/height_lifted.txt.gz). Skipping."
