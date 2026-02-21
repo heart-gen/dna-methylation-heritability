@@ -345,9 +345,29 @@ fi
 # Build handling: use rsIDs (variant_id) with HM3 merge in hg19 LDSC reference space.
 log_message "Processing: Height (height control)"
 HEIGHT_GWAS="${GWAS_BASE}/imputed_gwas_hg38_1.1/imputed_UKB_50_Standing_height.txt.gz"
-if [[ -f "$HEIGHT_GWAS" ]]; then
+CHAIN_FILE=/projects/b1213/users/elisa/dna-methylation-heritability/heritability/elastic_net_model/tissue_comparison/clinical_enrichment/liftOver/hg38ToHg19.over.chain.gz
+
+zcat "$HEIGHT_GWAS" | \
+awk 'NR>1 {print $3"\t"$4-1"\t"$4"\t"$1}' \
+> $OUT_DIR/height.bed
+
+liftOver $OUT_DIR/height.bed $CHAIN_FILE $OUT_DIR/height_lifted.bed $OUT_DIR/height_unmapped.bed
+
+awk '{print $4"\t"$3}' $OUT_DIR/height_lifted.bed > $OUT_DIR/height_new_positions.txt
+
+zcat "$HEIGHT_GWAS" | \
+awk 'BEGIN{OFS="\t"}
+NR==FNR {pos[$1]=$2; next}
+NR==1 {print; next}
+{
+    if($1 in pos) $4=pos[$1];
+    print
+}' $OUT_DIR/height_new_positions.txt - | \
+gzip > $OUT_DIR/height_lifted.txt.gz
+
+if [[ -f "$OUT_DIR/height_lifted.txt.gz" ]]; then
     run_munge python "$LDSC_WRAPPER" "$LDSC_DIR" "$LOCAL_MUNGE" \
-        --sumstats "$HEIGHT_GWAS" \
+        --sumstats "$OUT_DIR/height_lifted.txt.gz" \
         --out "${OUT_DIR}/height" \
         --a1 effect_allele \
         --a2 non_effect_allele \
@@ -359,7 +379,7 @@ if [[ -f "$HEIGHT_GWAS" ]]; then
         --merge-alleles "$HM3_SNPLIST" \
         --chunksize 500000
 else
-    log_message "WARNING: Height GWAS not found (${HEIGHT_GWAS}). Skipping."
+    log_message "WARNING: Height GWAS not found (${OUT_DIR}/height_lifted.txt.gz). Skipping."
 fi
 
 # -----------------------------------------------------------------------------
