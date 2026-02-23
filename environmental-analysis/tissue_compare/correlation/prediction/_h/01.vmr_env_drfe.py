@@ -78,7 +78,7 @@ def run_drfe_cv(X, y, features, outdir, n_splits=5, elimination_rate=0.2):
         # Set model (multinomial is default in sklearn 1.7+)
         estimator = LogisticRegression(
             penalty="elasticnet", solver="saga",
-            l1_ratio=0.5, max_iter=5000, class_weight="balanced", n_jobs=1
+            l1_ratio=0.5, max_iter=5000, class_weight="balanced"
         )
 
         # Run dRFE for this fold with ranking enabled
@@ -205,13 +205,14 @@ def main():
     FEATURE_MIN_FRAC = 0.6    # feature present in ≥60% samples
 
     ENV_VARS = [
-        "sex", "primarydx", "smoking", "codeine", "morphine",
+        "sex", "dx", "smoking", "codeine", "morphine",
         "cocaine", "ethanol", "antipsychotics", "nicotine",
         "amphetamines", "education", "marital_status",
     ]
 
     # Get unique regions (sorted for reproducibility)
     all_regions = ["Caudate", "Hippocampus", "DLPFC"]
+    h2_categories = ["Heritable", "Non-heritable", "Low Prediction"]
 
     # SLURM array job support: process single region if SLURM_ARRAY_TASK_ID is set
     slurm_task_id = os.environ.get("SLURM_ARRAY_TASK_ID")
@@ -230,7 +231,7 @@ def main():
     results = []
     task_count = 0
     for region in regions_to_process:
-        for h2_cat in df["h2_category"].dropna().unique():
+        for h2_cat in h2_categories:
             print(f"\nProcessing: {region} / {h2_cat}")
 
             # Load data
