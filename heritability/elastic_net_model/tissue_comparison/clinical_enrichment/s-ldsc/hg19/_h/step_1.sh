@@ -372,7 +372,6 @@ if [[ -f "$OUT_DIR/height_lifted.txt.gz" ]]; then
         --a1 effect_allele \
         --a2 non_effect_allele \
         --signed-sumstats zscore,0 \
-        --p pvalue \
         --snp variant_id \
         --frq frequency \
         --N-col sample_size \
