@@ -32,7 +32,7 @@ log_message "**** Loading conda environment ****"
 source /projects/p32505/opt/miniforge3/etc/profile.d/conda.sh
 
 log_message "**** Run prediction analysis ****"
-conda activate /projects/p32505/opt/envs/genomics
+conda activate /projects/p32505/opt/envs/ml
 export LD_LIBRARY_PATH=$CONDA_PREFIX/lib:$LD_LIBRARY_PATH
 python ../_h/01.vmr_env_drfe.py
 
