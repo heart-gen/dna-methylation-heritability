@@ -372,10 +372,12 @@ if [[ -f "$OUT_DIR/height_lifted.txt.gz" ]]; then
         --a1 effect_allele \
         --a2 non_effect_allele \
         --signed-sumstats zscore,0 \
+        --p pvalue \
         --snp variant_id \
         --frq frequency \
         --N-col sample_size \
-        --chunksize 500000
+        --merge-alleles "$HM3_SNPLIST" \
+        --chunksize 500000 \
 else
     log_message "WARNING: Height GWAS not found (${OUT_DIR}/height_lifted.txt.gz). Skipping."
 fi

@@ -5,7 +5,7 @@
 #SBATCH --mem=10gb
 #SBATCH --job-name=region_heritability
 #SBATCH --mail-type=FAIL
-#SBATCH --mail-user=kj.benjamin90@gmail.com
+#SBATCH --mail-user=elisajohnson2027@u.northwestern.edu
 #SBATCH --output=logs/region_heritability.%j.log
 
 # =============================================================================
