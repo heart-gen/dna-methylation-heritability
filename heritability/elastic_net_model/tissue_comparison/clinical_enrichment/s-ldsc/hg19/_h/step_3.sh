@@ -6,7 +6,7 @@
 #SBATCH --array=1-22
 #SBATCH --job-name=compute_ldscores
 #SBATCH --mail-type=FAIL
-#SBATCH --mail-user=kj.benjamin90@gmail.com
+#SBATCH --mail-user=elisajohnson2027@u.northwestern.edu
 #SBATCH --output=logs/compute_ldscores.%A_%a.log
 
 # =============================================================================

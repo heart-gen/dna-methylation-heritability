@@ -3,7 +3,7 @@
 #SBATCH --partition=short
 #SBATCH --job-name=make_plots
 #SBATCH --mail-type=FAIL
-#SBATCH --mail-user=kj.benjamin90@gmail.com
+#SBATCH --mail-user=elisajohnson2027@u.northwestern.edu
 #SBATCH --output=logs/make_plots.log
 #SBATCH --mem=10gb
 #SBATCH --time=00:30:00

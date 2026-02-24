@@ -5,7 +5,7 @@
 #SBATCH --mem=20gb
 #SBATCH --job-name=partition_heritability
 #SBATCH --mail-type=FAIL
-#SBATCH --mail-user=kj.benjamin90@gmail.com
+#SBATCH --mail-user=elisajohnson2027@u.northwestern.edu
 #SBATCH --output=logs/partitiona_heritability.%j.log
 
 # =============================================================================
