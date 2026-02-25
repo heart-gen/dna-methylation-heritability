@@ -71,7 +71,7 @@ envs <- c("smoking", "educationless_than_hs", "educationmore_than_hs",
           "hx_other_trauma", "hx_military_service")
 
 for (label in envs){
-  plot_tile(label, 10, 10)
+  plot_tile(label, 10, 6)
 }
 
 
