@@ -35,7 +35,7 @@ plot_circos_7samples <- function(samples_list){
                                         # initialize with ideogram
                                         # use hg38, default is hg19
     circos.initializeWithIdeogram(species="hg38")
-    herit_colors <- c("Heritable" = "#0072B2", "Non-heritable" = "#1B9E77")
+    herit_colors <- c("Heritable" = "#333333", "Non-heritable" = "#BDBDBD")
     
     bg_colors <- brewer.pal(n = length(samples_list), "Set3")
                                         # Plot each sample size as a track
