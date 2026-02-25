@@ -95,16 +95,18 @@ plot_density <- function(vmr, tissue) {
     counts$h2_category
   )
   
+  tissue_title <- ifelse(tolower(tissue) == "dlpfc", "DLPFC", tools::toTitleCase(tissue))
+  
   p_hist <- gghistogram(vmr, x = "log10_length", 
                         add_density = TRUE, rug = TRUE, 
                         add = "median",
                         color = "h2_category", fill = "h2_category",
                         ggtheme = theme_pubr(base_size = 15, border = TRUE),
-                        xlab = "Length (BP)", ylab = "Count") +
+                        xlab = "log10(VMR Length)", ylab = "Count") +
     facet_wrap(~h2_category, labeller = as_labeller(labels), scales = "free_x") +
     scale_color_manual(values = category_colors) +
     scale_fill_manual(values = category_colors) +
-    ggtitle(paste("VMR length distribution:", tissue)) +
+    ggtitle(paste("VMR length distribution:", tissue_title)) +
     labs(color = NULL, fill = NULL) +
     font("xy.title", face = "bold", size = 14) +
     theme(
@@ -132,9 +134,11 @@ plot_corr <- function(vmr, tissue) {
     "Low prediction" = "#E3A27F"
   )
   
+  tissue_title <- ifelse(tolower(tissue) == "dlpfc", "DLPFC", tools::toTitleCase(tissue))
+  
   p_corr <- ggscatter(vmr, x = "log10_length", y = "h2_unscaled",
                       add = "reg.line", size = 1, alpha = 0.75,
-                      xlab = "VMR Length (BP)", ylab = "Estimated h2", 
+                      xlab = "log10(VMR Length)", ylab = "Estimated h2", 
                       conf.int = TRUE,
                       cor.coef = TRUE, cor.coef.size = 4,
                       cor.coeff.args = list(
@@ -151,7 +155,7 @@ plot_corr <- function(vmr, tissue) {
     scale_color_manual(values = category_colors) +
     scale_fill_manual(values = category_colors) +
     labs(color = NULL) +
-    ggtitle(paste("VMR length correlation:", tissue)) +
+    ggtitle(paste("VMR length correlation:", tissue_title)) +
     font("xy.title", face = "bold", size = 14) +
     theme(
       axis.text.x = element_text(angle = 45, hjust = 1),
