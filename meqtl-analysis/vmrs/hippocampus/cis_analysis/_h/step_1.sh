@@ -1,10 +1,10 @@
 #!/bin/bash
-#SBATCH --account=p32505
-#SBATCH --partition=gengpu
+#SBATCH --account=b1042
+#SBATCH --partition=genomics-gpu
 #SBATCH --gres=gpu:a100:1
 #SBATCH --job-name=cis_mapping
 #SBATCH --mail-type=ALL
-#SBATCH --mail-user=alexis.bennett@northwestern.edu ## Update this
+#SBATCH --mail-user=elisajohnson2027@u.northwestern.edu
 #SBATCH --nodes=1
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=40gb
@@ -37,7 +37,7 @@ module list
 log_message "**** Loading conda environment ****"
 
 source /projects/p32505/opt/miniforge3/etc/profile.d/conda.sh
-conda activate /projects/p32505/opt/env/eQTL_env
+conda activate /projects/p32505/opt/envs/genomics
 python ../_h/01.eqtl_tensorqtl.py
 
 #ENV_PATH="/projects/p32505/opt/env/eQTL_env"

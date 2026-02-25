@@ -1,10 +1,10 @@
 #!/bin/bash
-#SBATCH --account=p32505
-#SBATCH --partition=gengpu
+#SBATCH --account=b1042
+#SBATCH --partition=genomics-gpu
 #SBATCH --gres=gpu:a100:1
 #SBATCH --job-name=cis_mapping
 #SBATCH --mail-type=ALL
-#SBATCH --mail-user=alexis.bennett@northwestern.edu ## Update this
+#SBATCH --mail-user=elisajohnson2027@u.northwestern.edu
 #SBATCH --nodes=1
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=40gb
