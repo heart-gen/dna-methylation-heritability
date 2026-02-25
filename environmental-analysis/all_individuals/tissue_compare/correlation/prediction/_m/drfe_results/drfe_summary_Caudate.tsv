@@ -1,0 +1,19 @@
+region	h2_category	h2_category_safe	env_var	n_samples	n_features	best_score	best_n_features
+Caudate	Heritable	heritable	smoking	278	1216	0.5052008994618601	316
+Caudate	Heritable	heritable	ethanol	278	1216	0.518583042973287	12
+Caudate	Heritable	heritable	antipsychotics	229	1216	0.4373454921984334	1
+Caudate	Heritable	heritable	nicotine	280	1216	0.4664337358970284	1216
+Caudate	Heritable	heritable	education	259	1216	0.6098023796615984	396
+Caudate	Heritable	heritable	marital_status	260	1216	0.4834419534124052	1
+Caudate	Non-heritable	non-heritable	smoking	278	91	0.5059971181217964	6
+Caudate	Non-heritable	non-heritable	ethanol	278	91	0.4479094076655052	3
+Caudate	Non-heritable	non-heritable	antipsychotics	229	91	0.5154655257596434	45
+Caudate	Non-heritable	non-heritable	nicotine	280	91	0.4984443031940251	45
+Caudate	Non-heritable	non-heritable	education	259	91	0.5773023913167318	91
+Caudate	Non-heritable	non-heritable	marital_status	260	91	0.4802094412354233	4
+Caudate	Low prediction	low_prediction	smoking	278	9916	0.5692927724703751	2598
+Caudate	Low prediction	low_prediction	ethanol	278	9916	0.4951800232288037	141
+Caudate	Low prediction	low_prediction	antipsychotics	229	9916	0.5327061663826369	850
+Caudate	Low prediction	low_prediction	nicotine	280	9916	0.5473471184914456	2598
+Caudate	Low prediction	low_prediction	education	259	9916	0.6413347273007336	850
+Caudate	Low prediction	low_prediction	marital_status	260	9916	0.511358641223632	4
