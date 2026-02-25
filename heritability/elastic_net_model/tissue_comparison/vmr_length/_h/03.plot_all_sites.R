@@ -69,7 +69,7 @@ plot_density <- function(vmr, tissue) {
                         add = "median",
                         color = "tissue", fill = "tissue",
                         ggtheme = theme_pubr(base_size = 15, border = TRUE),
-                        xlab = "Length (BP)", ylab = "Count") +
+                        xlab = "log10(VMR Length)", ylab = "Count") +
     facet_wrap(~tissue, labeller = as_labeller(labels), scales = "free_x") +
     scale_color_manual(values = tissue_colors) +
     scale_fill_manual(values = tissue_colors) +
@@ -103,7 +103,7 @@ plot_corr <- function(vmr, tissue) {
   
   p_corr <- ggscatter(vmr, x = "log10_length", y = "h2_unscaled",
                       add = "reg.line", size = 1, alpha = 0.75,
-                      xlab = "VMR Length (BP)", ylab = "Estimated h2", 
+                      xlab = "log10(VMR Length)", ylab = "Estimated h2", 
                       conf.int = TRUE,
                       cor.coef = TRUE, cor.coef.size = 4,
                       cor.coeff.args = list(
@@ -146,7 +146,7 @@ for (tissue in tissues) {
   enet_file <- here("heritability/elastic_net_model/", 
                     paste0(tissue, "/_m/", tissue, "_summary_elastic-net.tsv"))
   vmr <- read.table(enet_file, sep = "\t", header = TRUE)
-  
+  vmr <- na.omit(vmr)
   vmr <- cal_vmr_length(vmr)
   
   # Store vmrs across all tissues
