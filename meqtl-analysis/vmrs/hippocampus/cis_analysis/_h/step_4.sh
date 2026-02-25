@@ -4,7 +4,7 @@
 #SBATCH --gres=gpu:a100:1
 #SBATCH --job-name=conditional_analysis
 #SBATCH --mail-type=FAIL
-#SBATCH --mail-user=alexis.bennett@northwestern.edu
+#SBATCH --mail-user=elisajohnson2027@u.northwestern.edu
 #SBATCH --nodes=1
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=40gb
@@ -37,7 +37,7 @@ module list
 log_message "**** Loading conda environment ****"
 #source /projects/p32505/opt/miniforge3/etc/profile.d/conda.sh
 
-ENV_PATH="/projects/p32505/opt/env/eQTL_env"
+ENV_PATH="/projects/p32505/opt/envs/genomics"
 
 conda run -p ${ENV_PATH} python ../_h/04.conditional_analysis.py
 

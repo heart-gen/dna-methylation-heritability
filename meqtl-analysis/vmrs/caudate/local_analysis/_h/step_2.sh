@@ -1,6 +1,6 @@
 #!/bin/bash
-#SBATCH --account=p32505
-#SBATCH --partition=gengpu
+#SBATCH --account=b1042
+#SBATCH --partition=genomics-gpu
 #SBATCH --gres=gpu:h100:1
 #SBATCH --job-name=perm_mapping
 #SBATCH --mail-type=FAIL
