@@ -60,14 +60,13 @@ plot_tile <- function(label, w, h){
 envs <- c("smoking", "educationless_than_hs", "educationmore_than_hs", 
           "marital_statussingle", "marital_statuspreviously_married", "codeine", 
           "morphine", "cocaine", "ethanol", "antipsychotics","nicotine",
-          "amphetamines", "hx_sexual_abuse", "hx_physical_abuse", 
-          "hx_other_trauma", "hx_military_service")
+          "amphetamines", "hx_sexual_abuse", "hx_physical_abuse")
 
 for (label in envs){
-  plot_tile(label, 10, 10)
+  plot_tile(label, 10, 6)
 }
 
-## Reproducibility information
+## Reproducibility infor mation
 Sys.time()
 proc.time()
 options(width = 120)
