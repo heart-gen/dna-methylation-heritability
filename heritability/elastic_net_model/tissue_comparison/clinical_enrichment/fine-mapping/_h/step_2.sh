@@ -38,7 +38,7 @@ for file in "$REF_DIR"/TOPMed_LIBD.AA.*.bed; do
 	if [[ $filename =~ ([0-9]+)_([0-9]+)\. ]]; then
 		START=${BASH_REMATCH[1]}
 		END=${BASH_REMATCH[2]}
-		echo "File: $filename → START=$START, END=$END"
+		echo "Expanding 500 kb window around $filename → START=$((START - 500000)), END=$((END + 500000))"
 	else
 		echo "File $filename does not match the expected pattern."
 	fi
