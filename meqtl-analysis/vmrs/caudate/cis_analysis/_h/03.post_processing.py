@@ -5,6 +5,7 @@ This script runs tensorQTL in python.
 import pandas as pd
 import session_info
 import glob
+from functools import lru_cache
 from tensorqtl.post import get_significant_pairs
 from statsmodels.stats.multitest import fdrcorrection
 
