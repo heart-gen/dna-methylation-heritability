@@ -5,10 +5,10 @@
 #SBATCH --nodes=1               # Number of nodes
 #SBATCH --ntasks-per-node=1     # Number of cores (CPU)
 #SBATCH --mem=25G                # Memory limit
-#SBATCH --job-name=run_SuSiEx  # Job name
-#SBATCH --output=logs/output_%j.log  # Standard output log
-#SBATCH --error=logs/error_%j.log    # Standard error log
-#SBATCH --array=1-22          # Array job range
+#SBATCH --job-name=subset_gwas  # Job name
+#SBATCH --output=logs/step_2/output_%j.log  # Standard output log
+#SBATCH --error=logs/step_2/error_%j.log    # Standard error log
+#SBATCH --array=1-22
 
 # Log function
 log_message() {
@@ -25,53 +25,33 @@ echo "Node name: ${SLURM_NODENAME}"
 echo "Hostname: ${HOSTNAME}"
 echo "Task id: ${SLURM_ARRAY_TASK_ID:-N/A}"
 
-# Create output directory
-OUT_DIR=results/hippocampus/chr_$SLURM_ARRAY_TASK_ID
-mkdir -p $OUT_DIR
+module load plink/1.9
 
-# Define chromosome directory and reference directory
-CHR_DIR="./ld_matrices/hippocampus/chr_${SLURM_ARRAY_TASK_ID}"
+REF_DIR=/projects/b1213/users/alexis/projects/dna-methylation-heritability/vmr-analysis/caudate/_m/plink_format/chr_$SLURM_ARRAY_TASK_ID
+GWAS_FILE="/projects/b1213/resources/gwas/mdd/jamapsy_Giannakopoulou_2021_exclude_whi_23andMe.txt.gz"
 
-for dir in "$CHR_DIR"/*/; do
-    dir_name=$(basename "$dir")
+# Loop through each BED file in plink directory
+for file in "$REF_DIR"/TOPMed_LIBD.AA.*.bed; do
+	filename=$(basename "$file")
 
-    region=($(echo "$dir_name" | grep -oE '[0-9]+'))
+	# Extract START and END positions from filename
+	if [[ $filename =~ ([0-9]+)_([0-9]+)\. ]]; then
+		START=${BASH_REMATCH[1]}
+		END=${BASH_REMATCH[2]}
+		echo "File: $filename → START=$START, END=$END"
+	else
+		echo "File $filename does not match the expected pattern."
+	fi
 
-    if [ "${#region[@]}" -eq 2 ]; then
-        START=${region[0]}
-        END=${region[1]}
-        echo "$dir_name: START=$START, END=$END"
-    else
-        echo "$dir_name: numbers found = ${region[*]}"
-    fi
+  # Create output directory for LD matrices
+	OUT_DIR=gwas/mdd/caudate/chr_$SLURM_ARRAY_TASK_ID
+	mkdir -p $OUT_DIR
 
-	START_POS=$((START - 500000))
-	END_POS=$((END + 500000))
-
-	../SuSiEx/bin/SuSiEx \
-		--sst_file=../MDD_harmonized.sumstats.txt \
-		--n_gwas=50000 \
-		--ref_file=./ld_matrices/hippocampus/chr_${SLURM_ARRAY_TASK_ID}/${START}_${END}/TOPMed_LIBD.AA.${START}_${END} \
-		--ld_file=./ld_matrices/hippocampus/chr_${SLURM_ARRAY_TASK_ID}/${START}_${END}/TOPMed_LIBD.AA.${START}_${END} \
-		--out_dir=$OUT_DIR \
-		--out_name=TOPMed_LIBD.AA.${START}_${END}.output \
-		--level=0.95 \
-		--pval_thresh=1e-5 \
-		--maf=0.005 \
-		--chr=${SLURM_ARRAY_TASK_ID} \
-		--bp=$START_POS,$END_POS \
-		--snp_col=2 \
-		--chr_col=1 \
-		--bp_col=3 \
-		--a1_col=4 \
-		--a2_col=5 \
-		--eff_col=6 \
-		--se_col=7 \
-		--pval_col=9 \
-		--plink=../utilities/plink \
-		--mult-step=True \
-		--keep-ambig=True \
-		--threads=16
+  # Subset GWAS file based on SNPs in the BIM file
+  zcat "$GWAS_FILE" | \
+  awk -v chr="$SLURM_ARRAY_TASK_ID" -v start="$START - 500000" -v end="$END + 500000" '
+  NR==1 || ($2==chr && $3>=start && $3<=end)
+  ' > "$OUT_DIR/TOPMed_LIBD.AA.${START}_${END}.tsv"
 done
 
 log_message "**** Job ends ****"
