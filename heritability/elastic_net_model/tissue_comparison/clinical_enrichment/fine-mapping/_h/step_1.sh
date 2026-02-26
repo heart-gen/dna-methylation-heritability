@@ -39,7 +39,7 @@ for file in "$REF_DIR"/TOPMed_LIBD.AA.*.bed; do
 	if [[ $filename =~ ([0-9]+)_([0-9]+)\. ]]; then
 		START=${BASH_REMATCH[1]}
 		END=${BASH_REMATCH[2]}
-		echo "File: $filename → START=$START, END=$END"
+		echo "Expanding 500 kb window around $filename → START=$((START - 500000)), END=$((END + 500000))"
 	else
 		echo "File $filename does not match the expected pattern."
 	fi
@@ -51,8 +51,8 @@ for file in "$REF_DIR"/TOPMed_LIBD.AA.*.bed; do
 	plink \
   		--bfile $REF_DIR/TOPMed_LIBD.AA.${START}_${END} \
 		--chr $SLURM_ARRAY_TASK_ID \
-		--from-bp $START \
-  		--to-bp $END \
+		--from-bp $((START - 500000)) \
+  		--to-bp $((END + 500000)) \
   		--r square \
   		--out $OUT_DIR/TOPMed_LIBD.AA.${START}_${END}
 done
