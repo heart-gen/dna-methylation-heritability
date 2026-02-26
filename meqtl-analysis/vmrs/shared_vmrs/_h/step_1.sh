@@ -35,7 +35,7 @@ module list
 log_message "**** Loading mamba environment ****"
 ENV_PATH="/projects/p32505/opt/envs"
 
-mamba run -p $ENV_PATH/epigenomics Rscript ../_h/01.prepare_mash.R
+mamba run -p $ENV_PATH/epigenomics Rscript ../_h/01.prepare_mash.R f_0.25
 if [ $? -ne 0 ]; then
     log_message "Error: Mamba or script execution failed"
     exit 1
