@@ -6,8 +6,8 @@
 #SBATCH --ntasks-per-node=1     # Number of cores (CPU)
 #SBATCH --mem=25G                # Memory limit
 #SBATCH --job-name=cal_ld  # Job name
-#SBATCH --output=logs/output_%j.log  # Standard output log
-#SBATCH --error=logs/error_%j.log    # Standard error log
+#SBATCH --output=logs/step_1/output_%j.log  # Standard output log
+#SBATCH --error=logs/step_1/error_%j.log    # Standard error log
 #SBATCH --array=1-22          # Array job range
 
 # Log function
@@ -25,10 +25,13 @@ echo "Node name: ${SLURM_NODENAME}"
 echo "Hostname: ${HOSTNAME}"
 echo "Task id: ${SLURM_ARRAY_TASK_ID:-N/A}"
 
-# Define reference directory based on chromosome number
-REF_DIR=/projects/b1213/users/alexis/projects/dna-methylation-heritability/heritability/hippocampus/_m/plink_format/chr_${SLURM_ARRAY_TASK_ID}
+# Load plink module
+module load plink/1.9
 
-# Loop through each BED file in the reference directory
+# Define plink directory
+REF_DIR=/projects/b1213/users/alexis/projects/dna-methylation-heritability/vmr-analysis/hippocampus/_m/plink_format/chr_${SLURM_ARRAY_TASK_ID}
+
+# Loop through each BED file in plink directory
 for file in "$REF_DIR"/TOPMed_LIBD.AA.*.bed; do
 	filename=$(basename "$file")
 
@@ -42,21 +45,16 @@ for file in "$REF_DIR"/TOPMed_LIBD.AA.*.bed; do
 	fi
 
 	# Create output directory for LD matrices
-	OUT_DIR=ld_matrices/hippocampus/chr_$SLURM_ARRAY_TASK_ID/$START"_"$END
+	OUT_DIR=ld_matrices/hippocampus/chr_$SLURM_ARRAY_TASK_ID
 	mkdir -p $OUT_DIR
 
-	# Define 500kb window around the VMR
-	START_POS=$((START - 500000))
-	END_POS=$((END + 500000))
-
-	# Calculate LD matrix using SuSiEx_LD.py
-	python ../SuSiEx/utilities/SuSiEx_LD.py \
-		--ref_file=$REF_DIR/TOPMed_LIBD.AA.${START}_${END} \
-		--ld_file=$OUT_DIR/TOPMed_LIBD.AA.${START}_${END} \
-		--chr=$SLURM_ARRAY_TASK_ID \
-		--bp=${START_POS},${END_POS} \
-		--plink=../SuSiEx/utilities/plink \
-		--maf=0.005
+	plink \
+  		--bfile $REF_DIR/TOPMed_LIBD.AA.${START}_${END} \
+		--chr $SLURM_ARRAY_TASK_ID \
+		--from-bp $START \
+  		--to-bp $END \
+  		--r square \
+  		--out $OUT_DIR/TOPMed_LIBD.AA.${START}_${END}
 done
 
 log_message "**** Job ends ****"
