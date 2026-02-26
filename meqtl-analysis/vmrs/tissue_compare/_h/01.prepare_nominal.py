@@ -11,7 +11,14 @@ from pathlib import Path
 # Brain regions to include
 BRAIN_REGIONS = ["caudate", "dlpfc", "hippocampus"]
 
-def load_meqtl_parquet(region, localqtl=False):
+def extract_shared_vmrs(shared_key_fn):
+    """
+    Extract shared VMRs across all brain regions.
+    """
+    return pd.read_csv(shared_key_fn, sep="\t", 
+                       usecols=["shared_feature_id", "feature_id"])
+
+def load_meqtl_parquet(region, shared, localqtl=False):
     """
     Load all chromosome-specific parquet files for a given brain region and feature.
     """
@@ -30,24 +37,27 @@ def load_meqtl_parquet(region, localqtl=False):
     for f in files:
         df = pd.read_parquet(f, columns=["phenotype_id", "variant_id",
                                          "slope", "slope_se"])
+        df - df.merge(shared, left_on = "phenotype_id", 
+                      right_on = "phenotype_id", how = "inner")
+
         dfs.append(df)
 
     return pd.concat(dfs, ignore_index=True)
 
-
-def extract_meqtls(localqtl):
+def extract_meqtls(shared, localqtl):
     """
     Extract meQTLs from each brain region.
     """
     data = {}
     for region in BRAIN_REGIONS:
-        data[region] = load_meqtl_parquet(region, localqtl)
+        data[region] = load_meqtl_parquet(region, shared, localqtl)
     return data
 
 
 def extract_dataframe(region_data, variable, label, outdir):
     """
-    Combine the selected variable across regions into a single dataframe.
+    Combine the selected variable across regions into a single dataframe 
+    for only shared VMRs.
     """
     dfs = []
     for region, df in region_data.items():
@@ -73,7 +83,10 @@ def main():
     args = parser.parse_args()
 
     # Extract data
-    region_data = extract_meqtls(args.localqtl)
+    shared_data_fn = f"../../shared_vmrs/_m/TOPMed_LIBD_shared_vmr_key.tsv"
+    shared = extract_shared_vmrs(shared_data_fn)
+    region_data = extract_meqtls(shared, args.localqtl)
+
     extract_dataframe(region_data, "slope", "bhat", args.outdir)
     extract_dataframe(region_data, "slope_se", "shat", args.outdir)
 
