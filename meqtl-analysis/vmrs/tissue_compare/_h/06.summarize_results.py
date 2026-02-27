@@ -63,12 +63,12 @@ for lfsr_file, posterior_file in zip(lfsr_files, posterior_files):
 final_df = pd.concat(all_results, ignore_index=True)
 
 # Save final averaged results as plain TSV
-final_df.to_csv("all_averaged_posterior_filtered.tsv", sep="\t", index=False)
+final_df.to_csv("local_all_averaged_posterior_filtered.tsv", sep="\t", index=False)
 
 print("\nAll files processed, intermediate filtered rows saved as TSV, and final averaged results saved as TSV.")
 
 # Load your TSV
-df = pd.read_csv("all_averaged_posterior_filtered.tsv", sep="\t")
+df = pd.read_csv("local_all_averaged_posterior_filtered.tsv", sep="\t")
 
 # Set phenotype_id as the index
 df_heat = df.set_index("phenotype_id")[["Caudate", "Dlpfc", "Hippocampus"]]
@@ -99,9 +99,9 @@ plt.ylabel("VMR (Phenotype ID)")
 plt.tight_layout()
 
 # Save as PNG
-plt.savefig("posterior_means_heatmap.png", dpi=300)
+plt.savefig("local_posterior_means_heatmap.png", dpi=300)
 
 plt.show()
 
-print("Heatmap saved as posterior_means_heatmap.png")
+print("Heatmap saved as local_posterior_means_heatmap.png")
 
