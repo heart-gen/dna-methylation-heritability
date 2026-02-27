@@ -1,23 +1,22 @@
 #!/bin/bash
-#SBATCH --account=p32505        # Replace with your allocation
-#SBATCH --partition=short       # Partition (queue) name
-#SBATCH --time=01:00:00         # Time limit hrs:min:sec
-#SBATCH --nodes=1               # Number of nodes
-#SBATCH --ntasks-per-node=1     # Number of cores (CPU)
-#SBATCH --mem=25G                # Memory limit
-#SBATCH --job-name=cal_ld  # Job name
-#SBATCH --output=logs/step_1/output_%j.log  # Standard output log
-#SBATCH --error=logs/step_1/error_%j.log    # Standard error log
-#SBATCH --array=1-22          # Array job range
+#SBATCH --account=p32505
+#SBATCH --partition=short
+#SBATCH --time=02:00:00
+#SBATCH --mem=20gb
+#SBATCH --job-name=extract_rsids
+#SBATCH --mail-type=FAIL
+#SBATCH --mail-user=elisajohnson2027@u.northwestern.edu
+#SBATCH --output=logs/extract_rsids.%j.log
+#SBATCH --array=1-22
 
-# Log function
+# Function to echo with timestamp
 log_message() {
     echo "$(date '+%Y-%m-%d %H:%M:%S') - $1"
 }
 
 log_message "**** Job starts ****"
 
-echo "**** QUEST info ****"
+log_message "**** Quest info ****"
 echo "User: ${USER}"
 echo "Job id: ${SLURM_JOBID}"
 echo "Job name: ${SLURM_JOB_NAME}"
@@ -25,36 +24,22 @@ echo "Node name: ${SLURM_NODENAME}"
 echo "Hostname: ${HOSTNAME}"
 echo "Task id: ${SLURM_ARRAY_TASK_ID:-N/A}"
 
-# Load plink module
-module load plink/1.9
+VMR_DIR="/projects/b1213/users/alexis/projects/dna-methylation-heritability/vmr-analysis/hippocampus/_m/plink_format/chr_$SLURM_ARRAY_TASK_ID"
+OUT_DIR="./snplists/hippocampus/chr_${SLURM_ARRAY_TASK_ID}"
 
-# Define plink directory
-REF_DIR=/projects/b1213/users/alexis/projects/dna-methylation-heritability/vmr-analysis/hippocampus/_m/plink_format/chr_${SLURM_ARRAY_TASK_ID}
+mkdir -p ${OUT_DIR}
 
-# Loop through each BED file in plink directory
-for file in "$REF_DIR"/TOPMed_LIBD.AA.*.bed; do
-	filename=$(basename "$file")
+for BIM in ${VMR_DIR}/*.bim; do
 
-	# Extract START and END positions from filename
-	if [[ $filename =~ ([0-9]+)_([0-9]+)\. ]]; then
-		START=${BASH_REMATCH[1]}
-		END=${BASH_REMATCH[2]}
-		echo "Expanding 500 kb window around $filename → START=$((START - 500000)), END=$((END + 500000))"
-	else
-		echo "File $filename does not match the expected pattern."
-	fi
+    PREFIX=$(basename ${BIM} .bim)
 
-	# Create output directory for LD matrices
-	OUT_DIR=ld_matrices/hippocampus/chr_$SLURM_ARRAY_TASK_ID
-	mkdir -p $OUT_DIR
+    echo "Extracting rsIDs for ${PREFIX}"
 
-	plink \
-  		--bfile $REF_DIR/TOPMed_LIBD.AA.${START}_${END} \
-		--chr $SLURM_ARRAY_TASK_ID \
-		--from-bp $((START - 500000)) \
-  		--to-bp $((END + 500000)) \
-  		--r square \
-  		--out $OUT_DIR/TOPMed_LIBD.AA.${START}_${END}
+    awk '{print $2}' ${BIM} | awk -F'_' '{print $NF}' \
+        > ${OUT_DIR}/${PREFIX}_rsids.txt
+
 done
+
+echo "All rsID extraction complete."
 
 log_message "**** Job ends ****"
