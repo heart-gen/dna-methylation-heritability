@@ -15,19 +15,8 @@ from scipy.stats import norm
 
 def combine_ldsc_files(file_list_path, output_path="combined_ldsc_results.tsv"):
     """
-    Combine all LDSC result files into one long-format table.
-
-    Parameters
-    ----------
-    file_list_path : str
-        Path to text file containing LDSC result file paths.
-    output_path : str
-        Path to save combined results.
-
-    Returns
-    -------
-    pd.DataFrame
-        Combined LDSC results.
+    Combine only the first data row (after header) from each LDSC result file
+    into one long-format table.
     """
     with open(file_list_path, "r") as f:
         file_paths = f.read().strip().split()
@@ -45,13 +34,16 @@ def combine_ldsc_files(file_list_path, output_path="combined_ldsc_results.tsv"):
         else:
             h2_metric = "_".join(parts[2:])
 
-        df = pd.read_csv(fpath, sep="\t")
+        # ✅ Read only first row after header
+        df = pd.read_csv(fpath, sep="\t", nrows=1)
+
         df["Disorder"] = disorder
         df["BrainRegion"] = brain_region
         df["h2Metric"] = h2_metric
         dfs.append(df)
 
     combined_df = pd.concat(dfs, ignore_index=True)
+
     cols = ["Disorder", "BrainRegion", "h2Metric"] + [
         c for c in combined_df.columns
         if c not in ["Disorder", "BrainRegion", "h2Metric"]
@@ -86,8 +78,6 @@ def filter_significant_enrichment(
     pd.DataFrame
         Filtered significant enrichment results.
     """
-    if exclude_categories is None:
-        exclude_categories = ["MAF_Adj_ASMCL2_0"]
 
     df = pd.read_csv(input_path, sep="\t")
     print("Total rows:", df.shape[0])

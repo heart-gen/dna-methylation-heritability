@@ -6,7 +6,7 @@
 #SBATCH --job-name=partition_heritability
 #SBATCH --mail-type=FAIL
 #SBATCH --mail-user=elisajohnson2027@u.northwestern.edu
-#SBATCH --output=logs/partitiona_heritability.%j.log
+#SBATCH --output=logs/partition_heritability.%j.log
 
 # =============================================================================
 # Step 4: Partition Heritability with S-LDSC
