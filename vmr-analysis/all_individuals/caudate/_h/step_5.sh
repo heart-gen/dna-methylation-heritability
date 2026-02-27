@@ -14,7 +14,6 @@
 
 ## Edit with your job command
 REGION_LIST="./vmr.bed"
-SAMPLE_LIST="./samples.txt"
 CHR_FILE="/projects/b1213/resources/genomes/human/gencode-v47/fasta/chromosome_sizes.txt"
 DATA="/projects/b1213/users/alexis/projects/dna-methylation-heritability/inputs/genotypes/all_individuals"
 OUTPUT="./plink_format"
@@ -82,10 +81,24 @@ plink2 --pfile "$DATA/TOPMed_LIBD" \
        --from-bp "$START_POS" \
        --to-bp "$END_POS" \
        --make-bed \
-       --keep "$SAMPLE_LIST" \
+       --keep "samples-AA.txt" \
        --no-parents \
        --no-sex \
        --no-pheno \
-       --out "$CHR_DIR/TOPMed_LIBD.${START}_${END}"
+       --out "$CHR_DIR/TOPMed_LIBD-AA.${START}_${END}"
+
+echo "Extracting SNPs from EA subjects on $CHR: $START-$END ($WINDOW bp window)" 
+
+# Subset of SNPs in EA cohort
+plink2 --pfile "$DATA/TOPMed_LIBD" \
+       --chr "$CHR" \
+       --from-bp "$START_POS" \
+       --to-bp "$END_POS" \
+       --make-bed \
+       --keep "samples-EA.txt" \
+       --no-parents \
+       --no-sex \
+       --no-pheno \
+       --out "$CHR_DIR/TOPMed_LIBD-EA.${START}_${END}"
 
 log_message "**** Job ends ****"
