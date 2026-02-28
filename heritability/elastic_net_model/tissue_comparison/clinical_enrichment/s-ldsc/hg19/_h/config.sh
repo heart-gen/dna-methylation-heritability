@@ -58,6 +58,7 @@ declare -A DISEASE_NAMES=(
     ["asthma"]="Asthma"
     ["cad"]="Coronary Artery Disease"
     ["stroke"]="Stroke"
+    ["substance_abuse"]="Substance Abuse"
     ["smoking"]="Ever Smoker"
     ["height"]="Standing Height (Control)"
 )
@@ -76,6 +77,7 @@ declare -A DISEASE_CATEGORIES=(
     ["cad"]="vascular"
     ["stroke"]="vascular"
     ["smoking"]="tbd"
+    ["substance_abuse"]="tbd"
     ["height"]="control"
 )
 export DISEASE_CATEGORIES
@@ -97,8 +99,9 @@ declare -A GWAS_FILES=(
     ["asthma"]="${GWAS_DIR}/imputed_gwas_hg38_1.1/imputed_GABRIEL_Asthma.txt.gz"
     ["cad"]="${GWAS_DIR}/imputed_gwas_hg38_1.1/imputed_CARDIoGRAM_C4D_CAD_ADDITIVE.txt.gz"
     ["stroke"]="${GWAS_DIR}/stroke/29531354-GCST005843-HP_0002140-build37.f.tsv.gz"
-    ["height"]="${GWAS_DIR}/imputed_gwas_hg38_1.1/imputed_UKB_50_Standing_height.txt.gz"
     ["smoking"]="../EVER_SMOKER_GWAS_MA_UKB+TAG.txt"
+    ["substance_abuse"]="../hg19/GCST90435891.tsv.gz"
+    ["height"]="${GWAS_DIR}/imputed_gwas_hg38_1.1/imputed_UKB_50_Standing_height.txt.gz"
 )
 export GWAS_FILES
 
