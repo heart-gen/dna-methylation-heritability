@@ -340,6 +340,28 @@ else
     log_message "WARNING: Stroke GWAS not found (${STROKE_GWAS}). Skipping until download completes."
 fi
 
+# --- Smoking ---
+# Source: UKB; TAG Consortium (build37 formatted GWAS Catalog file)
+# Build handling: this specific file is build37/hg19, so no liftover is required.
+log_message "Processing: Smoking (smoking)"
+SMOKING_GWAS="../EVER_SMOKER_GWAS_MA_UKB+TAG.txt"
+if [[ -f "$SMOKING_GWAS" ]]; then
+    run_munge python "$LDSC_WRAPPER" "$LDSC_DIR" "$LOCAL_MUNGE" \
+        --sumstats "$SMOKING_GWAS" \
+        --out "${OUT_DIR}/smoking" \
+        --a1 A1 \
+        --a2 A2 \
+        --signed-sumstats Beta,0 \
+        --p Pval \
+        --snp MarkerName \
+        --frq EAF_A1 \
+        --N 518633 \
+        --merge-alleles "$HM3_SNPLIST" \
+        --chunksize 500000
+else
+    log_message "WARNING: Smoking GWAS not found (${SMOKING_GWAS}). Skipping until download completes."
+fi
+
 # --- Height (Control) ---
 # Source: UK Biobank standing height (hg38 imputed file)
 # No HM3 merge.
@@ -388,7 +410,7 @@ fi
 log_message "Verifying munged summary statistics..."
 echo ""
 echo "=== Munged Summary Statistics ==="
-for disease in ad scz mdd bip pd ms ra asthma cad stroke height; do
+for disease in ad scz mdd bip pd ms ra asthma cad stroke smoking height; do
     if [[ -f "${OUT_DIR}/${disease}.sumstats.gz" ]]; then
         n_snps=$(zcat "${OUT_DIR}/${disease}.sumstats.gz" | wc -l)
         echo "[OK] ${disease}: $((n_snps - 1)) SNPs"

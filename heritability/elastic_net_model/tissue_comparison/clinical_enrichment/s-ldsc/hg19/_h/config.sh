@@ -44,7 +44,7 @@ export HERITABILITY=("heritable_hg19" "non_heritable_hg19" "low_prediction_hg19"
 # Core diseases for S-LDSC analysis spanning neuronal, immune, vascular,
 # and control categories.
 
-export DISEASES=("ad" "scz" "mdd" "bip" "pd" "ms" "ra" "asthma" "cad" "stroke" "height")
+export DISEASES=("ad" "scz" "mdd" "bip" "pd" "ms" "ra" "asthma" "cad" "stroke" "smoking" "height")
 
 # Full disease names for reporting
 declare -A DISEASE_NAMES=(
@@ -58,6 +58,7 @@ declare -A DISEASE_NAMES=(
     ["asthma"]="Asthma"
     ["cad"]="Coronary Artery Disease"
     ["stroke"]="Stroke"
+    ["smoking"]="Ever Smoker"
     ["height"]="Standing Height (Control)"
 )
 export DISEASE_NAMES
@@ -74,6 +75,7 @@ declare -A DISEASE_CATEGORIES=(
     ["asthma"]="immune"
     ["cad"]="vascular"
     ["stroke"]="vascular"
+    ["smoking"]="tbd"
     ["height"]="control"
 )
 export DISEASE_CATEGORIES
@@ -96,6 +98,7 @@ declare -A GWAS_FILES=(
     ["cad"]="${GWAS_DIR}/imputed_gwas_hg38_1.1/imputed_CARDIoGRAM_C4D_CAD_ADDITIVE.txt.gz"
     ["stroke"]="${GWAS_DIR}/stroke/29531354-GCST005843-HP_0002140-build37.f.tsv.gz"
     ["height"]="${GWAS_DIR}/imputed_gwas_hg38_1.1/imputed_UKB_50_Standing_height.txt.gz"
+    ["smoking"]="../EVER_SMOKER_GWAS_MA_UKB+TAG.txt"
 )
 export GWAS_FILES
 
