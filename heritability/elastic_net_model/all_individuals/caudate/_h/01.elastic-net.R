@@ -14,13 +14,23 @@ get_vmr_list <- function(region) {
     return(read.table(vmr_file, header=FALSE, stringsAsFactors=FALSE))
 }
 
-construct_data_path <- function(chrom_num, spos, epos, region, data_type) {
+get_samples <- function(region, population) {
+    base_dir <- here("vmr-analysis", "all_individuals", tolower(region), "_m")
+    sample_file <- here(base_dir, paste0("samples-", population, ".txt"))
+    if (!file.exists(sample_file)) {
+        stop("Sample file not found: ", sample_file)
+    }
+    return(read.table(sample_file, header=FALSE, col.names = c("FID", "IID")))
+}
+
+construct_data_path <- function(chrom_num, spos, epos, region, population, data_type) {
     chrom_dir <- paste0("chr_", chrom_num)
     base_dir  <- here("vmr-analysis", "all_individuals", tolower(region), "_m")
 
     if (tolower(data_type) == "plink") {
         inpath  <- "plink_format"
-        data_fn <- paste0("TOPMed_LIBD.", spos, "_", epos, ".bed")
+        data_fn <- paste0("TOPMed_LIBD-", population, ".", 
+                          spos, "_", epos, ".bed")
     } else if (tolower(data_type) == "vmr") {
         inpath  <- "vmr"
         data_fn <- paste0(spos, "_", epos, "_meth.phen")
@@ -48,11 +58,10 @@ load_genotypes <- function(geno_bed_path) {
 
 load_phenotypes <- function(vmr_data_path) {
     cat("Processing VMR file:", basename(vmr_data_path), "\n")
-    pheno    <- read.table(vmr_data_path, header=FALSE)
-    return(pheno[, 3])
+    return(read.table(vmr_data_path, header=FALSE, col.names = c("FID", "IID", "pheno")))
 }
 
-resid_covariates <- function(covar_path, qcovar_path, pheno_raw) {
+resid_covariates <- function(covar_path, qcovar_path, pheno_raw, samples) {
     covar  <- read.table(covar_path, header=FALSE)
     colnames(covar) <- c("FID", "IID", "Sex", "Dx")
 
@@ -60,8 +69,9 @@ resid_covariates <- function(covar_path, qcovar_path, pheno_raw) {
     colnames(qcovar) <- c("FID", "IID", "Age")
 
     covars <- merge(covar, qcovar, by = c("FID", "IID"), sort = FALSE)
-    covars$pheno <- pheno_raw
-    pheno_resid <- resid(lm(pheno ~ Age + Sex + Dx, data = covars))
+    covars_pop <- merge(covars, samples, by = c("FID", "IID"), sort = FALSE)
+    covars_pop <- merge(covars_pop, pheno_raw, by = c("FID", "IID"), sort = FALSE)
+    pheno_resid <- resid(lm(pheno ~ Age + Sex + Dx, data = covars_pop))
     
     return(pheno_resid)
 }
@@ -88,6 +98,7 @@ perform_snp_clumping <- function(G_imputed, info, pheno_scaled) {
 ## --- MAIN SCRIPT --- ##
                                         # Retrieve variables
 region  <- Sys.getenv("region")
+population  <- Sys.getenv("population")
 task_id <- as.integer(Sys.getenv("task_id"))
 
 if (is.na(task_id)) {
@@ -112,23 +123,25 @@ start_pos  <- vmr_entry[[2]]
 end_pos    <- vmr_entry[[3]]
 
                                         # Extract genotypes
-geno_path <- construct_data_path(chrom_num, start_pos, end_pos, region,
-                                 "PLINK")
+geno_path <- construct_data_path(chrom_num, start_pos, end_pos, region, 
+                                 population, "PLINK")
 bigSNP    <- load_genotypes(geno_path)
 G         <- bigSNP$genotypes
 infos     <- bigSNP$map
 
                                         # Load Phenotype
 pheno_path <- construct_data_path(chrom_num, start_pos, end_pos, region,
-                                 "VMR")
+                                  population, "VMR")
 pheno_raw  <- load_phenotypes(pheno_path)
 
+                                        # Load samples
+samples <- get_samples(region, population)
                                         # Residualize covariates
 covar_path <- here("vmr-analysis", "all_individuals", "caudate", "_m", "covs",
                     "chr_1", "TOPMed_LIBD.covar")
 qcovar_path <- here("vmr-analysis", "all_individuals", "caudate", "_m", "covs",
                     "chr_1", "TOPMed_LIBD.qcovar")
-pheno_resid <- resid_covariates(covar_path, qcovar_path, pheno_raw)
+pheno_resid <- resid_covariates(covar_path, qcovar_path, pheno_raw, samples)
 
 pheno_scaled <- scale(pheno_resid)[, 1] # Center and scale data
 pheno_scaled <- as.numeric(pheno_scaled)
@@ -265,6 +278,7 @@ task_summary_df <- data.frame(
     chrom = chrom_num,
     start = start_pos,
     end = end_pos,
+    race = population,
     num_snps = ifelse(exists("G_clumped"), ncol(G_clumped), 0),
     boosting_iterations_performed = ifelse(exists("iter"), iter, 0),
     h2_unscaled = ifelse(exists("h2_unscaled"), h2_unscaled, NA),
@@ -276,6 +290,7 @@ output_df <- data.frame(
     chrom   = chrom_num,
     start   = start_pos,
     end     = end_pos,
+    race    = population, 
     iteration = seq_along(h2_estimates),
     h2_incremental = h2_estimates
 )
@@ -285,24 +300,28 @@ betas_df <- data.frame(
     chrom   = chrom_num,
     start   = start_pos,
     end     = end_pos,
+    race    = population,
     snp_id  = infos_filt$marker.ID,
     beta    = final_accumulated_betas
 )
 
 dir.create("summary", recursive = TRUE, showWarnings = FALSE)
 write.table(task_summary_df,
-            file = sprintf(file.path("summary","task_summary_stats_%d.tsv"),
-                           task_id), sep = "\t", quote = F, row.names = F)
+            file = sprintf(file.path("summary","task_summary_stats_%d-%s.tsv"),
+                           task_id, population), sep = "\t", quote = F, 
+                           row.names = F)
 
 dir.create("h2", recursive = TRUE, showWarnings = FALSE)
 write.table(output_df,
-            file = sprintf(file.path("h2", "h2_estimates_%d.tsv"), task_id),
-            sep = "\t", quote = FALSE, row.names = FALSE)
+            file = sprintf(file.path("h2", "h2_estimates_%d-%s.tsv"), 
+                           task_id, population), sep = "\t", quote = FALSE, 
+                           row.names = FALSE)
 
 dir.create("betas", recursive = TRUE, showWarnings = FALSE)
 write.table(betas_df,
-            file = sprintf(file.path("betas", "betas_%d.tsv"), task_id),
-            sep = "\t", quote = FALSE, row.names = FALSE)
+            file = sprintf(file.path("betas", "betas_%d-%s.tsv"), 
+                           task_id, population), sep = "\t", quote = FALSE, 
+                           row.names = FALSE)
 
 cat(sprintf("Total SNP-based h2 (unscaled): %.4f\n", h2_unscaled))
 cat(sprintf("Final h2: %.4f\n", sum(h2_estimates)))
