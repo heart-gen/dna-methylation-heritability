@@ -44,7 +44,7 @@ export HERITABILITY=("heritable_hg19" "non_heritable_hg19" "low_prediction_hg19"
 # Core diseases for S-LDSC analysis spanning neuronal, immune, vascular,
 # and control categories.
 
-export DISEASES=("ad" "scz" "mdd" "bip" "pd" "ms" "ra" "asthma" "cad" "stroke" "smoking" "height")
+export DISEASES=("ad" "scz" "mdd" "bip" "pd" "ms" "ra" "asthma" "cad" "stroke" "smoking" "substance_abuse" "height")
 
 # Full disease names for reporting
 declare -A DISEASE_NAMES=(
