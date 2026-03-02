@@ -27,8 +27,12 @@ module purge
 module list
 
 log_message "**** Cleaning directory ****"
-gzip -9v caudate_h2_elastic-net.tsv
-gzip -9v caudate_betas_elastic-net.tsv
+
+for pop in EA AA; do
+	gzip -9v caudate_h2_elastic-net-${pop}.tsv
+	gzip -9v caudate_betas_elastic-net-${pop}.tsv
+done
+
 tar -czvf caudate_logs_elastic-net.tar.gz logs/
 
 rm -r betas/ summary/ h2/ logs/
