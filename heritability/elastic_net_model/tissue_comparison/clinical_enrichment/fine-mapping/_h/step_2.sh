@@ -3,7 +3,7 @@
 #SBATCH --partition=genomics-gpu
 #SBATCH --gres=gpu:a100:1
 #SBATCH --time=08:00:00
-#SBATCH --mem=20gb
+#SBATCH --mem=40gb
 #SBATCH --job-name=match_and_subset
 #SBATCH --mail-type=FAIL
 #SBATCH --mail-user=elisajohnson2027@u.northwestern.edu
@@ -26,8 +26,8 @@ echo "Hostname: ${HOSTNAME}"
 echo "Task id: ${SLURM_ARRAY_TASK_ID:-N/A}"
 
 GWAS="/projects/b1213/resources/gwas/PD/data/GCST009325.h.tsv.gz"
-SNPLISTS="./snplists/caudate/chr_$SLURM_ARRAY_TASK_ID"          # where *_rsids.txt currently are
-OUT_DIR="./pd/caudate/chr_$SLURM_ARRAY_TASK_ID"     # NEW output directory
+SNPLISTS="./snplists/hippocampus/chr_$SLURM_ARRAY_TASK_ID"          # where *_rsids.txt currently are
+OUT_DIR="./gwas/pd/hippocampus/chr_$SLURM_ARRAY_TASK_ID"     # NEW output directory
 
 mkdir -p ${OUT_DIR}
 
