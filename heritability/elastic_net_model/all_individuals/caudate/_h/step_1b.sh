@@ -36,6 +36,7 @@ module list
 
 ENV_PATH="/projects/p32505/opt/envs"
 export region="caudate"
+export population="EA"
 export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
 export MKL_NUM_THREADS=$SLURM_CPUS_PER_TASK
 
