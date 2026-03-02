@@ -1,7 +1,7 @@
 #!/bin/bash
-#SBATCH --account=p32505
-#SBATCH --partition=normal
-#SBATCH --time=04:00:00
+#SBATCH --account=b1042
+#SBATCH --partition=genomics
+#SBATCH --time=08:00:00
 #SBATCH --mem=20gb
 #SBATCH --job-name=partition_heritability
 #SBATCH --mail-type=FAIL
