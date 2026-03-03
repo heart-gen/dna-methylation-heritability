@@ -14,8 +14,8 @@ read_data <- function(fn) {
                                         # Loop through results directory
 for (dir_name in c("summary", "h2", "betas")) {
     for (pop in c("AA", "EA")) {
-        outfile    <- paste(tolower(region), dir_name, 
-                            "elastic-net-", pop, ".tsv", sep="_")
+        outfile    <- paste0(tolower(region), "_", dir_name, 
+                            "_elastic-net_", pop, ".tsv")
         file_names <- list.files(dir_name,
                                  pattern=paste0(pop, ".*\\.tsv$"),
                                  full.names=TRUE)
