@@ -29,8 +29,8 @@ module list
 log_message "**** Cleaning directory ****"
 
 for pop in EA AA; do
-	gzip -9v caudate_h2_elastic-net-${pop}.tsv
-	gzip -9v caudate_betas_elastic-net-${pop}.tsv
+	gzip -9v caudate_h2_elastic-net_${pop}.tsv
+	gzip -9v caudate_betas_elastic-net_${pop}.tsv
 done
 
 tar -czvf caudate_logs_elastic-net.tar.gz logs/
