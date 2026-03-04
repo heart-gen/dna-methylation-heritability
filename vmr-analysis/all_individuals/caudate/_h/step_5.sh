@@ -57,7 +57,7 @@ module list
 
 # check chromosome size information
 
-WINDOW=500000
+WINDOW=1000000
 CHR_SIZE=$(grep "^chr1[[:space:]]" $CHR_FILE | cut -f2)
 
 START_POS=$((START - WINDOW))
