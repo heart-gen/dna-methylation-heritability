@@ -21,6 +21,8 @@ option_flag <- args[1]
 
 # Read in bed files
 caudate_bed_fn <- here("meqtl-analysis", "vmrs", "caudate", "_m", "feature.bed")
+hippo_bed_fn <- here("meqtl-analysis", "vmrs", "hippocampus", "_m", "feature.bed")
+dlpfc_bed_fn <- here("meqtl-analysis", "vmrs", "dlpfc", "_m", "feature.bed")
 caudate_hippo_fn <- here("heritability", "elastic_net_model", "tissue_comparison",
                          "upset_plot", "_m", option_flag, "sets", "caudate_hippocampus_overlap_all.bed")
 caudate_dlpfc_fn <- here("heritability", "elastic_net_model", "tissue_comparison",
@@ -29,18 +31,28 @@ caudate_dlpfc_fn <- here("heritability", "elastic_net_model", "tissue_comparison
 # Add binary values for each tissue
 caudate_bed <- fread(caudate_bed_fn, select=2:5,
                      col.names = c("seqnames_caudate", "start_caudate", 
-                                   "end_caudate", "feature_id")) %>%
+                                   "end_caudate", "feature_id_caudate")) %>%
   mutate(caudate = 1L)
+hippo_bed <- fread(hippo_bed_fn, select=2:5,
+                     col.names = c("seqnames_hippocampus", "start_hippocampus", 
+                                   "end_hippocampus", "feature_id_hippocampus"))
+dlpfc_bed <- fread(dlpfc_bed_fn, select=2:5,
+                     col.names = c("seqnames_dlpfc", "start_dlpfc", 
+                                   "end_dlpfc", "feature_id_dlpfc"))
+
+# Group shared VMRs
 caudate_hippo <- fread(caudate_hippo_fn, select=1:6, 
                        col.names = c("seqnames_caudate", "start_caudate", "end_caudate",
                                      "seqnames_hippocampus", "start_hippocampus", "end_hippocampus")) %>%
   mutate(seqnames_caudate = paste0("chr", seqnames_caudate), 
-         seqnames_hippocampus = paste0("chr", seqnames_hippocampus), hippocampus = 1L)
+         seqnames_hippocampus = paste0("chr", seqnames_hippocampus), hippocampus = 1L) %>%
+  left_join(hippo_bed, by = c("seqnames_hippocampus", "start_hippocampus", "end_hippocampus")) # Add region-specific feature IDs
 caudate_dlpfc <- fread(caudate_dlpfc_fn, select=1:6,
                        col.names = c("seqnames_caudate", "start_caudate", "end_caudate",
                                      "seqnames_dlpfc", "start_dlpfc", "end_dlpfc")) %>%
   mutate(seqnames_caudate = paste0("chr", seqnames_caudate), 
-         seqnames_dlpfc = paste0("chr", seqnames_dlpfc), dlpfc = 1L)
+         seqnames_dlpfc = paste0("chr", seqnames_dlpfc), dlpfc = 1L) %>%
+  left_join(dlpfc_bed, by = c("seqnames_dlpfc", "start_dlpfc", "end_dlpfc")) # Add region-specific feature IDs
 
 # Merge vmr overlaps
 merged <- caudate_bed %>%
