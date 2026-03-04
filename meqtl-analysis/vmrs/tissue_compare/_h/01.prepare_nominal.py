@@ -16,7 +16,10 @@ def extract_shared_vmrs(shared_key_fn):
     Extract shared VMRs across all brain regions.
     """
     return pd.read_csv(shared_key_fn, sep="\t", 
-                       usecols=["shared_feature_id", "feature_id"])
+                       usecols=["shared_feature_id", 
+                                "feature_id_caudate",
+                                "feature_id_hippocampus", 
+                                "feature_id_dlpfc"])
 
 def load_meqtl_parquet(region, shared, localqtl=False):
     """
@@ -37,8 +40,8 @@ def load_meqtl_parquet(region, shared, localqtl=False):
     for f in files:
         df = pd.read_parquet(f, columns=["phenotype_id", "variant_id",
                                          "slope", "slope_se"])
-        df - df.merge(shared, left_on = "phenotype_id", 
-                      right_on = "phenotype_id", how = "inner")
+        df = df.merge(shared, left_on = "phenotype_id", 
+                      right_on = f"feature_id_{region}", how = "inner")
 
         dfs.append(df)
 
