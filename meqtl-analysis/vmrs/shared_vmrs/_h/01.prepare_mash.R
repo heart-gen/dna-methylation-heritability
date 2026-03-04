@@ -36,7 +36,7 @@ write_shared_vmr <- function(merged, tissues, output_path){
   
   # Write for mash input
   out_mash <- file.path(output_path, "TOPMed_LIBD_shared_vmr_key.tsv")
-  #fwrite(shared, out_mash, sep='\t', row.names = FALSE)
+  fwrite(shared, out_mash, sep='\t', row.names = FALSE)
   
   return(shared)
 }
