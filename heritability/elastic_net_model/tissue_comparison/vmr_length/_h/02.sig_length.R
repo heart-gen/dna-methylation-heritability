@@ -66,7 +66,7 @@ vmr_all$group <- interaction(vmr_all$tissue, vmr_all$h2_category, sep = "-")
 
 heritability_test <- vmr_all %>%
   group_by(tissue) %>%
-  pairwise_wilcox_test(log10_length ~ h2_category, p.adjust.method = "fdr") %>%
+  pairwise_wilcox_test(log10_length ~ h2_category, p.adjust.method = "bonferroni") %>%
   add_y_position()
 
 print(heritability_test)
@@ -79,8 +79,7 @@ heritability_colors <- c(
 
 p_heritability <- ggviolin(vmr_all, x = "h2_category",
                            y = "log10_length", fill = "h2_category", 
-                           color = "h2_category", facet.by = "tissue", 
-                           add = c("jitter", "median"), 
+                           facet.by = "tissue", add = "boxplot", 
                            alpha = 0.5, palette = heritability_colors, 
                            trim = FALSE
 ) +
@@ -97,7 +96,7 @@ p_heritability <- ggviolin(vmr_all, x = "h2_category",
 
 tissue_test <- vmr_all %>%
   group_by(h2_category) %>%
-  pairwise_wilcox_test(log10_length ~ tissue, p.adjust.method = "fdr") %>%
+  pairwise_wilcox_test(log10_length ~ tissue, p.adjust.method = "bonferroni") %>%
   add_y_position()
 
 print(tissue_test)
@@ -109,8 +108,8 @@ tissue_colors <- c(
 )
 
 p_tissue <- ggviolin(vmr_all, x = "tissue",
-                     y = "log10_length", fill = "tissue", color = "tissue",
-                     facet.by = "h2_category", add = c("jitter", "median"), 
+                     y = "log10_length", fill = "tissue",
+                     facet.by = "h2_category", add = "boxplot", 
                      alpha = 0.5, palette = tissue_colors, 
                      trim = FALSE
 ) +
