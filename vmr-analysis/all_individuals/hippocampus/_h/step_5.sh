@@ -14,7 +14,6 @@
 
 ## Define paths
 REGION_LIST="./vmr.bed"
-SAMPLE_LIST="./samples.txt"
 CHR_FILE="/projects/b1213/resources/genomes/human/gencode-v47/fasta/chromosome_sizes.txt"
 DATA="/projects/b1213/users/alexis/projects/dna-methylation-heritability/inputs/genotypes/all_individuals"
 OUTPUT="./plink_format"
@@ -58,7 +57,7 @@ module list
 
 # check chromosome size information
 
-WINDOW=500000
+WINDOW=1000000
 CHR_SIZE=$(grep "^chr1[[:space:]]" $CHR_FILE | cut -f2)
 
 START_POS=$((START - WINDOW))
@@ -74,7 +73,7 @@ if (( END_POS >= CHR_SIZE )); then
     exit 1
 fi
 
-echo "Extracting SNPs from BA and WA subjects on $CHR: $START-$END ($WINDOW bp window)" 
+echo "Extracting SNPs from AA subjects on $CHR: $START-$END ($WINDOW bp window)" 
 
 # Subset of SNPs in AA cohort
 plink2 --pfile "$DATA/TOPMed_LIBD" \
@@ -82,10 +81,24 @@ plink2 --pfile "$DATA/TOPMed_LIBD" \
        --from-bp "$START_POS" \
        --to-bp "$END_POS" \
        --make-bed \
-       --keep "$SAMPLE_LIST" \
+       --keep "samples-AA.txt" \
        --no-parents \
        --no-sex \
        --no-pheno \
-       --out "$CHR_DIR/TOPMed_LIBD.${START}_${END}"
+       --out "$CHR_DIR/TOPMed_LIBD-AA.${START}_${END}"
+
+echo "Extracting SNPs from EA subjects on $CHR: $START-$END ($WINDOW bp window)" 
+
+# Subset of SNPs in EA cohort
+plink2 --pfile "$DATA/TOPMed_LIBD" \
+       --chr "$CHR" \
+       --from-bp "$START_POS" \
+       --to-bp "$END_POS" \
+       --make-bed \
+       --keep "samples-EA.txt" \
+       --no-parents \
+       --no-sex \
+       --no-pheno \
+       --out "$CHR_DIR/TOPMed_LIBD-EA.${START}_${END}"
 
 log_message "**** Job ends ****"
