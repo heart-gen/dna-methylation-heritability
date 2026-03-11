@@ -117,7 +117,7 @@ write_samples <- function(samples, pheno, id, out_path) {
     populations <- c("AA", "EA")
 
     for (p in populations) {
-        p_id <- filtered_pheno %>%
+        p_id <- pheno %>%
             filter(race == p) %>%
             pull(brnum)
         
