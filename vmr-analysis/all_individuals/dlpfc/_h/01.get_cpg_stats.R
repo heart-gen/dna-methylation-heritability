@@ -105,6 +105,30 @@ write_covar <- function(BSobj, pheno, id, meth_merged, out_covs) {
   return(list(covar_merged=covar_merged, qcovar_merged=qcovar_merged))
 }
 
+rite_samples <- function(samples, pheno, id, out_path) {
+
+    # Write samples .txt file for all indiv
+    out_samples <- file.path(out_path, paste0("samples.txt"))
+    samples_all <- samples %>%
+      filter(FID %in% id)
+    fwrite(samples_all, out_samples, sep = "\t", col.names = FALSE)
+    
+    # Write samples .txt file for each population
+    populations <- c("AA", "EA")
+
+    for (p in populations) {
+        p_id <- filtered_pheno %>%
+            filter(race == p) %>%
+            pull(brnum)
+        
+        p_samples <- samples %>%
+            filter(FID %in% p_id)
+        
+        out_samples_p <- file.path(out_path, paste0("samples-", p, ".txt"))
+        fwrite(p_samples, out_samples_p, sep = "\t", col.names = FALSE)
+    }
+}
+
 ## Main
                                         # load data
 assays_dir <- here("inputs/wgbs-data/dlpfc/_m", 
@@ -155,6 +179,8 @@ meth_merged <- write_meth_to_phen(BSobj, stats$M, samples, out_cpg)
 
                                         # write covariate files
 covars <- write_covar(BSobj, filtered$pheno, filtered$id, meth_merged, out_covs)
+
+write_samples(samples, filtered$pheno, filtered$id, output_path)
 
 #### Reproducibility information ####
 print("Reproducibility information:")
