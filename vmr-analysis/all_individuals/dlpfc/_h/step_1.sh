@@ -6,7 +6,7 @@
 #SBATCH --ntasks-per-node=1     # Number of cores (CPU)
 #SBATCH --mem=16G               # Memory limit
 #SBATCH --mail-type=FAIL
-#SBATCH --array=1
+#SBATCH --array=1-24
 #SBATCH --mail-user=alexis.bennett@northwestern.edu
 #SBATCH --job-name=cpg_stats  # Job name
 #SBATCH --output=/dev/null      # Standard output log
