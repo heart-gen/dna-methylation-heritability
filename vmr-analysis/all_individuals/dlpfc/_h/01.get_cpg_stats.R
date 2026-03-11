@@ -105,7 +105,7 @@ write_covar <- function(BSobj, pheno, id, meth_merged, out_covs) {
   return(list(covar_merged=covar_merged, qcovar_merged=qcovar_merged))
 }
 
-rite_samples <- function(samples, pheno, id, out_path) {
+write_samples <- function(samples, pheno, id, out_path) {
 
     # Write samples .txt file for all indiv
     out_samples <- file.path(out_path, paste0("samples.txt"))
@@ -117,7 +117,7 @@ rite_samples <- function(samples, pheno, id, out_path) {
     populations <- c("AA", "EA")
 
     for (p in populations) {
-        p_id <- filtered_pheno %>%
+        p_id <- pheno %>%
             filter(race == p) %>%
             pull(brnum)
         
