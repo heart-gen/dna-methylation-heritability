@@ -6,6 +6,9 @@ suppressPackageStartupMessages({
   library(rstatix)
   library(ggpubr)
   library(ggplot2)
+  library(lme4)
+  library(emmeans)
+  library(data.table)
 })
 
 ## Function 
@@ -29,6 +32,13 @@ cal_vmr_length <- function(vmr) {
     mutate(length = end - start,
            log10_length = log10(length))
   return(vmr)
+}
+
+get_samples <- function(tissue) {
+  sample_fn <- here("vmr-analysis/", paste0(tissue, "/_m/samples.txt"))
+  samples <- fread(sample_fn, header = FALSE)
+  n_samples <- nrow(samples)
+  return(n_samples)
 }
 
 save_plot <- function(p, fn, w, h){
@@ -62,14 +72,41 @@ for (tissue in tissues) {
 }
 
 vmr_all <- bind_rows(vmr_all)
-vmr_all$group <- interaction(vmr_all$tissue, vmr_all$h2_category, sep = "-")
 
-heritability_test <- vmr_all %>%
-  group_by(tissue) %>%
-  pairwise_wilcox_test(log10_length ~ h2_category, p.adjust.method = "bonferroni") %>%
-  add_y_position()
+# Test significance with mixed linear model
+contrasts_h2 <- list()
 
-print(heritability_test)
+for(t in unique(vmr_all$tissue)) {
+  
+  n_samples <- get_samples(t)
+  df <- vmr_all %>% filter(tissue == t) %>%
+    mutate(n_samples = n_samples)
+  
+  # Fit mixed model per tissue
+  lmm <- lmer(log10_length ~ h2_category + n_samples + (1 | chrom), data = df)
+  y_pos = max(df$log10_length, na.rm = TRUE) + 0.4
+  
+  # Get pairwise contrasts
+  contrast_df <- emmeans(lmm, ~ h2_category) %>%
+    contrast(method = "pairwise", adjust = "bonferroni") %>%
+    as.data.frame() %>%
+    mutate(
+      tissue = t,
+      group1 = gsub("[()]", "", sapply(strsplit(contrast, " - "), `[`, 1)),
+      group2 = gsub("[()]", "", sapply(strsplit(contrast, " - "), `[`, 2)),
+      y.position = y_pos,
+      p.adj.signif = case_when(
+        p.value <= 0.001 ~ "***",
+        p.value <= 0.01  ~ "**",
+        p.value <= 0.05  ~ "*",
+        TRUE ~ "ns"
+      )
+    )
+  
+  contrasts_h2[[t]] <- contrast_df
+}
+
+heritability_test <- bind_rows(contrasts_h2)
 
 heritability_colors <- c(
   "Heritable" = "#497C8A",
@@ -94,12 +131,39 @@ p_heritability <- ggviolin(vmr_all, x = "h2_category",
     plot.title = element_text(hjust = 0.5)
   )
 
-tissue_test <- vmr_all %>%
-  group_by(h2_category) %>%
-  pairwise_wilcox_test(log10_length ~ tissue, p.adjust.method = "bonferroni") %>%
-  add_y_position()
+contrasts_tissue <- list()
 
-print(tissue_test)
+for(h in unique(vmr_all$h2_category)) {
+  
+  n_samples <- get_samples(t)
+  df <- vmr_all %>% filter(h2_category == h) %>%
+    mutate(n_samples = n_samples)
+  
+  # Fit mixed model per h2 category 
+  lmm <- lmer(log10_length ~ tissue + n_samples + (1 | chrom), data = df)
+  y_pos = max(df$log10_length, na.rm = TRUE) + 0.4
+  
+  # Get pairwise contrasts
+  contrast_df <- emmeans(lmm, ~ tissue) %>%
+    contrast(method = "pairwise", adjust = "bonferroni") %>%
+    as.data.frame() %>%
+    mutate(
+      h2_category = h,
+      group1 = gsub("[()]", "", sapply(strsplit(contrast, " - "), `[`, 1)),
+      group2 = gsub("[()]", "", sapply(strsplit(contrast, " - "), `[`, 2)),
+      y.position = y_pos,
+      p.adj.signif = case_when(
+        p.value <= 0.001 ~ "***",
+        p.value <= 0.01  ~ "**",
+        p.value <= 0.05  ~ "*",
+        TRUE ~ "ns"
+      )
+    )
+  
+  contrasts_tissue[[h]] <- contrast_df
+}
+
+tissue_test <- bind_rows(contrasts_tissue)
 
 tissue_colors <- c(
   "caudate" = "#7372A6",
@@ -123,7 +187,6 @@ p_tissue <- ggviolin(vmr_all, x = "tissue",
     axis.text.x = element_text(angle = 45, hjust = 1),
     plot.title = element_text(hjust = 0.5)
   )
-
 
 fn_heritability <- file.path(out_path, "VMR_length_heritability_comparisons")
 fn_tissue       <- file.path(out_path, "VMR_length_tissue_comparisons")
