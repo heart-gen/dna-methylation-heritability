@@ -64,32 +64,6 @@ plot_error <- function(error_rate) {
   return(p)
 }
 
-plot_bar <- function(error_rate_all, n_samples) {
-  error_rate <- error_rate_all %>% 
-    filter(sample_size == n_samples, method == "Elastic-net") %>%
-    mutate(r2_threshold = as.factor(r2_threshold))
-  
-  p_bar <- ggplot(error_rate, aes(x = r2_threshold, y = value, fill = metric)) +
-    geom_col(position = position_dodge(width = 0.8), width = 0.7) +
-    scale_fill_manual(
-      values = c("Power" = "#7B8C99",
-                 "Type 1 Error" = "#B35A4E",
-                 "Type 2 Error" = "#D4BFAA")
-    ) +
-    labs(x = "r2 Threshold",
-         y = "Error Measurement",
-         fill = "Metric",
-         title = "Error Estimates at N = 250") +
-    theme_minimal(base_size = 20) +
-    theme(legend.position = "right", 
-          panel.grid.major = element_blank(), 
-          panel.grid.minor = element_blank(),
-          axis.line = element_line(colour = "black", linewidth = 1, linetype = "solid"),
-          axis.text.x = element_text(angle = 45, hjust = 1))
-
-  return(p_bar)
-}
-
 ## Main
 # Create output directory
 out_path <- here("simulation-analysis/comparison/error_rate/r2_testing/_m")
@@ -106,31 +80,11 @@ error_rate_fn <- here("simulation-analysis/comparison/error_rate/r2_testing/_m",
 error_rate <- read.table(error_rate_fn, sep = "\t", header = TRUE)
 error_rate <- filter_error(error_rate)
 
-# Combine error rates for plotting
-r2_vals <- c(0.3, 0.5, 0.7)
-
-error_list <- lapply(r2_vals, function(r2_thresh) {
-  
-  error_rate_fn <- here("simulation-analysis/comparison/error_rate/r2_testing/_m",
-             paste0("power-analysis_r2_", r2_thresh, ".tsv"))
-  
-  error_rate <- read.table(error_rate_fn, sep = "\t", header = TRUE)
-  error_rate$r2_threshold <- r2_thresh
-  
-  filter_error(error_rate)
-})
-
-error_rate_all <- bind_rows(error_list)
-
 # Plot
 p <- plot_error(error_rate)
-n_samples <- 250
-p_bar <- plot_bar(error_rate_all, n_samples)
 
 # Save plots
 plot_file <- file.path(out_path, paste0("simulated_error_rate_r2_", r2_thresh))
-barplot_file <- file.path(out_path, paste0("simulated_error_rate_n_", n_samples))
-save_plot(p_bar, barplot_file, w = 6, h = 4, dpi = 300)
 save_plot(p, plot_file, w = 10, h = 6, dpi = 300)
 
 #### Reproducibility information ####
