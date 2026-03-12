@@ -36,7 +36,7 @@ ENV_PATH="/projects/p32505/opt/envs"
 log_message "Calculating empirical power and type 1 error rate"
 
 ## Activate conda environment
-r2_thresh=(0.3 0.5 0.7)
+r2_thresh=(0.05 0.1 0.15 0.2 0.3 0.4 0.5 0.6 0.7 0.75 0.8 0.9 0.99)
 
 for r2 in "${r2_thresh[@]}"; do
 	log_message "Running for r2 = ${r2}"
