@@ -16,13 +16,13 @@ save_img <- function(image, output_dir, fn, w = 7, h = 7) {
 
 get_bhat <- function(input_dir, file = "bhat_nominal_3regions_AA.txt.gz") {
     data.table::fread(file.path(input_dir, file), header = TRUE, sep = "\t") |>
-        mutate(effect = paste(phenotype_id, variant_id, sep = "_")) |>
+        mutate(effect = paste(shared_feature_id, variant_id, sep = "_")) |>
         distinct(effect, .keep_all = TRUE)
 }
 
 get_shat <- function(input_dir, file = "shat_nominal_3regions_AA.txt.gz") {
     data.table::fread(file.path(input_dir, file), header = TRUE, sep = "\t") |>
-        mutate(effect = paste(phenotype_id, variant_id, sep = "_")) |>
+        mutate(effect = paste(shared_feature_id, variant_id, sep = "_")) |>
         distinct(effect, .keep_all = TRUE)
 }
 
@@ -47,12 +47,12 @@ run_mashr <- function(seed, percentage, input_dir, output_dir) {
     message("Load prepared data")
     bhat <- get_bhat(input_dir) |>
         tibble::column_to_rownames("effect") |>
-        select(-phenotype_id, -variant_id) |>
+        select(-shared_feature_id, -variant_id) |>
         as.matrix()
 
     shat <- get_shat(input_dir) |>
         tibble::column_to_rownames("effect") |>
-        select(-phenotype_id, -variant_id) |>
+        select(-shared_feature_id, -variant_id) |>
         as.matrix()
 
     save(bhat, shat, file = file.path(output_dir, "bhat_shat.RData"))
