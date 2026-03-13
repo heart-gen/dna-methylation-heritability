@@ -64,14 +64,14 @@ def extract_dataframe(region_data, variable, label, outdir):
     """
     dfs = []
     for region, df in region_data.items():
-        renamed = df.loc[:, ["phenotype_id", "variant_id", variable]] \
+        renamed = df.loc[:, ["shared_feature_id", "variant_id", variable]] \
                     .rename(columns={variable: region.capitalize()})
         dfs.append(renamed)
 
     # Merge on phenotype_id and variant_id
     result = dfs[0]
     for other in dfs[1:]:
-        result = result.merge(other, on=["phenotype_id", "variant_id"])
+        result = result.merge(other, on=["shared_feature_id", "variant_id"])
 
     output_file = outdir / f"{label}_nominal_3regions_AA.txt.gz"
     result.to_csv(output_file, sep='\t', index=False)
