@@ -3,9 +3,10 @@
 suppressPackageStartupMessages({
   library(here)
   library(dplyr)
-  library(ggVennDiagram)
+  library(ggvenn)
   library(ggplot2)
   library(tidyverse)
+  library(ggpubr)
 })
 
 ## Function
@@ -36,6 +37,8 @@ out_path <- here("heritability/elastic_net_model/all_individuals/tissue_comparis
 if (!dir.exists(out_path)) {
   dir.create(out_path, recursive = TRUE)
 }
+
+plot_list <- list()
 
 for (tissue in tissues) {
   # Read in summary table
@@ -70,14 +73,23 @@ for (tissue in tissues) {
       summarise(regions = list(feature_id), .groups = "drop") %>%
       deframe()
     
-    p <- ggVennDiagram(vmr_combined_venn) +
-      ggtitle(paste0(tissue, ": ", h2_cat, " VMRs")) +
-      theme(legend.position = "none")
+    p <- ggvenn(vmr_combined_venn, fill_color = c("brown", "blue"), 
+                fill_alpha = 0.4, stroke_size = 0, set_name_size = 5,
+                show_stats = "c", auto_scale = TRUE) +
+      ggtitle(paste(tissue, h2_cat, sep = " ")) +
+      theme_void() + theme(legend.position = "none")
     
-    fn_venn <- file.path(out_path, paste0(tissue, "_", h2_cat, "_venn"))
-    save_plot(p, fn_venn, 4, 4)
-    
+    plot_list[[paste(tissue, h2_cat, sep = "_")]] <- p
   }
-
 }
+
+combined_p <- ggarrange(plotlist = plot_list, ncol = 3, nrow = 3)
+fn_venn <- file.path(out_path, "combined_venn")
+save_plot(combined_p, fn_venn, 10, 10)
   
+#### Reproducibility information ####
+print("Reproducibility information:")
+Sys.time()
+proc.time()
+options(width = 120)
+sessioninfo::session_info()
