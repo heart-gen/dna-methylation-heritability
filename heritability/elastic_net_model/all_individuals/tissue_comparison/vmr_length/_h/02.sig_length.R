@@ -13,9 +13,9 @@ filter_sites <- function(enet) {
   vmr <- na.omit(enet)
   vmr <- vmr %>%
     mutate(h2_category = case_when(
-      r_squared_cv <= 0.75 ~ "Low prediction",
-      h2_unscaled < 0.1 & r_squared_cv > 0.75 ~ "Non-heritable",
-      h2_unscaled >= 0.1 & r_squared_cv > 0.75 ~ "Heritable"
+      r_squared_cv <= 0.3 ~ "Low prediction",
+      h2_unscaled < 0.1 & r_squared_cv > 0.3 ~ "Non-heritable",
+      h2_unscaled >= 0.1 & r_squared_cv > 0.3 ~ "Heritable"
     ),
     h2_category = factor(h2_category, levels = c("Heritable", 
                                                  "Non-heritable", 
