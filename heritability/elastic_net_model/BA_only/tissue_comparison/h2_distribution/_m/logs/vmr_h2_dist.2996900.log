@@ -1,0 +1,100 @@
+2026-03-17 12:10:38 - **** Job starts ****
+**** QUEST info ****
+User: skc6679
+Job id: 2996900
+Job name: vmr_h2_dist
+Node name: 
+Hostname: qnode0018
+Task id: N/A
+No modules loaded
+2026-03-17 12:10:38 - Plotting h2 distributions
+Warning messages:
+1: Using `bins = 30` by default. Pick better value with the argument `bins`. 
+2: Using `bins = 30` by default. Pick better value with the argument `bins`. 
+3: Using `bins = 30` by default. Pick better value with the argument `bins`. 
+
+# A tibble: 3 × 4
+  h2_category        n mean_h2 median_h2
+  <fct>          <int>   <dbl>     <dbl>
+1 Heritable       5069  0.272     0.157 
+2 Non-heritable   6605  0.0670    0.0687
+3 Low prediction    67  0.0619    0.0506
+# A tibble: 3 × 4
+  h2_category        n mean_h2 median_h2
+  <fct>          <int>   <dbl>     <dbl>
+1 Heritable       5390  0.204     0.139 
+2 Non-heritable   4409  0.0738    0.0767
+3 Low prediction    39  0.0629    0.0596
+# A tibble: 3 × 4
+  h2_category        n mean_h2 median_h2
+  <fct>          <int>   <dbl>     <dbl>
+1 Heritable       5343  0.198     0.138 
+2 Non-heritable   4179  0.0740    0.0773
+3 Low prediction    42  0.0573    0.0531
+[1] "Reproducibility information:"
+[1] "2026-03-17 12:10:58 CDT"
+   user  system elapsed 
+  6.352   0.372   8.043 
+─ Session info ───────────────────────────────────────────────────────────────────────────────────────────────────────
+ setting  value
+ version  R version 4.4.3 (2025-02-28)
+ os       Red Hat Enterprise Linux 8.10 (Ootpa)
+ system   x86_64, linux-gnu
+ ui       X11
+ language (EN)
+ collate  en_US.UTF-8
+ ctype    en_US.UTF-8
+ tz       America/Chicago
+ date     2026-03-17
+ pandoc   3.8 @ /projects/p32505/opt/envs/epigenomics/bin/pandoc
+ quarto   1.9.35 @ /projects/p32505/opt/bin/quarto
+
+─ Packages ───────────────────────────────────────────────────────────────────────────────────────────────────────────
+ package      * version date (UTC) lib source
+ abind          1.4-8   2024-09-12 [1] CRAN (R 4.4.3)
+ backports      1.5.0   2024-05-23 [1] CRAN (R 4.4.3)
+ broom          1.0.10  2025-09-13 [1] CRAN (R 4.4.3)
+ car            3.1-3   2024-09-27 [1] CRAN (R 4.4.3)
+ carData        3.0-5   2022-01-06 [1] CRAN (R 4.4.3)
+ cli            3.6.5   2025-04-23 [1] CRAN (R 4.4.3)
+ cowplot        1.2.0   2025-07-07 [1] CRAN (R 4.4.3)
+ dplyr        * 1.1.4   2023-11-17 [1] CRAN (R 4.4.3)
+ farver         2.1.2   2024-05-13 [1] CRAN (R 4.4.3)
+ Formula        1.2-5   2023-02-24 [1] CRAN (R 4.4.3)
+ generics       0.1.4   2025-05-09 [1] CRAN (R 4.4.3)
+ ggplot2      * 4.0.1   2025-11-14 [1] CRAN (R 4.4.3)
+ ggpubr       * 0.6.1   2025-06-27 [1] CRAN (R 4.4.3)
+ ggsignif       0.6.4   2022-10-13 [1] CRAN (R 4.4.3)
+ glue           1.8.0   2024-09-30 [1] CRAN (R 4.4.3)
+ gtable         0.3.6   2024-10-25 [1] CRAN (R 4.4.3)
+ here         * 1.0.2   2025-09-15 [1] CRAN (R 4.4.3)
+ labeling       0.4.3   2023-08-29 [1] CRAN (R 4.4.3)
+ lifecycle      1.0.5   2026-01-08 [1] CRAN (R 4.4.3)
+ magrittr       2.0.4   2025-09-12 [1] CRAN (R 4.4.3)
+ pillar         1.11.1  2025-09-17 [1] CRAN (R 4.4.3)
+ pkgconfig      2.0.3   2019-09-22 [1] CRAN (R 4.4.3)
+ purrr          1.1.0   2025-07-10 [1] CRAN (R 4.4.3)
+ R6             2.6.1   2025-02-15 [1] CRAN (R 4.4.3)
+ ragg           1.5.0   2025-09-02 [1] CRAN (R 4.4.3)
+ RColorBrewer   1.1-3   2022-04-03 [1] CRAN (R 4.4.3)
+ rlang          1.1.6   2025-04-11 [1] CRAN (R 4.4.3)
+ rprojroot      2.1.1   2025-08-26 [1] CRAN (R 4.4.3)
+ rstatix        0.7.2   2023-02-01 [1] CRAN (R 4.4.3)
+ S7             0.2.0   2024-11-07 [1] CRAN (R 4.4.3)
+ scales         1.4.0   2025-04-24 [1] CRAN (R 4.4.3)
+ sessioninfo    1.2.3   2025-02-05 [1] CRAN (R 4.4.3)
+ systemfonts    1.2.3   2025-04-30 [1] CRAN (R 4.4.3)
+ textshaping    1.0.3   2025-09-02 [1] CRAN (R 4.4.3)
+ tibble         3.3.0   2025-06-08 [1] CRAN (R 4.4.3)
+ tidyr          1.3.1   2024-01-24 [1] CRAN (R 4.4.3)
+ tidyselect     1.2.1   2024-03-11 [1] CRAN (R 4.4.3)
+ utf8           1.2.6   2025-06-08 [1] CRAN (R 4.4.3)
+ vctrs          0.6.5   2023-12-01 [1] CRAN (R 4.4.3)
+ withr          3.0.2   2024-10-28 [1] CRAN (R 4.4.3)
+
+ [1] /gpfs/projects/p32505/opt/envs/epigenomics/lib/R/library
+ * ── Packages attached to the search path.
+
+──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+2026-03-17 12:10:59 - **** Job ends ****
