@@ -1,0 +1,19 @@
+"r2_threshold","region","h2_category","count"
+0.3,"Caudate","Heritable",5069
+0.3,"Caudate","Non-heritable",6605
+0.3,"Caudate","Low prediction",67
+0.3,"DLPFC","Heritable",5343
+0.3,"DLPFC","Non-heritable",4179
+0.3,"DLPFC","Low prediction",42
+0.3,"Hippocampus","Heritable",5390
+0.3,"Hippocampus","Non-heritable",4409
+0.3,"Hippocampus","Low prediction",39
+0.75,"Caudate","Heritable",4579
+0.75,"Caudate","Non-heritable",4895
+0.75,"Caudate","Low prediction",2267
+0.75,"DLPFC","Heritable",5015
+0.75,"DLPFC","Non-heritable",3539
+0.75,"DLPFC","Low prediction",1010
+0.75,"Hippocampus","Heritable",5051
+0.75,"Hippocampus","Non-heritable",3669
+0.75,"Hippocampus","Low prediction",1118
