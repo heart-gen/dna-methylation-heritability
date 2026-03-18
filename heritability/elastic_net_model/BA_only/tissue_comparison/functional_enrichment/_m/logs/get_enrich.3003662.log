@@ -1,0 +1,16 @@
+2026-03-17 14:35:38 - **** Job starts ****
+**** QUEST info ****
+User: skc6679
+Job id: 3003662
+Job name: get_enrichment
+Node name: 
+Hostname: qnode0023
+Task id: N/A
+No modules loaded
+2026-03-17 14:35:39 - Performing functional enrichment for each brain region
+Error: package or namespace load failed for ‘rGREAT’ in loadNamespace(j <- i[[1L]], c(lib.loc, .libPaths()), versionCheck = vI[[j]]):
+ there is no package called ‘shiny’
+Execution halted
+
+ERROR conda.cli.main_run:execute(127): `conda run Rscript ../_h/01.get_enrichment.R` failed. (See above for error)
+2026-03-17 14:36:03 - Error: Conda or script execution failed
