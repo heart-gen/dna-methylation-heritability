@@ -36,6 +36,22 @@ for (tissue in tissues) {
 
 enet_all <- bind_rows(enet_list)
 
+# Summarize number of lost VMRs
+loss <- enet_all %>%
+  mutate(
+    low = r_squared_cv >= 0.3,
+    high = r_squared_cv >= 0.75,
+    lost = low & !high
+  )
+
+loss_summary <- loss %>%
+  group_by(region) %>%
+  summarise(count = sum(lost), .groups = "drop")
+
+# Write summary counts to file
+write.csv(loss_summary, file = file.path(out_path, "summary_loss_count.csv"), 
+          row.names = FALSE)
+
 # Get summary for each r2 threshold
 enet_high <- enet_all %>%
   mutate(h2_category = case_when(
