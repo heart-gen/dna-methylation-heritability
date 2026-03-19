@@ -1,0 +1,37 @@
+"race","r2_threshold","region","h2_category","count"
+"AA",0.3,"Caudate","Heritable",4867
+"AA",0.3,"Caudate","Non-heritable",6443
+"AA",0.3,"Caudate","Low prediction",147
+"AA",0.3,"DLPFC","Heritable",3809
+"AA",0.3,"DLPFC","Non-heritable",5590
+"AA",0.3,"DLPFC","Low prediction",43
+"AA",0.3,"Hippocampus","Heritable",4781
+"AA",0.3,"Hippocampus","Non-heritable",4501
+"AA",0.3,"Hippocampus","Low prediction",78
+"AA",0.75,"Caudate","Heritable",4339
+"AA",0.75,"Caudate","Non-heritable",4833
+"AA",0.75,"Caudate","Low prediction",2285
+"AA",0.75,"DLPFC","Heritable",3500
+"AA",0.75,"DLPFC","Non-heritable",4523
+"AA",0.75,"DLPFC","Low prediction",1419
+"AA",0.75,"Hippocampus","Heritable",4416
+"AA",0.75,"Hippocampus","Non-heritable",3808
+"AA",0.75,"Hippocampus","Low prediction",1136
+"EA",0.3,"Caudate","Heritable",6172
+"EA",0.3,"Caudate","Non-heritable",5074
+"EA",0.3,"Caudate","Low prediction",200
+"EA",0.3,"DLPFC","Heritable",7771
+"EA",0.3,"DLPFC","Non-heritable",1620
+"EA",0.3,"DLPFC","Low prediction",18
+"EA",0.3,"Hippocampus","Heritable",8216
+"EA",0.3,"Hippocampus","Non-heritable",1077
+"EA",0.3,"Hippocampus","Low prediction",53
+"EA",0.75,"Caudate","Heritable",4901
+"EA",0.75,"Caudate","Non-heritable",2876
+"EA",0.75,"Caudate","Low prediction",3669
+"EA",0.75,"DLPFC","Heritable",7424
+"EA",0.75,"DLPFC","Non-heritable",1425
+"EA",0.75,"DLPFC","Low prediction",560
+"EA",0.75,"Hippocampus","Heritable",7806
+"EA",0.75,"Hippocampus","Non-heritable",907
+"EA",0.75,"Hippocampus","Low prediction",633
