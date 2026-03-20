@@ -89,9 +89,12 @@ p_sankey <- ggplot(summary, aes(axis1 = h2_category_AA,
                                 axis2 = factor(region),
                                 axis3 = h2_category_EA, y = count)) +
   geom_alluvium(aes(fill = h2_category_EA), width = 1/12) + 
-  geom_stratum(width = 1/8, fill = "grey80", color = "black") +
-  geom_text(stat = "stratum", aes(label = paste0(after_stat(stratum), "\n", after_stat(count))), 
-            angle = 45, size = 4, nudge_y = 0.05) +
+  geom_stratum(width = 1/4, fill = "grey80", color = "black") +
+  geom_text(stat = "stratum", 
+            aes(label = paste0(after_stat(stratum), "\n", 
+                               after_stat(count), "\n", 
+                               scales::percent(after_stat(count / sum(count)), accuracy = 0.01))), 
+            size = 4, nudge_y = 0.05) +
   facet_grid(~ r2_threshold, scales = "free_y") +
   scale_fill_manual(
     values = c("Heritable" = "#497C8A",
@@ -114,7 +117,7 @@ p_sankey <- ggplot(summary, aes(axis1 = h2_category_AA,
     axis.text.x = element_text(angle = 45, hjust = 1, size = 12)
   )
 
-print(p_sankey)
+#print(p_sankey)
 
 # Save plot
 plot_file <- file.path(out_path, "AA_to_EA_sankey")
