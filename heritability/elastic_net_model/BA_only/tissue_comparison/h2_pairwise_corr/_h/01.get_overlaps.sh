@@ -65,6 +65,32 @@ for F in "${OVERLAP[@]}"; do
     fi
 done
 
+for f in "${OVERLAP[@]}"; do
+    OUTDIR="./f_${f}"
+    mkdir -p "$OUTDIR"
+
+	# Counts
+	bedtools intersect -a $VMR_DIR/caudate/_m/vmr.bed \
+	-b $VMR_DIR/hippocampus/_m/vmr.bed -f $f -wa -wb | \
+	bedtools intersect -a - -b $VMR_DIR/dlpfc/_m/vmr.bed \
+	-v -f $f > $OUTDIR/caudate_hippocampus_overlap_${f}.bed
+
+	bedtools intersect -a $VMR_DIR/caudate/_m/vmr.bed \
+	-b $VMR_DIR/dlpfc/_m/vmr.bed -f $f -wa -wb | \
+	bedtools intersect -a - -b $VMR_DIR/hippocampus/_m/vmr.bed \
+	-v -f $f > $OUTDIR/caudate_dlpfc_overlap_${f}.bed
+
+	bedtools intersect -a $VMR_DIR/hippocampus/_m/vmr.bed \
+	-b $VMR_DIR/dlpfc/_m/vmr.bed -f $f -wa -wb | \
+	bedtools intersect -a - -b $VMR_DIR/caudate/_m/vmr.bed \
+	-v -f $f > $OUTDIR/hippocampus_dlpfc_overlap_${f}.bed
+
+    if [ $? -ne 0 ]; then
+    log_message "Error: Conda or script execution failed"
+    exit 1
+    fi
+done
+
 #conda deactivate
 
 log_message "**** Job ends ****"
