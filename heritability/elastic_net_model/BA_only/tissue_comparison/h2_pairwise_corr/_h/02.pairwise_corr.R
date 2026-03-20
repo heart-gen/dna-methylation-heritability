@@ -123,6 +123,13 @@ for (h2_cat in c("Heritable", "Non-heritable", "Low prediction")){
     for (tissue2 in c("hippocampus", "dlpfc")){
       if (tissue1 != tissue2){
         h2_df <- get_overlaps(vmr_all, h2_cat, tissue1, tissue2)
+
+        if (nrow(h2_df) < 3){
+          message("Not enough observations for ", h2_cat, "VMRs in", 
+                  tissue1, "vs", tissue, ". Skipping.")
+          next
+        }
+
         spearman_corr(h2_df, h2_cat, tissue1, tissue2, out_path)
         plot_corr(h2_df, h2_cat, tissue1, tissue2, out_path)
       }
