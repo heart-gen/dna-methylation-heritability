@@ -6,6 +6,9 @@ suppressPackageStartupMessages({
   library(ggpubr)
   library(ggplot2)
   library(rstatix)
+  library(lme4)
+  library(emmeans)
+  library(data.table)
 })
 
 ## Function
@@ -22,6 +25,13 @@ filter_sites <- function(enet) {
                                                  "Low prediction"))
     )
   return(vmr)
+}
+
+get_samples <- function(tissue) {
+  sample_fn <- here("vmr-analysis/", paste0(tissue, "/_m/samples.txt"))
+  samples <- fread(sample_fn, header = FALSE)
+  n_samples <- nrow(samples)
+  return(n_samples)
 }
 
 cal_vmr_length <- function(vmr) {
@@ -219,11 +229,11 @@ plot_violin <- function(vmr_all, snp_test) {
   )
   
   p_violin <- ggviolin(vmr_all, x = "h2_category",
-                             y = "num_snps", fill = "h2_category", 
-                             color = "h2_category", facet.by = "tissue_title", 
-                             add = c("jitter", "median"), 
-                             alpha = 0.5, palette = heritability_colors, 
-                             trim = FALSE
+                       y = "num_snps", fill = "h2_category", 
+                       facet.by = "tissue_title", 
+                       add = "boxplot", alpha = 0.5, 
+                       palette = heritability_colors, 
+                       trim = FALSE
   ) +
     stat_pvalue_manual(snp_test, label = "p.adj.signif", tip.length = 0.01) +
     theme_pubr(base_size = 15, border = TRUE) +
@@ -250,6 +260,7 @@ if (!dir.exists(out_path)) {
 hist_plots     <- list()
 corr_plots     <- list()
 corr_plots_snp <- list()
+contrasts_h2 <- list()
 
 for (tissue in tissues) {
   # Read in summary table
@@ -259,11 +270,13 @@ for (tissue in tissues) {
   
   vmr <- filter_sites(enet)
   vmr <- cal_vmr_length(vmr)
+  n_samples <- get_samples(tissue)
   vmr$tissue <- tissue
   
   vmr_all <- bind_rows(if (exists("vmr_all")) vmr_all else NULL, vmr)
   vmr_all <- vmr_all %>%
-    mutate(tissue_title = ifelse(tolower(tissue) == "dlpfc", "DLPFC", tools::toTitleCase(tissue)))
+    mutate(n_samples = n_samples,
+           tissue_title = ifelse(tolower(tissue) == "dlpfc", "DLPFC", tools::toTitleCase(tissue)))
   
   # Summarize length of vmrs
   summarise_num_snps(vmr, tissue, out_path)
@@ -280,15 +293,34 @@ for (tissue in tissues) {
   hist_plots[[tissue]] <- p_hist
   corr_plots[[tissue]] <- p_corr
   corr_plots_snp[[tissue]] <- p_corr_snp
+
+  # Fit mixed model per tissue
+  lmm <- lmer(num_snps ~ h2_category + n_samples + (1 | chrom), data = vmr_all)
+  y_pos = max(vmr_all$num_snps, na.rm = TRUE) + 100
+  
+  # Get pairwise contrasts
+  contrast_df <- emmeans(lmm, ~ h2_category) %>%
+    contrast(method = "pairwise", adjust = "bonferroni") %>%
+    as.data.frame() %>%
+    mutate(
+      tissue = tissue,
+      group1 = gsub("[()]", "", sapply(strsplit(contrast, " - "), `[`, 1)),
+      group2 = gsub("[()]", "", sapply(strsplit(contrast, " - "), `[`, 2)),
+      y.position = y_pos,
+      p.adj.signif = case_when(
+        p.value <= 0.001 ~ "***",
+        p.value <= 0.01  ~ "**",
+        p.value <= 0.05  ~ "*",
+        TRUE ~ "ns"
+      )
+    )
+    
+    # Store pairwise contrasts
+    contrasts_h2[[tissue]] <- contrast_df
 }
 
-snp_test <- vmr_all %>%
-  group_by(tissue_title) %>%
-  pairwise_wilcox_test(
-    num_snps ~ h2_category,
-    p.adjust.method = "fdr"
-  ) %>%
-  add_y_position()
+snp_test <- bind_rows(contrasts_h2) %>%
+  mutate(tissue_title = ifelse(tolower(tissue) == "dlpfc", "DLPFC", tools::toTitleCase(tissue)))
 
 p_violin <- plot_violin(vmr_all, snp_test)
 
