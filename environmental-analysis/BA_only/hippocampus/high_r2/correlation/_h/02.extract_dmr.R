@@ -107,7 +107,7 @@ get_dmr <- function(pheno_matrix, var) {
 ## Main
                                         # Create output path
 out_path <- here("environmental-analysis", "BA_only", "hippocampus", 
-                 "correlation", "_m")
+                 "high_r2", "correlation", "_m")
 if (!dir.exists(out_path)) {
   dir.create(out_path, recursive = TRUE)
 }
@@ -121,7 +121,8 @@ vars_to_include <- c(
 
                                         # Get phenotype matrix
 pheno_matrix_fn <- here("environmental-analysis", "BA_only", "hippocampus", 
-                        "correlation", "_m", "vmr_env_assoc-AA.tsv.gz")
+                        "high_r2", "correlation", "_m", 
+                        "vmr_env_assoc-AA.tsv.gz")
 pheno_matrix <- fread(pheno_matrix_fn, na.strings = c(NA, ""))
 
                                         # Get VMR IDs
