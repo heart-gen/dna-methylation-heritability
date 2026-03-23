@@ -83,7 +83,7 @@ save_plot <- function(p, fn, w=8, h=6) {
 tissue <- c("caudate")
 
 out_path <- here("environmental-analysis", "BA_only", "caudate", 
-                 "correlation", "_m")
+                 "high_r2", "correlation", "_m")
 if (!dir.exists(out_path)) {
   dir.create(out_path, recursive = TRUE)
 }
