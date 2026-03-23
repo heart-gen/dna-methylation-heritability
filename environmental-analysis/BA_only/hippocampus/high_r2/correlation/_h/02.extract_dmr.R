@@ -8,6 +8,7 @@ suppressPackageStartupMessages({
   library(tidyr)
   library(limma)
   library(tibble)
+  library(stringr)
 })
 
 ## Function 
@@ -22,16 +23,16 @@ get_null_dmr <- function(pheno_matrix) {
   
   pheno_matrix <- pheno_matrix %>%
     distinct(brnum, .keep_all = TRUE) %>%
-    mutate(education = as.numeric(as.factor(education))) %>%
-    mutate(marital_status = as.numeric(as.factor(marital_status)))
+    mutate(education = relevel(factor(education), ref = "hs"),
+           marital_status = relevel(factor(marital_status), ref = "single"))
   
   # Differential DNAm for env phenos
   meth_t <- t(meth_levels)
   
-  design <- cbind(1, dx = as.factor(pheno_matrix$primarydx), 
-                  age = pheno_matrix$agedeath, 
-                  sex = as.factor(pheno_matrix$sex),
-                  afr_ances = pheno_matrix$Afr)
+  design <- model.matrix(
+    as.formula(paste("~ dx + age + sex + afr_ances")),
+    data = pheno_matrix
+  )
   fit    <- limma::lmFit(meth_t, design)
   fit    <- eBayes(fit)
   
@@ -64,30 +65,49 @@ get_dmr <- function(pheno_matrix, var) {
   
   pheno_matrix <- pheno_matrix %>% drop_na(var) %>%
     distinct(brnum, .keep_all = TRUE) %>%
-    mutate(education = as.numeric(as.factor(education))) %>%
-    mutate(marital_status = as.numeric(as.factor(marital_status)))
+    mutate(education = relevel(factor(education), ref = "hs"),
+           marital_status = relevel(factor(marital_status), ref = "single"))
   
                                         # Differential DNAm for env phenos
   meth_t <- t(meth_levels)
   
-  design <- cbind(1, pheno_matrix[[var]], 
-                  as.factor(pheno_matrix$primarydx), 
-                  pheno_matrix$agedeath, 
-                  as.factor(pheno_matrix$sex),
-                  pheno_matrix$Afr)
+  design <- model.matrix(
+    as.formula(paste("~", var, "+ dx + age + sex + afr_ances")),
+    data = pheno_matrix
+  )
   fit    <- limma::lmFit(meth_t, design)
   fit    <- eBayes(fit)
   
+  coefs <- as.data.frame(fit$coefficients) %>%
+    rownames_to_column("feature_id") %>%
+    pivot_longer(-feature_id, names_to = "variable", values_to = "coefficients")
+  pvals <- as.data.frame(fit$p.value) %>%
+    rownames_to_column("feature_id") %>%
+    pivot_longer(-feature_id, names_to = "variable", values_to = "p.value")
+  res <- left_join(coefs, pvals, by = c("feature_id", "variable"))
+  
                                         # FDR correction
-  res <- as.data.frame(fit)
-  res$fdr <- p.adjust(res$p.value.x2, method="fdr")
+  res <- res %>%
+    filter(str_detect(variable, paste0("^", var))) %>%
+    mutate(
+      # Identify env variable and level
+      level = case_when(
+        str_detect(variable, "^education") ~ str_remove(variable, "^education"),
+        str_detect(variable, "^marital_status") ~ str_remove(variable, "^marital_status"),
+        TRUE ~ NA
+      )
+    ) %>%
+    group_by(variable) %>%
+    mutate(fdr = p.adjust(p.value, method = "fdr")) %>%
+    ungroup()
 
   return(res)
 }
 
 ## Main
                                         # Create output path
-out_path <- here("environmental-analysis", "hippocampus", "correlation", "_m")
+out_path <- here("environmental-analysis", "BA_only", "hippocampus", 
+                 "correlation", "_m")
 if (!dir.exists(out_path)) {
   dir.create(out_path, recursive = TRUE)
 }
@@ -100,12 +120,13 @@ vars_to_include <- c(
 )
 
                                         # Get phenotype matrix
-pheno_matrix_fn <- here("environmental-analysis", "hippocampus", "correlation",
-                        "_m", "vmr_env_assoc-AA.tsv.gz")
+pheno_matrix_fn <- here("environmental-analysis", "BA_only", "hippocampus", 
+                        "correlation", "_m", "vmr_env_assoc-AA.tsv.gz")
 pheno_matrix <- fread(pheno_matrix_fn, na.strings = c(NA, ""))
 
                                         # Get VMR IDs
-vmr_ids <- pheno_matrix %>% distinct(feature_id)
+vmr_ids <- pheno_matrix %>% select(feature_id, chr, start, end) %>%
+  distinct(feature_id, .keep_all = TRUE)
 
 print(paste("Extracting DMRs related to covariates"))
 
@@ -141,14 +162,13 @@ for (env in vars_to_include) {
                                         # Count significant dmrs
   print(paste("At FDR < 0.05 there are", sum(res$fdr < 0.05), "signficant DMRs"))
   print(paste("At FDR < 0.1 there are", sum(res$fdr < 0.1), "signficant DMRs"))
-  print(paste("At p < 0.05 there are", sum(res$p.value.x2 < 0.05), "signficant DMRs"))
+  print(paste("At p < 0.05 there are", sum(res$p.value < 0.05), "signficant DMRs"))
   
                                         # Output significant dmrs
-  merged <- as.data.frame(cbind(vmr_ids, res)) %>%
-    left_join(select(pheno_matrix, chr, start, end, feature_id), multiple = "first") %>%
-    mutate(var = env)
-    select("feature_id", "chr", "start", "end", "coefficients.x2", "p.value.x2", "fdr") %>%
-    rename(coefficients = coefficients.x2, p.value = p.value.x2)
+  merged <- res %>%
+    left_join(vmr_ids, by = "feature_id") %>%
+    mutate(var = env) %>%
+    select("feature_id", "chr", "start", "end", "var", "level", "coefficients", "p.value", "fdr")
   
   out_dmr <- file.path(out_path, paste0(env, "_dmr.csv.gz"))
   fwrite(merged, out_dmr)
