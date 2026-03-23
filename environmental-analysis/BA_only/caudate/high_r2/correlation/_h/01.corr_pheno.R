@@ -82,13 +82,14 @@ save_plot <- function(p, fn, w=8, h=6) {
 ## Main
 tissue <- c("caudate")
 
-out_path <- here("environmental-analysis", "caudate", "correlation", "_m")
+out_path <- here("environmental-analysis", "BA_only", "caudate", 
+                 "correlation", "_m")
 if (!dir.exists(out_path)) {
   dir.create(out_path, recursive = TRUE)
 }
 
                                         # Read in summary table
-enet_file <- here("heritability/elastic_net_model/", 
+enet_file <- here("heritability/elastic_net_model/BA_only/", 
                   paste0(tissue, "/_m/", tissue, "_summary_elastic-net.tsv"))
 enet <- read.table(enet_file, sep = "\t", header = TRUE)
 
@@ -114,7 +115,7 @@ pheno <- left_join(pheno, ances, by = c("brnum" = "id")) %>%
   rename(afr_ances = Afr)
 
                                         # Get meth matrix
-meth_file_path <- here("heritability/caudate/_m/vmr")
+meth_file_path <- here("vmr-analysis/caudate/_m/vmr")
 meth_files     <- list.files(path = meth_file_path, pattern = "_meth\\.phen$", 
                          recursive = TRUE, full.names = TRUE)
 meth_df        <- merge_meth(meth_files)
