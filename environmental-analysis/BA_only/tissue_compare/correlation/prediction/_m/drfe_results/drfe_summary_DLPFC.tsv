@@ -1,0 +1,11 @@
+region	h2_category	h2_category_safe	env_var	n_samples	n_features	best_score	best_n_features
+DLPFC	Heritable	heritable	smoking	108	5319	0.610021645021645	5
+DLPFC	Heritable	heritable	antipsychotics	81	5319	0.5146825396825396	5319
+DLPFC	Heritable	heritable	nicotine	111	5319	0.5797943722943723	118
+DLPFC	Heritable	heritable	education	96	5319	0.46762115199615206	1
+DLPFC	Heritable	heritable	marital_status	97	5319	0.6089236226736227	60
+DLPFC	Non-heritable	non-heritable	smoking	108	4070	0.5046176046176046	348
+DLPFC	Non-heritable	non-heritable	antipsychotics	81	4070	0.4648412698412699	4070
+DLPFC	Non-heritable	non-heritable	nicotine	111	4070	0.6605844155844156	4070
+DLPFC	Non-heritable	non-heritable	education	96	4070	0.5026049182299183	222
+DLPFC	Non-heritable	non-heritable	marital_status	97	4070	0.6503260397010397	4070
