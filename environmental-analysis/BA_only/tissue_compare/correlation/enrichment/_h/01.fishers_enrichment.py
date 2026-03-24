@@ -36,16 +36,20 @@ def get_vmrs(tissue, env, cat=None):
     vmrs = pd.read_csv(fn, sep=',') 
 
     if cat is not None:
-        vmrs = vmrs[vmrs['var'] == cat]
+        vmrs = vmrs[vmrs['var'] == f"{env}{cat}"]
 
     vmrs['test'] = 'logit'
     vmrs['sig'] = vmrs['p'] < 0.05
     return vmrs
 
 @lru_cache()
-def get_dmrs(tissue, env):
+def get_dmrs(tissue, env, cat=None):
     fn = here(f"environmental-analysis/BA_only/{tissue.lower()}/correlation/_m/{env.lower()}_dmr.csv.gz")
     dmrs = pd.read_csv(fn, sep=',')
+
+    if cat is not None:
+        dmrs = dmrs[dmrs['level'] == {cat}]
+    
     dmrs['test'] = 'dmr'
     dmrs['sig'] = dmrs['p.value'] < 0.05
     return dmrs
@@ -87,8 +91,8 @@ def calculate_enrichment():
                 "antipsychotics","nicotine","amphetamines", "hx_sexual_abuse","hx_physical_abuse"]
 
     categorical_vars = {
-        "education": ['educationless_than_hs', 'educationmore_than_hs'],
-        "marital_status": ['marital_statussingle', 'marital_statuspreviously_married']
+        "education": ['less_than_hs', 'more_than_hs'],
+        "marital_status": ['single', 'previously_married']
     }
 
     for tissue in ["Caudate", "Hippocampus", "DLPFC"]:
