@@ -24,7 +24,7 @@ get_null_dmr <- function(pheno_matrix) {
   pheno_matrix <- pheno_matrix %>%
     distinct(brnum, .keep_all = TRUE) %>%
     mutate(education = relevel(factor(education), ref = "hs"),
-           marital_status = relevel(factor(marital_status), ref = "single"))
+           marital_status = relevel(factor(marital_status), ref = "married"))
   
   # Differential DNAm for env phenos
   meth_t <- t(meth_levels)
@@ -66,7 +66,7 @@ get_dmr <- function(pheno_matrix, var) {
   pheno_matrix <- pheno_matrix %>% drop_na(var) %>%
     distinct(brnum, .keep_all = TRUE) %>%
     mutate(education = relevel(factor(education), ref = "hs"),
-           marital_status = relevel(factor(marital_status), ref = "single"))
+           marital_status = relevel(factor(marital_status), ref = "married"))
   
                                         # Differential DNAm for env phenos
   meth_t <- t(meth_levels)
