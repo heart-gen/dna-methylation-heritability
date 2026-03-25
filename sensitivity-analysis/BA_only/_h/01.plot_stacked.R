@@ -45,6 +45,8 @@ get_summary <- function(enet_all, r2_threshold){
     mutate(h2_category = factor(h2_category,
                                 levels = c("Heritable", "Non-heritable", "Low prediction")),
            region = recode(region, "caudate" = "Caudate"))
+
+  return(enet_summary)
 }
 
 plot_stacked <- function(enet_summary){
