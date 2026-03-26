@@ -6,17 +6,18 @@ suppressPackageStartupMessages({
   library(ggplot2)
   library(data.table)
   library(tidyr)
+  library(tidyverse)
 })
 
 ## Function           
 filter_sites <- function(enet) {
   vmr <- na.omit(enet)
   vmr <- vmr %>% 
-    dplyr::select(chrom, start, end, h2_unscaled, r_squared_cv) %>% 
+    dplyr::select(chrom, start, end, h2_unscaled, r_squared_cv, race) %>% 
     mutate(h2_category = case_when(
-      r_squared_cv <= 0.75 ~ "Low prediction",
-      h2_unscaled < 0.1 & r_squared_cv > 0.75 ~ "Non-heritable",
-      h2_unscaled >= 0.1 & r_squared_cv > 0.75 ~ "Heritable"
+      r_squared_cv <= 0.3 ~ "Low prediction",
+      h2_unscaled < 0.1 & r_squared_cv > 0.3 ~ "Non-heritable",
+      h2_unscaled >= 0.1 & r_squared_cv > 0.3 ~ "Heritable"
     ),
     h2_category = factor(h2_category,
                          levels = c("Heritable", "Non-heritable", "Low prediction"))
@@ -64,7 +65,7 @@ merge_meth <- function(meth_files){
       mutate(chr   = as.integer(sub("chr_","", chr)),
              start = as.integer(pos[1]),
              end   = as.integer(pos[2]),
-             feature_id = paste0("VMR", i))
+             feature_id = paste(chr, start, end, sep = "_"))
     meth_list[[i]] <- df
   }
                                         # Bind meth matrix
@@ -89,11 +90,25 @@ if (!dir.exists(out_path)) {
 }
 
                                         # Read in summary table
-enet_file <- here("heritability/elastic_net_model/all_individuals", 
-                  paste0(tissue, "/_m/", tissue, "_summary_elastic-net.tsv"))
-enet <- read.table(enet_file, sep = "\t", header = TRUE)
+enet_file <- here("heritability/elastic_net_model/all_individuals/", 
+                  paste0(tissue, "/_m/", tissue, "_summary_elastic-net_AA.tsv"))
+enet_AA <- read.table(enet_file, sep = "\t", header = TRUE)
+  
+enet_file_EA <- here("heritability/elastic_net_model/all_individuals/", 
+                    paste0(tissue, "/_m/", tissue, "_summary_elastic-net_EA.tsv"))
+enet_EA <- read.table(enet_file_EA, sep = "\t", header = TRUE)
+   
+vmr_AA <- filter_sites(enet_AA) %>%
+  mutate(feature_id = paste(chrom, start, end, sep = "_"))
+vmr_EA <- filter_sites(enet_EA) %>%
+  mutate(feature_id = paste(chrom, start, end, sep = "_"))
 
-vmr <- filter_sites(enet)
+vmr_combined <- inner_join(vmr_AA, vmr_EA, by = "feature_id",
+                           suffix = c("_AA", "_EA")) %>%
+  filter(h2_category_AA == h2_category_EA) %>%
+  rename(h2_category = h2_category_AA, chr = chrom_AA,
+         start = start_AA, end = end_AA) %>%
+  select(-c(h2_category_EA, chrom_EA, start_EA, end_EA, race_AA, race_EA))
 
                                         # Define variables of interest
 vars_to_include <- c(
@@ -123,10 +138,10 @@ meth_df <- meth_df %>% mutate(chr = as.character(chr))
                                         # Merge with h2 groups and 
                                         # environmental variables
 groups <- meth_df |>
-  inner_join(vmr, by = c("chr" = "chrom", "start", "end"))
-merged <- groups |>
   inner_join(pheno, "brnum") |>
   arrange(feature_id)
+merged <- groups |>
+  inner_join(vmr_combined, by = c("feature_id", "chr", "start", "end"))
 
                                         # Write df to file
 out_table <- file.path(out_path, paste0("vmr_env_assoc-all.tsv.gz"))
