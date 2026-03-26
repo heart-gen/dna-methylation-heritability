@@ -6,17 +6,18 @@ suppressPackageStartupMessages({
   library(ggplot2)
   library(data.table)
   library(tidyr)
+  library(tidyverse)
 })
 
 ## Function           
 filter_sites <- function(enet) {
   vmr <- na.omit(enet)
   vmr <- vmr %>% 
-    dplyr::select(chrom, start, end, h2_unscaled, r_squared_cv) %>% 
+    dplyr::select(chrom, start, end, h2_unscaled, r_squared_cv, race) %>% 
     mutate(h2_category = case_when(
-      r_squared_cv <= 0.75 ~ "Low prediction",
-      h2_unscaled < 0.1 & r_squared_cv > 0.75 ~ "Non-heritable",
-      h2_unscaled >= 0.1 & r_squared_cv > 0.75 ~ "Heritable"
+      r_squared_cv <= 0.3 ~ "Low prediction",
+      h2_unscaled < 0.1 & r_squared_cv > 0.3 ~ "Non-heritable",
+      h2_unscaled >= 0.1 & r_squared_cv > 0.3 ~ "Heritable"
     ),
     h2_category = factor(h2_category,
                          levels = c("Heritable", "Non-heritable", "Low prediction"))
@@ -53,21 +54,21 @@ merge_meth <- function(meth_files){
   meth_list <- vector("list", length(meth_files))
   for (i in seq_along(meth_files)) {
     file  <- meth_files[i]
-                                        # Get pos from filename
+    # Get pos from filename
     chr   <- basename(dirname(file))
     pos   <- strsplit(sub("_meth\\.phen$", "", basename(file)), "_")[[1]]
     df    <- fread(meth_files[i], select = c("V1", "V3"))
     colnames(df) <- c("brnum", "meth")
     
-                                        # Add in vmr pos
+    # Add in vmr pos
     df <- df %>%
       mutate(chr   = as.integer(sub("chr_","", chr)),
              start = as.integer(pos[1]),
              end   = as.integer(pos[2]),
-             feature_id = paste0("VMR", i))
+             feature_id = paste(chr, start, end, sep = "_"))
     meth_list[[i]] <- df
   }
-                                        # Bind meth matrix
+  # Bind meth matrix
   meth_df <- rbindlist(meth_list, use.names = TRUE, fill = TRUE)
   
   return(meth_df)
@@ -88,57 +89,71 @@ if (!dir.exists(out_path)) {
   dir.create(out_path, recursive = TRUE)
 }
 
-                                        # Read in summary table
+# Read in summary table
 enet_file <- here("heritability/elastic_net_model/all_individuals/", 
-                  paste0(tissue, "/_m/", tissue, "_summary_elastic-net.tsv"))
-enet <- read.table(enet_file, sep = "\t", header = TRUE)
+                  paste0(tissue, "/_m/", tissue, "_summary_elastic-net_AA.tsv"))
+enet_AA <- read.table(enet_file, sep = "\t", header = TRUE)
 
-vmr <- filter_sites(enet)
+enet_file_EA <- here("heritability/elastic_net_model/all_individuals/", 
+                     paste0(tissue, "/_m/", tissue, "_summary_elastic-net_EA.tsv"))
+enet_EA <- read.table(enet_file_EA, sep = "\t", header = TRUE)
 
-                                        # Define variables of interest
+vmr_AA <- filter_sites(enet_AA) %>%
+  mutate(feature_id = paste(chrom, start, end, sep = "_"))
+vmr_EA <- filter_sites(enet_EA) %>%
+  mutate(feature_id = paste(chrom, start, end, sep = "_"))
+
+vmr_combined <- inner_join(vmr_AA, vmr_EA, by = "feature_id",
+                           suffix = c("_AA", "_EA")) %>%
+  filter(h2_category_AA == h2_category_EA) %>%
+  rename(h2_category = h2_category_AA, chr = chrom_AA,
+         start = start_AA, end = end_AA) %>%
+  select(-c(h2_category_EA, chrom_EA, start_EA, end_EA, race_AA, race_EA))
+
+# Define variables of interest
 vars_to_include <- c(
   "race", "brnum", "agedeath", "sex","primarydx","region","smoking","codeine","morphine", "cocaine","ethanol","antipsychotics","nicotine","amphetamines",
   "education","marital_status","hx_sexual_abuse","hx_physical_abuse",
   "hx_other_trauma","hx_military_service","fsiq"
 )
 
-                                        # Get phenotype data
+# Get phenotype data
 pheno_file_path <- here("inputs/phenotypes/_m/phenotypes-all.tsv")
 pheno <- clean_pheno(pheno_file_path, tissue, vars_to_include)
-                    
-                                        # Add global ances
+
+# Add global ances
 f_ances   <- here("inputs", "genetic-ancestry",
                   "structure.out_ancestry_proportion_raceDemo_compare")
 ances     <- fread(f_ances)
 pheno <- left_join(pheno, ances, by = c("brnum" = "id")) %>%
-  rename(afr_ances = Afr)
+  rename(afr_ances = Afr, eur_ances = Eur)
 
-                                        # Get meth matrix
+# Get meth matrix
 meth_file_path <- here("vmr-analysis/all_individuals/hippocampus/_m/vmr")
 meth_files     <- list.files(path = meth_file_path, pattern = "_meth\\.phen$", 
-                         recursive = TRUE, full.names = TRUE)
+                             recursive = TRUE, full.names = TRUE)
 meth_df        <- merge_meth(meth_files)
 meth_df <- meth_df %>% mutate(chr = as.character(chr))
 
-                                        # Merge with h2 groups and 
-                                        # environmental variables
+# Merge with h2 groups and 
+# environmental variables
 groups <- meth_df |>
-  inner_join(vmr, by = c("chr" = "chrom", "start", "end"))
-merged <- groups |>
   inner_join(pheno, "brnum") |>
   arrange(feature_id)
+merged <- groups |>
+  inner_join(vmr_combined, by = c("feature_id", "chr", "start", "end"))
 
-                                        # Write df to file
+# Write df to file
 out_table <- file.path(out_path, paste0("vmr_env_assoc-all.tsv.gz"))
 fwrite(merged, out_table, sep = "\t", quote = FALSE)
 
 
 ####### Covariate testing #########
 
-                                        # Define covariates
+# Define covariates
 covars <- "age + sex + dx + afr_ances"
 
-                                        # Initialize results matrix
+# Initialize results matrix
 cov_results <- tibble() 
 feature_ids <- unique(merged$feature_id)
 
@@ -162,11 +177,11 @@ for (vmr in feature_ids) {
   cov_results <- bind_rows(cov_results, cov_summary)
 }
 
-                                        # FDR correction
+# FDR correction
 cov_results <- cov_results %>% as.data.frame() %>%
   mutate(fdr = p.adjust(p, method = "fdr"))
 
-                                        # Add positions back in
+# Add positions back in
 pos <- merged %>%
   dplyr::select(feature_id, chr, start, end) %>%
   distinct()
@@ -179,7 +194,7 @@ cov_names <- unique(cov_results$var)
 
 for (cov in cov_names){
   cov_filtered <- cov_results %>% filter(startsWith(var, cov))
- 
+  
   # Write results
   out_cov_logit <- file.path(out_path, paste0(cov, "_logit.csv.gz"))
   fwrite(cov_filtered, out_cov_logit)
@@ -187,13 +202,13 @@ for (cov in cov_names){
 
 ####### Environmental testing #########
 
-                                        # Define environmental vars
+# Define environmental vars
 testing_envs <- c(
   "smoking", "codeine", "morphine", "cocaine", "ethanol", "antipsychotics", 
   "nicotine", "amphetamines", "education", "marital_status", "hx_sexual_abuse",
   "hx_physical_abuse", "hx_other_trauma", "hx_military_service", "fsiq"
 )
-  
+
 for (env in testing_envs) {
   merged %>% 
     group_by(across(all_of(env)), h2_category) %>%
@@ -223,7 +238,7 @@ for (env in testing_envs) {
     env_summary <- env_summary %>%
       filter(grepl(paste0("^", env), var)) %>%
       mutate(feature_id = vmr, env = env) %>%
-      mutate(beta = Estimate, se = `Std. Error`,
+      rename(beta = Estimate, se = `Std. Error`,
              t = `t value`, p = `Pr(>|t|)`)
     
     env_results <- bind_rows(env_results, env_summary)
@@ -248,7 +263,7 @@ for (env in testing_envs) {
   out_logit <- file.path(out_path, paste0(env, "_logit.csv.gz"))
   fwrite(env_results, out_logit)
 }
-  
+
 #### Reproducibility ####
 print("Reproducibility information:")
 Sys.time()
