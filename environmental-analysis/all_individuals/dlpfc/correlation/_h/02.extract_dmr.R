@@ -121,7 +121,7 @@ vars_to_include <- c(
 
 # Get phenotype matrix
 pheno_matrix_fn <- here("environmental-analysis", "all_individuals", "dlpfc", 
-                        "correlation", "_m", "vmr_env_assoc-AA.tsv.gz")
+                        "correlation", "_m", "vmr_env_assoc-all.tsv.gz")
 pheno_matrix <- fread(pheno_matrix_fn, na.strings = c(NA, ""))
 
 # Get VMR IDs
