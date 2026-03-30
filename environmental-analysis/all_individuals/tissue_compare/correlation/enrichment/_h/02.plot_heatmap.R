@@ -1,11 +1,6 @@
-#### Plot enrichment of environmental phenotypes  ####
+library(ggplot2)
+library(tidyverse)
 
-suppressPackageStartupMessages({
-    library(ggplot2)
-    library(tidyverse)
-    library(data.table)
-})
-  
 save_plot <- function(p, fn, w, h){
     for(ext in c(".pdf", ".png")){
         ggsave(filename=paste0(fn,ext), plot=p, width=w, height=h)
@@ -13,15 +8,14 @@ save_plot <- function(p, fn, w, h){
 }
 
 load_env_enrichment <- function(){
-    return(fread("vmr_enrichment_analysis.txt"))
+    return(data.table::fread("vmr_enrichment_analysis.txt"))
 }
 memENRICH <- memoise::memoise(load_env_enrichment)
 
 gen_data <- function(){
     err = 0.0000001
-
     dt <- memENRICH() %>% mutate(across(where(is.character), as.factor)) %>%
-        mutate(h2_Category=fct_relevel(h2_Category, rev), `-log10(PValue)`= -log10(PValue),
+        mutate(h2_Category=fct_relevel(h2_Category, rev), `-log10(FDR)`= -log10(FDR),
                `OR Percentile`= OR / (1+OR), p.fdr.sig=FDR < 0.05,
                `log2(OR)` = log2(OR+err),
                p.fdr.cat=cut(FDR, breaks=c(1,0.05,0.01,0.005,0),
@@ -42,8 +36,8 @@ plot_tile <- function(label, w, h){
   tile_plot <- df %>%
     ggplot(aes(y = Test, x = h2_Category, fill = `log2(OR)`)) +
     geom_tile(color = "grey") +
-    geom_text(aes(label = ifelse(PValue,
-                                 format(round(PValue,2), nsmall=1), "")),
+    geom_text(aes(label = ifelse(p.fdr.sig,
+                                 format(round(-log10(FDR),1), nsmall=1), "")),
               color = "black", size = 5) +
     scale_fill_gradientn(colors = c("blue", "white", "red"),
                          values = scales::rescale(c(y0, 0, y1)),
@@ -60,22 +54,19 @@ plot_tile <- function(label, w, h){
     )
   
   save_plot(tile_plot, paste0(tolower(label), "_tileplot_enrichment"), w, h)
-  #print(tile_plot)
 }
 
 ## Main
-envs <- c("smoking", "educationless_than_hs", "educationmore_than_hs", 
-          "marital_statussingle", "marital_statuspreviously_married", "codeine", 
+envs <- c("smoking", "less_than_hs", "more_than_hs", 
+          "single", "previously_married", "codeine", 
           "morphine", "cocaine", "ethanol", "antipsychotics","nicotine",
-          "amphetamines", "hx_sexual_abuse", "hx_physical_abuse", 
-          "hx_other_trauma", "hx_military_service")
+          "amphetamines", "hx_sexual_abuse", "hx_physical_abuse")
 
 for (label in envs){
   plot_tile(label, 10, 6)
 }
 
-
-## Reproducibility information
+## Reproducibility infor mation
 Sys.time()
 proc.time()
 options(width = 120)
