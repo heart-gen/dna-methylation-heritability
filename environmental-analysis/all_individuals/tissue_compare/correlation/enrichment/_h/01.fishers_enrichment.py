@@ -11,24 +11,70 @@ from scipy.stats import fisher_exact
 from statsmodels.stats.multitest import fdrcorrection
 import session_info
 
-@lru_cache()
-def get_enet(tissue):
-    # get vmrs
-    enet_fn = here(f"heritability/elastic_net_model/all_individuals/{tissue.lower()}/_m/{tissue.lower()}_summary_elastic-net.tsv")
-    df = pd.read_csv(enet_fn, sep='\t')
-    df = df.dropna()
-    df['chrom'] = 'chr' + df['chrom'].astype(str)
+def filter_sites(enet_df, pop):
+    enet_df = enet_df.dropna()
+    enet_df['chrom'] = 'chr' + enet_df['chrom'].astype(str)
 
     # assign h2 categories
-    df['h2_category'] = df.apply(
+    enet_df['h2_category'] = enet_df.apply(
     lambda row: (
-        'Heritable' if row['h2_unscaled'] >= 0.1 and row['r_squared_cv'] > 0.75 else
-        'Non-heritable' if row['h2_unscaled'] < 0.1 and row['r_squared_cv'] > 0.75 else
+        'Heritable' if row['h2_unscaled'] >= 0.1 and row['r_squared_cv'] > 0.3 else
+        'Non-heritable' if row['h2_unscaled'] < 0.1 and row['r_squared_cv'] > 0.3 else
         'Low prediction'
     ),
     axis=1
     )
-    return df
+
+    # assign feature ids
+    enet_df['feature_id'] = (
+        enet_df['chrom'].astype(str) + "_" +
+        enet_df['start'].astype(str) + "_" +
+        enet_df['end'].astype(str)
+    )
+
+    print(enet_df[['chrom', 'start', 'end', 'h2_category']].head())
+    return enet_df
+
+@lru_cache()
+def get_matching_enet(tissue):
+    # get vmrs
+    enet_AA_fn = here(f"heritability/elastic_net_model/all_individuals/{tissue.lower()}/_m/{tissue.lower()}_summary_elastic-net_AA.tsv")
+    enet_EA_fn = here(f"heritability/elastic_net_model/all_individuals/{tissue.lower()}/_m/{tissue.lower()}_summary_elastic-net_EA.tsv")
+
+    df_AA = pd.read_csv(enet_AA_fn, sep='\t')
+    df_EA = pd.read_csv(enet_EA_fn, sep='\t')
+
+    print(f"[ENET] AA shape (raw): {df_AA.shape}")
+    print(f"[ENET] EA shape (raw): {df_EA.shape}")
+
+    enet_AA = filter_sites(df_AA, 'AA')
+    enet_EA = filter_sites(df_EA, 'EA')
+    
+    enet_combined = enet_AA.merge(enet_EA, on='feature_id', 
+                                  suffixes=('_AA', '_EA'))
+    
+    print(f"[ENET] Combined shape (after merge): {enet_combined.shape}")
+    
+    enet_combined = enet_combined[
+        enet_combined['h2_category_AA'] == enet_combined['h2_category_EA']
+    ]
+
+    print(f"[ENET] After h2_category match filter: {enet_combined.shape}")
+
+    enet_combined = enet_combined.rename(columns={
+        'h2_category_AA': 'h2_category',
+        'chrom_AA': 'chrom',
+        'start_AA': 'start',
+        'end_AA': 'end'})
+    
+    enet_combined = enet_combined.drop(columns=[
+        'h2_category_EA', 'chrom_EA', 'start_EA', 
+        'end_EA', 'race_EA', 'race_AA'])
+    
+    print(f"[ENET] Final columns: {enet_combined.columns.tolist()}")
+    print(f"[ENET] Final shape: {enet_combined.shape}")
+ 
+    return enet_combined
 
 @lru_cache()
 def get_vmrs(tissue, env, cat=None):
@@ -36,18 +82,26 @@ def get_vmrs(tissue, env, cat=None):
     vmrs = pd.read_csv(fn, sep=',') 
 
     if cat is not None:
-        vmrs = vmrs[vmrs['var'] == cat]
+        vmrs = vmrs[vmrs['var'] == f"{env}{cat}"]
 
     vmrs['test'] = 'logit'
     vmrs['sig'] = vmrs['p'] < 0.05
+
+    print(f"[VMR] sig counts:\n{vmrs['sig'].value_counts()}")
     return vmrs
 
 @lru_cache()
-def get_dmrs(tissue, env):
+def get_dmrs(tissue, env, cat=None):
     fn = here(f"environmental-analysis/all_individuals/{tissue.lower()}/correlation/_m/{env.lower()}_dmr.csv.gz")
     dmrs = pd.read_csv(fn, sep=',')
+
+    if cat is not None:
+        dmrs = dmrs[dmrs['level'] == cat]
+    
     dmrs['test'] = 'dmr'
     dmrs['sig'] = dmrs['p.value'] < 0.05
+
+    print(f"[DMR] sig counts:\n{dmrs['sig'].value_counts()}")
     return dmrs
 
 @lru_cache()
@@ -60,12 +114,14 @@ def merge_dataframe(tissue, env, cat=None):
     merged = concat_dataframe(tissue, env, cat)
     merged['chr'] = 'chr' + merged['chr'].astype(str)
 
+    print(f"[MERGE] Before pivot: {merged.head()}")
+
     df = merged.pivot_table(values='sig', columns='test', fill_value=0,
                          index=['chr', 'start', 'end'])
     
     df["both"] = ((df['logit'] == 1) & (df['dmr'] == 1)).astype(int)
     
-    return df.merge(get_enet(tissue), 
+    return df.merge(get_matching_enet(tissue), 
                     left_on=['chr', 'start', 'end'],
                     right_on=['chrom', 'start', 'end'],
                     how='left')
@@ -84,11 +140,11 @@ def calculate_enrichment():
     region_lt = []; h2_lt = []; test_lt = []; fdr_lt = []; pval_lt = []; oddratio_lt = []; env_lt = []
 
     env_vars = ["smoking", "codeine", "morphine", "cocaine", "ethanol", 
-                "antipsychotics","nicotine","amphetamines", "hx_sexual_abuse","hx_physical_abuse", "hx_other_trauma", "hx_military_service"]
+                "antipsychotics","nicotine","amphetamines", "hx_sexual_abuse","hx_physical_abuse"]
 
     categorical_vars = {
-        "education": ['educationless_than_hs', 'educationmore_than_hs'],
-        "marital_status": ['marital_statussingle', 'marital_statuspreviously_married']
+        "education": ['less_than_hs', 'more_than_hs'],
+        "marital_status": ['single', 'previously_married']
     }
 
     for tissue in ["Caudate", "Hippocampus", "DLPFC"]:
