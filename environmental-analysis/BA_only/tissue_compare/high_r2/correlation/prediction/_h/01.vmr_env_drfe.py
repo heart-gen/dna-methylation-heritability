@@ -235,7 +235,7 @@ def main():
             print(f"\nProcessing: {region} / {h2_cat}")
 
             # Load data
-            DATA_PATH = Path(f"../../../../{region.lower()}/correlation/_m/vmr_env_assoc-AA.tsv.gz")
+            DATA_PATH = Path(f"../../../../../{region.lower()}/high_r2/correlation/_m/vmr_env_assoc-AA.tsv.gz")
             print("Loading data...")
             df = load_data(DATA_PATH)
             print(f"Loaded {len(df)} rows")
