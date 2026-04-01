@@ -1,0 +1,19 @@
+region	h2_category	h2_category_safe	env_var	n_samples	n_features	best_score	best_n_features
+Hippocampus	Heritable	heritable	smoking	174	4309	0.5023076923076923	120
+Hippocampus	Heritable	heritable	ethanol	177	4309	0.4600427350427351	7
+Hippocampus	Heritable	heritable	antipsychotics	138	4309	0.5169525245995834	1764
+Hippocampus	Heritable	heritable	nicotine	177	4309	0.5538826232247285	4
+Hippocampus	Heritable	heritable	education	155	4309	0.6060861064173759	4309
+Hippocampus	Heritable	heritable	marital_status	160	4309	0.4915398726329901	1
+Hippocampus	Non-heritable	non-heritable	smoking	174	614	0.5245833333333334	102
+Hippocampus	Non-heritable	non-heritable	ethanol	177	614	0.4784391534391535	81
+Hippocampus	Non-heritable	non-heritable	antipsychotics	138	614	0.5894796380090498	1
+Hippocampus	Non-heritable	non-heritable	nicotine	177	614	0.5078299916457811	1
+Hippocampus	Non-heritable	non-heritable	education	155	614	0.5648875462915711	25
+Hippocampus	Non-heritable	non-heritable	marital_status	160	614	0.5889648913839197	614
+Hippocampus	Low prediction	low_prediction	smoking	174	42	0.4797435897435897	9
+Hippocampus	Low prediction	low_prediction	ethanol	177	42	0.5383190883190883	4
+Hippocampus	Low prediction	low_prediction	antipsychotics	138	42	0.47168103138691375	1
+Hippocampus	Low prediction	low_prediction	nicotine	177	42	0.6386048454469507	9
+Hippocampus	Low prediction	low_prediction	education	155	42	0.56981996091284	4
+Hippocampus	Low prediction	low_prediction	marital_status	160	42	0.517543510994928	3
