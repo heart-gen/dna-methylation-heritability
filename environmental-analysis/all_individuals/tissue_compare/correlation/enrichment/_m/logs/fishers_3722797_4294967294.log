@@ -1,0 +1,46 @@
+2026-03-26 11:23:58 - **** Job starts ****
+**** Quest info ****
+User: skc6679
+Job id: 3722797
+Job name: fishers_exact
+Node name: 
+Hostname: qnode0005
+OFFSET: 
+SLURM_ARRAY_TASK_ID: 
+No modules loaded
+2026-03-26 11:23:59 - **** Run fisher's exact ****
+Traceback (most recent call last):
+  File "/gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/tissue_compare/correlation/enrichment/_m/../_h/01.fishers_enrichment.py", line 132, in <module>
+    main()
+  File "/gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/tissue_compare/correlation/enrichment/_m/../_h/01.fishers_enrichment.py", line 124, in main
+    calculate_enrichment().to_csv('vmr_enrichment_analysis.txt', 
+    ^^^^^^^^^^^^^^^^^^^^^^
+  File "/gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/tissue_compare/correlation/enrichment/_m/../_h/01.fishers_enrichment.py", line 103, in calculate_enrichment
+    odd_ratio, pval = cal_fishers_annot(tissue, test, h2_cat, env, None)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/tissue_compare/correlation/enrichment/_m/../_h/01.fishers_enrichment.py", line 78, in cal_fishers_annot
+    df = merge_dataframe(tissue, env, cat)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/tissue_compare/correlation/enrichment/_m/../_h/01.fishers_enrichment.py", line 72, in merge_dataframe
+    return df.merge(get_enet(tissue), 
+                    ^^^^^^^^^^^^^^^^
+  File "/gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/tissue_compare/correlation/enrichment/_m/../_h/01.fishers_enrichment.py", line 18, in get_enet
+    df = pd.read_csv(enet_fn, sep='\t')
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/projects/p32505/opt/envs/genomics/lib/python3.11/site-packages/pandas/io/parsers/readers.py", line 1026, in read_csv
+    return _read(filepath_or_buffer, kwds)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/projects/p32505/opt/envs/genomics/lib/python3.11/site-packages/pandas/io/parsers/readers.py", line 620, in _read
+    parser = TextFileReader(filepath_or_buffer, **kwds)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/projects/p32505/opt/envs/genomics/lib/python3.11/site-packages/pandas/io/parsers/readers.py", line 1620, in __init__
+    self._engine = self._make_engine(f, self.engine)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/projects/p32505/opt/envs/genomics/lib/python3.11/site-packages/pandas/io/parsers/readers.py", line 1880, in _make_engine
+    self.handles = get_handle(
+                   ^^^^^^^^^^^
+  File "/projects/p32505/opt/envs/genomics/lib/python3.11/site-packages/pandas/io/common.py", line 873, in get_handle
+    handle = open(
+             ^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/heritability/elastic_net_model/all_individuals/caudate/_m/caudate_summary_elastic-net.tsv'
+2026-03-26 11:24:30 - **** Job ends ****

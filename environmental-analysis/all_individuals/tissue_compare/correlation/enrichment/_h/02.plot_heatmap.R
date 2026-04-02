@@ -27,21 +27,39 @@ gen_data <- function(){
 }
 memDF <- memoise::memoise(gen_data)
 
+enrichment_grid <- function() {
+  memDF() %>% distinct(Tissue, Test, h2_Category)
+}
+
 plot_tile <- function(label, w, h){
-  df <- memDF() %>% filter(Env == label) %>% filter(is.finite(`log2(OR)`))
-  
-  y0 <- min(df$`log2(OR)`, na.rm = TRUE) - 0.1
-  y1 <- max(df$`log2(OR)`, na.rm = TRUE) + 0.1
-  
+  df <- memDF() %>%
+    filter(Env == label) %>%
+    right_join(enrichment_grid(), by = c("Tissue", "Test", "h2_Category")) %>%
+    mutate(
+      p.fdr.sig = replace_na(p.fdr.sig, FALSE),
+      # Keep non-finite log2(OR) as NA so scale_fill maps them to na.value (light grey)
+      `log2(OR)` = if_else(is.finite(`log2(OR)`), `log2(OR)`, NA_real_)
+    )
+
+  fin <- is.finite(df$`log2(OR)`)
+  if (!any(fin)) {
+    y0 <- -1
+    y1 <- 1
+  } else {
+    y0 <- min(df$`log2(OR)`[fin], na.rm = TRUE) - 0.1
+    y1 <- max(df$`log2(OR)`[fin], na.rm = TRUE) + 0.1
+  }
+
   tile_plot <- df %>%
     ggplot(aes(y = Test, x = h2_Category, fill = `log2(OR)`)) +
-    geom_tile(color = "grey") +
+    geom_tile(color = "grey50", linewidth = 0.2) +
     geom_text(aes(label = ifelse(p.fdr.sig,
                                  format(round(-log10(FDR),1), nsmall=1), "")),
               color = "black", size = 5) +
     scale_fill_gradientn(colors = c("blue", "white", "red"),
                          values = scales::rescale(c(y0, 0, y1)),
                          limits = c(y0, y1),
+                         na.value = "grey90",
                          name = "log2(OR)") +
     facet_grid(. ~ Tissue) +
     labs(x = "Heritability Category", y = "Test") +
