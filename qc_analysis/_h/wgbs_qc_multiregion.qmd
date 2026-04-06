@@ -1,0 +1,585 @@
+---
+title: "WGBS Quality Control: Multi-Region Comparison"
+author: "HEART-GeN Lab"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    code-fold: false
+    theme: cosmo
+    self-contained: true
+execute:
+  warning: false
+  message: false
+---
+
+## Learning Objectives
+
+By the end of this analysis, you will be able to:
+
+- Compare methylation patterns across multiple brain regions
+- Identify samples present in multiple regions
+- Assess data consistency for samples measured across regions
+- Detect potential sample swaps or mislabeling
+
+---
+
+## 1. Background
+
+This analysis compares WGBS data across three brain regions:
+
+- **Caudate nucleus**: Subcortical structure involved in motor control and reward
+- **DLPFC**: Prefrontal region involved in executive functions
+- **Hippocampus**: Memory and learning center
+
+Comparing data across regions helps us:
+
+1. Understand region-specific methylation patterns
+2. Verify sample identity for individuals with data from multiple regions
+3. Identify potential technical issues that affect specific regions
+
+---
+
+## 2. Environment Setup
+
+### Activate Conda Environment
+
+```bash
+source /projects/p32505/opt/miniforge3/etc/profile.d/conda.sh
+conda activate /projects/p32505/opt/envs/epigenomics
+```
+
+### Load Libraries
+
+```{r}
+#| label: setup
+#| message: false
+
+library(here)
+library(bsseq)
+library(HDF5Array)
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+library(tibble)
+library(ggvenn)
+library(RColorBrewer)
+
+## Set ggplot theme
+theme_set(theme_bw(base_size = 12))
+
+## Define regions
+regions <- c("caudate", "dlpfc", "hippocampus")
+region_names <- c(
+    caudate = "Caudate Nucleus",
+    dlpfc = "DLPFC",
+    hippocampus = "Hippocampus"
+)
+```
+
+---
+
+## 3. Data Loading
+
+### Load BSseq Objects for All Regions
+
+```{r}
+#| label: load-data
+
+## Path to combined data
+data_path <- here("inputs/wgbs-data/combined/_m")
+
+## Load all BSseq objects
+bsseq_list <- list()
+pheno_list <- list()
+
+for (reg in regions) {
+    cat("Loading", reg, "...\n")
+
+    ## Load BSseq object
+    h5se_path <- file.path(data_path, paste0(reg, "_bsseq_h5se"))
+    if (dir.exists(h5se_path)) {
+        bsseq_list[[reg]] <- loadHDF5SummarizedExperiment(h5se_path)
+        cat("  Samples:", ncol(bsseq_list[[reg]]), "\n")
+        cat("  CpG sites:", nrow(bsseq_list[[reg]]), "\n")
+    } else {
+        cat("  WARNING: Data not found for", reg, "\n")
+    }
+
+    ## Load phenotype data
+    pheno_path <- file.path(data_path, paste0(reg, "_phenotypes.csv"))
+    if (file.exists(pheno_path)) {
+        pheno_list[[reg]] <- read.csv(pheno_path, stringsAsFactors = FALSE)
+    }
+}
+```
+
+### Summary Table
+
+```{r}
+#| label: region-summary
+
+## Create summary table
+region_summary <- tibble(
+    Region = region_names[regions],
+    Samples = sapply(bsseq_list, ncol),
+    CpG_Sites = sapply(bsseq_list, nrow)
+)
+
+knitr::kable(region_summary,
+             col.names = c("Brain Region", "N Samples", "N CpG Sites"),
+             caption = "Summary of WGBS data by brain region",
+             format.args = list(big.mark = ","))
+```
+
+---
+
+## 4. Sample Overlap Analysis
+
+### 4.1 Venn Diagram of Samples
+
+Many donors may have samples from multiple brain regions. Understanding this overlap is crucial for paired analyses.
+
+```{r}
+#| label: fig-venn-samples
+#| fig-cap: "Venn diagram showing sample overlap across brain regions. Samples are identified by donor ID (brnum)."
+#| fig-width: 8
+#| fig-height: 6
+
+## Get sample lists for each region
+sample_lists <- lapply(names(bsseq_list), function(reg) {
+    colnames(bsseq_list[[reg]])
+})
+names(sample_lists) <- region_names[names(bsseq_list)]
+
+## Create Venn diagram
+ggvenn(sample_lists,
+       fill_color = brewer.pal(3, "Set2"),
+       stroke_size = 0.5,
+       set_name_size = 4)
+```
+
+### 4.2 Sample Overlap Table
+
+```{r}
+#| label: sample-overlap-table
+
+## Identify samples in multiple regions
+all_samples <- unique(unlist(sample_lists))
+
+## Count regions per sample
+sample_region_counts <- sapply(all_samples, function(s) {
+    sum(sapply(sample_lists, function(sl) s %in% sl))
+})
+
+## Create detailed table
+overlap_df <- tibble(
+    Sample = all_samples,
+    N_Regions = sample_region_counts,
+    In_Caudate = all_samples %in% sample_lists[["Caudate Nucleus"]],
+    In_DLPFC = all_samples %in% sample_lists[["DLPFC"]],
+    In_Hippocampus = all_samples %in% sample_lists[["Hippocampus"]]
+) %>%
+    arrange(desc(N_Regions), Sample)
+
+## Summary
+cat("Sample distribution across regions:\n")
+table(sample_region_counts) %>% print()
+```
+
+```{r}
+#| label: multi-region-samples
+
+## Show samples present in 2+ regions
+multi_region_samples <- overlap_df %>%
+    filter(N_Regions >= 2)
+
+if (nrow(multi_region_samples) > 0) {
+    cat("\nSamples present in multiple regions:\n")
+    knitr::kable(head(multi_region_samples, 20),
+                 caption = paste0("Samples in 2+ regions (showing first 20 of ",
+                                  nrow(multi_region_samples), ")"))
+} else {
+    cat("\nNo samples present in multiple regions.\n")
+}
+```
+
+---
+
+## 5. Coverage Comparison
+
+### 5.1 Coverage by Region
+
+```{r}
+#| label: coverage-by-region
+
+## Calculate mean coverage for each sample in each region
+coverage_data <- lapply(names(bsseq_list), function(reg) {
+    cov <- getCoverage(bsseq_list[[reg]])
+    mean_cov <- colMeans(cov, na.rm = TRUE)
+    tibble(
+        Sample = names(mean_cov),
+        Mean_Coverage = mean_cov,
+        Region = region_names[reg]
+    )
+}) %>%
+    bind_rows()
+
+## Summary statistics by region
+coverage_summary <- coverage_data %>%
+    group_by(Region) %>%
+    summarise(
+        N = n(),
+        Mean = round(mean(Mean_Coverage), 1),
+        SD = round(sd(Mean_Coverage), 1),
+        Median = round(median(Mean_Coverage), 1),
+        Min = round(min(Mean_Coverage), 1),
+        Max = round(max(Mean_Coverage), 1),
+        .groups = "drop"
+    )
+
+knitr::kable(coverage_summary,
+             caption = "Coverage statistics by brain region")
+```
+
+```{r}
+#| label: fig-coverage-boxplot
+#| fig-cap: "Distribution of sequencing coverage across brain regions. The red dashed line indicates the 5x minimum coverage threshold."
+#| fig-width: 8
+#| fig-height: 5
+
+ggplot(coverage_data, aes(x = Region, y = Mean_Coverage, fill = Region)) +
+    geom_boxplot(alpha = 0.7, outlier.alpha = 0.5) +
+    geom_jitter(width = 0.2, alpha = 0.4, size = 1) +
+    geom_hline(yintercept = 5, linetype = "dashed", color = "red", linewidth = 1) +
+    labs(
+        title = "Sequencing Coverage by Brain Region",
+        x = "Brain Region",
+        y = "Mean Coverage (reads per CpG)"
+    ) +
+    scale_fill_brewer(palette = "Set2") +
+    theme(legend.position = "none")
+```
+
+### 5.2 Coverage Consistency for Paired Samples
+
+For samples with data in multiple regions, we can check if coverage is consistent.
+
+```{r}
+#| label: fig-paired-coverage
+#| fig-cap: "Coverage comparison for samples with data in multiple regions. Points should cluster around the diagonal if coverage is consistent."
+#| fig-width: 10
+#| fig-height: 4
+
+## Get samples in multiple regions
+multi_samples <- overlap_df$Sample[overlap_df$N_Regions >= 2]
+
+if (length(multi_samples) > 0) {
+    ## Prepare paired coverage data
+    paired_coverage <- coverage_data %>%
+        filter(Sample %in% multi_samples) %>%
+        pivot_wider(names_from = Region, values_from = Mean_Coverage)
+
+    ## Create comparison plots
+    plot_list <- list()
+
+    region_pairs <- list(
+        c("Caudate Nucleus", "DLPFC"),
+        c("Caudate Nucleus", "Hippocampus"),
+        c("DLPFC", "Hippocampus")
+    )
+
+    for (pair in region_pairs) {
+        if (all(pair %in% names(paired_coverage))) {
+            p <- paired_coverage %>%
+                filter(!is.na(.data[[pair[1]]]) & !is.na(.data[[pair[2]]])) %>%
+                ggplot(aes(x = .data[[pair[1]]], y = .data[[pair[2]]])) +
+                geom_point(alpha = 0.6, size = 2) +
+                geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "red") +
+                labs(
+                    title = paste(pair[1], "vs", pair[2]),
+                    x = paste(pair[1], "Coverage"),
+                    y = paste(pair[2], "Coverage")
+                ) +
+                coord_fixed()
+            plot_list[[length(plot_list) + 1]] <- p
+        }
+    }
+
+    if (length(plot_list) > 0) {
+        cowplot::plot_grid(plotlist = plot_list, ncol = 3)
+    }
+} else {
+    cat("No samples in multiple regions to compare.\n")
+}
+```
+
+---
+
+## 6. Global Methylation Comparison
+
+### 6.1 Global Methylation by Region
+
+```{r}
+#| label: global-methylation
+
+## Calculate global methylation for each sample (using subset for efficiency)
+set.seed(123)
+
+global_meth_data <- lapply(names(bsseq_list), function(reg) {
+    bs <- bsseq_list[[reg]]
+
+    ## Sample CpGs for efficiency
+    n_sample <- min(50000, nrow(bs))
+    idx <- sample(nrow(bs), n_sample)
+
+    meth <- getMeth(bs[idx, ], type = "raw")
+    global_meth <- colMeans(meth, na.rm = TRUE)
+
+    tibble(
+        Sample = names(global_meth),
+        Global_Methylation = global_meth,
+        Region = region_names[reg]
+    )
+}) %>%
+    bind_rows()
+
+## Summary
+meth_summary <- global_meth_data %>%
+    group_by(Region) %>%
+    summarise(
+        N = n(),
+        Mean = round(mean(Global_Methylation, na.rm = TRUE), 3),
+        SD = round(sd(Global_Methylation, na.rm = TRUE), 3),
+        .groups = "drop"
+    )
+
+knitr::kable(meth_summary,
+             caption = "Global methylation levels by brain region")
+```
+
+```{r}
+#| label: fig-global-meth-density
+#| fig-cap: "Distribution of global methylation levels by brain region. Systematic differences may indicate biological variation or technical effects."
+#| fig-width: 8
+#| fig-height: 5
+
+ggplot(global_meth_data, aes(x = Global_Methylation, fill = Region, color = Region)) +
+    geom_density(alpha = 0.4, linewidth = 1) +
+    labs(
+        title = "Global Methylation Distribution by Region",
+        x = "Global Methylation (mean beta)",
+        y = "Density"
+    ) +
+    scale_fill_brewer(palette = "Set2") +
+    scale_color_brewer(palette = "Set2")
+```
+
+### 6.2 Paired Sample Methylation Consistency
+
+```{r}
+#| label: fig-paired-methylation
+#| fig-cap: "Global methylation comparison for samples with data in multiple regions. Strong correlation indicates sample consistency."
+#| fig-width: 10
+#| fig-height: 4
+
+if (length(multi_samples) > 0) {
+    ## Prepare paired methylation data
+    paired_meth <- global_meth_data %>%
+        filter(Sample %in% multi_samples) %>%
+        pivot_wider(names_from = Region, values_from = Global_Methylation)
+
+    ## Create comparison plots
+    plot_list <- list()
+
+    for (pair in region_pairs) {
+        if (all(pair %in% names(paired_meth))) {
+            sub_data <- paired_meth %>%
+                filter(!is.na(.data[[pair[1]]]) & !is.na(.data[[pair[2]]]))
+
+            if (nrow(sub_data) >= 3) {
+                cor_val <- cor(sub_data[[pair[1]]], sub_data[[pair[2]]],
+                               use = "complete.obs")
+
+                p <- ggplot(sub_data, aes(x = .data[[pair[1]]], y = .data[[pair[2]]])) +
+                    geom_point(alpha = 0.6, size = 2) +
+                    geom_smooth(method = "lm", se = TRUE, alpha = 0.2) +
+                    labs(
+                        title = paste(pair[1], "vs", pair[2]),
+                        subtitle = paste0("r = ", round(cor_val, 3)),
+                        x = paste(pair[1], "Methylation"),
+                        y = paste(pair[2], "Methylation")
+                    ) +
+                    coord_fixed()
+                plot_list[[length(plot_list) + 1]] <- p
+            }
+        }
+    }
+
+    if (length(plot_list) > 0) {
+        cowplot::plot_grid(plotlist = plot_list, ncol = 3)
+    }
+} else {
+    cat("No samples in multiple regions to compare.\n")
+}
+```
+
+---
+
+## 7. Sample Identity Check
+
+For samples present in multiple regions from the same donor, their methylation profiles should be correlated. Low correlation may indicate sample swaps.
+
+```{r}
+#| label: sample-identity-check
+
+if (length(multi_samples) >= 2) {
+    ## Find common CpG sites across all regions
+    ## This requires all BSseq objects to be in the same coordinate system
+
+    cat("Checking sample identity consistency across regions...\n\n")
+
+    ## Calculate within-donor correlation for paired samples
+    identity_results <- list()
+
+    for (sample_id in multi_samples) {
+        ## Get regions this sample is in
+        sample_regions <- names(bsseq_list)[sapply(bsseq_list, function(bs) {
+            sample_id %in% colnames(bs)
+        })]
+
+        if (length(sample_regions) >= 2) {
+            ## Store global methylation values for this sample
+            sample_meth <- global_meth_data %>%
+                filter(Sample == sample_id)
+
+            identity_results[[sample_id]] <- sample_meth
+        }
+    }
+
+    ## Identify potential issues (samples with very different methylation across regions)
+    paired_meth_check <- global_meth_data %>%
+        filter(Sample %in% multi_samples) %>%
+        group_by(Sample) %>%
+        summarise(
+            N_Regions = n(),
+            Meth_Range = max(Global_Methylation) - min(Global_Methylation),
+            .groups = "drop"
+        ) %>%
+        arrange(desc(Meth_Range))
+
+    ## Flag samples with large methylation differences
+    threshold <- 0.05  # 5% difference
+    flagged <- paired_meth_check %>%
+        filter(Meth_Range > threshold)
+
+    if (nrow(flagged) > 0) {
+        cat("WARNING: The following samples show large methylation differences across regions:\n")
+        cat("(This may indicate technical issues or true biological variation)\n\n")
+        print(flagged)
+    } else {
+        cat("All paired samples show consistent global methylation across regions.\n")
+    }
+} else {
+    cat("Insufficient paired samples for identity check.\n")
+}
+```
+
+---
+
+## 8. CpG Site Overlap
+
+### Compare CpG sites covered across regions
+
+```{r}
+#| label: cpg-overlap
+
+## Get CpG coordinates for each region
+cpg_coords <- lapply(names(bsseq_list), function(reg) {
+    gr <- rowRanges(bsseq_list[[reg]])
+    paste0(seqnames(gr), ":", start(gr))
+})
+names(cpg_coords) <- region_names[names(bsseq_list)]
+
+## Count overlaps
+n_cpgs <- sapply(cpg_coords, length)
+common_all <- Reduce(intersect, cpg_coords)
+
+cat("CpG Site Summary:\n")
+cat("  Caudate:", format(n_cpgs[1], big.mark = ","), "sites\n")
+cat("  DLPFC:", format(n_cpgs[2], big.mark = ","), "sites\n")
+cat("  Hippocampus:", format(n_cpgs[3], big.mark = ","), "sites\n")
+cat("  Common to all:", format(length(common_all), big.mark = ","), "sites\n")
+```
+
+---
+
+## 9. Summary
+
+```{r}
+#| label: summary-table
+
+## Compile cross-region summary
+summary_table <- tibble(
+    Metric = c(
+        "Total unique samples",
+        "Samples in 1 region",
+        "Samples in 2 regions",
+        "Samples in all 3 regions",
+        "Mean coverage (overall)",
+        "Mean global methylation"
+    ),
+    Value = c(
+        length(all_samples),
+        sum(sample_region_counts == 1),
+        sum(sample_region_counts == 2),
+        sum(sample_region_counts == 3),
+        paste0(round(mean(coverage_data$Mean_Coverage), 1), "x"),
+        round(mean(global_meth_data$Global_Methylation, na.rm = TRUE), 3)
+    )
+)
+
+knitr::kable(summary_table,
+             caption = "Multi-Region Analysis Summary")
+```
+
+---
+
+## 10. Save Results
+
+```{r}
+#| label: save-results
+
+## Create output directory
+output_dir <- here("qc_analysis/_m")
+if (!dir.exists(output_dir)) {
+    dir.create(output_dir, recursive = TRUE)
+}
+
+## Save sample overlap information
+write.csv(overlap_df,
+          file.path(output_dir, "sample_overlap_multiregion.csv"),
+          row.names = FALSE)
+
+## Save coverage comparison
+write.csv(coverage_data,
+          file.path(output_dir, "coverage_by_region.csv"),
+          row.names = FALSE)
+
+## Save global methylation data
+write.csv(global_meth_data,
+          file.path(output_dir, "global_methylation_by_region.csv"),
+          row.names = FALSE)
+
+cat("Results saved to:", output_dir, "\n")
+```
+
+---
+
+## Session Info
+
+```{r}
+#| label: session-info
+
+sessionInfo()
+```

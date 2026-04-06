@@ -1,0 +1,562 @@
+---
+title: "Quality Control of Whole-Genome Bisulfite Sequencing (WGBS) Data"
+author: "HEART-GeN Lab"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    code-fold: false
+    theme: cosmo
+execute:
+  warning: false
+  message: false
+---
+
+## Learning Objectives
+
+By the end of this tutorial, you will be able to:
+
+- Explain what WGBS data measures
+- Load methylation data into R using `bsseq`
+- Perform standard QC checks for WGBS data
+- Identify low-quality samples and CpG sites
+- Interpret plots commonly used in methylation QC
+
+---
+
+## Background: What is WGBS?
+
+Whole-Genome Bisulfite Sequencing (WGBS) measures **DNA methylation** at cytosine–phosphate–guanine (CpG) sites across the genome.
+
+Each CpG site has:
+- Number of **methylated reads**
+- Number of **unmethylated reads**
+- A **methylation proportion**:
+
+\[
+\text{Methylation} = \frac{\text{methylated reads}}{\text{total reads}}
+\]
+
+Because WGBS data is noisy and expensive, **quality control (QC)** is essential before downstream analysis.
+
+### What is DNA Methylation?
+
+#### Definition
+DNA methylation is an **epigenetic modification** involving the addition of a **methyl group (-CH₃)** to DNA, typically at the **5th carbon of cytosine residues** within **CpG dinucleotides**.
+
+- **CpG = Cytosine followed by Guanine** (linked by a phosphate bond on the DNA backbone).  
+- After methylation, the base becomes **5-methylcytosine (5mC)**.
+
+#### Biological Roles
+- **Gene regulation:** Methylation in gene promoters often *silences* gene expression by preventing transcription factor binding.  
+- **Genomic stability:** Suppresses repetitive elements and transposable elements.  
+- **Cell identity:** Helps cells maintain their specialized functions during development.  
+- **Imprinting and X-inactivation:** Controls allele-specific expression and dosage compensation.
+
+#### Key Idea
+Think of DNA methylation as a *sticky note* added to DNA — it doesn’t change the code, but gives cells extra instructions about which genes to read or ignore.
+
+### Measuring DNA Methylation
+
+Several technologies can detect DNA methylation, such as:
+- **WGBS (Whole-Genome Bisulfite Sequencing)**
+- **RRBS (Reduced Representation Bisulfite Sequencing)**
+- **Methylation arrays** (e.g., Illumina 450k, EPIC)
+- **Enzyme-based methods** (e.g., MeDIP-seq, MRE-seq)
+
+Among these, **WGBS** is the **gold standard** for base-resolution, genome-wide measurement of methylation.
+
+### Principle of Bisulfite Conversion
+
+#### Core Reaction
+- **Sodium bisulfite** treatment chemically converts **unmethylated cytosines** into **uracil**, which is then read as thymine after PCR and sequencing.  
+- **Methylated cytosines** (5mC) are *protected* and remain as cytosines.
+
+| Base in Original DNA | After Bisulfite | Sequencing Read |
+|----------------------|-----------------|-----------------|
+| Unmethylated C       | U → T            | T               |
+| Methylated C (5mC)   | (no change)      | C               |
+
+This simple but powerful chemistry allows you to **infer methylation status** at single-nucleotide resolution.
+
+### What is Whole-Genome Bisulfite Sequencing (WGBS)?
+
+#### Overview
+WGBS is a sequencing-based method that measures cytosine methylation **across the entire genome** using **bisulfite conversion followed by next-generation sequencing**.
+
+#### General Workflow
+1. **Extract DNA**
+2. **Fragment DNA** into manageable pieces (~200–300 bp)
+3. **Bisulfite convert** to distinguish methylated from unmethylated cytosines
+4. **Library preparation** (adapter ligation, PCR amplification)
+5. **Sequencing** (using Illumina or similar platforms)
+6. **Alignment to reference genome** using bisulfite-aware algorithms (e.g., *Bismark*, *BS-Seeker2*)
+7. **Methylation calling** (counting C vs T at CpG sites)
+8. **Downstream analysis** (e.g., differential methylation, annotation, visualization)
+
+### Data Interpretation
+
+After sequencing and mapping:
+- For each CpG site, WGBS provides a **methylation fraction**  
+  \[
+  \text{Methylation level} = \frac{\text{# of reads with C}}{\text{# of reads with C or T}}
+  \]
+- Values range from:
+  - **0.0 (unmethylated)** → mostly T reads  
+  - **1.0 (fully methylated)** → mostly C reads  
+
+#### Example Output
+| CpG site | C reads | T reads | Methylation (%) |
+|-----------|----------|----------|-----------------|
+| chr1:1050 | 18 | 2 | 90% |
+| chr1:2050 | 4 | 16 | 20% |
+| chr1:3050 | 0 | 20 | 0% |
+
+### Advantages and Limitations
+
+#### Advantages
+- **Single-base resolution** across the genome.  
+- **Unbiased** (covers both CpG-rich and CpG-poor regions).  
+- Enables integrative analysis with RNA-seq, ATAC-seq, etc.
+
+#### Limitations
+- **Expensive** due to deep coverage requirements.  
+- **DNA degradation** during bisulfite treatment.  
+- **Computational complexity:** mapping and QC are nontrivial.  
+- **Does not distinguish 5mC from 5hmC** (hydroxymethylcytosine) without secondary methods.
+
+### Applications in Biology and Medicine
+
+- **Developmental biology:** tracking methylation during cell differentiation.
+- **Cancer epigenomics:** identifying tumor-specific methylation changes.
+- **Neurodegeneration:** studying altered epigenetic patterns in Alzheimer’s or Parkinson’s disease.
+- **Evolutionary biology:** comparing epigenetic landscapes across species.
+
+### Key Computational Tools
+
+| Task | Common Tools |
+|------|---------------|
+| Read trimming | Trim Galore!, cutadapt |
+| Alignment | Bismark, BS-Seeker2, bwa-meth |
+| Methylation calling | MethylDackel, Bismark methylation extractor |
+| DMR analysis | DSS, methylKit, bsseq |
+| Visualization | IGV (bisulfite mode), R packages (ggplot2, genomation) |
+
+### Summary Points
+
+- DNA methylation is a key **epigenetic regulator** of gene expression.  
+- **Bisulfite conversion** provides the chemical basis for distinguishing methylated and unmethylated cytosines.  
+- **WGBS** offers nucleotide-level methylation mapping of the whole genome, though it is resource-intensive.  
+- Data interpretation often requires integrative bioinformatics workflows and careful quality control.
+
+---
+
+## Software Requirements and Conda Environments
+
+This tutorial uses **R** and **Bioconductor**.
+
+### Conda Environments
+For this work, Dr. Benjamin has already created shared **Conda environments** on Quest that contain all the
+packages needed for your analyses. You do **not** need to build your own environment; you only need to
+configure your HPC session to use the lab environment and then activate it.
+
+#### Background: Conda in this lab
+
+- **Conda environments** are isolated software setups that bundle specific versions of Python/R and all required packages, ensuring analyses are reproducible and stable across users.  
+- In this lab, shared environments are installed in a **project path on Quest** (not in your `$HOME`), so everyone uses the **same, curated** toolchain.  
+
+#### Lab Conda environments on Quest
+
+Below are the main shared environments available on Northwestern Quest for different analysis tasks:
+
+- `rnaseq`: Bulk RNA-seq analysis (edgeR, limma, etc.).  
+- `epigenomics`: DNA methylation and other epigenomic analyses (e.g. BSSeq and related tools).  
+- `ml`: GPU-based machine learning (CuPy, RAPIDS, PyTorch, scikit-learn, JAX).  
+- `network`: Network and systems biology (WGCNA, igraph, networkx, GNVAE/BSVAE deps).  
+- `genomics`: GWAS/xQTL, variant calling, and general sequence tools (tensorqtl, localqtl, RFMix-reader, etc.).  
+- `software-dev`: General development and testing; **not for final analyses**.  
+
+For this project, you will specifically use the **`epigenomics`** environment.
+
+#### Set up your PATH in `.bashrc`
+
+Add the following line to your `~/.bashrc` (or `~/.bash_profile` if that is what your shell uses):
+
+```{bash}
+export PATH=~/.local/bin:/projects/p32505/opt/bin:/projects/p32505/opt/miniforge3/bin:$PATH
+```
+
+Then reload your shell configuration:
+
+```{bash}
+source ~/.bashrc
+```
+
+This ensures:
+- User-level scripts in `~/.local/bin` are found first.  
+- Lab-wide tools in `/projects/p32505/opt/bin` are available.  
+- The lab’s Miniforge/Conda installation in `/projects/p32505/opt/miniforge3/bin` is on your PATH so `conda` works without installing anything in `$HOME`.  
+
+#### Using the epigenomics Conda environment
+
+After updating your PATH and starting a new shell (or running `source ~/.bashrc`):
+
+```{bash}
+conda activate /projects/p32505/opt/envs/epigenomics
+```
+
+Guidelines:
+- Use this environment **as-is** for all DNA methylation/epigenomics work.  
+- Do **not** run `conda install` or `pip install` in this shared environment; request changes through the lab’s usual process.
+
+#### Important notes
+
+- Do **not** use `conda install`, `pip install`, or other package managers inside `/projects/p32505/opt/envs/...`.  
+- Use the environment **as-is** for analysis; environment updates are handled centrally (via `environment.yml`, lockfiles, and a rebuild process) to keep results reproducible.  
+- Always double-check that `epigenomics` is active before running pipelines or R/Python scripts for methylation work.
+
+### Load libraries
+
+```{r}
+library(bsseq)
+library(ggplot2)
+```
+
+---
+
+## Loading Example WGBS Data
+
+We will use an example dataset included with `bsseq`.
+
+```{r}
+data(BS.cancer.ex)
+BS.cancer.ex
+```
+
+**Interpretation:**
+
+* Rows = CpG sites
+* Columns = samples
+* Each CpG has methylated and total read counts
+
+---
+
+## QC Step 1: Sequencing Coverage
+
+### Why coverage matters
+
+Coverage matters because methylation is estimated from a limited number of reads, and low coverage makes those estimates noisy, unstable, and misleading.
+
+#### What does "coverage" mean?
+
+At a single CpG site, **coverage** is the total number of sequencing reads that overlap that position.
+
+Example:
+
+| CpG site | Methylated reads | Unmethylated reads | Coverage |
+| -------- | ---------------- | ------------------ | -------- |
+| CpG_1    | 3                | 2                  | 5×       |
+| CpG_2    | 18               | 2                  | 20×      |
+
+Coverage = methylated + unmethylated reads.
+
+#### How methylation is estimated
+
+For each CpG, methylation is calculated as:
+
+[
+\text{Methylation proportion} =
+\frac{\text{methylated reads}}{\text{total reads}}
+]
+
+This is an **estimate**, not a true value. Like all estimates, it becomes **more reliable as the sample size increases**.
+
+#### Low coverage = high uncertainty
+
+Think of methylation as a **coin-flipping experiment**:
+
+* "Heads" = methylated read
+* "Tails" = unmethylated read
+
+If you flip a coin:
+
+* **5 times**, the result might be very misleading
+* **50 times**, the estimate stabilizes
+
+**Example:**
+
+| Coverage | Methylated reads | Estimated methylation |
+| -------- | ---------------- | --------------------- |
+| 2×       | 2                | 100%                  |
+| 4×       | 3                | 75%                   |
+| 20×      | 15               | 75%                   |
+
+At **2× coverage**, 100% methylation looks extreme — but it’s based on only **two reads**.
+
+At **20× coverage**, 75% methylation is much more trustworthy.
+
+#### Statistical intuition
+
+* Each read is a **random sample**
+* Low coverage → high randomness
+* High coverage → averaging out noise
+
+This means:
+
+* Low-coverage CpGs **jump around**
+* High-coverage CpGs are **stable**
+
+#### Low coverage exaggerates differences between samples
+
+Suppose two samples are biologically identical.
+
+At low coverage:
+
+| Sample | Reads | Methylated | Estimated methylation |
+| ------ | ----- | ---------- | --------------------- |
+| A      | 3×    | 3          | 100%                  |
+| B      | 3×    | 1          | 33%                   |
+
+They look **dramatically different**, but the difference is just **sampling noise**.
+
+At higher coverage:
+
+| Sample | Reads | Methylated | Estimated methylation |
+| ------ | ----- | ---------- | --------------------- |
+| A      | 20×   | 14         | 70%                   |
+| B      | 22×   | 15         | 68%                   |
+
+Now the estimates agree.
+
+**Low coverage creates false biological differences.**
+
+#### Low coverage inflates false positives
+
+In downstream analysis (e.g. differential methylation):
+
+* Low-coverage CpGs appear highly variable
+* High variability increases false positives
+* Statistical tests become unreliable
+
+This is why most pipelines:
+
+* **Filter CpGs by coverage**
+* Or **downweight low-coverage sites**
+
+#### Coverage affects smoothing and regional analysis
+
+WGBS data is often **smoothed across nearby CpGs**.
+
+Low-coverage CpGs:
+
+* Contribute noisy values
+* Distort regional averages
+* Reduce power to detect true DMRs
+
+High-coverage CpGs:
+
+* Anchor the signal
+* Improve regional consistency
+
+#### Sample-level coverage matters too
+
+Coverage is not just a CpG issue — it’s also a **sample QC metric**.
+
+If one sample has:
+
+* Much lower average coverage
+* More missing CpGs
+* Higher noise
+
+Then:
+
+* PCA will separate it
+* Correlations will drop
+* It may dominate technical variation
+
+Such samples are often **removed entirely**.
+
+#### Why common cutoffs are 3×, 5×, or 10×
+
+There is no single "correct" cutoff, but common rules of thumb:
+
+| Coverage cutoff | Use case                       |
+| --------------- | ------------------------------ |
+| ≥3×             | Very exploratory analysis      |
+| ≥5×             | Standard QC filtering          |
+| ≥10×            | High-confidence analysis       |
+| ≥20×            | Very strict / targeted studies |
+
+Trade-off:
+
+* Higher cutoff → cleaner data
+* Higher cutoff → fewer CpGs retained
+
+### Calculate average coverage per sample
+
+```{r}
+coverage <- colMeans(getCoverage(BS.cancer.ex))
+coverage
+```
+
+### Plot average coverage
+
+```{r}
+barplot(
+    coverage, main = "Average Coverage per Sample",
+    ylab = "Reads per CpG", las = 2
+)
+```
+
+**Guidelines:**
+
+* `< 5×` coverage → poor quality
+* `10–30×` coverage → typical
+* Large differences between samples may indicate technical issues
+
+---
+
+## QC Step 2: Methylation Distribution
+
+### Why check methylation distributions?
+
+High-quality WGBS data usually shows:
+
+* Many CpGs near **0% methylation**
+* Many CpGs near **100% methylation**
+* Fewer CpGs in between
+
+### Extract methylation proportions
+
+```{r}
+meth <- getMeth(BS.cancer.ex, type = "raw")
+```
+
+### Plot histogram for one sample
+
+```{r}
+hist(
+    meth[,1], breaks = 50, col = "steelblue",
+    main = "Methylation Distribution (Sample 1)",
+    xlab = "Methylation proportion"
+)
+```
+**Interpretation:**
+
+* A **bimodal** distribution is expected
+* Flat or noisy distributions may indicate technical problems
+
+---
+
+## QC Step 3: Sample-to-Sample Correlation
+
+### Why correlations matter
+
+Biological replicates should be more similar to each other than unrelated samples.
+
+### Compute correlation matrix
+
+```{r}
+cor_matrix <- cor(meth, use = "pairwise.complete.obs")
+cor_matrix
+```
+
+### Visualize correlations
+
+```{r}
+heatmap(cor_matrix, symm = TRUE, main = "Sample Correlation Heatmap")
+```
+
+**Interpretation:**
+
+* Correlations > 0.9 are typical
+* Samples with consistently low correlations are potential outliers
+
+---
+
+## QC Step 4: Principal Component Analysis (PCA)
+
+### Why PCA?
+
+PCA helps identify:
+
+* Outlier samples
+* Batch effects
+* Unexpected clustering
+
+### Run PCA
+
+```{r}
+pca <- prcomp(t(meth), scale. = TRUE)
+```
+
+### Plot PCA results
+
+```{r}
+plot(
+    pca$x[,1], pca$x[,2], xlab = "PC1", ylab = "PC2",
+    pch = 19, col = "darkred"
+)
+
+text(pca$x[,1], pca$x[,2], labels = colnames(meth), pos = 3)
+```
+
+**Interpretation:**
+
+* Samples clustering together are similar
+* Isolated samples may have QC issues
+
+---
+
+## Filtering Low-Quality CpG Sites
+
+### Remove low-coverage CpGs
+
+```{r}
+BS.filtered <- BS.cancer.ex[rowMeans(getCoverage(BS.cancer.ex)) >= 5,]
+BS.filtered
+```
+
+### Why filtering is important
+
+Filtering:
+
+* Reduces noise
+* Improves statistical power
+* Makes downstream analyses more reliable
+
+---
+
+## Summary of WGBS QC Workflow
+
+**QC checklist:**
+
+1. Check sequencing depth
+2. Inspect methylation distributions
+3. Examine sample correlations
+4. Identify outliers with PCA
+5. Filter low-coverage CpG sites
+
+---
+
+## Student Exercises
+
+1. Identify the sample with the lowest average coverage.
+2. Redo the PCA after removing one sample.
+3. Compare methylation distributions before and after CpG filtering.
+4. Try a different coverage cutoff (e.g., 3× or 10×).
+
+---
+
+## Key Takeaways
+
+* QC is essential before any WGBS analysis
+* Poor-quality samples can distort biological conclusions
+* Visualization is one of the most powerful QC tools in genomics
+
+---
+
+## References
+
+* `bsseq` Bioconductor vignette: https://www.bioconductor.org/packages/devel/bioc/vignettes/bsseq/inst/doc/bsseq.html
+* Hansen et al., *Genome Biology* (2012)
