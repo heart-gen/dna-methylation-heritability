@@ -1,0 +1,412 @@
+---
+title: "WGBS Quality Control: Dorsolateral Prefrontal Cortex (DLPFC)"
+author: "HEART-GeN Lab"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    code-fold: false
+    theme: cosmo
+    self-contained: true
+execute:
+  warning: false
+  message: false
+---
+
+## Learning Objectives
+
+By the end of this analysis, you will be able to:
+
+- Load and explore pre-generated WGBS data for the DLPFC
+- Calculate and interpret key QC metrics for methylation data
+- Identify samples and CpG sites that may need filtering
+- Create publication-quality QC figures
+- Make informed decisions about data quality thresholds
+
+**Note:** For detailed background on WGBS methodology and QC concepts, see the companion tutorial `wgbs_qc_bsseq.qmd`.
+
+---
+
+## 1. Background
+
+The **dorsolateral prefrontal cortex (DLPFC)** is a key brain region involved in executive functions, working memory, and cognitive control. DLPFC dysfunction has been consistently implicated in schizophrenia, making it a critical region for epigenetic studies.
+
+In this analysis, we will perform quality control on WGBS data from DLPFC samples, focusing on:
+
+- **Coverage**: Are CpG sites adequately sequenced?
+- **Methylation distributions**: Do patterns look biologically plausible?
+- **Sample correlations**: Are replicates similar to each other?
+- **Principal components**: Are there technical batch effects?
+
+---
+
+## 2. Environment Setup
+
+### Activate Conda Environment
+
+Before running this analysis, ensure you have activated the lab's epigenomics environment:
+```bash
+source /projects/p32505/opt/miniforge3/etc/profile.d/conda.sh
+conda activate /projects/p32505/opt/envs/epigenomics
+```
+
+### Load Libraries
+
+```{r}
+#| label: setup
+#| message: false
+
+library(here)
+library(bsseq)
+library(HDF5Array)
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+library(tibble)
+library(pheatmap)
+library(RColorBrewer)
+
+## Set ggplot theme for consistency
+theme_set(theme_bw(base_size = 12))
+
+## Define region for this analysis
+region <- "dlpfc"
+region_name <- "DLPFC"
+```
+
+---
+
+## 3. Data Loading
+
+### Load Pre-Generated BSseq Object
+
+The combined BSseq object was generated using the data loading scripts. This object contains methylation data for all chromosomes combined into a single, HDF5-backed structure for efficient access.
+
+```{r}
+#| label: load-data
+
+## Path to the combined data
+data_path <- here(/path/to/data/) # Explore "inputs/"
+
+## Load the HDF5-backed BSseq object
+bsseq_data <- loadHDF5SummarizedExperiment(
+    file.path(data_path, paste0(region, "_bsseq_h5se"))
+)
+
+## Load phenotype data
+phenotype_data <- read.csv(
+    file.path(data_path, paste0(region, "_phenotypes.csv")),
+    stringsAsFactors = FALSE
+)
+
+## Display basic information
+cat("BSseq object summary:\n")
+cat("  Number of CpG sites:", nrow(bsseq_data), "\n")
+cat("  Number of samples:", ncol(bsseq_data), "\n")
+cat("  Genome:", unique(genome(bsseq_data)), "\n")
+```
+
+### Phenotype Overview
+
+We want to examine adults from our region of interest.
+
+```{r}
+#| label: phenotype-overview
+
+## Display phenotype summary
+
+```
+
+---
+
+## 4. Sample Overview
+
+### Sample Metadata Table
+
+```{r}
+#| label: sample-table
+
+## Create sample summary table
+
+## Display first few samples
+```
+
+---
+
+## 5. QC Analysis
+
+### 5.1 Sequencing Coverage
+
+Coverage refers to the number of sequencing reads that overlap each CpG site. Higher coverage provides more reliable methylation estimates.
+
+#### Calculate Per-Sample Coverage
+
+```{r}
+#| label: coverage-calculation
+
+## Get coverage matrix (reads per CpG per sample)
+
+## Calculate mean coverage per sample
+
+## Create coverage summary dataframe
+
+## Summary statistics (e.g., minimum, median, maxium)
+cat("Coverage Summary:\n")
+```
+
+#### Coverage Barplot
+
+```{r}
+#| label: fig-coverage-barplot
+#| fig-cap: "Mean sequencing coverage per sample. Samples below the red dashed line (5x coverage) may have unreliable methylation estimates."
+#| fig-width: 10
+#| fig-height: 6
+
+```
+
+#### Identify Low-Coverage Samples
+
+```{r}
+#| label: low-coverage-samples
+
+## Flag samples with coverage < 5x
+```
+
+### 5.2 CpG Site Coverage
+
+Not all CpG sites are equally well-covered. Sites with very low coverage across samples should be filtered before analysis.
+
+```{r}
+#| label: cpg-coverage
+
+## Calculate coverage across CpGs
+
+## Calculate percentage of CpGs meeting thresholds
+
+## Output table using knitr::kable
+```
+
+```{r}
+#| label: fig-cpg-coverage-hist
+#| fig-cap: "Distribution of mean coverage across CpG sites. Most sites should have adequate coverage (>5x)."
+#| fig-width: 8
+#| fig-height: 5
+
+## Plot distribution (capped at 50x for visualization)
+```
+
+### 5.3 Methylation Distribution
+
+WGBS data typically shows a **bimodal distribution** with peaks near 0% (unmethylated) and 100% (fully methylated) methylation.
+
+```{r}
+#| label: methylation-extraction
+
+## Extract methylation proportions (beta values)
+## Use a subset of CpGs for efficiency (should be reproducible)
+
+```
+
+#### Per-Sample Methylation Histograms
+
+```{r}
+#| label: fig-meth-histograms
+#| fig-cap: "Methylation distribution for selected samples. A bimodal pattern (peaks at 0 and 1) is expected for high-quality WGBS data."
+#| fig-width: 10
+#| fig-height: 8
+
+## Select a few representative samples
+
+## Prepare data for plotting
+
+## Plot the data
+
+```
+
+#### Density Plot by Diagnosis
+
+```{r}
+#| label: fig-meth-density
+#| fig-cap: "Methylation density by diagnosis group. Distributions should be similar across groups if there are no technical artifacts."
+#| fig-width: 8
+#| fig-height: 5
+
+## Calculate global methylation per sample
+
+## Create density data with diagnosis
+
+## Sample for plotting efficiency
+
+```
+
+### 5.4 Sample Correlation
+
+Pairwise correlations between samples help identify outliers. Biological replicates and similar sample types should have high correlations (typically >0.9).
+
+```{r}
+#| label: correlation-matrix
+
+## Compute correlation matrix (on subset for efficiency)
+
+## Summary statistics
+cat("Correlation Summary:\n")
+
+```
+
+```{r}
+#| label: fig-correlation-heatmap
+#| fig-cap: "Sample correlation heatmap. High correlations (yellow) indicate similar methylation profiles. Samples with consistently low correlations may be outliers."
+#| fig-width: 10
+#| fig-height: 9
+
+## Create annotation for heatmap
+
+## Plot heatmap
+
+```
+
+#### Identify Potential Outliers
+
+```{r}
+#| label: outlier-detection
+
+## Calculate mean correlation for each sample
+
+## Flag samples with unusually low correlation
+```
+
+### 5.5 Principal Component Analysis
+
+PCA reduces the high-dimensional methylation data to a few principal components, helping visualize sample relationships and identify batch effects.
+
+```{r}
+#| label: pca-analysis
+
+## Remove rows with missing values for PCA
+
+## Run PCA
+
+## Calculate variance explained
+
+## Print the top 3-5 PCs
+cat("Variance explained by PCs:\n")
+
+```
+
+```{r}
+#| label: fig-pca-diagnosis
+#| fig-cap: "PCA colored by diagnosis. Separation along PC1/PC2 may indicate biological differences or technical artifacts."
+#| fig-width: 8
+#| fig-height: 6
+
+## Prepare PCA data for plotting
+
+## Plot data
+```
+
+```{r}
+#| label: fig-pca-sex
+#| fig-cap: "PCA colored by sex. Strong separation by sex may indicate chromosome X effects or batch effects."
+#| fig-width: 8
+#| fig-height: 6
+
+## Examine PCA colored by sex
+```
+
+```{r}
+#| label: fig-pca-age
+#| fig-cap: "PCA colored by age. Gradients may indicate age-related methylation changes."
+#| fig-width: 8
+#| fig-height: 6
+
+## Examine PCA by age
+```
+
+---
+
+## 6. CpG Filtering
+
+Based on the QC results, we apply coverage-based filtering to retain only high-quality CpG sites.
+
+```{r}
+#| label: cpg-filtering
+
+## Define filtering criteria
+min_coverage <- 5        # Minimum mean coverage per CpG
+min_sample_frac <- 0.8   # CpG must be covered in at least 80% of samples
+
+## Calculate coverage per CpG across samples
+
+## Apply filter
+
+## Summarize results (before and after filtering; how many CpGs were retained, rate of retention)
+cat("CpG Filtering Summary:\n")
+
+```
+
+---
+
+## 7. QC Summary Table
+
+```{r}
+#| label: qc-summary-table
+
+## Compile QC metrics for each sample
+
+## Display summary
+```
+
+### Samples Requiring Review
+
+```{r}
+#| label: samples-review
+
+## What are the samples that require review
+```
+
+---
+
+## 8. Save QC Results
+
+```{r}
+#| label: save-results
+
+## Create output directory
+output_dir <- here("qc_analysis/_m")
+if (!dir.exists(output_dir)) {
+    dir.create(output_dir, recursive = TRUE)
+}
+
+## Save QC summary table
+
+## Save filtered BSseq object
+
+```
+
+---
+
+## 9. Exercises
+
+Test your understanding with these questions:
+
+1. **Coverage interpretation**: Which samples have the lowest coverage? Would you recommend removing any samples based on coverage alone?
+
+2. **Methylation distributions**: Do the methylation distributions look bimodal as expected? Are there any samples with unusual patterns?
+
+3. **Batch effects**: Based on the PCA plots, do you see evidence of batch effects (e.g., clustering by processing date rather than biology)?
+
+4. **Threshold sensitivity**: Re-run the CpG filtering with a 10x coverage threshold instead of 5x. How does this affect the number of retained CpGs?
+
+5. **Outlier investigation**: If you identified any outlier samples, what additional information would you want to check before deciding to remove them?
+
+6. **Expand to genetic similarity**: Expand QC correlation from age and sex to genetic similarity (snpPCs 1-3) within phenotype data.
+
+---
+
+## Session Info
+
+```{r}
+#| label: session-info
+
+sessionInfo()
+```
