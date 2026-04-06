@@ -59,9 +59,9 @@ def main():
 
     df = pd.read_csv(input_file, sep='\t')
 
-    heritable = df[(df["h2_unscaled"] >= 0.3) & (df["r_squared_cv"] >= 0.75)]
-    non_heritable = df[(df["h2_unscaled"] < 0.3) & (df["r_squared_cv"] >= 0.75)]
-    low_prediction = df[df["r_squared_cv"] < 0.75]
+    heritable = df[(df["h2_unscaled"] >= 0.1) & (df["r_squared_cv"] >= 0.3)]
+    non_heritable = df[(df["h2_unscaled"] < 0.1) & (df["r_squared_cv"] >= 0.3)]
+    low_prediction = df[df["r_squared_cv"] < 0.3]
 
     cols_to_keep = ["chrom", "start", "end", "h2_unscaled"]
     heritable = heritable[cols_to_keep].copy()
