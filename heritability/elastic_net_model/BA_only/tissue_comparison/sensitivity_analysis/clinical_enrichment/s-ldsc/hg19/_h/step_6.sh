@@ -1,13 +1,13 @@
 #!/bin/bash
 #SBATCH --account=p32505
 #SBATCH --partition=short
-#SBATCH --job-name=summary_table
+#SBATCH --job-name=fdr_correction
 #SBATCH --mail-type=FAIL ## If you want to have it email you for any reason
 #SBATCH --mail-user=elisajohnson2027@u.northwestern.edu ## replace with your email
 #SBATCH --nodes=1
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=5gb
-#SBATCH --output=logs/summary_table.%j.log
+#SBATCH --output=logs/fdr_correction.%j.log
 #SBATCH --time=01:00:00
 
 # Function to echo with timestamp
@@ -37,7 +37,7 @@ log_message "**** Loading conda environment ****"
 source /projects/p32505/opt/miniforge3/etc/profile.d/conda.sh
 conda activate /projects/p32505/opt/envs/genomics
 
-python ../_h/01.summary_table.py
+python ../_h/fdr_correction.py
 
 conda deactivate
 
