@@ -43,6 +43,12 @@ clean_pheno <- function(pheno_file_path, tissue, vars){
       marital_status %in% c("Divorced", "Separated", "Widowed") ~ "previously_married"
     )
     ) |>
+    mutate(any_trauma_hx = dplyr::case_when(
+      hx_sexual_abuse | hx_physical_abuse | hx_other_trauma | hx_military_service ~ 1L,
+      is.na(hx_sexual_abuse) & is.na(hx_physical_abuse) &
+        is.na(hx_other_trauma) & is.na(hx_military_service) ~ NA_integer_,
+      TRUE ~ 0L
+    )) |>
     rename(age = agedeath, dx = primarydx) |>
     mutate_if(is.character, as.factor)
   
@@ -189,11 +195,11 @@ for (cov in cov_names){
 ####### Environmental testing #########
 
                                         # Define environmental vars
-testing_envs <- c(
-  "smoking", "codeine", "morphine", "cocaine", "ethanol", "antipsychotics", 
-  "nicotine", "amphetamines", "education", "marital_status", "hx_sexual_abuse",
-  "hx_physical_abuse", "hx_other_trauma", "hx_military_service", "fsiq"
+na_filter <- read.delim(
+  here::here("environmental-analysis", "BA_only", "tissue_compare",
+             "correlation", "prediction", "_m", "drfe_results", "na_filter_summary.tsv")
 )
+testing_envs <- na_filter$variable[!na_filter$excluded]
   
 for (env in testing_envs) {
   merged %>% 

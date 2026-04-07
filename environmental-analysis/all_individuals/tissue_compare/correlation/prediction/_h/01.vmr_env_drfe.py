@@ -203,11 +203,8 @@ def main():
     MIN_FEATURE_VAR = 1e-5    # variance filter
     FEATURE_MIN_FRAC = 0.6    # feature present in ≥60% samples
 
-    ENV_VARS = [
-        "sex", "dx", "smoking", "codeine", "morphine",
-        "cocaine", "ethanol", "antipsychotics", "nicotine",
-        "amphetamines", "education", "marital_status",
-    ]
+    na_filter = pd.read_csv(OUTDIR / "na_filter_summary.tsv", sep="\t")
+    ENV_VARS = na_filter.loc[~na_filter["excluded"], "variable"].tolist()
 
     # Get unique regions (sorted for reproducibility)
     all_regions = ["Caudate", "Hippocampus", "DLPFC"]
