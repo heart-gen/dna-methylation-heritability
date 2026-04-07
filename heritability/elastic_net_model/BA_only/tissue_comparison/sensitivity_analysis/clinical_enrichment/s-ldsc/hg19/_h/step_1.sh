@@ -181,7 +181,7 @@ fi
 # -----------------------------------------------------------------------------
 # --- Height (Control) ---
 log_message "Processing: Height (control)"
-HEIGHT_GWAS="../GCST90468178.tsv.gz"
+HEIGHT_GWAS="./HEIGHT_GWAS.tsv.gz"
 if [[ -f "$HEIGHT_GWAS" ]]; then
     HEIGHT_GWAS_CLEAN="${OUT_DIR}/height.single_rsid.tsv.gz"
     if [[ ! -f "$HEIGHT_GWAS_CLEAN" ]]; then
@@ -230,8 +230,8 @@ declare -A gwas_files=(
     ["asthma"]="${GWAS_BASE}/imputed_gwas_hg38_1.1/imputed_GABRIEL_Asthma.txt.gz"
     ["cad"]="${GWAS_BASE}/imputed_gwas_hg38_1.1/imputed_CARDIoGRAM_C4D_CAD_ADDITIVE.txt.gz"
     ["stroke"]="${GWAS_BASE}/stroke/29531354-GCST005843-HP_0002140-build37.f.tsv.gz"
-    ["smoking"]="../EVER_SMOKER_GWAS_MA_UKB+TAG.txt.gz"
-    ["substance_abuse"]="../GCST90435891.tsv.gz"
+    ["smoking"]="./EVER_SMOKER_GWAS_MA_UKB+TAG.txt.gz"
+#    ["substance"]="./SUBSTANCE_ABUSE_GWAS.tsv.gz"
 )
 
 for disease in "${!gwas_files[@]}"; do
@@ -280,20 +280,19 @@ for disease in "${!gwas_files[@]}"; do
                     --N 518633 \
                     --merge-alleles "$HM3_SNPLIST" \
                     --chunksize 500000
-                ;;
-            "substance_abuse")
-                run_munge python "$LDSC_WRAPPER" "$LDSC_DIR" "$LOCAL_MUNGE" \
-                    --sumstats "$FILE" \
-                    --out "${OUT_DIR}/substance_abuse" \
-                    --a1 effect_allele \
-                    --a2 other_allele \
-                    --signed-sumstats beta,0 \
-                    --p p_value \
-                    --snp variant_id \
-                    --frq effect_allele_frequency \
-                    --N 518633 \
-                    --merge-alleles "$HM3_SNPLIST" \
-                    --chunksize 500000
+#            "substance")
+#                run_munge python "$LDSC_WRAPPER" "$LDSC_DIR" "$LOCAL_MUNGE" \
+#                    --sumstats "$FILE" \
+#                    --out "${OUT_DIR}/substance" \
+#                    --a1 effect_allele \
+#                    --a2 other_allele \
+#                    --signed-sumstats beta,0 \
+#                    --p p_value \
+#                    --snp variant_id \
+#                    --frq effect_allele_frequency \
+#                    --N 518633 \
+#                    --merge-alleles "$HM3_SNPLIST" \
+#                    --chunksize 500000
                 ;;
         esac
     else
@@ -305,7 +304,7 @@ done
 # Verify outputs
 log_message "Verifying munged summary statistics..."
 echo ""
-for disease in ad scz mdd bip pd ms ra asthma cad stroke smoking substance_abuse height; do
+for disease in ad scz mdd bip pd ms ra asthma cad stroke smoking height; do
     if [[ -f "${OUT_DIR}/${disease}.sumstats.gz" ]]; then
         n_snps=$(zcat "${OUT_DIR}/${disease}.sumstats.gz" | wc -l)
         echo "[OK] $disease: $((n_snps - 1)) SNPs"
