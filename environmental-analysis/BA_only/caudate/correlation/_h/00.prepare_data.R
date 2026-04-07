@@ -83,8 +83,8 @@ merge_meth <- function(meth_files){
 ## Main
 tissue <- c("caudate")
 
-out_path <- here("environmental-analysis", "BA_only", "caudate", 
-                 paste0(tissue, "correlation", "_m"))
+out_path <- here("environmental-analysis", "BA_only", 
+                 paste0(tissue, "/correlation/_m"))
 if (!dir.exists(out_path)) {
   dir.create(out_path, recursive = TRUE)
 }
