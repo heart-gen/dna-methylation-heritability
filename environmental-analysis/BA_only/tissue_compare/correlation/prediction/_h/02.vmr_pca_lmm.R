@@ -108,6 +108,9 @@ run_pca <- function(X_scaled, var_thresh = VAR_THRESH) {
 # Impute a matrix column-wise with column medians
 impute_median <- function(X) {
   apply(X, 2, function(col) {
+    if (all(is.na(col))) {
+      return(rep(0, length(col)))
+    }
     med <- median(col, na.rm = TRUE)
     ifelse(is.na(col), med, col)
   })
@@ -173,6 +176,7 @@ if (!file.exists(na_filter_path)) {
   stop("na_filter_summary.tsv not found. Run 00.na_filter_analysis.py first.")
 }
 na_filter  <- read.delim(na_filter_path)
+na_filter$excluded = tolower(na_filter$excluded) == "true"
 ENV_VARS   <- na_filter$variable[!na_filter$excluded]
 cat("SDOH variables included:", paste(ENV_VARS, collapse = ", "), "\n\n")
 
@@ -241,7 +245,7 @@ for (tissue in TISSUES) {
       X_mat    <- impute_median(X_mat)
       X_scaled <- scale(X_mat)
 
-      ok_cols <- apply(X_scaled, 2, function(x) var(x, na.rm = TRUE) > 0)
+      ok_cols <- apply(X_scaled, 2, function(x) all(is.finite(x)) && var(x, na.rm = TRUE) > 0)
       X_scaled <- X_scaled[, ok_cols, drop = FALSE]
       if (ncol(X_scaled) < 2) next
 
@@ -348,7 +352,7 @@ for (h2_cat in H2_CATS) {
     combined <- bind_rows(combined_list)
 
     vmr_subset <- setdiff(colnames(combined), c("brnum", "tissue"))
-    ok_cols    <- sapply(combined[, vmr_subset], function(x) var(x, na.rm = TRUE) > 0)
+    ok_cols    <- sapply(combined[, vmr_subset], function(x) all(is.finite(x)) && var(x, na.rm = TRUE) > 0)
     vmr_subset <- vmr_subset[ok_cols]
     if (length(vmr_subset) < 2) next
 
