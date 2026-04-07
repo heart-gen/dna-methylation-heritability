@@ -4,7 +4,6 @@ suppressPackageStartupMessages({
   library(here)
   library(dplyr)
   library(tidyr)
-  library(ggplot2)
   library(data.table)
 })
 
@@ -18,25 +17,16 @@ save_plot <- function(p, fn, w=8, h=6) {
 ## Main
 tissue <- c("caudate")
 
-out_path <- here("environmental-analysis", "BA_only", "caudate",
-                 "correlation", "_m")
+out_path <- here("environmental-analysis", "BA_only", 
+                 paste0(tissue, "/correlation/_m"))
 if (!dir.exists(out_path)) {
   dir.create(out_path, recursive = TRUE)
 }
 
                                         # Get phenotype matrix
-pheno_matrix_fn <- here("environmental-analysis", "BA_only", "caudate", 
-                        "correlation", "_m", "vmr_env_assoc-AA.tsv.gz")
+pheno_matrix_fn <- here("environmental-analysis", "BA_only", paste0(tissue, 
+                        "/correlation/_m/vmr_env_assoc-AA.tsv.gz"))
 pheno_matrix <- fread(pheno_matrix_fn, na.strings = c(NA, ""))
-
-                                        # Define variables of interest
-vars_to_include <- c(
-  "brnum", "agedeath", "sex","primarydx","region","smoking","codeine","morphine",
-  "cocaine","ethanol","antipsychotics","nicotine","amphetamines",
-  "education","marital_status","hx_sexual_abuse","hx_physical_abuse",
-  "hx_other_trauma","hx_military_service","fsiq"
-)
-
 
 ####### Covariate testing #########
 
@@ -97,6 +87,7 @@ na_filter <- read.delim(
   here::here("environmental-analysis", "BA_only", "tissue_compare",
              "correlation", "prediction", "_m", "drfe_results", "na_filter_summary.tsv")
 )
+na_filter$excluded = tolower(na_filter$excluded) == "true"
 testing_envs <- na_filter$variable[!na_filter$excluded]
 
 for (env in testing_envs) {
