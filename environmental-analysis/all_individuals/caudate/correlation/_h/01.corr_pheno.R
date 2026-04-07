@@ -44,6 +44,12 @@ clean_pheno <- function(pheno_file_path, tissue, vars){
       marital_status %in% c("Divorced", "Separated", "Widowed") ~ "previously_married"
     )
     ) |>
+    mutate(any_trauma_hx = dplyr::case_when(
+      hx_sexual_abuse | hx_physical_abuse | hx_other_trauma | hx_military_service ~ 1L,
+      is.na(hx_sexual_abuse) & is.na(hx_physical_abuse) &
+        is.na(hx_other_trauma) & is.na(hx_military_service) ~ NA_integer_,
+      TRUE ~ 0L
+    )) |>
     rename(age = agedeath, dx = primarydx) |>
     mutate_if(is.character, as.factor)
   
@@ -112,7 +118,8 @@ vmr_combined <- inner_join(vmr_AA, vmr_EA, by = "feature_id",
 
                                         # Define variables of interest
 vars_to_include <- c(
-  "race", "brnum", "agedeath", "sex","primarydx","region","smoking","codeine","morphine", "cocaine","ethanol","antipsychotics","nicotine","amphetamines",
+  "race", "brnum", "agedeath", "sex","primarydx","region","smoking","codeine",
+  "morphine", "cocaine","ethanol","antipsychotics","nicotine","amphetamines",
   "education","marital_status","hx_sexual_abuse","hx_physical_abuse",
   "hx_other_trauma","hx_military_service","fsiq"
 )
@@ -122,10 +129,10 @@ pheno_file_path <- here("inputs/phenotypes/_m/phenotypes-all.tsv")
 pheno <- clean_pheno(pheno_file_path, tissue, vars_to_include)
                     
                                         # Add global ances
-f_ances   <- here("inputs", "genetic-ancestry",
+f_ances <- here("inputs", "genetic-ancestry",
                   "structure.out_ancestry_proportion_raceDemo_compare")
-ances     <- fread(f_ances)
-pheno <- left_join(pheno, ances, by = c("brnum" = "id")) %>%
+ances   <- fread(f_ances)
+pheno   <- left_join(pheno, ances, by = c("brnum" = "id")) %>%
   rename(afr_ances = Afr, eur_ances = Eur)
 
                                         # Get meth matrix
@@ -203,11 +210,11 @@ for (cov in cov_names){
 ####### Environmental testing #########
 
                                         # Define environmental vars
-testing_envs <- c(
-  "smoking", "codeine", "morphine", "cocaine", "ethanol", "antipsychotics", 
-  "nicotine", "amphetamines", "education", "marital_status", "hx_sexual_abuse",
-  "hx_physical_abuse", "hx_other_trauma", "hx_military_service", "fsiq"
+na_filter <- read.delim(
+  here::here("environmental-analysis", "all_individuals", "tissue_compare",
+             "correlation", "prediction", "_m", "drfe_results", "na_filter_summary.tsv")
 )
+testing_envs <- na_filter$variable[!na_filter$excluded]
   
 for (env in testing_envs) {
   merged %>% 
