@@ -26,7 +26,7 @@ filter_sites <- function(enet) {
 
 clean_pheno <- function(pheno_file_path, tissue, vars){
   pheno_df <- fread(pheno_file_path, header = TRUE) |>
-    dplyr::select(all_of(vars_to_include)) |>
+    dplyr::select(all_of(vars)) |>
     filter(agedeath > 17, region == tissue) |>
     mutate(education = case_when(
       education %in% c("7th", "8th", "Less than 7th",
@@ -50,6 +50,8 @@ clean_pheno <- function(pheno_file_path, tissue, vars){
     )) |>
     rename(age = agedeath, dx = primarydx) |>
     mutate_if(is.character, as.factor)
+
+    print(colnames(pheno_df))
 
   return(pheno_df)
 }
@@ -81,8 +83,8 @@ merge_meth <- function(meth_files){
 ## Main
 tissue <- c("caudate")
 
-out_path <- here("environmental-analysis", "BA_only", 
-                  paste0(tissue, "correlation", "_m"))
+out_path <- here("environmental-analysis", "BA_only", "caudate", 
+                 paste0(tissue, "correlation", "_m"))
 if (!dir.exists(out_path)) {
   dir.create(out_path, recursive = TRUE)
 }
