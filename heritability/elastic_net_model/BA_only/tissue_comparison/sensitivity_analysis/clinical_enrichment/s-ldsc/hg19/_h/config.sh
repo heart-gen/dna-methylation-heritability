@@ -44,7 +44,7 @@ export HERITABILITY=("heritable_hg19" "non_heritable_hg19" "low_prediction_hg19"
 # Core diseases for S-LDSC analysis spanning neuronal, immune, vascular,
 # and control categories.
 
-export DISEASES=("ad" "scz" "mdd" "bip" "pd" "ms" "ra" "asthma" "cad" "stroke" "smoking" "substance" "height")
+export DISEASES=("ad" "scz" "mdd" "bip" "pd" "ms" "ra" "asthma" "cad" "stroke" "smoking" "height")
 
 # Full disease names for reporting
 declare -A DISEASE_NAMES=(
@@ -58,7 +58,7 @@ declare -A DISEASE_NAMES=(
     ["asthma"]="Asthma"
     ["cad"]="Coronary Artery Disease"
     ["stroke"]="Stroke"
-    ["substance"]="Substance Abuse"
+#    ["substance"]="Substance Abuse"
     ["smoking"]="Ever Smoker"
     ["height"]="Standing Height (Control)"
 )
@@ -76,8 +76,8 @@ declare -A DISEASE_CATEGORIES=(
     ["asthma"]="immune"
     ["cad"]="vascular"
     ["stroke"]="vascular"
-    ["smoking"]="tbd"
-    ["substance"]="tbd"
+    ["smoking"]="neuronal"
+#    ["substance"]="neuronal"
     ["height"]="control"
 )
 export DISEASE_CATEGORIES
@@ -100,8 +100,8 @@ declare -A GWAS_FILES=(
     ["cad"]="${GWAS_DIR}/imputed_gwas_hg38_1.1/imputed_CARDIoGRAM_C4D_CAD_ADDITIVE.txt.gz"
     ["stroke"]="${GWAS_DIR}/stroke/29531354-GCST005843-HP_0002140-build37.f.tsv.gz"
     ["smoking"]="./EVER_SMOKER_GWAS_MA_UKB+TAG.txt"
-    ["substance"]="./SUBSTANCE_ABUSE_GWAS.tsv.gz"
-    ["height"]="${GWAS_DIR}/imputed_gwas_hg38_1.1/imputed_UKB_50_Standing_height.txt.gz"
+#    ["substance"]="./SUBSTANCE_ABUSE_GWAS.tsv.gz"
+    ["height"]="./HEIGHT_GWAS.tsv.gz"
 )
 export GWAS_FILES
 
@@ -181,6 +181,6 @@ export -f validate_resources
 # Get input file path for a brain region
 get_input_file() {
     local region="$1"
-    echo "${PROJECT_BASE}/heritability/elastic_net_model/${region}/_m/${region}_summary_elastic-net.tsv"
+    echo "${PROJECT_BASE}/heritability/elastic_net_model/BA_only/${region}/_m/${region}_summary_elastic-net.tsv"
 }
 export -f get_input_file
