@@ -24,7 +24,7 @@ get_null_dmr <- function(pheno_matrix) {
   pheno_matrix <- pheno_matrix %>%
     distinct(brnum, .keep_all = TRUE) %>%
     mutate(education = relevel(factor(education), ref = "hs"),
-           marital_status = relevel(factor(marital_status), ref = "single"))
+           marital_status = relevel(factor(marital_status), ref = "married"))
   
   # Differential DNAm for env phenos
   meth_t <- t(meth_levels)
@@ -66,7 +66,7 @@ get_dmr <- function(pheno_matrix, var) {
   pheno_matrix <- pheno_matrix %>% drop_na(var) %>%
     distinct(brnum, .keep_all = TRUE) %>%
     mutate(education = relevel(factor(education), ref = "hs"),
-           marital_status = relevel(factor(marital_status), ref = "single"))
+           marital_status = relevel(factor(marital_status), ref = "married"))
   
                                         # Differential DNAm for env phenos
   meth_t <- t(meth_levels)
@@ -113,11 +113,12 @@ if (!dir.exists(out_path)) {
 }
 
                                         # Define variables of interest
-vars_to_include <- c(
-  "smoking","codeine","morphine", "cocaine","ethanol","antipsychotics",
-  "nicotine","amphetamines", "education","marital_status","hx_sexual_abuse",
-  "hx_physical_abuse", "hx_other_trauma","hx_military_service","fsiq"
+na_filter <- read.delim(
+  here::here("environmental-analysis", "BA_only", "tissue_compare",
+             "high_r2", "correlation", "prediction", "_m", "drfe_results", "na_filter_summary.tsv")
 )
+na_filter$excluded = tolower(na_filter$excluded) == "true"
+vars_to_include <- na_filter$variable[!na_filter$excluded]
 
                                         # Get phenotype matrix
 pheno_matrix_fn <- here("environmental-analysis", "BA_only", "hippocampus", 
