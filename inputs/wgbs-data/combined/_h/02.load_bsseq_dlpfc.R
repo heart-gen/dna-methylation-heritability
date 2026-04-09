@@ -46,7 +46,7 @@ keep_assays <- c("M", "Cov")
 
 ## Load and Filter Phenotype Data
 message("Loading phenotype data...")
-pheno_file     <- here("inputs/phenotypes/_m", "phenotypes-AA.tsv")
+pheno_file     <- here("inputs/phenotypes/_m", "phenotypes-all.tsv")
 phenotype_data <- readr::read_tsv(pheno_file, show_col_types = FALSE) |>
     dplyr::filter(agedeath >= 17, region == !!region)
 
@@ -95,7 +95,7 @@ message("Loading per-chromosome data in parallel...")
 bs_list <- bplapply(chromosomes, function(chr) {
     message("  Loading ", chr, "...")
                                         # DLPFC uses HDF5SE format
-    h5_dir <- here("inputs/wgbs-data", region,
+    h5_dir <- here("inputs/wgbs-data", region, "_m",
                    paste0(region, "_", chr, "_BSobj"))
     BSobj  <- loadHDF5SummarizedExperiment(dir = h5_dir)
 
