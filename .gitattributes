@@ -11,3 +11,4 @@ inputs/supportfiles/_m/hg38ToHg19.over.chain filter=lfs diff=lfs merge=lfs -text
 pd_hg19.txt.gz filter=lfs diff=lfs merge=lfs -text
 assays.h5 filter=lfs diff=lfs merge=lfs -text
 se.rds filter=lfs diff=lfs merge=lfs -text
+environmental-analysis/all_individuals/caudate/correlation/_m/vmr_env_assoc-all.tsv.gz filter=lfs diff=lfs merge=lfs -text
