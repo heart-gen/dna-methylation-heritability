@@ -131,7 +131,6 @@ echo ""
 neuronal_count=0
 immune_count=0
 vascular_count=0
-tbd_count=0
 control_count=0
 total_count=0
 
@@ -142,10 +141,9 @@ for DISEASE in "${DISEASES[@]}"; do
             if [[ -f "$RESULT_FILE" ]]; then
                 ((total_count++))
                 case $DISEASE in
-                    ad|scz|mdd|bip|pd) ((neuronal_count++)) ;;
+                    ad|scz|mdd|bip|pd|smoking) ((neuronal_count++)) ;;
                     ms|ra|asthma) ((immune_count++)) ;;
                     cad|stroke) ((vascular_count++)) ;;
-                    smoking) ((tbd_count++)) ;;
                     height) ((control_count++)) ;;
                 esac
             fi
@@ -155,10 +153,9 @@ done
 
 n_statuses=${#HERITABILITY[@]}
 echo "Category breakdown:"
-echo "  Neuronal (ad, scz, mdd, bip, pd): ${neuronal_count}/$((5 * 3 * n_statuses)) results"
+echo "  Neuronal (ad, scz, mdd, bip, pd, smoking): ${neuronal_count}/$((6 * 3 * n_statuses)) results"
 echo "  Immune (ms, ra, asthma): ${immune_count}/$((3 * 3 * n_statuses)) results"
 echo "  Vascular (cad, stroke): ${vascular_count}/$((2 * 3 * n_statuses)) results"
-echo "  TBD (smoking): ${tbd_count}/$((1 * 3 * n_statuses)) results"
 echo "  Control (height): ${control_count}/$((1 * 3 * n_statuses)) results"
 echo ""
 echo "Total: ${total_count}/${total} results"
