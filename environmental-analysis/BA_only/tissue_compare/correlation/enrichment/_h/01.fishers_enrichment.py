@@ -88,7 +88,7 @@ def calculate_enrichment():
     region_lt = []; h2_lt = []; test_lt = []; fdr_lt = []; pval_lt = []; oddratio_lt = []; env_lt = []
 
     env_vars = ["smoking", "codeine", "morphine", "cocaine", "ethanol", 
-                "antipsychotics","nicotine","amphetamines", "hx_sexual_abuse","hx_physical_abuse"]
+                "nicotine","amphetamines"]
 
     categorical_vars = {
         "education": ['less_than_hs', 'more_than_hs'],
