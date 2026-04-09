@@ -77,8 +77,7 @@ plot_tile <- function(label, w, h){
 ## Main
 envs <- c("smoking", "less_than_hs", "more_than_hs", 
           "single", "previously_married", "codeine", 
-          "morphine", "cocaine", "ethanol", "antipsychotics","nicotine",
-          "amphetamines", "hx_sexual_abuse", "hx_physical_abuse")
+          "morphine", "cocaine", "ethanol", "nicotine", "amphetamines")
 
 for (label in envs){
   plot_tile(label, 10, 6)
