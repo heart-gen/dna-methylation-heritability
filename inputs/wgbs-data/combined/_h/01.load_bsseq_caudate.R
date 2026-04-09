@@ -51,7 +51,7 @@ keep_assays <- c("M", "Cov")
 
 ## Load and Filter Phenotype Data
 message("Loading phenotype data...")
-pheno_file     <- here("inputs/phenotypes/_m", "phenotypes-AA.tsv")
+pheno_file     <- here("inputs/phenotypes/_m", "phenotypes-all.tsv")
 phenotype_data <- readr::read_tsv(pheno_file, show_col_types = FALSE) |>
     dplyr::filter(agedeath >= 17, region == !!region)
 
@@ -116,8 +116,9 @@ param <- MulticoreParam(
 message("Loading per-chromosome data in parallel...")
 bs_list <- bplapply(chromosomes, function(chr) {
                                         # Construct path to the chromosome-specific RDA file
-    rda_file <- here("inputs/wgbs-data", region,
-                     paste0(region, "_", chr, "_BSobj.rda"))
+    rda_file <- here("inputs/wgbs-data", region, "_m",
+                 paste0(region, "_", chr, "_BSobj.rda"))
+
     BSobj <- load_bsobj_safely(rda_file)
 
                                         # Remove the 'coef' assay if present (not needed)
