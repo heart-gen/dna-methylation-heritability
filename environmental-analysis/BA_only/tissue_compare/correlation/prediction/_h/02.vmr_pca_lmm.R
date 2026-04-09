@@ -34,6 +34,7 @@ H2_CATS      <- c("Heritable", "Non-heritable", "Low prediction")
 VAR_THRESH   <- 0.80                 # cumulative variance for PC retention
 MIN_AUC      <- 0.55                 # skip tasks below chance-level dRFE score
 MIN_SAMPLES  <- 40                   # minimum valid samples per task
+MAX_PCS      <- 20                   # hard ceiling on retained PCs to prevent over-parameterized models
 
 DRFE_DIR <- here::here(
   "environmental-analysis", POP_DIR, "tissue_compare",
@@ -98,10 +99,12 @@ run_pca <- function(X_scaled, var_thresh = VAR_THRESH) {
   cum_var <- cumsum(pca$sdev^2 / sum(pca$sdev^2))
   n_pcs <- max(2L, which(cum_var >= var_thresh)[1])
   if (is.na(n_pcs)) n_pcs <- ncol(X_scaled)
+  n_pcs <- min(n_pcs, MAX_PCS)
   list(
-    scores      = as.data.frame(pca$x[, seq_len(n_pcs), drop = FALSE]),
+    scores        = as.data.frame(pca$x[, seq_len(n_pcs), drop = FALSE]),
     var_explained = cum_var[n_pcs],
-    n_pcs       = n_pcs
+    pc_vars       = (pca$sdev^2 / sum(pca$sdev^2))[seq_len(n_pcs)],
+    n_pcs         = n_pcs
   )
 }
 
@@ -269,10 +272,12 @@ for (tissue in TISSUES) {
       coef_df <- fit_model_tissue(model_df, env_var, pc_cols)
       if (!is.null(coef_df) && nrow(coef_df) > 0) {
         coef_df$fdr <- p.adjust(coef_df$p.value, method = "fdr")
+        pc_idx <- as.integer(sub("PC", "", coef_df$term))
         coef_df <- coef_df |>
           mutate(tissue = tissue, h2_category = h2_cat,
                  env_var = env_var, n_samples = nrow(model_df),
-                 n_pcs = pca_res$n_pcs, var_explained = pca_res$var_explained)
+                 n_pcs = pca_res$n_pcs, var_explained = pca_res$var_explained,
+                 pc_var_explained = pca_res$pc_vars[pc_idx])
         all_results_tissue[[length(all_results_tissue) + 1]] <- coef_df
       }
     }
@@ -386,12 +391,14 @@ for (h2_cat in H2_CATS) {
     coef_df <- fit_model_crosst(model_df, env_var, pc_cols)
     if (!is.null(coef_df) && nrow(coef_df) > 0) {
       coef_df$fdr <- p.adjust(coef_df$p.value, method = "fdr")
+      pc_idx <- as.integer(sub("PC", "", coef_df$term))
       coef_df <- coef_df |>
         mutate(h2_category = h2_cat, env_var = env_var,
                n_obs = nrow(model_df),
                n_tissues = length(unique(model_df$tissue)),
                n_pcs = pca_res$n_pcs,
-               var_explained = pca_res$var_explained)
+               var_explained = pca_res$var_explained,
+               pc_var_explained = pca_res$pc_vars[pc_idx])
       all_results_crosst[[length(all_results_crosst) + 1]] <- coef_df
     }
   }
