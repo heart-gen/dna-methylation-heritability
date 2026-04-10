@@ -44,10 +44,10 @@ def merge_dataframe(tissue):
 def cal_fishers_annot(annot, h2_cat, tissue):
     df = merge_dataframe(tissue)
     
-    table = [[np.sum((df[annot] == 0) & (df['h2_category'] == h2_cat)), 
-              np.sum((df[annot] == 0) & (df['h2_category'] != h2_cat))],
-             [np.sum((df[annot] == 1) & (df['h2_category'] == h2_cat)), 
-              np.sum((df[annot] == 1) & (df['h2_category'] != h2_cat))]]
+    table = [[np.sum((df[annot] == 1) & (df['h2_category'] == h2_cat)),
+              np.sum((df[annot] == 1) & (df['h2_category'] != h2_cat))],
+             [np.sum((df[annot] == 0) & (df['h2_category'] == h2_cat)),
+              np.sum((df[annot] == 0) & (df['h2_category'] != h2_cat))]]
     print(table)
     return fisher_exact(table)
 
