@@ -57,9 +57,12 @@ memDF <- memoise::memoise(gen_data)
 plot_tile <- function(label, w, h){
     df <- memDF() %>% filter(is.finite(log2_or))
 
-    ## Symmetric colour limits so OR = 1 (log2 = 0) is always white
-    lim <- max(abs(df$log2_or), na.rm = TRUE)
+    ## Symmetric colour limits — use 90th percentile of |log2(OR)| so that
+    ## a single extreme value doesn't wash out the rest of the heatmap.
+    ## Values beyond the limit are squished to the endpoint colour.
+    lim <- quantile(abs(df$log2_or), 0.90, na.rm = TRUE)
     lim <- ceiling(lim * 10) / 10          # round up to nearest 0.1
+    lim <- max(lim, 0.3)                   # floor so pale effects stay visible
 
     tile_plot <- ggplot(df, aes(x = Tissue, y = Annotation, fill = log2_or)) +
         geom_tile(color = "white", linewidth = 0.5) +
@@ -71,6 +74,7 @@ plot_tile <- function(label, w, h){
             high     = "#B2182B",
             midpoint = 0,
             limits   = c(-lim, lim),
+            oob      = scales::squish,
             name     = expression(log[2]~"(OR)"),
             breaks   = scales::pretty_breaks(n = 5)
         ) +
@@ -78,7 +82,7 @@ plot_tile <- function(label, w, h){
         labs(x = NULL, y = NULL) +
         theme_classic(base_size = 11) +
         theme(
-            axis.text.x        = element_text(size = 10),
+            axis.text.x        = element_text(angle = 35, hjust = 1, size = 10),
             axis.text.y        = element_text(size = 10),
             strip.background   = element_blank(),
             strip.text         = element_text(face = "bold", size = 12),
