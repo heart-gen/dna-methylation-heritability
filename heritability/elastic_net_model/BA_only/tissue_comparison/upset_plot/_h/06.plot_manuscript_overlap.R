@@ -253,7 +253,7 @@ BC
     )
   )
 
-save_plot(panel_a, file.path(out_dir, "panel_A_F_0.25_upset_summary"), 12, 5.3)
+save_plot(panel_a, file.path(out_dir, "panel_A_F_0.25_upset_summary"), 14, 5.3)
 save_plot(panel_b, file.path(out_dir, "panel_B_F_0.25_reciprocal_overlap"), 5.5, 4.6)
 save_plot(panel_c, file.path(out_dir, "panel_C_F_0.25_h2_concordance"), 5.5, 4.6)
 save_plot(assembled_figure, file.path(out_dir, "F_0.25_overlap_manuscript_figure"), 12, 8.6)

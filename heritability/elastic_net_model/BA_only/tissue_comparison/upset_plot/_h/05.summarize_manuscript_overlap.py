@@ -17,7 +17,6 @@ except ImportError:  # pragma: no cover - optional at runtime
     session_info = None
 
 
-RECIPROCAL_THRESHOLD = 25.0
 OVERLAP_FLAG = "F_0.25"
 REGIONS = ("caudate", "dlpfc", "hippocampus")
 
@@ -197,7 +196,6 @@ def load_pairwise_overlaps(percent_overlap_dir: Path, tissue1: str, tissue2: str
     overlap["interval_id_a"] = interval_id(overlap, "chromA", "startA", "endA")
     overlap["interval_id_b"] = interval_id(overlap, "chromB", "startB", "endB")
     overlap = overlap.drop_duplicates(subset=["interval_id_a", "interval_id_b"]).copy()
-    overlap = overlap.loc[overlap["reciprocal"] >= RECIPROCAL_THRESHOLD].copy()
     return overlap
 
 
@@ -210,7 +208,6 @@ def summarize_reciprocal_overlap(percent_overlap_dir: Path) -> pd.DataFrame:
             rows.append(
                 {
                     "flag": OVERLAP_FLAG,
-                    "reciprocal_threshold": RECIPROCAL_THRESHOLD,
                     "h2_category": h2_category,
                     "h2_label": CATEGORY_LABELS[h2_category],
                     "class_order": CATEGORY_ORDER.index(h2_category) + 1,
@@ -274,7 +271,6 @@ def summarize_h2_concordance(percent_overlap_dir: Path, region_tables: dict[str,
             rows.append(
                 {
                     "flag": OVERLAP_FLAG,
-                    "reciprocal_threshold": RECIPROCAL_THRESHOLD,
                     "h2_category": h2_category,
                     "h2_label": CATEGORY_LABELS[h2_category],
                     "class_order": CATEGORY_ORDER.index(h2_category) + 1,
