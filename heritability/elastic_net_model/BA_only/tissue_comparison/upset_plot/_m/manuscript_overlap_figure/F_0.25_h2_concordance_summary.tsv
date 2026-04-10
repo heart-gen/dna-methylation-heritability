@@ -1,25 +1,25 @@
-flag	reciprocal_threshold	h2_category	h2_label	class_order	tissue1	tissue2	pair_order	pair_label	pair_label_multiline	n_pairs	n_pairs_missing_h2	n_unique_tissue1	n_unique_tissue2	spearman_rho	spearman_p_value	spearman_fdr
-F_0.25	25.0	all	All VMRs	1	caudate	dlpfc	1	Caudate-DLPFC	"Caudate
-DLPFC"	3797	316	3787	3790	0.5161428320866176	1.271864149535401e-257	3.052473958884962e-257
-F_0.25	25.0	all	All VMRs	1	caudate	hippocampus	2	Caudate-Hippocampus	"Caudate
-Hippocampus"	4011	144	4002	4008	0.5610347562190735	0.0	0.0
-F_0.25	25.0	all	All VMRs	1	hippocampus	dlpfc	3	Hippocampus-DLPFC	"Hippocampus
-DLPFC"	6182	634	6173	6175	0.49524480653534025	0.0	0.0
-F_0.25	25.0	heritable	Heritable	2	caudate	dlpfc	1	Caudate-DLPFC	"Caudate
-DLPFC"	1338	0	1335	1337	0.7639735891052113	1.778429982487527e-256	3.556859964975054e-256
-F_0.25	25.0	heritable	Heritable	2	caudate	hippocampus	2	Caudate-Hippocampus	"Caudate
-Hippocampus"	1452	0	1452	1451	0.7867841274884735	3.728761363437377e-306	1.118628409031213e-305
-F_0.25	25.0	heritable	Heritable	2	hippocampus	dlpfc	3	Hippocampus-DLPFC	"Hippocampus
-DLPFC"	2385	0	2380	2384	0.7512455609288856	0.0	0.0
-F_0.25	25.0	non-heritable	Non-heritable	3	caudate	dlpfc	1	Caudate-DLPFC	"Caudate
-DLPFC"	1075	0	1074	1073	0.03464319875490909	0.25642877963035327	0.25642877963035327
-F_0.25	25.0	non-heritable	Non-heritable	3	caudate	hippocampus	2	Caudate-Hippocampus	"Caudate
-Hippocampus"	1117	0	1117	1117	0.04168714859659753	0.16383326233419318	0.1787271952736653
-F_0.25	25.0	non-heritable	Non-heritable	3	hippocampus	dlpfc	3	Hippocampus-DLPFC	"Hippocampus
-DLPFC"	1484	0	1483	1482	0.10049350019771804	0.00010538756132091983	0.00018066439083586254
-F_0.25	25.0	low_prediction	Low prediction	4	caudate	dlpfc	1	Caudate-DLPFC	"Caudate
-DLPFC"	14	0	14	14	0.6879120879120879	0.006540042491841914	0.007848050990210296
-F_0.25	25.0	low_prediction	Low prediction	4	caudate	hippocampus	2	Caudate-Hippocampus	"Caudate
-Hippocampus"	15	0	15	15	0.7535714285714286	0.001177583023488826	0.0015701106979851014
-F_0.25	25.0	low_prediction	Low prediction	4	hippocampus	dlpfc	3	Hippocampus-DLPFC	"Hippocampus
+flag	h2_category	h2_label	class_order	tissue1	tissue2	pair_order	pair_label	pair_label_multiline	n_pairs	n_pairs_missing_h2	n_unique_tissue1	n_unique_tissue2	spearman_rho	spearman_p_value	spearman_fdr
+F_0.25	all	All VMRs	1	caudate	dlpfc	1	Caudate-DLPFC	"Caudate
+DLPFC"	4072	351	4014	4065	0.5124022686013937	1.6432889310756416e-271	3.286577862151283e-271
+F_0.25	all	All VMRs	1	caudate	hippocampus	2	Caudate-Hippocampus	"Caudate
+Hippocampus"	4335	164	4248	4332	0.5596406154230431	0.0	0.0
+F_0.25	all	All VMRs	1	hippocampus	dlpfc	3	Hippocampus-DLPFC	"Hippocampus
+DLPFC"	6290	646	6262	6283	0.4923506812809396	0.0	0.0
+F_0.25	heritable	Heritable	2	caudate	dlpfc	1	Caudate-DLPFC	"Caudate
+DLPFC"	1429	0	1410	1428	0.7627681808908305	1.941826119686073e-272	4.6603826872465745e-272
+F_0.25	heritable	Heritable	2	caudate	hippocampus	2	Caudate-Hippocampus	"Caudate
+Hippocampus"	1562	0	1535	1561	0.7831800172632025	0.0	0.0
+F_0.25	heritable	Heritable	2	hippocampus	dlpfc	3	Hippocampus-DLPFC	"Hippocampus
+DLPFC"	2422	0	2413	2421	0.7492805510521071	0.0	0.0
+F_0.25	non-heritable	Non-heritable	3	caudate	dlpfc	1	Caudate-DLPFC	"Caudate
+DLPFC"	1148	0	1141	1146	0.04599416083365684	0.119350021531661	0.11935002153166101
+F_0.25	non-heritable	Non-heritable	3	caudate	hippocampus	2	Caudate-Hippocampus	"Caudate
+Hippocampus"	1227	0	1210	1227	0.05324382296674164	0.06225487244587639	0.06791440630459243
+F_0.25	non-heritable	Non-heritable	3	hippocampus	dlpfc	3	Hippocampus-DLPFC	"Hippocampus
+DLPFC"	1507	0	1501	1505	0.10664414629526997	3.349010478588469e-05	5.741160820437375e-05
+F_0.25	low_prediction	Low prediction	4	caudate	dlpfc	1	Caudate-DLPFC	"Caudate
+DLPFC"	16	0	16	16	0.5323529411764706	0.033768622960234626	0.040522347552281554
+F_0.25	low_prediction	Low prediction	4	caudate	hippocampus	2	Caudate-Hippocampus	"Caudate
+Hippocampus"	16	0	16	16	0.6088235294117647	0.012315203198246456	0.016420270930995275
+F_0.25	low_prediction	Low prediction	4	hippocampus	dlpfc	3	Hippocampus-DLPFC	"Hippocampus
 DLPFC"	28	0	28	28	0.6442255062944717	0.00021590196651827563	0.0003238529497774134
