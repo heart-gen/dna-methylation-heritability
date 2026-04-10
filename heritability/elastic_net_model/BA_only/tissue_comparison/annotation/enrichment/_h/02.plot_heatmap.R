@@ -4,7 +4,7 @@ library(tools)
 
 save_plot <- function(p, fn, w, h){
     for(ext in c(".pdf", ".png")){
-        ggsave(filename=paste0(fn,ext), plot=p, width=w, height=h)
+        ggsave(filename=paste0(fn,ext), plot=p, width=w, height=h, dpi=300)
     }
 }
 
@@ -13,55 +13,89 @@ load_annotation_enrichment <- function(){
 }
 memENRICH <- memoise::memoise(load_annotation_enrichment)
 
+## Annotation display labels (consistent order: genic first, then CpG, then distal)
+ANNOT_LABELS <- c(
+  "hg38_genes_promoters"  = "Promoter",
+  "hg38_genes_1to5kb"     = "1\u20135 kb upstream",
+  "hg38_genes_5UTRs"      = "5\u2032 UTR",
+  "hg38_genes_3UTRs"      = "3\u2032 UTR",
+  "hg38_genes_exons"      = "Exon",
+  "hg38_genes_introns"    = "Intron",
+  "hg38_enhancers_fantom" = "Enhancer",
+  "hg38_cpg_islands"      = "CpG island",
+  "hg38_cpg_shores"       = "CpG shore",
+  "hg38_cpg_shelves"      = "CpG shelf",
+  "hg38_cpg_inter"        = "Open sea",
+  "hg38_genes_intergenic" = "Intergenic"
+)
+
 gen_data <- function(){
-    err = 0.0000001
-    dt <- memENRICH() %>% mutate(across(where(is.character), as.factor)) %>%
-        mutate(h2_Category=fct_relevel(h2_Category, rev), `-log10(FDR)`= -log10(FDR),
-               `OR Percentile`= OR / (1+OR), p.fdr.sig=FDR < 0.05,
-               `log2(OR)` = log2(OR+err),
-               p.fdr.cat=cut(FDR, breaks=c(1,0.05,0.01,0.005,0),
-                             labels=c("<= 0.005","<= 0.01","<= 0.05","> 0.05"),
-                             include.lowest=TRUE))
-        #mutate(across(Direction, factor, levels=c("All", "Down", "Up")))
-    #levels(dt$Direction) <- c("All", "Heritable Bias", "Non-heritable Bias")
+    err = 1e-7
+    dt <- memENRICH() %>%
+        filter(Annotation %in% names(ANNOT_LABELS)) %>%
+        mutate(
+            log2_or  = log2(OR + err),
+            fdr_sig  = FDR < 0.05,
+            sig_star = case_when(
+                FDR < 0.001 ~ "***",
+                FDR < 0.01  ~ "**",
+                FDR < 0.05  ~ "*",
+                TRUE        ~ ""
+            ),
+            Annotation = factor(ANNOT_LABELS[Annotation],
+                                levels = rev(ANNOT_LABELS)),
+            h2_Category = factor(h2_Category,
+                                 levels = c("Heritable", "Non-heritable",
+                                            "Low prediction")),
+            Tissue = factor(Tissue,
+                            levels = c("Caudate", "DLPFC", "Hippocampus"))
+        )
     return(dt)
 }
 memDF <- memoise::memoise(gen_data)
 
 plot_tile <- function(label, w, h){
-  df <- memDF() %>% filter(is.finite(`log2(OR)`)) %>%
-    mutate(Annotation = gsub("^hg38_genes_|^hg38_", "", Annotation),
-           Annotation = gsub("_", " ", Annotation),
-           Annotation = ifelse(Annotation %in% c("5UTRs", "3UTRs"),
-                               Annotation, toTitleCase(Annotation)))
-  
-  y0 <- min(df$`log2(OR)`, na.rm = TRUE) - 0.1
-  y1 <- max(df$`log2(OR)`, na.rm = TRUE) + 0.1
-  
-  tile_plot <- df %>%
-    ggplot(aes(y = Annotation, x = Tissue, fill = `log2(OR)`)) +
-    geom_tile(color = "grey") +
-    geom_text(aes(label = ifelse(p.fdr.sig,
-                                 format(round(`-log10(FDR)`,1), nsmall=1), "")),
-              color = "black", size = 5) +
-    scale_fill_gradientn(colors = c("blue", "white", "red"),
-                         values = scales::rescale(c(y0, 0, y1)),
-                         limits = c(y0, y1),
-                         name = "log2(OR)") +
-    facet_grid(. ~ h2_Category) +
-    labs(x = "Brain Region", y = "Genomic Feature") +
-    theme_minimal(base_size = 20) +
-    theme(
-      axis.text.x = element_text(angle = 45, hjust = 1),
-      legend.position = "right",
-      axis.title = element_text(face = "bold", size = 28),
-      strip.text = element_text(face = "bold", size = 22)
-    )
-  
-  save_plot(tile_plot, paste0("tileplot_enrichment_",tolower(label)), w, h)
+    df <- memDF() %>% filter(is.finite(log2_or))
+
+    ## Symmetric colour limits so OR = 1 (log2 = 0) is always white
+    lim <- max(abs(df$log2_or), na.rm = TRUE)
+    lim <- ceiling(lim * 10) / 10          # round up to nearest 0.1
+
+    tile_plot <- ggplot(df, aes(x = Tissue, y = Annotation, fill = log2_or)) +
+        geom_tile(color = "white", linewidth = 0.5) +
+        geom_text(aes(label = sig_star),
+                  size = 4, vjust = 0.5, color = "black") +
+        scale_fill_gradient2(
+            low      = "#2166AC",
+            mid      = "white",
+            high     = "#B2182B",
+            midpoint = 0,
+            limits   = c(-lim, lim),
+            name     = expression(log[2]~"(OR)"),
+            breaks   = scales::pretty_breaks(n = 5)
+        ) +
+        facet_grid(. ~ h2_Category) +
+        labs(x = NULL, y = NULL) +
+        theme_classic(base_size = 11) +
+        theme(
+            axis.text.x        = element_text(size = 10),
+            axis.text.y        = element_text(size = 10),
+            strip.background   = element_blank(),
+            strip.text         = element_text(face = "bold", size = 12),
+            panel.spacing      = unit(0.8, "cm"),
+            legend.position    = "right",
+            legend.key.height  = unit(1.2, "cm"),
+            legend.key.width   = unit(0.35, "cm"),
+            legend.title       = element_text(size = 10),
+            legend.text        = element_text(size = 9),
+            plot.margin        = margin(6, 8, 6, 6)
+        )
+
+    save_plot(tile_plot, paste0("tileplot_enrichment_",tolower(label)), w, h)
 }
+
 ## Run script
-plot_tile("annotation", 12, 8)
+plot_tile("annotation", 8, 5.5)
 
 ## Reproducibility information
 Sys.time()
