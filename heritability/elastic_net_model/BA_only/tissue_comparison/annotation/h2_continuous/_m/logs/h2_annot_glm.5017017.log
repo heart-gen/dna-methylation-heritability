@@ -1,0 +1,95 @@
+2026-04-09 20:15:38 - **** Job starts ****
+**** QUEST info ****
+User: owb0346
+Job id: 5017017
+Job name: h2_annot_glm
+Node name: 
+Hostname: qnode0021
+Task id: N/A
+No modules loaded
+2026-04-09 20:15:39 - Running continuous h2 ~ annotation GLM analysis
+Warning messages:
+1: In load_data(tissue) :
+  Caudate: 246/12001 annotation rows lacked elastic-net matches after coordinate join
+2: In load_data(tissue) :
+  DLPFC: 797/10372 annotation rows lacked elastic-net matches after coordinate join
+3: In load_data(tissue) :
+  Hippocampus: 366/10216 annotation rows lacked elastic-net matches after coordinate join
+
+=== Caudate ===
+  Primary (r2 > 0.3): 11674 VMRs
+  Sensitivity (all valid h2): 11741 VMRs
+=== DLPFC ===
+  Primary (r2 > 0.3): 9522 VMRs
+  Sensitivity (all valid h2): 9564 VMRs
+=== Hippocampus ===
+  Primary (r2 > 0.3): 9799 VMRs
+  Sensitivity (all valid h2): 9838 VMRs
+
+Results written to: /gpfs/projects/b1213/users/kynon/projects/dna-methylation-heritability/heritability/elastic_net_model/BA_only/tissue_comparison/annotation/h2_continuous/_m 
+Linear GLM summary:
+# A tibble: 12 × 7
+   tissue      annotation      estimate conf.low conf.high  p.value      fdr
+   <chr>       <chr>              <dbl>    <dbl>     <dbl>    <dbl>    <dbl>
+ 1 Caudate     Intergenic         1.23     1.20      1.26  3.47e-59 4.16e-58
+ 2 Caudate     Promoter           0.828    0.802     0.854 1.03e-31 6.16e-31
+ 3 Caudate     Enhancer           0.737    0.697     0.778 1.90e-27 5.99e-27
+ 4 Caudate     1–5 kb upstream    0.860    0.836     0.883 2.00e-27 5.99e-27
+ 5 Hippocampus Intergenic         1.19     1.15      1.23  2.18e-23 5.23e-23
+ 6 DLPFC       Intergenic         1.15     1.11      1.19  5.16e-14 1.03e-13
+ 7 Hippocampus Enhancer           0.785    0.730     0.841 1.72e-11 2.95e-11
+ 8 DLPFC       Enhancer           0.797    0.739     0.855 8.32e-10 1.25e- 9
+ 9 Hippocampus Promoter           0.916    0.879     0.954 2.80e- 5 3.74e- 5
+10 Hippocampus 1–5 kb upstream    0.927    0.893     0.960 3.13e- 5 3.76e- 5
+11 DLPFC       1–5 kb upstream    0.945    0.910     0.981 3.31e- 3 3.61e- 3
+12 DLPFC       Promoter           0.944    0.904     0.984 7.29e- 3 7.29e- 3
+[1] "Reproducibility information:"
+[1] "2026-04-09 20:16:08 CDT"
+   user  system elapsed 
+ 14.879   0.258  16.741 
+─ Session info ───────────────────────────────────────────────────────────────────────────────────────────────────────
+ setting  value
+ version  R version 4.4.3 (2025-02-28)
+ os       Red Hat Enterprise Linux 8.10 (Ootpa)
+ system   x86_64, linux-gnu
+ ui       X11
+ language (EN)
+ collate  en_US.UTF-8
+ ctype    en_US.UTF-8
+ tz       America/Chicago
+ date     2026-04-09
+ pandoc   3.8 @ /projects/p32505/opt/envs/epigenomics/bin/pandoc
+ quarto   1.9.35 @ /projects/p32505/opt/bin/quarto
+
+─ Packages ───────────────────────────────────────────────────────────────────────────────────────────────────────────
+ package     * version date (UTC) lib source
+ backports     1.5.0   2024-05-23 [1] CRAN (R 4.4.3)
+ broom       * 1.0.10  2025-09-13 [1] CRAN (R 4.4.3)
+ cli           3.6.5   2025-04-23 [1] CRAN (R 4.4.3)
+ data.table  * 1.17.8  2025-07-10 [1] CRAN (R 4.4.3)
+ dplyr       * 1.1.4   2023-11-17 [1] CRAN (R 4.4.3)
+ generics      0.1.4   2025-05-09 [1] CRAN (R 4.4.3)
+ glue          1.8.0   2024-09-30 [1] CRAN (R 4.4.3)
+ here        * 1.0.2   2025-09-15 [1] CRAN (R 4.4.3)
+ lifecycle     1.0.5   2026-01-08 [1] CRAN (R 4.4.3)
+ magrittr      2.0.4   2025-09-12 [1] CRAN (R 4.4.3)
+ pillar        1.11.1  2025-09-17 [1] CRAN (R 4.4.3)
+ pkgconfig     2.0.3   2019-09-22 [1] CRAN (R 4.4.3)
+ purrr         1.1.0   2025-07-10 [1] CRAN (R 4.4.3)
+ R6            2.6.1   2025-02-15 [1] CRAN (R 4.4.3)
+ rlang         1.1.6   2025-04-11 [1] CRAN (R 4.4.3)
+ rprojroot     2.1.1   2025-08-26 [1] CRAN (R 4.4.3)
+ sessioninfo   1.2.3   2025-02-05 [1] CRAN (R 4.4.3)
+ tibble        3.3.0   2025-06-08 [1] CRAN (R 4.4.3)
+ tidyr       * 1.3.1   2024-01-24 [1] CRAN (R 4.4.3)
+ tidyselect    1.2.1   2024-03-11 [1] CRAN (R 4.4.3)
+ utf8          1.2.6   2025-06-08 [1] CRAN (R 4.4.3)
+ vctrs         0.6.5   2023-12-01 [1] CRAN (R 4.4.3)
+ withr         3.0.2   2024-10-28 [1] CRAN (R 4.4.3)
+
+ [1] /gpfs/projects/p32505/opt/envs/epigenomics/lib/R/library
+ * ── Packages attached to the search path.
+
+──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+2026-04-09 20:16:10 - **** Job ends ****

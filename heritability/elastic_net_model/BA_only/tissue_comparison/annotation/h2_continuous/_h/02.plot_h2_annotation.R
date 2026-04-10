@@ -101,6 +101,8 @@ spline <- fread(file.path(IN_DIR, "spline_predictions.tsv")) |>
     tissue     = factor(tissue,     levels = names(TISSUE_LABELS))
   )
 
+spline_x_max <- ceiling(max(spline$h2_unscaled, na.rm = TRUE) * 10) / 10
+
 ## Figure A — Quintile fraction plot (main figure)
 
 fig_a <- ggplot(quint,
@@ -131,7 +133,7 @@ fig_a <- ggplot(quint,
     legend.direction = "vertical"
   )
 
-save_plot(fig_a, "fig_h2_annotation_quintile", width = 7.2, height = 3.2)
+save_plot(fig_a, "h2_annotation_quintile", width = 7.2, height = 3.2)
 
 ## Figure B — Spline-predicted probabilities (supplemental)
 
@@ -148,7 +150,8 @@ fig_b <- ggplot(spline,
   scale_color_manual(values = ANNOT_COLORS, breaks = ANNOT_ORDER) +
   scale_fill_manual( values = ANNOT_COLORS, breaks = ANNOT_ORDER) +
   scale_x_continuous(
-    breaks = seq(0, 0.4, 0.1),
+    breaks = pretty_breaks(n = 5),
+    limits = c(0, spline_x_max),
     labels = function(x) sprintf("%.1f", x)
   ) +
   scale_y_continuous(
@@ -162,7 +165,7 @@ fig_b <- ggplot(spline,
   BASE_THEME +
   theme(legend.position = "right")
 
-save_plot(fig_b, "fig_h2_annotation_spline", width = 7.2, height = 3.2)
+save_plot(fig_b, "h2_annotation_spline", width = 7.2, height = 3.2)
 
 ## Figure C — OR forest plot (supplemental)
 
@@ -207,7 +210,7 @@ fig_c <- ggplot(glm_plot,
     panel.grid.major.y = element_blank()
   )
 
-save_plot(fig_c, "fig_h2_annotation_OR", width = 7.2, height = 3.0)
+save_plot(fig_c, "h2_annotation_OR", width = 7.2, height = 3.0)
 
 ## Combined supplemental figure (B + C stacked)
 
@@ -215,7 +218,7 @@ fig_supp <- fig_b / fig_c +
   plot_annotation(tag_levels = "A") &
   theme(plot.tag = element_text(face = "bold", size = 11))
 
-save_plot(fig_supp, "fig_h2_annotation_supplemental", width = 7.2, height = 6.4)
+save_plot(fig_supp, "h2_annotation_supplemental", width = 7.2, height = 6.4)
 
 ## Sensitivity: all VMRs (including low-prediction)
 
@@ -245,7 +248,7 @@ fig_sa <- ggplot(quint_sa,
   BASE_THEME +
   theme(legend.position = "right")
 
-save_plot(fig_sa, "fig_h2_annotation_sensitivity", width = 7.2, height = 3.2)
+save_plot(fig_sa, "h2_annotation_sensitivity", width = 7.2, height = 3.2)
 
 cat("Figures written to:", OUT_DIR, "\n")
 

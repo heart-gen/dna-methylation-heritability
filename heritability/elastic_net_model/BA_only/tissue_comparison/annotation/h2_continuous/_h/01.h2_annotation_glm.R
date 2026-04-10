@@ -67,7 +67,8 @@ load_data <- function(tissue) {
     mutate(seqnames = paste0("chr", chrom)) |>
     dplyr::select(seqnames, start, end,
                   h2_unscaled, r_squared_cv,
-                  num_snps = num_snps)
+                  num_snps = num_snps) |>
+    mutate(.enet_matched = TRUE)
 
   # Join on genomic coordinates
   df <- annot |>
@@ -77,7 +78,17 @@ load_data <- function(tissue) {
       h2_scaled  = h2_unscaled / H2_UNIT,   # OR per 0.1 h2 unit
       tissue     = tissue
     )
-  df
+
+  n_unmatched <- sum(is.na(df$.enet_matched))
+  if (n_unmatched > 0) {
+    warning(sprintf(
+      "%s: %d/%d annotation rows lacked elastic-net matches after coordinate join",
+      tissue, n_unmatched, nrow(df)
+    ))
+  }
+
+  df |>
+    dplyr::select(-.enet_matched)
 }
 
 safe_glm <- function(formula, data) {
@@ -90,15 +101,16 @@ safe_glm <- function(formula, data) {
   )
 }
 
-# Agresti-Coull 95% CI for a proportion
-ac_ci <- function(n_annot, n, z = qnorm(0.975)) {
+# Agresti-Coull 95% CI bounds (vectorized, safe for use inside mutate)
+ac_ci_lo <- function(n_annot, n, z = qnorm(0.975)) {
   n_tilde <- n + z^2
   p_tilde <- (n_annot + z^2 / 2) / n_tilde
-  margin  <- z * sqrt(p_tilde * (1 - p_tilde) / n_tilde)
-  list(
-    ci_lo = pmax(0, p_tilde - margin),
-    ci_hi = pmin(1, p_tilde + margin)
-  )
+  pmax(0, p_tilde - z * sqrt(p_tilde * (1 - p_tilde) / n_tilde))
+}
+ac_ci_hi <- function(n_annot, n, z = qnorm(0.975)) {
+  n_tilde <- n + z^2
+  p_tilde <- (n_annot + z^2 / 2) / n_tilde
+  pmin(1, p_tilde + z * sqrt(p_tilde * (1 - p_tilde) / n_tilde))
 }
 
 # Linear logistic regression: OR per H2_UNIT increase
@@ -192,11 +204,29 @@ compute_spline_predictions <- function(df, annot_col, tissue) {
 compute_quintile_summary <- function(df, annot_col, tissue) {
   breaks <- quantile(df$h2_unscaled,
                      probs = seq(0, 1, 1 / N_QUINTILES),
-                     na.rm = TRUE)
+                     na.rm = TRUE) |>
+    unique()
+  n_bins <- length(breaks) - 1
+
+  if (n_bins < 1) {
+    warning(sprintf(
+      "%s / %s: insufficient unique h2 values to compute quantile bins",
+      tissue, ANNOT_COLS[[annot_col]]
+    ))
+    return(tibble())
+  }
+
+  if (n_bins < N_QUINTILES) {
+    warning(sprintf(
+      "%s / %s: reduced h2 bins from %d to %d because quantile breaks were not unique",
+      tissue, ANNOT_COLS[[annot_col]], N_QUINTILES, n_bins
+    ))
+  }
+
   df |>
     mutate(h2_quintile = cut(h2_unscaled,
                              breaks = breaks,
-                             labels = paste0("Q", seq_len(N_QUINTILES)),
+                             labels = paste0("Q", seq_len(n_bins)),
                              include.lowest = TRUE)) |>
     filter(!is.na(h2_quintile)) |>
     group_by(h2_quintile) |>
@@ -210,14 +240,12 @@ compute_quintile_summary <- function(df, annot_col, tissue) {
       .groups    = "drop"
     ) |>
     mutate(
-      ci          = ac_ci(n_annotated, n),
-      ci_lo       = ci$ci_lo,
-      ci_hi       = ci$ci_hi,
+      ci_lo       = ac_ci_lo(n_annotated, n),
+      ci_hi       = ac_ci_hi(n_annotated, n),
       annotation  = ANNOT_COLS[[annot_col]],
       annot_col   = annot_col,
       tissue      = tissue
-    ) |>
-    dplyr::select(-ci)
+    )
 }
 
 ## Main
