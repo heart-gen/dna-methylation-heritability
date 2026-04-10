@@ -119,10 +119,10 @@ def merge_dataframe(tissue, env, cat=None):
 def cal_fishers_annot(tissue, test, h2_cat, env, cat=None):
     df = merge_dataframe(tissue, env, cat)
     
-    table = [[np.sum((df[test.lower()] == 0) & (df['h2_category'] == h2_cat)), 
-              np.sum((df[test.lower()] == 0) & (df['h2_category'] != h2_cat))],
-             [np.sum((df[test.lower()] == 1) & (df['h2_category'] == h2_cat)), 
-              np.sum((df[test.lower()] == 1) & (df['h2_category'] != h2_cat))]]
+    table = [[np.sum((df[test.lower()] == 1) & (df['h2_category'] == h2_cat)), 
+              np.sum((df[test.lower()] == 1) & (df['h2_category'] != h2_cat))],
+             [np.sum((df[test.lower()] == 0) & (df['h2_category'] == h2_cat)), 
+              np.sum((df[test.lower()] == 0) & (df['h2_category'] != h2_cat))]]
     print(table)
     return fisher_exact(table)
 
