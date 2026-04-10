@@ -1,14 +1,14 @@
-2026-03-31 07:44:05 - **** Job starts ****
+2026-04-10 15:17:29 - **** Job starts ****
 **** Quest info ****
 User: skc6679
-Job id: 4146399
+Job id: 5056464
 Job name: plot_enrichment
 Node name: 
-Hostname: qnode0024
+Hostname: qnode0105
 OFFSET: 
 SLURM_ARRAY_TASK_ID: 
 No modules loaded
-2026-03-31 07:44:06 - **** Plotting enrichment heatmap ****
+2026-04-10 15:17:29 - **** Plotting enrichment heatmap ****
 ── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
 ✔ dplyr     1.1.4     ✔ readr     2.1.5
 ✔ forcats   1.0.0     ✔ stringr   1.5.2
@@ -18,9 +18,9 @@ No modules loaded
 ✖ dplyr::filter() masks stats::filter()
 ✖ dplyr::lag()    masks stats::lag()
 ℹ Use the conflicted package (<http://conflicted.r-lib.org/>) to force all conflicts to become errors
-[1] "2026-03-31 07:44:48 CDT"
+[1] "2026-04-10 15:17:51 CDT"
    user  system elapsed 
- 21.991   0.673  26.615 
+ 12.043   0.380  15.170 
 ─ Session info ───────────────────────────────────────────────────────────────────────────────────────────────────────
  setting  value
  version  R version 4.4.3 (2025-02-28)
@@ -31,7 +31,7 @@ No modules loaded
  collate  en_US.UTF-8
  ctype    en_US.UTF-8
  tz       America/Chicago
- date     2026-03-31
+ date     2026-04-10
  pandoc   3.8 @ /projects/p32505/opt/envs/epigenomics/bin/pandoc
  quarto   1.9.35 @ /projects/p32505/opt/bin/quarto
 
@@ -82,4 +82,4 @@ No modules loaded
  * ── Packages attached to the search path.
 
 ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-2026-03-31 07:44:54 - **** Job ends ****
+2026-04-10 15:17:54 - **** Job ends ****

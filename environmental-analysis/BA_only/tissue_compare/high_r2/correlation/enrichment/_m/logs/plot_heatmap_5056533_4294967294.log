@@ -1,14 +1,14 @@
-2026-01-02 13:42:33 - **** Job starts ****
+2026-04-10 15:20:58 - **** Job starts ****
 **** Quest info ****
 User: skc6679
-Job id: 4505256
+Job id: 5056533
 Job name: plot_enrichment
 Node name: 
-Hostname: qnode0027
+Hostname: qnode0107
 OFFSET: 
 SLURM_ARRAY_TASK_ID: 
 No modules loaded
-2026-01-02 13:42:33 - **** Plotting enrichment heatmap ****
+2026-04-10 15:20:58 - **** Plotting enrichment heatmap ****
 ── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
 ✔ dplyr     1.1.4     ✔ readr     2.1.5
 ✔ forcats   1.0.0     ✔ stringr   1.5.2
@@ -18,9 +18,9 @@ No modules loaded
 ✖ dplyr::filter() masks stats::filter()
 ✖ dplyr::lag()    masks stats::lag()
 ℹ Use the conflicted package (<http://conflicted.r-lib.org/>) to force all conflicts to become errors
-[1] "2026-01-02 13:42:50 CST"
+[1] "2026-04-10 15:21:26 CDT"
    user  system elapsed 
-  2.730   0.271   5.419 
+ 13.371   0.418  16.571 
 ─ Session info ───────────────────────────────────────────────────────────────────────────────────────────────────────
  setting  value
  version  R version 4.4.3 (2025-02-28)
@@ -31,9 +31,9 @@ No modules loaded
  collate  en_US.UTF-8
  ctype    en_US.UTF-8
  tz       America/Chicago
- date     2026-01-02
+ date     2026-04-10
  pandoc   3.8 @ /projects/p32505/opt/envs/epigenomics/bin/pandoc
- quarto   NA
+ quarto   1.9.35 @ /projects/p32505/opt/bin/quarto
 
 ─ Packages ───────────────────────────────────────────────────────────────────────────────────────────────────────────
  package      * version date (UTC) lib source
@@ -45,12 +45,12 @@ No modules loaded
  fastmap        1.2.0   2024-05-15 [1] CRAN (R 4.4.3)
  forcats      * 1.0.0   2023-01-29 [1] CRAN (R 4.4.3)
  generics       0.1.4   2025-05-09 [1] CRAN (R 4.4.3)
- ggplot2      * 4.0.0   2025-09-11 [1] CRAN (R 4.4.3)
+ ggplot2      * 4.0.1   2025-11-14 [1] CRAN (R 4.4.3)
  glue           1.8.0   2024-09-30 [1] CRAN (R 4.4.3)
  gtable         0.3.6   2024-10-25 [1] CRAN (R 4.4.3)
- hms            1.1.3   2023-03-21 [1] CRAN (R 4.4.3)
+ hms            1.1.4   2025-10-17 [1] CRAN (R 4.4.3)
  labeling       0.4.3   2023-08-29 [1] CRAN (R 4.4.3)
- lifecycle      1.0.4   2023-11-07 [1] CRAN (R 4.4.3)
+ lifecycle      1.0.5   2026-01-08 [1] CRAN (R 4.4.3)
  lubridate    * 1.9.4   2024-12-08 [1] CRAN (R 4.4.3)
  magrittr       2.0.4   2025-09-12 [1] CRAN (R 4.4.3)
  memoise        2.0.1   2021-11-26 [1] CRAN (R 4.4.3)
@@ -82,4 +82,4 @@ No modules loaded
  * ── Packages attached to the search path.
 
 ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-2026-01-02 13:42:51 - **** Job ends ****
+2026-04-10 15:21:29 - **** Job ends ****
