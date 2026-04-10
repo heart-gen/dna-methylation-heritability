@@ -1,0 +1,29 @@
+flag	h2_category	h2_label	class_order	set	set_label	set_order	count	combination_size	includes_caudate	includes_dlpfc	includes_hippocampus
+F_0.25	all	All VMRs	1	Caudate	Caudate	1	6639	1	1	0	0
+F_0.25	all	All VMRs	1	DLPFC	DLPFC	2	2574	1	0	1	0
+F_0.25	all	All VMRs	1	Hippocampus	Hippocampus	3	2379	1	0	0	1
+F_0.25	all	All VMRs	1	Caudate&DLPFC	Caudate&DLPFC	4	4423	2	1	1	0
+F_0.25	all	All VMRs	1	Caudate&Hippocampus	Caudate&Hippocampus	5	4499	2	1	0	1
+F_0.25	all	All VMRs	1	Hippocampus&DLPFC	Hippocampus&DLPFC	6	6936	2	0	1	1
+F_0.25	all	All VMRs	1	Caudate&Hippocampus&DLPFC	Caudate&Hippocampus&DLPFC	7	3395	3	1	1	1
+F_0.25	heritable	Heritable	2	Caudate	Caudate	1	3144	1	1	0	0
+F_0.25	heritable	Heritable	2	DLPFC	DLPFC	2	2549	1	0	1	0
+F_0.25	heritable	Heritable	2	Hippocampus	Hippocampus	3	2487	1	0	0	1
+F_0.25	heritable	Heritable	2	Caudate&DLPFC	Caudate&DLPFC	4	1429	2	1	1	0
+F_0.25	heritable	Heritable	2	Caudate&Hippocampus	Caudate&Hippocampus	5	1562	2	1	0	1
+F_0.25	heritable	Heritable	2	Hippocampus&DLPFC	Hippocampus&DLPFC	6	2422	2	0	1	1
+F_0.25	heritable	Heritable	2	Caudate&Hippocampus&DLPFC	Caudate&Hippocampus&DLPFC	7	1020	3	1	1	1
+F_0.25	non-heritable	Non-heritable	3	Caudate	Caudate	1	4767	1	1	0	0
+F_0.25	non-heritable	Non-heritable	3	DLPFC	DLPFC	2	2048	1	0	1	0
+F_0.25	non-heritable	Non-heritable	3	Hippocampus	Hippocampus	3	2238	1	0	0	1
+F_0.25	non-heritable	Non-heritable	3	Caudate&DLPFC	Caudate&DLPFC	4	1148	2	1	1	0
+F_0.25	non-heritable	Non-heritable	3	Caudate&Hippocampus	Caudate&Hippocampus	5	1227	2	1	0	1
+F_0.25	non-heritable	Non-heritable	3	Hippocampus&DLPFC	Hippocampus&DLPFC	6	1507	2	0	1	1
+F_0.25	non-heritable	Non-heritable	3	Caudate&Hippocampus&DLPFC	Caudate&Hippocampus&DLPFC	7	513	3	1	1	1
+F_0.25	low_prediction	Low prediction	4	Caudate	Caudate	1	48	1	1	0	0
+F_0.25	low_prediction	Low prediction	4	DLPFC	DLPFC	2	12	1	0	1	0
+F_0.25	low_prediction	Low prediction	4	Hippocampus	Hippocampus	3	8	1	0	0	1
+F_0.25	low_prediction	Low prediction	4	Caudate&DLPFC	Caudate&DLPFC	4	16	2	1	1	0
+F_0.25	low_prediction	Low prediction	4	Caudate&Hippocampus	Caudate&Hippocampus	5	16	2	1	0	1
+F_0.25	low_prediction	Low prediction	4	Hippocampus&DLPFC	Hippocampus&DLPFC	6	28	2	0	1	1
+F_0.25	low_prediction	Low prediction	4	Caudate&Hippocampus&DLPFC	Caudate&Hippocampus&DLPFC	7	13	3	1	1	1

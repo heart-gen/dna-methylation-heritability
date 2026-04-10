@@ -1,0 +1,25 @@
+flag	reciprocal_threshold	h2_category	h2_label	class_order	tissue1	tissue2	pair_order	pair_label	pair_label_multiline	n_pairs	n_pairs_missing_h2	n_unique_tissue1	n_unique_tissue2	spearman_rho	spearman_p_value	spearman_fdr
+F_0.25	25.0	all	All VMRs	1	caudate	dlpfc	1	Caudate-DLPFC	"Caudate
+DLPFC"	3797	316	3787	3790	0.5161428320866176	1.271864149535401e-257	3.052473958884962e-257
+F_0.25	25.0	all	All VMRs	1	caudate	hippocampus	2	Caudate-Hippocampus	"Caudate
+Hippocampus"	4011	144	4002	4008	0.5610347562190735	0.0	0.0
+F_0.25	25.0	all	All VMRs	1	hippocampus	dlpfc	3	Hippocampus-DLPFC	"Hippocampus
+DLPFC"	6182	634	6173	6175	0.49524480653534025	0.0	0.0
+F_0.25	25.0	heritable	Heritable	2	caudate	dlpfc	1	Caudate-DLPFC	"Caudate
+DLPFC"	1338	0	1335	1337	0.7639735891052113	1.778429982487527e-256	3.556859964975054e-256
+F_0.25	25.0	heritable	Heritable	2	caudate	hippocampus	2	Caudate-Hippocampus	"Caudate
+Hippocampus"	1452	0	1452	1451	0.7867841274884735	3.728761363437377e-306	1.118628409031213e-305
+F_0.25	25.0	heritable	Heritable	2	hippocampus	dlpfc	3	Hippocampus-DLPFC	"Hippocampus
+DLPFC"	2385	0	2380	2384	0.7512455609288856	0.0	0.0
+F_0.25	25.0	non-heritable	Non-heritable	3	caudate	dlpfc	1	Caudate-DLPFC	"Caudate
+DLPFC"	1075	0	1074	1073	0.03464319875490909	0.25642877963035327	0.25642877963035327
+F_0.25	25.0	non-heritable	Non-heritable	3	caudate	hippocampus	2	Caudate-Hippocampus	"Caudate
+Hippocampus"	1117	0	1117	1117	0.04168714859659753	0.16383326233419318	0.1787271952736653
+F_0.25	25.0	non-heritable	Non-heritable	3	hippocampus	dlpfc	3	Hippocampus-DLPFC	"Hippocampus
+DLPFC"	1484	0	1483	1482	0.10049350019771804	0.00010538756132091983	0.00018066439083586254
+F_0.25	25.0	low_prediction	Low prediction	4	caudate	dlpfc	1	Caudate-DLPFC	"Caudate
+DLPFC"	14	0	14	14	0.6879120879120879	0.006540042491841914	0.007848050990210296
+F_0.25	25.0	low_prediction	Low prediction	4	caudate	hippocampus	2	Caudate-Hippocampus	"Caudate
+Hippocampus"	15	0	15	15	0.7535714285714286	0.001177583023488826	0.0015701106979851014
+F_0.25	25.0	low_prediction	Low prediction	4	hippocampus	dlpfc	3	Hippocampus-DLPFC	"Hippocampus
+DLPFC"	28	0	28	28	0.6442255062944717	0.00021590196651827563	0.0003238529497774134
