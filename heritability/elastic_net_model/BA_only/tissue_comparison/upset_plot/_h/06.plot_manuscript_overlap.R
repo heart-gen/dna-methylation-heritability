@@ -68,7 +68,7 @@ build_panel_a <- function(set_counts) {
       h2_label = factor(h2_label, levels = h2_levels),
       label_y = count + 0.03 * max_count
     )
-
+    
   matrix_df <- set_counts %>%
     left_join(panel_metrics, by = "h2_label") %>%
     select(
@@ -195,9 +195,9 @@ if (!dir.exists(out_dir)) {
   dir.create(out_dir, recursive = TRUE)
 }
 
-set_counts <- fread(file.path(out_dir, "f0.25_set_counts.tsv"))
-reciprocal_summary <- fread(file.path(out_dir, "f0.25_reciprocal_overlap_summary.tsv"))
-h2_summary <- fread(file.path(out_dir, "f0.25_h2_concordance_summary.tsv"))
+set_counts <- fread(file.path(out_dir, "F_0.25_set_counts.tsv"))
+reciprocal_summary <- fread(file.path(out_dir, "F_0.25_reciprocal_overlap_summary.tsv"))
+h2_summary <- fread(file.path(out_dir, "F_0.25_h2_concordance_summary.tsv"))
 
 reciprocal_summary <- reciprocal_summary %>%
   mutate(
@@ -253,10 +253,10 @@ BC
     )
   )
 
-save_plot(panel_a, file.path(out_dir, "panel_A_f0.25_upset_summary"), 12, 5.3)
-save_plot(panel_b, file.path(out_dir, "panel_B_f0.25_reciprocal_overlap"), 5.5, 4.6)
-save_plot(panel_c, file.path(out_dir, "panel_C_f0.25_h2_concordance"), 5.5, 4.6)
-save_plot(assembled_figure, file.path(out_dir, "f0.25_overlap_manuscript_figure"), 12, 8.6)
+save_plot(panel_a, file.path(out_dir, "panel_A_F_0.25_upset_summary"), 12, 5.3)
+save_plot(panel_b, file.path(out_dir, "panel_B_F_0.25_reciprocal_overlap"), 5.5, 4.6)
+save_plot(panel_c, file.path(out_dir, "panel_C_F_0.25_h2_concordance"), 5.5, 4.6)
+save_plot(assembled_figure, file.path(out_dir, "F_0.25_overlap_manuscript_figure"), 12, 8.6)
 
 ## Reproducibility information
 Sys.time()

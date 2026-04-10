@@ -312,9 +312,9 @@ def main() -> None:
     reciprocal_summary = summarize_reciprocal_overlap(percent_overlap_dir)
     h2_concordance = summarize_h2_concordance(percent_overlap_dir, region_tables)
 
-    set_counts.to_csv(manuscript_dir / "f0.25_set_counts.tsv", sep="\t", index=False)
-    reciprocal_summary.to_csv(manuscript_dir / "f0.25_reciprocal_overlap_summary.tsv", sep="\t", index=False)
-    h2_concordance.to_csv(manuscript_dir / "f0.25_h2_concordance_summary.tsv", sep="\t", index=False)
+    set_counts.to_csv(manuscript_dir / "F_0.25_set_counts.tsv", sep="\t", index=False)
+    reciprocal_summary.to_csv(manuscript_dir / "F_0.25_reciprocal_overlap_summary.tsv", sep="\t", index=False)
+    h2_concordance.to_csv(manuscript_dir / "F_0.25_h2_concordance_summary.tsv", sep="\t", index=False)
 
     print("Loaded main-analysis class totals from elastic-net summaries:")
     print(region_totals.to_string(index=False))
