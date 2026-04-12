@@ -36,7 +36,7 @@ ENV_PATH="/projects/p32505/opt/envs"
 log_message "Plotting overlapped h2 distribution for simulated results"
 
 ## Activate conda environment
-conda run -p $ENV_PATH/epigenomics Rscript ../_h/plot_overlap.R
+conda run -p $ENV_PATH/epigenomics Rscript ../_h/02.plot_overlap.R
 
 if [ $? -ne 0 ]; then
     log_message "Error: Conda or script execution failed"
