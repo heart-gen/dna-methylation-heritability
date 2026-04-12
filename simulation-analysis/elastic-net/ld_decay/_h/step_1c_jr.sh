@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --account=p32505
 #SBATCH --partition=short
-#SBATCH --job-name=enet_ld07
+#SBATCH --job-name=enet_ld07_jr
 #SBATCH --mail-type=FAIL
 #SBATCH --mail-user=kynon.benjamin@northwestern.edu
 #SBATCH --output=logs/%x.%A_%a.log
@@ -38,7 +38,7 @@ log_message "**** Job starts ****"
 task_id=${SLURM_ARRAY_TASK_ID}
 export task_id
 export RUN_NAME
-export METHOD=boosting_hybrid
+export METHOD=joint_ridge
 export NUM_SAMPLES=200
 export OMP_NUM_THREADS=${SLURM_CPUS_PER_TASK:-1}
 export MKL_NUM_THREADS=${SLURM_CPUS_PER_TASK:-1}

@@ -35,6 +35,7 @@ ENV_PATH="/projects/p32505/opt/envs"
 log_message "**** Job starts ****"
 
 export ld_decay=0.7
+export METHOD=boosting_hybrid
 mkdir -p "${RUN_DIR}"
 
 log_message "**** Run info ****"

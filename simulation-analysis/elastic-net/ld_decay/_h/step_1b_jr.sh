@@ -1,13 +1,13 @@
 #!/bin/bash
 #SBATCH --account=p32505
 #SBATCH --partition=short
-#SBATCH --job-name=enet_ld07
+#SBATCH --job-name=enet_ld06_jr
 #SBATCH --mail-type=FAIL
 #SBATCH --mail-user=kynon.benjamin@northwestern.edu
 #SBATCH --output=logs/%x.%A_%a.log
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
-#SBATCH --array=1-1000%250
+#SBATCH --array=1-1000%200
 #SBATCH --time=02:00:00
 
 set -euo pipefail
@@ -29,7 +29,7 @@ module list
 
 SCRIPT_DIR="../_h"
 OUTPUT_ROOT="../_m"
-RUN_NAME="ld_0.7_sim_200_indiv"
+RUN_NAME="ld_0.6_sim_200_indiv"
 RUN_DIR="${OUTPUT_ROOT}/${RUN_NAME}"
 ENV_PATH="/projects/p32505/opt/envs"
 
@@ -38,7 +38,7 @@ log_message "**** Job starts ****"
 task_id=${SLURM_ARRAY_TASK_ID}
 export task_id
 export RUN_NAME
-export METHOD=boosting_hybrid
+export METHOD=joint_ridge
 export NUM_SAMPLES=200
 export OMP_NUM_THREADS=${SLURM_CPUS_PER_TASK:-1}
 export MKL_NUM_THREADS=${SLURM_CPUS_PER_TASK:-1}
