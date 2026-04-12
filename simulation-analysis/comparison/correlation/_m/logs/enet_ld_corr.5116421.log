@@ -1,0 +1,90 @@
+2026-04-12 08:06:14 - **** Job starts ****
+**** QUEST info ****
+User: owb0346
+Job id: 5116421
+Job name: enet_ld_corr
+Node name: N/A
+Hostname: qnode0027
+Task id: N/A
+No modules loaded
+2026-04-12 08:06:14 - Performing Spearman correlation on elastic-net heritability estimates across LD decay
+# A tibble: 12 × 5
+   LD_Decay h2_category    spearman_rho p_value     n
+   <ord>    <fct>                 <dbl>   <dbl> <int>
+ 1 0.8      Heritable            0.738   0        249
+ 2 0.8      Non-heritable        0.0720  0.0515   733
+ 3 0.8      Low prediction       0.236   0.344     18
+ 4 0.7      Heritable            0.757   0        249
+ 5 0.7      Non-heritable        0.0262  0.478    736
+ 6 0.7      Low prediction       0.314   0.254     15
+ 7 0.6      Heritable            0.809   0        250
+ 8 0.6      Non-heritable        0.0451  0.221    738
+ 9 0.6      Low prediction       0.0210  0.956     12
+10 0.5      Heritable            0.810   0        250
+11 0.5      Non-heritable        0.0707  0.0569   727
+12 0.5      Low prediction       0.0613  0.781     23
+[1] "2026-04-12 08:06:27 CDT"
+   user  system elapsed 
+  4.668   0.371   6.489 
+─ Session info ───────────────────────────────────────────────────────────────────────────────────────────────────────
+ setting  value
+ version  R version 4.4.3 (2025-02-28)
+ os       Red Hat Enterprise Linux 8.10 (Ootpa)
+ system   x86_64, linux-gnu
+ ui       X11
+ language (EN)
+ collate  en_US.UTF-8
+ ctype    en_US.UTF-8
+ tz       America/Chicago
+ date     2026-04-12
+ pandoc   3.8 @ /projects/p32505/opt/envs/epigenomics/bin/pandoc
+ quarto   1.9.35 @ /projects/p32505/opt/bin/quarto
+
+─ Packages ───────────────────────────────────────────────────────────────────────────────────────────────────────────
+ package      * version date (UTC) lib source
+ bit            4.6.0   2025-03-06 [1] CRAN (R 4.4.3)
+ bit64          4.6.0-1 2025-01-16 [1] CRAN (R 4.4.3)
+ cli            3.6.5   2025-04-23 [1] CRAN (R 4.4.3)
+ crayon         1.5.3   2024-06-20 [1] CRAN (R 4.4.3)
+ dplyr        * 1.1.4   2023-11-17 [1] CRAN (R 4.4.3)
+ farver         2.1.2   2024-05-13 [1] CRAN (R 4.4.3)
+ generics       0.1.4   2025-05-09 [1] CRAN (R 4.4.3)
+ ggplot2      * 4.0.1   2025-11-14 [1] CRAN (R 4.4.3)
+ glue           1.8.0   2024-09-30 [1] CRAN (R 4.4.3)
+ gtable         0.3.6   2024-10-25 [1] CRAN (R 4.4.3)
+ here         * 1.0.2   2025-09-15 [1] CRAN (R 4.4.3)
+ hms            1.1.4   2025-10-17 [1] CRAN (R 4.4.3)
+ labeling       0.4.3   2023-08-29 [1] CRAN (R 4.4.3)
+ lattice        0.22-7  2025-04-02 [1] CRAN (R 4.4.3)
+ lifecycle      1.0.5   2026-01-08 [1] CRAN (R 4.4.3)
+ magrittr       2.0.4   2025-09-12 [1] CRAN (R 4.4.3)
+ Matrix         1.7-4   2025-08-28 [1] CRAN (R 4.4.3)
+ mgcv           1.9-3   2025-04-04 [1] CRAN (R 4.4.3)
+ nlme           3.1-168 2025-03-31 [1] CRAN (R 4.4.3)
+ pillar         1.11.1  2025-09-17 [1] CRAN (R 4.4.3)
+ pkgconfig      2.0.3   2019-09-22 [1] CRAN (R 4.4.3)
+ R6             2.6.1   2025-02-15 [1] CRAN (R 4.4.3)
+ ragg           1.5.0   2025-09-02 [1] CRAN (R 4.4.3)
+ RColorBrewer   1.1-3   2022-04-03 [1] CRAN (R 4.4.3)
+ readr        * 2.1.5   2024-01-10 [1] CRAN (R 4.4.3)
+ rlang          1.1.6   2025-04-11 [1] CRAN (R 4.4.3)
+ rprojroot      2.1.1   2025-08-26 [1] CRAN (R 4.4.3)
+ S7             0.2.0   2024-11-07 [1] CRAN (R 4.4.3)
+ scales         1.4.0   2025-04-24 [1] CRAN (R 4.4.3)
+ sessioninfo    1.2.3   2025-02-05 [1] CRAN (R 4.4.3)
+ systemfonts    1.2.3   2025-04-30 [1] CRAN (R 4.4.3)
+ textshaping    1.0.3   2025-09-02 [1] CRAN (R 4.4.3)
+ tibble         3.3.0   2025-06-08 [1] CRAN (R 4.4.3)
+ tidyselect     1.2.1   2024-03-11 [1] CRAN (R 4.4.3)
+ tzdb           0.5.0   2025-03-15 [1] CRAN (R 4.4.3)
+ utf8           1.2.6   2025-06-08 [1] CRAN (R 4.4.3)
+ vctrs          0.6.5   2023-12-01 [1] CRAN (R 4.4.3)
+ vroom          1.6.6   2025-09-19 [1] CRAN (R 4.4.3)
+ withr          3.0.2   2024-10-28 [1] CRAN (R 4.4.3)
+
+ [1] /gpfs/projects/p32505/opt/envs/epigenomics/lib/R/library
+ * ── Packages attached to the search path.
+
+──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+2026-04-12 08:06:28 - **** Job ends ****
