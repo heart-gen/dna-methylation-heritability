@@ -2,7 +2,7 @@
 
 ## --- Main Script --- ##
                                         # Retrieve variables
-num_samples  <- Sys.getenv("num_samples")
+ld_decay  <- Sys.getenv("ld_decay")
 
                                         # Function
 read_data <- function(fn) {
@@ -10,12 +10,13 @@ read_data <- function(fn) {
 }
 
                                         # Loop through results directory
+num_samples <- 200
 for (dir_name in c("summary", "h2", "betas")) {
-    outfile    <- paste("simulation", num_samples, dir_name,
+    outfile    <- paste("simulation", num_samples, ld_decay, dir_name,
                         "elastic-net.tsv", sep="_")
     file_names <- list.files(dir_name,pattern="*.tsv$",full.names=TRUE)
     purrr::map_dfr(file_names, read_data) |>
-        dplyr::mutate(PopSize = num_samples,
+        dplyr::mutate(PopSize = num_samples, LD_Decay = ld_decay,
                       ID = as.numeric(gsub("pheno_", "", pheno_id))) |>
         dplyr::arrange(ID) |> dplyr::select(-ID) |>
         data.table::fwrite(file=outfile, sep="\t")

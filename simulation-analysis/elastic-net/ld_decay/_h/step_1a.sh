@@ -4,7 +4,7 @@
 #SBATCH --job-name=enet_ld05
 #SBATCH --mail-type=FAIL
 #SBATCH --mail-user=kynon.benjamin@northwestern.edu
-#SBATCH --output=%x.%A_%a.log
+#SBATCH --output=logs/%x.%A_%a.log
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
 #SBATCH --array=1-1000%200

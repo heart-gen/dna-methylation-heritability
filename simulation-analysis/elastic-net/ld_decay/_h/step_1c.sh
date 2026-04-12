@@ -4,10 +4,10 @@
 #SBATCH --job-name=enet_ld07
 #SBATCH --mail-type=FAIL
 #SBATCH --mail-user=kynon.benjamin@northwestern.edu
-#SBATCH --output=%x.%A_%a.log
+#SBATCH --output=logs/%x.%A_%a.log
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
-#SBATCH --array=1-1000%200
+#SBATCH --array=1-1000%250
 #SBATCH --time=02:00:00
 
 set -euo pipefail
@@ -31,13 +31,7 @@ SCRIPT_DIR="../_h"
 OUTPUT_ROOT="../_m"
 RUN_NAME="ld_0.7_sim_200_indiv"
 RUN_DIR="${OUTPUT_ROOT}/${RUN_NAME}"
-LOG_DIR="${RUN_DIR}/logs"
-
 ENV_PATH="/projects/p32505/opt/envs"
-
-mkdir -p "${LOG_DIR}"
-exec > >(tee -a "${LOG_DIR}/elastic_h2.${SLURM_JOBID:-manual}_${SLURM_ARRAY_TASK_ID:-na}.log")
-exec 2>&1
 
 log_message "**** Job starts ****"
 
