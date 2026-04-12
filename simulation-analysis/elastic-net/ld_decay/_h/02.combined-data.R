@@ -2,7 +2,8 @@
 
 ## --- Main Script --- ##
                                         # Retrieve variables
-ld_decay  <- Sys.getenv("ld_decay")
+ld_decay <- Sys.getenv("ld_decay")
+method   <- Sys.getenv("METHOD", unset = "boosting_hybrid")
 
                                         # Function
 read_data <- function(fn) {
@@ -12,11 +13,12 @@ read_data <- function(fn) {
                                         # Loop through results directory
 num_samples <- 200
 for (dir_name in c("summary", "h2", "betas")) {
-    outfile    <- paste("simulation", num_samples, ld_decay, dir_name,
+    outfile    <- paste("simulation", num_samples, ld_decay, method, dir_name,
                         "elastic-net.tsv", sep="_")
-    file_names <- list.files(dir_name,pattern="*.tsv$",full.names=TRUE)
+    file_names <- list.files(dir_name, pattern="*.tsv$", full.names=TRUE)
     purrr::map_dfr(file_names, read_data) |>
         dplyr::mutate(PopSize = num_samples, LD_Decay = ld_decay,
+                      Method = method,
                       ID = as.numeric(gsub("pheno_", "", pheno_id))) |>
         dplyr::arrange(ID) |> dplyr::select(-ID) |>
         data.table::fwrite(file=outfile, sep="\t")

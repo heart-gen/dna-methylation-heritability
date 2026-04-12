@@ -40,6 +40,7 @@ exec 2>&1
 log_message "**** Job starts ****"
 
 export ld_decay=0.5
+export METHOD=boosting_hybrid
 mkdir -p "${RUN_DIR}"
 
 log_message "**** Run info ****"

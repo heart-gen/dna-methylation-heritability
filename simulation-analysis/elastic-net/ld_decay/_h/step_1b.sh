@@ -38,6 +38,7 @@ log_message "**** Job starts ****"
 task_id=${SLURM_ARRAY_TASK_ID}
 export task_id
 export RUN_NAME
+export METHOD=boosting_hybrid
 export NUM_SAMPLES=200
 export OMP_NUM_THREADS=${SLURM_CPUS_PER_TASK:-1}
 export MKL_NUM_THREADS=${SLURM_CPUS_PER_TASK:-1}
