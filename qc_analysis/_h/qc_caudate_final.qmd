@@ -73,7 +73,12 @@ cat("  Number of samples:", ncol(bsseq_data), "\n")
 cat("  Genome:", unique(genome(bsseq_data)), "\n")
 ```
 
-
+**TODO:** Update this to subset to only Black/African Americans only (`BA` or `AA`). This means
+to include the `race` column and select only Black Americans.
+- Check the columns of phenotype_data to determine what the study-identified race column is called and
+  the variable that corresponds to Black/African American (either, `BA` or `AA`
+- Add study-identified race to the `filter` before generating phenotype summary
+- Include this in the sample-table and all downstream analysis
 ```{r}
 #| label: phenotype-overview
 
