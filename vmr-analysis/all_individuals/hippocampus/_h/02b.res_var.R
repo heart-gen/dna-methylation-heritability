@@ -6,6 +6,7 @@ suppressPackageStartupMessages({
   library(stringr)
   library(data.table)
   library(matrixStats)
+  library(dplyr)
 })
 
                                         # Get chr from command line arg
