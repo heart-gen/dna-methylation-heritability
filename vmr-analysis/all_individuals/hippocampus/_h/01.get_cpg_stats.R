@@ -16,10 +16,14 @@ args <- commandArgs(trailingOnly = TRUE)
 chr  <- args[1]
 
 ## Function
-filter_pheno <- function(BSobj, pheno_file_path) {
+filter_pheno <- function(BSobj, pheno_file_path, sample_blacklist = NULL) {
     pheno <- fread(pheno_file_path, header = TRUE)
     pheno_filtered <- pheno %>%
         filter(agedeath >= 17, region == "hippocampus")
+    if (!is.null(sample_blacklist)) {
+      pheno_filtered <- pheno_filtered %>%
+        filter(!brnum %in% sample_blacklist)
+    }
     id    <- intersect(pheno_filtered$brnum, colData(BSobj)$brnum)
     BSobj <- BSobj[, colData(BSobj)$brnum %in% id]
     return(list(BSobj = BSobj, pheno = pheno_filtered, id = id))
@@ -27,7 +31,7 @@ filter_pheno <- function(BSobj, pheno_file_path) {
 
 remove_ct_snps <- function(f_snp, BSobj) {
     snp <- fread(f_snp, header = FALSE, data.table = FALSE)[, 1]
-    idx <- is.element(start(filtered$BSobj), snp)
+    idx <- is.element(start(BSobj), snp)
     BSobj <- BSobj[!idx,]
     return(BSobj)
 }
@@ -152,8 +156,10 @@ out_covs  <- file.path(output_path, "covs",  paste0("chr_", chr))
 out_cpg   <- file.path(output_path, "cpg", paste0("chr_", chr))
 
                                         # keep only adult
-pheno_file_path <- here("inputs/phenotypes/_m/phenotypes-all.tsv")
-filtered        <- filter_pheno(BSobj, pheno_file_path)
+pheno_file_path  <- here("inputs/phenotypes/_m/phenotypes-all.tsv")
+sample_blacklist <- fread(here("vmr-analysis/all_individuals/hippocampus/_m/samples_blacklist.txt"), 
+                          header = FALSE)[[1]]
+filtered         <- filter_pheno(BSobj, pheno_file_path, sample_blacklist)
 
 f_snp <- paste0("/projects/b1213/resources/libd_data/wgbs/DEM2/snps_CT/chr",chr)
 
