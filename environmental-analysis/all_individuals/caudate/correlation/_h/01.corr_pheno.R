@@ -3,18 +3,10 @@
 suppressPackageStartupMessages({
   library(here)
   library(dplyr)
-  library(ggplot2)
   library(data.table)
   library(tidyr)
   library(tidyverse)
 })
-
-## Function           
-save_plot <- function(p, fn, w=8, h=6) {
-  for (ext in c(".png", ".pdf")) {
-    ggsave(filename = paste0(fn, ext), plot = p, width = w, height = h)
-  }
-}
 
 ## Main
 tissue <- c("caudate")
@@ -27,7 +19,7 @@ if (!dir.exists(out_path)) {
 
                                         # Get phenotype matrix
 pheno_matrix_fn <- here("environmental-analysis", "all_individuals", 
-                        paste0(tissue, "/correlation/_m/vmr_env_assoc-AA.tsv.gz"))
+                        paste0(tissue, "/correlation/_m/vmr_env_assoc-all.tsv.gz"))
 pheno_matrix <- fread(pheno_matrix_fn, na.strings = c(NA, ""))
 
 ####### Covariate testing #########
@@ -89,6 +81,7 @@ na_filter <- read.delim(
   here::here("environmental-analysis", "all_individuals", "tissue_compare",
              "correlation", "prediction", "_m", "drfe_results", "na_filter_summary.tsv")
 )
+na_filter$excluded = tolower(na_filter$excluded) == "true"
 testing_envs <- na_filter$variable[!na_filter$excluded]
   
 for (env in testing_envs) {
