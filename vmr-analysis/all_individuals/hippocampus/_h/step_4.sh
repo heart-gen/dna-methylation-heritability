@@ -51,6 +51,7 @@ module list
 
 # Set path variables
 ENV_PATH="/projects/p32505/opt/envs"
+export TMPDIR=/scratch/$USER/tmp
 
 echo "Working on: Chromosome "$CHR:$START-$END 
 
