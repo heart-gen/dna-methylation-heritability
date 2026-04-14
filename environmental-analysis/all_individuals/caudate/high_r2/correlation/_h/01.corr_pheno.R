@@ -8,8 +8,23 @@ suppressPackageStartupMessages({
   library(tidyverse)
 })
 
+## Function
+
+filter_pheno <- function(pheno_matrix, population) {
+  if (population == "BA") {
+    pheno_matrix <- pheno_matrix %>% filter(race == "AA")
+  } else if (population == "WA") {
+    pheno_matrix <- pheno_matrix %>% filter(race == "CAUC")
+  } else if (population != "all") {
+    stop("Unknown population")
+  }
+
+  return(pheno_matrix)
+}
+
 ## Main
 tissue <- c("caudate")
+population  <- Sys.getenv("population")
 
 out_path <- here("environmental-analysis", "all_individuals", "caudate",
                  "high_r2", "correlation", "_m")
@@ -21,6 +36,7 @@ if (!dir.exists(out_path)) {
 pheno_matrix_fn <- here("environmental-analysis", "all_individuals", 
                         paste0(tissue, "/high_r2/correlation/_m/vmr_env_assoc-all.tsv.gz"))
 pheno_matrix <- fread(pheno_matrix_fn, na.strings = c(NA, ""))
+pheno_matrix <- filter_pheno(pheno_matrix, population)
 
 ####### Covariate testing #########
 
@@ -29,12 +45,12 @@ covars <- "age + sex + dx + afr_ances"
 
                                         # Initialize results matrix
 cov_results <- tibble() 
-feature_ids <- unique(merged$feature_id)
+feature_ids <- unique(pheno_matrix$feature_id)
 
 for (vmr in feature_ids) {
   print(paste("Running null logistic regression on", vmr))
   
-  vmr_merged <- merged %>% filter(feature_id == vmr)
+  vmr_merged <- pheno_matrix %>% filter(feature_id == vmr)
   
   # Test control variables
   cov_model <- as.formula(paste("meth ~", covars))
@@ -56,7 +72,7 @@ cov_results <- cov_results %>% as.data.frame() %>%
   mutate(fdr = p.adjust(p, method = "fdr"))
 
                                         # Add positions back in
-pos <- merged %>%
+pos <- pheno_matrix %>%
   dplyr::select(feature_id, chr, start, end) %>%
   distinct()
 cov_results <- pos %>%
@@ -70,7 +86,8 @@ for (cov in cov_names){
   cov_filtered <- cov_results %>% filter(startsWith(var, cov))
  
   # Write results
-  out_cov_logit <- file.path(out_path, paste0(cov, "_logit.csv.gz"))
+  out_cov_logit <- file.path(out_path, 
+                             paste0(cov, "_logit-", population, ".csv.gz"))
   fwrite(cov_filtered, out_cov_logit)
 }
 
@@ -85,7 +102,7 @@ na_filter$excluded = tolower(na_filter$excluded) == "true"
 testing_envs <- na_filter$variable[!na_filter$excluded]
   
 for (env in testing_envs) {
-  merged %>% 
+  pheno_matrix %>% 
     group_by(across(all_of(env)), h2_category) %>%
     summarize(
       count = n(),
@@ -93,7 +110,7 @@ for (env in testing_envs) {
       sd = sd(meth)
     )
   
-  merged_env <- merged %>% drop_na(env)
+  merged_env <- pheno_matrix %>% drop_na(env)
   
   # Initialize results matrix
   env_results <- tibble() 
@@ -135,7 +152,8 @@ for (env in testing_envs) {
     inner_join(env_results, "feature_id")
   
   # Write results
-  out_logit <- file.path(out_path, paste0(env, "_logit.csv.gz"))
+  out_logit <- file.path(out_path, 
+                         paste0(env, "_logit-", population, ".csv.gz"))
   fwrite(env_results, out_logit)
 }
   
