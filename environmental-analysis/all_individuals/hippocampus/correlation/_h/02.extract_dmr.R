@@ -113,15 +113,16 @@ if (!dir.exists(out_path)) {
 }
 
 # Define variables of interest
-vars_to_include <- c(
-  "smoking","codeine","morphine", "cocaine","ethanol","antipsychotics",
-  "nicotine","amphetamines", "education","marital_status","hx_sexual_abuse",
-  "hx_physical_abuse", "hx_other_trauma","hx_military_service","fsiq"
+na_filter <- read.delim(
+  here::here("environmental-analysis", "all_individuals", "tissue_compare",
+             "correlation", "prediction", "_m", "drfe_results", "na_filter_summary.tsv")
 )
+na_filter$excluded = tolower(na_filter$excluded) == "true"
+vars_to_include <- na_filter$variable[!na_filter$excluded]
 
 # Get phenotype matrix
-pheno_matrix_fn <- here("environmental-analysis", "all_individuals", "hippocampus", 
-                        "correlation", "_m", "vmr_env_assoc-all.tsv.gz")
+pheno_matrix_fn <- here("environmental-analysis", "all_individuals",      
+                        "hippocampus", "correlation", "_m", "vmr_env_assoc-all.tsv.gz")
 pheno_matrix <- fread(pheno_matrix_fn, na.strings = c(NA, ""))
 
 # Get VMR IDs
