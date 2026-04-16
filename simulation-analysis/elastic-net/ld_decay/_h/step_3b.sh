@@ -37,7 +37,6 @@ export ld_decay=0.7
 mkdir -p "${RUN_DIR}"
 
 log_message "**** Run info ****"
-echo "Computed task_id: ${task_id}"
 echo "RUN_NAME: ${RUN_NAME}"
 echo "RUN_DIR: ${RUN_DIR}"
 

@@ -141,9 +141,9 @@ run_joint_ridge <- function(G_imputed, pheno_scaled) {
     ## Screening is applied within each training fold by bigstatsr.
     cat("METHOD: joint_ridge\n")
 
-    cat("Fitting joint elastic net (alphas 0-0.2, fold-internal screening)...\n")
+    cat("Fitting joint elastic net (alphas 1e-4 to 0.2, fold-internal screening)...\n")
     cv_fit <- big_spLinReg(G_imputed, pheno_scaled,
-                           alphas = seq(0, 0.2, 0.05), K = 5)
+                           alphas = c(1e-4, 0.05, 0.1, 0.15, 0.2), K = 5)
 
     kept_ind       <- attr(cv_fit, "ind.col")
     final_betas    <- rep(0, ncol(G_imputed))
@@ -181,7 +181,7 @@ run_joint_ridge <- function(G_imputed, pheno_scaled) {
 
 ## --- MAIN SCRIPT --- ##
                                         # Retrieve variables
-METHOD    <- Sys.getenv("METHOD", unset = "boosting_hybrid")
+METHOD      <- Sys.getenv("METHOD", unset = "boosting_hybrid")
 NUM_SAMPLES <- Sys.getenv("NUM_SAMPLES")
 task_id     <- as.integer(Sys.getenv("task_id"))
 SIM_INPUT_DIR <- get_sim_input_dir()
@@ -322,20 +322,28 @@ betas_df <- data.frame(
     beta     = final_betas[active_idx]
 )
 
-dir.create("summary", recursive = TRUE, showWarnings = FALSE)
+                                        # Use method-specific subdirectories so
+                                        # boosting_hybrid and joint_ridge runs
+                                        # can proceed concurrently without
+                                        # overwriting each other's task files.
+summary_dir <- paste0("summary_", METHOD)
+h2_dir      <- paste0("h2_",      METHOD)
+betas_dir   <- paste0("betas_",   METHOD)
+
+dir.create(summary_dir, recursive = TRUE, showWarnings = FALSE)
 write.table(task_summary_df,
-            file = sprintf(file.path("summary", "task_summary_stats_%d.tsv"),
+            file = sprintf(file.path(summary_dir, "task_summary_stats_%d.tsv"),
                            task_id),
             sep = "\t", quote = FALSE, row.names = FALSE)
 
-dir.create("h2", recursive = TRUE, showWarnings = FALSE)
+dir.create(h2_dir, recursive = TRUE, showWarnings = FALSE)
 write.table(output_df,
-            file = sprintf(file.path("h2", "h2_estimates_%d.tsv"), task_id),
+            file = sprintf(file.path(h2_dir, "h2_estimates_%d.tsv"), task_id),
             sep = "\t", quote = FALSE, row.names = FALSE)
 
-dir.create("betas", recursive = TRUE, showWarnings = FALSE)
+dir.create(betas_dir, recursive = TRUE, showWarnings = FALSE)
 write.table(betas_df,
-            file = sprintf(file.path("betas", "betas_%d.tsv"), task_id),
+            file = sprintf(file.path(betas_dir, "betas_%d.tsv"), task_id),
             sep = "\t", quote = FALSE, row.names = FALSE)
 
 cat(sprintf("Total SNP-based h2 (unscaled): %.4f\n", h2_unscaled))

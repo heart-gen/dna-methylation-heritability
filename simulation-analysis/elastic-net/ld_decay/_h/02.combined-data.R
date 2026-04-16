@@ -10,12 +10,13 @@ read_data <- function(fn) {
     return(readr::read_table(fn, show_col_types=FALSE))
 }
 
-                                        # Loop through results directory
+                                        # Loop through method-specific results directories
 num_samples <- 200
 for (dir_name in c("summary", "h2", "betas")) {
     outfile    <- paste("simulation", num_samples, ld_decay, method, dir_name,
                         "elastic-net.tsv", sep="_")
-    file_names <- list.files(dir_name, pattern="*.tsv$", full.names=TRUE)
+    dir_path   <- paste0(dir_name, "_", method)
+    file_names <- list.files(dir_path, pattern="*.tsv$", full.names=TRUE)
     purrr::map_dfr(file_names, read_data) |>
         dplyr::mutate(PopSize = num_samples, LD_Decay = ld_decay,
                       Method = method,
