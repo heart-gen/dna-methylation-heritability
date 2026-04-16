@@ -6,6 +6,7 @@ suppressPackageStartupMessages({
   library(stringr)
   library(data.table)
   library(matrixStats)
+  library(dplyr)
 })
 
                                         # Get chr from command line arg
@@ -13,9 +14,13 @@ args <- commandArgs(trailingOnly = TRUE)
 chr  <- args[1]
 
 ## Function
-filter_pheno <- function(meth_levels, brain_id, demo, pc) {
+filter_pheno <- function(meth_levels, brain_id, demo, pc, sample_blacklist = NULL) {
                                         # Filter ancestry and phenotypes
     demo  <- demo[region == "hippocampus" & agedeath >= 17]
+    if (!is.null(sample_blacklist)) {
+      demo <- demo %>%
+        filter(!brnum %in% sample_blacklist)
+    }
 
                                         # Keep AA only
     valid_ids <- intersect(demo$brnum, brain_id)
@@ -64,6 +69,8 @@ pos       <- fread(cpg_names, header = FALSE)[-c(1, 2), , drop = FALSE]
 demo      <- fread(pheno_file_path)
 samples   <- fread(psam_file, header = TRUE, 
                    col.names = c("FID", "IID", "PAT"))[, .(FID, IID)]
+sample_blacklist <- fread(here("vmr-analysis/all_individuals/dlpfc/_m/samples_blacklist.txt"), 
+                          header = FALSE)[[1]]
 
 
 tmp_dir   <- here("vmr-analysis", "all_individuals", "hippocampus", 
@@ -102,7 +109,7 @@ for (chunk_path in tmp_files) {
     }
 
                                         # Filter and align phenotype
-    pheno <- filter_pheno(meth_levels, brain_id, demo, pc)
+    pheno <- filter_pheno(meth_levels, brain_id, demo, pc, sample_blacklist)
 
                                         # Regress PCs
     pc_res <- regress_pcs_vectorized(pheno$meth_levels, pheno$pc)

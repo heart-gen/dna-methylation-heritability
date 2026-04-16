@@ -6,7 +6,7 @@
 #SBATCH --ntasks-per-node=1     # Number of cores (CPU)
 #SBATCH --mem=20G               # Memory limit
 #SBATCH --mail-type=FAIL
-#SBATCH --array=1-9992%250
+#SBATCH --array=1-9702%250
 #SBATCH --mail-user=alexis.bennett@northwestern.edu
 #SBATCH --job-name=cal_vmr  # Job name
 #SBATCH --output=/dev/null      # Standard output log
@@ -51,6 +51,7 @@ module list
 
 # Set path variables
 ENV_PATH="/projects/p32505/opt/envs"
+export TMPDIR=/scratch/$USER/tmp
 
 echo "Working on: Chromosome "$CHR:$START-$END 
 

@@ -7,6 +7,7 @@
 #SBATCH --mem=24G                # Memory limit
 #SBATCH --mail-type=FAIL
 #SBATCH --mail-user=alexis.bennett@northwestern.edu
+#SBATCH --array=0-2
 #SBATCH --job-name=corr_pheno # Job name
 #SBATCH --output=logs/corr_pheno.%j.log # Standard output log
 
@@ -33,7 +34,11 @@ module list
 # Set path variables
 ENV_PATH="/projects/p32505/opt/envs"
 
-log_message "Calculating associations between DNA methylation and environmental factors"
+POPULATIONS=("all" "BA" "WA")
+POP=${{POPULATIONS[$SLURM_ARRAY_TASK_ID]}}
+export population=${POP}
+
+log_message "Calculating associations between DNA methylation and environmental factors for ${POP}"
 
 ## Activate conda environment
 conda run -p $ENV_PATH/epigenomics Rscript ../_h/01.corr_pheno.R

@@ -189,6 +189,41 @@ build_heatmap <- function(df, value_col, label_col, fill_scale) {
     )
 }
 
+plot_discord <- function(discord_summary) {
+  discord_summary <- discord_summary %>%
+    mutate(
+      h2_tissue1 = recode(h2_tissue1, "heritable" = "Heritable", 
+                          "non-heritable" = "Non-heritable",
+                          "low_prediction" = "Low prediction"),
+      h2_tissue2 = recode(h2_tissue2, "heritable" = "Heritable", 
+                          "non-heritable" = "Non-heritable",
+                          "low_prediction" = "Low prediction"),
+      h2_tissue1 = factor(h2_tissue1, levels = h2_levels),
+      h2_tissue2 = factor(h2_tissue2, levels = h2_levels)
+    )
+  
+  ggplot(discord_summary, aes(x = h2_tissue2, y = h2_tissue1, fill = prop_discord)) +
+    geom_tile(color = "white", linewidth = 1) +
+    geom_text(aes(label = scales::percent(prop_discord, accuracy = 0.01)),
+              size = 3.1, lineheight = 0.96) +
+    facet_wrap(~pair_label_multiline) +
+    scale_fill_gradientn(
+      colours = c("#F4F1EA", "#D7E3DC", "#8FAFAC", "#2F5964"),
+      labels = scales::percent,
+      na.value = "grey90"
+    ) +
+    labs(
+      fill = "% of discordant pairs"
+    ) +
+    theme_minimal(base_size = 14) +
+    theme(
+      axis.text.x = element_text(face = "bold", lineheight = 0.95),
+      axis.text.y = element_text(face = "bold"),
+      plot.margin = margin(5.5, 5.5, 5.5, 5.5),
+      panel.grid = element_blank()
+    )
+}
+
 ## Main
 out_dir <- here("heritability/elastic_net_model/BA_only/tissue_comparison/upset_plot/_m/manuscript_overlap_figure")
 if (!dir.exists(out_dir)) {
@@ -198,6 +233,7 @@ if (!dir.exists(out_dir)) {
 set_counts <- fread(file.path(out_dir, "F_0.25_set_counts.tsv"))
 reciprocal_summary <- fread(file.path(out_dir, "F_0.25_reciprocal_overlap_summary.tsv"))
 h2_summary <- fread(file.path(out_dir, "F_0.25_h2_concordance_summary.tsv"))
+discord_summary <- fread(file.path(out_dir, "F_0.25_h2_discordance_summary.tsv"))
 
 reciprocal_summary <- reciprocal_summary %>%
   mutate(
@@ -208,7 +244,7 @@ h2_summary <- h2_summary %>%
   mutate(
     heatmap_label = paste0(sprintf("%.2f", spearman_rho), "\n", "n=", comma(n_pairs))
   )
-
+  
 panel_a <- build_panel_a(set_counts)
 
 panel_b <- build_heatmap(
@@ -253,10 +289,13 @@ BC
     )
   )
 
+supplemental <- plot_discord(discord_summary)
+
 save_plot(panel_a, file.path(out_dir, "panel_A_F_0.25_upset_summary"), 14, 5.3)
 save_plot(panel_b, file.path(out_dir, "panel_B_F_0.25_reciprocal_overlap"), 5.5, 4.6)
 save_plot(panel_c, file.path(out_dir, "panel_C_F_0.25_h2_concordance"), 5.5, 4.6)
 save_plot(assembled_figure, file.path(out_dir, "F_0.25_overlap_manuscript_figure"), 12, 8.6)
+save_plot(supplemental, file.path(out_dir, "F_0.25_discordance_supplemental_figure"), 14, 8)
 
 ## Reproducibility information
 Sys.time()

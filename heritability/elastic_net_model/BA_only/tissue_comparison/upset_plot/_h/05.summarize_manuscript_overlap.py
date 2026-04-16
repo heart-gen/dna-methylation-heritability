@@ -247,7 +247,7 @@ def summarize_h2_concordance(percent_overlap_dir: Path, region_tables: dict[str,
         for h2_category in CATEGORY_ORDER:
             overlap = load_pairwise_overlaps(percent_overlap_dir, tissue1, tissue2, h2_category)
             merged = overlap.merge(region_a, on="interval_id_a", how="left").merge(region_b, on="interval_id_b", how="left")
-
+                    
             missing_pairs = int(merged[["h2_tissue1", "h2_tissue2"]].isna().any(axis=1).sum())
             if h2_category == "all" and missing_pairs > 0:
                 merged = merged.dropna(subset=["h2_tissue1", "h2_tissue2"]).copy()
@@ -290,8 +290,58 @@ def summarize_h2_concordance(percent_overlap_dir: Path, region_tables: dict[str,
 
     concordance = pd.DataFrame(rows).sort_values(["class_order", "pair_order"]).reset_index(drop=True)
     concordance["spearman_fdr"] = benjamini_hochberg(concordance["spearman_p_value"])
+
     return concordance
 
+def summarize_h2_discordance(percent_overlap_dir, region_tables: dict[str, pd.DataFrame]) -> pd.DataFrame:
+    discord_rows: list[dict[str, object]] = []
+
+    for pair_order, (tissue1, tissue2) in enumerate(PAIR_ORDER, start=1):
+        region_a = region_tables[tissue1][["interval_id", "h2_unscaled", "h2_category"]].rename(
+            columns={"interval_id": "interval_id_a", "h2_unscaled": "h2_tissue1", "h2_category": "h2_category_tissue1"}
+        )
+        region_b = region_tables[tissue2][["interval_id", "h2_unscaled", "h2_category"]].rename(
+            columns={"interval_id": "interval_id_b", "h2_unscaled": "h2_tissue2", "h2_category": "h2_category_tissue2"}
+        )
+
+        overlap = load_pairwise_overlaps(percent_overlap_dir, tissue1, tissue2, "all")
+        
+        merged = overlap.merge(region_a, on="interval_id_a", how="left").merge(region_b, on="interval_id_b", how="left")
+
+        discord = merged.loc[
+            (merged["h2_category_tissue1"] != merged["h2_category_tissue2"])
+            ]
+       
+        n_total = len(merged)
+        n_discord = len(discord)
+
+        if n_discord == 0:
+            continue
+        
+        dist = discord.groupby(["h2_category_tissue1", "h2_category_tissue2"]).size().reset_index(name="n")
+
+        dist["prop_discord"] = dist["n"] / n_discord
+
+        for _, r in dist.iterrows():
+            discord_rows.append({
+                "flag": OVERLAP_FLAG,
+                "tissue1": tissue1,
+                "tissue2": tissue2,
+                "pair_order": pair_order,
+                "pair_label": PAIR_LABELS[(tissue1, tissue2)],
+                "pair_label_multiline": PAIR_LABELS_MULTILINE[(tissue1, tissue2)],
+                "h2_tissue1": r["h2_category_tissue1"],
+                "h2_tissue2": r["h2_category_tissue2"],
+                "n_total_pairs": n_total,
+                "n_mismatch_pairs_tissue": n_discord,
+                "n_mismatch_pairs_category": int(r["n"]),
+                "prop_discord": float(r["prop_discord"]),
+                "discordance_rate": n_discord / n_total
+            })
+            
+    discordance = pd.DataFrame(discord_rows).sort_values(["pair_order"]).reset_index(drop=True)
+        
+    return discordance
 
 def main() -> None:
     script_dir = Path(__file__).resolve().parent
@@ -307,10 +357,12 @@ def main() -> None:
 
     reciprocal_summary = summarize_reciprocal_overlap(percent_overlap_dir)
     h2_concordance = summarize_h2_concordance(percent_overlap_dir, region_tables)
+    h2_discordance = summarize_h2_discordance(percent_overlap_dir, region_tables)
 
     set_counts.to_csv(manuscript_dir / "F_0.25_set_counts.tsv", sep="\t", index=False)
     reciprocal_summary.to_csv(manuscript_dir / "F_0.25_reciprocal_overlap_summary.tsv", sep="\t", index=False)
     h2_concordance.to_csv(manuscript_dir / "F_0.25_h2_concordance_summary.tsv", sep="\t", index=False)
+    h2_discordance.to_csv(manuscript_dir / "F_0.25_h2_discordance_summary.tsv", sep="\t", index=False)
 
     print("Loaded main-analysis class totals from elastic-net summaries:")
     print(region_totals.to_string(index=False))

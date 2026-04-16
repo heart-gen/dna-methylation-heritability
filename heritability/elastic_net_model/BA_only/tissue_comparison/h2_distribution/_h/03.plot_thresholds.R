@@ -50,7 +50,7 @@ enet_all <- enet_all %>%
 p <- ggplot(enet_all, aes(x = h2_unscaled, y = r_squared_cv, color = h2_category)) +
   geom_point(alpha = 0.3, size = 1) +
   geom_vline(xintercept = 0.1, linetype = "dashed") +
-  geom_hline(yintercept = 0.75, linetype = "dashed") +
+  geom_hline(yintercept = 0.3, linetype = "dashed") +
   scale_color_manual(
     values = c("Heritable" = "#497C8A",
                "Non-heritable" = "#8CA77B",
@@ -76,7 +76,7 @@ print(p)
 
 # Save plot
 plot_file <- file.path(out_path, "h2_r2_scatter")
-save_plot(p, plot_file, w = 8, h = 6, dpi = 300)
+save_plot(p, plot_file, w = 8, h = 4, dpi = 300)
 
 #### Reproducibility information ####
 print("Reproducibility information:")

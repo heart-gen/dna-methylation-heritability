@@ -6,6 +6,7 @@ suppressPackageStartupMessages({
   library(stringr)
   library(data.table)
   library(matrixStats)
+  library(dplyr)
 })
 
                                         # Get chr from command line arg
@@ -13,9 +14,13 @@ args <- commandArgs(trailingOnly = TRUE)
 chr  <- args[1]
 
 ## Function
-filter_pheno <- function(meth_levels, brain_id, demo, pc) {
+filter_pheno <- function(meth_levels, brain_id, demo, pc, sample_blacklist = NULL) {
                                         # Filter and phenotypes
     demo  <- demo[region == "caudate" & agedeath >= 17]
+    if (!is.null(sample_blacklist)) {
+      demo <- demo %>%
+        filter(!brnum %in% sample_blacklist)
+    }
 
     valid_ids <- intersect(demo$brnum, brain_id)
     valid_ids <- intersect(valid_ids, pc$V1)
