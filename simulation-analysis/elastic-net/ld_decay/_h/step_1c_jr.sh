@@ -30,7 +30,6 @@ module list
 SCRIPT_DIR="../_h"
 OUTPUT_ROOT="../_m"
 RUN_NAME="ld_0.7_sim_200_indiv"
-RUN_DIR="${OUTPUT_ROOT}/${RUN_NAME}"
 ENV_PATH="/projects/p32505/opt/envs"
 
 log_message "**** Job starts ****"
@@ -46,12 +45,9 @@ export MKL_NUM_THREADS=${SLURM_CPUS_PER_TASK:-1}
 export TMPDIR="/projects/b1042/HEART-GeN-Lab/tmp"
 mkdir -p "${TMPDIR}"
 
-mkdir -p "${RUN_DIR}"
-
 log_message "**** Run info ****"
 echo "Computed task_id: ${task_id}"
 echo "RUN_NAME: ${RUN_NAME}"
-echo "RUN_DIR: ${RUN_DIR}"
 
 log_message "**** Run elastic net ****"
 conda run -p "${ENV_PATH}/epigenomics" Rscript "${SCRIPT_DIR}/01.elastic-net.R"
