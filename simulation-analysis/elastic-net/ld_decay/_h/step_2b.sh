@@ -29,21 +29,17 @@ module list
 SCRIPT_DIR="../_h"
 OUTPUT_ROOT="../_m"
 RUN_NAME="ld_0.6_sim_200_indiv"
-RUN_DIR="${OUTPUT_ROOT}/${RUN_NAME}"
 ENV_PATH="/projects/p32505/opt/envs"
 
 log_message "**** Job starts ****"
 
 export ld_decay=0.6
 export METHOD=boosting_hybrid
-mkdir -p "${RUN_DIR}"
 
 log_message "**** Run info ****"
-echo "Computed task_id: ${task_id}"
 echo "RUN_NAME: ${RUN_NAME}"
-echo "RUN_DIR: ${RUN_DIR}"
 
 log_message "**** Run summary ****"
-conda run -p "${ENV_PATH}/epigenomics" Rscript "${SCRIPT_DIR}/02.combined-data.R"
+conda run -p "${ENV_PATH}/epigenomics" Rscript "../_h/02.combined-data.R"
 
 log_message "**** Job ends ****"
