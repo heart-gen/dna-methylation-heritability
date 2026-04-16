@@ -12,6 +12,18 @@ suppressPackageStartupMessages({
 })
 
 ## Function 
+filter_pheno <- function(pheno_matrix, population) {
+  if (population == "BA") {
+    pheno_matrix <- pheno_matrix %>% filter(race == "AA")
+  } else if (population == "WA") {
+    pheno_matrix <- pheno_matrix %>% filter(race == "CAUC")
+  } else if (population != "all") {
+    stop("Unknown population")
+  }
+
+  return(pheno_matrix)
+}
+
 get_null_dmr <- function(pheno_matrix) {
   
   # Format matrices
@@ -112,17 +124,21 @@ if (!dir.exists(out_path)) {
   dir.create(out_path, recursive = TRUE)
 }
 
+population  <- Sys.getenv("population")
+
 # Define variables of interest
-vars_to_include <- c(
-  "smoking","codeine","morphine", "cocaine","ethanol","antipsychotics",
-  "nicotine","amphetamines", "education","marital_status","hx_sexual_abuse",
-  "hx_physical_abuse", "hx_other_trauma","hx_military_service","fsiq"
+na_filter <- read.delim(
+  here::here("environmental-analysis", "BA_only", "tissue_compare",
+             "high_r2", "correlation", "prediction", "_m", "drfe_results", "na_filter_summary.tsv")
 )
+na_filter$excluded = tolower(na_filter$excluded) == "true"
+vars_to_include <- na_filter$variable[!na_filter$excluded]
 
 # Get phenotype matrix
 pheno_matrix_fn <- here("environmental-analysis", "all_individuals", "caudate", 
                         "high_r2", "correlation", "_m", "vmr_env_assoc-all.tsv.gz")
 pheno_matrix <- fread(pheno_matrix_fn, na.strings = c(NA, ""))
+pheno_matrix <- filter_pheno(pheno_matrix, population)
 
 # Get VMR IDs
 vmr_ids <- pheno_matrix %>% select(feature_id, chr, start, end) %>%
@@ -148,7 +164,8 @@ for (cov in covs_to_include){
     left_join(select(pheno_matrix, chr, start, end, feature_id), multiple = "first") %>%
     select("feature_id", "chr", "start", "end", everything())
   
-  out_cov_dmr <- file.path(out_path, paste0(cov, "_dmr.csv.gz"))
+  out_cov_dmr <- file.path(out_path, 
+                           paste0(cov, "_dmr-", population, ".csv.gz"))
   fwrite(cov_merged, out_cov_dmr)
 }
 
@@ -170,7 +187,7 @@ for (env in vars_to_include) {
     mutate(var = env) %>%
     select("feature_id", "chr", "start", "end", "var", "level", "coefficients", "p.value", "fdr")
   
-  out_dmr <- file.path(out_path, paste0(env, "_dmr.csv.gz"))
+  out_dmr <- file.path(out_path, paste0(env, "_dmr-", population, ".csv.gz"))
   fwrite(merged, out_dmr)
 }
 

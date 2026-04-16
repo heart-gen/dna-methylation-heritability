@@ -45,6 +45,7 @@ plot_circos_7samples <- function(samples_list){
                           panel.fun = function(region, value, ...) {
         circos.genomicPoints(region, value, col = herit_colors[value$h2_category],
                              pch = 16, cex = 0.4)
+        circos.lines(CELL_META$cell.xlim, c(0.1, 0.1), lty = 2, col = "black")                     
       }, bg.border = bg_colors[i])
     }
     
@@ -60,7 +61,14 @@ plot_circos_7samples <- function(samples_list){
                                    col = bg_colors, fontsize = 20),
                   title = "Sample size", background="#FFFFFF")
     
-    lgd <- packLegend(lgd_points, lgd_tracks)
+    lgd_threshold <- Legend(
+      labels = expression("h"[SNP]^2*" = 0.1 threshold"),
+      type = "lines",
+      legend_gp = gpar(lty = 2, col = "#6E6E6E"),
+      background = "#FFFFFF"
+    )
+    
+    lgd <- packLegend(lgd_points, lgd_threshold, lgd_tracks)
     
     draw(lgd, x = unit(5, "mm"), y = unit(5, "mm"), just = c("left", "bottom"))
 }

@@ -3,91 +3,28 @@
 suppressPackageStartupMessages({
   library(here)
   library(dplyr)
-  library(ggplot2)
   library(data.table)
   library(tidyr)
   library(tidyverse)
 })
 
-## Function           
-filter_sites <- function(enet) {
-  vmr <- na.omit(enet)
-  vmr <- vmr %>% 
-    dplyr::select(chrom, start, end, h2_unscaled, r_squared_cv, race) %>% 
-    mutate(h2_category = case_when(
-      r_squared_cv <= 0.3 ~ "Low prediction",
-      h2_unscaled < 0.1 & r_squared_cv > 0.3 ~ "Non-heritable",
-      h2_unscaled >= 0.1 & r_squared_cv > 0.3 ~ "Heritable"
-    ),
-    h2_category = factor(h2_category,
-                         levels = c("Heritable", "Non-heritable", "Low prediction"))
-    )
-  
-  return(vmr)
-}
+## Function
 
-clean_pheno <- function(pheno_file_path, tissue, vars){
-  pheno_df <- fread(pheno_file_path, header = TRUE) |>
-    dplyr::select(all_of(vars_to_include)) |>
-    filter(agedeath > 17, region == tissue) |>
-    mutate(education = case_when(
-      education %in% c("7th", "8th", "Less than 7th",
-                       "9th", "10th", "11th", "12th") ~ "less_than_hs",
-      education %in% c("H.S. diploma","GED") ~ "hs",
-      education %in% c("1 yr college", "3 yrs college", "Associate's or 2 yrs college",
-                       "Bachelor's", "Master's", "JD", "PhD") ~ "more_than_hs"
-    )
-    ) |>
-    mutate(marital_status = case_when(
-      marital_status %in% c("Single") ~ "single",
-      marital_status %in% c("Married") ~ "married",
-      marital_status %in% c("Divorced", "Separated", "Widowed") ~ "previously_married"
-    )
-    ) |>
-    mutate(any_trauma_hx = dplyr::case_when(
-      hx_sexual_abuse | hx_physical_abuse | hx_other_trauma | hx_military_service ~ 1L,
-      is.na(hx_sexual_abuse) & is.na(hx_physical_abuse) &
-        is.na(hx_other_trauma) & is.na(hx_military_service) ~ NA_integer_,
-      TRUE ~ 0L
-    )) |>
-    rename(age = agedeath, dx = primarydx) |>
-    mutate_if(is.character, as.factor)
-  
-  return(pheno_df)
-}
-
-merge_meth <- function(meth_files){
-  meth_list <- vector("list", length(meth_files))
-  for (i in seq_along(meth_files)) {
-    file  <- meth_files[i]
-                                        # Get pos from filename
-    chr   <- basename(dirname(file))
-    pos   <- strsplit(sub("_meth\\.phen$", "", basename(file)), "_")[[1]]
-    df    <- fread(meth_files[i], select = c("V1", "V3"))
-    colnames(df) <- c("brnum", "meth")
-    
-                                        # Add in vmr pos
-    df <- df %>%
-      mutate(chr   = as.integer(sub("chr_","", chr)),
-             start = as.integer(pos[1]),
-             end   = as.integer(pos[2]),
-             feature_id = paste(chr, start, end, sep = "_"))
-    meth_list[[i]] <- df
+filter_pheno <- function(pheno_matrix, population) {
+  if (population == "BA") {
+    pheno_matrix <- pheno_matrix %>% filter(race == "AA")
+  } else if (population == "WA") {
+    pheno_matrix <- pheno_matrix %>% filter(race == "CAUC")
+  } else if (population != "all") {
+    stop("Unknown population")
   }
-                                        # Bind meth matrix
-  meth_df <- rbindlist(meth_list, use.names = TRUE, fill = TRUE)
-  
-  return(meth_df)
-}
 
-save_plot <- function(p, fn, w=8, h=6) {
-  for (ext in c(".png", ".pdf")) {
-    ggsave(filename = paste0(fn, ext), plot = p, width = w, height = h)
-  }
+  return(pheno_matrix)
 }
 
 ## Main
 tissue <- c("caudate")
+population  <- Sys.getenv("population")
 
 out_path <- here("environmental-analysis", "all_individuals", "caudate",
                  "correlation", "_m")
@@ -95,65 +32,11 @@ if (!dir.exists(out_path)) {
   dir.create(out_path, recursive = TRUE)
 }
 
-                                        # Read in summary table
-enet_file <- here("heritability/elastic_net_model/all_individuals/", 
-                  paste0(tissue, "/_m/", tissue, "_summary_elastic-net_AA.tsv"))
-enet_AA <- read.table(enet_file, sep = "\t", header = TRUE)
-  
-enet_file_EA <- here("heritability/elastic_net_model/all_individuals/", 
-                    paste0(tissue, "/_m/", tissue, "_summary_elastic-net_EA.tsv"))
-enet_EA <- read.table(enet_file_EA, sep = "\t", header = TRUE)
-   
-vmr_AA <- filter_sites(enet_AA) %>%
-  mutate(feature_id = paste(chrom, start, end, sep = "_"))
-vmr_EA <- filter_sites(enet_EA) %>%
-  mutate(feature_id = paste(chrom, start, end, sep = "_"))
-
-vmr_combined <- inner_join(vmr_AA, vmr_EA, by = "feature_id",
-                           suffix = c("_AA", "_EA")) %>%
-  filter(h2_category_AA == h2_category_EA) %>%
-  rename(h2_category = h2_category_AA, chr = chrom_AA,
-         start = start_AA, end = end_AA) %>%
-  select(-c(h2_category_EA, chrom_EA, start_EA, end_EA, race_AA, race_EA))
-
-                                        # Define variables of interest
-vars_to_include <- c(
-  "race", "brnum", "agedeath", "sex","primarydx","region","smoking","codeine",
-  "morphine", "cocaine","ethanol","antipsychotics","nicotine","amphetamines",
-  "education","marital_status","hx_sexual_abuse","hx_physical_abuse",
-  "hx_other_trauma","hx_military_service","fsiq"
-)
-
-                                        # Get phenotype data
-pheno_file_path <- here("inputs/phenotypes/_m/phenotypes-all.tsv")
-pheno <- clean_pheno(pheno_file_path, tissue, vars_to_include)
-                    
-                                        # Add global ances
-f_ances <- here("inputs", "genetic-ancestry",
-                  "structure.out_ancestry_proportion_raceDemo_compare")
-ances   <- fread(f_ances)
-pheno   <- left_join(pheno, ances, by = c("brnum" = "id")) %>%
-  rename(afr_ances = Afr, eur_ances = Eur)
-
-                                        # Get meth matrix
-meth_file_path <- here("vmr-analysis/all_individuals/caudate/_m/vmr")
-meth_files     <- list.files(path = meth_file_path, pattern = "_meth\\.phen$", 
-                         recursive = TRUE, full.names = TRUE)
-meth_df        <- merge_meth(meth_files)
-meth_df <- meth_df %>% mutate(chr = as.character(chr))
-
-                                        # Merge with h2 groups and 
-                                        # environmental variables
-groups <- meth_df |>
-  inner_join(pheno, "brnum") |>
-  arrange(feature_id)
-merged <- groups |>
-  inner_join(vmr_combined, by = c("feature_id", "chr", "start", "end"))
-
-                                        # Write df to file
-out_table <- file.path(out_path, paste0("vmr_env_assoc-all.tsv.gz"))
-fwrite(merged, out_table, sep = "\t", quote = FALSE)
-
+                                        # Get phenotype matrix
+pheno_matrix_fn <- here("environmental-analysis", "all_individuals", 
+                        paste0(tissue, "/correlation/_m/vmr_env_assoc-all.tsv.gz"))
+pheno_matrix <- fread(pheno_matrix_fn, na.strings = c(NA, ""))
+pheno_matrix <- filter_pheno(pheno_matrix, population)
 
 ####### Covariate testing #########
 
@@ -162,12 +45,12 @@ covars <- "age + sex + dx + afr_ances"
 
                                         # Initialize results matrix
 cov_results <- tibble() 
-feature_ids <- unique(merged$feature_id)
+feature_ids <- unique(pheno_matrix$feature_id)
 
 for (vmr in feature_ids) {
   print(paste("Running null logistic regression on", vmr))
   
-  vmr_merged <- merged %>% filter(feature_id == vmr)
+  vmr_merged <- pheno_matrix %>% filter(feature_id == vmr)
   
   # Test control variables
   cov_model <- as.formula(paste("meth ~", covars))
@@ -189,7 +72,7 @@ cov_results <- cov_results %>% as.data.frame() %>%
   mutate(fdr = p.adjust(p, method = "fdr"))
 
                                         # Add positions back in
-pos <- merged %>%
+pos <- pheno_matrix %>%
   dplyr::select(feature_id, chr, start, end) %>%
   distinct()
 cov_results <- pos %>%
@@ -203,7 +86,8 @@ for (cov in cov_names){
   cov_filtered <- cov_results %>% filter(startsWith(var, cov))
  
   # Write results
-  out_cov_logit <- file.path(out_path, paste0(cov, "_logit.csv.gz"))
+  out_cov_logit <- file.path(out_path, 
+                             paste0(cov, "_logit-", population, ".csv.gz"))
   fwrite(cov_filtered, out_cov_logit)
 }
 
@@ -214,10 +98,11 @@ na_filter <- read.delim(
   here::here("environmental-analysis", "all_individuals", "tissue_compare",
              "correlation", "prediction", "_m", "drfe_results", "na_filter_summary.tsv")
 )
+na_filter$excluded = tolower(na_filter$excluded) == "true"
 testing_envs <- na_filter$variable[!na_filter$excluded]
   
 for (env in testing_envs) {
-  merged %>% 
+  pheno_matrix %>% 
     group_by(across(all_of(env)), h2_category) %>%
     summarize(
       count = n(),
@@ -225,7 +110,7 @@ for (env in testing_envs) {
       sd = sd(meth)
     )
   
-  merged_env <- merged %>% drop_na(env)
+  merged_env <- pheno_matrix %>% drop_na(env)
   
   # Initialize results matrix
   env_results <- tibble() 
@@ -267,7 +152,8 @@ for (env in testing_envs) {
     inner_join(env_results, "feature_id")
   
   # Write results
-  out_logit <- file.path(out_path, paste0(env, "_logit.csv.gz"))
+  out_logit <- file.path(out_path, 
+                         paste0(env, "_logit-", population, ".csv.gz"))
   fwrite(env_results, out_logit)
 }
   

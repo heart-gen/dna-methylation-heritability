@@ -1,0 +1,33 @@
+flag	tissue1	tissue2	pair_order	pair_label	pair_label_multiline	h2_tissue1	h2_tissue2	n_total_pairs	n_mismatch_pairs_tissue	n_mismatch_pairs_category	prop_discord	discordance_rate
+F_0.25	caudate	dlpfc	1	Caudate-DLPFC	"Caudate
+DLPFC"	heritable	low_prediction	4423	1830	2	0.001092896174863388	0.4137463260230613
+F_0.25	caudate	dlpfc	1	Caudate-DLPFC	"Caudate
+DLPFC"	heritable	non-heritable	4423	1830	492	0.26885245901639343	0.4137463260230613
+F_0.25	caudate	dlpfc	1	Caudate-DLPFC	"Caudate
+DLPFC"	low_prediction	heritable	4423	1830	2	0.001092896174863388	0.4137463260230613
+F_0.25	caudate	dlpfc	1	Caudate-DLPFC	"Caudate
+DLPFC"	low_prediction	non-heritable	4423	1830	4	0.002185792349726776	0.4137463260230613
+F_0.25	caudate	dlpfc	1	Caudate-DLPFC	"Caudate
+DLPFC"	non-heritable	heritable	4423	1830	979	0.5349726775956284	0.4137463260230613
+F_0.25	caudate	hippocampus	2	Caudate-Hippocampus	"Caudate
+Hippocampus"	heritable	low_prediction	4499	1694	1	0.0005903187721369539	0.3765281173594132
+F_0.25	caudate	hippocampus	2	Caudate-Hippocampus	"Caudate
+Hippocampus"	heritable	non-heritable	4499	1694	514	0.30342384887839435	0.3765281173594132
+F_0.25	caudate	hippocampus	2	Caudate-Hippocampus	"Caudate
+Hippocampus"	low_prediction	heritable	4499	1694	2	0.0011806375442739079	0.3765281173594132
+F_0.25	caudate	hippocampus	2	Caudate-Hippocampus	"Caudate
+Hippocampus"	low_prediction	non-heritable	4499	1694	4	0.0023612750885478157	0.3765281173594132
+F_0.25	caudate	hippocampus	2	Caudate-Hippocampus	"Caudate
+Hippocampus"	non-heritable	heritable	4499	1694	1009	0.5956316410861865	0.3765281173594132
+F_0.25	hippocampus	dlpfc	3	Hippocampus-DLPFC	"Hippocampus
+DLPFC"	heritable	low_prediction	6936	2979	3	0.0010070493454179255	0.4294982698961938
+F_0.25	hippocampus	dlpfc	3	Hippocampus-DLPFC	"Hippocampus
+DLPFC"	heritable	non-heritable	6936	2979	1105	0.3709298422289359	0.4294982698961938
+F_0.25	hippocampus	dlpfc	3	Hippocampus-DLPFC	"Hippocampus
+DLPFC"	low_prediction	heritable	6936	2979	3	0.0010070493454179255	0.4294982698961938
+F_0.25	hippocampus	dlpfc	3	Hippocampus-DLPFC	"Hippocampus
+DLPFC"	low_prediction	non-heritable	6936	2979	2	0.000671366230278617	0.4294982698961938
+F_0.25	hippocampus	dlpfc	3	Hippocampus-DLPFC	"Hippocampus
+DLPFC"	non-heritable	heritable	6936	2979	1216	0.4081906680093991	0.4294982698961938
+F_0.25	hippocampus	dlpfc	3	Hippocampus-DLPFC	"Hippocampus
+DLPFC"	non-heritable	low_prediction	6936	2979	4	0.001342732460557234	0.4294982698961938
