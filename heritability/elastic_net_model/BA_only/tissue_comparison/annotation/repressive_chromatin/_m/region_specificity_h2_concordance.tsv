@@ -1,0 +1,22 @@
+tissue1	tissue2	pair_label	subset	n_pairs	spearman_rho	spearman_p	fdr
+Caudate	DLPFC	Caudate-DLPFC	all_heritable	1421	0.763739069968036	5.12188521453762e-272	2.1511917901058e-271
+Caudate	DLPFC	Caudate-DLPFC	repressive_both	718	0.811277065059328	4.66310451282176e-169	1.08805771965841e-168
+Caudate	DLPFC	Caudate-DLPFC	nonrepressive_both	510	0.660664532109668	2.87843831743293e-65	3.35817803700508e-65
+Caudate	DLPFC	Caudate-DLPFC	repressive_either	911	0.794632397189707	3.16027464641952e-199	9.48082393925857e-199
+Caudate	DLPFC	Caudate-DLPFC	intergenic_both	357	0.83598335309443	1.52443323952899e-94	2.46254600231605e-94
+Caudate	DLPFC	Caudate-DLPFC	repr_intergenic_both	277	0.835075294917568	2.44720910943574e-73	3.02302301753827e-73
+Caudate	DLPFC	Caudate-DLPFC	z_test_repr_vs_nonrepr		5.80021607251705	6.62295242016262e-09	6.62295242016262e-09
+Caudate	Hippocampus	Caudate-Hippocampus	all_heritable	1550	0.784126494409029	1.1125369292536e-308	1.11253692925361e-308
+Caudate	Hippocampus	Caudate-Hippocampus	repressive_both	761	0.831015717389606	1.58901697957321e-195	4.17116957137969e-195
+Caudate	Hippocampus	Caudate-Hippocampus	nonrepressive_both	602	0.686014816466153	6.40773782416545e-85	8.97083295383163e-85
+Caudate	Hippocampus	Caudate-Hippocampus	repressive_either	948	0.820742046993903	3.10637223396946e-232	1.08723028188931e-231
+Caudate	Hippocampus	Caudate-Hippocampus	intergenic_both	392	0.839942962190424	1.41856651596043e-105	2.48249140293076e-105
+Caudate	Hippocampus	Caudate-Hippocampus	repr_intergenic_both	298	0.855777037683989	1.02788994015016e-86	1.54183491022523e-86
+Caudate	Hippocampus	Caudate-Hippocampus	z_test_repr_vs_nonrepr		6.42084208384612	1.35522558883602e-10	1.42298686827782e-10
+Hippocampus	DLPFC	Hippocampus-DLPFC	all_heritable	2400	0.751575601730954	0	0
+Hippocampus	DLPFC	Hippocampus-DLPFC	repressive_both	1200	0.846613108759103	0	0
+Hippocampus	DLPFC	Hippocampus-DLPFC	nonrepressive_both	866	0.576900200438822	5.57408153153123e-78	7.31598201013474e-78
+Hippocampus	DLPFC	Hippocampus-DLPFC	repressive_either	1534	0.813105121236467	0	0
+Hippocampus	DLPFC	Hippocampus-DLPFC	intergenic_both	585	0.821311230271	3.10734521367223e-144	6.52542494871167e-144
+Hippocampus	DLPFC	Hippocampus-DLPFC	repr_intergenic_both	453	0.855959554911948	2.76854598862944e-131	5.28540597829257e-131
+Hippocampus	DLPFC	Hippocampus-DLPFC	z_test_repr_vs_nonrepr		13.1285077341404	2.26067521557845e-39	2.4986410277446e-39
