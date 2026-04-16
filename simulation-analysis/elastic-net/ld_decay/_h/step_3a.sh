@@ -29,21 +29,19 @@ module list
 SCRIPT_DIR="../_h"
 OUTPUT_ROOT="../_m"
 RUN_NAME="ld_0.5_sim_200_indiv"
-RUN_DIR="${OUTPUT_ROOT}/${RUN_NAME}"
 
 log_message "**** Job starts ****"
 
 ld_decay=0.5
-mkdir -p "${RUN_DIR}"
 
 log_message "**** Run info ****"
 echo "RUN_NAME: ${RUN_NAME}"
-echo "RUN_DIR: ${RUN_DIR}"
 
 log_message "**** Cleaning directory ****"
-gzip -9v "simulation_200_${ld_decay}_h2_elastic-net.tsv"
-gzip -9v "simulation_200_${ld_decay}_betas_elastic-net.tsv"
-
-rm -r betas/ summary/ h2/
+for method in boosting_hybrid joint_ridge; do
+    gzip -9v "simulation_200_${ld_decay}_${method}_h2_elastic-net.tsv"
+    gzip -9v "simulation_200_${ld_decay}_${method}_betas_elastic-net.tsv"
+    #rm -r betas_${method}/ summary_${method}/ h2_${method}/
+done
 
 log_message "**** Job ends ****"
