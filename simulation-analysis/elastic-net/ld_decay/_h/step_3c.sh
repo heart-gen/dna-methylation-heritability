@@ -41,7 +41,7 @@ log_message "**** Cleaning directory ****"
 for method in boosting_hybrid joint_ridge; do
     gzip -9v "simulation_200_${ld_decay}_${method}_h2_elastic-net.tsv"
     gzip -9v "simulation_200_${ld_decay}_${method}_betas_elastic-net.tsv"
-    #rm -r betas_${method}/ summary_${method}/ h2_${method}/
+    rm -r betas_${method}/ summary_${method}/ h2_${method}/
 done
 
 log_message "**** Job ends ****"
