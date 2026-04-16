@@ -30,11 +30,6 @@ SCRIPT_DIR="../_h"
 OUTPUT_ROOT="../_m"
 RUN_NAME="ld_0.5_sim_200_indiv"
 RUN_DIR="${OUTPUT_ROOT}/${RUN_NAME}"
-LOG_DIR="${RUN_DIR}/logs"
-
-mkdir -p "${LOG_DIR}"
-exec > >(tee -a "${LOG_DIR}/clean_data_${SLURM_JOBID:-manual}.log")
-exec 2>&1
 
 log_message "**** Job starts ****"
 
@@ -42,7 +37,6 @@ ld_decay=0.5
 mkdir -p "${RUN_DIR}"
 
 log_message "**** Run info ****"
-echo "Computed task_id: ${task_id}"
 echo "RUN_NAME: ${RUN_NAME}"
 echo "RUN_DIR: ${RUN_DIR}"
 

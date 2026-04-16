@@ -31,13 +31,8 @@ SCRIPT_DIR="../_h"
 OUTPUT_ROOT="../_m"
 RUN_NAME="ld_0.5_sim_200_indiv"
 RUN_DIR="${OUTPUT_ROOT}/${RUN_NAME}"
-LOG_DIR="${RUN_DIR}/logs"
 
 ENV_PATH="/projects/p32505/opt/envs"
-
-mkdir -p "${LOG_DIR}"
-exec > >(tee -a "${LOG_DIR}/elastic_h2.${SLURM_JOBID:-manual}_${SLURM_ARRAY_TASK_ID:-na}.log")
-exec 2>&1
 
 log_message "**** Job starts ****"
 
