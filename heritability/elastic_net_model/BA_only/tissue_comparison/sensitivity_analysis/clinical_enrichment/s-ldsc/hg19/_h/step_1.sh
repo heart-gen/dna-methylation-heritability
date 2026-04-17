@@ -230,7 +230,7 @@ declare -A gwas_files=(
     ["asthma"]="${GWAS_BASE}/imputed_gwas_hg38_1.1/imputed_GABRIEL_Asthma.txt.gz"
     ["cad"]="${GWAS_BASE}/imputed_gwas_hg38_1.1/imputed_CARDIoGRAM_C4D_CAD_ADDITIVE.txt.gz"
     ["stroke"]="${GWAS_BASE}/stroke/29531354-GCST005843-HP_0002140-build37.f.tsv.gz"
-    ["smoking"]="${GWAS_BASE}/GSCAN_SmkInit_2022_GWAS_SUMMARY_STATS_EUR.txt.gz"
+    ["smoking"]="${GWAS_BASE}/gscan2/hg19/GSCAN_SmkInit_2022_GWAS_SUMMARY_STATS_EUR.txt"
 #    ["substance"]="./SUBSTANCE_ABUSE_GWAS.tsv.gz"
 )
 
