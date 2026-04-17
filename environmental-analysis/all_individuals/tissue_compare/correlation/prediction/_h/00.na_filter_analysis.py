@@ -148,6 +148,25 @@ def main():
 
     print("Loading phenotype data...")
     pheno = pd.read_csv(PHENO_PATH, sep="\t")
+    hippo_blacklist = pd.read_csv("../../../../../../vmr-analysis/all_individuals/hippocampus/_m/samples_blacklist.txt", sep="\t", header=None, names=["brnum"])
+    dlpfc_blacklist = pd.read_csv("../../../../../../vmr-analysis/all_individuals/dlpfc/_m/samples_blacklist.txt", sep="\t", header=None, names=["brnum"])
+
+    hippo_invalid_ids = set(hippo_blacklist["brnum"])
+    dlpfc_invalid_ids = set(dlpfc_blacklist["brnum"])
+
+    filter_mask= ~(
+        ((pheno["region"] == "hippocampus") & (pheno["brnum"].isin(hippo_invalid_ids))) | 
+        ((pheno["region"] == "dlpfc") & (pheno["brnum"].isin(dlpfc_invalid_ids)))
+    )
+
+    pheno = pheno[filter_mask]
+    pheno = pheno[(pheno["agedeath"] >= 17)]
+
+    print("\nIndividuals by brain region and race:")
+
+    counts = pheno.groupby(["region", "race"]).size().unstack(fill_value=0)
+
+    print(counts)
 
     # Deduplicate: one row per individual (drop duplicate brnums)
     pheno = pheno.drop_duplicates(subset="brnum")
