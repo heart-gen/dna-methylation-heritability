@@ -100,8 +100,8 @@ declare -A GWAS_FILES=(
     ["cad"]="${GWAS_DIR}/imputed_gwas_hg38_1.1/imputed_CARDIoGRAM_C4D_CAD_ADDITIVE.txt.gz"
     ["stroke"]="${GWAS_DIR}/stroke/29531354-GCST005843-HP_0002140-build37.f.tsv.gz"
     ["smoking"]="${GWAS_BASE}/gscan2/hg19/GSCAN_SmkInit_2022_GWAS_SUMMARY_STATS_EUR.txt"
-#    ["substance"]="./SUBSTANCE_ABUSE_GWAS.tsv.gz"
-    ["height"]="./HEIGHT_GWAS.tsv.gz"
+#    ["substance"]="./SUBSTANCE_ABUSE_GWAS"
+#    ["height"]="./HEIGHT_GWAS"
 )
 export GWAS_FILES
 
