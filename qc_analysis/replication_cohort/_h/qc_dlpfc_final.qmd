@@ -84,7 +84,7 @@ The combined BSseq object was generated using the data loading scripts. This obj
 ```{r}
 #| label: load-data
 
-output_dir <- here("qc_analysis/_m")
+output_dir <- here("qc_analysis/replication_cohort/_m")
 if (!dir.exists(output_dir)) {
     dir.create(output_dir, recursive = TRUE)
 }
