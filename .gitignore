@@ -80,3 +80,4 @@ protected_data/*
 *.rds
 protected-data/*
 protected-data/
+assays.h5
