@@ -1,5 +1,5 @@
 ---
-title: "WGBS Quality Control: Hippocampus"
+title: "WGBS Quality Control: Caudate Nucleus"
 author: "HEART-GeN Lab"
 format:
   html:
@@ -13,39 +13,7 @@ execute:
   message: false
 ---
 
-## Learning Objectives
-
-By the end of this analysis, you will be able to:
-
-- Load and explore pre-generated WGBS data for the hippocampus
-- Calculate and interpret key QC metrics for methylation data
-- Identify samples and CpG sites that may need filtering
-- Create publication-quality QC figures
-- Make informed decisions about data quality thresholds
-
-**Note:** For detailed background on WGBS methodology and QC concepts, see the companion tutorial `wgbs_qc_bsseq.qmd`.
-
----
-
-## 1. Background
-
-The **hippocampus** is a brain structure critical for learning, memory formation, and spatial navigation. Hippocampal abnormalities are commonly observed in schizophrenia, including reduced volume and altered gene expression, making it an important region for epigenetic studies.
-
-In this analysis, we will perform quality control on WGBS data from hippocampal samples, focusing on:
-
-- **Coverage**: Are CpG sites adequately sequenced?
-- **Methylation distributions**: Do patterns look biologically plausible?
-- **Sample correlations**: Are replicates similar to each other?
-- **Principal components**: Are there technical batch effects?
-
----
-
-## 2. Environment Setup
-
-### Activate Conda Environment
-
-Before running this analysis, ensure you have activated the lab's epigenomics environment:
-```bash
+```{bash}
 source /projects/p32505/opt/miniforge3/etc/profile.d/conda.sh
 conda activate /projects/p32505/opt/envs/epigenomics
 ```
@@ -69,17 +37,12 @@ library(RColorBrewer)
 theme_set(theme_bw(base_size = 12))
 
 ## Define region for this analysis
-region <- "hippocampus"
-region_name <- "Hippocampus"
+region <- "caudate"
+region_name <- "Caudate Nucleus"
 ```
 
 ---
 
-## 3. Data Loading
-
-### Load Pre-Generated BSseq Object
-
-The combined BSseq object was generated using the data loading scripts. This object contains methylation data for all chromosomes combined into a single, HDF5-backed structure for efficient access.
 
 ```{r}
 #| label: load-data
@@ -90,7 +53,7 @@ if (!dir.exists(output_dir)) {
 }
 
 ## Path to the combined data
-data_path <- here("inputs/wgbs-data/combined/_m") # Explore "inputs/"
+data_path <- here("inputs/wgbs-data/combined/_m")
 
 ## Load the HDF5-backed BSseq object
 bsseq_data <- loadHDF5SummarizedExperiment(
@@ -110,17 +73,19 @@ cat("  Number of samples:", ncol(bsseq_data), "\n")
 cat("  Genome:", unique(genome(bsseq_data)), "\n")
 ```
 
-### Phenotype Overview
-
-We want to examine adults from our region of interest.
-
+**TODO:** Update this to subset to only Black/African Americans only (`BA` or `AA`). This means
+to include the `race` column and select only Black Americans.
+- Check the columns of phenotype_data to determine what the study-identified race column is called and
+  the variable that corresponds to Black/African American (either, `BA` or `AA`
+- Add study-identified race to the `filter` before generating phenotype summary
+- Include this in the sample-table and all downstream analysis
 ```{r}
 #| label: phenotype-overview
 
 ## Display phenotype summary
-phenotype_data <- phenotype_data[phenotype_data$race == "AA", ]
+
 phenotype_summary <- phenotype_data %>% 
-                    filter(race == "AA",agedeath >= 17, region == !!region) %>%
+                    filter(agedeath >= 17, region == !!region) %>%
                     group_by(primarydx) %>% 
                     summarize(
                         n = n(),
@@ -128,26 +93,22 @@ phenotype_summary <- phenotype_data %>%
                         sd_age = round(sd(agedeath, na.rm = TRUE), 1), 
                         n_female = sum(sex == "F", na.rm = TRUE),
                         n_male = sum(sex == "M", na.rm = TRUE),
+                        n_AA = sum(race == "AA", na.rm = TRUE),
+                        n_EA = sum(race == "EA", na.rm = TRUE),
                         .groups = "drop"
                     )
-
-bsseq_data <- bsseq_data[, phenotype_data$brnum]
-
 knitr::kable(phenotype_summary,
-             col.names = c("Diagnosis", "N", "Mean Age", "SD Age", "Female", "Male"),
-             caption = paste0("Sample demographics for ", region_name))                  
-
+             col.names = c("Diagnosis", "N", "Mean Age", "SD Age", "Female", "Male", "African American", "European American"),
+             caption = paste0("Sample demographics for ", region_name))
 ```
 
 ---
 
-## 4. Sample Overview
-
-### Sample Metadata Table
 
 ```{r}
 #| label: sample-table
 
+## Create sample summary table
 sample_info <- phenotype_data %>%
     select(brnum, primarydx, agedeath, sex) %>%
     rename(
@@ -157,29 +118,24 @@ sample_info <- phenotype_data %>%
         Sex = sex
     )
 
-
+## Display first few samples
 knitr::kable(head(sample_info, 10),
              caption = "Sample metadata (first 10 samples)")
-
 ```
 
 ---
 
-## 5. QC Analysis
 
-### 5.1 Sequencing Coverage
-
-Coverage refers to the number of sequencing reads that overlap each CpG site. Higher coverage provides more reliable methylation estimates.
-
-#### Calculate Per-Sample Coverage
 
 ```{r}
 #| label: coverage-calculation
 
 ## Get coverage matrix (reads per CpG per sample)
 cov_matrix <- getCoverage(bsseq_data)
+
 ## Calculate mean coverage per sample
 mean_coverage <- colMeans(cov_matrix, na.rm = TRUE)
+
 ## Create coverage summary dataframe
 coverage_df <- tibble(
     Sample = names(mean_coverage),
@@ -187,22 +143,22 @@ coverage_df <- tibble(
 ) %>%
     left_join(phenotype_data %>% select(brnum, primarydx),
               by = c("Sample" = "brnum"))
-## Summary statistics (e.g., minimum, median, maxium)
+
+## Summary statistics
+### This is just a couple of things you can look at with nice rounding.
 cat("Coverage Summary:\n")
 cat("  Minimum:", round(min(coverage_df$Mean_Coverage), 2), "x\n")
 cat("  Median:", round(median(coverage_df$Mean_Coverage), 2), "x\n")
 cat("  Maximum:", round(max(coverage_df$Mean_Coverage), 2), "x\n")
-
 ```
-
-#### Coverage Barplot
 
 ```{r}
 #| label: fig-coverage-barplot
 #| fig-cap: "Mean sequencing coverage per sample. Samples below the red dashed line (5x coverage) may have unreliable methylation estimates."
 #| fig-width: 10
 #| fig-height: 6
-ggsave(file = paste0(output_dir, "/plots/hippocampus_coverage_plot.pdf"), create.dir = TRUE, plot = ggplot(coverage_df, aes(x = reorder(Sample, Mean_Coverage), y = Mean_Coverage, fill = primarydx)) +
+
+ggsave(file = paste0(output_dir, "/plots/caudate_coverage_plot.pdf"), create.dir = TRUE, plot = ggplot(coverage_df, aes(x = reorder(Sample, Mean_Coverage), y = Mean_Coverage, fill = primarydx)) +
     geom_col() +
     geom_hline(yintercept = 5, linetype = "dashed", color = "red", linewidth = 1) +
     labs(
@@ -217,8 +173,6 @@ ggsave(file = paste0(output_dir, "/plots/hippocampus_coverage_plot.pdf"), create
     ) +
     scale_fill_brewer(palette = "Set2"))
 ```
-
-#### Identify Low-Coverage Samples
 
 ```{r}
 #| label: low-coverage-samples
@@ -236,15 +190,12 @@ if (nrow(low_coverage_samples) > 0) {
 }
 ```
 
-### 5.2 CpG Site Coverage
-
-Not all CpG sites are equally well-covered. Sites with very low coverage across samples should be filtered before analysis.
-
 ```{r}
 #| label: cpg-coverage
 
 ## Calculate coverage across CpGs
 cpg_mean_cov <- rowMeans(cov_matrix, na.rm = TRUE)
+
 ## Calculate percentage of CpGs meeting thresholds
 thresholds <- c(1, 3, 5, 10, 20)
 cpg_coverage_summary <- sapply(thresholds, function(t) {
@@ -256,8 +207,6 @@ coverage_table <- tibble(
     Percent_CpGs = round(cpg_coverage_summary, 1)
 )
 
-
-## Output table using knitr::kable
 knitr::kable(coverage_table,
              col.names = c("Coverage Threshold", "% CpGs Passing"),
              caption = "Percentage of CpG sites meeting coverage thresholds")
@@ -270,7 +219,7 @@ knitr::kable(coverage_table,
 #| fig-height: 5
 
 ## Plot distribution (capped at 50x for visualization)
-ggsave(file = paste0(output_dir, "/plots/hippocampus_cpg_coverage_plot.pdf"), plot = ggplot(tibble(Coverage = pmin(cpg_mean_cov, 50)), aes(x = Coverage)) +
+ggsave(file = paste0(output_dir, "/plots/caudate_cpg_coverage_plot.pdf"), plot = ggplot(tibble(Coverage = pmin(cpg_mean_cov, 50)), aes(x = Coverage)) +
     geom_histogram(bins = 50, fill = "steelblue", color = "black", alpha = 0.7) +
     geom_vline(xintercept = 5, linetype = "dashed", color = "red", linewidth = 1) +
     labs(
@@ -280,25 +229,25 @@ ggsave(file = paste0(output_dir, "/plots/hippocampus_cpg_coverage_plot.pdf"), pl
     ) +
     annotate("text", x = 5, y = Inf, label = "5x threshold",
              hjust = -0.1, vjust = 2, color = "red"))
+
 ```
 
-### 5.3 Methylation Distribution
-
-WGBS data typically shows a **bimodal distribution** with peaks near 0% (unmethylated) and 100% (fully methylated) methylation.
 
 ```{r}
 #| label: methylation-extraction
 
 ## Extract methylation proportions (beta values)
-## Use a subset of CpGs for efficiency (should be reproducible)
+## Use a subset of CpGs for efficiency
 set.seed(123)
-n_cpgs_sample <- min(100000, nrow(bsseq_data))
+bsseq_data <- bsseq_data[cpg_mean_cov > 5]
+n_cpgs_sample <- min(500000, nrow(bsseq_data))
 cpg_subset <- sample(nrow(bsseq_data), n_cpgs_sample)
+# subset_cov_matrix <- rowMeans(getCoverage(bsseq_data[cpg_subset]))
 
+# bsseq_data <- BSmooth(bsseq_data, ns = 70, h = 1000, maxGap = 1e8)
 meth_matrix <- as.matrix(getMeth(bsseq_data[cpg_subset, ], type = "raw"))
 ```
 
-#### Per-Sample Methylation Histograms
 
 ```{r}
 #| label: fig-meth-histograms
@@ -308,13 +257,14 @@ meth_matrix <- as.matrix(getMeth(bsseq_data[cpg_subset, ], type = "raw"))
 
 ## Select a few representative samples
 sample_subset <- sample(colnames(meth_matrix), min(6, ncol(meth_matrix)))
+
 ## Prepare data for plotting
 meth_long <- meth_matrix[, sample_subset] %>%
     as.data.frame() %>%
     pivot_longer(everything(), names_to = "Sample", values_to = "Methylation") %>%
     filter(!is.na(Methylation))
-## Plot the data
-ggsave(file = paste0(output_dir, "/plots/hippocampus_methylation_plot.pdf"), plot = ggplot(meth_long, aes(x = Methylation)) +
+
+ggsave(file = paste0(output_dir, "/plots/caudate_methylation_plot.pdf"), plot = ggplot(meth_long, aes(x = Methylation)) +
     geom_histogram(bins = 50, fill = "steelblue", color = "black", alpha = 0.7) +
     facet_wrap(~Sample, ncol = 3) +
     labs(
@@ -324,7 +274,6 @@ ggsave(file = paste0(output_dir, "/plots/hippocampus_methylation_plot.pdf"), plo
     ))
 ```
 
-#### Density Plot by Diagnosis
 
 ```{r}
 #| label: fig-meth-density
@@ -334,6 +283,7 @@ ggsave(file = paste0(output_dir, "/plots/hippocampus_methylation_plot.pdf"), plo
 
 ## Calculate global methylation per sample
 global_meth <- colMeans(meth_matrix, na.rm = TRUE)
+
 ## Create density data with diagnosis
 meth_all <- meth_matrix %>%
     as.data.frame() %>%
@@ -341,12 +291,13 @@ meth_all <- meth_matrix %>%
     left_join(phenotype_data %>% select(brnum, primarydx),
               by = c("Sample" = "brnum")) %>%
     filter(!is.na(Methylation))
+
 ## Sample for plotting efficiency
 meth_sampled <- meth_all %>%
     group_by(primarydx) %>%
     slice_sample(n = 50000, replace = TRUE)
 
-ggsave(file = paste0(output_dir, "/plots/hippocampus_meth_by_diagnosis_plot.pdf"), plot = ggplot(meth_sampled, aes(x = Methylation, color = primarydx)) +
+ggsave(file = paste0(output_dir, "/plots/caudate_meth_by_diagnosis_plot.pdf"), plot = ggplot(meth_sampled, aes(x = Methylation, color = primarydx)) +
     geom_density(linewidth = 1) +
     labs(
         title = paste0("Methylation Distribution by Diagnosis: ", region_name),
@@ -366,15 +317,36 @@ Pairwise correlations between samples help identify outliers. Biological replica
 
 ## Compute correlation matrix (on subset for efficiency)
 cor_matrix <- cor(meth_matrix, use = "pairwise.complete.obs")
+
 ## Summary statistics
 cor_values <- cor_matrix[upper.tri(cor_matrix)]
 cat("Correlation Summary:\n")
-cat("   Minimum:", round(min(cor_values), 3), "\n")
-cat("   Median:", round(median(cor_values), 3), "\n")
-cat("   Maximum:", round(max(cor_values), 3), "\n")
+cat("  Minimum:", round(min(cor_values), 3), "\n")
+cat("  Median:", round(median(cor_values), 3), "\n")
+cat("  Maximum:", round(max(cor_values), 3), "\n")
 ```
 
+```{r}
+#| label: fig-correlation-heatmap
+#| fig-cap: "Sample correlation heatmap. High correlations (yellow) indicate similar methylation profiles. Samples with consistently low correlations may be outliers."
+#| fig-width: 10
+#| fig-height: 9
 
+## Create annotation for heatmap
+annotation_df <- phenotype_data %>%
+    filter(brnum %in% colnames(cor_matrix)) %>%
+    select(brnum, primarydx, sex) %>%
+    column_to_rownames("brnum")
+
+## Plot heatmap
+ggsave(file = paste0(output_dir, "/plots/caudate_correlation_heatmap.pdf"), plot = pheatmap(cor_matrix,
+         color = colorRampPalette(brewer.pal(9, "YlOrRd"))(100),
+         annotation_col = annotation_df,
+         annotation_row = annotation_df,
+         show_rownames = FALSE,
+         show_colnames = FALSE,
+         main = paste0("Sample Correlations: ", region_name)))
+```
 
 #### Identify Potential Outliers
 
@@ -382,7 +354,8 @@ cat("   Maximum:", round(max(cor_values), 3), "\n")
 #| label: outlier-detection
 
 ## Calculate mean correlation for each sample
-mean_cor <- rowMeans(cor_matrix) - 1/(ncol(cor_matrix))
+mean_cor <- rowMeans(cor_matrix) - 1/(ncol(cor_matrix))  # Exclude self-correlation
+
 ## Flag samples with unusually low correlation
 cor_threshold <- mean(mean_cor) - 2 * sd(mean_cor)
 
@@ -406,14 +379,21 @@ PCA reduces the high-dimensional methylation data to a few principal components,
 
 ```{r}
 #| label: pca-analysis
+# Filter out low coverage data
+
+# Heat map of PCs and covariants
 
 ## Remove rows with missing values for PCA
 meth_complete <- meth_matrix[complete.cases(meth_matrix), ]
+#row_means_meth = rowMeans(meth_complete)
+#meth_complete <- meth_complete[row_means_meth > 0, ]
+#meth_complete <- unique(meth_complete)
 ## Run PCA
 pca_result <- prcomp(t(meth_complete), scale. = TRUE, center = TRUE)
+
 ## Calculate variance explained
 var_explained <- summary(pca_result)$importance[2, ] * 100
-## Print the top 3-5 PCs
+
 cat("Variance explained by PCs:\n")
 cat("  PC1:", round(var_explained[1], 1), "%\n")
 cat("  PC2:", round(var_explained[2], 1), "%\n")
@@ -421,52 +401,29 @@ cat("  PC3:", round(var_explained[3], 1), "%\n")
 ```
 
 ```{r}
-#| label: fig-pca-diagnosis
-#| fig-cap: "PCA colored by diagnosis. Separation along PC1/PC2 may indicate biological differences or technical artifacts."
-#| fig-width: 8
-#| fig-height: 6
-
-## Prepare PCA data for plotting
-pca_df <- as.data.frame(pca_result$x) %>%
-    rownames_to_column("Sample") %>%
-    left_join(phenotype_data %>% select(brnum, primarydx, sex, agedeath),
-              by = c("Sample" = "brnum"))
-
-```
-
-
-
-
----
-
-## 6. CpG Filtering
-
-Based on the QC results, we apply coverage-based filtering to retain only high-quality CpG sites.
-
-```{r}
 #| label: cpg-filtering
 
 ## Define filtering criteria
-min_coverage <- 5        # Minimum mean coverage per CpG
+min_coverage <- 10        # Minimum mean coverage per CpG
 min_sample_frac <- 0.8   # CpG must be covered in at least 80% of samples
 
 ## Calculate coverage per CpG across samples
 cov_per_cpg <- getCoverage(bsseq_data)
 samples_with_coverage <- rowSums(cov_per_cpg >= min_coverage, na.rm = TRUE)
 fraction_covered <- samples_with_coverage / ncol(bsseq_data)
+
 ## Apply filter
 keep_cpgs <- fraction_covered >= min_sample_frac
-## Summarize results (before and after filtering; how many CpGs were retained, rate of retention)
+
 cat("CpG Filtering Summary:\n")
 cat("  Original CpGs:", format(nrow(bsseq_data), big.mark = ","), "\n")
 cat("  CpGs passing filter:", format(sum(keep_cpgs), big.mark = ","), "\n")
 cat("  CpGs removed:", format(sum(!keep_cpgs), big.mark = ","), "\n")
 cat("  Retention rate:", round(mean(keep_cpgs) * 100, 1), "%\n")
+
+filtered_bsseq_data <- bsseq_data[keep_cpgs]
 ```
 
----
-
-## 7. QC Summary Table
 
 ```{r}
 #| label: qc-summary-table
@@ -501,12 +458,9 @@ knitr::kable(
 )
 ```
 
-### Samples Requiring Review
-
 ```{r}
 #| label: samples-review
 
-## What are the samples that require review
 review_samples <- qc_summary %>% filter(QC_Status == "Review")
 
 if (nrow(review_samples) > 0) {
@@ -531,6 +485,7 @@ if (nrow(review_samples) > 0) {
 write.csv(qc_summary,
           file.path(output_dir, paste0("qc_summary_", region, ".csv")),
           row.names = FALSE)
+
 ## Save filtered BSseq object
 bsseq_filtered <- bsseq_data[keep_cpgs, ]
 out_h5se <- file.path(output_dir, paste0(region, "_bsseq_qc_filtered_h5se"))
@@ -542,7 +497,7 @@ cat("  - QC summary: qc_summary_", region, ".csv\n", sep = "")
 cat("  - Filtered BSseq: ", region, "_bsseq_qc_filtered_h5se/\n", sep = "")
 ```
 
----
+
 
 
 
@@ -556,6 +511,10 @@ cat("  - Filtered BSseq: ", region, "_bsseq_qc_filtered_h5se/\n", sep = "")
 
 # relevel PCs
 
+pca_df <- as.data.frame(pca_result$x) %>%
+    rownames_to_column("Sample") %>%
+    left_join(phenotype_data,
+              by = c("Sample" = "brnum"))
 
 covariant_vec <- c("agedeath", "pmi", "snpPC1", "snpPC2", "snpPC3", "ph", "age_onset_schizo")
 pc_vec = c()
@@ -591,7 +550,6 @@ df = data.frame(
      stringsAsFactors = FALSE
 )
 
-
 # Trend level significance
 
 # Make submission script step1.sh
@@ -600,14 +558,19 @@ df = data.frame(
 
 pp = ggplot(df, aes(y = reorder(PC, as.numeric(sub("PC", "", PC))), x = covariant, label = ifelse(fdr < 0.05, "*", ""), fill = rho)) + geom_tile(color = "gray") + scale_fill_gradient2(low = "blue", mid = "white", high = "red", name = "rho value") + geom_text(color = "black", size = 7) + labs(y = "PC", x = "Technical and Biological Covariates")
 
-ggsave(file = paste0(output_dir, "/plots/hippocampus_all_covariates_correlation_heapmap.pdf"), plot = pp, width = 10)
+ggsave(file = paste0(output_dir, "/plots/caudate_all_covariates_correlation_heapmap.pdf"), plot = pp, width = 10)
 
 pp = ggplot(df, aes(y = reorder(PC, as.numeric(sub("PC", "", PC))), x = covariant, label = ifelse(fdr < 0.10, "*", ""), fill = rho)) + geom_tile(color = "gray") + scale_fill_gradient2(low = "blue", mid = "white", high = "red", name = "rho value") + geom_text(color = "black", size = 7) + labs(y = "PC", x = "Technical and Biological Covariates")
 
-ggsave(file = paste0(output_dir, "/plots/hippocampus_all_covariates_trend_heapmap.pdf"), plot = pp, width = 10)
+ggsave(file = paste0(output_dir, "/plots/caudate_all_covariates_trend_heapmap.pdf"), plot = pp, width = 10)
 
 
 ```
+
+
+
+
+---
 
 ## Session Info
 

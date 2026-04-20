@@ -83,6 +83,9 @@ to include the `race` column and select only Black Americans.
 #| label: phenotype-overview
 
 ## Display phenotype summary
+
+phenotype_data <- phenotype_data[phenotype_data$race == "AA", ]
+
 phenotype_summary <- phenotype_data %>%
     filter(agedeath >= 17, region == !!region) %>%
     group_by(primarydx) %>%
@@ -94,6 +97,8 @@ phenotype_summary <- phenotype_data %>%
         n_male = sum(sex == "M", na.rm = TRUE),
         .groups = "drop"
     )
+
+bsseq_data <- bsseq_data[, phenotype_data$brnum]
 
 knitr::kable(phenotype_summary,
              col.names = c("Diagnosis", "N", "Mean Age", "SD Age", "Female", "Male"),
