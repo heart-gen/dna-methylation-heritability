@@ -1,0 +1,13 @@
+variable	pct_missing	n_valid	min_class_n	class_counts	excluded	reason
+smoking	0.0129	307	135	"{""0.0"": 172, ""1.0"": 135}"	False	passes threshold
+codeine	0.0032	310	7	"{""0.0"": 303, ""1.0"": 7}"	False	passes threshold
+morphine	0.0032	310	10	"{""0.0"": 300, ""1.0"": 10}"	False	passes threshold
+cocaine	0.0032	310	3	"{""0.0"": 307, ""1.0"": 3}"	False	passes threshold
+ethanol	0.0129	307	28	"{""0.0"": 279, ""1.0"": 28}"	False	passes threshold
+antipsychotics	0.2026	248	91	"{""0.0"": 157, ""1.0"": 91}"	True	20.3% missing (>15% threshold)
+nicotine	0.0064	309	98	"{""0.0"": 211, ""1.0"": 98}"	False	passes threshold
+amphetamines	0.0193	305	8	"{""0.0"": 297, ""1.0"": 8}"	False	passes threshold
+education	0.09	283	66	"{""more_than_hs"": 119, ""hs"": 98, ""less_than_hs"": 66}"	False	passes threshold
+marital_status	0.0772	287	72	"{""single"": 125, ""married"": 90, ""previously_married"": 72}"	False	passes threshold
+fsiq	0.9132	27	1	"{""83.0"": 3, ""76.0"": 2, ""79.0"": 2, ""75.0"": 1, ""94.0"": 1, ""80.0"": 1, ""109.0"": 1, ""50.0"": 1, ""111.0"": 1, ""81.0"": 1, ""91.0"": 1, ""89.0"": 1, ""88.0"": 1, ""78.0"": 1, ""71.0"": 1, ""60.0"": 1, ""59.0"": 1, ""113.0"": 1, ""116.0"": 1, ""70.0"": 1, ""93.0"": 1, ""96.0"": 1, ""57.0"": 1}"	True	91.3% missing (>15% threshold)
+any_trauma_hx	0.1736	257	49	"{""0.0"": 208, ""1.0"": 49}"	True	17.4% missing (>15% threshold)
