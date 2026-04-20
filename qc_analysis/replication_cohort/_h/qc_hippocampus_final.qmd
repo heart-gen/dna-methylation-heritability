@@ -118,9 +118,8 @@ We want to examine adults from our region of interest.
 #| label: phenotype-overview
 
 ## Display phenotype summary
-phenotype_data <- phenotype_data[phenotype_data$race == "AA", ]
 phenotype_summary <- phenotype_data %>% 
-                    filter(race == "AA",agedeath >= 17, region == !!region) %>%
+                    filter(agedeath >= 17, region == !!region) %>%
                     group_by(primarydx) %>% 
                     summarize(
                         n = n(),
@@ -128,14 +127,13 @@ phenotype_summary <- phenotype_data %>%
                         sd_age = round(sd(agedeath, na.rm = TRUE), 1), 
                         n_female = sum(sex == "F", na.rm = TRUE),
                         n_male = sum(sex == "M", na.rm = TRUE),
+                        n_AA = sum(race == "AA", na.rm = TRUE),
+                        n_EA = sum(race == "EA", na.rm = TRUE),
                         .groups = "drop"
                     )
-
-bsseq_data <- bsseq_data[, phenotype_data$brnum]
-
 knitr::kable(phenotype_summary,
-             col.names = c("Diagnosis", "N", "Mean Age", "SD Age", "Female", "Male"),
-             caption = paste0("Sample demographics for ", region_name))                  
+             col.names = c("Diagnosis", "N", "Mean Age", "SD Age", "Female", "Male", "African American", "European American"),
+             caption = paste0("Sample demographics for ", region_name))             
 
 ```
 

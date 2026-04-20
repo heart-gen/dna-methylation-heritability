@@ -1,5 +1,5 @@
 ---
-title: "WGBS Quality Control: Hippocampus"
+title: "WGBS Quality Control: Dorsolateral Prefrontal Cortex (DLPFC)"
 author: "HEART-GeN Lab"
 format:
   html:
@@ -17,7 +17,7 @@ execute:
 
 By the end of this analysis, you will be able to:
 
-- Load and explore pre-generated WGBS data for the hippocampus
+- Load and explore pre-generated WGBS data for the DLPFC
 - Calculate and interpret key QC metrics for methylation data
 - Identify samples and CpG sites that may need filtering
 - Create publication-quality QC figures
@@ -29,9 +29,9 @@ By the end of this analysis, you will be able to:
 
 ## 1. Background
 
-The **hippocampus** is a brain structure critical for learning, memory formation, and spatial navigation. Hippocampal abnormalities are commonly observed in schizophrenia, including reduced volume and altered gene expression, making it an important region for epigenetic studies.
+The **dorsolateral prefrontal cortex (DLPFC)** is a key brain region involved in executive functions, working memory, and cognitive control. DLPFC dysfunction has been consistently implicated in schizophrenia, making it a critical region for epigenetic studies.
 
-In this analysis, we will perform quality control on WGBS data from hippocampal samples, focusing on:
+In this analysis, we will perform quality control on WGBS data from DLPFC samples, focusing on:
 
 - **Coverage**: Are CpG sites adequately sequenced?
 - **Methylation distributions**: Do patterns look biologically plausible?
@@ -69,8 +69,8 @@ library(RColorBrewer)
 theme_set(theme_bw(base_size = 12))
 
 ## Define region for this analysis
-region <- "hippocampus"
-region_name <- "Hippocampus"
+region <- "dlpfc"
+region_name <- "DLPFC"
 ```
 
 ---
@@ -118,9 +118,8 @@ We want to examine adults from our region of interest.
 #| label: phenotype-overview
 
 ## Display phenotype summary
-phenotype_data <- phenotype_data[phenotype_data$race == "AA", ]
 phenotype_summary <- phenotype_data %>% 
-                    filter(race == "AA",agedeath >= 17, region == !!region) %>%
+                    filter(agedeath >= 17, region == !!region) %>%
                     group_by(primarydx) %>% 
                     summarize(
                         n = n(),
@@ -128,15 +127,13 @@ phenotype_summary <- phenotype_data %>%
                         sd_age = round(sd(agedeath, na.rm = TRUE), 1), 
                         n_female = sum(sex == "F", na.rm = TRUE),
                         n_male = sum(sex == "M", na.rm = TRUE),
+                        n_AA = sum(race == "AA", na.rm = TRUE),
+                        n_EA = sum(race == "EA", na.rm = TRUE),
                         .groups = "drop"
                     )
-
-bsseq_data <- bsseq_data[, phenotype_data$brnum]
-
 knitr::kable(phenotype_summary,
-             col.names = c("Diagnosis", "N", "Mean Age", "SD Age", "Female", "Male"),
-             caption = paste0("Sample demographics for ", region_name))                  
-
+             col.names = c("Diagnosis", "N", "Mean Age", "SD Age", "Female", "Male", "African American", "European American"),
+             caption = paste0("Sample demographics for ", region_name))
 ```
 
 ---
@@ -148,6 +145,7 @@ knitr::kable(phenotype_summary,
 ```{r}
 #| label: sample-table
 
+## Create sample summary table
 sample_info <- phenotype_data %>%
     select(brnum, primarydx, agedeath, sex) %>%
     rename(
@@ -157,10 +155,9 @@ sample_info <- phenotype_data %>%
         Sex = sex
     )
 
-
+## Display first few samples
 knitr::kable(head(sample_info, 10),
              caption = "Sample metadata (first 10 samples)")
-
 ```
 
 ---
@@ -192,7 +189,6 @@ cat("Coverage Summary:\n")
 cat("  Minimum:", round(min(coverage_df$Mean_Coverage), 2), "x\n")
 cat("  Median:", round(median(coverage_df$Mean_Coverage), 2), "x\n")
 cat("  Maximum:", round(max(coverage_df$Mean_Coverage), 2), "x\n")
-
 ```
 
 #### Coverage Barplot
@@ -202,7 +198,7 @@ cat("  Maximum:", round(max(coverage_df$Mean_Coverage), 2), "x\n")
 #| fig-cap: "Mean sequencing coverage per sample. Samples below the red dashed line (5x coverage) may have unreliable methylation estimates."
 #| fig-width: 10
 #| fig-height: 6
-ggsave(file = paste0(output_dir, "/plots/hippocampus_coverage_plot.pdf"), create.dir = TRUE, plot = ggplot(coverage_df, aes(x = reorder(Sample, Mean_Coverage), y = Mean_Coverage, fill = primarydx)) +
+ggsave(file = paste0(output_dir, "/plots/dlpfc_coverage_plot.pdf"), create.dir = TRUE, plot = ggplot(coverage_df, aes(x = reorder(Sample, Mean_Coverage), y = Mean_Coverage, fill = primarydx)) +
     geom_col() +
     geom_hline(yintercept = 5, linetype = "dashed", color = "red", linewidth = 1) +
     labs(
@@ -256,7 +252,6 @@ coverage_table <- tibble(
     Percent_CpGs = round(cpg_coverage_summary, 1)
 )
 
-
 ## Output table using knitr::kable
 knitr::kable(coverage_table,
              col.names = c("Coverage Threshold", "% CpGs Passing"),
@@ -270,7 +265,7 @@ knitr::kable(coverage_table,
 #| fig-height: 5
 
 ## Plot distribution (capped at 50x for visualization)
-ggsave(file = paste0(output_dir, "/plots/hippocampus_cpg_coverage_plot.pdf"), plot = ggplot(tibble(Coverage = pmin(cpg_mean_cov, 50)), aes(x = Coverage)) +
+ggsave(file = paste0(output_dir, "/plots/dlpfc_cpg_coverage_plot.pdf"), plot = ggplot(tibble(Coverage = pmin(cpg_mean_cov, 50)), aes(x = Coverage)) +
     geom_histogram(bins = 50, fill = "steelblue", color = "black", alpha = 0.7) +
     geom_vline(xintercept = 5, linetype = "dashed", color = "red", linewidth = 1) +
     labs(
@@ -314,7 +309,7 @@ meth_long <- meth_matrix[, sample_subset] %>%
     pivot_longer(everything(), names_to = "Sample", values_to = "Methylation") %>%
     filter(!is.na(Methylation))
 ## Plot the data
-ggsave(file = paste0(output_dir, "/plots/hippocampus_methylation_plot.pdf"), plot = ggplot(meth_long, aes(x = Methylation)) +
+ggsave(file = paste0(output_dir, "/plots/dlpfc_methylation_plot.pdf"), plot = ggplot(meth_long, aes(x = Methylation)) +
     geom_histogram(bins = 50, fill = "steelblue", color = "black", alpha = 0.7) +
     facet_wrap(~Sample, ncol = 3) +
     labs(
@@ -345,8 +340,7 @@ meth_all <- meth_matrix %>%
 meth_sampled <- meth_all %>%
     group_by(primarydx) %>%
     slice_sample(n = 50000, replace = TRUE)
-
-ggsave(file = paste0(output_dir, "/plots/hippocampus_meth_by_diagnosis_plot.pdf"), plot = ggplot(meth_sampled, aes(x = Methylation, color = primarydx)) +
+ggsave(file = paste0(output_dir, "/plots/dlpfc_meth_by_diagnosis_plot.pdf"), plot = ggplot(meth_sampled, aes(x = Methylation, color = primarydx)) +
     geom_density(linewidth = 1) +
     labs(
         title = paste0("Methylation Distribution by Diagnosis: ", region_name),
@@ -404,11 +398,48 @@ if (nrow(outlier_samples) > 0) {
 
 PCA reduces the high-dimensional methylation data to a few principal components, helping visualize sample relationships and identify batch effects.
 
+## 6. CpG Filtering
+
+Based on the QC results, we apply coverage-based filtering to retain only high-quality CpG sites.
+```{r}
+#| label: cpg-filtering
+
+## Define filtering criteria
+min_coverage <- 5        # Minimum mean coverage per CpG
+min_sample_frac <- 0.8   # CpG must be covered in at least 80% of samples
+
+## Calculate coverage per CpG across samples
+cov_per_cpg <- getCoverage(bsseq_data)
+samples_with_coverage <- rowSums(cov_per_cpg >= min_coverage, na.rm = TRUE)
+fraction_covered <- samples_with_coverage / ncol(bsseq_data)
+## Apply filter
+keep_cpgs <- fraction_covered >= min_sample_frac
+## Summarize results (before and after filtering; how many CpGs were retained, rate of retention)
+cat("CpG Filtering Summary:\n")
+cat("  Original CpGs:", format(nrow(bsseq_data), big.mark = ","), "\n")
+cat("  CpGs passing filter:", format(sum(keep_cpgs), big.mark = ","), "\n")
+cat("  CpGs removed:", format(sum(!keep_cpgs), big.mark = ","), "\n")
+cat("  Retention rate:", round(mean(keep_cpgs) * 100, 1), "%\n")
+
+filtered_bsseq_data <- bsseq_data[keep_cpgs]
+```
+
 ```{r}
 #| label: pca-analysis
-
 ## Remove rows with missing values for PCA
+# meth_matrix <- meth_matrix[keep_cpgs]
+filtered_bsseq_data <- bsseq_data[keep_cpgs]
+set.seed(123)
+n_cpgs_sample <- min(100000, nrow(filtered_bsseq_data))
+cpg_subset <- sample(nrow(filtered_bsseq_data), n_cpgs_sample)
+meth_matrix <- as.matrix(getMeth(filtered_bsseq_data[cpg_subset, ], type = "raw"))
+
+
 meth_complete <- meth_matrix[complete.cases(meth_matrix), ]
+row_means_meth = rowMeans(meth_complete)
+meth_complete <- meth_complete[row_means_meth > 0, ]
+meth_complete <- unique(meth_complete)
+# meth_complete <- Filter(function(row) length(unique(row)) != 1, meth_complete)
 ## Run PCA
 pca_result <- prcomp(t(meth_complete), scale. = TRUE, center = TRUE)
 ## Calculate variance explained
@@ -436,35 +467,6 @@ pca_df <- as.data.frame(pca_result$x) %>%
 
 
 
-
----
-
-## 6. CpG Filtering
-
-Based on the QC results, we apply coverage-based filtering to retain only high-quality CpG sites.
-
-```{r}
-#| label: cpg-filtering
-
-## Define filtering criteria
-min_coverage <- 5        # Minimum mean coverage per CpG
-min_sample_frac <- 0.8   # CpG must be covered in at least 80% of samples
-
-## Calculate coverage per CpG across samples
-cov_per_cpg <- getCoverage(bsseq_data)
-samples_with_coverage <- rowSums(cov_per_cpg >= min_coverage, na.rm = TRUE)
-fraction_covered <- samples_with_coverage / ncol(bsseq_data)
-## Apply filter
-keep_cpgs <- fraction_covered >= min_sample_frac
-## Summarize results (before and after filtering; how many CpGs were retained, rate of retention)
-cat("CpG Filtering Summary:\n")
-cat("  Original CpGs:", format(nrow(bsseq_data), big.mark = ","), "\n")
-cat("  CpGs passing filter:", format(sum(keep_cpgs), big.mark = ","), "\n")
-cat("  CpGs removed:", format(sum(!keep_cpgs), big.mark = ","), "\n")
-cat("  Retention rate:", round(mean(keep_cpgs) * 100, 1), "%\n")
-```
-
----
 
 ## 7. QC Summary Table
 
@@ -542,8 +544,6 @@ cat("  - QC summary: qc_summary_", region, ".csv\n", sep = "")
 cat("  - Filtered BSseq: ", region, "_bsseq_qc_filtered_h5se/\n", sep = "")
 ```
 
----
-
 
 
 ```{r}
@@ -591,7 +591,6 @@ df = data.frame(
      stringsAsFactors = FALSE
 )
 
-
 # Trend level significance
 
 # Make submission script step1.sh
@@ -600,12 +599,16 @@ df = data.frame(
 
 pp = ggplot(df, aes(y = reorder(PC, as.numeric(sub("PC", "", PC))), x = covariant, label = ifelse(fdr < 0.05, "*", ""), fill = rho)) + geom_tile(color = "gray") + scale_fill_gradient2(low = "blue", mid = "white", high = "red", name = "rho value") + geom_text(color = "black", size = 7) + labs(y = "PC", x = "Technical and Biological Covariates")
 
-ggsave(file = paste0(output_dir, "/plots/hippocampus_all_covariates_correlation_heapmap.pdf"), plot = pp, width = 10)
+ggsave(file = paste0(output_dir, "/plots/dlpfc_all_covariates_correlation_heapmap.pdf"), plot = pp, width = 10)
 
 pp = ggplot(df, aes(y = reorder(PC, as.numeric(sub("PC", "", PC))), x = covariant, label = ifelse(fdr < 0.10, "*", ""), fill = rho)) + geom_tile(color = "gray") + scale_fill_gradient2(low = "blue", mid = "white", high = "red", name = "rho value") + geom_text(color = "black", size = 7) + labs(y = "PC", x = "Technical and Biological Covariates")
 
-ggsave(file = paste0(output_dir, "/plots/hippocampus_all_covariates_trend_heapmap.pdf"), plot = pp, width = 10)
+ggsave(file = paste0(output_dir, "/plots/dlpfc_all_covariates_trend_heapmap.pdf"), plot = pp, width = 10)
 
+
+# wide and long figure
+# organize into 1 plot
+# flip plot
 
 ```
 
