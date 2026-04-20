@@ -35,7 +35,7 @@ module list
 ENV_PATH="/projects/p32505/opt/envs"
 
 POPULATIONS=("all" "BA" "WA")
-POP=${{POPULATIONS[$SLURM_ARRAY_TASK_ID]}}
+POP=${POPULATIONS[$SLURM_ARRAY_TASK_ID]}
 export population=${POP}
 
 log_message "Extracting differentially methylated regions for ${POP}"

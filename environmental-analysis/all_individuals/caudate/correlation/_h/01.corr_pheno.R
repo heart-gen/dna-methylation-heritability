@@ -14,7 +14,7 @@ filter_pheno <- function(pheno_matrix, population) {
   if (population == "BA") {
     pheno_matrix <- pheno_matrix %>% filter(race == "AA")
   } else if (population == "WA") {
-    pheno_matrix <- pheno_matrix %>% filter(race == "CAUC")
+    pheno_matrix <- pheno_matrix %>% filter(race == "EA")
   } else if (population != "all") {
     stop("Unknown population")
   }
