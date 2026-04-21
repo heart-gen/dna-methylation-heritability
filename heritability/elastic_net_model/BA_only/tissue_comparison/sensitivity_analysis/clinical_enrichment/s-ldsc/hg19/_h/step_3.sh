@@ -51,43 +51,39 @@ HAPMAP3_SNPS="${RESOURCE_DIR}/hm3_no_MHC.list.txt"
 for REGION in "${BRAIN_REGIONS[@]}"; do
     log_message "Processing region: $REGION"
 
-    for STATUS in "${HERITABILITY[@]}"; do
-        log_message "  Processing status: $STATUS"
+    # Annotation and output directory
+    OUT_DIR="./custom_ldscores/${REGION}"
 
-        # Annotation and output directory
-        OUT_DIR="./custom_ldscores/${REGION}/${STATUS}"
+    # Input annotation file
+    ANNOT_FILE="${OUT_DIR}/${REGION}.${CHR}.annot.gz"
 
-        # Input annotation file
-        ANNOT_FILE="${OUT_DIR}/${REGION}_${STATUS}.${CHR}.annot.gz"
+    # Output file prefix
+    OUT_PREFIX="${OUT_DIR}/${REGION}.${CHR}"
 
-        # Output file prefix
-        OUT_PREFIX="${OUT_DIR}/${REGION}_${STATUS}.${CHR}"
+    # Check if annotation file exists
+    if [[ ! -f "$ANNOT_FILE" ]]; then
+        log_message "    WARNING: Annotation file not found: $ANNOT_FILE"
+        continue
+    fi
 
-        # Check if annotation file exists
-        if [[ ! -f "$ANNOT_FILE" ]]; then
-            log_message "    WARNING: Annotation file not found: $ANNOT_FILE"
-            continue
-        fi
+    # Skip if LD scores already exist
+    if [[ -f "${OUT_PREFIX}.l2.ldscore.gz" ]]; then
+        log_message "    LD scores already exist, skipping..."
+        continue
+    fi
 
-        # Skip if LD scores already exist
-        if [[ -f "${OUT_PREFIX}.l2.ldscore.gz" ]]; then
-            log_message "    LD scores already exist, skipping..."
-            continue
-        fi
-
-        log_message "    Computing LD scores..."
-        if ! python "$LDSC_WRAPPER" "$LDSC_DIR" ldsc.py \
-            --l2 \
-            --bfile "${BIM_DIR}/1000G.EUR.QC.${CHR}" \
-            --ld-wind-cm 1 \
-            --annot "$ANNOT_FILE" \
-            --thin-annot \
-            --out "$OUT_PREFIX" \
-            --print-snps "$HAPMAP3_SNPS"; then
-            log_message "    ERROR: LD score computation failed for $REGION $STATUS chr$CHR"
-            continue
-        fi
-    done
+    log_message "    Computing LD scores..."
+    if ! python "$LDSC_WRAPPER" "$LDSC_DIR" ldsc.py \
+        --l2 \
+        --bfile "${BIM_DIR}/1000G.EUR.QC.${CHR}" \
+        --ld-wind-cm 1 \
+        --annot "$ANNOT_FILE" \
+        --thin-annot \
+        --out "$OUT_PREFIX" \
+        --print-snps "$HAPMAP3_SNPS"; then
+        log_message "    ERROR: LD score computation failed for $REGION chr$CHR"
+        continue
+    fi
 done
 
 conda deactivate
