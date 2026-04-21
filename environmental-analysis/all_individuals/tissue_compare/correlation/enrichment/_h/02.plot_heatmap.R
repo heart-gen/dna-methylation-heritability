@@ -7,14 +7,14 @@ save_plot <- function(p, fn, w, h){
     }
 }
 
-load_env_enrichment <- function(){
-    return(data.table::fread("vmr_enrichment_analysis.txt"))
+load_env_enrichment <- function(pop){
+    return(data.table::fread(paste0("vmr_enrichment_analysis-", pop, ".txt")))
 }
 memENRICH <- memoise::memoise(load_env_enrichment)
 
-gen_data <- function(){
+gen_data <- function(pop){
     err = 0.0000001
-    dt <- memENRICH() %>% mutate(across(where(is.character), as.factor)) %>%
+    dt <- memENRICH(pop) %>% mutate(across(where(is.character), as.factor)) %>%
         mutate(h2_Category=fct_relevel(h2_Category, rev), `-log10(FDR)`= -log10(FDR),
                `OR Percentile`= OR / (1+OR), p.fdr.sig=FDR < 0.05,
                `log2(OR)` = log2(OR+err),
@@ -27,14 +27,15 @@ gen_data <- function(){
 }
 memDF <- memoise::memoise(gen_data)
 
-enrichment_grid <- function() {
-  memDF() %>% distinct(Tissue, Test, h2_Category)
+enrichment_grid <- function(pop) {
+  memDF(pop) %>% distinct(Tissue, Test, h2_Category)
 }
 
-plot_tile <- function(label, w, h){
-  df <- memDF() %>%
+plot_tile <- function(pop, label, w, h){
+  df <- memDF(pop) %>%
     filter(Env == label) %>%
-    right_join(enrichment_grid(), by = c("Tissue", "Test", "h2_Category")) %>%
+    right_join(enrichment_grid(pop), 
+               by = c("Tissue", "Test", "h2_Category")) %>%
     mutate(
       p.fdr.sig = replace_na(p.fdr.sig, FALSE),
       # Keep non-finite log2(OR) as NA so scale_fill maps them to na.value (light grey)
@@ -71,17 +72,21 @@ plot_tile <- function(label, w, h){
       strip.text = element_text(face = "bold", size = 22)
     )
   
-  save_plot(tile_plot, paste0(tolower(label), "_tileplot_enrichment"), w, h)
+  save_plot(tile_plot, paste0(tolower(label), "_tileplot_enrichment-", pop), w, h)
 }
 
 ## Main
 envs <- c("smoking", "less_than_hs", "more_than_hs", 
           "single", "previously_married", "codeine", 
-          "morphine", "cocaine", "ethanol", "antipsychotics","nicotine",
-          "amphetamines", "hx_sexual_abuse", "hx_physical_abuse")
+          "morphine", "ethanol", "nicotine",
+          "amphetamines")
+
+populations <- c("BA", "WA", "all")
 
 for (label in envs){
-  plot_tile(label, 10, 6)
+  for (pop in populations){
+    plot_tile(pop, label, 10, 6)
+  }
 }
 
 ## Reproducibility infor mation

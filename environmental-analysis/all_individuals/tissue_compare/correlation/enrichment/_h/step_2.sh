@@ -7,6 +7,7 @@
 #SBATCH --output=logs/plot_heatmap_%A_%a.log
 #SBATCH --nodes=1
 #SBATCH --cpus-per-task=1
+#SBATCH --array=0-2
 #SBATCH --mem=5G
 #SBATCH --time=00:10:00
 

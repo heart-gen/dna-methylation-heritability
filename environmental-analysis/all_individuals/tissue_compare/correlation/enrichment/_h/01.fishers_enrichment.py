@@ -9,9 +9,10 @@ from pyhere import here
 from functools import lru_cache
 from scipy.stats import fisher_exact
 from statsmodels.stats.multitest import fdrcorrection
+import sys
 import session_info
 
-def filter_sites(enet_df, pop):
+def filter_sites(enet_df):
     enet_df = enet_df.dropna()
     enet_df['chrom'] = 'chr' + enet_df['chrom'].astype(str)
 
@@ -47,8 +48,8 @@ def get_matching_enet(tissue):
     print(f"[ENET] AA shape (raw): {df_AA.shape}")
     print(f"[ENET] EA shape (raw): {df_EA.shape}")
 
-    enet_AA = filter_sites(df_AA, 'AA')
-    enet_EA = filter_sites(df_EA, 'EA')
+    enet_AA = filter_sites(df_AA)
+    enet_EA = filter_sites(df_EA)
     
     enet_combined = enet_AA.merge(enet_EA, on='feature_id', 
                                   suffixes=('_AA', '_EA'))
@@ -77,8 +78,12 @@ def get_matching_enet(tissue):
     return enet_combined
 
 @lru_cache()
-def get_vmrs(tissue, env, cat=None):
-    fn = here(f"environmental-analysis/all_individuals/{tissue.lower()}/correlation/_m/{env.lower()}_logit.csv.gz")
+def get_vmrs(tissue, env, pop, cat=None):
+    fn = here(f"environmental-analysis/all_individuals/{tissue.lower()}/correlation/_m/{env.lower()}_logit-{pop}.csv.gz")
+
+    print(f"[VMR LOAD] tissue={tissue} env={env} pop={pop}")
+    print(f"[VMR FILE] {fn}")
+
     vmrs = pd.read_csv(fn, sep=',') 
 
     if cat is not None:
@@ -91,8 +96,12 @@ def get_vmrs(tissue, env, cat=None):
     return vmrs
 
 @lru_cache()
-def get_dmrs(tissue, env, cat=None):
-    fn = here(f"environmental-analysis/all_individuals/{tissue.lower()}/correlation/_m/{env.lower()}_dmr.csv.gz")
+def get_dmrs(tissue, env, pop, cat=None):
+    fn = here(f"environmental-analysis/all_individuals/{tissue.lower()}/correlation/_m/{env.lower()}_dmr-{pop}.csv.gz")
+
+    print(f"[DMR LOAD] tissue={tissue} env={env} pop={pop}")
+    print(f"[DMR FILE] {fn}")
+
     dmrs = pd.read_csv(fn, sep=',')
 
     if cat is not None:
@@ -105,13 +114,13 @@ def get_dmrs(tissue, env, cat=None):
     return dmrs
 
 @lru_cache()
-def concat_dataframe(tissue, env, cat=None):
-    return pd.concat([get_vmrs(tissue, env, cat), 
-                      get_dmrs(tissue, env)])
+def concat_dataframe(tissue, env, pop, cat=None):
+    return pd.concat([get_vmrs(tissue, env, pop, cat), 
+                      get_dmrs(tissue, env, pop, cat)])
 
 @lru_cache()
-def merge_dataframe(tissue, env, cat=None):
-    merged = concat_dataframe(tissue, env, cat)
+def merge_dataframe(tissue, env, pop, cat=None):
+    merged = concat_dataframe(tissue, env, pop, cat)
     merged['chr'] = 'chr' + merged['chr'].astype(str)
 
     print(f"[MERGE] Before pivot: {merged.head()}")
@@ -126,8 +135,8 @@ def merge_dataframe(tissue, env, cat=None):
                     right_on=['chrom', 'start', 'end'],
                     how='left')
 @lru_cache()
-def cal_fishers_annot(tissue, test, h2_cat, env, cat=None):
-    df = merge_dataframe(tissue, env, cat)
+def cal_fishers_annot(tissue, test, h2_cat, pop, env, cat=None):
+    df = merge_dataframe(tissue, env, pop, cat)
     
     table = [[np.sum((df[test.lower()] == 1) & (df['h2_category'] == h2_cat)), 
               np.sum((df[test.lower()] == 1) & (df['h2_category'] != h2_cat))],
@@ -136,11 +145,11 @@ def cal_fishers_annot(tissue, test, h2_cat, env, cat=None):
     print(table)
     return fisher_exact(table)
 
-def calculate_enrichment():
+def calculate_enrichment(pop):
     region_lt = []; h2_lt = []; test_lt = []; fdr_lt = []; pval_lt = []; oddratio_lt = []; env_lt = []
 
-    env_vars = ["smoking", "codeine", "morphine", "cocaine", "ethanol", 
-                "antipsychotics","nicotine","amphetamines", "hx_sexual_abuse","hx_physical_abuse"]
+    env_vars = ["smoking", "codeine", "morphine", "ethanol", 
+                "nicotine","amphetamines"]
 
     categorical_vars = {
         "education": ['less_than_hs', 'more_than_hs'],
@@ -152,14 +161,14 @@ def calculate_enrichment():
             pvals = []
             for test in ["Logit", "DMR", "Both"]:
                 for env in env_vars:
-                    odd_ratio, pval = cal_fishers_annot(tissue, test, h2_cat, env, None)
+                    odd_ratio, pval = cal_fishers_annot(tissue, test, h2_cat, pop, env, None)
                     pvals.append(pval); h2_lt.append(h2_cat)
                     oddratio_lt.append(odd_ratio); test_lt.append(test)
                     region_lt.append(tissue); env_lt.append(env)
                     
                 for env, vars in categorical_vars.items():
                     for cat in vars:
-                        odd_ratio, pval = cal_fishers_annot(tissue, test, h2_cat, env, cat)
+                        odd_ratio, pval = cal_fishers_annot(tissue, test, h2_cat, pop, env, cat)
                         pvals.append(pval); h2_lt.append(h2_cat)
                         oddratio_lt.append(odd_ratio); test_lt.append(test)
                         region_lt.append(tissue); env_lt.append(cat)
@@ -173,7 +182,10 @@ def calculate_enrichment():
                          "FDR": fdr_lt, 'Test': test_lt, 'Env': env_lt})
 
 def main():
-    calculate_enrichment().to_csv('vmr_enrichment_analysis.txt', 
+    # Get population from command line
+    pop = sys.argv[1]
+
+    calculate_enrichment(pop).to_csv(f"vmr_enrichment_analysis-{pop}.txt", 
                                   sep='\t', index=False)
 
     # Session information

@@ -7,6 +7,7 @@
 #SBATCH --output=logs/fishers_%A_%a.log
 #SBATCH --nodes=1
 #SBATCH --cpus-per-task=1
+#SBATCH --array=2
 #SBATCH --mem=10G
 #SBATCH --time=00:15:00
 
@@ -28,12 +29,15 @@ echo "SLURM_ARRAY_TASK_ID: ${SLURM_ARRAY_TASK_ID}"
 module purge
 module list
 
+POPULATIONS=("all" "BA" "WA")
+POP=${POPULATIONS[$SLURM_ARRAY_TASK_ID]}
+
 source /projects/p32505/opt/miniforge3/etc/profile.d/conda.sh
 
-log_message "**** Run fisher's exact ****"
+log_message "**** Run fisher's exact for ${POP}****"
 conda activate /projects/p32505/opt/envs/genomics
 export LD_LIBRARY_PATH=$CONDA_PREFIX/lib:$LD_LIBRARY_PATH
-python ../_h/01.fishers_enrichment.py
+python ../_h/01.fishers_enrichment.py ${POP}
 conda deactivate
 
 log_message "**** Job ends ****"
