@@ -222,7 +222,7 @@ else
 fi
 
 # -----------------------------------------------------------------------------
-# --- Other GWAS (MS, RA, Asthma, CAD, Stroke, Smoking, Substance Abuse) ---
+# --- Other GWAS (MS, RA, Asthma, CAD, Stroke, Smoking) ---
 # Pattern: all direct run_munge calls (no heredoc)
 declare -A gwas_files=(
     ["ms"]="${GWAS_BASE}/imputed_gwas_hg38_1.1/imputed_IMMUNOBASE_Multiple_sclerosis_hg19.txt.gz"
@@ -231,7 +231,6 @@ declare -A gwas_files=(
     ["cad"]="${GWAS_BASE}/imputed_gwas_hg38_1.1/imputed_CARDIoGRAM_C4D_CAD_ADDITIVE.txt.gz"
     ["stroke"]="${GWAS_BASE}/stroke/29531354-GCST005843-HP_0002140-build37.f.tsv.gz"
     ["smoking"]="${GWAS_BASE}/gscan2/hg19/GSCAN_SmkInit_2022_GWAS_SUMMARY_STATS_EUR.txt"
-#    ["substance"]="./SUBSTANCE_ABUSE_GWAS.tsv.gz"
 )
 
 for disease in "${!gwas_files[@]}"; do
@@ -304,7 +303,7 @@ done
 # Verify outputs
 log_message "Verifying munged summary statistics..."
 echo ""
-for disease in ad scz mdd bip pd ms ra asthma cad stroke smoking height; do
+for disease in ad scz mdd bip pd ms ra asthma cad stroke smoking; do
     if [[ -f "${OUT_DIR}/${disease}.sumstats.gz" ]]; then
         n_snps=$(zcat "${OUT_DIR}/${disease}.sumstats.gz" | wc -l)
         echo "[OK] $disease: $((n_snps - 1)) SNPs"

@@ -144,7 +144,6 @@ for DISEASE in "${DISEASES[@]}"; do
                     ad|scz|mdd|bip|pd|smoking) ((neuronal_count++)) ;;
                     ms|ra|asthma) ((immune_count++)) ;;
                     cad|stroke) ((vascular_count++)) ;;
-                    height) ((control_count++)) ;;
                 esac
             fi
         done
@@ -156,7 +155,6 @@ echo "Category breakdown:"
 echo "  Neuronal (ad, scz, mdd, bip, pd, smoking): ${neuronal_count}/$((6 * 3 * n_statuses)) results"
 echo "  Immune (ms, ra, asthma): ${immune_count}/$((3 * 3 * n_statuses)) results"
 echo "  Vascular (cad, stroke): ${vascular_count}/$((2 * 3 * n_statuses)) results"
-echo "  Control (height): ${control_count}/$((1 * 3 * n_statuses)) results"
 echo ""
 echo "Total: ${total_count}/${total} results"
 
