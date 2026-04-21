@@ -46,7 +46,6 @@ for filepath in glob.glob(os.path.join(base_dir, file_pattern), recursive=True):
             l2_row = l2_row[keep_cols]
             l2_row["disease"] = disease
             l2_row["tissue"] = tissue
-            l2_row["heritability"] = h2
             l2_row["source_file"] = os.path.basename(filepath)
 
             rows.append(l2_row)
@@ -61,7 +60,7 @@ if rows:
     combined_df = pd.concat(rows, ignore_index=True)
 
     # Reorder columns (metadata first)
-    cols = ["disease", "tissue", "heritability", "source_file", "Coefficient_z-score"]
+    cols = ["disease", "tissue", "source_file", "Coefficient_z-score"]
     combined_df = combined_df[cols]
 
     # Save
