@@ -124,6 +124,8 @@ if (!dir.exists(out_path)) {
   dir.create(out_path, recursive = TRUE)
 }
 
+population  <- Sys.getenv("population")
+
 # Define variables of interest
 na_filter <- read.delim(
   here::here("environmental-analysis", "all_individuals", "tissue_compare",

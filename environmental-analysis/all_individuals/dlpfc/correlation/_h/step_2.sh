@@ -9,7 +9,7 @@
 #SBATCH --mail-user=alexis.bennett@northwestern.edu
 #SBATCH --array=0-2
 #SBATCH --job-name=extract_dmr # Job name
-#SBATCH --output=logs/extract_dmr.%j.log # Standard output log
+#SBATCH --output=logs/extract_dmr.%A_%a.log # Standard output log
 
 # Log function
 log_message() {
