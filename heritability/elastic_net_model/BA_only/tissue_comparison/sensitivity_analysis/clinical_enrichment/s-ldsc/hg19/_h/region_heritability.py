@@ -26,10 +26,13 @@ def process_subset(df_subset, lo):
         lambda x: liftover_coordinate(lo, x["chrom"], x["end"]), axis=1
     )
     df_subset.dropna(subset=["start_hg19", "end_hg19"], inplace=True)
+
     df_subset["start"] = df_subset["start_hg19"].astype(int)
     df_subset["end"] = df_subset["end_hg19"].astype(int)
+
     df_subset.drop(columns=["start_hg19", "end_hg19"], inplace=True)
-    df_subset.drop(df_subset[df_subset["start"] > df_subset["end"]].index, inplace=True)
+    df_subset = df_subset[df_subset["start"] <= df_subset["end"]]
+
     return df_subset
 
 
@@ -38,13 +41,13 @@ def sort_by_genomic_position(df_subset):
     df_subset["chrom"] = pd.Categorical(
         df_subset["chrom"], categories=chrom_order, ordered=True
     )
-    df_subset.sort_values(by=["chrom", "start"], ascending=[True, True], inplace=True)
+    df_subset.sort_values(by=["chrom", "start"], inplace=True)
     return df_subset
 
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Separate TSV into groups with genomic sorting and liftover from hg38 to hg19"
+        description="Create continuous annotation BED with liftover from hg38 to hg19"
     )
     parser.add_argument("--input_file", required=True, help="Path to input TSV file")
     parser.add_argument("--output_dir", required=True, help="Directory to save output files")
@@ -59,37 +62,22 @@ def main():
 
     df = pd.read_csv(input_file, sep='\t')
 
-    heritable = df[(df["h2_unscaled"] >= 0.1) & (df["r_squared_cv"] >= 0.3)]
-    non_heritable = df[(df["h2_unscaled"] < 0.1) & (df["r_squared_cv"] >= 0.3)]
-    low_prediction = df[df["r_squared_cv"] < 0.3]
-
+    # Keep only necessary columns (continuous annotation retained)
     cols_to_keep = ["chrom", "start", "end", "h2_unscaled"]
-    heritable = heritable[cols_to_keep].copy()
-    non_heritable = non_heritable[cols_to_keep].copy()
-    low_prediction = low_prediction[cols_to_keep].copy()
+    df = df[cols_to_keep].copy()
 
     lo = LiftOver(str(chain_file))
 
-    heritable = process_subset(heritable, lo)
-    non_heritable = process_subset(non_heritable, lo)
-    low_prediction = process_subset(low_prediction, lo)
+    # Process full dataset (no partitioning)
+    df = process_subset(df, lo)
+    df = sort_by_genomic_position(df)
 
-    heritable = sort_by_genomic_position(heritable)
-    non_heritable = sort_by_genomic_position(non_heritable)
-    low_prediction = sort_by_genomic_position(low_prediction)
+    output_bed = output_dir / "continuous_annotation_hg19.bed"
 
-    heritable_bed = output_dir / "heritable_hg19.bed"
-    non_heritable_bed = output_dir / "non_heritable_hg19.bed"
-    low_prediction_bed = output_dir / "low_prediction_hg19.bed"
+    df.to_csv(output_bed, sep='\t', index=False, header=False)
 
-    heritable.to_csv(heritable_bed, sep='\t', index=False, header=False)
-    non_heritable.to_csv(non_heritable_bed, sep='\t', index=False, header=False)
-    low_prediction.to_csv(low_prediction_bed, sep='\t', index=False, header=False)
-
-    print("Separation and liftover complete! Files saved without headers.")
-    print(f"Heritable group: {len(heritable)} rows → {heritable_bed}")
-    print(f"Non-heritable group: {len(non_heritable)} rows → {non_heritable_bed}")
-    print(f"Low prediction group: {len(low_prediction)} rows → {low_prediction_bed}")
+    print("Liftover complete! Continuous annotation file saved.")
+    print(f"Total rows: {len(df)} → {output_bed}")
 
     session_info.show()
 
