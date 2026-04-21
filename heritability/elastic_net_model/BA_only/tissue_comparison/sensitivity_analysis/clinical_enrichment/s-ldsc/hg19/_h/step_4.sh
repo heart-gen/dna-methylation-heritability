@@ -12,8 +12,8 @@
 # Step 4: Partition Heritability with S-LDSC
 # =============================================================================
 # This script runs stratified LD score regression (S-LDSC) to partition
-# heritability for each disease/trait across brain regions and heritability
-# status. Processes 11 traits x 3 regions x 3 heritability statuses = 99 analyses.
+# heritability for each disease/trait across brain regions
+# Processes 11 traits x 3 regions = 33 analyses.
 # =============================================================================
 
 # Source configuration
@@ -50,7 +50,7 @@ SUMSTATS_DIR="./sumstats"
 # DISEASES array is defined in config.sh
 
 # Counter for progress
-total=$((${#DISEASES[@]} * ${#BRAIN_REGIONS[@]} * ${#HERITABILITY[@]}))
+total=$((${#DISEASES[@]} * ${#BRAIN_REGIONS[@]}))
 current=0
 
 # Process each disease
@@ -67,54 +67,49 @@ for DISEASE in "${DISEASES[@]}"; do
 
     # Process each brain region
     for REGION in "${BRAIN_REGIONS[@]}"; do
-        log_message "  Processing region: ${REGION}"
+    ((current++))
+        log_message "  Processing region: ${REGION} (${current}/${total})"
 
-        # Process each heritability status
-        for STATUS in "${HERITABILITY[@]}"; do
-            ((current++))
-            log_message "    Processing status: ${STATUS} (${current}/${total})"
+        # Custom LD scores directory
+        CUSTOM_LD_DIR="./custom_ldscores/${REGION}"
 
-            # Custom LD scores directory
-            CUSTOM_LD_DIR="./custom_ldscores/${REGION}/${STATUS}"
+        # Output directory
+        OUT_DIR="./results/${DISEASE}/${REGION}"
+        mkdir -p "$OUT_DIR"
 
-            # Output directory
-            OUT_DIR="./results/${DISEASE}/${REGION}/${STATUS}"
-            mkdir -p "$OUT_DIR"
+        # Output file prefix
+        OUT_PREFIX="${OUT_DIR}/${DISEASE}_${REGION}"
 
-            # Output file prefix
-            OUT_PREFIX="${OUT_DIR}/${DISEASE}_${REGION}_${STATUS}"
+        # Check if custom LD scores exist
+        if [[ ! -f "${CUSTOM_LD_DIR}/${REGION}.1.l2.ldscore.gz" ]]; then
+            log_message "      WARNING: Custom LD scores not found in: $CUSTOM_LD_DIR"
+            log_message "               Run step_3.sh first to compute LD scores"
+            continue
+        fi
 
-            # Check if custom LD scores exist
-            if [[ ! -f "${CUSTOM_LD_DIR}/${REGION}_${STATUS}.1.l2.ldscore.gz" ]]; then
-                log_message "      WARNING: Custom LD scores not found in: $CUSTOM_LD_DIR"
-                log_message "               Run step_3.sh first to compute LD scores"
-                continue
-            fi
+        # Skip if results already exist
+        if [[ -f "${OUT_PREFIX}.results" ]]; then
+            log_message "      Results already exist, skipping..."
+            continue
+        fi
 
-            # Skip if results already exist
-            if [[ -f "${OUT_PREFIX}.results" ]]; then
-                log_message "      Results already exist, skipping..."
-                continue
-            fi
+        log_message "      Running S-LDSC..."
+        python "$LDSC_WRAPPER" "$LDSC_DIR" ldsc.py \
+            --h2 "$SUMSTATS_FILE" \
+            --ref-ld-chr "${BASELINE_LD_DIR}/baselineLD.,${CUSTOM_LD_DIR}/${REGION}." \
+            --w-ld-chr "${WEIGHTS_DIR}/weights.hm3_noMHC." \
+            --frqfile-chr "${FRQ_DIR}/1000G.EUR.QC." \
+            --overlap-annot \
+            --thin-annot \
+            --print-coefficients \
+            --out "$OUT_PREFIX"
 
-            log_message "      Running S-LDSC..."
-            python "$LDSC_WRAPPER" "$LDSC_DIR" ldsc.py \
-                --h2 "$SUMSTATS_FILE" \
-                --ref-ld-chr "${BASELINE_LD_DIR}/baselineLD.,${CUSTOM_LD_DIR}/${REGION}_${STATUS}." \
-                --w-ld-chr "${WEIGHTS_DIR}/weights.hm3_noMHC." \
-                --frqfile-chr "${FRQ_DIR}/1000G.EUR.QC." \
-                --overlap-annot \
-                --thin-annot \
-                --print-coefficients \
-                --out "$OUT_PREFIX"
-
-            # Check if analysis succeeded
-            if [[ -f "${OUT_PREFIX}.results" ]]; then
-                log_message "      Success: ${OUT_PREFIX}.results"
-            else
-                log_message "      ERROR: S-LDSC failed for ${DISEASE}/${REGION}/${STATUS}"
-            fi
-        done
+        # Check if analysis succeeded
+        if [[ -f "${OUT_PREFIX}.results" ]]; then
+            log_message "      Success: ${OUT_PREFIX}.results"
+        else
+            log_message "      ERROR: S-LDSC failed for ${DISEASE}/${REGION}"
+        fi
     done
 done
 
@@ -136,25 +131,23 @@ total_count=0
 
 for DISEASE in "${DISEASES[@]}"; do
     for REGION in "${BRAIN_REGIONS[@]}"; do
-        for STATUS in "${HERITABILITY[@]}"; do
-            RESULT_FILE="./results/${DISEASE}/${REGION}/${STATUS}/${DISEASE}_${REGION}_${STATUS}.results"
-            if [[ -f "$RESULT_FILE" ]]; then
-                ((total_count++))
-                case $DISEASE in
-                    ad|scz|mdd|bip|pd|smoking) ((neuronal_count++)) ;;
-                    ms|ra|asthma) ((immune_count++)) ;;
-                    cad|stroke) ((vascular_count++)) ;;
-                esac
-            fi
-        done
+        RESULT_FILE="./results/${DISEASE}/${REGION}/${DISEASE}_${REGION}.results"
+        if [[ -f "$RESULT_FILE" ]]; then
+            ((total_count++))
+            case $DISEASE in
+                ad|scz|mdd|bip|pd|smoking) ((neuronal_count++)) ;;
+                ms|ra|asthma) ((immune_count++)) ;;
+                cad|stroke) ((vascular_count++)) ;;
+            esac
+        fi
     done
 done
 
-n_statuses=${#HERITABILITY[@]}
+n_regions=${#BRAIN_REGIONS[@]}
 echo "Category breakdown:"
-echo "  Neuronal (ad, scz, mdd, bip, pd, smoking): ${neuronal_count}/$((6 * 3 * n_statuses)) results"
-echo "  Immune (ms, ra, asthma): ${immune_count}/$((3 * 3 * n_statuses)) results"
-echo "  Vascular (cad, stroke): ${vascular_count}/$((2 * 3 * n_statuses)) results"
+echo "  Neuronal (ad, scz, mdd, bip, pd, smoking): ${neuronal_count}/$((6 * n_regions)) results"
+echo "  Immune (ms, ra, asthma): ${immune_count}/$((3 * n_regions)) results"
+echo "  Vascular (cad, stroke): ${vascular_count}/$((2 * n_regions)) results"
 echo ""
 echo "Total: ${total_count}/${total} results"
 
