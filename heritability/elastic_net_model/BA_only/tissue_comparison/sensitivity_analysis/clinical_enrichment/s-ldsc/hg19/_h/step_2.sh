@@ -117,15 +117,13 @@ log_message "Verifying annotation files..."
 echo ""
 echo "=== Annotation Files ==="
 for REGION in "${BRAIN_REGIONS[@]}"; do
-    for STATUS in "${HERITABILITY[@]}"; do
-        OUT_DIR="./custom_ldscores/${REGION}/${STATUS}"
-        count=$(ls -1 "${OUT_DIR}"/*.annot.gz 2>/dev/null | wc -l)
-        if [[ $count -eq 22 ]]; then
-            echo "[OK] ${REGION}/${STATUS}: $count annotation files"
-        else
-            echo "[INCOMPLETE] ${REGION}/${STATUS}: $count/22 annotation files"
-        fi
-    done
+    OUT_DIR="./custom_ldscores/${REGION}"
+    count=$(ls -1 "${OUT_DIR}"/*.annot.gz 2>/dev/null | wc -l)
+    if [[ $count -eq 22 ]]; then
+        echo "[OK] ${REGION}/${STATUS}: $count annotation files"
+    else
+        echo "[INCOMPLETE] ${REGION}/${STATUS}: $count/22 annotation files"
+    fi
 done
 
 conda deactivate
