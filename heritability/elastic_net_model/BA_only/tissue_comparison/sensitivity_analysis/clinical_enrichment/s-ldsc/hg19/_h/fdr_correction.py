@@ -8,7 +8,7 @@ from statsmodels.stats.multitest import multipletests
 base_dir = "./results"
 
 # Diseases to keep
-allowed_diseases = {"height", "smoking", "ad", "pd", "scz"}
+allowed_diseases = {"smoking", "ad", "pd", "scz"}
 
 # Find all result files recursively
 file_pattern = "**/*.results"
