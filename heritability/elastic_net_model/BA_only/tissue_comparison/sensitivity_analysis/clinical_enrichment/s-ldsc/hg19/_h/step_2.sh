@@ -120,9 +120,9 @@ for REGION in "${BRAIN_REGIONS[@]}"; do
     OUT_DIR="./custom_ldscores/${REGION}"
     count=$(ls -1 "${OUT_DIR}"/*.annot.gz 2>/dev/null | wc -l)
     if [[ $count -eq 22 ]]; then
-        echo "[OK] ${REGION}/${STATUS}: $count annotation files"
+        echo "[OK] ${REGION}: $count annotation files"
     else
-        echo "[INCOMPLETE] ${REGION}/${STATUS}: $count/22 annotation files"
+        echo "[INCOMPLETE] ${REGION}: $count/22 annotation files"
     fi
 done
 
