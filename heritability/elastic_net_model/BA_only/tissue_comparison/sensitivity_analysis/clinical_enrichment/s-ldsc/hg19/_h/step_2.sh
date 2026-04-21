@@ -58,60 +58,55 @@ ANNOT_SCRIPT="${SCRIPT_DIR}/make_annot_continuous.py"
 # Resource paths
 BIM_DIR="${RESOURCE_DIR}/1000G_EUR_Phase3_plink"
 
-# Process each brain region and heritability status
+# Process each brain region (NO heritability split)
 for REGION in "${BRAIN_REGIONS[@]}"; do
     log_message "Processing region: $REGION"
 
-    for STATUS in "${HERITABILITY[@]}"; do
-        log_message "  Processing status: $STATUS"
+    # Input BED file (continuous values assumed in column 4)
+    BED_FILE="./vmr/${REGION}/continuous_annotation_hg19.bed"
 
-        # Input BED file
-        BED_FILE="./vmr/${REGION}/${STATUS}.bed"
+    # Output directory
+    OUT_DIR="./custom_ldscores/${REGION}"
+    mkdir -p "$OUT_DIR"
 
-        # Output directory
-        OUT_DIR="./custom_ldscores/${REGION}/${STATUS}"
-        mkdir -p "$OUT_DIR"
+    # Check if BED file exists
+    if [[ ! -f "$BED_FILE" ]]; then
+        log_message "WARNING: BED file not found: $BED_FILE"
+        continue
+    fi
 
-        # Check if BED file exists
-        if [[ ! -f "$BED_FILE" ]]; then
-            log_message "    WARNING: BED file not found: $BED_FILE"
+    # Filter and sort BED file
+    SORTED_BED_FILE="${OUT_DIR}/${REGION}.sorted.bed"
+    if [[ ! -f "$SORTED_BED_FILE" ]]; then
+        log_message "Filtering and sorting BED file..."
+        awk -F'\t' '$1 != "" && $1 ~ /^chr[0-9]+$/' "$BED_FILE" | bedtools sort > "$SORTED_BED_FILE"
+        log_message "Filtered BED file: $(wc -l < "$SORTED_BED_FILE") valid entries"
+    fi
+
+    # Process each chromosome
+    for CHR in {1..22}; do
+        log_message "Processing chromosome $CHR..."
+
+        BIM_FILE="${BIM_DIR}/1000G.EUR.QC.${CHR}.bim"
+        ANNOT_FILE="${OUT_DIR}/${REGION}.${CHR}.annot.gz"
+
+        # Check if BIM file exists
+        if [[ ! -f "$BIM_FILE" ]]; then
+            log_message "WARNING: BIM file not found: $BIM_FILE"
             continue
         fi
 
-        # Filter and sort BED file (required for bedtools merge in make_annot.py)
-        # Remove entries with empty chromosome (failed liftover regions)
-        SORTED_BED_FILE="${OUT_DIR}/${REGION}_${STATUS}.sorted.bed"
-        if [[ ! -f "$SORTED_BED_FILE" ]]; then
-            log_message "    Filtering and sorting BED file..."
-            awk -F'\t' '$1 != "" && $1 ~ /^chr[0-9]+$/' "$BED_FILE" | bedtools sort > "$SORTED_BED_FILE"
-            log_message "    Filtered BED file: $(wc -l < "$SORTED_BED_FILE") valid entries"
+        # Skip if annotation already exists
+        if [[ -f "$ANNOT_FILE" ]]; then
+            log_message "Annotation already exists, skipping..."
+            continue
         fi
 
-        # Process each chromosome
-        for CHR in {1..22}; do
-            log_message "    Processing chromosome $CHR..."
-
-            BIM_FILE="${BIM_DIR}/1000G.EUR.QC.${CHR}.bim"
-            ANNOT_FILE="${OUT_DIR}/${REGION}_${STATUS}.${CHR}.annot.gz"
-
-            # Check if BIM file exists
-            if [[ ! -f "$BIM_FILE" ]]; then
-                log_message "      WARNING: BIM file not found: $BIM_FILE"
-                continue
-            fi
-
-            # Skip if annotation already exists
-            if [[ -f "$ANNOT_FILE" ]]; then
-                log_message "      Annotation already exists, skipping..."
-                continue
-            fi
-
-            python "$ANNOT_SCRIPT" \
-                --bed-file "$SORTED_BED_FILE" \
-                --bimfile "$BIM_FILE" \
-                --annot-file "$ANNOT_FILE" \
-                --windowsize 500000
-        done
+        python "$ANNOT_SCRIPT" \
+            --bed-file "$SORTED_BED_FILE" \
+            --bimfile "$BIM_FILE" \
+            --annot-file "$ANNOT_FILE" \
+            --windowsize 500000
     done
 done
 
