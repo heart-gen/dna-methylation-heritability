@@ -148,8 +148,8 @@ def cal_fishers_annot(tissue, test, h2_cat, pop, env, cat=None):
 def calculate_enrichment(pop):
     region_lt = []; h2_lt = []; test_lt = []; fdr_lt = []; pval_lt = []; oddratio_lt = []; env_lt = []
 
-    env_vars = ["smoking", "codeine", "morphine", "ethanol", 
-                "nicotine","amphetamines"]
+    env_vars = ["smoking", "codeine", "morphine", "cocaine", "ethanol", 
+                "antipsychotics", "nicotine", "amphetamines", "any_trauma_hx"]
 
     categorical_vars = {
         "education": ['less_than_hs', 'more_than_hs'],

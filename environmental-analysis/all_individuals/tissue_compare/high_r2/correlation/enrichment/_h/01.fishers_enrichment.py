@@ -99,7 +99,7 @@ def get_dmrs(tissue, env, cat=None):
 @lru_cache()
 def concat_dataframe(tissue, env, cat=None):
     return pd.concat([get_vmrs(tissue, env, cat), 
-                      get_dmrs(tissue, env)])
+                      get_dmrs(tissue, env, cat)])
 
 @lru_cache()
 def merge_dataframe(tissue, env, cat=None):
@@ -130,7 +130,7 @@ def calculate_enrichment():
     region_lt = []; h2_lt = []; test_lt = []; fdr_lt = []; pval_lt = []; oddratio_lt = []; env_lt = []
 
     env_vars = ["smoking", "codeine", "morphine", "cocaine", "ethanol", 
-                "antipsychotics","nicotine","amphetamines", "hx_sexual_abuse","hx_physical_abuse"]
+                "antipsychotics", "nicotine", "amphetamines", "any_trauma_hx"]
 
     categorical_vars = {
         "education": ['less_than_hs', 'more_than_hs'],

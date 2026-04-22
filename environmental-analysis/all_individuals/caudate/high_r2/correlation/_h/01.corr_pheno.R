@@ -8,6 +8,8 @@ suppressPackageStartupMessages({
   library(tidyverse)
 })
 
+source(here("environmental-analysis", "BA_only", "tissue_compare", "_h", "discovery_exposures.R"))
+
 ## Function
 
 filter_pheno <- function(pheno_matrix, population) {
@@ -37,6 +39,7 @@ pheno_matrix_fn <- here("environmental-analysis", "all_individuals",
                         paste0(tissue, "/high_r2/correlation/_m/vmr_env_assoc-all.tsv.gz"))
 pheno_matrix <- fread(pheno_matrix_fn, na.strings = c(NA, ""))
 pheno_matrix <- filter_pheno(pheno_matrix, population)
+report_env_var_coverage(pheno_matrix, get_discovery_env_vars())
 
 ####### Covariate testing #########
 
@@ -94,12 +97,7 @@ for (cov in cov_names){
 ####### Environmental testing #########
 
                                         # Define environmental vars
-na_filter <- read.delim(
-  here::here("environmental-analysis", "all_individuals", "tissue_compare",
-             "high_r2", "correlation", "prediction", "_m", "drfe_results", "na_filter_summary.tsv")
-)
-na_filter$excluded = tolower(na_filter$excluded) == "true"
-testing_envs <- na_filter$variable[!na_filter$excluded]
+testing_envs <- get_discovery_env_vars()
   
 for (env in testing_envs) {
   pheno_matrix %>% 
