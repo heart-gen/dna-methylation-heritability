@@ -20,9 +20,8 @@ for filepath in glob.glob(os.path.join(base_dir, file_pattern), recursive=True):
         parts = filepath.split(os.sep)
 
         # Extract metadata
-        disease = parts[-4]
-        tissue = parts[-3]
-        h2 = parts[-2]
+        disease = parts[-3]
+        tissue = parts[-2]
 
         # Skip unwanted diseases
         if disease not in allowed_diseases:
@@ -46,7 +45,6 @@ for filepath in glob.glob(os.path.join(base_dir, file_pattern), recursive=True):
             l2_row = l2_row[keep_cols]
             l2_row["disease"] = disease
             l2_row["tissue"] = tissue
-            l2_row["source_file"] = os.path.basename(filepath)
 
             rows.append(l2_row)
         else:
@@ -60,7 +58,7 @@ if rows:
     combined_df = pd.concat(rows, ignore_index=True)
 
     # Reorder columns (metadata first)
-    cols = ["disease", "tissue", "source_file", "Coefficient_z-score"]
+    cols = ["disease", "tissue", "Coefficient_z-score"]
     combined_df = combined_df[cols]
 
     # Save
