@@ -208,105 +208,127 @@ def main():
 
     # Get unique regions (sorted for reproducibility)
     all_regions = ["Caudate", "Hippocampus", "DLPFC"]
+    all_populations = ["BA", "WA", "all"]
     h2_categories = ["Heritable", "Non-heritable", "Low prediction"]
 
     # SLURM array job support: process single region if SLURM_ARRAY_TASK_ID is set
     slurm_task_id = os.environ.get("SLURM_ARRAY_TASK_ID")
     if slurm_task_id is not None:
         task_idx = int(slurm_task_id)
-        if task_idx >= len(all_regions):
-            print(f"SLURM_ARRAY_TASK_ID={task_idx} exceeds number of regions ({len(all_regions)})")
+
+        n_tasks = len(all_regions) * len(all_populations)
+
+        if task_idx >= n_tasks:
+            print(f"SLURM_ARRAY_TASK_ID={task_idx} exceeds number of tasks ({n_tasks})")
             return
-        regions_to_process = [all_regions[task_idx]]
-        print(f"SLURM array job: processing region index {task_idx} -> {regions_to_process[0]}")
+        
+        region_idx = task_idx % len(all_regions)
+        pop_idx = task_idx // len(all_regions)
+
+        regions_to_process = [all_regions[region_idx]]
+        pops_to_process = [all_populations[pop_idx]]
+
+        print(f"SLURM array job: processing index {task_idx} -> region:{regions_to_process[0]} | population: {pops_to_process[0]}")
     else:
         regions_to_process = all_regions
+        pops_to_process = all_populations
         print("Processing all regions (no SLURM_ARRAY_TASK_ID set)")
 
     # Loop prediction
     results = []
     task_count = 0
-    for region in regions_to_process:
-        for h2_cat in h2_categories:
-            print(f"\nProcessing: {region} / {h2_cat}")
+    for population in pops_to_process:
+        for region in regions_to_process:
+            for h2_cat in h2_categories:
+                print(f"\nProcessing: {region} / {h2_cat}")
 
-            # Load data
-            DATA_PATH = Path(f"../../../../{region.lower()}/correlation/_m/vmr_env_assoc-all.tsv.gz")
-            print("Loading data...")
-            df = load_data(DATA_PATH)
-            print(f"Loaded {len(df)} rows")
+                # Load data
+                DATA_PATH = Path(f"../../../../{region.lower()}/correlation/_m/vmr_env_assoc-all.tsv.gz")
+                print("Loading data...")
+                df = load_data(DATA_PATH)
+                print(f"Loaded {len(df)} rows")
 
-            sub = df[(df["h2_category"] == h2_cat)]
-            X = filter_features(sub, FEATURE_MIN_FRAC, MIN_FEATURE_VAR)
+                if population == "all":
+                    sub = df[(df["h2_category"] == h2_cat)]
+                elif population == "BA": 
+                    sub = df[(df["h2_category"] == h2_cat) & 
+                            (df["race"] == "AA")]
+                elif population == "WA": 
+                    sub = df[(df["h2_category"] == h2_cat) & 
+                            (df["race"] == "EA")]
+                else:
+                    raise ValueError(f"Unknown population {population}")
+                    
+                X = filter_features(sub, FEATURE_MIN_FRAC, MIN_FEATURE_VAR)
 
-            if X.shape[1] < 10:
-                continue
-
-            for yvar in ENV_VARS:
-                Xy, y = filter_target(sub, X, yvar)
-
-                # Require ≥2 classes
-                if y.nunique() < 2:
+                if X.shape[1] < 10:
                     continue
 
-                # Minimum samples per class
-                class_counts = y.value_counts()
-                if (class_counts < 10).any():
-                    continue
+                for yvar in ENV_VARS:
+                    Xy, y = filter_target(sub, X, yvar)
 
-                if len(y) < MIN_SAMPLES:
-                    continue
+                    # Require ≥2 classes
+                    if y.nunique() < 2:
+                        continue
 
-                # Create task-specific output directory (file-safe h2_category)
-                h2_cat_safe = make_file_safe(h2_cat)
-                task_outdir = OUTDIR / f"{region}_{h2_cat_safe}_{yvar}"
-                task_outdir.mkdir(exist_ok=True)
+                    # Minimum samples per class
+                    class_counts = y.value_counts()
+                    if (class_counts < 10).any():
+                        continue
 
-                features = np.array(Xy.columns.tolist())
+                    if len(y) < MIN_SAMPLES:
+                        continue
 
-                try:
-                    # Run cross-validated dRFE
-                    fold_results, fold_importances = run_drfe_cv(
-                        Xy.values, y.values, features, task_outdir,
-                        n_splits=5, elimination_rate=0.2
-                    )
+                    # Create task-specific output directory (file-safe h2_category)
+                    h2_cat_safe = make_file_safe(h2_cat)
+                    task_outdir = OUTDIR / f"{region}_{h2_cat_safe}_{population}_{yvar}"
+                    task_outdir.mkdir(exist_ok=True)
 
-                    # Aggregate results
-                    best_score, best_nfeat = aggregate_fold_results(fold_results)
+                    features = np.array(Xy.columns.tolist())
 
-                    # Rank features across folds for biological analysis
-                    rank_df = rank_features_across_folds(features, fold_importances)
-                    rank_df.to_csv(
-                        task_outdir / "ranked_features.tsv",
-                        sep="\t", index=False
-                    )
+                    try:
+                        # Run cross-validated dRFE
+                        fold_results, fold_importances = run_drfe_cv(
+                            Xy.values, y.values, features, task_outdir,
+                            n_splits=5, elimination_rate=0.2
+                        )
 
-                    results.append({
-                        "region": region, "h2_category": h2_cat,
-                        "h2_category_safe": h2_cat_safe,
-                        "env_var": yvar, "n_samples": len(y),
-                        "n_features": X.shape[1], "best_score": best_score,
-                        "best_n_features": best_nfeat
-                    })
+                        # Aggregate results
+                        best_score, best_nfeat = aggregate_fold_results(fold_results)
 
-                    # Save selected features (top N based on ranking)
-                    selected = rank_df.head(best_nfeat)["feature"].tolist()
-                    pd.Series(selected).to_csv(
-                        task_outdir / "selected_features.txt",
-                        index=False
-                    )
+                        # Rank features across folds for biological analysis
+                        rank_df = rank_features_across_folds(features, fold_importances)
+                        rank_df.to_csv(
+                            task_outdir / "ranked_features.tsv",
+                            sep="\t", index=False
+                        )
 
-                    task_count += 1
-                    print(f"  [{task_count}] {yvar}: score={best_score:.3f}, "
-                          f"n_features={best_nfeat}, n_samples={len(y)}")
+                        results.append({
+                            "region": region, "h2_category": h2_cat,
+                            "h2_category_safe": h2_cat_safe,
+                            "env_var": yvar, "n_samples": len(y),
+                            "n_features": X.shape[1], "best_score": best_score,
+                            "best_n_features": best_nfeat
+                        })
 
-                except Exception as e:
-                    print(f"  [FAILED] {yvar}: {e}")
+                        # Save selected features (top N based on ranking)
+                        selected = rank_df.head(best_nfeat)["feature"].tolist()
+                        pd.Series(selected).to_csv(
+                            task_outdir / "selected_features.txt",
+                            index=False
+                        )
+
+                        task_count += 1
+                        print(f"  [{task_count}] {yvar}: score={best_score:.3f}, "
+                            f"n_features={best_nfeat}, n_samples={len(y)}")
+
+                    except Exception as e:
+                        print(f"  [FAILED] {yvar}: {e}")
 
     # Save summary (region-specific filename for SLURM array jobs)
     res_df = pd.DataFrame(results)
     if slurm_task_id is not None:
-        summary_file = OUTDIR / f"drfe_summary_{regions_to_process[0]}.tsv"
+        summary_file = OUTDIR / f"drfe_summary_{regions_to_process[0]}-{population}.tsv"
     else:
         summary_file = OUTDIR / "drfe_summary.tsv"
     res_df.to_csv(summary_file, sep="\t", index=False)
