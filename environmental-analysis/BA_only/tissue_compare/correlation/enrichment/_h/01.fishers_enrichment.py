@@ -11,6 +11,16 @@ from scipy.stats import fisher_exact
 from statsmodels.stats.multitest import fdrcorrection
 import session_info
 
+BINARY_ENVS = [
+    "smoking", "codeine", "morphine", "cocaine", "ethanol",
+    "antipsychotics", "nicotine", "amphetamines", "any_trauma_hx"
+]
+
+CATEGORICAL_ENVS = {
+    "education": ["less_than_hs", "more_than_hs"],
+    "marital_status": ["single", "previously_married"],
+}
+
 @lru_cache()
 def get_enet(tissue):
     # get vmrs
@@ -48,7 +58,7 @@ def get_dmrs(tissue, env, cat=None):
     dmrs = pd.read_csv(fn, sep=',')
 
     if cat is not None:
-        dmrs = dmrs[dmrs['level'] == {cat}]
+        dmrs = dmrs[dmrs['level'] == cat]
     
     dmrs['test'] = 'dmr'
     dmrs['sig'] = dmrs['p.value'] < 0.05
@@ -57,7 +67,7 @@ def get_dmrs(tissue, env, cat=None):
 @lru_cache()
 def concat_dataframe(tissue, env, cat=None):
     return pd.concat([get_vmrs(tissue, env, cat), 
-                      get_dmrs(tissue, env)])
+                      get_dmrs(tissue, env, cat)])
 
 @lru_cache()
 def merge_dataframe(tissue, env, cat=None):
@@ -87,25 +97,17 @@ def cal_fishers_annot(tissue, test, h2_cat, env, cat=None):
 def calculate_enrichment():
     region_lt = []; h2_lt = []; test_lt = []; fdr_lt = []; pval_lt = []; oddratio_lt = []; env_lt = []
 
-    env_vars = ["smoking", "codeine", "morphine", "cocaine", "ethanol", 
-                "nicotine","amphetamines"]
-
-    categorical_vars = {
-        "education": ['less_than_hs', 'more_than_hs'],
-        "marital_status": ['single', 'previously_married']
-    }
-
     for tissue in ["Caudate", "Hippocampus", "DLPFC"]:
         for h2_cat in ["Heritable", "Non-heritable", "Low prediction"]:
             pvals = []
             for test in ["Logit", "DMR", "Both"]:
-                for env in env_vars:
+                for env in BINARY_ENVS:
                     odd_ratio, pval = cal_fishers_annot(tissue, test, h2_cat, env, None)
                     pvals.append(pval); h2_lt.append(h2_cat)
                     oddratio_lt.append(odd_ratio); test_lt.append(test)
                     region_lt.append(tissue); env_lt.append(env)
                     
-                for env, vars in categorical_vars.items():
+                for env, vars in CATEGORICAL_ENVS.items():
                     for cat in vars:
                         odd_ratio, pval = cal_fishers_annot(tissue, test, h2_cat, env, cat)
                         pvals.append(pval); h2_lt.append(h2_cat)

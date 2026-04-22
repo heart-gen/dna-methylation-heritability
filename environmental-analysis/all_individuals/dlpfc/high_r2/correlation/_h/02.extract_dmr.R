@@ -11,6 +11,8 @@ suppressPackageStartupMessages({
   library(stringr)
 })
 
+source(here("environmental-analysis", "BA_only", "tissue_compare", "_h", "discovery_exposures.R"))
+
 ## Function 
 get_null_dmr <- function(pheno_matrix) {
   
@@ -113,17 +115,13 @@ if (!dir.exists(out_path)) {
 }
 
 # Define variables of interest
-na_filter <- read.delim(
-  here::here("environmental-analysis", "all_individuals", "tissue_compare",
-             "high_r2", "correlation", "prediction", "_m", "drfe_results", "na_filter_summary.tsv")
-)
-na_filter$excluded = tolower(na_filter$excluded) == "true"
-vars_to_include <- na_filter$variable[!na_filter$excluded]
+vars_to_include <- get_discovery_env_vars()
 
 # Get phenotype matrix
 pheno_matrix_fn <- here("environmental-analysis", "all_individuals", "dlpfc", 
                         "high_r2", "correlation", "_m", "vmr_env_assoc-all.tsv.gz")
 pheno_matrix <- fread(pheno_matrix_fn, na.strings = c(NA, ""))
+report_env_var_coverage(pheno_matrix, vars_to_include)
 
 # Get VMR IDs
 vmr_ids <- pheno_matrix %>% select(feature_id, chr, start, end) %>%

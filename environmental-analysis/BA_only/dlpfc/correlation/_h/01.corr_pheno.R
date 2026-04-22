@@ -7,6 +7,8 @@ suppressPackageStartupMessages({
   library(data.table)
 })
 
+source(here("environmental-analysis", "BA_only", "tissue_compare", "_h", "discovery_exposures.R"))
+
 ## Function
 save_plot <- function(p, fn, w=8, h=6) {
   for (ext in c(".png", ".pdf")) {
@@ -27,6 +29,7 @@ if (!dir.exists(out_path)) {
 pheno_matrix_fn <- here("environmental-analysis", "BA_only", paste0(tissue, 
                         "/correlation/_m/vmr_env_assoc-AA.tsv.gz"))
 pheno_matrix <- fread(pheno_matrix_fn, na.strings = c(NA, ""))
+report_env_var_coverage(pheno_matrix, get_discovery_env_vars())
 
 ####### Covariate testing #########
 
@@ -83,12 +86,7 @@ for (cov in cov_names){
 ####### Environmental testing #########
 
                                         # Define environmental vars
-na_filter <- read.delim(
-  here::here("environmental-analysis", "BA_only", "tissue_compare",
-             "correlation", "prediction", "_m", "drfe_results", "na_filter_summary.tsv")
-)
-na_filter$excluded = tolower(na_filter$excluded) == "true"
-testing_envs <- na_filter$variable[!na_filter$excluded]
+testing_envs <- get_discovery_env_vars()
 
 for (env in testing_envs) {
   pheno_matrix %>%
