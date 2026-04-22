@@ -7,7 +7,7 @@
 #SBATCH --output=logs/env_pred_%A_%a.log
 #SBATCH --nodes=1
 #SBATCH --cpus-per-task=1
-#SBATCH --array=0-2
+#SBATCH --array=0-8
 #SBATCH --mem=16G
 #SBATCH --time=08:00:00
 
