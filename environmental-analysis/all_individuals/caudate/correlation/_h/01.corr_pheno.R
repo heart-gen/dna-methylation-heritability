@@ -90,11 +90,19 @@ pheno_matrix_split <- create_quintiles(pheno_matrix, population)
 covars <- "age + sex + dx + afr_ances"
 
                                         # Get unique quintiles
-valid_quintiles <- unique(pheno_matrix_split$h2_quintile)
+valid_quintiles <- sort(unique(pheno_matrix_split$h2_quintile))
 
 for (quintile in valid_quintiles) {
   print(paste("Running regression models in", quintile))
-
+  
+  subdir <- paste(quintile)
+  
+  # create output directories if they  
+  # don't exist
+  subdir_path <- file.path(out_path, subdir)
+  if (!dir.exists(subdir_path)) {
+    dir.create(subdir_path, recursive = TRUE)
+  }
                                         # Initialize results matrix
   cov_results <- tibble()  
   
@@ -142,9 +150,8 @@ for (quintile in valid_quintiles) {
     cov_filtered <- cov_results %>% filter(startsWith(var, cov))
     
     # Write results
-    out_cov_lm <- file.path(out_path, 
-                            paste0(cov, "_linear_", population, 
-                                   "_Q", quintile, ".csv.gz"))
+    out_cov_lm <- file.path(subdir_path, 
+                            paste0(cov, "_linear_", population, ".csv.gz"))
     fwrite(cov_filtered, out_cov_lm)
   }
   
@@ -205,9 +212,8 @@ for (quintile in valid_quintiles) {
       inner_join(env_results, "feature_id")
     
     # Write results
-    out_lm <- file.path(out_path, 
-                        paste0(env, "_linear_", population, 
-                               "_Q", quintile, ".csv.gz"))
+    out_lm <- file.path(subdir_path, 
+                        paste0(env, "_linear_", population, ".csv.gz"))
     fwrite(env_results, out_lm)
   }
 }
