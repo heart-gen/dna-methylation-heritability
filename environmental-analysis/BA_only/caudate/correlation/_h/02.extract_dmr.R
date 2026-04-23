@@ -13,7 +13,42 @@ suppressPackageStartupMessages({
 
 source(here("environmental-analysis", "BA_only", "tissue_compare", "_h", "discovery_exposures.R"))
 
+N_QUINTILES <- 5
+
 ## Function 
+create_quintiles <- function(df) {
+  # Remove low prediction VMRs
+  df <- df %>%
+    filter(h2_category %in% c("Heritable", "Non-heritable"))
+  
+  breaks <- quantile(df$h2_unscaled,
+                     probs = seq(0, 1, 1 / N_QUINTILES),
+                     na.rm = TRUE) |>
+    unique()
+  n_bins <- length(breaks) - 1
+
+  if (n_bins < 1) {
+    warning(sprintf(
+      "Insufficient unique h2 values to compute quantile bins"
+    ))
+    return(tibble())
+  }
+
+  if (n_bins < N_QUINTILES) {
+    warning(sprintf(
+      "Reduced h2 bins from %d to %d because quantile breaks were not unique",
+      N_QUINTILES, n_bins
+    ))
+  }
+
+  df |>
+    mutate(h2_quintile = cut(h2_unscaled,
+                             breaks = breaks,
+                             labels = paste0("Q", seq_len(n_bins)),
+                             include.lowest = TRUE)) |>
+    filter(!is.na(h2_quintile))
+}
+
 get_null_dmr <- function(pheno_matrix) {
   
   # Format matrices
@@ -122,55 +157,73 @@ pheno_matrix_fn <- here("environmental-analysis", "BA_only", "caudate",
                         "correlation", "_m", "vmr_env_assoc-AA.tsv.gz")
 pheno_matrix <- fread(pheno_matrix_fn, na.strings = c(NA, ""))
 report_env_var_coverage(pheno_matrix, vars_to_include)
+pheno_matrix_split <- create_quintiles(pheno_matrix)
 
-                                        # Get VMR IDs
-vmr_ids <- pheno_matrix %>% select(feature_id, chr, start, end) %>%
-  distinct(feature_id, .keep_all = TRUE)
+valid_quintiles <- sort(unique(pheno_matrix_split$h2_quintile))
 
-print(paste("Extracting DMRs related to covariates"))
-
-coef_res <- get_null_dmr(pheno_matrix)
-
-# Count significant dmrs
-summary <- coef_res %>%
-  group_by(var) %>%
-  summarise(sig_fdr = sum(fdr < 0.05),
-            sig_p = sum(p.value < 0.05))
-print(summary)
-
-covs_to_include <- c("age", "sex", "dx", "afr_ances")
-
-# Output significant dmrs
-for (cov in covs_to_include){
-  cov_merged <- coef_res %>%
-    filter(var == cov) %>%
-    left_join(select(pheno_matrix, chr, start, end, feature_id), multiple = "first") %>%
-    select("feature_id", "chr", "start", "end", everything())
+for (quintile in valid_quintiles) {
+  print(paste("Running regression models in", quintile))
   
-  out_cov_dmr <- file.path(out_path, paste0(cov, "_dmr.csv.gz"))
-  fwrite(cov_merged, out_cov_dmr)
-}
+  subdir <- paste(quintile)
+  
+  # create output directories if they  
+  # don't exist
+  subdir_path <- file.path(out_path, subdir)
+  if (!dir.exists(subdir_path)) {
+    dir.create(subdir_path, recursive = TRUE)
+  }
 
-# Run DMR analysis for environmental vars
-for (env in vars_to_include) {
-  
-  print(paste("Extracting DMRs related to:", env))
-  
-  res <- get_dmr(pheno_matrix, env)
-  
-                                        # Count significant dmrs
-  print(paste("At FDR < 0.05 there are", sum(res$fdr < 0.05), "signficant DMRs"))
-  print(paste("At FDR < 0.1 there are", sum(res$fdr < 0.1), "signficant DMRs"))
-  print(paste("At p < 0.05 there are", sum(res$p.value < 0.05), "signficant DMRs"))
-  
-                                        # Output significant dmrs
-  merged <- res %>%
-    left_join(vmr_ids, by = "feature_id") %>%
-    mutate(var = env) %>%
-    select("feature_id", "chr", "start", "end", "var", "level", "coefficients", "p.value", "fdr")
-  
-  out_dmr <- file.path(out_path, paste0(env, "_dmr.csv.gz"))
-  fwrite(merged, out_dmr)
+  pheno_quintile <- pheno_matrix_split %>% filter(h2_quintile == quintile)
+
+                                          # Get VMR IDs
+  vmr_ids <- pheno_quintile %>% select(feature_id, chr, start, end) %>%
+    distinct(feature_id, .keep_all = TRUE)
+
+  print(paste("Extracting DMRs related to covariates"))
+
+  coef_res <- get_null_dmr(pheno_quintile)
+
+  # Count significant dmrs
+  summary <- coef_res %>%
+    group_by(var) %>%
+    summarise(sig_fdr = sum(fdr < 0.05),
+              sig_p = sum(p.value < 0.05))
+  print(summary)
+
+  covs_to_include <- c("age", "sex", "dx", "afr_ances")
+
+  # Output significant dmrs
+  for (cov in covs_to_include){
+    cov_merged <- coef_res %>%
+      filter(var == cov) %>%
+      left_join(select(pheno_quintile, chr, start, end, feature_id), multiple = "first") %>%
+      select("feature_id", "chr", "start", "end", everything())
+    
+    out_cov_dmr <- file.path(subdir_path, paste0(cov, "_dmr.csv.gz"))
+    fwrite(cov_merged, out_cov_dmr)
+  }
+
+  # Run DMR analysis for environmental vars
+  for (env in vars_to_include) {
+    
+    print(paste("Extracting DMRs related to:", env))
+    
+    res <- get_dmr(pheno_quintile, env)
+    
+                                          # Count significant dmrs
+    print(paste("At FDR < 0.05 there are", sum(res$fdr < 0.05), "signficant DMRs"))
+    print(paste("At FDR < 0.1 there are", sum(res$fdr < 0.1), "signficant DMRs"))
+    print(paste("At p < 0.05 there are", sum(res$p.value < 0.05), "signficant DMRs"))
+    
+                                          # Output significant dmrs
+    merged <- res %>%
+      left_join(vmr_ids, by = "feature_id") %>%
+      mutate(var = env) %>%
+      select("feature_id", "chr", "start", "end", "var", "level", "coefficients", "p.value", "fdr")
+    
+    out_dmr <- file.path(subdir_path, paste0(env, "_dmr.csv.gz"))
+    fwrite(merged, out_dmr)
+  }
 }
 
 #### Reproducibility ####
