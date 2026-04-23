@@ -13,6 +13,8 @@ suppressPackageStartupMessages({
 
 source(here("environmental-analysis", "BA_only", "tissue_compare", "_h", "discovery_exposures.R"))
 
+N_QUINTILES <- 5
+
 ## Function 
 filter_pheno <- function(pheno_matrix, population) {
   # Remove low prediction VMRs
