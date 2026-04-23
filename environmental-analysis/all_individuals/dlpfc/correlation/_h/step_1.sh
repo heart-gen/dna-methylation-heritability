@@ -7,7 +7,7 @@
 #SBATCH --mem=24G                # Memory limit
 #SBATCH --mail-type=FAIL
 #SBATCH --mail-user=alexis.bennett@northwestern.edu
-#SBATCH --array=0-2
+#SBATCH --array=0,1
 #SBATCH --job-name=corr_pheno # Job name
 #SBATCH --output=logs/corr_pheno.%A_%a.log # Standard output log
 
@@ -34,7 +34,7 @@ module list
 # Set path variables
 ENV_PATH="/projects/p32505/opt/envs"
 
-POPULATIONS=("all" "BA" "WA")
+POPULATIONS=("BA" "WA")
 POP=${POPULATIONS[$SLURM_ARRAY_TASK_ID]}
 export population=${POP}
 

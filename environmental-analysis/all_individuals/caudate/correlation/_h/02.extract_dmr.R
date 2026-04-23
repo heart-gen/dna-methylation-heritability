@@ -223,7 +223,7 @@ for (quintile in valid_quintiles) {
       left_join(select(pheno_quintile, chr, start, end, feature_id), multiple = "first") %>%
       select("feature_id", "chr", "start", "end", everything())
     
-    out_cov_dmr <- file.path(out_path, 
+    out_cov_dmr <- file.path(subdir_path, 
                             paste0(cov, "_dmr-", population, ".csv.gz"))
     fwrite(cov_merged, out_cov_dmr)
   }
@@ -246,7 +246,8 @@ for (quintile in valid_quintiles) {
       mutate(var = env) %>%
       select("feature_id", "chr", "start", "end", "var", "level", "coefficients", "p.value", "fdr")
     
-    out_dmr <- file.path(out_path, paste0(env, "_dmr-", population, ".csv.gz"))
+    out_dmr <- file.path(subdir_path, 
+                         paste0(env, "_dmr-", population, ".csv.gz"))
     fwrite(merged, out_dmr)
   }
 }
