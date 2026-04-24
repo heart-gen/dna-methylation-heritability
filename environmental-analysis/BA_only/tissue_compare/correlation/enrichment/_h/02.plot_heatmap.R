@@ -15,7 +15,7 @@ memENRICH <- memoise::memoise(load_env_enrichment)
 gen_data <- function(){
     err = 0.0000001
     dt <- memENRICH() %>% mutate(across(where(is.character), as.factor)) %>%
-        mutate(h2_Category=fct_relevel(h2_Category, rev), `-log10(FDR)`= -log10(FDR),
+        mutate(Quintile=fct_relevel(Quintile, sort), `-log10(FDR)`= -log10(FDR),
                `OR Percentile`= OR / (1+OR), p.fdr.sig=FDR < 0.05,
                `log2(OR)` = log2(OR+err),
                p.fdr.cat=cut(FDR, breaks=c(1,0.05,0.01,0.005,0),
@@ -28,13 +28,13 @@ gen_data <- function(){
 memDF <- memoise::memoise(gen_data)
 
 enrichment_grid <- function() {
-  memDF() %>% distinct(Tissue, Test, h2_Category)
+  memDF() %>% distinct(Tissue, Test, Quintile)
 }
 
 plot_tile <- function(label, w, h){
   df <- memDF() %>%
     filter(Env == label) %>%
-    right_join(enrichment_grid(), by = c("Tissue", "Test", "h2_Category")) %>%
+    right_join(enrichment_grid(), by = c("Tissue", "Test", "Quintile")) %>%
     mutate(
       p.fdr.sig = replace_na(p.fdr.sig, FALSE),
       # Keep non-finite log2(OR) as NA so scale_fill maps them to na.value (light grey)
@@ -51,7 +51,7 @@ plot_tile <- function(label, w, h){
   }
 
   tile_plot <- df %>%
-    ggplot(aes(y = Test, x = h2_Category, fill = `log2(OR)`)) +
+    ggplot(aes(y = Test, x = Quintile, fill = `log2(OR)`)) +
     geom_tile(color = "grey50", linewidth = 0.2) +
     geom_text(aes(label = ifelse(p.fdr.sig,
                                  format(round(-log10(FDR),1), nsmall=1), "")),
@@ -62,7 +62,7 @@ plot_tile <- function(label, w, h){
                          na.value = "grey90",
                          name = "log2(OR)") +
     facet_grid(. ~ Tissue) +
-    labs(x = "Heritability Category", y = "Test") +
+    labs(x = "H2 Quintile", y = "Test") +
     theme_minimal(base_size = 20) +
     theme(
       axis.text.x = element_text(angle = 45, hjust = 1),
