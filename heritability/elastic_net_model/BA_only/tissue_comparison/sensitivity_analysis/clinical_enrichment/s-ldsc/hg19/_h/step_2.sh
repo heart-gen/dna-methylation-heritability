@@ -62,25 +62,56 @@ BIM_DIR="${RESOURCE_DIR}/1000G_EUR_Phase3_plink"
 for REGION in "${BRAIN_REGIONS[@]}"; do
     log_message "Processing region: $REGION"
 
-    # Input BED file (continuous values assumed in column 4)
-    BED_FILE="./vmr/${REGION}/continuous_annotation_hg19.bed"
+    # Quintile BED files
+    BED_DIR="./vmr/${REGION}"
+
+    BED_FILES=(
+        "${BED_DIR}/Q1.bed"
+        "${BED_DIR}/Q2.bed"
+        "${BED_DIR}/Q3.bed"
+        "${BED_DIR}/Q4.bed"
+        "${BED_DIR}/Q5.bed"
+    )
 
     # Output directory
     OUT_DIR="./custom_ldscores/${REGION}"
     mkdir -p "$OUT_DIR"
 
-    # Check if BED file exists
-    if [[ ! -f "$BED_FILE" ]]; then
-        log_message "WARNING: BED file not found: $BED_FILE"
-        continue
+    SORTED_BEDS=()
+
+    for BED_FILE in "${BED_FILES[@]}"; do
+        if [[ ! -f "$BED_FILE" ]]; then
+            log_message "WARNING: Missing BED file: $BED_FILE"
+            continue
+        fi
+
+        if [[ ! -s "$BED_FILE" ]]; then
+            log_message "ERROR: BED file is empty: $BED_FILE"
+            continue
+        fi
+
+        BASENAME=$(basename "$BED_FILE" .bed)
+        SORTED_BED_FILE="${OUT_DIR}/${BASENAME}.sorted.bed"
+
+        log_message "Sorting $BED_FILE..."
+
+        awk 'BEGIN{OFS="\t"} {
+            gsub(/\r/, "", $1);
+            if ($1 !~ /^chr/) $1="chr"$1;
+            if ($2 > $3) {t=$2;$2=$3;$3=t}
+            print $1,$2,$3
+        }' "$BED_FILE" | sort -k1,1 -k2,2n > "$SORTED_BED_FILE"
+
+        SORTED_BEDS+=("$SORTED_BED_FILE")
+    done
+
+    if [[ ${#SORTED_BEDS[@]} -ne 5 ]]; then
+        log_message "WARNING: Expected 5 quintile BEDs, found ${#SORTED_BEDS[@]}"
     fi
 
-    # Filter and sort BED file
-    SORTED_BED_FILE="${OUT_DIR}/${REGION}.sorted.bed"
-    if [[ ! -f "$SORTED_BED_FILE" ]]; then
-        log_message "Filtering and sorting BED file..."
-        awk -F'\t' '$1 != "" && $1 ~ /^chr[0-9]+$/' "$BED_FILE" | bedtools sort > "$SORTED_BED_FILE"
-        log_message "Filtered BED file: $(wc -l < "$SORTED_BED_FILE") valid entries"
+    if [[ ! -s "$SORTED_BED_FILE" ]]; then
+        log_message "WARNING: Empty BED after filtering: $SORTED_BED_FILE"
+        continue
     fi
 
     # Process each chromosome
@@ -103,7 +134,7 @@ for REGION in "${BRAIN_REGIONS[@]}"; do
         fi
 
         python "$ANNOT_SCRIPT" \
-            --bed-file "$SORTED_BED_FILE" \
+            --bed-files "${SORTED_BEDS[@]}" \
             --bimfile "$BIM_FILE" \
             --annot-file "$ANNOT_FILE" \
             --windowsize 500000

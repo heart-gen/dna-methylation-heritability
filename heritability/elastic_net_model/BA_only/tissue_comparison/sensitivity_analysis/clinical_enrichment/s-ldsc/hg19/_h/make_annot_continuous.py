@@ -44,37 +44,55 @@ def _write_annot(df_annot, annot_file):
         df_annot.to_csv(annot_file, sep="\t", index=False)
 
 
-def make_annot_files(args, bed_for_annot, has_value):
-    print("making annot file")
+def make_annot_files(args, beds, has_value_list):
+    print("making combined annot file")
+
     df_bim = _read_bim(args.bimfile)
+
     iter_bim = [["chr" + str(x1), x2 - 1, x2] for (x1, x2) in np.array(df_bim[["CHR", "BP"]])]
     bimbed = BedTool(iter_bim)
 
-    if has_value:
-        # Map continuous values from bed intervals to SNPs
-        mapped = bimbed.map(bed_for_annot, c=4, o="sum")
-        values = []
-        for row in mapped:
-            val = row[3]
-            if val in (".", "", None):
-                values.append(0.0)
-            else:
-                values.append(float(val))
-        df_annot = pd.DataFrame({"ANNOT": values})
-    else:
-        annotbed = bimbed.intersect(bed_for_annot)
-        bp = [x.start + 1 for x in annotbed]
-        df_int = pd.DataFrame({"BP": bp, "ANNOT": 1})
-        df_annot = pd.merge(df_bim, df_int, how="left", on="BP")
-        df_annot.fillna(0, inplace=True)
-        df_annot = df_annot[["ANNOT"]].astype(int)
+    df_annot = pd.DataFrame(index=range(len(df_bim)))
+
+    for i, (bed, has_value) in enumerate(zip(beds, has_value_list), start=1):
+        print(f"Processing Q{i}")
+
+        if has_value:
+            mapped = bimbed.map(bed, c=4, o="sum")
+            values = []
+
+            for row in mapped:
+                val = row[3]
+                if val in (".", "", None):
+                    values.append(0.0)
+                else:
+                    values.append(float(val))
+
+            df_annot[f"ANNOT_Q{i}"] = values
+
+        else:
+            annotbed = bimbed.intersect(bed)
+            bp = [x.start + 1 for x in annotbed]
+
+            df_int = pd.DataFrame({"BP": bp, f"ANNOT_Q{i}": 1})
+
+            df_tmp = pd.merge(df_bim[["BP"]], df_int, how="left", on="BP")
+            df_tmp.fillna(0, inplace=True)
+
+            df_annot[f"ANNOT_Q{i}"] = df_tmp[f"ANNOT_Q{i}"].astype(int)
 
     _write_annot(df_annot, args.annot_file)
 
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--bed-file", type=str, required=True, help="UCSC bed file for annotation; 4th column used as value if present")
+    parser.add_argument(
+    "--bed-files",
+    type=str,
+    nargs="+",
+    required=True,
+    help="List of BED files (e.g. Q1.bed Q2.bed ... Q5.bed)"
+    )
     parser.add_argument("--windowsize", type=int, default=0, help="(ignored for bed files; kept for compatibility)")
     parser.add_argument("--nomerge", action="store_true", default=False, help="do not merge the bed file")
     parser.add_argument("--merge-op", type=str, default="mean", choices=["mean", "sum", "max"], help="aggregation for overlapping intervals when bed has values")
@@ -83,10 +101,17 @@ def main():
 
     args = parser.parse_args()
 
-    has_value = _detect_bed_value_column(args.bed_file)
-    bed_for_annot = _prepare_bed(args.bed_file, args.nomerge, has_value, args.merge_op)
+    beds = []
+    has_value_list = []
 
-    make_annot_files(args, bed_for_annot, has_value)
+    for bed_file in args.bed_files:
+        has_value = _detect_bed_value_column(bed_file)
+        bed = _prepare_bed(bed_file, args.nomerge, has_value, args.merge_op)
+
+        beds.append(bed)
+        has_value_list.append(has_value)
+
+    make_annot_files(args, beds, has_value_list)
 
 
 if __name__ == "__main__":
