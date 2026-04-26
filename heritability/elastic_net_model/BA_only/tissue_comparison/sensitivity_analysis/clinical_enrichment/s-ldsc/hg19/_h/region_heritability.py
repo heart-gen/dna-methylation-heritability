@@ -44,6 +44,38 @@ def sort_by_genomic_position(df_subset):
     df_subset.sort_values(by=["chrom", "start"], inplace=True)
     return df_subset
 
+import numpy as np
+
+def create_quintiles(df, n_quintiles=5):
+    # Compute quantile breaks
+    breaks = np.quantile(
+        df["h2_unscaled"].dropna(),
+        q=np.linspace(0, 1, n_quintiles + 1)
+    )
+
+    # Remove duplicate breaks (same behavior as R `unique()`)
+    breaks = np.unique(breaks)
+    n_bins = len(breaks) - 1
+
+    if n_bins < 1:
+        print("Warning: Insufficient unique h2 values to compute quantile bins")
+        return pd.DataFrame()
+
+    if n_bins < n_quintiles:
+        print(f"Warning: Reduced h2 bins from {n_quintiles} to {n_bins}")
+
+    # Assign bins
+    df["h2_quintile"] = pd.cut(
+        df["h2_unscaled"],
+        bins=breaks,
+        labels=[f"Q{i}" for i in range(1, n_bins + 1)],
+        include_lowest=True
+    )
+
+    # Drop NA bins
+    df = df.dropna(subset=["h2_quintile"])
+
+    return df
 
 def main():
     parser = argparse.ArgumentParser(
@@ -68,19 +100,24 @@ def main():
 
     lo = LiftOver(str(chain_file))
 
-    # Process full dataset (no partitioning)
-    df = process_subset(df, lo)
-    df = sort_by_genomic_position(df)
+    df = create_quintiles(df)
 
-    output_bed = output_dir / "continuous_annotation_hg19.bed"
+    # Create separate BED files per quintile
+    for quintile, subset in df.groupby("h2_quintile"):
+        # Convert category to string just in case
+        quintile_str = str(quintile)
 
-    df.to_csv(output_bed, sep='\t', index=False, header=False)
+        output_file = output_dir / f"{quintile_str}.bed"
 
-    print("Liftover complete! Continuous annotation file saved.")
-    print(f"Total rows: {len(df)} → {output_bed}")
+        # BED format: chrom, start, end
+        subset[["chrom", "start", "end"]].to_csv(
+            output_file,
+            sep="\t",
+            index=False,
+            header=False
+        )
 
-    session_info.show()
-
+        print(f"Saved {quintile_str}: {len(subset)} rows → {output_file}")
 
 if __name__ == "__main__":
     main()
