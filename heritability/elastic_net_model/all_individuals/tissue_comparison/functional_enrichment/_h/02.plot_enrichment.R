@@ -13,10 +13,10 @@ save_plot <- function(p, fn, w, h){
     }
 }
 
-get_top_GO <- function(tissue, h2_cat, gene_set){
+get_top_GO <- function(tissue, h2_cat, gene_set, pop){
   err <- 1e-15
-  fn  <- here(file.path("heritability/elastic_net_model/BA_only/tissue_comparison/functional_enrichment/_m", 
-                        gene_set, paste0(tolower(tissue), "_", h2_cat, ".csv")))
+  fn  <- here(file.path("heritability/elastic_net_model/all_individuals/tissue_comparison/functional_enrichment/_m", 
+                        gene_set, paste0(tolower(tissue), "_", h2_cat, "_", pop, ".csv")))
   return(data.table::fread(fn) |>
            filter(stringr::str_detect(id, "^GO")) |>
            filter(p_adjust < 0.05) |>
@@ -24,10 +24,10 @@ get_top_GO <- function(tissue, h2_cat, gene_set){
            mutate(`Log10`=-log10(p_adjust+err), Tissue=tissue))
 }
 
-get_top_KEGG <- function(tissue, h2_cat){
+get_top_KEGG <- function(tissue, h2_cat, pop){
   err <- 1e-15
-  fn  <- here(file.path("heritability/elastic_net_model/BA_only/tissue_comparison/functional_enrichment/_m/KEGG", 
-                        paste0(tolower(tissue), "_", h2_cat, ".csv")))
+  fn  <- here(file.path("heritability/elastic_net_model/all_individuals/tissue_comparison/functional_enrichment/_m/KEGG", 
+                        paste0(tolower(tissue), "_", h2_cat, "_", pop, ".csv")))
   
   # Load KEGG pathway descriptions
   kegg_map <- read.delim("https://rest.kegg.jp/list/pathway/hsa", 
@@ -53,15 +53,15 @@ get_top_KEGG <- function(tissue, h2_cat){
   return(dt)
 }
 
-generate_dataframe <- function(gene_set, h2_cat){
+generate_dataframe <- function(gene_set, h2_cat, pop){
     df_list <- list()
     tissues <- c("Caudate", "DLPFC", "Hippocampus")
     
     for(jj in seq_along(tissues)){
       if (gene_set %in% c("GO_BP", "GO_MF")){
-        df_list[[jj]] <- get_top_GO(tissues[jj], h2_cat, gene_set)
+        df_list[[jj]] <- get_top_GO(tissues[jj], h2_cat, gene_set, pop)
       } else if (gene_set == "KEGG"){
-        df_list[[jj]] <- get_top_KEGG(tissues[jj], h2_cat)
+        df_list[[jj]] <- get_top_KEGG(tissues[jj], h2_cat, pop)
       } else {
         stop("Invalid gene set")
       }
@@ -69,8 +69,8 @@ generate_dataframe <- function(gene_set, h2_cat){
     return( bind_rows(df_list) )
 }
 
-plot_enrichment <- function(gene_set, h2_cat){
-    dt <- generate_dataframe(gene_set, h2_cat)
+plot_enrichment <- function(gene_set, h2_cat, pop){
+    dt <- generate_dataframe(gene_set, h2_cat, pop)
     tissue_cols <- c(
       "Caudate" = "#B36F61",
       "DLPFC" = "#7372A6",
@@ -92,20 +92,23 @@ plot_enrichment <- function(gene_set, h2_cat){
 }
 
 # Main
-for (h2_cat in c("heritable", "non_heritable", "low_prediction", "all")){
-  for (gene_set in c("GO_BP", "GO_MF", "KEGG")){
-    # create subdirs for plots
-    out_path = here("heritability/elastic_net_model/BA_only/tissue_comparison/functional_enrichment/_m/", gene_set, "plots")
-    if (!dir.exists(out_path)) {
-      dir.create(out_path, recursive = TRUE)
+for (pop in c("AA", "EA", "matched")){
+  for (h2_cat in c("heritable", "non_heritable", "low_prediction", "all")){
+    for (gene_set in c("GO_BP", "GO_MF", "KEGG")){
+      # create subdirs for plots
+      out_path = here("heritability/elastic_net_model/all_individuals/tissue_comparison/functional_enrichment/_m/", gene_set, "plots")
+      if (!dir.exists(out_path)) {
+        dir.create(out_path, recursive = TRUE)
+      }
+      
+      # plot enrichment
+      gg = plot_enrichment(gene_set, h2_cat, pop)
+      fn = file.path(out_path, paste0(h2_cat, "_VMRs_", pop, ".stacked"))
+      save_plot(gg, fn, 14, 8)
     }
-    
-    # plot enrichment
-    gg = plot_enrichment(gene_set, h2_cat)
-    fn = file.path(out_path, paste0(h2_cat, "_VMRs", ".stacked"))
-    save_plot(gg, fn, 14, 8)
   }
 }
+
 
 #### Reproducibility information
 Sys.time()

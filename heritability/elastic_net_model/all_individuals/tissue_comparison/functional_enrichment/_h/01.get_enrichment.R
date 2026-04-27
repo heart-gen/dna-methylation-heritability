@@ -11,22 +11,29 @@ suppressPackageStartupMessages({
 })
 
 ## --- Function --- ##
-filter_heritability <- function(tissue, heritability_filter) {
-  
-                                        # Read in summary table
-    vmr_file <- here("heritability/elastic_net_model/BA_only",
-                      tissue, "_m", paste0(tissue, "_summary_elastic-net.tsv"))
-    vmr <- read.table(vmr_file, sep = "\t", header = TRUE) %>% na.omit()
+filter_sites <- function(enet) {
+  vmr <- na.omit(enet)
+  vmr <- vmr %>%
+    mutate(h2_category = case_when(
+      r_squared_cv <= 0.3 ~ "Low prediction",
+      h2_unscaled < 0.1 & r_squared_cv > 0.3 ~ "Non-heritable",
+      h2_unscaled >= 0.1 & r_squared_cv > 0.3 ~ "Heritable"
+    ),
+    h2_category = factor(h2_category, levels = c("Heritable", 
+                                                 "Non-heritable", 
+                                                 "Low prediction"))
+    )
+  return(vmr)
+}
 
+filter_heritability <- function(vmr, heritability_filter) {
                                         # Filter by h2_category
-    h2_thresh  <- 0.1
-    r2_thresh  <- 0.3
     if (heritability_filter == "heritable") {
-        vmr <- vmr %>% filter(h2_unscaled >= h2_thresh & r_squared_cv > r2_thresh)
+        vmr <- vmr %>% filter(h2_category == "Heritable")
     } else if (heritability_filter == "non_heritable") {
-        vmr <- vmr %>% filter(h2_unscaled < h2_thresh & r_squared_cv > r2_thresh)
+        vmr <- vmr %>% filter(h2_category == "Non-heritable")
     } else if (heritability_filter == "low_prediction") {
-        vmr <- vmr %>% filter(r_squared_cv <= r2_thresh)
+        vmr <- vmr %>% filter(h2_category == "Low prediction")
     } else if (heritability_filter == "all") {
         vmr <- vmr
     }
@@ -35,17 +42,27 @@ filter_heritability <- function(tissue, heritability_filter) {
 }
 
 ## --- GO enrichment --- ##
-load_vmr_background <- function(tissue) {
+load_vmr_background <- function(enet, tissue, pop) {
                                         # Load the regions tested as background
-    vmr_file <- here("vmr-analysis", tissue, "_m/vmr.bed")
+    vmr_file <- here("vmr-analysis/all_individuals", tissue, "_m/vmr.bed")
     vmr_df   <- read.table(vmr_file)
     colnames(vmr_df) <- c("seqnames", "start", "end")
+
+    if (pop == "matched") {
+      enet_file <- here("heritability/elastic_net_model/all_individuals/", 
+                      paste0(tissue, "/_m/", tissue, "_summary_elastic-net_matched_r2_0.3.tsv"))
+      shared_vmrs <- read.table(enet_file, sep = "\t", header = TRUE) %>% na.omit()
+                                          # Keep only shared vmrs as background
+      vmr_df <- vmr_df %>%
+          semi_join(shared_vmrs, by = c("seqnames" = "chrom", "start", "end"))
+    }
+
     vmr_gr <- plyranges::as_granges(vmr_df)
     seqlevels(vmr_gr) <- paste0("chr", seqlevels(vmr_gr))
     return(vmr_gr)
 }
 
-get_enrichment <- function(vmr_filtered, tissue, hfilter) {
+get_enrichment <- function(vmr_filtered, tissue, pop, hfilter) {
     vmr_filtered <- vmr_filtered[, c("chrom", "start", "end")]
     colnames(vmr_filtered) <- c("seqnames", "start", "end")
     vmr <- plyranges::as_granges(vmr_filtered)
@@ -61,43 +78,61 @@ get_enrichment <- function(vmr_filtered, tissue, hfilter) {
         "msigdb:C7:IMMUNESIGDB" = "msigdb:C7:IMMUNESIGDB"
     )
 
-    background_df <- load_vmr_background(tissue)
+    background_df <- load_vmr_background(tissue, pop)
     for (gs in names(gene_sets)) {
       message("Running GREAT for ", gs)
       res <- great(vmr, gene_sets[[gs]], "RefSeq:hg38",
                    background = background_df)
       tb  <- getEnrichmentTable(res)
       new_gs <- gsub(":", "_", gs)
-      out_path <- here("heritability", "elastic_net_model", "BA_only", 
+      out_path <- here("heritability", "elastic_net_model", "all_individuals", 
                       "tissue_comparison", "functional_enrichment", 
                       "_m", new_gs)
       if (!dir.exists(out_path)) {
         dir.create(out_path, recursive = TRUE)
       }
-      outfile <- paste0(tissue, "_", hfilter, ".csv")
+      outfile <- paste0(tissue, "_", hfilter, "_", pop, ".csv")
       write.csv(tb, file = file.path(out_path, outfile), row.names = FALSE)
     }
 }
 
 # Main
 tissues              <- c("caudate", "dlpfc", "hippocampus")
+populations          <- c("AA", "EA", "matched")
 heritability_filters <- c("all", "heritable", "non_heritable", "low_prediction")
 
 # Run analysis
-for (tissue in tissues) {
-  for (hfilter in heritability_filters) {
-    message("Running enrichment: ", tissue, " - ", hfilter)
-      
-    # Stratify VMRs based on heritability 
-    vmr_filtered <- filter_heritability(tissue, hfilter)
-    # Get enrichment for remaining data after filtering
-    if (nrow(vmr_filtered) > 0) {
-      get_enrichment(vmr_filtered, tissue, hfilter)
-    } else {
-      message("No data left after filtering for ", tissue, " - ", hfilter)
+for (pop in populations) {
+  for (tissue in tissues) {
+
+    # Read in summary table
+    if (pop %in% c("AA", "EA")) {
+      enet_file <- here("heritability/elastic_net_model/all_individuals/", 
+                        paste0(tissue, "/_m/", tissue, "_summary_elastic-net_", pop, ".tsv"))
+      enet <- read.table(enet_file, sep = "\t", header = TRUE)
+      vmr  <- filter_sites(enet)
+
+    } else if (pop == "matched") {
+      enet_file <- here("heritability/elastic_net_model/all_individuals/", 
+                        paste0(tissue, "/_m/", tissue, "_summary_elastic-net_matched_r2_0.3.tsv"))
+      vmr <- read.table(enet_file, sep = "\t", header = TRUE) %>% na.omit()
+    }
+    
+    for (hfilter in heritability_filters) {
+      message("Running enrichment: ", pop, " - ", tissue, " - ", hfilter)
+        
+      # Stratify VMRs based on heritability 
+      vmr_filtered <- filter_heritability(vmr, hfilter)
+      # Get enrichment for remaining data after filtering
+      if (nrow(vmr_filtered) > 0) {
+        get_enrichment(vmr_filtered, tissue, pop, hfilter)
+      } else {
+        message("No data left after filtering for ", tissue, " - ", hfilter)
+      }
     }
   }
 }
+
 
 # Reproducibility info
 Sys.time()
