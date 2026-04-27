@@ -22,7 +22,7 @@ filter_sites <- function(enet) {
   return(vmr)
 }
 
-summarise_h2 <- function(vmr, tissue, out_path) {
+summarise_h2 <- function(vmr, tissue, pop, out_path) {
   summary_df <- vmr %>%
     group_by(h2_category) %>%
     summarise(
@@ -32,7 +32,8 @@ summarise_h2 <- function(vmr, tissue, out_path) {
       .groups = "drop"
     )
   print(summary_df)
-  write.csv(summary_df, file = file.path(out_path, paste0("h2_summary_", tissue, ".csv")), 
+  write.csv(summary_df, file = file.path(out_path, paste0("h2_summary_", 
+                                         tissue, "_", pop, ".csv")), 
             row.names = FALSE)
 }
 
@@ -83,35 +84,72 @@ plot_density <- function(vmr, tissue) {
 
 # Main
 tissues <- c("caudate", "hippocampus", "dlpfc")
-out_path <- here("heritability/elastic_net_model/BA_only/tissue_comparison/h2_distribution/_m")
+pops <- c("AA_all", "EA_all", "AA_matched", "EA_matched")
+
+out_path <- here("heritability/elastic_net_model/all_individuals/tissue_comparison/h2_distribution/_m")
 if (!dir.exists(out_path)) {
   dir.create(out_path, recursive = TRUE)
 }
 
-hist_plots <- list()
+for (pop in pops){
 
-for (tissue in tissues) {
-  # Read in summary table
-  enet_file <- here("heritability/elastic_net_model/BA_only/", 
-                    paste0(tissue, "/_m/", tissue, "_summary_elastic-net.tsv"))
-  enet <- read.table(enet_file, sep = "\t", header = TRUE)
-  
-  vmr <- filter_sites(enet)
-  
-  # Summarize
-  summarise_h2(vmr, tissue, out_path)
+  hist_plots <- list()
 
-  # Plotting
-  p_hist <- plot_density(vmr, tissue)
-  
-  # Store plots
-  hist_plots[[tissue]] <- p_hist
+  for (tissue in tissues) {
+
+    if (pop %in% c("AA_all", "EA_all")){
+
+      pop_fn <- gsub("_all", "", pop)
+
+      # Read in summary table
+      enet_file <- here("heritability/elastic_net_model/all_individuals/", 
+                        paste0(tissue, "/_m/", tissue, "_summary_elastic-net_", 
+                        pop_fn, ".tsv"))
+      enet <- read.table(enet_file, sep = "\t", header = TRUE)
+      
+      vmr <- filter_sites(enet)
+
+    } else if (pop == "AA_matched") {
+
+      # Read in summary table
+      enet_file <- here("heritability/elastic_net_model/all_individuals/", 
+                        paste0(tissue, "/_m/", tissue, "_summary_elastic-net_matched_r2_0.3.tsv"))
+      enet <- read.table(enet_file, sep = "\t", header = TRUE)
+
+      vmr <- enet %>% na.omit() %>%
+          select(chrom, start, end, tissue = region, 
+                 r_squared_cv = r_squared_cv_AA,
+                 h2_unscaled = h2_unscaled_AA, h2_category)
+
+    } else if (pop == "EA_matched") {  
+
+      # Read in summary table
+      enet_file <- here("heritability/elastic_net_model/all_individuals/", 
+                        paste0(tissue, "/_m/", tissue, "_summary_elastic-net_matched_r2_0.3.tsv"))
+      enet <- read.table(enet_file, sep = "\t", header = TRUE)
+
+      vmr <- enet %>% na.omit() %>% 
+          select(chrom, start, end, tissue = region, 
+                 r_squared_cv = r_squared_cv_EA,
+                 h2_unscaled = h2_unscaled_EA, h2_category)
+    }
+
+    # Summarize
+    summarise_h2(vmr, tissue, pop, out_path)
+
+    # Plotting
+    p_hist <- plot_density(vmr, tissue)
+      
+    # Store plots
+    hist_plots[[paste0(tissue, "_", pop)]] <- p_hist
+  }
+
+  # Save plots
+  combined_hist <- ggarrange(plotlist = hist_plots, ncol = 3, nrow = 1)
+  fn_hist <- file.path(out_path, paste0("vmr_h2_distribution_", pop))
+  save_plot(combined_hist, fn_hist, 20, 6)
+
 }
-
-# Save plots
-combined_hist <- ggarrange(plotlist = hist_plots, ncol = 3, nrow = 1)
-fn_hist <- file.path(out_path, "vmr_h2_distribution")
-save_plot(combined_hist, fn_hist, 20, 6)
 
 #### Reproducibility information ####
 print("Reproducibility information:")
