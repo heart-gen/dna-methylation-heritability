@@ -94,6 +94,9 @@ def main():
 
     df = pd.read_csv(input_file, sep='\t')
 
+    # Remove low prediction VMRs
+    df = df[df["r_squared_cv"] >= 0.3]
+
     # Keep only necessary columns (continuous annotation retained)
     cols_to_keep = ["chrom", "start", "end", "h2_unscaled"]
     df = df[cols_to_keep].copy()
