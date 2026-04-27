@@ -30,18 +30,19 @@ cal_vmr_length <- function(vmr) {
   return(vmr)
 }
 
-get_long_vmrs <- function(vmr, tissue, out_path) {
+get_long_vmrs <- function(vmr, tissue, pop, out_path) {
   vmr_long <- vmr %>%
     filter(length > 5000) %>%
     select(chrom, start, end)
   
   write.table(vmr_long,
-              file = file.path(out_path, paste0("long_vmrs_", tissue, ".bed")),
+              file = file.path(out_path, paste0("long_vmrs_", tissue, 
+                               "_", pop, ".bed")),
               sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
   return(vmr_long)
 }
 
-summarise_length <- function(vmr, tissue, out_path) {
+summarise_length <- function(vmr, tissue, pop, out_path) {
   summary_df <- vmr %>%
     group_by(h2_category) %>%
     summarise(
@@ -53,11 +54,12 @@ summarise_length <- function(vmr, tissue, out_path) {
   print(summary_df)
   write.csv(summary_df, 
             file = file.path(out_path, 
-                             paste0("vmr_length_summary_", tissue, ".csv")), 
+                             paste0("vmr_length_summary_", tissue, "_", 
+                                    pop, ".csv")), 
             row.names = FALSE)
 }
 
-spearman_corr <- function(vmr, tissue, out_path) {
+spearman_corr <- function(vmr, tissue, pop, out_path) {
   spearman <- vmr %>% 
     group_by(h2_category) %>%
     summarise(
@@ -68,7 +70,8 @@ spearman_corr <- function(vmr, tissue, out_path) {
   print(spearman)
   write.csv(spearman, 
             file = file.path(out_path, 
-                             paste0("vmr_length_h2_corr_", tissue, ".csv")), 
+                             paste0("vmr_length_h2_corr_", tissue, "_", 
+                                    pop, ".csv")), 
             row.names = FALSE)
 }
 
@@ -78,7 +81,7 @@ save_plot <- function(p, fn, w, h){
   }
 }
 
-plot_density <- function(vmr, tissue) {
+plot_density <- function(vmr, tissue, pop) {
   # Define palette
   category_colors <- c(
     "Heritable" = "#497C8A",
@@ -106,7 +109,7 @@ plot_density <- function(vmr, tissue) {
     facet_wrap(~h2_category, labeller = as_labeller(labels), scales = "free_x") +
     scale_color_manual(values = category_colors) +
     scale_fill_manual(values = category_colors) +
-    ggtitle(paste("VMR length distribution:", tissue_title)) +
+    ggtitle(paste0("VMR length distribution:", tissue_title, "-", pop)) +
     labs(color = NULL, fill = NULL) +
     font("xy.title", face = "bold", size = 14) +
     theme(
@@ -117,7 +120,7 @@ plot_density <- function(vmr, tissue) {
   return(p_hist)
 }
 
-plot_corr <- function(vmr, tissue) {
+plot_corr <- function(vmr, tissue, pop) {
   counts <- vmr %>%
     group_by(h2_category) %>%
     summarise(n = n(), .groups = "drop")
@@ -155,7 +158,7 @@ plot_corr <- function(vmr, tissue) {
     scale_color_manual(values = category_colors) +
     scale_fill_manual(values = category_colors) +
     labs(color = NULL) +
-    ggtitle(paste("VMR length correlation:", tissue_title)) +
+    ggtitle(paste0("VMR length correlation:", tissue_title, "-", pop)) +
     font("xy.title", face = "bold", size = 14) +
     theme(
       axis.text.x = element_text(angle = 45, hjust = 1),
@@ -168,6 +171,7 @@ plot_corr <- function(vmr, tissue) {
 
 ## Main
 tissues <- c("caudate", "hippocampus", "dlpfc")
+pops <- c("AA", "EA")
 
 out_path <- here("heritability/elastic_net_model/all_individuals/tissue_comparison/vmr_length/_m")
 if (!dir.exists(out_path)) {
@@ -178,40 +182,44 @@ hist_plots <- list()
 corr_plots <- list()
 
 for (tissue in tissues) {
-  # Read in summary table
-  enet_file <- here("heritability/elastic_net_model/all_individuals/", 
-                    paste0(tissue, "/_m/", tissue, "_summary_elastic-net.tsv"))
-  enet <- read.table(enet_file, sep = "\t", header = TRUE)
-  
-  vmr <- filter_sites(enet)
-  vmr <- cal_vmr_length(vmr)
-  
-  # Save VMRs > 5000bp
-  vmr_long <- get_long_vmrs(vmr, tissue, out_path)
-  
-  # Summarize length of vmrs
-  summarise_length(vmr, tissue, out_path)
+  for (pop in pops){
 
-  # Spearman correlation test 
-  spearman_corr(vmr, tissue, out_path)
+    # Read in summary table
+    enet_file <- here("heritability/elastic_net_model/all_individuals/", 
+                    paste0(tissue, "/_m/", tissue, "_summary_elastic-net_", 
+                    pop, ".tsv"))
+    enet <- read.table(enet_file, sep = "\t", header = TRUE)
 
-  # Plotting
-  p_hist <- plot_density(vmr, tissue)
-  p_corr <- plot_corr(vmr, tissue)
+    vmr <- filter_sites(enet)
+    vmr <- cal_vmr_length(vmr)
+
+    # Save VMRs > 5000bp
+    vmr_long <- get_long_vmrs(vmr, tissue, pop, out_path)
   
-  # Store plots
-  hist_plots[[tissue]] <- p_hist
-  corr_plots[[tissue]] <- p_corr
+    # Summarize length of vmrs
+    summarise_length(vmr, tissue, pop, out_path)
+
+    # Spearman correlation test 
+    spearman_corr(vmr, tissue, pop, out_path)
+
+    # Plotting
+    p_hist <- plot_density(vmr, tissue, pop)
+    p_corr <- plot_corr(vmr, tissue, pop)
+    
+    # Store plots
+    hist_plots[[paste(pop, tissue)]] <- p_hist
+    corr_plots[[paste(pop, tissue)]] <- p_corr
+  }
 }
 
 # Save plots
-combined_hist <- ggarrange(plotlist = hist_plots, ncol = 3, nrow = 1)
-combined_corr <- ggarrange(plotlist = corr_plots, ncol = 3, nrow = 1)
+combined_hist <- ggarrange(plotlist = hist_plots, ncol = 3, nrow = 2)
+combined_corr <- ggarrange(plotlist = corr_plots, ncol = 3, nrow = 2)
 
 fn_hist <- file.path(out_path, "VMR_length_distribution")
 fn_corr <- file.path(out_path, "VMR_length_h2_correlation")
-save_plot(combined_hist, fn_hist, 20, 6)
-save_plot(combined_corr, fn_corr, 20, 6)
+save_plot(combined_hist, fn_hist, 18, 14)
+save_plot(combined_corr, fn_corr, 18, 14)
 
 #### Reproducibility information ####
 print("Reproducibility information:")
