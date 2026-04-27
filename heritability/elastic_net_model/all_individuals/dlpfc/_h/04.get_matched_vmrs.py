@@ -83,7 +83,7 @@ def main():
     tissue = sys.argv[1]
 
     for r2_threshold in 0.3, 0.75:
-        get_matching_enet(tissue, r2_threshold).to_csv(f"{tissue.lower()}_summary_elastic-net_matched_r2_{r2_threshold}_tsv", sep='\t', index=False)
+        get_matching_enet(tissue, r2_threshold).to_csv(f"{tissue.lower()}_summary_elastic-net_matched_r2_{r2_threshold}.tsv", sep='\t', index=False)
 
     # Session information
     session_info.show()
