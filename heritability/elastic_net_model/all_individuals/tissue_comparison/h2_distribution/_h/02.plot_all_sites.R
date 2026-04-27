@@ -8,7 +8,7 @@ suppressPackageStartupMessages({
 })
 
 ## Function
-summarise_h2 <- function(vmr, out_path) {
+summarise_h2 <- function(vmr, pop, out_path) {
   summary_df <- vmr %>%
     group_by(tissue) %>%
     summarise(
@@ -18,7 +18,7 @@ summarise_h2 <- function(vmr, out_path) {
       median_h2 = median(h2_unscaled, na.rm = TRUE),
       .groups = "drop"
     )
-    write.csv(summary_df, file = file.path(out_path, paste0("h2_summary_all_sites.csv")), 
+    write.csv(summary_df, file = file.path(out_path, paste0("h2_summary_all_sites_", pop, ".csv")), 
             row.names = FALSE)
   print(summary_df)
 }
@@ -78,35 +78,83 @@ plot_density <- function(vmr, tissue) {
 
 ## Main
 tissues <- c("caudate", "hippocampus", "dlpfc")
+pops <- c("AA", "EA")
 
-out_path <- here("heritability/elastic_net_model/BA_only/tissue_comparison/h2_distribution/_m")
+out_path <- here("heritability/elastic_net_model/all_individuals/tissue_comparison/h2_distribution/_m")
 if (!dir.exists(out_path)) {
   dir.create(out_path, recursive = TRUE)
 }
 
-vmr_all    <- list()
+# Get all VMRs per population
+vmr_all_pop <- list()
 
-for (tissue in tissues) {
-  # Read in summary table
-  enet_file <- here("heritability/elastic_net_model/BA_only/", 
-                    paste0(tissue, "/_m/", tissue, "_summary_elastic-net.tsv"))
-  vmr <- read.table(enet_file, sep = "\t", header = TRUE, 
-                    colClasses = c(chrom = "character")) |> na.omit()
-    
-  # Store vmrs across all tissues
-  vmr$tissue <- tissue
-  vmr_all[[tissue]] <- vmr
+for (pop in pops) {
+
+  vmr_all_tissue <- list()
+
+  for (tissue in tissues) {
+    # Read in summary table
+    enet_file <- here("heritability/elastic_net_model/all_individuals/", 
+                      paste0(tissue, "/_m/", tissue, "_summary_elastic-net_", 
+                      pop, ".tsv"))
+    vmr <- read.table(enet_file, sep = "\t", header = TRUE, 
+                      colClasses = c(chrom = "character")) |> na.omit()
+      
+    # Store vmrs across all tissues
+    vmr$tissue <- tissue
+    vmr_all_tissue[[tissue]] <- vmr
+  }
+
+  vmr_all_pop[[pop]] <- bind_rows(vmr_all_tissue)
+
 }
 
-vmr_all <- bind_rows(vmr_all)
+vmr_all_AA <- vmr_all_pop[["AA"]]
+vmr_all_EA <- vmr_all_pop[["EA"]]
 
-# Summarize h2 of vmrs
-summarise_h2(vmr_all, out_path)
+# Get matched VMRs across populations
+vmr_matched    <- list()
 
-# Save plot
-p_hist <- plot_density(vmr_all, tissue)
-fn_hist <- file.path(out_path, "all_sites_vmr_h2_distribution")
-save_plot(p_hist, fn_hist, 10, 5)
+for (tissue in tissues) {
+    # Read in summary table
+    enet_file <- here("heritability/elastic_net_model/all_individuals/", 
+                      paste0(tissue, "/_m/", tissue, "_summary_elastic-net_matched_r2_0.3.tsv"))
+    vmr <- read.table(enet_file, sep = "\t", header = TRUE, 
+                      colClasses = c(chrom = "character")) |> na.omit()
+      
+    # Store vmrs across all tissues
+    vmr$tissue <- tissue
+    vmr_matched[[tissue]] <- vmr
+}
+
+vmr_matched <- bind_rows(vmr_matched)
+
+vmr_matched_AA <- vmr_matched %>% 
+    select(chrom, start, end, tissue, h2_unscaled = h2_unscaled_AA, h2_category)
+
+vmr_matched_EA <- vmr_matched %>% 
+    select(chrom, start, end, tissue, h2_unscaled = h2_unscaled_EA, h2_category)
+
+# Define vmr groups to loop through
+vmr_groups <- list(
+  AA_all = vmr_all_AA,
+  EA_all = vmr_all_EA,
+  AA_matched = vmr_matched_AA,
+  EA_matched = vmr_matched_EA
+)
+
+for (group in names(vmr_groups)){
+
+  vmr <- vmr_groups[[group]]
+
+  # Summarize h2 of vmrs
+  summarise_h2(vmr, group, out_path)
+
+  # Save plot
+  p_hist <- plot_density(vmr, tissue)
+  fn_hist <- file.path(out_path, paste0("all_sites_vmr_h2_distribution_", group))
+  save_plot(p_hist, fn_hist, 10, 5)
+}
 
 ## Reproducibility information
 Sys.time()
