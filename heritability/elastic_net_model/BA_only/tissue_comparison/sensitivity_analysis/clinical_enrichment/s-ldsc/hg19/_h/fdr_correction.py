@@ -31,7 +31,7 @@ for filepath in glob.glob(os.path.join(base_dir, file_pattern), recursive=True):
         df = pd.read_csv(filepath, sep="\t")
 
         # Filter for L2_1
-        l2_row = df[df.iloc[:, 0] == "L2_1"]
+        l2_row = df[df.iloc[:, 0].str.contains(r"^ANNOT_Q\d+L2_1$", regex=True, na=False)]
 
         if not l2_row.empty:
             l2_row = l2_row.copy()
@@ -45,10 +45,11 @@ for filepath in glob.glob(os.path.join(base_dir, file_pattern), recursive=True):
             l2_row = l2_row[keep_cols]
             l2_row["disease"] = disease
             l2_row["tissue"] = tissue
+            l2_row["annotation"] = df.iloc[:, 0].str.extract(r"(ANNOT_Q\d+L2_1)")
 
             rows.append(l2_row)
         else:
-            print(f"No L2_1 row in {filepath}")
+            print(f"No ANNOT_Q#L2_1 rows in {filepath}")
 
     except Exception as e:
         print(f"Error processing {filepath}: {e}")
@@ -58,17 +59,17 @@ if rows:
     combined_df = pd.concat(rows, ignore_index=True)
 
     # Reorder columns (metadata first)
-    cols = ["disease", "tissue", "Coefficient_z-score"]
+    cols = ["disease", "tissue", "annotation", "Coefficient_z-score"]
     combined_df = combined_df[cols]
 
     # Save
-    combined_df.to_csv("combined_L2_1_Coeff_zscore.tsv", sep="\t", index=False)
-    print("Done! Saved combined_L2_1_Coeff_zscore.tsv")
+    combined_df.to_csv("combined_ANNOT_Q_L2_1_Coeff_zscore.tsv", sep="\t", index=False)
+    print("Done! Saved combined_ANNOT_Q_L2_1_Coeff_zscore.tsv")
 else:
-    print("No matching L2_1 rows found.")
+    print("No matching ANNOT_Q#L2_1 rows found.")
 
 # --- Step 1: Load your summary table ---
-input_file = "combined_L2_1_Coeff_zscore.tsv"  # change this to your file path
+input_file = "combined_ANNOT_Q_L2_1_Coeff_zscore.tsv"  # change this to your file path
 df = pd.read_csv(input_file, sep="\t")
 
 # --- Step 2: Convert Coefficient_z_score to two-tailed p-values ---
