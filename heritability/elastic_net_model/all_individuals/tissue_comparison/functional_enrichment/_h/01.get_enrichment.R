@@ -42,7 +42,7 @@ filter_heritability <- function(vmr, heritability_filter) {
 }
 
 ## --- GO enrichment --- ##
-load_vmr_background <- function(enet, tissue, pop) {
+load_vmr_background <- function(tissue, pop) {
                                         # Load the regions tested as background
     vmr_file <- here("vmr-analysis/all_individuals", tissue, "_m/vmr.bed")
     vmr_df   <- read.table(vmr_file)
