@@ -82,9 +82,8 @@ annotate_vmrs <- function(vmr_gr, enet, annots, out_file) {
   enet <- enet %>% 
     dplyr::select(chrom, start, end, h2_category) %>% 
     dplyr::rename("chr" = "chrom") %>%
-    mutate(chr = paste0("chr", chr)) %>%
-    h2_category = factor(h2_category,
-                         levels = c("Heritable", "Non-heritable", "Low prediction"))
+    mutate(h2_category = factor(h2_category,
+                         levels = c("Heritable", "Non-heritable", "Low prediction")))
   
                                         # merge annotations with h2  
   annot_df <- data.frame(annotated_vmrs)

@@ -44,9 +44,11 @@ filter_heritability <- function(vmr, heritability_filter) {
 ## --- GO enrichment --- ##
 load_vmr_background <- function(tissue, pop) {
                                         # Load the regions tested as background
-    vmr_file <- here("vmr-analysis/all_individuals", tissue, "_m/vmr.bed")
+    vmr_file <- here("vmr-analysis/all_individuals", tissue, "/_m/vmr.bed")
     vmr_df   <- read.table(vmr_file)
     colnames(vmr_df) <- c("seqnames", "start", "end")
+    vmr_df$seqnames  <- ifelse(grepl("^chr", vmr_df$seqnames), vmr_df$seqnames, 
+                               paste0("chr", vmr_df$seqnames))
 
     if (pop == "matched") {
       enet_file <- here("heritability/elastic_net_model/all_individuals/", 
@@ -58,7 +60,6 @@ load_vmr_background <- function(tissue, pop) {
     }
 
     vmr_gr <- plyranges::as_granges(vmr_df)
-    seqlevels(vmr_gr) <- paste0("chr", seqlevels(vmr_gr))
     return(vmr_gr)
 }
 
@@ -66,8 +67,9 @@ get_enrichment <- function(vmr_filtered, tissue, pop, hfilter) {
     vmr_filtered <- vmr_filtered[, c("chrom", "start", "end")]
     colnames(vmr_filtered) <- c("seqnames", "start", "end")
     vmr <- plyranges::as_granges(vmr_filtered)
-    seqlevels(vmr) <- paste0("chr", seqlevels(vmr))
-
+    seqlevels(vmr) <- ifelse(grepl("^chr", seqlevels(vmr)), seqlevels(vmr), 
+                             paste0("chr", seqlevels(vmr)))
+    
     gene_sets <- list(
         "GO:BP" = "GO:BP",
         "GO:MF" = "GO:MF",
@@ -98,7 +100,7 @@ get_enrichment <- function(vmr_filtered, tissue, pop, hfilter) {
 
 # Main
 tissues              <- c("caudate", "dlpfc", "hippocampus")
-populations          <- c("AA", "EA", "matched")
+populations          <- c("matched")
 heritability_filters <- c("all", "heritable", "non_heritable", "low_prediction")
 
 # Run analysis
