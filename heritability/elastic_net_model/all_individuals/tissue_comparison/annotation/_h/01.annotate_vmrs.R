@@ -88,7 +88,7 @@ annotate_vmrs <- function(vmr_gr, enet, annots, out_file) {
                                         # merge annotations with h2  
   annot_df <- data.frame(annotated_vmrs)
   merged   <- annot_df %>%
-    left_join(enet, by = c("seqnames" = "chr", "start", "end"))
+    inner_join(enet, by = c("seqnames" = "chr", "start", "end"))
   
                                         # write annotations to file
   fwrite(merged, out_file, sep = "\t")
