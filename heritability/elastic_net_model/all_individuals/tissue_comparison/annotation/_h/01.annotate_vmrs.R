@@ -14,8 +14,8 @@ suppressPackageStartupMessages({
 ## Function
 load_vmrs <- function(tissue) {
                                         # combine vmr bed files from all chr
-  vmr_files <- here(paste0("vmr-analysis/", tissue, "/_m/vmr/chr_", 
-			   c(1:22, "X", "Y"), "/vmr.bed"))
+  vmr_files <- here(paste0("vmr-analysis/all_individuals/", tissue, 
+                    "/_m/vmr/chr_", c(1:22, "X", "Y"), "/vmr.bed"))
   
   vmr_list  <- lapply(vmr_files, function(f) {
     if (file.exists(f)) {
@@ -80,17 +80,11 @@ annotate_vmrs <- function(vmr_gr, enet, annots, out_file) {
                                         # get h2 categories
   enet <- na.omit(enet)
   enet <- enet %>% 
-    dplyr::select(chrom, start, end, h2_unscaled, r_squared_cv) %>% 
+    dplyr::select(chrom, start, end, h2_category) %>% 
     dplyr::rename("chr" = "chrom") %>%
     mutate(chr = paste0("chr", chr)) %>%
-    mutate(h2_category = case_when(
-      r_squared_cv <= 0.3 ~ "Low prediction",
-      h2_unscaled < 0.1 & r_squared_cv > 0.3 ~ "Non-heritable",
-      h2_unscaled >= 0.1 & r_squared_cv > 0.3 ~ "Heritable"
-    ),
     h2_category = factor(h2_category,
                          levels = c("Heritable", "Non-heritable", "Low prediction"))
-    )
   
                                         # merge annotations with h2  
   annot_df <- data.frame(annotated_vmrs)
@@ -121,7 +115,7 @@ format_annotations <- function(merged, out_file) {
 ## Main
   
                                         # create output dir if it doesn't exist
-out_path <- here("heritability/elastic_net_model/BA_only/tissue_comparison/annotation/_m")
+out_path <- here("heritability/elastic_net_model/all_individuals/tissue_comparison/annotation/_m")
 
 if (!dir.exists(out_path)) {
   dir.create(out_path, recursive = TRUE)
@@ -137,8 +131,8 @@ for (tissue in tissues) {
   vmr_gr    <- load_vmrs(tissue)
   annots    <- load_annotations()
   
-  enet_file <- here("heritability/elastic_net_model/BA_only", 
-                    paste0(tissue, "/_m/", tissue, "_summary_elastic-net.tsv"))
+  enet_file <- here("heritability/elastic_net_model/all_individuals", 
+                    paste0(tissue, "/_m/", tissue, "_summary_elastic-net_matched_r2_0.3.tsv"))
   enet      <- read.table(enet_file, sep = "\t", header = TRUE)
   
   merged    <- annotate_vmrs(vmr_gr, enet, annots, out_annot)

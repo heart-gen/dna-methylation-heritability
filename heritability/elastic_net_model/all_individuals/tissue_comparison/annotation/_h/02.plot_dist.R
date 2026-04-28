@@ -78,7 +78,7 @@ plot_density <- function(annotation, tissue) {
 
 # Main
 tissues <- c("caudate", "hippocampus", "dlpfc")
-out_path <- here("heritability/elastic_net_model/BA_only/tissue_comparison/annotation/_m")
+out_path <- here("heritability/elastic_net_model/all_individuals/tissue_comparison/annotation/_m")
 if (!dir.exists(out_path)) {
   dir.create(out_path, recursive = TRUE)
 }
@@ -87,7 +87,7 @@ hist_plots <- list()
 
 for (tissue in tissues) {
   # Read in summary table
-  annotation_file <- here("heritability/elastic_net_model/BA_only/tissue_comparison/annotation/_m", 
+  annotation_file <- here("heritability/elastic_net_model/all_individuals/tissue_comparison/annotation/_m", 
                     paste0(tissue, "_vmr_annotations_hg38.tsv"))
   annotation <- fread(annotation_file, sep = "\t")
   
