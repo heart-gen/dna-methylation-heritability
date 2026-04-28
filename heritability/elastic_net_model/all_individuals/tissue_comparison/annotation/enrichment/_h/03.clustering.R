@@ -12,7 +12,7 @@ suppressPackageStartupMessages({
 
 # Function 
 load_annotation_enrichment <- function(){
-  return(data.table::fread("annotation_vmr_enrichment_analysis.txt"))
+  return(data.table::fread("annotation_matched_vmr_enrichment_analysis.txt"))
 }
 
 gen_data <- function(){
@@ -94,7 +94,7 @@ annot <- memoise::memoise(load_annotation_enrichment)
 memDF <- memoise::memoise(gen_data)
 df <- memDF() %>% filter(is.finite(`log2(OR)`))
 
-output_path <- here("heritability", "elastic_net_model", "BA_only",   
+output_path <- here("heritability", "elastic_net_model", "all_individuals",   
                     "tissue_comparison", "annotation", "enrichment", "_m")
 subdirs <- c("hc", "pca")
 for (subdir in subdirs){

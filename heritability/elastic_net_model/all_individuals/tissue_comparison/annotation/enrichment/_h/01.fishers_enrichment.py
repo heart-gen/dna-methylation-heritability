@@ -14,24 +14,14 @@ import session_info
 @lru_cache()
 def get_enet(tissue):
     # get vmrs
-    enet_fn = here(f"heritability/elastic_net_model/BA_only/{tissue.lower()}/_m/{tissue.lower()}_summary_elastic-net.tsv")
+    enet_fn = here(f"heritability/elastic_net_model/all_individuals/{tissue.lower()}/_m/{tissue.lower()}_summary_elastic-net_matched_r2_0.3.tsv")
     df = pd.read_csv(enet_fn, sep='\t')
-    df['chrom'] = 'chr' + df['chrom'].astype(str)
 
-    # assign h2 categories
-    df['h2_category'] = df.apply(
-    lambda row: (
-        'Heritable' if row['h2_unscaled'] >= 0.1 and row['r_squared_cv'] > 0.3 else
-        'Non-heritable' if row['h2_unscaled'] < 0.1 and row['r_squared_cv'] > 0.3 else
-        'Low prediction'
-    ),
-    axis=1
-    )
     return df
 
 @lru_cache()
 def get_annotation(tissue):
-    fn = here(f"heritability/elastic_net_model/BA_only/tissue_comparison/annotation/_m/{tissue.lower()}_vmr_annotations_hg38_wide.tsv")
+    fn = here(f"heritability/elastic_net_model/all_individuals/tissue_comparison/annotation/_m/{tissue.lower()}_vmr_annotations_hg38_wide.tsv")
     return pd.read_csv(fn, sep='\t')
 
 @lru_cache()
@@ -73,7 +63,7 @@ def calculate_enrichment():
                          "FDR": fdr_lt, 'Annotation': annot_lt})
 
 def main():
-    calculate_enrichment().to_csv('annotation_vmr_enrichment_analysis.txt', sep='\t', index=False)
+    calculate_enrichment().to_csv('annotation_matched_vmr_enrichment_analysis.txt', sep='\t', index=False)
 
     # Session information
     session_info.show()

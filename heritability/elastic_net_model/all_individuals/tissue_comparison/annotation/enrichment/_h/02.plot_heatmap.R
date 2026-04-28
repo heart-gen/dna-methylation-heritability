@@ -9,7 +9,7 @@ save_plot <- function(p, fn, w, h){
 }
 
 load_annotation_enrichment <- function(){
-    return(data.table::fread("annotation_vmr_enrichment_analysis.txt"))
+    return(data.table::fread("annotation_matched_vmr_enrichment_analysis.txt"))
 }
 memENRICH <- memoise::memoise(load_annotation_enrichment)
 

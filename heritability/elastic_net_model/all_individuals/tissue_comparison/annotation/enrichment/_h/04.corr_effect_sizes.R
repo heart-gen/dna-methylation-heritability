@@ -11,7 +11,7 @@ suppressPackageStartupMessages({
 
 # Function 
 load_annotation_enrichment <- function(){
-  return(data.table::fread("annotation_vmr_enrichment_analysis.txt"))
+  return(data.table::fread("annotation_matched_vmr_enrichment_analysis.txt"))
 }
 
 gen_data <- function(){
@@ -54,7 +54,7 @@ plot_scatter <- function(df, h2_cat, tissue1, tissue2, output_path){
 }
 
 # Main
-output_path <- here("heritability", "elastic_net_model", "BA_only", 
+output_path <- here("heritability", "elastic_net_model", "all_individuals", 
                     "tissue_comparison", "annotation", "enrichment", "_m", 
                     "scatter_plot")
 if (!dir.exists(output_path)) {
