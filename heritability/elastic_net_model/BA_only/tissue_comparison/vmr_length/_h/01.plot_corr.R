@@ -64,6 +64,9 @@ spearman_corr <- function(vmr, tissue, out_path) {
       spearman_rho = cor.test(log10_length, h2_unscaled, method = "spearman")$estimate,
       spearman_p_value = cor.test(log10_length, h2_unscaled, method = "spearman")$p.value,
       n = n()
+    )  %>%
+    mutate(
+      spearman_FDR = p.adjust(spearman_p_value, method = "fdr")
     )
   print(spearman)
   write.csv(spearman, 
