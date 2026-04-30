@@ -28,19 +28,20 @@ suppressPackageStartupMessages({
 ## Configuration
 
 TISSUES    <- c("Caudate", "DLPFC", "Hippocampus")
+POPULATIONS <- c("AA", "EA") # using matched VMRs, population-specific h2 values
 R2_THRESH  <- 0.3          # exclude low-prediction VMRs in primary analysis
 N_QUINTILES <- 5
 H2_UNIT    <- 0.1          # OR reported per this unit increase in h2_unscaled
 
 ANNOT_DIR <- here::here(
-  "heritability", "elastic_net_model", "BA_only",
+  "heritability", "elastic_net_model", "all_individuals",
   "tissue_comparison", "annotation", "_m"
 )
 ENET_BASE <- here::here(
-  "heritability", "elastic_net_model", "BA_only"
+  "heritability", "elastic_net_model", "all_individuals"
 )
 OUT_DIR <- here::here(
-  "heritability", "elastic_net_model", "BA_only",
+  "heritability", "elastic_net_model", "all_individuals",
   "tissue_comparison", "annotation", "h2_continuous", "_m"
 )
 
@@ -54,7 +55,7 @@ ANNOT_COLS <- c(
 
 ## Helpers
 
-load_data <- function(tissue) {
+load_data <- function(tissue, pop) {
   tissue_lower <- tolower(tissue)
 
   # Wide annotation: one row per VMR, binary 0/1 annotation columns
@@ -63,11 +64,12 @@ load_data <- function(tissue) {
 
   # Elastic-net summary: h2_unscaled, r_squared_cv, num_snps
   enet <- fread(file.path(ENET_BASE, tissue_lower, "_m",
-    paste0(tissue_lower, "_summary_elastic-net.tsv"))) |>
-    mutate(seqnames = paste0("chr", chrom)) |>
+    paste0(tissue_lower, "_summary_elastic-net_matched_r2_0.3.tsv"))) |>
+    rename(seqnames = "chrom") |>
     dplyr::select(seqnames, start, end,
-                  h2_unscaled, r_squared_cv,
-                  num_snps = num_snps) |>
+                  h2_unscaled = paste0("h2_unscaled_", pop),
+                  r_squared_cv = paste0("r_squared_cv_", pop),
+                  num_snps = paste0("num_snps_", pop)) |>
     mutate(.enet_matched = TRUE)
 
   # Join on genomic coordinates
@@ -252,88 +254,92 @@ compute_quintile_summary <- function(df, annot_col, tissue) {
 
 dir.create(OUT_DIR, recursive = TRUE, showWarnings = FALSE)
 
-all_glm      <- list()
-all_lrt      <- list()
-all_spline   <- list()
-all_quint    <- list()
-all_glm_sa   <- list()
-all_quint_sa <- list()
+for (pop in POPULATIONS){
 
-for (tissue in TISSUES) {
-  cat("===", tissue, "===\n")
+  all_glm      <- list()
+  all_lrt      <- list()
+  all_spline   <- list()
+  all_quint    <- list()
+  all_glm_sa   <- list()
+  all_quint_sa <- list()
 
-  df_all <- load_data(tissue)
+  for (tissue in TISSUES) {
+    cat("===", tissue, "===\n")
 
-  # Primary: high-confidence VMRs only
-  df <- df_all |>
-    filter(
-      !is.na(r_squared_cv), r_squared_cv > R2_THRESH,
-      !is.na(h2_unscaled),  is.finite(h2_unscaled),
-      vmr_length > 0, !is.na(num_snps), num_snps > 0
-    )
-  cat(sprintf("  Primary (r2 > %.1f): %d VMRs\n", R2_THRESH, nrow(df)))
+    df_all <- load_data(tissue, pop)
 
-  # Sensitivity: all VMRs with valid h2 (include low-prediction)
-  df_sa <- df_all |>
-    filter(
-      !is.na(h2_unscaled),  is.finite(h2_unscaled),
-      !is.na(r_squared_cv),
-      vmr_length > 0, !is.na(num_snps), num_snps > 0
-    )
-  cat(sprintf("  Sensitivity (all valid h2): %d VMRs\n", nrow(df_sa)))
+    # Primary: high-confidence VMRs only
+    df <- df_all |>
+      filter(
+        !is.na(r_squared_cv), r_squared_cv > R2_THRESH,
+        !is.na(h2_unscaled),  is.finite(h2_unscaled),
+        vmr_length > 0, !is.na(num_snps), num_snps > 0
+      )
+    cat(sprintf("  Primary (r2 > %.1f): %d VMRs\n", R2_THRESH, nrow(df)))
 
-  for (ac in names(ANNOT_COLS)) {
-    if (!ac %in% colnames(df)) {
-      warning("  Column not found: ", ac, " — skipping")
-      next
+    # Sensitivity: all VMRs with valid h2 (include low-prediction)
+    df_sa <- df_all |>
+      filter(
+        !is.na(h2_unscaled),  is.finite(h2_unscaled),
+        !is.na(r_squared_cv),
+        vmr_length > 0, !is.na(num_snps), num_snps > 0
+      )
+    cat(sprintf("  Sensitivity (all valid h2): %d VMRs\n", nrow(df_sa)))
+
+    for (ac in names(ANNOT_COLS)) {
+      if (!ac %in% colnames(df)) {
+        warning("  Column not found: ", ac, " — skipping")
+        next
+      }
+
+      # Primary analysis
+      glm_res  <- run_glm_linear(df, ac, tissue)
+      lrt_res  <- run_glm_spline_lrt(df, ac, tissue)
+      spl_res  <- compute_spline_predictions(df, ac, tissue)
+      qt_res   <- compute_quintile_summary(df, ac, tissue)
+
+      if (!is.null(glm_res)) all_glm[[length(all_glm) + 1]]     <- glm_res
+      if (!is.null(lrt_res)) all_lrt[[length(all_lrt) + 1]]     <- lrt_res
+      if (!is.null(spl_res)) all_spline[[length(all_spline) + 1]] <- spl_res
+      all_quint[[length(all_quint) + 1]] <- qt_res
+
+      # Sensitivity analysis
+      glm_sa <- run_glm_linear(df_sa, ac, tissue)
+      qt_sa  <- compute_quintile_summary(df_sa, ac, tissue)
+
+      if (!is.null(glm_sa)) all_glm_sa[[length(all_glm_sa) + 1]] <- glm_sa
+      all_quint_sa[[length(all_quint_sa) + 1]] <- qt_sa
     }
-
-    # Primary analysis
-    glm_res  <- run_glm_linear(df, ac, tissue)
-    lrt_res  <- run_glm_spline_lrt(df, ac, tissue)
-    spl_res  <- compute_spline_predictions(df, ac, tissue)
-    qt_res   <- compute_quintile_summary(df, ac, tissue)
-
-    if (!is.null(glm_res)) all_glm[[length(all_glm) + 1]]     <- glm_res
-    if (!is.null(lrt_res)) all_lrt[[length(all_lrt) + 1]]     <- lrt_res
-    if (!is.null(spl_res)) all_spline[[length(all_spline) + 1]] <- spl_res
-    all_quint[[length(all_quint) + 1]] <- qt_res
-
-    # Sensitivity analysis
-    glm_sa <- run_glm_linear(df_sa, ac, tissue)
-    qt_sa  <- compute_quintile_summary(df_sa, ac, tissue)
-
-    if (!is.null(glm_sa)) all_glm_sa[[length(all_glm_sa) + 1]] <- glm_sa
-    all_quint_sa[[length(all_quint_sa) + 1]] <- qt_sa
   }
+
+  # FDR correction across all annotation × tissue tests
+  fdr_adjust <- function(lst, p_col = "p.value") {
+    df <- bind_rows(lst)
+    df$fdr <- p.adjust(df[[p_col]], method = "fdr")
+    df
+  }
+
+  res_glm      <- fdr_adjust(all_glm)
+  res_lrt      <- fdr_adjust(all_lrt, p_col = "p_lrt")
+  res_spline   <- bind_rows(all_spline)
+  res_quint    <- bind_rows(all_quint)
+  res_glm_sa   <- fdr_adjust(all_glm_sa)
+  res_quint_sa <- bind_rows(all_quint_sa)
+
+  fwrite(res_glm,      file.path(OUT_DIR, paste0("glm_linear_results_", pop, ".tsv")),          sep = "\t")
+  fwrite(res_lrt,      file.path(OUT_DIR, paste0("spline_lrt_results_", pop, ".tsv")),          sep = "\t")
+  fwrite(res_spline,   file.path(OUT_DIR, paste0("spline_predictions_", pop, ".tsv")),          sep = "\t")
+  fwrite(res_quint,    file.path(OUT_DIR, paste0("quintile_summary_", pop, ".tsv")),            sep = "\t")
+  fwrite(res_glm_sa,   file.path(OUT_DIR, paste0("glm_linear_sensitivity_", pop, ".tsv")),     sep = "\t")
+  fwrite(res_quint_sa, file.path(OUT_DIR, paste0("quintile_summary_sensitivity_", pop, ".tsv")), sep = "\t")
+
+  cat("\nResults written to:", OUT_DIR, "\n")
+  cat("Linear GLM summary:\n")
+  print(res_glm |>
+    dplyr::select(tissue, annotation, estimate, conf.low, conf.high, p.value, fdr) |>
+    arrange(fdr))
 }
 
-# FDR correction across all annotation × tissue tests
-fdr_adjust <- function(lst, p_col = "p.value") {
-  df <- bind_rows(lst)
-  df$fdr <- p.adjust(df[[p_col]], method = "fdr")
-  df
-}
-
-res_glm      <- fdr_adjust(all_glm)
-res_lrt      <- fdr_adjust(all_lrt, p_col = "p_lrt")
-res_spline   <- bind_rows(all_spline)
-res_quint    <- bind_rows(all_quint)
-res_glm_sa   <- fdr_adjust(all_glm_sa)
-res_quint_sa <- bind_rows(all_quint_sa)
-
-fwrite(res_glm,      file.path(OUT_DIR, "glm_linear_results.tsv"),          sep = "\t")
-fwrite(res_lrt,      file.path(OUT_DIR, "spline_lrt_results.tsv"),          sep = "\t")
-fwrite(res_spline,   file.path(OUT_DIR, "spline_predictions.tsv"),          sep = "\t")
-fwrite(res_quint,    file.path(OUT_DIR, "quintile_summary.tsv"),            sep = "\t")
-fwrite(res_glm_sa,   file.path(OUT_DIR, "glm_linear_sensitivity.tsv"),     sep = "\t")
-fwrite(res_quint_sa, file.path(OUT_DIR, "quintile_summary_sensitivity.tsv"), sep = "\t")
-
-cat("\nResults written to:", OUT_DIR, "\n")
-cat("Linear GLM summary:\n")
-print(res_glm |>
-  dplyr::select(tissue, annotation, estimate, conf.low, conf.high, p.value, fdr) |>
-  arrange(fdr))
 
 #### Reproducibility ####
 print("Reproducibility information:")
