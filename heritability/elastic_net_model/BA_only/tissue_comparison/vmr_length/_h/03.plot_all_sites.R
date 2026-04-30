@@ -29,15 +29,22 @@ summarise_length <- function(vmr) {
   print(summary_df)
 }
 
-spearman_corr <- function(vmr) {
+spearman_corr <- function(vmr, out_path) {
   spearman <- vmr %>% 
     group_by(tissue) %>%
     summarise(
       spearman_rho = cor.test(log10_length, h2_unscaled, method = "spearman")$estimate,
       spearman_p_value = cor.test(log10_length, h2_unscaled, method = "spearman")$p.value,
       n = n()
-    )
+    ) %>%
+    mutate(
+      spearman_fdr = p.adjust(spearman_p_value, method = "fdr")
+     ) 
   print(spearman)
+  write.csv(spearman,
+            file = file.path(out_path,
+                             paste0("all_vmr_length_h2_correlation_summary.csv")),
+            row.names = FALSE)
 }
 
 save_plot <- function(p, fn, w, h){
@@ -160,7 +167,7 @@ vmr_all <- bind_rows(vmr_all)
 summarise_length(vmr_all)
 
 # Spearman correlation test 
-spearman_corr(vmr_all)
+spearman_corr(vmr_all, out_path)
 
 p_hist <- plot_density(vmr_all, tissue)
 p_corr <- plot_corr(vmr_all, tissue)
