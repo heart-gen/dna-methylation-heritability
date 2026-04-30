@@ -1,12 +1,12 @@
 #!/bin/bash
 #SBATCH --account=p32505
 #SBATCH --partition=short
-#SBATCH --time=00:20:00
+#SBATCH --time=00:30:00
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --mem=8G
 #SBATCH --mail-type=FAIL
-#SBATCH --mail-user=kynon.benjamin@northwestern.edu
+#SBATCH --mail-user=alexis.bennett@northwestern.edu
 #SBATCH --job-name=h2_annot_glm
 #SBATCH --output=logs/h2_annot_glm.%j.log
 
