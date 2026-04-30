@@ -8,11 +8,19 @@ suppressPackageStartupMessages({
 })
 
 ## Function
+get_peak_density <- function(x) {
+  d <- density(x, na.rm = TRUE)
+  d$x[which.max(d$y)]
+}
+
 summarise_h2 <- function(vmr, out_path) {
   summary_df <- vmr %>%
     group_by(tissue) %>%
     summarise(
       n = n(),
+      min = min(h2_unscaled, na.rm = TRUE),
+      max = max(h2_unscaled, na.rm = TRUE),
+      peak_h2 = get_peak_density(h2_unscaled),
       mean_h2 = mean(h2_unscaled, na.rm = TRUE),
       sd_h2 = sd(h2_unscaled, na.rm = TRUE),
       median_h2 = median(h2_unscaled, na.rm = TRUE),
@@ -60,12 +68,11 @@ plot_density <- function(vmr, tissue) {
                         color = "tissue", fill = "tissue",
                         ggtheme = theme_pubr(base_size = 20, border = TRUE),
                         xlab = "Estimated h²", ylab = "Count") +
-    facet_wrap(~tissue, labeller = as_labeller(labels), scales = "free_x") +
+    facet_wrap(~tissue, scales = "free_x") +
     scale_color_manual(values = tissue_colors, labels = legend_labels) +
     scale_fill_manual(values = tissue_colors, labels = legend_labels) +
     labs(color = NULL, fill = NULL) +
     font("xy.title", face = "bold", size = 14) +
-    geom_vline(xintercept = 0.19, linetype = "dashed", color = "black") +
     geom_vline(xintercept = 0.1, linetype = "dotted", 
                color = "#8CA77B", size  = 2) +
     theme(
@@ -106,7 +113,7 @@ summarise_h2(vmr_all, out_path)
 # Save plot
 p_hist <- plot_density(vmr_all, tissue)
 fn_hist <- file.path(out_path, "all_sites_vmr_h2_distribution")
-save_plot(p_hist, fn_hist, 10, 5)
+save_plot(p_hist, fn_hist, 8, 5)
 
 ## Reproducibility information
 Sys.time()
