@@ -236,7 +236,7 @@ plot_violin <- function(vmr_all, snp_test) {
                        trim = FALSE
   ) +
     stat_pvalue_manual(snp_test, label = "p.adj.signif", tip.length = 0.01) +
-    theme_pubr(base_size = 15, border = TRUE) +
+    theme_pubr(base_size = 18, border = TRUE) +
     labs(
       title = "Number of SNP Differences Across Heritability Categories",
       x = "Heritability Category", y = "Number of SNPs"
@@ -296,7 +296,7 @@ for (tissue in tissues) {
 
   # Fit mixed model per tissue
   lmm <- lmer(num_snps ~ h2_category + n_samples + (1 | chrom), data = vmr_all)
-  y_pos = max(vmr_all$num_snps, na.rm = TRUE) + 100
+  y_pos = max(vmr_all$num_snps, na.rm = TRUE) + 300
   
   # Get pairwise contrasts
   contrast_df <- emmeans(lmm, ~ h2_category) %>%
@@ -321,6 +321,10 @@ for (tissue in tissues) {
 
 snp_test <- bind_rows(contrasts_h2) %>%
   mutate(tissue_title = ifelse(tolower(tissue) == "dlpfc", "DLPFC", tools::toTitleCase(tissue)))
+write.csv(snp_test, 
+            file = file.path(out_path, 
+                             paste0("num_snp_heritability_comparisons.csv")), 
+            row.names = FALSE)
 
 p_violin <- plot_violin(vmr_all, snp_test)
 
@@ -332,12 +336,12 @@ combined_corr_snp <- ggarrange(plotlist = corr_plots_snp, ncol = 3, nrow = 1)
 fn_hist <- file.path(out_path, "num_snp_distribution")
 fn_corr <- file.path(out_path, "num_snp_h2_correlation")
 fn_corr_snp <- file.path(out_path, "num_snp_VMR_length_correlation")
-fn_viol <- file.path(out_path, "num_snp_sig")
+fn_viol <- file.path(out_path, "num_snp_heritability_comparisons")
 
 save_plot(combined_hist, fn_hist, 20, 6)
 save_plot(combined_corr, fn_corr, 20, 6)
 save_plot(combined_corr_snp, fn_corr_snp, 20, 6)
-save_plot(p_violin, fn_viol, 14, 8)
+save_plot(p_violin, fn_viol, 10, 7)
 
 #### Reproducibility information ####
 print("Reproducibility information:")
