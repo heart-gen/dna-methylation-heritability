@@ -33,7 +33,7 @@ plot_circos_3tissue <- function(caudate, dlpfc, hippo, col, ylim){
     chrs <- paste0("chr", c(1:22, "X", "Y"))
     gap <- rep(1, length(chrs))
     names(gap) <- chrs
-    gap["chrY"] <- 7
+    gap["chrY"] <- 9
   
     lgd_points = Legend(at=c("Caudate nucleus", "DLPFC", "Hippocampus"),
                         type="points", legend_gp=gpar(col = c("#7372A6", "#B36F61", "#C5AC47")),
@@ -55,7 +55,7 @@ plot_circos_3tissue <- function(caudate, dlpfc, hippo, col, ylim){
                         bg.col=add_transparency("#7372A6", transparency=0.8),
                         panel.fun = function(region, value, ...) {
                           circos.genomicLines(region, value,
-                                              type = "segment", col = col, lwd = 3, ...)
+                                              type = "segment", col = col, lwd = 2, ...)
                           circos.lines(CELL_META$cell.xlim, c(0.1, 0.1), lty = 2, col = "black")
                   			  circos.yaxis(labels.cex = 0.6, side = "left", sector.index = "chr1")
     })
@@ -63,17 +63,15 @@ plot_circos_3tissue <- function(caudate, dlpfc, hippo, col, ylim){
                         bg.col=add_transparency("#B36F61", transparency=0.8),
                         panel.fun = function(region, value, ...) {
                           circos.genomicLines(region, value,
-                                              type = "segment", col = col, lwd = 3, ...)
+                                              type = "segment", col = col, lwd = 2, ...)
                           circos.lines(CELL_META$cell.xlim, c(0.1, 0.1), lty = 2, col = "black")
-                          circos.yaxis(labels.cex = 0.6, side = "left", sector.index = "chr1")
     })
     circos.genomicTrack(hippo, ylim = ylim, bg.border="#C5AC47",
                         bg.col=add_transparency("#C5AC47", transparency=0.8),
                         panel.fun = function(region, value, ...) {
                           circos.genomicLines(region, value,
-                                              type = "segment", col = col, lwd = 3, ...)
+                                              type = "segment", col = col, lwd = 2, ...)
                           circos.lines(CELL_META$cell.xlim, c(0.1, 0.1), lty = 2, col = "black")
-                          circos.yaxis(labels.cex = 0.6, side = "left", sector.index = "chr1")
     })
     lgd_combined <- packLegend(lgd_points, lgd_threshold, direction = "vertical")
     draw(lgd_combined, x=unit(5, "mm"), y=unit(5, "mm"), just=c("left", "bottom"))
@@ -114,7 +112,7 @@ main <- function(){
       
       pdf(file = file.path(output_path, 
                            paste0("free_y_circos_plot_3regions_", gsub(" ", "_", tolower(category)), ".pdf")),
-          width = 8, height = 8)
+          width = 5, height = 5)
       plot_circos_3tissue(caudate_cat, dlpfc_cat, hippo_cat, 
                           col  = category_colors[[category]],
                           ylim = category_ylims[[category]])
