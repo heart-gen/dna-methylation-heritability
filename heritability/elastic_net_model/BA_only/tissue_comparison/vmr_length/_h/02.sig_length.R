@@ -84,7 +84,7 @@ for(t in unique(vmr_all$tissue)) {
   
   # Fit mixed model per tissue
   lmm <- lmer(log10_length ~ h2_category + n_samples + (1 | chrom), data = df)
-  y_pos = max(df$log10_length, na.rm = TRUE) + 0.4
+  y_pos = max(df$log10_length, na.rm = TRUE) + 0.6
   
   # Get pairwise contrasts
   contrast_df <- emmeans(lmm, ~ h2_category) %>%
@@ -107,6 +107,10 @@ for(t in unique(vmr_all$tissue)) {
 }
 
 heritability_test <- bind_rows(contrasts_h2)
+write.csv(heritability_test, 
+            file = file.path(out_path, 
+                             paste0("vmr_length_heritability_comparisons.csv")), 
+            row.names = FALSE)
 
 heritability_colors <- c(
   "Heritable" = "#497C8A",
@@ -121,7 +125,7 @@ p_heritability <- ggviolin(vmr_all, x = "h2_category",
                            trim = FALSE
 ) +
   stat_pvalue_manual(heritability_test, label = "p.adj.signif", tip.length = 0.01) +
-  theme_pubr(base_size = 15, border = TRUE) +
+  theme_pubr(base_size = 18, border = TRUE) +
   labs(
     title = "VMR Length Differences Across Heritability Categories",
     x = "Tissue", y = "log10(VMR Length)"
@@ -141,7 +145,7 @@ for(h in unique(vmr_all$h2_category)) {
   
   # Fit mixed model per h2 category 
   lmm <- lmer(log10_length ~ tissue + n_samples + (1 | chrom), data = df)
-  y_pos = max(df$log10_length, na.rm = TRUE) + 0.4
+  y_pos = max(df$log10_length, na.rm = TRUE) + 0.6
   
   # Get pairwise contrasts
   contrast_df <- emmeans(lmm, ~ tissue) %>%
@@ -164,6 +168,10 @@ for(h in unique(vmr_all$h2_category)) {
 }
 
 tissue_test <- bind_rows(contrasts_tissue)
+write.csv(tissue_test, 
+            file = file.path(out_path, 
+                             paste0("vmr_length_tissue_comparisons.csv")), 
+            row.names = FALSE)
 
 tissue_colors <- c(
   "caudate" = "#7372A6",
@@ -178,7 +186,7 @@ p_tissue <- ggviolin(vmr_all, x = "tissue",
                      trim = FALSE
 ) +
   stat_pvalue_manual(tissue_test, label = "p.adj.signif", tip.length = 0.01) +
-  theme_pubr(base_size = 15, border = TRUE) +
+  theme_pubr(base_size = 18, border = TRUE) +
   labs(
     title = "VMR Length Differences Across Tissues",
     x = "Tissue", y = "log10(VMR Length)"
@@ -190,6 +198,6 @@ p_tissue <- ggviolin(vmr_all, x = "tissue",
 
 fn_heritability <- file.path(out_path, "VMR_length_heritability_comparisons")
 fn_tissue       <- file.path(out_path, "VMR_length_tissue_comparisons")
-save_plot(p_tissue, fn_tissue, 14, 8)
-save_plot(p_heritability, fn_heritability, 14, 8)
+save_plot(p_tissue, fn_tissue, 10, 7)
+save_plot(p_heritability, fn_heritability, 10, 7)
 
