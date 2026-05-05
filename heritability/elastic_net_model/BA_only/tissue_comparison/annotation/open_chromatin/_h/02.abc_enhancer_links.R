@@ -170,11 +170,10 @@ writeLines(genes_q1q4, file.path(OUT_DIR, "target_genes_q1q4_pooled.txt"))
 cat(sprintf("  Q5 target genes: %d | Q1-Q4 target genes: %d\n",
   length(genes_q5), length(genes_q1q4)))
 
-## ABC score comparison: heritable vs non-heritable (pooled)
+## ABC score comparison: heritable vs non-heritable (per tissue + pooled)
 
 abc_score_summary <- abc_links |>
-  filter(tissue == "Pooled") |>
-  group_by(h2_category) |>
+  group_by(tissue, h2_category) |>
   summarise(
     n_links    = n(),
     n_vmrs     = n_distinct(paste0(seqnames, ":", start, "-", end)),
@@ -183,19 +182,23 @@ abc_score_summary <- abc_links |>
     mean_abc   = mean(ABC.Score,   na.rm = TRUE),
     median_dist = median(distance, na.rm = TRUE),
     .groups    = "drop"
-  )
+  ) |>
+  arrange(factor(tissue, levels = c(unique(vmr_df$tissue), "Pooled")), h2_category)
 fwrite(abc_score_summary, file.path(OUT_DIR, "abc_score_summary.tsv"), sep = "\t")
 cat("Saved: abc_score_summary.tsv\n")
 print(abc_score_summary)
 
-# Wilcoxon test: ABC score by h2 category
-wt <- wilcox.test(
-  ABC.Score ~ h2_category,
-  data = abc_links |> filter(tissue == "Pooled",
-                              h2_category %in% c("Heritable", "Non-heritable"))
-)
-cat(sprintf("\nWilcoxon test (ABC score, Heritable vs Non-heritable): W=%.0f, p=%.3g\n",
-  wt$statistic, wt$p.value))
+# Wilcoxon test: ABC score by h2 category (stratified by tissue / pooled)
+cat("\nWilcoxon tests (ABC score, Heritable vs Non-heritable), by tissue:\n")
+for (t in unique(abc_links$tissue)) {
+  d <- abc_links |>
+    filter(
+      tissue == t,
+      h2_category %in% c("Heritable", "Non-heritable")
+    )
+  wt <- wilcox.test(ABC.Score ~ h2_category, data = d)
+  cat(sprintf("  %s: W=%.0f, p=%.3g\n", t, wt$statistic, wt$p.value))
+}
 
 ## clusterProfiler: GO and KEGG enrichment
 

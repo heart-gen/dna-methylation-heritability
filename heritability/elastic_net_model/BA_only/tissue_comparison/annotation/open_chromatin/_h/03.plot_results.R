@@ -7,7 +7,7 @@
 ##   Fig 3  — Quintile plot: open chromatin overlap fraction vs h² quintile
 ##   Fig 4  — Cell-type specificity: stacked bar of n_celltypes_overlap
 ##   Fig 5  — GO pathway dot plot (heritable vs non-heritable target genes)
-##   Fig 6  — ABC score distribution by h2 category (violin + boxplot)
+##   Fig 6  — ABC score by h2 category, faceted by brain region (violin + boxplot)
 ##
 ## Main figure: Fig 1 + Fig 3 (left-to-right narrative: enrichment → gradient)
 ## Supplemental: Fig 2 + Fig 4 + Fig 5 + Fig 6
@@ -350,39 +350,61 @@ if (!is.null(go_df) && nrow(go_df) > 0) {
   message("GO enrichment results not found — skipping Fig 5")
 }
 
-## Fig 6 — ABC score distribution by h2 category (supplemental)
+## Fig 6 — ABC score distribution by h2 category (per brain region; supplemental)
 
 if (!is.null(abc_df) && nrow(abc_df) > 0) {
+  tissue_plot_order <- setdiff(TISSUE_ORDER, "Pooled")
   abc_viol_df <- abc_df |>
-    filter(tissue == "Pooled",
-           h2_category %in% c("Heritable", "Non-heritable")) |>
-    mutate(h2_category = factor(h2_category,
-                                levels = c("Heritable", "Non-heritable")))
+    filter(
+      tissue %in% tissue_plot_order,
+      h2_category %in% c("Heritable", "Non-heritable")
+    ) |>
+    mutate(
+      h2_category = factor(h2_category,
+        levels = c("Heritable", "Non-heritable")),
+      tissue = factor(tissue, levels = tissue_plot_order)
+    )
 
-  wt <- wilcox.test(ABC.Score ~ h2_category, data = abc_viol_df)
-  wt_label <- sprintf("Wilcoxon p = %.2g", wt$p.value)
-
-  y_max <- quantile(abc_viol_df$ABC.Score, 0.99, na.rm = TRUE)
+  abc_viol_ann <- bind_rows(lapply(split(abc_viol_df, abc_viol_df$tissue), function(d) {
+    t <- as.character(unique(d$tissue))
+    wt <- wilcox.test(ABC.Score ~ h2_category, data = d)
+    y_hi <- quantile(d$ABC.Score, 0.99, na.rm = TRUE)
+    tibble(
+      tissue   = factor(t, levels = tissue_plot_order),
+      x        = 1.5,
+      y        = y_hi * 1.06,
+      wt_label = sprintf("Wilcoxon p = %.2g", wt$p.value)
+    )
+  }))
 
   fig6 <- ggplot(abc_viol_df,
       aes(x = h2_category, y = ABC.Score, fill = h2_category)) +
+    facet_wrap(~ tissue, nrow = 1, scales = "free_y",
+               labeller = labeller(tissue = TISSUE_LABELS)) +
     geom_violin(trim = TRUE, alpha = 0.75, color = NA, scale = "width") +
     geom_boxplot(width = 0.12, fill = "white", color = "grey30",
                  outlier.shape = NA, linewidth = 0.5) +
-    annotate("text", x = 1.5, y = y_max * 1.05,
-             label = wt_label, size = 3, color = "grey20") +
+    geom_text(
+      data = abc_viol_ann,
+      aes(x = x, y = y, label = wt_label),
+      inherit.aes = FALSE,
+      size = 2.8,
+      color = "grey20"
+    ) +
     scale_fill_manual(values = H2_COLORS, guide = "none") +
     scale_y_continuous(
-      limits = c(0, y_max * 1.1),
-      expand = expansion(mult = c(0, 0.02))
+      expand = expansion(mult = c(0.02, 0.14))
     ) +
     scale_x_discrete(labels = c("Heritable" = "Heritable\nintergenic",
                                  "Non-heritable" = "Non-heritable\nintergenic")) +
     labs(x = NULL, y = "ABC score") +
     BASE_THEME +
-    theme(panel.grid.major.x = element_blank())
+    theme(
+      panel.grid.major.x = element_blank(),
+      strip.text = element_text(face = "bold", size = 9)
+    )
 
-  save_plot(fig6, "fig6_abc_score_violin", width = 3.2, height = 3.5)
+  save_plot(fig6, "fig6_abc_score_violin", width = 9, height = 3.5)
 } else {
   message("ABC links file not found — skipping Fig 6")
 }
