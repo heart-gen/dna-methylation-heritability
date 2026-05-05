@@ -175,6 +175,6 @@ export -f validate_resources
 # Get input file path for a brain region
 get_input_file() {
     local region="$1"
-    echo "${PROJECT_BASE}/heritability/elastic_net_model/BA_only/${region}/_m/${region}_summary_elastic-net.tsv"
+    echo "${PROJECT_BASE}/heritability/elastic_net_model/all_individuals/${region}/_m/${region}_summary_elastic-net_matched_r2_0.3.tsv"
 }
 export -f get_input_file
