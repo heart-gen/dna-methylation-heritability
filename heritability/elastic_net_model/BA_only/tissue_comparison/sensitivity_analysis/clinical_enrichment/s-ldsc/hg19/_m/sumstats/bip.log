@@ -1,0 +1,58 @@
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./munge_sumstats.py \
+--sumstats /projects/b1213/resources/gwas/bip/pgc-bip2021-all.vcf.tsv.gz \
+--out ./sumstats/bip \
+--merge-alleles /projects/b1213/resources/ldsc/w_hm3.snplist \
+--chunksize 500000 \
+--snp ID \
+--N-cas-col NCAS \
+--N-con-col NCON \
+--a1 A1 \
+--a2 A2 \
+--p PVAL \
+--frq FCAS \
+--signed-sumstats BETA,0 \
+--skip-rows 72 
+
+Interpreting column names as follows:
+ID:	Variant ID (e.g., rs number)
+A1:	Allele 1, interpreted as ref allele for signed sumstat.
+A2:	Allele 2, interpreted as non-ref allele for signed sumstat.
+BETA:	Directional summary statistic as specified by --signed-sumstats.
+PVAL:	p-Value
+FCAS:	Allele frequency
+NCAS:	Number of cases
+NCON:	Number of controls
+
+Reading list of SNPs for allele merge from /projects/b1213/resources/ldsc/w_hm3.snplist
+Read 1190321 SNPs for allele merge.
+Reading sumstats from /projects/b1213/resources/gwas/bip/pgc-bip2021-all.vcf.tsv.gz into memory 500000 SNPs at a time.
+Read 7608183 SNPs from --sumstats file.
+Removed 6438403 SNPs not in --merge-alleles.
+Removed 0 SNPs with missing values.
+Removed 0 SNPs with INFO <= 0.9.
+Removed 0 SNPs with MAF <= 0.01.
+Removed 0 SNPs with out-of-bounds p-values.
+Removed 0 variants that were not SNPs or were strand-ambiguous.
+1169780 SNPs remain.
+Removed 0 SNPs with duplicated rs numbers (1169780 SNPs remain).
+Removed 3323 SNPs with N < 275644.0000000002 (1166457 SNPs remain).
+Median value of SIGNED_SUMSTATS was -0.0003000450090019, which seems sensible.
+Removed 1 SNPs whose alleles did not match --merge-alleles (1166456 SNPs remain).
+Writing summary statistics for 1190321 SNPs (1166456 with nonmissing beta) to ./sumstats/bip.sumstats.gz.
+
+Metadata:
+Mean chi^2 = 1.6
+Lambda GC = 1.452
+Max chi^2 = 78.87
+640 Genome-wide significant SNPs (some may have been removed by filtering).
+
+Conversion finished at Tue Apr 21 11:23:15 2026
+Total time elapsed: 59.87s
