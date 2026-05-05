@@ -1,0 +1,505 @@
+2026-04-26 21:32:49 - **** Job starts ****
+**** PSC Bridges-2 info ****
+User: uyb5533
+Job id: 6547197
+Job name: make_annot
+Node name: 
+Hostname: qnode0025
+Task id: N/A
+
+Currently Loaded Modules:
+  1) bedtools/2.31.1
+
+ 
+
+2026-04-26 21:32:54 - **** Loading conda environment ****
+2026-04-26 21:32:55 - Using TMPDIR: /projects/b1213/tmp
+Validating resources...
+All resources validated successfully.
+2026-04-26 21:32:55 - Processing region: caudate
+2026-04-26 21:32:55 - Sorting ./vmr/caudate/Q1.bed...
+2026-04-26 21:32:56 - Sorting ./vmr/caudate/Q2.bed...
+2026-04-26 21:32:56 - Sorting ./vmr/caudate/Q3.bed...
+2026-04-26 21:32:56 - Sorting ./vmr/caudate/Q4.bed...
+2026-04-26 21:32:56 - Sorting ./vmr/caudate/Q5.bed...
+2026-04-26 21:32:56 - Processing chromosome 1...
+making combined annot file
+Processing Q1
+Processing Q2
+Processing Q3
+Processing Q4
+Processing Q5
+2026-04-26 21:33:08 - Processing chromosome 2...
+making combined annot file
+Processing Q1
+Processing Q2
+Processing Q3
+Processing Q4
+Processing Q5
+2026-04-26 21:33:19 - Processing chromosome 3...
+making combined annot file
+Processing Q1
+Processing Q2
+Processing Q3
+Processing Q4
+Processing Q5
+2026-04-26 21:33:28 - Processing chromosome 4...
+making combined annot file
+Processing Q1
+Processing Q2
+Processing Q3
+Processing Q4
+Processing Q5
+2026-04-26 21:33:38 - Processing chromosome 5...
+making combined annot file
+Processing Q1
+Processing Q2
+Processing Q3
+Processing Q4
+Processing Q5
+2026-04-26 21:33:47 - Processing chromosome 6...
+making combined annot file
+Processing Q1
+Processing Q2
+Processing Q3
+Processing Q4
+Processing Q5
+2026-04-26 21:33:56 - Processing chromosome 7...
+making combined annot file
+Processing Q1
+Processing Q2
+Processing Q3
+Processing Q4
+Processing Q5
+2026-04-26 21:34:05 - Processing chromosome 8...
+making combined annot file
+Processing Q1
+Processing Q2
+Processing Q3
+Processing Q4
+Processing Q5
+2026-04-26 21:34:13 - Processing chromosome 9...
+making combined annot file
+Processing Q1
+Processing Q2
+Processing Q3
+Processing Q4
+Processing Q5
+2026-04-26 21:34:19 - Processing chromosome 10...
+making combined annot file
+Processing Q1
+Processing Q2
+Processing Q3
+Processing Q4
+Processing Q5
+2026-04-26 21:34:27 - Processing chromosome 11...
+making combined annot file
+Processing Q1
+Processing Q2
+Processing Q3
+Processing Q4
+Processing Q5
+2026-04-26 21:34:33 - Processing chromosome 12...
+making combined annot file
+Processing Q1
+Processing Q2
+Processing Q3
+Processing Q4
+Processing Q5
+2026-04-26 21:34:40 - Processing chromosome 13...
+making combined annot file
+Processing Q1
+Processing Q2
+Processing Q3
+Processing Q4
+Processing Q5
+2026-04-26 21:34:46 - Processing chromosome 14...
+making combined annot file
+Processing Q1
+Processing Q2
+Processing Q3
+Processing Q4
+Processing Q5
+2026-04-26 21:34:50 - Processing chromosome 15...
+making combined annot file
+Processing Q1
+Processing Q2
+Processing Q3
+Processing Q4
+Processing Q5
+2026-04-26 21:34:55 - Processing chromosome 16...
+making combined annot file
+Processing Q1
+Processing Q2
+Processing Q3
+Processing Q4
+Processing Q5
+2026-04-26 21:34:59 - Processing chromosome 17...
+making combined annot file
+Processing Q1
+Processing Q2
+Processing Q3
+Processing Q4
+Processing Q5
+2026-04-26 21:35:04 - Processing chromosome 18...
+making combined annot file
+Processing Q1
+Processing Q2
+Processing Q3
+Processing Q4
+Processing Q5
+2026-04-26 21:35:08 - Processing chromosome 19...
+making combined annot file
+Processing Q1
+Processing Q2
+Processing Q3
+Processing Q4
+Processing Q5
+2026-04-26 21:35:12 - Processing chromosome 20...
+making combined annot file
+Processing Q1
+Processing Q2
+Processing Q3
+Processing Q4
+Processing Q5
+2026-04-26 21:35:15 - Processing chromosome 21...
+making combined annot file
+Processing Q1
+Processing Q2
+Processing Q3
+Processing Q4
+Processing Q5
+2026-04-26 21:35:17 - Processing chromosome 22...
+making combined annot file
+Processing Q1
+Processing Q2
+Processing Q3
+Processing Q4
+Processing Q5
+2026-04-26 21:35:20 - Processing region: dlpfc
+2026-04-26 21:35:20 - Sorting ./vmr/dlpfc/Q1.bed...
+2026-04-26 21:35:20 - Sorting ./vmr/dlpfc/Q2.bed...
+2026-04-26 21:35:20 - Sorting ./vmr/dlpfc/Q3.bed...
+2026-04-26 21:35:20 - Sorting ./vmr/dlpfc/Q4.bed...
+2026-04-26 21:35:20 - Sorting ./vmr/dlpfc/Q5.bed...
+2026-04-26 21:35:20 - Processing chromosome 1...
+making combined annot file
+Processing Q1
+Processing Q2
+Processing Q3
+Processing Q4
+Processing Q5
+2026-04-26 21:35:30 - Processing chromosome 2...
+making combined annot file
+Processing Q1
+Processing Q2
+Processing Q3
+Processing Q4
+Processing Q5
+2026-04-26 21:35:41 - Processing chromosome 3...
+making combined annot file
+Processing Q1
+Processing Q2
+Processing Q3
+Processing Q4
+Processing Q5
+2026-04-26 21:35:50 - Processing chromosome 4...
+making combined annot file
+Processing Q1
+Processing Q2
+Processing Q3
+Processing Q4
+Processing Q5
+2026-04-26 21:36:00 - Processing chromosome 5...
+making combined annot file
+Processing Q1
+Processing Q2
+Processing Q3
+Processing Q4
+Processing Q5
+2026-04-26 21:36:09 - Processing chromosome 6...
+making combined annot file
+Processing Q1
+Processing Q2
+Processing Q3
+Processing Q4
+Processing Q5
+2026-04-26 21:36:18 - Processing chromosome 7...
+making combined annot file
+Processing Q1
+Processing Q2
+Processing Q3
+Processing Q4
+Processing Q5
+2026-04-26 21:36:25 - Processing chromosome 8...
+making combined annot file
+Processing Q1
+Processing Q2
+Processing Q3
+Processing Q4
+Processing Q5
+2026-04-26 21:36:33 - Processing chromosome 9...
+making combined annot file
+Processing Q1
+Processing Q2
+Processing Q3
+Processing Q4
+Processing Q5
+2026-04-26 21:36:39 - Processing chromosome 10...
+making combined annot file
+Processing Q1
+Processing Q2
+Processing Q3
+Processing Q4
+Processing Q5
+2026-04-26 21:36:46 - Processing chromosome 11...
+making combined annot file
+Processing Q1
+Processing Q2
+Processing Q3
+Processing Q4
+Processing Q5
+2026-04-26 21:36:52 - Processing chromosome 12...
+making combined annot file
+Processing Q1
+Processing Q2
+Processing Q3
+Processing Q4
+Processing Q5
+2026-04-26 21:37:07 - Processing chromosome 13...
+making combined annot file
+Processing Q1
+Processing Q2
+Processing Q3
+Processing Q4
+Processing Q5
+2026-04-26 21:37:13 - Processing chromosome 14...
+making combined annot file
+Processing Q1
+Processing Q2
+Processing Q3
+Processing Q4
+Processing Q5
+2026-04-26 21:37:19 - Processing chromosome 15...
+making combined annot file
+Processing Q1
+Processing Q2
+Processing Q3
+Processing Q4
+Processing Q5
+2026-04-26 21:37:23 - Processing chromosome 16...
+making combined annot file
+Processing Q1
+Processing Q2
+Processing Q3
+Processing Q4
+Processing Q5
+2026-04-26 21:37:28 - Processing chromosome 17...
+making combined annot file
+Processing Q1
+Processing Q2
+Processing Q3
+Processing Q4
+Processing Q5
+2026-04-26 21:37:32 - Processing chromosome 18...
+making combined annot file
+Processing Q1
+Processing Q2
+Processing Q3
+Processing Q4
+Processing Q5
+2026-04-26 21:37:36 - Processing chromosome 19...
+making combined annot file
+Processing Q1
+Processing Q2
+Processing Q3
+Processing Q4
+Processing Q5
+2026-04-26 21:37:40 - Processing chromosome 20...
+making combined annot file
+Processing Q1
+Processing Q2
+Processing Q3
+Processing Q4
+Processing Q5
+2026-04-26 21:37:43 - Processing chromosome 21...
+making combined annot file
+Processing Q1
+Processing Q2
+Processing Q3
+Processing Q4
+Processing Q5
+2026-04-26 21:37:46 - Processing chromosome 22...
+making combined annot file
+Processing Q1
+Processing Q2
+Processing Q3
+Processing Q4
+Processing Q5
+2026-04-26 21:37:49 - Processing region: hippocampus
+2026-04-26 21:37:49 - Sorting ./vmr/hippocampus/Q1.bed...
+2026-04-26 21:37:49 - Sorting ./vmr/hippocampus/Q2.bed...
+2026-04-26 21:37:49 - Sorting ./vmr/hippocampus/Q3.bed...
+2026-04-26 21:37:49 - Sorting ./vmr/hippocampus/Q4.bed...
+2026-04-26 21:37:49 - Sorting ./vmr/hippocampus/Q5.bed...
+2026-04-26 21:37:49 - Processing chromosome 1...
+making combined annot file
+Processing Q1
+Processing Q2
+Processing Q3
+Processing Q4
+Processing Q5
+2026-04-26 21:37:59 - Processing chromosome 2...
+making combined annot file
+Processing Q1
+Processing Q2
+Processing Q3
+Processing Q4
+Processing Q5
+2026-04-26 21:38:10 - Processing chromosome 3...
+making combined annot file
+Processing Q1
+Processing Q2
+Processing Q3
+Processing Q4
+Processing Q5
+2026-04-26 21:38:20 - Processing chromosome 4...
+making combined annot file
+Processing Q1
+Processing Q2
+Processing Q3
+Processing Q4
+Processing Q5
+2026-04-26 21:38:30 - Processing chromosome 5...
+making combined annot file
+Processing Q1
+Processing Q2
+Processing Q3
+Processing Q4
+Processing Q5
+2026-04-26 21:38:38 - Processing chromosome 6...
+making combined annot file
+Processing Q1
+Processing Q2
+Processing Q3
+Processing Q4
+Processing Q5
+2026-04-26 21:38:48 - Processing chromosome 7...
+making combined annot file
+Processing Q1
+Processing Q2
+Processing Q3
+Processing Q4
+Processing Q5
+2026-04-26 21:38:56 - Processing chromosome 8...
+making combined annot file
+Processing Q1
+Processing Q2
+Processing Q3
+Processing Q4
+Processing Q5
+2026-04-26 21:39:03 - Processing chromosome 9...
+making combined annot file
+Processing Q1
+Processing Q2
+Processing Q3
+Processing Q4
+Processing Q5
+2026-04-26 21:39:10 - Processing chromosome 10...
+making combined annot file
+Processing Q1
+Processing Q2
+Processing Q3
+Processing Q4
+Processing Q5
+2026-04-26 21:39:17 - Processing chromosome 11...
+making combined annot file
+Processing Q1
+Processing Q2
+Processing Q3
+Processing Q4
+Processing Q5
+2026-04-26 21:39:24 - Processing chromosome 12...
+making combined annot file
+Processing Q1
+Processing Q2
+Processing Q3
+Processing Q4
+Processing Q5
+2026-04-26 21:39:31 - Processing chromosome 13...
+making combined annot file
+Processing Q1
+Processing Q2
+Processing Q3
+Processing Q4
+Processing Q5
+2026-04-26 21:39:36 - Processing chromosome 14...
+making combined annot file
+Processing Q1
+Processing Q2
+Processing Q3
+Processing Q4
+Processing Q5
+2026-04-26 21:39:41 - Processing chromosome 15...
+making combined annot file
+Processing Q1
+Processing Q2
+Processing Q3
+Processing Q4
+Processing Q5
+2026-04-26 21:39:45 - Processing chromosome 16...
+making combined annot file
+Processing Q1
+Processing Q2
+Processing Q3
+Processing Q4
+Processing Q5
+2026-04-26 21:39:50 - Processing chromosome 17...
+making combined annot file
+Processing Q1
+Processing Q2
+Processing Q3
+Processing Q4
+Processing Q5
+2026-04-26 21:39:54 - Processing chromosome 18...
+making combined annot file
+Processing Q1
+Processing Q2
+Processing Q3
+Processing Q4
+Processing Q5
+2026-04-26 21:39:58 - Processing chromosome 19...
+making combined annot file
+Processing Q1
+Processing Q2
+Processing Q3
+Processing Q4
+Processing Q5
+2026-04-26 21:40:02 - Processing chromosome 20...
+making combined annot file
+Processing Q1
+Processing Q2
+Processing Q3
+Processing Q4
+Processing Q5
+2026-04-26 21:40:05 - Processing chromosome 21...
+making combined annot file
+Processing Q1
+Processing Q2
+Processing Q3
+Processing Q4
+Processing Q5
+2026-04-26 21:40:08 - Processing chromosome 22...
+making combined annot file
+Processing Q1
+Processing Q2
+Processing Q3
+Processing Q4
+Processing Q5
+2026-04-26 21:40:10 - Verifying annotation files...
+
+=== Annotation Files ===
+[OK] caudate: 22 annotation files
+[OK] dlpfc: 22 annotation files
+[OK] hippocampus: 22 annotation files
+2026-04-26 21:40:18 - **** Job ends ****

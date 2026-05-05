@@ -1,0 +1,54 @@
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./munge_sumstats.py \
+--sumstats /projects/b1213/resources/gwas/mdd/jamapsy_Giannakopoulou_2021_exclude_whi_23andMe.txt.gz \
+--N-cas 166773.0 \
+--N-con 507679.0 \
+--out ./sumstats/mdd \
+--merge-alleles /projects/b1213/resources/ldsc/w_hm3.snplist \
+--chunksize 500000 \
+--snp MarkerName \
+--a1 Allele1 \
+--a2 Allele2 \
+--p P.SE \
+--frq Freq1 \
+--signed-sumstats Effect,0 
+
+Interpreting column names as follows:
+MarkerName:	Variant ID (e.g., rs number)
+Allele1:	Allele 1, interpreted as ref allele for signed sumstat.
+Allele2:	Allele 2, interpreted as non-ref allele for signed sumstat.
+Freq1:	Allele frequency
+Effect:	Directional summary statistic as specified by --signed-sumstats.
+P.SE:	p-Value
+
+Reading list of SNPs for allele merge from /projects/b1213/resources/ldsc/w_hm3.snplist
+Read 1190321 SNPs for allele merge.
+Reading sumstats from /projects/b1213/resources/gwas/mdd/jamapsy_Giannakopoulou_2021_exclude_whi_23andMe.txt.gz into memory 500000 SNPs at a time.
+Read 7922500 SNPs from --sumstats file.
+Removed 6858454 SNPs not in --merge-alleles.
+Removed 0 SNPs with missing values.
+Removed 0 SNPs with INFO <= 0.9.
+Removed 5507 SNPs with MAF <= 0.01.
+Removed 0 SNPs with out-of-bounds p-values.
+Removed 3 variants that were not SNPs or were strand-ambiguous.
+1058536 SNPs remain.
+Removed 3 SNPs with duplicated rs numbers (1058533 SNPs remain).
+Median value of SIGNED_SUMSTATS was 0.0, which seems sensible.
+Removed 0 SNPs whose alleles did not match --merge-alleles (1058533 SNPs remain).
+Writing summary statistics for 1190321 SNPs (1058533 with nonmissing beta) to ./sumstats/mdd.sumstats.gz.
+
+Metadata:
+Mean chi^2 = 1.042
+Lambda GC = 1.033
+Max chi^2 = 34.179
+3 Genome-wide significant SNPs (some may have been removed by filtering).
+
+Conversion finished at Tue Apr 21 11:22:09 2026
+Total time elapsed: 47.99s
