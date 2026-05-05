@@ -144,7 +144,7 @@ get_dmr <- function(pheno_matrix, var) {
 ## Main
                                         # Create output path
 out_path <- here("environmental-analysis", "BA_only", "caudate", 
-                 "correlation", "_m")
+                 "correlation", "quintile_analysis", "_m")
 if (!dir.exists(out_path)) {
   dir.create(out_path, recursive = TRUE)
 }
