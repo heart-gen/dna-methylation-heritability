@@ -25,10 +25,12 @@ suppressPackageStartupMessages({
 ## Configuration
 
 IN_DIR <- here::here(
-  "heritability", "elastic_net_model", "BA_only",
+  "heritability", "elastic_net_model", "all_individuals",
   "tissue_comparison", "annotation", "h2_continuous", "_m"
 )
 OUT_DIR <- IN_DIR
+
+POPULATIONS <- c("AA", "EA") # using matched VMRs, population-specific h2 values
 
 TISSUE_LABELS <- c(
   "Caudate"      = "Caudate nucleus",
@@ -82,173 +84,175 @@ sig_label <- function(fdr) {
 
 ## Load data
 
-quint  <- fread(file.path(IN_DIR, "quintile_summary.tsv")) |>
-  mutate(
-    annotation = factor(annotation, levels = ANNOT_ORDER),
-    tissue     = factor(tissue,     levels = names(TISSUE_LABELS))
-  )
+for (pop in POPULATIONS) {
+  quint  <- fread(file.path(IN_DIR, paste0("quintile_summary_", pop, ".tsv"))) |>
+    mutate(
+      annotation = factor(annotation, levels = ANNOT_ORDER),
+      tissue     = factor(tissue,     levels = names(TISSUE_LABELS))
+    )
 
-glm    <- fread(file.path(IN_DIR, "glm_linear_results.tsv")) |>
-  mutate(
-    annotation = factor(annotation, levels = ANNOT_ORDER),
-    tissue     = factor(tissue,     levels = names(TISSUE_LABELS)),
-    sig        = sig_label(fdr)
-  )
+  glm    <- fread(file.path(IN_DIR, paste0("glm_linear_results_", pop, ".tsv"))) |>
+    mutate(
+      annotation = factor(annotation, levels = ANNOT_ORDER),
+      tissue     = factor(tissue,     levels = names(TISSUE_LABELS)),
+      sig        = sig_label(fdr)
+    )
 
-spline <- fread(file.path(IN_DIR, "spline_predictions.tsv")) |>
-  mutate(
-    annotation = factor(annotation, levels = ANNOT_ORDER),
-    tissue     = factor(tissue,     levels = names(TISSUE_LABELS))
-  )
+  spline <- fread(file.path(IN_DIR, paste0("spline_predictions_", pop, ".tsv"))) |>
+    mutate(
+      annotation = factor(annotation, levels = ANNOT_ORDER),
+      tissue     = factor(tissue,     levels = names(TISSUE_LABELS))
+    )
 
-spline_x_max <- ceiling(max(spline$h2_unscaled, na.rm = TRUE) * 10) / 10
+  spline_x_max <- ceiling(max(spline$h2_unscaled, na.rm = TRUE) * 10) / 10
 
-## Figure A — Quintile fraction plot (main figure)
+  ## Figure A — Quintile fraction plot (main figure)
 
-fig_a <- ggplot(quint,
-    aes(x = h2_quintile, y = frac,
-        color = annotation, group = annotation)) +
-  geom_ribbon(aes(ymin = ci_lo, ymax = ci_hi, fill = annotation),
-              alpha = 0.12, color = NA) +
-  geom_line(linewidth = 0.7) +
-  geom_point(size = 1.8, shape = 19) +
-  facet_wrap(
-    ~ tissue,
-    nrow   = 1,
-    labeller = as_labeller(TISSUE_LABELS)
-  ) +
-  scale_color_manual(values = ANNOT_COLORS, breaks = ANNOT_ORDER) +
-  scale_fill_manual( values = ANNOT_COLORS, breaks = ANNOT_ORDER) +
-  scale_y_continuous(
-    labels = percent_format(accuracy = 1),
-    expand = expansion(mult = c(0.02, 0.05))
-  ) +
-  labs(
-    x = expression(paste("h"^2, " quintile")),
-    y = "VMRs overlapping annotation (%)"
-  ) +
-  BASE_THEME +
-  theme(
-    legend.position  = "right",
-    legend.direction = "vertical"
-  )
+  fig_a <- ggplot(quint,
+      aes(x = h2_quintile, y = frac,
+          color = annotation, group = annotation)) +
+    geom_ribbon(aes(ymin = ci_lo, ymax = ci_hi, fill = annotation),
+                alpha = 0.12, color = NA) +
+    geom_line(linewidth = 0.7) +
+    geom_point(size = 1.8, shape = 19) +
+    facet_wrap(
+      ~ tissue,
+      nrow   = 1,
+      labeller = as_labeller(TISSUE_LABELS)
+    ) +
+    scale_color_manual(values = ANNOT_COLORS, breaks = ANNOT_ORDER) +
+    scale_fill_manual( values = ANNOT_COLORS, breaks = ANNOT_ORDER) +
+    scale_y_continuous(
+      labels = percent_format(accuracy = 1),
+      expand = expansion(mult = c(0.02, 0.05))
+    ) +
+    labs(
+      x = expression(paste("h"^2, " quintile")),
+      y = "VMRs overlapping annotation (%)"
+    ) +
+    BASE_THEME +
+    theme(
+      legend.position  = "right",
+      legend.direction = "vertical"
+    )
 
-save_plot(fig_a, "h2_annotation_quintile", width = 7.2, height = 3.2)
+  save_plot(fig_a, paste0("h2_annotation_quintile_", pop), width = 7.2, height = 3.2)
 
-## Figure B — Spline-predicted probabilities (supplemental)
+  ## Figure B — Spline-predicted probabilities (supplemental)
 
-fig_b <- ggplot(spline,
-    aes(x = h2_unscaled, y = prob,
-        color = annotation, fill = annotation)) +
-  geom_ribbon(aes(ymin = ci_lo, ymax = ci_hi), alpha = 0.13, color = NA) +
-  geom_line(linewidth = 0.8) +
-  facet_wrap(
-    ~ tissue,
-    nrow     = 1,
-    labeller = as_labeller(TISSUE_LABELS)
-  ) +
-  scale_color_manual(values = ANNOT_COLORS, breaks = ANNOT_ORDER) +
-  scale_fill_manual( values = ANNOT_COLORS, breaks = ANNOT_ORDER) +
-  scale_x_continuous(
-    breaks = pretty_breaks(n = 5),
-    limits = c(0, spline_x_max),
-    labels = function(x) sprintf("%.1f", x)
-  ) +
-  scale_y_continuous(
-    labels = percent_format(accuracy = 1),
-    expand = expansion(mult = c(0.02, 0.05))
-  ) +
-  labs(
-    x = expression(paste("SNP-based heritability (h"^2, ")")),
-    y = "Predicted probability of\nannotation overlap (%)"
-  ) +
-  BASE_THEME +
-  theme(legend.position = "right")
+  fig_b <- ggplot(spline,
+      aes(x = h2_unscaled, y = prob,
+          color = annotation, fill = annotation)) +
+    geom_ribbon(aes(ymin = ci_lo, ymax = ci_hi), alpha = 0.13, color = NA) +
+    geom_line(linewidth = 0.8) +
+    facet_wrap(
+      ~ tissue,
+      nrow     = 1,
+      labeller = as_labeller(TISSUE_LABELS)
+    ) +
+    scale_color_manual(values = ANNOT_COLORS, breaks = ANNOT_ORDER) +
+    scale_fill_manual( values = ANNOT_COLORS, breaks = ANNOT_ORDER) +
+    scale_x_continuous(
+      breaks = pretty_breaks(n = 5),
+      limits = c(0, spline_x_max),
+      labels = function(x) sprintf("%.1f", x)
+    ) +
+    scale_y_continuous(
+      labels = percent_format(accuracy = 1),
+      expand = expansion(mult = c(0.02, 0.05))
+    ) +
+    labs(
+      x = expression(paste("SNP-based heritability (h"^2, ")")),
+      y = "Predicted probability of\nannotation overlap (%)"
+    ) +
+    BASE_THEME +
+    theme(legend.position = "right")
 
-save_plot(fig_b, "h2_annotation_spline", width = 7.2, height = 3.2)
+  save_plot(fig_b, paste0("h2_annotation_spline_", pop), width = 7.2, height = 3.2)
 
-## Figure C — OR forest plot (supplemental)
+  ## Figure C — OR forest plot (supplemental)
 
-glm_plot <- glm |>
-  mutate(
-    tissue_label = recode(as.character(tissue), !!!TISSUE_LABELS),
-    label_right  = sprintf("%.2f [%.2f\u2013%.2f]%s",
-                            estimate, conf.low, conf.high, sig)
-  )
+  glm_plot <- glm |>
+    mutate(
+      tissue_label = recode(as.character(tissue), !!!TISSUE_LABELS),
+      label_right  = sprintf("%.2f [%.2f\u2013%.2f]%s",
+                              estimate, conf.low, conf.high, sig)
+    )
 
-# Nudge significance stars slightly above error bars
-fig_c <- ggplot(glm_plot,
-    aes(x = estimate, y = annotation,
-        color = annotation, xmin = conf.low, xmax = conf.high)) +
-  geom_vline(xintercept = 1, linetype = "dashed", color = "grey60",
-             linewidth = 0.5) +
-  geom_errorbarh(height = 0.2, linewidth = 0.6) +
-  geom_point(size = 2.4) +
-  geom_text(aes(x = conf.high, label = sig),
-            hjust = -0.3, vjust = 0.5, size = 3, color = "black") +
-  facet_wrap(
-    ~ tissue_label,
-    nrow     = 1,
-    scales   = "free_x"
-  ) +
-  scale_color_manual(values = ANNOT_COLORS, breaks = ANNOT_ORDER,
-                     guide = "none") +
-  scale_x_continuous(
-    trans  = "log2",
-    labels = number_format(accuracy = 0.01)
-  ) +
-  labs(
-    x = expression(paste(
-      "Odds ratio per 0.1 unit increase in h"^2, " (log"[2], " scale)"
-    )),
-    y = NULL
-  ) +
-  BASE_THEME +
-  theme(
-    axis.text.y  = element_text(size = 8),
-    panel.grid.major.x = element_line(color = "grey92", linewidth = 0.3),
-    panel.grid.major.y = element_blank()
-  )
+  # Nudge significance stars slightly above error bars
+  fig_c <- ggplot(glm_plot,
+      aes(x = estimate, y = annotation,
+          color = annotation, xmin = conf.low, xmax = conf.high)) +
+    geom_vline(xintercept = 1, linetype = "dashed", color = "grey60",
+              linewidth = 0.5) +
+    geom_errorbarh(height = 0.2, linewidth = 0.6) +
+    geom_point(size = 2.4) +
+    geom_text(aes(x = conf.high, label = sig),
+              hjust = -0.3, vjust = 0.5, size = 3, color = "black") +
+    facet_wrap(
+      ~ tissue_label,
+      nrow     = 1,
+      scales   = "free_x"
+    ) +
+    scale_color_manual(values = ANNOT_COLORS, breaks = ANNOT_ORDER,
+                      guide = "none") +
+    scale_x_continuous(
+      trans  = "log2",
+      labels = number_format(accuracy = 0.01)
+    ) +
+    labs(
+      x = expression(paste(
+        "Odds ratio per 0.1 unit increase in h"^2, " (log"[2], " scale)"
+      )),
+      y = NULL
+    ) +
+    BASE_THEME +
+    theme(
+      axis.text.y  = element_text(size = 8),
+      panel.grid.major.x = element_line(color = "grey92", linewidth = 0.3),
+      panel.grid.major.y = element_blank()
+    )
 
-save_plot(fig_c, "h2_annotation_OR", width = 7.2, height = 3.0)
+  save_plot(fig_c, paste0("h2_annotation_OR_", pop), width = 7.2, height = 3.0)
 
-## Combined supplemental figure (B + C stacked)
+  ## Combined supplemental figure (B + C stacked)
 
-fig_supp <- fig_b / fig_c +
-  plot_annotation(tag_levels = "A") &
-  theme(plot.tag = element_text(face = "bold", size = 11))
+  fig_supp <- fig_b / fig_c +
+    plot_annotation(tag_levels = "A") &
+    theme(plot.tag = element_text(face = "bold", size = 11))
 
-save_plot(fig_supp, "h2_annotation_supplemental", width = 7.2, height = 6.4)
+  save_plot(fig_supp, paste0("h2_annotation_supplemental_", pop), width = 7.2, height = 6.4)
 
-## Sensitivity: all VMRs (including low-prediction)
+  ## Sensitivity: all VMRs (including low-prediction)
 
-quint_sa <- fread(file.path(IN_DIR, "quintile_summary_sensitivity.tsv")) |>
-  mutate(
-    annotation = factor(annotation, levels = ANNOT_ORDER),
-    tissue     = factor(tissue,     levels = names(TISSUE_LABELS))
-  )
+  quint_sa <- fread(file.path(IN_DIR, paste0("quintile_summary_sensitivity_", pop, ".tsv"))) |>
+    mutate(
+      annotation = factor(annotation, levels = ANNOT_ORDER),
+      tissue     = factor(tissue,     levels = names(TISSUE_LABELS))
+    )
 
-fig_sa <- ggplot(quint_sa,
-    aes(x = h2_quintile, y = frac,
-        color = annotation, group = annotation)) +
-  geom_ribbon(aes(ymin = ci_lo, ymax = ci_hi, fill = annotation),
-              alpha = 0.12, color = NA) +
-  geom_line(linewidth = 0.7) +
-  geom_point(size = 1.8) +
-  facet_wrap(~ tissue, nrow = 1,
-             labeller = as_labeller(TISSUE_LABELS)) +
-  scale_color_manual(values = ANNOT_COLORS, breaks = ANNOT_ORDER) +
-  scale_fill_manual( values = ANNOT_COLORS, breaks = ANNOT_ORDER) +
-  scale_y_continuous(labels = percent_format(accuracy = 1),
-                     expand = expansion(mult = c(0.02, 0.05))) +
-  labs(
-    x = expression(paste("h"^2, " quintile (all VMRs)")),
-    y = "VMRs overlapping annotation (%)"
-  ) +
-  BASE_THEME +
-  theme(legend.position = "right")
+  fig_sa <- ggplot(quint_sa,
+      aes(x = h2_quintile, y = frac,
+          color = annotation, group = annotation)) +
+    geom_ribbon(aes(ymin = ci_lo, ymax = ci_hi, fill = annotation),
+                alpha = 0.12, color = NA) +
+    geom_line(linewidth = 0.7) +
+    geom_point(size = 1.8) +
+    facet_wrap(~ tissue, nrow = 1,
+              labeller = as_labeller(TISSUE_LABELS)) +
+    scale_color_manual(values = ANNOT_COLORS, breaks = ANNOT_ORDER) +
+    scale_fill_manual( values = ANNOT_COLORS, breaks = ANNOT_ORDER) +
+    scale_y_continuous(labels = percent_format(accuracy = 1),
+                      expand = expansion(mult = c(0.02, 0.05))) +
+    labs(
+      x = expression(paste("h"^2, " quintile (all VMRs)")),
+      y = "VMRs overlapping annotation (%)"
+    ) +
+    BASE_THEME +
+    theme(legend.position = "right")
 
-save_plot(fig_sa, "h2_annotation_sensitivity", width = 7.2, height = 3.2)
+  save_plot(fig_sa, paste0("h2_annotation_sensitivity_", pop), width = 7.2, height = 3.2)
+}
 
 cat("Figures written to:", OUT_DIR, "\n")
 
