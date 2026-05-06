@@ -84,9 +84,9 @@ annotate_vmrs <- function(vmr_gr, enet, annots, out_file) {
     dplyr::rename("chr" = "chrom") %>%
     mutate(chr = paste0("chr", chr)) %>%
     mutate(h2_category = case_when(
-      r_squared_cv <= 0.3 ~ "Low prediction",
-      h2_unscaled < 0.1 & r_squared_cv > 0.3 ~ "Non-heritable",
-      h2_unscaled >= 0.1 & r_squared_cv > 0.3 ~ "Heritable"
+      r_squared_cv < 0.3 ~ "Low prediction",
+      h2_unscaled < 0.1 & r_squared_cv >= 0.3 ~ "Non-heritable",
+      h2_unscaled >= 0.1 & r_squared_cv >= 0.3 ~ "Heritable"
     ),
     h2_category = factor(h2_category,
                          levels = c("Heritable", "Non-heritable", "Low prediction"))
