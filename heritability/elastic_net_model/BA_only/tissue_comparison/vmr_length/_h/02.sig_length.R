@@ -201,3 +201,10 @@ fn_tissue       <- file.path(out_path, "VMR_length_tissue_comparisons")
 save_plot(p_tissue, fn_tissue, 10, 7)
 save_plot(p_heritability, fn_heritability, 10, 7)
 
+#### Reproducibility information ####
+print("Reproducibility information:")
+Sys.time()
+proc.time()
+options(width = 120)
+sessioninfo::session_info()
+
