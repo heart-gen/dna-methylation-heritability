@@ -1,0 +1,254 @@
+2026-05-07 12:02:39 - **** Job starts ****
+**** QUEST info ****
+User: skc6679
+Job id: 7428385
+Job name: abc_enhancer_links
+Node name: 
+Hostname: qnode0006
+Task id: N/A
+No modules loaded
+2026-05-07 12:02:40 - ABC enhancer-promoter links + clusterProfiler enrichment
+2026-05-07 12:02:40 - Note: uses rnaseq conda environment for clusterProfiler
+'select()' returned 1:1 mapping between keys and columns
+'select()' returned 1:1 mapping between keys and columns
+`universe` is not in character and will be ignored...
+Reading KEGG annotation online: "https://rest.kegg.jp/link/hsa/pathway"...
+Reading KEGG annotation online: "https://rest.kegg.jp/list/pathway/hsa"...
+`universe` is not in character and will be ignored...
+'select()' returned 1:1 mapping between keys and columns
+'select()' returned 1:1 mapping between keys and columns
+`universe` is not in character and will be ignored...
+`universe` is not in character and will be ignored...
+'select()' returned 1:1 mapping between keys and columns
+'select()' returned 1:1 mapping between keys and columns
+`universe` is not in character and will be ignored...
+`universe` is not in character and will be ignored...
+'select()' returned 1:1 mapping between keys and columns
+'select()' returned 1:1 mapping between keys and columns
+`universe` is not in character and will be ignored...
+`universe` is not in character and will be ignored...
+'select()' returned 1:1 mapping between keys and columns
+'select()' returned 1:1 mapping between keys and columns
+`universe` is not in character and will be ignored...
+`universe` is not in character and will be ignored...
+'select()' returned 1:1 mapping between keys and columns
+'select()' returned 1:1 mapping between keys and columns
+`universe` is not in character and will be ignored...
+`universe` is not in character and will be ignored...
+'select()' returned 1:1 mapping between keys and columns
+'select()' returned 1:1 mapping between keys and columns
+`universe` is not in character and will be ignored...
+`universe` is not in character and will be ignored...
+'select()' returned 1:1 mapping between keys and columns
+'select()' returned 1:1 mapping between keys and columns
+`universe` is not in character and will be ignored...
+`universe` is not in character and will be ignored...
+Warning messages:
+1: In left_join(abc_q, dplyr::select(vmr_pooled2, seqnames, start,  :
+  Detected an unexpected many-to-many relationship between `x` and `y`.
+ℹ Row 38 of `x` matches multiple rows in `y`.
+ℹ Row 182 of `y` matches multiple rows in `x`.
+ℹ If a many-to-many relationship is expected, set `relationship =
+  "many-to-many"` to silence this warning.
+2: In left_join(abc_q, dplyr::select(vmr_pooled2, seqnames, start,  :
+  Detected an unexpected many-to-many relationship between `x` and `y`.
+ℹ Row 38 of `x` matches multiple rows in `y`.
+ℹ Row 182 of `y` matches multiple rows in `x`.
+ℹ If a many-to-many relationship is expected, set `relationship =
+  "many-to-many"` to silence this warning.
+
+Processing population: AA 
+Loading intergenic VMR ATAC overlap table...
+  Total intergenic VMRs: 3588 (3 tissues)
+  Unique intergenic VMRs (pooled): 3588
+
+Loading ABC enhancer-promoter links...
+  ABC links: 24459 rows
+  Columns: V1, Pair, PeakID, PeakID_seqnames, PeakID_start, PeakID_end, TargetGene, TargetGene_name, TargetGeneTSS, distance, ABC.Score
+
+Overlapping VMRs with ABC enhancer peaks...
+  Per-tissue overlap...
+  Per-tissue VMR-ABC links: 233
+  Pooled overlap...
+  Pooled VMR-ABC links: 233
+Saved: abc_vmr_gene_links.tsv
+Saved target gene list files.
+
+Computing Q5 vs Q1-Q4 target gene lists...
+  Q5 target genes: 8 | Q1-Q4 target genes: 132
+Saved: abc_score_summary.tsv
+# A tibble: 2 × 7
+  h2_category   n_links n_vmrs n_genes median_abc mean_abc median_dist
+  <chr>           <int>  <int>   <int>      <dbl>    <dbl>       <dbl>
+1 Heritable         159     74     107     0.0294   0.0381      46268.
+2 Non-heritable      74     35      63     0.0323   0.0468      46296.
+
+Wilcoxon test (ABC score, Heritable vs Non-heritable): W=5022, p=0.0726
+
+Running clusterProfiler enrichment...
+  Running: Pooled_Heritable 
+  Running: Pooled_NonHeritable 
+  Running: Pooled_Q5 
+  Running: Pooled_Q1Q4 
+Saved: enrichr_go_bp_all.tsv
+Saved: enrichr_kegg_all.tsv
+Processing population: EA 
+Loading intergenic VMR ATAC overlap table...
+  Total intergenic VMRs: 3588 (3 tissues)
+  Unique intergenic VMRs (pooled): 3588
+
+Loading ABC enhancer-promoter links...
+  ABC links: 24459 rows
+  Columns: V1, Pair, PeakID, PeakID_seqnames, PeakID_start, PeakID_end, TargetGene, TargetGene_name, TargetGeneTSS, distance, ABC.Score
+
+Overlapping VMRs with ABC enhancer peaks...
+  Per-tissue overlap...
+  Per-tissue VMR-ABC links: 233
+  Pooled overlap...
+  Pooled VMR-ABC links: 233
+Saved: abc_vmr_gene_links.tsv
+Saved target gene list files.
+
+Computing Q5 vs Q1-Q4 target gene lists...
+  Q5 target genes: 6 | Q1-Q4 target genes: 136
+Saved: abc_score_summary.tsv
+# A tibble: 2 × 7
+  h2_category   n_links n_vmrs n_genes median_abc mean_abc median_dist
+  <chr>           <int>  <int>   <int>      <dbl>    <dbl>       <dbl>
+1 Heritable         159     74     107     0.0294   0.0381      46268.
+2 Non-heritable      74     35      63     0.0323   0.0468      46296.
+
+Wilcoxon test (ABC score, Heritable vs Non-heritable): W=5022, p=0.0726
+
+Running clusterProfiler enrichment...
+  Running: Pooled_Heritable 
+  Running: Pooled_NonHeritable 
+  Running: Pooled_Q5 
+  Running: Pooled_Q1Q4 
+Saved: enrichr_go_bp_all.tsv
+Saved: enrichr_kegg_all.tsv
+
+Done.
+
+Reproducibility information:
+[1] "2026-05-07 12:04:54 CDT"
+   user  system elapsed 
+107.124   2.774 121.601 
+─ Session info ───────────────────────────────────────────────────────────────────────────────────────────────────────
+ setting  value
+ version  R version 4.4.3 (2025-02-28)
+ os       Red Hat Enterprise Linux 8.10 (Ootpa)
+ system   x86_64, linux-gnu
+ ui       X11
+ language (EN)
+ collate  en_US.UTF-8
+ ctype    en_US.UTF-8
+ tz       America/Chicago
+ date     2026-05-07
+ pandoc   3.8 @ /projects/p32505/opt/envs/rnaseq/bin/pandoc
+ quarto   1.9.35 @ /projects/p32505/opt/bin/quarto
+
+─ Packages ───────────────────────────────────────────────────────────────────────────────────────────────────────────
+ package          * version date (UTC) lib source
+ AnnotationDbi    * 1.68.0  2024-10-29 [1] Bioconductor 3.20 (R 4.4.2)
+ ape                5.8-1   2024-12-16 [1] CRAN (R 4.4.3)
+ aplot              0.2.9   2025-09-12 [1] CRAN (R 4.4.3)
+ Biobase          * 2.66.0  2024-10-29 [1] Bioconductor 3.20 (R 4.4.2)
+ BiocGenerics     * 0.52.0  2024-10-29 [1] Bioconductor 3.20 (R 4.4.2)
+ BiocParallel       1.40.0  2024-10-29 [1] Bioconductor 3.20 (R 4.4.2)
+ Biostrings         2.74.0  2024-10-29 [1] Bioconductor 3.20 (R 4.4.2)
+ bit                4.6.0   2025-03-06 [1] CRAN (R 4.4.3)
+ bit64              4.6.0-1 2025-01-16 [1] CRAN (R 4.4.3)
+ blob               1.2.4   2023-03-17 [1] CRAN (R 4.4.3)
+ cachem             1.1.0   2024-05-16 [1] CRAN (R 4.4.3)
+ cli                3.6.5   2025-04-23 [1] CRAN (R 4.4.3)
+ clusterProfiler  * 4.14.0  2024-10-29 [1] Bioconductor 3.20 (R 4.4.2)
+ codetools          0.2-20  2024-03-31 [1] CRAN (R 4.4.3)
+ colorspace         2.1-1   2024-07-26 [1] CRAN (R 4.4.3)
+ cowplot            1.2.0   2025-07-07 [1] CRAN (R 4.4.3)
+ crayon             1.5.3   2024-06-20 [1] CRAN (R 4.4.3)
+ data.table       * 1.17.8  2025-07-10 [1] CRAN (R 4.4.3)
+ DBI                1.2.3   2024-06-02 [1] CRAN (R 4.4.3)
+ dichromat          2.0-0.1 2022-05-02 [1] CRAN (R 4.4.3)
+ digest             0.6.37  2024-08-19 [1] CRAN (R 4.4.3)
+ DOSE               4.0.0   2024-10-29 [1] Bioconductor 3.20 (R 4.4.2)
+ dplyr            * 1.1.4   2023-11-17 [1] CRAN (R 4.4.3)
+ enrichplot         1.26.1  2024-10-30 [1] Bioconductor 3.20 (R 4.4.2)
+ farver             2.1.2   2024-05-13 [1] CRAN (R 4.4.3)
+ fastmap            1.2.0   2024-05-15 [1] CRAN (R 4.4.3)
+ fastmatch          1.1-6   2024-12-23 [1] CRAN (R 4.4.3)
+ fgsea              1.32.2  2024-12-19 [1] Bioconductor 3.20 (R 4.4.2)
+ fs                 1.6.6   2025-04-12 [1] CRAN (R 4.4.3)
+ generics           0.1.4   2025-05-09 [1] CRAN (R 4.4.3)
+ GenomeInfoDb     * 1.42.0  2024-10-29 [1] Bioconductor 3.20 (R 4.4.2)
+ GenomeInfoDbData   1.2.13  2025-09-21 [1] Bioconductor
+ GenomicRanges    * 1.58.0  2024-10-29 [1] Bioconductor 3.20 (R 4.4.2)
+ ggfun              0.2.0   2025-07-15 [1] CRAN (R 4.4.3)
+ ggplot2            4.0.0   2025-09-11 [1] CRAN (R 4.4.3)
+ ggplotify          0.1.3   2025-09-20 [1] CRAN (R 4.4.3)
+ ggrepel            0.9.6   2024-09-07 [1] CRAN (R 4.4.3)
+ ggtangle           0.0.7   2025-06-30 [1] CRAN (R 4.4.3)
+ ggtree             3.14.0  2024-10-29 [1] Bioconductor 3.20 (R 4.4.2)
+ glue               1.8.0   2024-09-30 [1] CRAN (R 4.4.3)
+ GO.db              3.20.0  2025-09-21 [1] Bioconductor
+ GOSemSim           2.32.0  2024-10-29 [1] Bioconductor 3.20 (R 4.4.3)
+ gridGraphics       0.5-1   2020-12-13 [1] CRAN (R 4.4.3)
+ gson               0.1.0   2023-03-07 [1] CRAN (R 4.4.1)
+ gtable             0.3.6   2024-10-25 [1] CRAN (R 4.4.3)
+ here             * 1.0.2   2025-09-15 [1] CRAN (R 4.4.3)
+ httr               1.4.7   2023-08-15 [1] CRAN (R 4.4.3)
+ igraph             2.1.4   2025-01-23 [1] CRAN (R 4.4.3)
+ IRanges          * 2.40.0  2024-10-29 [1] Bioconductor 3.20 (R 4.4.2)
+ jsonlite           2.0.0   2025-03-27 [1] CRAN (R 4.4.3)
+ KEGGREST           1.46.0  2024-10-29 [1] Bioconductor 3.20 (R 4.4.2)
+ lattice            0.22-7  2025-04-02 [1] CRAN (R 4.4.3)
+ lazyeval           0.2.2   2019-03-15 [1] CRAN (R 4.4.3)
+ lifecycle          1.0.4   2023-11-07 [1] CRAN (R 4.4.3)
+ magrittr           2.0.4   2025-09-12 [1] CRAN (R 4.4.3)
+ Matrix             1.7-4   2025-08-28 [1] CRAN (R 4.4.3)
+ memoise            2.0.1   2021-11-26 [1] CRAN (R 4.4.3)
+ nlme               3.1-168 2025-03-31 [1] CRAN (R 4.4.3)
+ org.Hs.eg.db     * 3.20.0  2025-09-21 [1] Bioconductor
+ patchwork          1.3.2   2025-08-25 [1] CRAN (R 4.4.3)
+ pillar             1.11.1  2025-09-17 [1] CRAN (R 4.4.3)
+ pkgconfig          2.0.3   2019-09-22 [1] CRAN (R 4.4.3)
+ plyr               1.8.9   2023-10-02 [1] CRAN (R 4.4.3)
+ png                0.1-8   2022-11-29 [1] CRAN (R 4.4.3)
+ purrr              1.1.0   2025-07-10 [1] CRAN (R 4.4.3)
+ qvalue             2.38.0  2024-10-29 [1] Bioconductor 3.20 (R 4.4.2)
+ R.methodsS3        1.8.2   2022-06-13 [1] CRAN (R 4.4.3)
+ R.oo               1.27.1  2025-05-02 [1] CRAN (R 4.4.3)
+ R.utils            2.13.0  2025-02-24 [1] CRAN (R 4.4.3)
+ R6                 2.6.1   2025-02-15 [1] CRAN (R 4.4.3)
+ rappdirs           0.3.3   2021-01-31 [1] CRAN (R 4.4.3)
+ RColorBrewer       1.1-3   2022-04-03 [1] CRAN (R 4.4.3)
+ Rcpp               1.1.0   2025-07-02 [1] CRAN (R 4.4.3)
+ reshape2           1.4.4   2020-04-09 [1] CRAN (R 4.4.3)
+ rlang              1.1.6   2025-04-11 [1] CRAN (R 4.4.3)
+ rprojroot          2.1.1   2025-08-26 [1] CRAN (R 4.4.3)
+ RSQLite            2.4.3   2025-08-20 [1] CRAN (R 4.4.3)
+ S4Vectors        * 0.44.0  2024-10-29 [1] Bioconductor 3.20 (R 4.4.2)
+ S7                 0.2.0   2024-11-07 [1] CRAN (R 4.4.3)
+ scales             1.4.0   2025-04-24 [1] CRAN (R 4.4.3)
+ sessioninfo        1.2.3   2025-02-05 [1] CRAN (R 4.4.3)
+ stringi            1.8.7   2025-03-27 [1] CRAN (R 4.4.3)
+ stringr            1.5.2   2025-09-08 [1] CRAN (R 4.4.3)
+ tibble             3.3.0   2025-06-08 [1] CRAN (R 4.4.3)
+ tidyr            * 1.3.1   2024-01-24 [1] CRAN (R 4.4.3)
+ tidyselect         1.2.1   2024-03-11 [1] CRAN (R 4.4.3)
+ tidytree           0.4.6   2023-12-12 [1] CRAN (R 4.4.1)
+ treeio             1.30.0  2024-10-29 [1] Bioconductor 3.20 (R 4.4.2)
+ UCSC.utils         1.2.0   2024-10-29 [1] Bioconductor 3.20 (R 4.4.2)
+ utf8               1.2.6   2025-06-08 [1] CRAN (R 4.4.3)
+ vctrs              0.6.5   2023-12-01 [1] CRAN (R 4.4.3)
+ withr              3.0.2   2024-10-28 [1] CRAN (R 4.4.3)
+ XVector            0.46.0  2024-10-29 [1] Bioconductor 3.20 (R 4.4.2)
+ yulab.utils        0.2.1   2025-08-19 [1] CRAN (R 4.4.3)
+ zlibbioc           1.52.0  2024-10-29 [1] Bioconductor 3.20 (R 4.4.2)
+
+ [1] /gpfs/projects/p32505/opt/envs/rnaseq/lib/R/library
+ * ── Packages attached to the search path.
+
+──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+2026-05-07 12:04:56 - **** Job ends ****
