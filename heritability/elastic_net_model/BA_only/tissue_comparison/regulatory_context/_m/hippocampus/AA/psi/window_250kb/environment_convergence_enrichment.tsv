@@ -1,2 +1,10 @@
 env	term	odds_ratio	ci_lo	ci_hi	p_value	n_nonheritable_features	n_heritable_features	n_env_linked_nonheritable	n_env_linked_heritable	fdr	cohort	tissue	population	modality	run_tag
-amphetamines	env_valueTRUE	0	0	4.03512651523715	0.183599419448476	23	30	2	0	0.183599419448476	BA_only	hippocampus	AA	psi	window_250kb
+codeine	env_valueTRUE	Inf	0.0233781837883215	Inf	1	31	34	0	1	1	BA_only	hippocampus	AA	psi	window_250kb
+cocaine	env_valueTRUE	Inf	0.124999680505401	Inf	0.511111111111111	22	33	0	2	1	BA_only	hippocampus	AA	psi	window_250kb
+ethanol	env_valueTRUE	0.969215792933676	0.0119795610276199	78.4196769852328	1	32	33	1	1	1	BA_only	hippocampus	AA	psi	window_250kb
+nicotine	env_valueTRUE	0.459849655179655	0.00748790575494678	9.25457909303342	0.607692307692308	32	34	2	1	1	BA_only	hippocampus	AA	psi	window_250kb
+amphetamines	env_valueTRUE	0.236178165787807	0.00424211299009295	3.1833140447343	0.305267651327585	23	30	3	1	1	BA_only	hippocampus	AA	psi	window_250kb
+education	env_valueless_than_hs	1.55136135118314	0.0766441770490282	95.7610794859127	1	26	34	1	2	1	BA_only	hippocampus	AA	psi	window_250kb
+education	env_valuemore_than_hs	0.753657835813598	0.0512193663803546	11.0888606042421	1	26	34	2	2	1	BA_only	hippocampus	AA	psi	window_250kb
+marital_status	env_valuepreviously_married	3.05053942513284	0.230179195004345	167.736150125894	0.613186813186813	32	33	1	3	1	BA_only	hippocampus	AA	psi	window_250kb
+marital_status	env_valuesingle	0	0	5.13485893655872	0.238461538461538	32	33	2	0	1	BA_only	hippocampus	AA	psi	window_250kb

@@ -1,0 +1,12 @@
+env	term	odds_ratio	ci_lo	ci_hi	p_value	n_nonheritable_features	n_heritable_features	n_env_linked_nonheritable	n_env_linked_heritable	fdr	cohort	tissue	population	modality	run_tag
+smoking	env_valueTRUE	0.300452074001991	0.0207592548476024	4.34654897572674	0.240277672174058	26	83	2	2	1	BA_only	dlpfc	AA	expression	nearest_gene_window_250kb
+codeine	env_valueTRUE	0.771194991763999	0.116807592444979	8.58932018413247	0.670648024197027	26	83	2	5	1	BA_only	dlpfc	AA	expression	nearest_gene_window_250kb
+morphine	env_valueTRUE	1.26323249217562	0.117667472936655	64.7807670569724	1	26	83	1	4	1	BA_only	dlpfc	AA	expression	nearest_gene_window_250kb
+cocaine	env_valueTRUE	0.300452074001991	0.0207592548476024	4.34654897572674	0.240277672174058	26	83	2	2	1	BA_only	dlpfc	AA	expression	nearest_gene_window_250kb
+ethanol	env_valueTRUE	Inf	0.285763635195551	Inf	0.335439578661573	26	83	0	5	1	BA_only	dlpfc	AA	expression	nearest_gene_window_250kb
+nicotine	env_valueTRUE	0.453888172057448	0.0489715936089818	5.72831248171424	0.591039740714814	26	83	2	3	1	BA_only	dlpfc	AA	expression	nearest_gene_window_250kb
+amphetamines	env_valueTRUE	Inf	0.127881572143939	Inf	1	26	83	0	3	1	BA_only	dlpfc	AA	expression	nearest_gene_window_250kb
+education	env_valueless_than_hs	Inf	0.0582772430639976	Inf	1	26	83	0	2	1	BA_only	dlpfc	AA	expression	nearest_gene_window_250kb
+education	env_valuemore_than_hs	Inf	0.127881572143939	Inf	1	26	83	0	3	1	BA_only	dlpfc	AA	expression	nearest_gene_window_250kb
+marital_status	env_valuepreviously_married	Inf	0.0080476280120483	Inf	1	26	83	0	1	1	BA_only	dlpfc	AA	expression	nearest_gene_window_250kb
+marital_status	env_valuesingle	0.453888172057448	0.0489715936089818	5.72831248171424	0.591039740714814	26	83	2	3	1	BA_only	dlpfc	AA	expression	nearest_gene_window_250kb

@@ -1,0 +1,13 @@
+env	term	odds_ratio	ci_lo	ci_hi	p_value	n_nonheritable_features	n_heritable_features	n_env_linked_nonheritable	n_env_linked_heritable	fdr	cohort	tissue	population	modality	run_tag
+smoking	env_valueTRUE	1.11130043885467	0.425999684685091	2.96284943528927	0.829529648528296	161	175	10	12	1	BA_only	caudate	AA	expression	nearest_gene_window_250kb
+codeine	env_valueTRUE	0.485155341853226	0.143695910497142	1.47248525816968	0.212951302688141	161	175	11	6	0.859848794037255	BA_only	caudate	AA	expression	nearest_gene_window_250kb
+morphine	env_valueTRUE	2.81478968577019	0.494003817817633	28.9152180243131	0.286616264679085	161	175	2	6	0.859848794037255	BA_only	caudate	AA	expression	nearest_gene_window_250kb
+cocaine	env_valueTRUE	0.917888760459926	0.207002797198809	4.07000604216497	1	161	175	5	5	1	BA_only	caudate	AA	expression	nearest_gene_window_250kb
+ethanol	env_valueTRUE	0.919316081705295	0.0659370613172089	12.8169806039787	1	161	175	2	2	1	BA_only	caudate	AA	expression	nearest_gene_window_250kb
+nicotine	env_valueTRUE	0.964437707962371	0.46735579337932	1.99613612202484	1	161	175	19	20	1	BA_only	caudate	AA	expression	nearest_gene_window_250kb
+amphetamines	env_valueTRUE	2.12346005618295	0.578279826591725	9.62999647868265	0.262944941536095	161	175	4	9	0.859848794037255	BA_only	caudate	AA	expression	nearest_gene_window_250kb
+any_trauma_hx	env_value	2.51667976454321	0.590675849061258	14.9872199355594	0.223359674509433	161	175	3	8	0.859848794037255	BA_only	caudate	AA	expression	nearest_gene_window_250kb
+education	env_valueless_than_hs	1.8563461206506	0.261961291599497	20.779231067772	0.686335393284024	161	175	2	4	1	BA_only	caudate	AA	expression	nearest_gene_window_250kb
+education	env_valuemore_than_hs	0.792222914228822	0.420137549477366	1.48685800754407	0.457055719654144	161	175	28	25	1	BA_only	caudate	AA	expression	nearest_gene_window_250kb
+marital_status	env_valuepreviously_married	0.781643361326791	0.212029942237542	2.78239842719523	0.779850897157448	161	175	7	6	1	BA_only	caudate	AA	expression	nearest_gene_window_250kb
+marital_status	env_valuesingle	1.29899198633448	0.346722552181469	5.3029804173062	0.772736383592668	161	175	5	7	1	BA_only	caudate	AA	expression	nearest_gene_window_250kb

@@ -1,0 +1,13 @@
+env	term	odds_ratio	ci_lo	ci_hi	p_value	n_nonheritable_features	n_heritable_features	n_env_linked_nonheritable	n_env_linked_heritable	fdr	cohort	tissue	population	modality	run_tag
+smoking	env_valueTRUE	Inf	0.00856249999999997	Inf	1	24	72	0	1	1	BA_only	hippocampus	AA	expression	nearest_gene_window_250kb
+codeine	env_valueTRUE	1.70798786770611	0.177304838058125	84.6316777682844	1	24	72	1	5	1	BA_only	hippocampus	AA	expression	nearest_gene_window_250kb
+morphine	env_valueTRUE	Inf	0.00856249999999997	Inf	1	24	72	0	1	1	BA_only	hippocampus	AA	expression	nearest_gene_window_250kb
+cocaine	env_valueTRUE	Inf	0.136091611476264	Inf	0.570660694288914	24	72	0	3	1	BA_only	hippocampus	AA	expression	nearest_gene_window_250kb
+ethanol	env_valueTRUE	Inf	0.218145545378972	Inf	0.569121843730809	24	72	0	4	1	BA_only	hippocampus	AA	expression	nearest_gene_window_250kb
+nicotine	env_valueTRUE	Inf	0.00856249999999997	Inf	1	24	72	0	1	1	BA_only	hippocampus	AA	expression	nearest_gene_window_250kb
+amphetamines	env_valueTRUE	0.482503647759291	0.0517290394351198	6.12321528720034	0.596051728497634	24	72	2	3	1	BA_only	hippocampus	AA	expression	nearest_gene_window_250kb
+any_trauma_hx	env_value	1	0.162863058464421	10.8345693966956	1	24	72	2	6	1	BA_only	hippocampus	AA	expression	nearest_gene_window_250kb
+education	env_valueless_than_hs	0.328613668065026	0.00407928866122932	26.5250165468034	0.439473684210527	24	72	1	1	1	BA_only	hippocampus	AA	expression	nearest_gene_window_250kb
+education	env_valuemore_than_hs	0	0	13.0000182812757	0.25	24	72	1	0	1	BA_only	hippocampus	AA	expression	nearest_gene_window_250kb
+marital_status	env_valuepreviously_married	Inf	0.304787166768951	Inf	0.32675288082939	24	72	0	5	1	BA_only	hippocampus	AA	expression	nearest_gene_window_250kb
+marital_status	env_valuesingle	0	0	13.0000182812757	0.25	24	72	1	0	1	BA_only	hippocampus	AA	expression	nearest_gene_window_250kb

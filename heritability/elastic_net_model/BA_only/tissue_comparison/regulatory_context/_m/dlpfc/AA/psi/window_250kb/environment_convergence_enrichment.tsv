@@ -1,2 +1,10 @@
 env	term	odds_ratio	ci_lo	ci_hi	p_value	n_nonheritable_features	n_heritable_features	n_env_linked_nonheritable	n_env_linked_heritable	fdr	cohort	tissue	population	modality	run_tag
-ethanol	env_valueTRUE	0	0	3.26267252128901	0.142937853107345	23	37	2	0	0.142937853107345	BA_only	dlpfc	AA	psi	window_250kb
+smoking	env_valueTRUE	Inf	0.0159543918918921	Inf	1	23	37	0	1	1	BA_only	dlpfc	AA	psi	window_250kb
+cocaine	env_valueTRUE	Inf	0.117020314143102	Inf	0.517345399698341	20	32	0	2	0.960091820726568	BA_only	dlpfc	AA	psi	window_250kb
+ethanol	env_valueTRUE	0.190578447920117	0.00344058889439329	2.5518655462648	0.152536220738872	23	37	3	1	0.960091820726568	BA_only	dlpfc	AA	psi	window_250kb
+nicotine	env_valueTRUE	Inf	0.116425844895909	Inf	0.519209039548022	23	37	0	2	0.960091820726568	BA_only	dlpfc	AA	psi	window_250kb
+amphetamines	env_valueTRUE	0.323905754928776	0.00520442379306698	6.62142645750876	0.558144796380091	21	31	2	1	0.960091820726568	BA_only	dlpfc	AA	psi	window_250kb
+education	env_valueless_than_hs	0.561558859623247	0.00689745043205096	45.768985523569	1	21	37	1	1	1	BA_only	dlpfc	AA	psi	window_250kb
+education	env_valuemore_than_hs	Inf	0.380397808556029	Inf	0.285761425507342	21	37	0	4	0.960091820726568	BA_only	dlpfc	AA	psi	window_250kb
+marital_status	env_valuepreviously_married	0.616367846558752	0.00758610731283404	50.1292779774542	1	23	37	1	1	1	BA_only	dlpfc	AA	psi	window_250kb
+marital_status	env_valuesingle	2.62894688409491	0.238827185578271	137.102461906596	0.640061213817712	23	37	1	4	0.960091820726568	BA_only	dlpfc	AA	psi	window_250kb
