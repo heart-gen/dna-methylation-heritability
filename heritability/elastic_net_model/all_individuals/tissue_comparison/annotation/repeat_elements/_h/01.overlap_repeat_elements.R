@@ -31,6 +31,7 @@ suppressPackageStartupMessages({
 ## Configuration
 
 TISSUES     <- c("Caudate", "DLPFC", "Hippocampus")
+POPULATIONS <- c("AA", "EA")
 R2_THRESH   <- 0.3
 N_QUINTILES <- 5
 H2_UNIT     <- 0.1
@@ -51,10 +52,10 @@ REPEAT_FAMILIES <- list(
 
 ## Paths
 
-ANNOT_DIR <- here("heritability", "elastic_net_model", "BA_only",
+ANNOT_DIR <- here("heritability", "elastic_net_model", "all_individuals",
                   "tissue_comparison", "annotation", "_m")
-ENET_BASE <- here("heritability", "elastic_net_model", "BA_only")
-OUT_DIR   <- here("heritability", "elastic_net_model", "BA_only",
+ENET_BASE <- here("heritability", "elastic_net_model", "all_individuals")
+OUT_DIR   <- here("heritability", "elastic_net_model", "all_individuals",
                   "tissue_comparison", "annotation", "repeat_elements", "_m")
 
 dir.create(OUT_DIR, recursive = TRUE, showWarnings = FALSE)
@@ -76,23 +77,27 @@ ac_ci <- function(n_annot, n, z = qnorm(0.975)) {
   list(lo = lo, hi = hi)
 }
 
-load_vmrs <- function(tissue, intergenic_only = FALSE) {
+load_vmrs <- function(tissue, pop, intergenic_only = FALSE) {
   tissue_lower <- tolower(tissue)
 
   annot <- fread(file.path(ANNOT_DIR,
     paste0(tissue_lower, "_vmr_annotations_hg38_wide.tsv")))
 
-  enet <- fread(file.path(ENET_BASE, tissue_lower, "_m",
-    paste0(tissue_lower, "_summary_elastic-net.tsv"))) |>
-    mutate(seqnames = paste0("chr", chrom)) |>
-    dplyr::select(seqnames, start, end, h2_unscaled, r_squared_cv, num_snps)
+ enet <- fread(file.path(ENET_BASE, tissue_lower, "_m",
+    paste0(tissue_lower, "_summary_elastic-net_matched_r2_0.3.tsv"))) |>
+    dplyr::rename(seqnames = chrom) |>
+    dplyr::select(seqnames, start, end,
+                  h2_unscaled = paste0("h2_unscaled_", pop),
+                  r_squared_cv = paste0("r_squared_cv_", pop),
+                  num_snps = paste0("num_snps_", pop))
 
   df <- annot |>
     left_join(enet, by = c("seqnames", "start", "end")) |>
     mutate(
       vmr_length = end - start,
       h2_scaled  = h2_unscaled / H2_UNIT,
-      tissue     = tissue
+      tissue     = tissue,
+      population = pop
     ) |>
     filter(
       !is.na(r_squared_cv), r_squared_cv > R2_THRESH,
@@ -253,139 +258,145 @@ cat(sprintf("\nBuilt %d repeat annotation tracks\n", length(repeat_gr)))
 cat("\nRepeatMasker class composition:\n")
 print(sort(table(mcols(rmsk)$repClass), decreasing = TRUE))
 
-cat("\nLoading VMR data and computing overlaps...\n")
-vmr_all_list   <- list()
-vmr_inter_list <- list()
+for (pop in POPULATIONS) {
 
-for (tissue in TISSUES) {
-  cat(sprintf("\n  %s\n", tissue))
-  df_all   <- load_vmrs(tissue, intergenic_only = FALSE)
-  df_inter <- df_all |> filter(hg38_genes_intergenic == 1)
+  cat(sprintf("Processing population: %s \n", pop))
 
-  cat(sprintf("    All: %d VMRs (%d Her, %d Non-her)\n",
-              nrow(df_all), sum(df_all$h2_category == "Heritable"),
-              sum(df_all$h2_category == "Non-heritable")))
-  cat(sprintf("    Intergenic: %d VMRs (%d Her, %d Non-her)\n",
-              nrow(df_inter), sum(df_inter$h2_category == "Heritable"),
-              sum(df_inter$h2_category == "Non-heritable")))
+  cat("\nLoading VMR data and computing overlaps...\n")
+  vmr_all_list   <- list()
+  vmr_inter_list <- list()
 
-  df_all   <- flag_overlaps(df_all,   repeat_gr)
-  df_inter <- flag_overlaps(df_inter, repeat_gr)
+  for (tissue in TISSUES) {
+    cat(sprintf("\n  %s\n", tissue))
+    df_all   <- load_vmrs(tissue, pop, intergenic_only = FALSE)
+    df_inter <- df_all |> filter(hg38_genes_intergenic == 1)
 
-  # Sanity check: any_repeat overlap rate
-  for (cat_name in c("Heritable", "Non-heritable")) {
-    sub_all   <- df_all[df_all$h2_category == cat_name, ]
-    sub_inter <- df_inter[df_inter$h2_category == cat_name, ]
-    cat(sprintf("    %s — any_repeat: all %.1f%%, intergenic %.1f%%\n",
-                cat_name,
-                100 * mean(sub_all$in_any_repeat),
-                100 * mean(sub_inter$in_any_repeat)))
+    cat(sprintf("    All: %d VMRs (%d Her, %d Non-her)\n",
+                nrow(df_all), sum(df_all$h2_category == "Heritable"),
+                sum(df_all$h2_category == "Non-heritable")))
+    cat(sprintf("    Intergenic: %d VMRs (%d Her, %d Non-her)\n",
+                nrow(df_inter), sum(df_inter$h2_category == "Heritable"),
+                sum(df_inter$h2_category == "Non-heritable")))
+
+    df_all   <- flag_overlaps(df_all,   repeat_gr)
+    df_inter <- flag_overlaps(df_inter, repeat_gr)
+
+    # Sanity check: any_repeat overlap rate
+    for (cat_name in c("Heritable", "Non-heritable")) {
+      sub_all   <- df_all[df_all$h2_category == cat_name, ]
+      sub_inter <- df_inter[df_inter$h2_category == cat_name, ]
+      cat(sprintf("    %s — any_repeat: all %.1f%%, intergenic %.1f%%\n",
+                  cat_name,
+                  100 * mean(sub_all$in_any_repeat),
+                  100 * mean(sub_inter$in_any_repeat)))
+    }
+
+    vmr_all_list[[tissue]]   <- df_all
+    vmr_inter_list[[tissue]] <- df_inter
   }
 
-  vmr_all_list[[tissue]]   <- df_all
-  vmr_inter_list[[tissue]] <- df_inter
-}
+  ## Save annotated VMR table
+  cat("\nSaving annotated VMR table...\n")
+  vmr_all_out <- bind_rows(vmr_all_list)
+  fwrite(vmr_all_out, file.path(OUT_DIR, paste0("vmr_repeat_overlap_", pop, ".tsv")), sep = "\t")
+  cat("Saved: vmr_repeat_overlap.tsv\n")
 
-## Save annotated VMR table
-cat("\nSaving annotated VMR table...\n")
-vmr_all_out <- bind_rows(vmr_all_list)
-fwrite(vmr_all_out, file.path(OUT_DIR, "vmr_repeat_overlap.tsv"), sep = "\t")
-cat("Saved: vmr_repeat_overlap.tsv\n")
+  ## Run enrichment tests
 
-## Run enrichment tests
+  ANN_COLS_CLASS  <- paste0("in_", c("any_repeat", REPEAT_CLASSES))
+  ANN_COLS_FAMILY <- paste0("in_", names(REPEAT_FAMILIES))
+  ANN_COLS_ALL    <- c(ANN_COLS_CLASS, ANN_COLS_FAMILY)
 
-ANN_COLS_CLASS  <- paste0("in_", c("any_repeat", REPEAT_CLASSES))
-ANN_COLS_FAMILY <- paste0("in_", names(REPEAT_FAMILIES))
-ANN_COLS_ALL    <- c(ANN_COLS_CLASS, ANN_COLS_FAMILY)
+  # Fisher's exact
+  cat("\nRunning Fisher's exact tests...\n")
+  fish_list <- list()
 
-# Fisher's exact
-cat("\nRunning Fisher's exact tests...\n")
-fish_list <- list()
-
-for (tissue in TISSUES) {
-  for (col in ANN_COLS_ALL) {
-    res <- run_fishers(vmr_all_list[[tissue]], col, tissue, "All_VMRs")
-    if (!is.null(res)) fish_list[[length(fish_list) + 1]] <- res
-    res <- run_fishers(vmr_inter_list[[tissue]], col, tissue, "Intergenic_VMRs")
-    if (!is.null(res)) fish_list[[length(fish_list) + 1]] <- res
+  for (tissue in TISSUES) {
+    for (col in ANN_COLS_ALL) {
+      res <- run_fishers(vmr_all_list[[tissue]], col, tissue, "All_VMRs")
+      if (!is.null(res)) fish_list[[length(fish_list) + 1]] <- res
+      res <- run_fishers(vmr_inter_list[[tissue]], col, tissue, "Intergenic_VMRs")
+      if (!is.null(res)) fish_list[[length(fish_list) + 1]] <- res
+    }
   }
-}
 
-fisher_df <- bind_rows(fish_list)
-fisher_df$fdr <- p.adjust(fisher_df$p_value, method = "fdr")
-fwrite(fisher_df, file.path(OUT_DIR, "fishers_repeat_enrichment.tsv"), sep = "\t")
-cat("Saved: fishers_repeat_enrichment.tsv\n")
+  fisher_df <- bind_rows(fish_list)
+  fisher_df$fdr <- p.adjust(fisher_df$p_value, method = "fdr")
+  fwrite(fisher_df, file.path(OUT_DIR, paste0("fishers_repeat_enrichment_", pop, ".tsv")), sep = "\t")
+  cat("Saved: fishers_repeat_enrichment.tsv\n")
 
-# Logistic regression
-cat("\nRunning logistic regressions (continuous h²)...\n")
-logistic_list <- list()
+  # Logistic regression
+  cat("\nRunning logistic regressions (continuous h²)...\n")
+  logistic_list <- list()
 
-for (tissue in TISSUES) {
-  for (col in ANN_COLS_ALL) {
-    res <- run_logistic(vmr_all_list[[tissue]],   col, tissue, "All_VMRs")
-    if (!is.null(res)) logistic_list[[length(logistic_list) + 1]] <- res
-    res <- run_logistic(vmr_inter_list[[tissue]], col, tissue, "Intergenic_VMRs")
-    if (!is.null(res)) logistic_list[[length(logistic_list) + 1]] <- res
+  for (tissue in TISSUES) {
+    for (col in ANN_COLS_ALL) {
+      res <- run_logistic(vmr_all_list[[tissue]],   col, tissue, "All_VMRs")
+      if (!is.null(res)) logistic_list[[length(logistic_list) + 1]] <- res
+      res <- run_logistic(vmr_inter_list[[tissue]], col, tissue, "Intergenic_VMRs")
+      if (!is.null(res)) logistic_list[[length(logistic_list) + 1]] <- res
+    }
   }
-}
 
-logistic_df <- bind_rows(logistic_list)
-logistic_df$fdr <- p.adjust(logistic_df$p_value, method = "fdr")
-fwrite(logistic_df, file.path(OUT_DIR, "logistic_repeat_enrichment.tsv"), sep = "\t")
-cat("Saved: logistic_repeat_enrichment.tsv\n")
+  logistic_df <- bind_rows(logistic_list)
+  logistic_df$fdr <- p.adjust(logistic_df$p_value, method = "fdr")
+  fwrite(logistic_df, file.path(OUT_DIR, paste0("logistic_repeat_enrichment_", pop, ".tsv")), sep = "\t")
+  cat("Saved: logistic_repeat_enrichment.tsv\n")
 
-# Q5 and decile Fisher's exact
-cat("\nRunning top-quintile and top-decile Fisher's tests (intergenic VMRs)...\n")
-topbin_list <- list()
+  # Q5 and decile Fisher's exact
+  cat("\nRunning top-quintile and top-decile Fisher's tests (intergenic VMRs)...\n")
+  topbin_list <- list()
 
-for (tissue in TISSUES) {
-  df_inter <- vmr_inter_list[[tissue]]
-  for (col in ANN_COLS_ALL) {
-    res <- run_topbin_fishers(df_inter, col, tissue, "Intergenic_VMRs", top_frac = 0.2)
-    if (!is.null(res)) topbin_list[[length(topbin_list) + 1]] <- res
-    res <- run_topbin_fishers(df_inter, col, tissue, "Intergenic_VMRs", top_frac = 0.1)
-    if (!is.null(res)) topbin_list[[length(topbin_list) + 1]] <- res
+  for (tissue in TISSUES) {
+    df_inter <- vmr_inter_list[[tissue]]
+    for (col in ANN_COLS_ALL) {
+      res <- run_topbin_fishers(df_inter, col, tissue, "Intergenic_VMRs", top_frac = 0.2)
+      if (!is.null(res)) topbin_list[[length(topbin_list) + 1]] <- res
+      res <- run_topbin_fishers(df_inter, col, tissue, "Intergenic_VMRs", top_frac = 0.1)
+      if (!is.null(res)) topbin_list[[length(topbin_list) + 1]] <- res
+    }
   }
+
+  topbin_df <- bind_rows(topbin_list)
+  topbin_df$fdr <- p.adjust(topbin_df$p_value, method = "fdr")
+  fwrite(topbin_df, file.path(OUT_DIR, paste0("q5_decile_repeat_fishers_", pop, ".tsv")), sep = "\t")
+  cat("Saved: q5_decile_repeat_fishers.tsv\n")
+
+  ## Summary print
+
+  cat("\n=== Fisher's enrichment: Intergenic heritable vs non-heritable (class level) ===\n")
+  fisher_df |>
+    filter(comparison == "Intergenic_VMRs",
+          annotation %in% c("any_repeat", REPEAT_CLASSES)) |>
+    dplyr::select(tissue, annotation, or, ci_lo, ci_hi, p_value, fdr,
+                  n_in_her, n_in_nonher) |>
+    arrange(annotation, tissue) |>
+    print(n = Inf)
+
+  cat("\n=== Fisher's enrichment: Intergenic heritable vs non-heritable (family level) ===\n")
+  fisher_df |>
+    filter(comparison == "Intergenic_VMRs",
+          annotation %in% names(REPEAT_FAMILIES)) |>
+    dplyr::select(tissue, annotation, or, ci_lo, ci_hi, p_value, fdr,
+                  n_in_her, n_in_nonher) |>
+    arrange(annotation, tissue) |>
+    print(n = Inf)
+
+  cat("\n=== Logistic regression: continuous h² ~ repeat overlap (intergenic) ===\n")
+  logistic_df |>
+    filter(comparison == "Intergenic_VMRs") |>
+    dplyr::select(tissue, annotation, or, ci_lo_or, ci_hi_or, p_value, fdr) |>
+    arrange(annotation, tissue) |>
+    print(n = Inf)
+
+  cat("\n=== Top-quintile / top-decile Fisher's (intergenic) ===\n")
+  topbin_df |>
+    filter(annotation %in% c("any_repeat", "LINE", "SINE", "LTR", "L1", "Alu")) |>
+    dplyr::select(tissue, comparison, annotation, or, ci_lo, ci_hi, p_value, fdr) |>
+    arrange(annotation, comparison, tissue) |>
+    print(n = Inf)
+
 }
-
-topbin_df <- bind_rows(topbin_list)
-topbin_df$fdr <- p.adjust(topbin_df$p_value, method = "fdr")
-fwrite(topbin_df, file.path(OUT_DIR, "q5_decile_repeat_fishers.tsv"), sep = "\t")
-cat("Saved: q5_decile_repeat_fishers.tsv\n")
-
-## Summary print
-
-cat("\n=== Fisher's enrichment: Intergenic heritable vs non-heritable (class level) ===\n")
-fisher_df |>
-  filter(comparison == "Intergenic_VMRs",
-         annotation %in% c("any_repeat", REPEAT_CLASSES)) |>
-  dplyr::select(tissue, annotation, or, ci_lo, ci_hi, p_value, fdr,
-                n_in_her, n_in_nonher) |>
-  arrange(annotation, tissue) |>
-  print(n = Inf)
-
-cat("\n=== Fisher's enrichment: Intergenic heritable vs non-heritable (family level) ===\n")
-fisher_df |>
-  filter(comparison == "Intergenic_VMRs",
-         annotation %in% names(REPEAT_FAMILIES)) |>
-  dplyr::select(tissue, annotation, or, ci_lo, ci_hi, p_value, fdr,
-                n_in_her, n_in_nonher) |>
-  arrange(annotation, tissue) |>
-  print(n = Inf)
-
-cat("\n=== Logistic regression: continuous h² ~ repeat overlap (intergenic) ===\n")
-logistic_df |>
-  filter(comparison == "Intergenic_VMRs") |>
-  dplyr::select(tissue, annotation, or, ci_lo_or, ci_hi_or, p_value, fdr) |>
-  arrange(annotation, tissue) |>
-  print(n = Inf)
-
-cat("\n=== Top-quintile / top-decile Fisher's (intergenic) ===\n")
-topbin_df |>
-  filter(annotation %in% c("any_repeat", "LINE", "SINE", "LTR", "L1", "Alu")) |>
-  dplyr::select(tissue, comparison, annotation, or, ci_lo, ci_hi, p_value, fdr) |>
-  arrange(annotation, comparison, tissue) |>
-  print(n = Inf)
 
 #### Reproducibility ####
 cat("\nReproducibility information:\n")
