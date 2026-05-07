@@ -1,0 +1,69 @@
+2026-05-07 17:37:10 - **** Job starts ****
+**** QUEST info ****
+User: owb0346
+Job id: 7452433
+No modules loaded
+2026-05-07 17:37:22 - Plotting regulatory context
+Warning messages:
+1: In FUN(X[[i]], ...) :
+  File '/gpfs/projects/b1213/users/kynon/projects/dna-methylation-heritability/heritability/elastic_net_model/BA_only/tissue_comparison/regulatory_context/_m/dlpfc/AA/expression/abc/environment_convergence_enrichment.tsv' has size 0. Returning a NULL data.table.
+2: In FUN(X[[i]], ...) :
+  File '/gpfs/projects/b1213/users/kynon/projects/dna-methylation-heritability/heritability/elastic_net_model/BA_only/tissue_comparison/regulatory_context/_m/hippocampus/AA/expression/abc/environment_convergence_enrichment.tsv' has size 0. Returning a NULL data.table.
+Saved regulatory-context figures to: /gpfs/projects/b1213/users/kynon/projects/dna-methylation-heritability/heritability/elastic_net_model/BA_only/tissue_comparison/regulatory_context/_m/figures/AA
+[1] "2026-05-07 17:37:35 CDT"
+   user  system elapsed 
+ 10.021   0.288  12.766 
+─ Session info ───────────────────────────────────────────────────────────────────────────────────────────────────────
+ setting  value
+ version  R version 4.4.3 (2025-02-28)
+ os       Red Hat Enterprise Linux 8.10 (Ootpa)
+ system   x86_64, linux-gnu
+ ui       X11
+ language (EN)
+ collate  en_US.UTF-8
+ ctype    en_US.UTF-8
+ tz       America/Chicago
+ date     2026-05-07
+ pandoc   3.8 @ /projects/p32505/opt/envs/rnaseq/bin/pandoc
+ quarto   1.9.35 @ /projects/p32505/opt/bin/quarto
+
+─ Packages ───────────────────────────────────────────────────────────────────────────────────────────────────────────
+ package      * version date (UTC) lib source
+ cli            3.6.5   2025-04-23 [1] CRAN (R 4.4.3)
+ data.table   * 1.17.8  2025-07-10 [1] CRAN (R 4.4.3)
+ dichromat      2.0-0.1 2022-05-02 [1] CRAN (R 4.4.3)
+ dplyr        * 1.1.4   2023-11-17 [1] CRAN (R 4.4.3)
+ farver         2.1.2   2024-05-13 [1] CRAN (R 4.4.3)
+ generics       0.1.4   2025-05-09 [1] CRAN (R 4.4.3)
+ ggplot2      * 4.0.0   2025-09-11 [1] CRAN (R 4.4.3)
+ glue           1.8.0   2024-09-30 [1] CRAN (R 4.4.3)
+ gtable         0.3.6   2024-10-25 [1] CRAN (R 4.4.3)
+ here         * 1.0.2   2025-09-15 [1] CRAN (R 4.4.3)
+ labeling       0.4.3   2023-08-29 [1] CRAN (R 4.4.3)
+ lifecycle      1.0.4   2023-11-07 [1] CRAN (R 4.4.3)
+ magrittr       2.0.4   2025-09-12 [1] CRAN (R 4.4.3)
+ patchwork    * 1.3.2   2025-08-25 [1] CRAN (R 4.4.3)
+ pillar         1.11.1  2025-09-17 [1] CRAN (R 4.4.3)
+ pkgconfig      2.0.3   2019-09-22 [1] CRAN (R 4.4.3)
+ purrr          1.1.0   2025-07-10 [1] CRAN (R 4.4.3)
+ R6             2.6.1   2025-02-15 [1] CRAN (R 4.4.3)
+ ragg           1.5.0   2025-09-02 [1] CRAN (R 4.4.3)
+ RColorBrewer   1.1-3   2022-04-03 [1] CRAN (R 4.4.3)
+ rlang          1.1.6   2025-04-11 [1] CRAN (R 4.4.3)
+ rprojroot      2.1.1   2025-08-26 [1] CRAN (R 4.4.3)
+ S7             0.2.0   2024-11-07 [1] CRAN (R 4.4.3)
+ scales       * 1.4.0   2025-04-24 [1] CRAN (R 4.4.3)
+ sessioninfo    1.2.3   2025-02-05 [1] CRAN (R 4.4.3)
+ systemfonts    1.3.1   2025-10-01 [1] CRAN (R 4.4.3)
+ textshaping    1.0.3   2025-09-02 [1] CRAN (R 4.4.3)
+ tibble         3.3.0   2025-06-08 [1] CRAN (R 4.4.3)
+ tidyr        * 1.3.1   2024-01-24 [1] CRAN (R 4.4.3)
+ tidyselect     1.2.1   2024-03-11 [1] CRAN (R 4.4.3)
+ vctrs          0.6.5   2023-12-01 [1] CRAN (R 4.4.3)
+ withr          3.0.2   2024-10-28 [1] CRAN (R 4.4.3)
+
+ [1] /gpfs/projects/p32505/opt/envs/rnaseq/lib/R/library
+ * ── Packages attached to the search path.
+
+──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+2026-05-07 17:37:37 - **** Job ends ****

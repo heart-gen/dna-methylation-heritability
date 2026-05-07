@@ -1,0 +1,2 @@
+env	term	odds_ratio	ci_lo	ci_hi	p_value	n_nonheritable_features	n_heritable_features	n_env_linked_nonheritable	n_env_linked_heritable	fdr	cohort	tissue	population	modality	run_tag
+morphine	env_valueTRUE	0	0	13.0000182812757	0.25	1	3	1	0	0.25	BA_only	caudate	AA	expression	abc
