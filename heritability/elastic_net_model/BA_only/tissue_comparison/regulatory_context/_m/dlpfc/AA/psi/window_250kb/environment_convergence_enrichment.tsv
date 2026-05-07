@@ -1,0 +1,2 @@
+env	term	odds_ratio	ci_lo	ci_hi	p_value	n_nonheritable_features	n_heritable_features	n_env_linked_nonheritable	n_env_linked_heritable	fdr	cohort	tissue	population	modality	run_tag
+ethanol	env_valueTRUE	0	0	3.26267252128901	0.142937853107345	23	37	2	0	0.142937853107345	BA_only	dlpfc	AA	psi	window_250kb

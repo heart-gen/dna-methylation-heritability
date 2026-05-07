@@ -1,0 +1,9 @@
+cohort	tissue	population	modality	run_tag	bin_type	h2_bin	n_vmrs	n_any_fdr10	prop_any_fdr10	median_max_abs_beta	median_pairs_tested
+BA_only	hippocampus	AA	expression_nearest_gene	nearest_gene_window_250kb	h2_quintile	Q1	1657	8	0.00482800241400121	0.287282659161306	1
+BA_only	hippocampus	AA	expression_nearest_gene	nearest_gene_window_250kb	h2_quintile	Q2	1657	17	0.0102595051297526	0.271266953695323	1
+BA_only	hippocampus	AA	expression_nearest_gene	nearest_gene_window_250kb	h2_quintile	Q3	1657	12	0.00724200362100181	0.267103012070393	1
+BA_only	hippocampus	AA	expression_nearest_gene	nearest_gene_window_250kb	h2_quintile	Q4	1657	14	0.00844900422450211	0.263974469695508	1
+BA_only	hippocampus	AA	expression_nearest_gene	nearest_gene_window_250kb	h2_quintile	Q5	1657	64	0.0386240193120097	0.25913438279775	1
+BA_only	hippocampus	AA	expression_nearest_gene	nearest_gene_window_250kb	h2_tertile	T1	2762	16	0.0057929036929761	0.282822078481173	1
+BA_only	hippocampus	AA	expression_nearest_gene	nearest_gene_window_250kb	h2_tertile	T2	2761	26	0.00941687794277436	0.261468764687971	1
+BA_only	hippocampus	AA	expression_nearest_gene	nearest_gene_window_250kb	h2_tertile	T3	2762	73	0.0264301230992035	0.263142759637517	1

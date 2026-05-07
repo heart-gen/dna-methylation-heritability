@@ -1,0 +1,5 @@
+env	term	odds_ratio	ci_lo	ci_hi	p_value	n_nonheritable_features	n_heritable_features	n_env_linked_nonheritable	n_env_linked_heritable	fdr	cohort	tissue	population	modality	run_tag
+codeine	env_valueTRUE	Inf	0.0116578547297299	Inf	1	84	185	0	1	1	BA_only	caudate	AA	psi	window_250kb
+ethanol	env_valueTRUE	Inf	0.0913607986935095	Inf	1	94	193	0	2	1	BA_only	caudate	AA	psi	window_250kb
+amphetamines	env_valueTRUE	Inf	0.0118291066753929	Inf	1	88	191	0	1	1	BA_only	caudate	AA	psi	window_250kb
+any_trauma_hx	env_value	0	0	18.2684742521353	0.318996415770609	89	190	1	0	1	BA_only	caudate	AA	psi	window_250kb

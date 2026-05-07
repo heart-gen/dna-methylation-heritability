@@ -1,0 +1,3 @@
+cohort	tissue	population	modality	run_tag	h2_category	n_vmrs	n_any_fdr05	n_any_fdr10	prop_any_fdr05	prop_any_fdr10	median_max_abs_beta	median_pairs_tested
+BA_only	dlpfc	AA	expression	abc	Heritable	29	0	0	0	0	0.318834418987517	1
+BA_only	dlpfc	AA	expression	abc	Non-heritable	32	0	0	0	0	0.273276173017474	1

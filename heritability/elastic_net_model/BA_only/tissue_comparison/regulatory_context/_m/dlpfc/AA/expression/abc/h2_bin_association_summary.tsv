@@ -1,0 +1,9 @@
+cohort	tissue	population	modality	run_tag	bin_type	h2_bin	n_vmrs	n_any_fdr10	prop_any_fdr10	median_max_abs_beta	median_pairs_tested
+BA_only	dlpfc	AA	expression	abc	h2_quintile	Q1	13	0	0	0.241421244814333	1
+BA_only	dlpfc	AA	expression	abc	h2_quintile	Q2	12	0	0	0.319369563060562	1.5
+BA_only	dlpfc	AA	expression	abc	h2_quintile	Q3	12	0	0	0.195328844217989	1
+BA_only	dlpfc	AA	expression	abc	h2_quintile	Q4	12	0	0	0.339550549038316	1
+BA_only	dlpfc	AA	expression	abc	h2_quintile	Q5	12	0	0	0.257264831770057	1
+BA_only	dlpfc	AA	expression	abc	h2_tertile	T1	21	0	0	0.275874058817004	1
+BA_only	dlpfc	AA	expression	abc	h2_tertile	T2	20	0	0	0.221285832646041	1
+BA_only	dlpfc	AA	expression	abc	h2_tertile	T3	20	0	0	0.326439342656856	1

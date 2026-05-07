@@ -1,0 +1,9 @@
+cohort	tissue	population	modality	run_tag	bin_type	h2_bin	n_vmrs	n_any_fdr10	prop_any_fdr10	median_max_abs_beta	median_pairs_tested
+BA_only	caudate	AA	psi	window_250kb	h2_quintile	Q1	2304	26	0.0112847222222222	3.40328523169657	78
+BA_only	caudate	AA	psi	window_250kb	h2_quintile	Q2	2303	23	0.00998697351280938	3.2107699543675	80
+BA_only	caudate	AA	psi	window_250kb	h2_quintile	Q3	2303	17	0.00738167607468519	3.15914422233671	72
+BA_only	caudate	AA	psi	window_250kb	h2_quintile	Q4	2303	30	0.0130264871906209	3.03835184089293	76
+BA_only	caudate	AA	psi	window_250kb	h2_quintile	Q5	2304	81	0.03515625	2.33488848901605	54
+BA_only	caudate	AA	psi	window_250kb	h2_tertile	T1	3839	38	0.00989841104454285	3.3360588060064	79
+BA_only	caudate	AA	psi	window_250kb	h2_tertile	T2	3839	36	0.00937744204219849	3.15914422233671	74
+BA_only	caudate	AA	psi	window_250kb	h2_tertile	T3	3839	103	0.0268299036207346	2.6451658357988	62

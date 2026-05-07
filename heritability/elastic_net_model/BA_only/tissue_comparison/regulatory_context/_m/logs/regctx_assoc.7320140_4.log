@@ -1,0 +1,144 @@
+2026-05-06 10:49:42 - **** Job starts ****
+**** QUEST info ****
+User: owb0346
+Job id: 7320140
+Job name: regctx_assoc
+Node name: 
+Hostname: qnode1031
+Task id: 4
+No modules loaded
+2026-05-06 10:49:53 - Running local associations
+Running local associations: cohort=BA_only tissue=hippocampus modality=expression population=AA
+
+'select()' returned 1:many mapping between keys and columns
+expression: assay rows with variation 66941 / 78932; VMR-feature links 122 -> 117 after dropping constant / all-zero features
+Testing 117 VMR-feature pairs (batched by VMR) [expression]
+  tested 9 / 117 pairs (3 / 63 VMRs) [expression]
+  tested 12 / 117 pairs (6 / 63 VMRs) [expression]
+  tested 17 / 117 pairs (9 / 63 VMRs) [expression]
+  tested 24 / 117 pairs (12 / 63 VMRs) [expression]
+  tested 29 / 117 pairs (15 / 63 VMRs) [expression]
+  tested 32 / 117 pairs (18 / 63 VMRs) [expression]
+  tested 38 / 117 pairs (21 / 63 VMRs) [expression]
+  tested 46 / 117 pairs (24 / 63 VMRs) [expression]
+  tested 50 / 117 pairs (27 / 63 VMRs) [expression]
+  tested 64 / 117 pairs (30 / 63 VMRs) [expression]
+  tested 71 / 117 pairs (33 / 63 VMRs) [expression]
+  tested 77 / 117 pairs (36 / 63 VMRs) [expression]
+  tested 80 / 117 pairs (39 / 63 VMRs) [expression]
+  tested 84 / 117 pairs (42 / 63 VMRs) [expression]
+  tested 89 / 117 pairs (45 / 63 VMRs) [expression]
+  tested 93 / 117 pairs (48 / 63 VMRs) [expression]
+  tested 96 / 117 pairs (51 / 63 VMRs) [expression]
+  tested 102 / 117 pairs (54 / 63 VMRs) [expression]
+  tested 109 / 117 pairs (57 / 63 VMRs) [expression]
+  tested 113 / 117 pairs (60 / 63 VMRs) [expression]
+  tested 117 / 117 pairs (63 / 63 VMRs) [expression]
+Saved [expression] outputs to /gpfs/projects/b1213/users/kynon/projects/dna-methylation-heritability/heritability/elastic_net_model/BA_only/tissue_comparison/regulatory_context/_m/hippocampus/AA/expression/abc
+Running nearest-gene association pass (8471 links)
+expression_nearest_gene: assay rows with variation 66941 / 78932; VMR-feature links 8471 -> 8296 after dropping constant / all-zero features
+Testing 8296 VMR-feature pairs (batched by VMR) [expression_nearest_gene]
+  tested 414 / 8296 pairs (414 / 8296 VMRs) [expression_nearest_gene]
+  tested 828 / 8296 pairs (828 / 8296 VMRs) [expression_nearest_gene]
+  tested 1242 / 8296 pairs (1242 / 8296 VMRs) [expression_nearest_gene]
+  tested 1656 / 8296 pairs (1656 / 8296 VMRs) [expression_nearest_gene]
+  tested 2070 / 8296 pairs (2070 / 8296 VMRs) [expression_nearest_gene]
+  tested 2484 / 8296 pairs (2484 / 8296 VMRs) [expression_nearest_gene]
+  tested 2898 / 8296 pairs (2898 / 8296 VMRs) [expression_nearest_gene]
+  tested 3312 / 8296 pairs (3312 / 8296 VMRs) [expression_nearest_gene]
+  tested 3726 / 8296 pairs (3726 / 8296 VMRs) [expression_nearest_gene]
+  tested 4140 / 8296 pairs (4140 / 8296 VMRs) [expression_nearest_gene]
+  tested 4554 / 8296 pairs (4554 / 8296 VMRs) [expression_nearest_gene]
+  tested 4968 / 8296 pairs (4968 / 8296 VMRs) [expression_nearest_gene]
+  tested 5382 / 8296 pairs (5382 / 8296 VMRs) [expression_nearest_gene]
+  tested 5796 / 8296 pairs (5796 / 8296 VMRs) [expression_nearest_gene]
+  tested 6210 / 8296 pairs (6210 / 8296 VMRs) [expression_nearest_gene]
+  tested 6624 / 8296 pairs (6624 / 8296 VMRs) [expression_nearest_gene]
+  tested 7038 / 8296 pairs (7038 / 8296 VMRs) [expression_nearest_gene]
+  tested 7452 / 8296 pairs (7452 / 8296 VMRs) [expression_nearest_gene]
+  tested 7866 / 8296 pairs (7866 / 8296 VMRs) [expression_nearest_gene]
+  tested 8280 / 8296 pairs (8280 / 8296 VMRs) [expression_nearest_gene]
+Saved [expression_nearest_gene] outputs to /gpfs/projects/b1213/users/kynon/projects/dna-methylation-heritability/heritability/elastic_net_model/BA_only/tissue_comparison/regulatory_context/_m/hippocampus/AA/expression/nearest_gene_window_250kb
+Expression passes finished (ABC + nearest gene when available).
+[1] "2026-05-06 10:55:58 CDT"
+   user  system elapsed 
+200.658  16.867 365.014 
+─ Session info ───────────────────────────────────────────────────────────────────────────────────────────────────────
+ setting  value
+ version  R version 4.4.3 (2025-02-28)
+ os       Red Hat Enterprise Linux 8.10 (Ootpa)
+ system   x86_64, linux-gnu
+ ui       X11
+ language (EN)
+ collate  en_US.UTF-8
+ ctype    en_US.UTF-8
+ tz       America/Chicago
+ date     2026-05-06
+ pandoc   3.8 @ /projects/p32505/opt/envs/rnaseq/bin/pandoc
+ quarto   1.9.35 @ /projects/p32505/opt/bin/quarto
+
+─ Packages ───────────────────────────────────────────────────────────────────────────────────────────────────────────
+ package              * version date (UTC) lib source
+ abind                  1.4-8   2024-09-12 [1] CRAN (R 4.4.3)
+ AnnotationDbi        * 1.68.0  2024-10-29 [1] Bioconductor 3.20 (R 4.4.2)
+ backports              1.5.0   2024-05-23 [1] CRAN (R 4.4.3)
+ Biobase              * 2.66.0  2024-10-29 [1] Bioconductor 3.20 (R 4.4.2)
+ BiocGenerics         * 0.52.0  2024-10-29 [1] Bioconductor 3.20 (R 4.4.2)
+ Biostrings             2.74.0  2024-10-29 [1] Bioconductor 3.20 (R 4.4.2)
+ bit                    4.6.0   2025-03-06 [1] CRAN (R 4.4.3)
+ bit64                  4.6.0-1 2025-01-16 [1] CRAN (R 4.4.3)
+ blob                   1.2.4   2023-03-17 [1] CRAN (R 4.4.3)
+ broom                * 1.0.10  2025-09-13 [1] CRAN (R 4.4.3)
+ cachem                 1.1.0   2024-05-16 [1] CRAN (R 4.4.3)
+ cli                    3.6.5   2025-04-23 [1] CRAN (R 4.4.3)
+ crayon                 1.5.3   2024-06-20 [1] CRAN (R 4.4.3)
+ data.table           * 1.17.8  2025-07-10 [1] CRAN (R 4.4.3)
+ DBI                    1.2.3   2024-06-02 [1] CRAN (R 4.4.3)
+ DelayedArray           0.32.0  2024-10-29 [1] Bioconductor 3.20 (R 4.4.2)
+ dplyr                * 1.1.4   2023-11-17 [1] CRAN (R 4.4.3)
+ fastmap                1.2.0   2024-05-15 [1] CRAN (R 4.4.3)
+ generics               0.1.4   2025-05-09 [1] CRAN (R 4.4.3)
+ GenomeInfoDb         * 1.42.0  2024-10-29 [1] Bioconductor 3.20 (R 4.4.2)
+ GenomeInfoDbData       1.2.13  2025-09-21 [1] Bioconductor
+ GenomicRanges        * 1.58.0  2024-10-29 [1] Bioconductor 3.20 (R 4.4.2)
+ glue                   1.8.0   2024-09-30 [1] CRAN (R 4.4.3)
+ here                 * 1.0.2   2025-09-15 [1] CRAN (R 4.4.3)
+ httr                   1.4.7   2023-08-15 [1] CRAN (R 4.4.3)
+ IRanges              * 2.40.0  2024-10-29 [1] Bioconductor 3.20 (R 4.4.2)
+ jsonlite               2.0.0   2025-03-27 [1] CRAN (R 4.4.3)
+ KEGGREST               1.46.0  2024-10-29 [1] Bioconductor 3.20 (R 4.4.2)
+ lattice                0.22-7  2025-04-02 [1] CRAN (R 4.4.3)
+ lifecycle              1.0.4   2023-11-07 [1] CRAN (R 4.4.3)
+ magrittr               2.0.4   2025-09-12 [1] CRAN (R 4.4.3)
+ Matrix                 1.7-4   2025-08-28 [1] CRAN (R 4.4.3)
+ MatrixGenerics       * 1.18.0  2024-10-29 [1] Bioconductor 3.20 (R 4.4.2)
+ matrixStats          * 1.5.0   2025-01-07 [1] CRAN (R 4.4.3)
+ memoise                2.0.1   2021-11-26 [1] CRAN (R 4.4.3)
+ org.Hs.eg.db         * 3.20.0  2025-09-21 [1] Bioconductor
+ pillar                 1.11.1  2025-09-17 [1] CRAN (R 4.4.3)
+ pkgconfig              2.0.3   2019-09-22 [1] CRAN (R 4.4.3)
+ png                    0.1-8   2022-11-29 [1] CRAN (R 4.4.3)
+ purrr                  1.1.0   2025-07-10 [1] CRAN (R 4.4.3)
+ R6                     2.6.1   2025-02-15 [1] CRAN (R 4.4.3)
+ rlang                  1.1.6   2025-04-11 [1] CRAN (R 4.4.3)
+ rprojroot              2.1.1   2025-08-26 [1] CRAN (R 4.4.3)
+ RSQLite                2.4.3   2025-08-20 [1] CRAN (R 4.4.3)
+ S4Arrays               1.6.0   2024-10-29 [1] Bioconductor 3.20 (R 4.4.3)
+ S4Vectors            * 0.44.0  2024-10-29 [1] Bioconductor 3.20 (R 4.4.2)
+ sessioninfo            1.2.3   2025-02-05 [1] CRAN (R 4.4.3)
+ SparseArray            1.6.0   2024-10-29 [1] Bioconductor 3.20 (R 4.4.3)
+ SummarizedExperiment * 1.36.0  2024-10-29 [1] Bioconductor 3.20 (R 4.4.2)
+ tibble                 3.3.0   2025-06-08 [1] CRAN (R 4.4.3)
+ tidyr                * 1.3.1   2024-01-24 [1] CRAN (R 4.4.3)
+ tidyselect             1.2.1   2024-03-11 [1] CRAN (R 4.4.3)
+ UCSC.utils             1.2.0   2024-10-29 [1] Bioconductor 3.20 (R 4.4.2)
+ vctrs                  0.6.5   2023-12-01 [1] CRAN (R 4.4.3)
+ withr                  3.0.2   2024-10-28 [1] CRAN (R 4.4.3)
+ XVector                0.46.0  2024-10-29 [1] Bioconductor 3.20 (R 4.4.2)
+ zlibbioc               1.52.0  2024-10-29 [1] Bioconductor 3.20 (R 4.4.2)
+
+ [1] /gpfs/projects/p32505/opt/envs/rnaseq/lib/R/library
+ * ── Packages attached to the search path.
+
+──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+2026-05-06 10:56:13 - **** Job ends ****

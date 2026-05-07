@@ -1,0 +1,4 @@
+cohort	tissue	population	modality	run_tag	h2_category	n_vmrs	n_any_fdr05	n_any_fdr10	prop_any_fdr05	prop_any_fdr10	median_max_abs_beta	median_pairs_tested
+BA_only	caudate	AA	expression_nearest_gene	nearest_gene_window_250kb	Heritable	4111	170	217	0.0413524689856483	0.0527852104110922	0.225031115968936	1
+BA_only	caudate	AA	expression_nearest_gene	nearest_gene_window_250kb	Non-heritable	5794	133	196	0.0229547808077321	0.0338280980324474	0.265784547657656	1
+BA_only	caudate	AA	expression_nearest_gene	nearest_gene_window_250kb	Low prediction	35	7	7	0.2	0.2	0.389423120264048	1

@@ -1,0 +1,7 @@
+cohort	tissue	population	feature_type	h2_category	n_vmrs	median_distance	q25_distance	q75_distance	prop_within_10kb	prop_within_100kb
+BA_only	caudate	AA	gene	Heritable	5069	0	0	0	0.912211481554547	0.993292562635628
+BA_only	caudate	AA	gene	Non-heritable	6605	0	0	0	0.965177895533687	0.999394398183195
+BA_only	caudate	AA	gene	Low prediction	67	0	0	0	0.895522388059702	1
+BA_only	caudate	AA	psi	Heritable	5069	884	0	17242	0.682974945748668	0.949694219767212
+BA_only	caudate	AA	psi	Non-heritable	6605	3	0	8625	0.767146101438304	0.982134746404239
+BA_only	caudate	AA	psi	Low prediction	67	0	0	34769.5	0.73134328358209	0.835820895522388
