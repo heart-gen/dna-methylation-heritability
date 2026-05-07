@@ -6,7 +6,7 @@
 #SBATCH --ntasks-per-node=1
 #SBATCH --mem=16G
 #SBATCH --mail-type=FAIL
-#SBATCH --mail-user=kynon.benjamin@northwestern.edu
+#SBATCH --mail-user=alexis.bennett@northwestern.edu
 #SBATCH --job-name=region_specificity_analysis
 #SBATCH --output=logs/%x.%j.log
 
