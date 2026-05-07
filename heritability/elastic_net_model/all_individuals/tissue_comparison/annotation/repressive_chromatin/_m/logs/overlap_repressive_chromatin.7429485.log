@@ -1,0 +1,418 @@
+2026-05-07 12:41:45 - **** Job starts ****
+**** QUEST info ****
+User: skc6679
+Job id: 7429485
+Job name: overlap_repressive_chromatin
+Hostname: qnode0025
+Task id: N/A
+No modules loaded
+2026-05-07 12:41:46 - Overlapping intergenic VMRs with brain cell-type open chromatin peaks
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+
+Loading Roadmap peak GRanges...
+  Caudate (E068)
+    H3K27me3 gappedPeak (E068): 29645 peaks
+    H3K27me3 broadPeak (E068): 343070 peaks
+    H3K9me3 gappedPeak (E068): 91294 peaks
+    H3K9me3 broadPeak (E068): 609861 peaks
+  DLPFC (E073)
+    H3K27me3 gappedPeak (E073): 56580 peaks
+    H3K27me3 broadPeak (E073): 396941 peaks
+    H3K9me3 gappedPeak (E073): 83781 peaks
+    H3K9me3 broadPeak (E073): 705643 peaks
+  Hippocampus (E071)
+    H3K27me3 gappedPeak (E071): 51463 peaks
+    H3K27me3 broadPeak (E071): 318972 peaks
+    H3K9me3 gappedPeak (E071): 72369 peaks
+    H3K9me3 broadPeak (E071): 360163 peaks
+
+Loading ChromHMM GRanges...
+  Caudate Polycomb (E068): 27184 regions
+  Caudate Het (E068): 35339 regions
+  Caudate Quies (E068): 78115 regions
+  Caudate Bivalent (E068): 8455 regions
+  Caudate BroadRepressive (E068): 140638 regions
+  DLPFC Polycomb (E073): 29658 regions
+  DLPFC Het (E073): 21606 regions
+  DLPFC Quies (E073): 56374 regions
+  DLPFC Bivalent (E073): 10523 regions
+  DLPFC BroadRepressive (E073): 107638 regions
+  Hippocampus Polycomb (E071): 38972 regions
+  Hippocampus Het (E071): 32721 regions
+  Hippocampus Quies (E071): 73947 regions
+  Hippocampus Bivalent (E071): 17660 regions
+  Hippocampus BroadRepressive (E071): 145640 regions
+Processing population: AA 
+
+Loading VMR data and lifting over coordinates...
+  Caudate
+    All: 7194 VMRs (3488 Her, 3706 Non-her) before liftover
+    liftOver: dropped 60 VMRs (0.8%) that did not map uniquely to hg19
+    liftOver: dropped 27 VMRs (1.6%) that did not map uniquely to hg19
+    Intergenic after liftover: 1649 (1049 Her, 600 Non-her)
+  DLPFC
+    All: 4954 VMRs (4264 Her, 690 Non-her) before liftover
+    liftOver: dropped 37 VMRs (0.7%) that did not map uniquely to hg19
+    liftOver: dropped 9 VMRs (1.1%) that did not map uniquely to hg19
+    Intergenic after liftover: 811 (707 Her, 104 Non-her)
+  Hippocampus
+    All: 4965 VMRs (4327 Her, 638 Non-her) before liftover
+    liftOver: dropped 43 VMRs (0.9%) that did not map uniquely to hg19
+    liftOver: dropped 18 VMRs (1.6%) that did not map uniquely to hg19
+    Intergenic after liftover: 1074 (960 Her, 114 Non-her)
+
+Saving annotated VMR table...
+Saved: vmr_repressive_overlap.tsv
+
+Running Fisher's exact tests...
+Saved: fishers_repressive_enrichment.tsv
+
+Running logistic regressions (continuous h²)...
+Saved: logistic_repressive_enrichment.tsv
+
+Running top-quintile and top-decile Fisher's tests (intergenic VMRs)...
+Saved: q5_decile_repressive_fishers.tsv
+
+Building ChromHMM state overlap rate table (all VMRs)...
+Saved: chromhmm_state_overlap_rates.tsv
+
+=== Fisher's enrichment: Intergenic heritable vs non-heritable ===
+# A tibble: 21 × 9
+   tissue  annotation    or   ci_lo ci_hi  p_value      fdr n_in_her n_in_nonher
+   <chr>   <chr>      <dbl>   <dbl> <dbl>    <dbl>    <dbl>    <int>       <int>
+ 1 Caudate Quies      0.228 0.183   0.283 2.53e-44 2.73e-43      750         218
+ 2 Caudate BroadRepr… 0.208 0.161   0.267 1.28e-38 1.15e-37      916         353
+ 3 Caudate H3K9me3    0.237 0.159   0.344 4.28e-18 2.57e-17      223          36
+ 4 Caudate Het        0.158 0.0556  0.367 1.31e- 7 5.88e- 7       63           6
+ 5 Hippoc… BroadRepr… 0.379 0.249   0.577 3.41e- 6 1.32e- 5      741          64
+ 6 Caudate H3K27me3   1.86  1.39    2.47  1.57e- 5 4.99e- 5      121         117
+ 7 Hippoc… Quies      0.410 0.260   0.633 1.79e- 5 5.36e- 5      489          34
+ 8 Caudate Polycomb   1.59  1.23    2.06  3.66e- 4 9.42e- 4      167         139
+ 9 Caudate Bivalent   3.03  1.45    6.60  2.02e- 3 4.95e- 3       13          22
+10 DLPFC   Quies      0.532 0.339   0.826 3.22e- 3 7.24e- 3      382          40
+11 DLPFC   Polycomb   1.53  0.964   2.42  6.00e- 2 1.16e- 1      187          37
+12 DLPFC   Bivalent   2.35  0.823   5.94  7.57e- 2 1.41e- 1       21           7
+13 DLPFC   H3K27me3   1.41  0.904   2.17  1.28e- 1 2.23e- 1      255          46
+14 Hippoc… H3K9me3    0.583 0.239   1.24  2.03e- 1 3.23e- 1      110           8
+15 DLPFC   H3K9me3    1.46  0.746   2.71  2.36e- 1 3.45e- 1       73          15
+16 DLPFC   BroadRepr… 0.734 0.446   1.24  2.40e- 1 3.45e- 1      568          78
+17 Hippoc… Het        0.265 0.00645 1.63  2.43e- 1 3.45e- 1       31           1
+18 Hippoc… Bivalent   1.53  0.642   3.25  2.77e- 1 3.84e- 1       51           9
+19 Hippoc… H3K27me3   1.14  0.739   1.74  5.30e- 1 6.36e- 1      317          41
+20 DLPFC   Het        1.37  0.144   6.54  6.59e- 1 7.49e- 1       10           2
+21 Hippoc… Polycomb   0.904 0.558   1.43  7.39e- 1 8.02e- 1      263          29
+
+=== Logistic regression: continuous h² ~ repressive overlap (intergenic) ===
+# A tibble: 27 × 7
+   tissue      annotation              or    ci_lo_or ci_hi_or  p_value      fdr
+   <chr>       <chr>                <dbl>       <dbl>    <dbl>    <dbl>    <dbl>
+ 1 Caudate     Quies            56.8      30.1        110.     2.62e-34 2.02e-33
+ 2 Caudate     BroadRepressive 166.       62.0        490.     2.45e-22 1.20e-21
+ 3 Caudate     H3K9me3_broad     7.30      4.26        12.6    5.35e-13 1.93e-12
+ 4 Hippocampus Quies            15.9       7.08        37.0    4.96e-11 1.68e-10
+ 5 Hippocampus BroadRepressive 108.       28.3        479.     7.67e-11 2.44e-10
+ 6 Caudate     H3K27me3          0.0720    0.0302       0.163  9.10e-10 2.59e- 9
+ 7 Caudate     Polycomb          0.108     0.0514       0.218  1.34e- 9 3.63e- 9
+ 8 Hippocampus H3K9me3_broad    10.4       4.74        23.0    6.02e- 9 1.48e- 8
+ 9 Caudate     H3K9me3           3.57      1.95         6.55   3.93e- 5 7.32e- 5
+10 Caudate     Bivalent          0.000474  0.00000411   0.0143 1.89e- 4 3.40e- 4
+11 Caudate     H3K27me3_broad    0.427     0.262        0.691  5.77e- 4 1.00e- 3
+12 DLPFC       BroadRepressive  23.4       3.97       190.     1.30e- 3 2.16e- 3
+13 Hippocampus H3K9me3           5.11      1.87        13.8    1.32e- 3 2.16e- 3
+14 Caudate     Het               4.57      1.65        13.0    3.73e- 3 5.75e- 3
+15 DLPFC       H3K9me3           6.37      1.76        21.9    3.86e- 3 5.78e- 3
+16 DLPFC       Het              49.2       3.14       705.     4.06e- 3 5.93e- 3
+17 DLPFC       H3K9me3_broad     4.67      1.59        14.4    5.85e- 3 8.32e- 3
+18 Hippocampus Het               7.41      1.40        38.4    1.70e- 2 2.30e- 2
+19 Hippocampus H3K27me3          0.415     0.184        0.912  3.08e- 2 4.06e- 2
+20 Hippocampus Bivalent          0.157     0.0187       0.962  6.26e- 2 7.86e- 2
+21 DLPFC       Quies             2.46      0.886        7.10   8.84e- 2 1.06e- 1
+22 Hippocampus Polycomb          0.494     0.206        1.15   1.08e- 1 1.27e- 1
+23 Hippocampus H3K27me3_broad    1.45      0.689        3.09   3.30e- 1 3.71e- 1
+24 DLPFC       Bivalent          0.254     0.00656      3.82   3.86e- 1 4.16e- 1
+25 DLPFC       H3K27me3_broad    1.34      0.474        3.94   5.88e- 1 6.22e- 1
+26 DLPFC       Polycomb          1.14      0.366        3.40   8.12e- 1 8.43e- 1
+27 DLPFC       H3K27me3          0.936     0.322        2.63   9.01e- 1 9.01e- 1
+Processing population: EA 
+
+Loading VMR data and lifting over coordinates...
+  Caudate
+    All: 7194 VMRs (3488 Her, 3706 Non-her) before liftover
+    liftOver: dropped 60 VMRs (0.8%) that did not map uniquely to hg19
+    liftOver: dropped 27 VMRs (1.6%) that did not map uniquely to hg19
+    Intergenic after liftover: 1649 (1049 Her, 600 Non-her)
+  DLPFC
+    All: 4954 VMRs (4264 Her, 690 Non-her) before liftover
+    liftOver: dropped 37 VMRs (0.7%) that did not map uniquely to hg19
+    liftOver: dropped 9 VMRs (1.1%) that did not map uniquely to hg19
+    Intergenic after liftover: 811 (707 Her, 104 Non-her)
+  Hippocampus
+    All: 4965 VMRs (4327 Her, 638 Non-her) before liftover
+    liftOver: dropped 43 VMRs (0.9%) that did not map uniquely to hg19
+    liftOver: dropped 18 VMRs (1.6%) that did not map uniquely to hg19
+    Intergenic after liftover: 1074 (960 Her, 114 Non-her)
+
+Saving annotated VMR table...
+Saved: vmr_repressive_overlap.tsv
+
+Running Fisher's exact tests...
+Saved: fishers_repressive_enrichment.tsv
+
+Running logistic regressions (continuous h²)...
+Saved: logistic_repressive_enrichment.tsv
+
+Running top-quintile and top-decile Fisher's tests (intergenic VMRs)...
+Saved: q5_decile_repressive_fishers.tsv
+
+Building ChromHMM state overlap rate table (all VMRs)...
+Saved: chromhmm_state_overlap_rates.tsv
+
+=== Fisher's enrichment: Intergenic heritable vs non-heritable ===
+# A tibble: 21 × 9
+   tissue  annotation    or   ci_lo ci_hi  p_value      fdr n_in_her n_in_nonher
+   <chr>   <chr>      <dbl>   <dbl> <dbl>    <dbl>    <dbl>    <int>       <int>
+ 1 Caudate Quies      0.228 0.183   0.283 2.53e-44 2.73e-43      750         218
+ 2 Caudate BroadRepr… 0.208 0.161   0.267 1.28e-38 1.15e-37      916         353
+ 3 Caudate H3K9me3    0.237 0.159   0.344 4.28e-18 2.57e-17      223          36
+ 4 Caudate Het        0.158 0.0556  0.367 1.31e- 7 5.88e- 7       63           6
+ 5 Hippoc… BroadRepr… 0.379 0.249   0.577 3.41e- 6 1.32e- 5      741          64
+ 6 Caudate H3K27me3   1.86  1.39    2.47  1.57e- 5 4.99e- 5      121         117
+ 7 Hippoc… Quies      0.410 0.260   0.633 1.79e- 5 5.36e- 5      489          34
+ 8 Caudate Polycomb   1.59  1.23    2.06  3.66e- 4 9.42e- 4      167         139
+ 9 Caudate Bivalent   3.03  1.45    6.60  2.02e- 3 4.95e- 3       13          22
+10 DLPFC   Quies      0.532 0.339   0.826 3.22e- 3 7.24e- 3      382          40
+11 DLPFC   Polycomb   1.53  0.964   2.42  6.00e- 2 1.16e- 1      187          37
+12 DLPFC   Bivalent   2.35  0.823   5.94  7.57e- 2 1.41e- 1       21           7
+13 DLPFC   H3K27me3   1.41  0.904   2.17  1.28e- 1 2.23e- 1      255          46
+14 Hippoc… H3K9me3    0.583 0.239   1.24  2.03e- 1 3.23e- 1      110           8
+15 DLPFC   H3K9me3    1.46  0.746   2.71  2.36e- 1 3.45e- 1       73          15
+16 DLPFC   BroadRepr… 0.734 0.446   1.24  2.40e- 1 3.45e- 1      568          78
+17 Hippoc… Het        0.265 0.00645 1.63  2.43e- 1 3.45e- 1       31           1
+18 Hippoc… Bivalent   1.53  0.642   3.25  2.77e- 1 3.84e- 1       51           9
+19 Hippoc… H3K27me3   1.14  0.739   1.74  5.30e- 1 6.36e- 1      317          41
+20 DLPFC   Het        1.37  0.144   6.54  6.59e- 1 7.49e- 1       10           2
+21 Hippoc… Polycomb   0.904 0.558   1.43  7.39e- 1 8.02e- 1      263          29
+
+=== Logistic regression: continuous h² ~ repressive overlap (intergenic) ===
+# A tibble: 27 × 7
+   tissue      annotation             or   ci_lo_or  ci_hi_or  p_value      fdr
+   <chr>       <chr>               <dbl>      <dbl>     <dbl>    <dbl>    <dbl>
+ 1 Caudate     Quies            39.0     21.9         71.2    4.16e-34 3.74e-33
+ 2 Caudate     BroadRepressive 117.      47.5        311.     2.25e-23 1.35e-22
+ 3 Caudate     H3K9me3_broad     5.92     3.58         9.84   5.51e-12 1.98e-11
+ 4 Hippocampus H3K9me3_broad    23.9      9.45        61.3    2.74e-11 9.24e-11
+ 5 Hippocampus BroadRepressive 138.      32.6        668.     1.45e-10 4.60e-10
+ 6 Caudate     H3K27me3          0.0931   0.0421       0.198  1.59e- 9 4.51e- 9
+ 7 Caudate     Polycomb          0.156    0.0797       0.297  2.91e- 8 7.86e- 8
+ 8 Hippocampus Quies            12.1      4.86        31.0    1.26e- 7 3.23e- 7
+ 9 Caudate     H3K9me3           4.06     2.28         7.26   2.02e- 6 4.74e- 6
+10 Caudate     Bivalent          0.00156  0.0000284    0.0275 1.68e- 4 3.35e- 4
+11 DLPFC       BroadRepressive  59.8      7.69       587.     2.13e- 4 4.11e- 4
+12 Hippocampus H3K9me3           8.84     2.71        28.4    2.70e- 4 5.04e- 4
+13 Caudate     Het               6.26     2.30        17.9    4.27e- 4 7.43e- 4
+14 Caudate     H3K27me3_broad    0.445    0.280        0.703  5.57e- 4 9.11e- 4
+15 DLPFC       Het             134.       4.84      3161.     2.57e- 3 4.08e- 3
+16 DLPFC       Quies             5.73     1.61        21.5    8.21e- 3 1.23e- 2
+17 DLPFC       H3K9me3           7.01     1.36        33.9    1.72e- 2 2.51e- 2
+18 Hippocampus Bivalent          0.119    0.0104       0.976  6.42e- 2 8.90e- 2
+19 DLPFC       H3K9me3_broad     3.01     0.835       11.2    9.56e- 2 1.29e- 1
+20 Hippocampus H3K27me3_broad    2.08     0.871        5.05   1.01e- 1 1.34e- 1
+21 DLPFC       Bivalent          0.0578   0.000464     2.36   1.87e- 1 2.40e- 1
+22 Hippocampus Het               2.85     0.341       20.8    3.14e- 1 3.70e- 1
+23 Hippocampus H3K27me3          0.675    0.268        1.66   3.98e- 1 4.48e- 1
+24 DLPFC       H3K27me3          0.581    0.154        2.09   4.13e- 1 4.55e- 1
+25 DLPFC       Polycomb          0.715    0.171        2.79   6.37e- 1 6.88e- 1
+26 Hippocampus Polycomb          1.19     0.451        3.06   7.21e- 1 7.64e- 1
+27 DLPFC       H3K27me3_broad    1.03     0.294        3.72   9.66e- 1 9.84e- 1
+
+Reproducibility information:
+[1] "2026-05-07 12:42:59 CDT"
+   user  system elapsed 
+ 50.611   1.683  57.796 
+─ Session info ───────────────────────────────────────────────────────────────────────────────────────────────────────
+ setting  value
+ version  R version 4.4.3 (2025-02-28)
+ os       Red Hat Enterprise Linux 8.10 (Ootpa)
+ system   x86_64, linux-gnu
+ ui       X11
+ language (EN)
+ collate  en_US.UTF-8
+ ctype    en_US.UTF-8
+ tz       America/Chicago
+ date     2026-05-07
+ pandoc   3.8 @ /projects/p32505/opt/envs/epigenomics/bin/pandoc
+ quarto   1.9.35 @ /projects/p32505/opt/bin/quarto
+
+─ Packages ───────────────────────────────────────────────────────────────────────────────────────────────────────────
+ package              * version   date (UTC) lib source
+ abind                  1.4-8     2024-09-12 [1] CRAN (R 4.4.3)
+ Biobase                2.66.0    2024-10-29 [1] Bioconductor 3.20 (R 4.4.2)
+ BiocGenerics         * 0.52.0    2024-10-29 [1] Bioconductor 3.20 (R 4.4.2)
+ BiocIO                 1.16.0    2024-10-29 [1] Bioconductor 3.20 (R 4.4.2)
+ BiocParallel           1.40.0    2024-10-29 [1] Bioconductor 3.20 (R 4.4.2)
+ Biostrings             2.74.0    2024-10-29 [1] Bioconductor 3.20 (R 4.4.2)
+ bitops                 1.0-9     2024-10-03 [1] CRAN (R 4.4.3)
+ cli                    3.6.5     2025-04-23 [1] CRAN (R 4.4.3)
+ codetools              0.2-20    2024-03-31 [1] CRAN (R 4.4.3)
+ crayon                 1.5.3     2024-06-20 [1] CRAN (R 4.4.3)
+ curl                   7.0.0     2025-08-19 [1] CRAN (R 4.4.3)
+ data.table           * 1.17.8    2025-07-10 [1] CRAN (R 4.4.3)
+ DelayedArray           0.32.0    2024-10-29 [1] Bioconductor 3.20 (R 4.4.2)
+ dplyr                * 1.1.4     2023-11-17 [1] CRAN (R 4.4.3)
+ generics               0.1.4     2025-05-09 [1] CRAN (R 4.4.3)
+ GenomeInfoDb         * 1.42.3    2025-01-27 [1] Bioconductor 3.20 (R 4.4.3)
+ GenomeInfoDbData       1.2.13    2025-09-22 [1] Bioconductor
+ GenomicAlignments      1.42.0    2024-10-29 [1] Bioconductor 3.20 (R 4.4.3)
+ GenomicRanges        * 1.58.0    2024-10-29 [1] Bioconductor 3.20 (R 4.4.2)
+ glue                   1.8.0     2024-09-30 [1] CRAN (R 4.4.3)
+ here                 * 1.0.2     2025-09-15 [1] CRAN (R 4.4.3)
+ httr                   1.4.7     2023-08-15 [1] CRAN (R 4.4.3)
+ IRanges              * 2.40.0    2024-10-29 [1] Bioconductor 3.20 (R 4.4.2)
+ jsonlite               2.0.0     2025-03-27 [1] CRAN (R 4.4.3)
+ lattice                0.22-7    2025-04-02 [1] CRAN (R 4.4.3)
+ lifecycle              1.0.5     2026-01-08 [1] CRAN (R 4.4.3)
+ magrittr               2.0.4     2025-09-12 [1] CRAN (R 4.4.3)
+ Matrix                 1.7-4     2025-08-28 [1] CRAN (R 4.4.3)
+ MatrixGenerics         1.18.1    2025-01-09 [1] Bioconductor 3.20 (R 4.4.3)
+ matrixStats            1.5.0     2025-01-07 [1] CRAN (R 4.4.3)
+ pillar                 1.11.1    2025-09-17 [1] CRAN (R 4.4.3)
+ pkgconfig              2.0.3     2019-09-22 [1] CRAN (R 4.4.3)
+ purrr                  1.1.0     2025-07-10 [1] CRAN (R 4.4.3)
+ R6                     2.6.1     2025-02-15 [1] CRAN (R 4.4.3)
+ RCurl                  1.98-1.17 2025-03-22 [1] CRAN (R 4.4.3)
+ restfulr               0.0.16    2025-06-27 [1] CRAN (R 4.4.3)
+ rjson                  0.2.23    2024-09-16 [1] CRAN (R 4.4.3)
+ rlang                  1.1.6     2025-04-11 [1] CRAN (R 4.4.3)
+ rprojroot              2.1.1     2025-08-26 [1] CRAN (R 4.4.3)
+ Rsamtools              2.22.0    2024-10-29 [1] Bioconductor 3.20 (R 4.4.3)
+ rtracklayer          * 1.66.0    2024-10-29 [1] Bioconductor 3.20 (R 4.4.3)
+ S4Arrays               1.6.0     2024-10-29 [1] Bioconductor 3.20 (R 4.4.3)
+ S4Vectors            * 0.44.0    2024-10-29 [1] Bioconductor 3.20 (R 4.4.2)
+ sessioninfo            1.2.3     2025-02-05 [1] CRAN (R 4.4.3)
+ SparseArray            1.6.0     2024-10-29 [1] Bioconductor 3.20 (R 4.4.3)
+ SummarizedExperiment   1.36.0    2024-10-29 [1] Bioconductor 3.20 (R 4.4.2)
+ tibble                 3.3.0     2025-06-08 [1] CRAN (R 4.4.3)
+ tidyr                * 1.3.1     2024-01-24 [1] CRAN (R 4.4.3)
+ tidyselect             1.2.1     2024-03-11 [1] CRAN (R 4.4.3)
+ UCSC.utils             1.2.0     2024-10-29 [1] Bioconductor 3.20 (R 4.4.2)
+ utf8                   1.2.6     2025-06-08 [1] CRAN (R 4.4.3)
+ vctrs                  0.6.5     2023-12-01 [1] CRAN (R 4.4.3)
+ withr                  3.0.2     2024-10-28 [1] CRAN (R 4.4.3)
+ XML                    3.99-0.17 2024-06-25 [1] CRAN (R 4.4.3)
+ XVector                0.46.0    2024-10-29 [1] Bioconductor 3.20 (R 4.4.2)
+ yaml                   2.3.10    2024-07-26 [1] CRAN (R 4.4.3)
+ zlibbioc               1.52.0    2024-10-29 [1] Bioconductor 3.20 (R 4.4.2)
+
+ [1] /gpfs/projects/p32505/opt/envs/epigenomics/lib/R/library
+ * ── Packages attached to the search path.
+
+──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+2026-05-07 12:43:01 - **** Job ends ****
