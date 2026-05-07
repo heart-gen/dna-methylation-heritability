@@ -1,0 +1,9 @@
+cohort	tissue	population	modality	run_tag	bin_type	h2_bin	n_vmrs	n_any_fdr10	prop_any_fdr10	median_max_abs_beta	median_pairs_tested
+BA_only	hippocampus	AA	expression	abc	h2_quintile	Q1	13	0	0	0.574690099392171	2
+BA_only	hippocampus	AA	expression	abc	h2_quintile	Q2	12	0	0	0.643334887968704	1
+BA_only	hippocampus	AA	expression	abc	h2_quintile	Q3	13	0	0	0.507794284027328	2
+BA_only	hippocampus	AA	expression	abc	h2_quintile	Q4	12	0	0	0.38462147926332	1
+BA_only	hippocampus	AA	expression	abc	h2_quintile	Q5	13	1	0.0769230769230769	0.361151003045832	1
+BA_only	hippocampus	AA	expression	abc	h2_tertile	T1	21	0	0	0.574690099392171	2
+BA_only	hippocampus	AA	expression	abc	h2_tertile	T2	21	0	0	0.528417393989751	1
+BA_only	hippocampus	AA	expression	abc	h2_tertile	T3	21	1	0.0476190476190476	0.331259524189015	1

@@ -1,0 +1,3 @@
+cohort	tissue	population	modality	run_tag	h2_category	n_vmrs	n_any_fdr05	n_any_fdr10	prop_any_fdr05	prop_any_fdr10	median_max_abs_beta	median_pairs_tested
+BA_only	hippocampus	AA	expression	abc	Heritable	38	1	1	0.0263157894736842	0.0263157894736842	0.454694832566802	1
+BA_only	hippocampus	AA	expression	abc	Non-heritable	25	0	0	0	0	0.640913803016034	2

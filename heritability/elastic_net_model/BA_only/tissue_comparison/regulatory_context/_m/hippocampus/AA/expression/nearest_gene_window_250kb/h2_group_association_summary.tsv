@@ -1,0 +1,4 @@
+cohort	tissue	population	modality	run_tag	h2_category	n_vmrs	n_any_fdr05	n_any_fdr10	prop_any_fdr05	prop_any_fdr10	median_max_abs_beta	median_pairs_tested
+BA_only	hippocampus	AA	expression_nearest_gene	nearest_gene_window_250kb	Heritable	4469	75	85	0.0167822779145223	0.0190199149697919	0.263657510266006	1
+BA_only	hippocampus	AA	expression_nearest_gene	nearest_gene_window_250kb	Non-heritable	3816	24	30	0.00628930817610063	0.00786163522012579	0.273936861287336	1
+BA_only	hippocampus	AA	expression_nearest_gene	nearest_gene_window_250kb	Low prediction	11	3	4	0.272727272727273	0.363636363636364	1.28624396950536	1

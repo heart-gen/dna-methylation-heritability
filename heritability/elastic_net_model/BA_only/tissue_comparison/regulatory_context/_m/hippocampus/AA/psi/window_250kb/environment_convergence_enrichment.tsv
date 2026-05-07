@@ -1,0 +1,2 @@
+env	term	odds_ratio	ci_lo	ci_hi	p_value	n_nonheritable_features	n_heritable_features	n_env_linked_nonheritable	n_env_linked_heritable	fdr	cohort	tissue	population	modality	run_tag
+amphetamines	env_valueTRUE	0	0	4.03512651523715	0.183599419448476	23	30	2	0	0.183599419448476	BA_only	hippocampus	AA	psi	window_250kb

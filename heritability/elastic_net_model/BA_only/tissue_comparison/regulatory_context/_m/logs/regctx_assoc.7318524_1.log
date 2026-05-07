@@ -1,0 +1,23 @@
+2026-05-06 10:28:31 - **** Job starts ****
+**** QUEST info ****
+User: owb0346
+Job id: 7318526
+Job name: regctx_assoc
+Node name: 
+Hostname: qnode0149
+Task id: 1
+No modules loaded
+2026-05-06 10:28:41 - Running local associations
+Running local associations: cohort=BA_only tissue=caudate modality=psi population=AA
+psi: assay rows with variation 502324 / 690907; VMR-feature links 2410197 -> 1896777 after dropping constant / all-zero features
+Testing 1896777 VMR-feature pairs (batched by VMR) [psi]
+  tested 93543 / 1896777 pairs (579 / 11593 VMRs) [psi]
+  tested 180711 / 1896777 pairs (1158 / 11593 VMRs) [psi]
+  tested 296136 / 1896777 pairs (1737 / 11593 VMRs) [psi]
+  tested 380744 / 1896777 pairs (2316 / 11593 VMRs) [psi]
+  tested 444223 / 1896777 pairs (2895 / 11593 VMRs) [psi]
+  tested 564063 / 1896777 pairs (3474 / 11593 VMRs) [psi]
+  tested 676301 / 1896777 pairs (4053 / 11593 VMRs) [psi]
+  tested 785261 / 1896777 pairs (4632 / 11593 VMRs) [psi]
+  tested 851959 / 1896777 pairs (5211 / 11593 VMRs) [psi]
+slurmstepd: error: *** JOB 7318526 ON qnode0149 CANCELLED AT 2026-05-06T15:53:27 ***

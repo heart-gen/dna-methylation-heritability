@@ -1,0 +1,9 @@
+cohort	tissue	population	feature_type	comparison	outcome	test	statistic	p_value	term	estimate	conf.low	conf.high	fdr
+BA_only	hippocampus	AA	gene	Heritable_vs_non-heritable	log_nearest_distance	wilcoxon	12297763	8.72217637162887e-06					2.32591369910103e-05
+BA_only	hippocampus	AA	gene	Heritable_vs_non-heritable_adjusted	within_10kb	logistic		0.00208923619043439	h2_categoryNon-heritable	1.32971717814762	1.11018672903312	1.59639573462613	0.00278564825391251
+BA_only	hippocampus	AA	gene	Heritable_vs_non-heritable_adjusted	within_100kb	logistic		0.232674057004421	h2_categoryNon-heritable	1.67866845338569	0.738050477535973	4.15026604465403	0.232674057004421
+BA_only	hippocampus	AA	gene	h2_quintile	log_nearest_distance	kruskal	54.9081757999347	3.39614158877196e-11					1.35845663550878e-10
+BA_only	hippocampus	AA	psi	Heritable_vs_non-heritable	log_nearest_distance	wilcoxon	12313707.5	0.000975886708361392					0.00186528235787261
+BA_only	hippocampus	AA	psi	Heritable_vs_non-heritable_adjusted	within_10kb	logistic		0.00116580147367038	h2_categoryNon-heritable	1.16169198776422	1.06131566510936	1.27182808303501	0.00186528235787261
+BA_only	hippocampus	AA	psi	Heritable_vs_non-heritable_adjusted	within_100kb	logistic		0.119727887134261	h2_categoryNon-heritable	1.19807920045398	0.95541670228474	1.50703312959792	0.136831871010585
+BA_only	hippocampus	AA	psi	h2_quintile	log_nearest_distance	kruskal	58.1327687475075	7.15666787191436e-12					5.72533429753149e-11

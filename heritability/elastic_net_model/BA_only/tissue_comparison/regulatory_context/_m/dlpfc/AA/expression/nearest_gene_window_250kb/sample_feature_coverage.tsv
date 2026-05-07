@@ -1,0 +1,2 @@
+cohort	tissue	modality	population	assay	n_control_pheno	n_rna_samples	n_model_samples_pre_pair_filter	n_features_total	n_features_assay_varying	n_pairs_before_constant_filter	n_pairs_after_constant_filter	n_features_linked	model
+BA_only	dlpfc	expression_nearest_gene	AA	counts	69	500	69	78932	65543	8276	8066	5080	feature ~ VMR_methylation + RNA_covariates

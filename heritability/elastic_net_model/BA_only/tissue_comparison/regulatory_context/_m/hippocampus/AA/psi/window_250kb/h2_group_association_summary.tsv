@@ -1,0 +1,4 @@
+cohort	tissue	population	modality	run_tag	h2_category	n_vmrs	n_any_fdr05	n_any_fdr10	prop_any_fdr05	prop_any_fdr10	median_max_abs_beta	median_pairs_tested
+BA_only	hippocampus	AA	psi	window_250kb	Heritable	5340	17	29	0.00318352059925094	0.00543071161048689	2.56485095328736	49
+BA_only	hippocampus	AA	psi	window_250kb	Non-heritable	4376	11	20	0.00251371115173675	0.00457038391224863	2.65075768992085	48
+BA_only	hippocampus	AA	psi	window_250kb	Low prediction	37	1	1	0.027027027027027	0.027027027027027	3.43633030478678	96

@@ -1,0 +1,22 @@
+term	estimate	std.error	statistic	p.value	conf.low	conf.high	model	estimate_scale	cohort	tissue	modality	population	run_tag
+(Intercept)	7.19351837289099e-23	1202725.27349405	-4.23922884701296e-05	0.999966175847543	0	Inf	burden_fdr10_category	odds_ratio	BA_only	hippocampus	expression	AA	abc
+h2_categoryNon-heritable	1.63115580197458e-30	228301.075747459	-0.000300429000260982	0.99976029234268	0	Inf	burden_fdr10_category	odds_ratio	BA_only	hippocampus	expression	AA	abc
+log_vmr_length	3435797.60366028	32157.7757205505	0.000467997531498881	0.999626592008754	0	Inf	burden_fdr10_category	odds_ratio	BA_only	hippocampus	expression	AA	abc
+log_num_snps	2.11363597280329e-18	271349.10661222	-0.000149984359660078	0.999880329795514	0	Inf	burden_fdr10_category	odds_ratio	BA_only	hippocampus	expression	AA	abc
+methylation_variance	Inf	6121792.07918256	0.0010961910574743	0.999125366254716		Inf	burden_fdr10_category	odds_ratio	BA_only	hippocampus	expression	AA	abc
+log_min_distance	49521.0796329136	59049.9244446031	0.000183068036254971	0.999853932841112		Inf	burden_fdr10_category	odds_ratio	BA_only	hippocampus	expression	AA	abc
+chromatin_stateIntergenic	9.18995611217776e-17	139049.454104348	-0.000265559010339145	0.999788114568159		Inf	burden_fdr10_category	odds_ratio	BA_only	hippocampus	expression	AA	abc
+(Intercept)	-0.970998023419694	2.57011743180462	-0.377802979507401	0.707005195854429	-6.11956191503142	4.17756586819203	strength_category	log_abs_beta	BA_only	hippocampus	expression	AA	abc
+h2_categoryNon-heritable	0.197502732460912	0.343873413005081	0.574347201590703	0.56803293391068	-0.491358490600057	0.886363955521881	strength_category	log_abs_beta	BA_only	hippocampus	expression	AA	abc
+log_vmr_length	-0.0721409516387345	0.221926147053515	-0.325067382084269	0.746341427843686	-0.516712445993356	0.372430542715887	strength_category	log_abs_beta	BA_only	hippocampus	expression	AA	abc
+log_num_snps	-0.250871795708491	0.385112000015506	-0.651425548148044	0.517436317536568	-1.0223438354565	0.520600244039514	strength_category	log_abs_beta	BA_only	hippocampus	expression	AA	abc
+methylation_variance	46.916745702308	61.2133452899227	0.766446360349982	0.446629741592565	-75.7083201193598	169.541811523976	strength_category	log_abs_beta	BA_only	hippocampus	expression	AA	abc
+log_min_distance	0.167833741200345	0.172446849376719	0.973249101430104	0.334614858100975	-0.177618809308126	0.513286291708815	strength_category	log_abs_beta	BA_only	hippocampus	expression	AA	abc
+chromatin_stateIntergenic	-0.47753052224548	0.387838134562988	-1.23126242545374	0.22337068731281	-1.25446366572406	0.299402621233098	strength_category	log_abs_beta	BA_only	hippocampus	expression	AA	abc
+(Intercept)	4.46892024581104e-29	544083.249114524	-0.000119977633899528	0.9999042716985	0	Inf	burden_fdr10_continuous_h2	odds_ratio_per_0.1_h2	BA_only	hippocampus	expression	AA	abc
+h2_scaled	42674411.1037805	24393.7880071237	0.000720228855881627	0.999425340565329	0	Inf	burden_fdr10_continuous_h2	odds_ratio_per_0.1_h2	BA_only	hippocampus	expression	AA	abc
+log_vmr_length	1.58953514839896	42292.1094499486	1.09581106267052e-05	0.999991256692716	0	Inf	burden_fdr10_continuous_h2	odds_ratio_per_0.1_h2	BA_only	hippocampus	expression	AA	abc
+log_num_snps	1.50613000911002e-09	110177.799258406	-0.000184372192225599	0.999852892275215		Inf	burden_fdr10_continuous_h2	odds_ratio_per_0.1_h2	BA_only	hippocampus	expression	AA	abc
+methylation_variance	Inf	8097395.13175555	0.000753983224558413	0.99939840848302	0	Inf	burden_fdr10_continuous_h2	odds_ratio_per_0.1_h2	BA_only	hippocampus	expression	AA	abc
+log_min_distance	1231.32001281937	61964.6782436253	0.000114837069371941	0.999908373275542	0		burden_fdr10_continuous_h2	odds_ratio_per_0.1_h2	BA_only	hippocampus	expression	AA	abc
+chromatin_stateIntergenic	1.24243734082682e-30	120433.177721816	-0.00057177331898591	0.99954379092136	0	Inf	burden_fdr10_continuous_h2	odds_ratio_per_0.1_h2	BA_only	hippocampus	expression	AA	abc

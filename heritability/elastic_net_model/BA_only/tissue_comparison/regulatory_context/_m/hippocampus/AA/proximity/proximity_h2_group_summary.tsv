@@ -1,0 +1,7 @@
+cohort	tissue	population	feature_type	h2_category	n_vmrs	median_distance	q25_distance	q75_distance	prop_within_10kb	prop_within_100kb
+BA_only	hippocampus	AA	gene	Heritable	5390	0	0	0	0.939703153988868	0.996846011131725
+BA_only	hippocampus	AA	gene	Non-heritable	4409	0	0	0	0.954865048763892	0.998185529598548
+BA_only	hippocampus	AA	gene	Low prediction	39	0	0	3991	0.846153846153846	0.948717948717949
+BA_only	hippocampus	AA	psi	Heritable	5390	271	0	13050	0.717996289424861	0.96456400742115
+BA_only	hippocampus	AA	psi	Non-heritable	4409	0	0	10121	0.748922658199138	0.970741664776593
+BA_only	hippocampus	AA	psi	Low prediction	39	7959	0	117004	0.512820512820513	0.692307692307692

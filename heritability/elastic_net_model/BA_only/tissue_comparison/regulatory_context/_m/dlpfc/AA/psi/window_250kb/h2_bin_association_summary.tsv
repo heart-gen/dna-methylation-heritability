@@ -1,0 +1,9 @@
+cohort	tissue	population	modality	run_tag	bin_type	h2_bin	n_vmrs	n_any_fdr10	prop_any_fdr10	median_max_abs_beta	median_pairs_tested
+BA_only	dlpfc	AA	psi	window_250kb	h2_quintile	Q1	1890	11	0.00582010582010582	2.14550906780791	48
+BA_only	dlpfc	AA	psi	window_250kb	h2_quintile	Q2	1890	5	0.00264550264550265	2.12202221034106	49
+BA_only	dlpfc	AA	psi	window_250kb	h2_quintile	Q3	1889	7	0.00370566437268396	2.10778129193248	50
+BA_only	dlpfc	AA	psi	window_250kb	h2_quintile	Q4	1890	6	0.00317460317460317	2.14526010549439	52
+BA_only	dlpfc	AA	psi	window_250kb	h2_quintile	Q5	1890	19	0.0100529100529101	2.14218412415181	49.5
+BA_only	dlpfc	AA	psi	window_250kb	h2_tertile	T1	3150	14	0.00444444444444444	2.14615600428502	48
+BA_only	dlpfc	AA	psi	window_250kb	h2_tertile	T2	3149	10	0.00317561130517625	2.0976199728333	50
+BA_only	dlpfc	AA	psi	window_250kb	h2_tertile	T3	3150	24	0.00761904761904762	2.15756093440422	50

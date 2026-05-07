@@ -1,0 +1,17 @@
+cohort	tissue	population	feature_type	bin_type	h2_bin	n_vmrs	median_distance	q25_distance	q75_distance	prop_within_10kb	prop_within_100kb
+BA_only	hippocampus	AA	gene	h2_quintile	Q1	1960	0	0	0	0.956122448979592	0.997959183673469
+BA_only	hippocampus	AA	gene	h2_quintile	Q2	1960	0	0	0	0.954591836734694	0.997959183673469
+BA_only	hippocampus	AA	gene	h2_quintile	Q3	1959	0	0	0	0.950995405819295	0.999489535477284
+BA_only	hippocampus	AA	gene	h2_quintile	Q4	1960	0	0	0	0.951530612244898	0.997959183673469
+BA_only	hippocampus	AA	gene	h2_quintile	Q5	1960	0	0	0	0.919387755102041	0.993877551020408
+BA_only	hippocampus	AA	gene	h2_tertile	T1	3267	0	0	0	0.956228956228956	0.998163452708907
+BA_only	hippocampus	AA	gene	h2_tertile	T2	3266	0	0	0	0.949479485609308	0.998162890385793
+BA_only	hippocampus	AA	gene	h2_tertile	T3	3266	0	0	0	0.933864053888549	0.996019595835885
+BA_only	hippocampus	AA	psi	h2_quintile	Q1	1960	0	0	8305.25	0.762244897959184	0.970408163265306
+BA_only	hippocampus	AA	psi	h2_quintile	Q2	1960	0	0	10952.5	0.741326530612245	0.971428571428571
+BA_only	hippocampus	AA	psi	h2_quintile	Q3	1959	0	0	10595.5	0.743236345074017	0.973455844818785
+BA_only	hippocampus	AA	psi	h2_quintile	Q4	1960	44	0	10502	0.742857142857143	0.972448979591837
+BA_only	hippocampus	AA	psi	h2_quintile	Q5	1960	944	0	18316.75	0.669897959183674	0.948979591836735
+BA_only	hippocampus	AA	psi	h2_tertile	T1	3267	0	0	9031	0.75788184879094	0.970921334557698
+BA_only	hippocampus	AA	psi	h2_tertile	T2	3266	0	0	11067.5	0.735150030618494	0.972137170851194
+BA_only	hippocampus	AA	psi	h2_tertile	T3	3266	645.5	0	14749.5	0.70269442743417	0.958971218616044
