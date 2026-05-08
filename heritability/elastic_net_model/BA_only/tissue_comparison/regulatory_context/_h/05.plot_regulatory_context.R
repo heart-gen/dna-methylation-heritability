@@ -25,6 +25,18 @@ pal_group <- c(
   "Low prediction" = "#7A7A7A"
 )
 
+pal_layer_line <- c(
+  "Expression · nearest gene" = "#3B6EA8",
+  "PSI" = "#5A8F61"
+)
+
+tissue_levels <- c("dlpfc", "hippocampus", "caudate")
+tissue_labels <- c(
+  dlpfc = "DLPFC",
+  hippocampus = "Hippocampus",
+  caudate = "Caudate"
+)
+
 theme_regctx <- function(base_size = 8) {
   theme_classic(base_size = base_size) +
     theme(
@@ -37,7 +49,8 @@ theme_regctx <- function(base_size = 8) {
       legend.title = element_blank(),
       legend.text = element_text(size = base_size),
       legend.key.height = unit(0.35, "cm"),
-      panel.spacing = unit(0.65, "lines")
+      panel.spacing = unit(0.65, "lines"),
+      plot.margin = margin(4, 4, 4, 4)
     )
 }
 
@@ -45,7 +58,15 @@ read_many <- function(pattern) {
   files <- list.files(base_dir, pattern = pattern, recursive = TRUE,
                       full.names = TRUE)
   if (length(files) == 0) return(tibble())
-  rbindlist(lapply(files, fread), fill = TRUE) |> as_tibble()
+  info <- file.info(files)
+  files <- files[!is.na(info$size) & info$size > 0]
+  if (length(files) == 0) return(tibble())
+  tabs <- lapply(files, function(fn) {
+    tryCatch(fread(fn), error = function(e) NULL)
+  })
+  tabs <- Filter(Negate(is.null), tabs)
+  if (length(tabs) == 0) return(tibble())
+  rbindlist(tabs, fill = TRUE) |> as_tibble()
 }
 
 ## Older summaries lacked run_tag (expression implied ABC; PSI implied window_*).
@@ -68,6 +89,7 @@ regctx_plot_layer <- function(df) {
       modality == "expression" &
         grepl("^nearest_gene_window", as.character(run_tag)) ~
         "Expression · nearest gene",
+      modality == "expression_nearest_gene" ~ "Expression · nearest gene",
       modality == "psi" ~ "PSI",
       TRUE ~ paste(as.character(modality), as.character(run_tag), sep = " · ")
     )
@@ -84,6 +106,74 @@ factor_layer <- function(x) {
   ux <- unique(stats::na.omit(x))
   ord <- c(intersect(layer_levels, ux), setdiff(ux, layer_levels))
   factor(x, levels = ord)
+}
+
+factor_tissue <- function(x) {
+  ux <- unique(stats::na.omit(x))
+  ord <- c(intersect(tissue_levels, ux), setdiff(ux, tissue_levels))
+  factor(x, levels = ord, labels = tissue_labels[ord])
+}
+
+main_layers <- function(df) {
+  if (!nrow(df) || !"regctx_layer" %in% names(df)) return(df)
+  df |> filter(regctx_layer != "Expression · ABC")
+}
+
+abc_layers <- function(df) {
+  if (!nrow(df) || !"regctx_layer" %in% names(df)) return(tibble())
+  df |> filter(regctx_layer == "Expression · ABC")
+}
+
+bounded_log2_or <- function(x, cap = 4) {
+  y <- log2(x)
+  y[is.infinite(y) & y > 0] <- cap
+  y[is.infinite(y) & y < 0] <- -cap
+  pmax(pmin(y, cap), -cap)
+}
+
+env_term_label <- function(env, term) {
+  env_map <- c(
+    smoking = "Smoking",
+    codeine = "Codeine",
+    morphine = "Morphine",
+    cocaine = "Cocaine",
+    ethanol = "Ethanol",
+    nicotine = "Nicotine",
+    amphetamines = "Amphetamines",
+    any_trauma_hx = "Any trauma history",
+    education = "Education",
+    marital_status = "Marital status"
+  )
+  base <- ifelse(env %in% names(env_map), env_map[env], gsub("_", " ", env))
+  term <- sub("^env_value", "", as.character(term))
+  term <- gsub("_", " ", term)
+  term <- dplyr::case_when(
+    is.na(term) | term == "" | term == "TRUE" ~ "",
+    term == "FALSE" ~ "no",
+    term == "less than hs" ~ "< high school",
+    term == "more than hs" ~ "> high school",
+    TRUE ~ term
+  )
+  ifelse(term == "", base, paste(base, term, sep = ": "))
+}
+
+order_env_labels <- function(df, label_col = "env_label") {
+  ord <- df |>
+    mutate(
+      best_fdr = pmin(vmr_fdr, wilcoxon_fdr, fisher_fdr, na.rm = TRUE),
+      best_fdr = ifelse(is.infinite(best_fdr), NA_real_, best_fdr),
+      evidence_rank = ifelse(is.na(best_fdr), 1, best_fdr),
+      shift_rank = ifelse(is.finite(vmr_shift), abs(vmr_shift), 0)
+    ) |>
+    group_by(.data[[label_col]]) |>
+    summarise(
+      best_fdr = min(evidence_rank, na.rm = TRUE),
+      max_shift = max(shift_rank, na.rm = TRUE),
+      .groups = "drop"
+    ) |>
+    arrange(best_fdr, desc(max_shift), .data[[label_col]]) |>
+    pull(.data[[label_col]])
+  rev(ord)
 }
 
 save_panel <- function(plot, name, width, height) {
@@ -111,6 +201,18 @@ env_df <- read_many("environment_convergence_enrichment.tsv") |>
   regctx_plot_layer() |>
   mutate(regctx_layer = factor_layer(regctx_layer))
 
+env_wilcoxon <- read_many("environment_convergence_wilcoxon.tsv") |>
+  filter(population == !!population) |>
+  ensure_run_tag() |>
+  regctx_plot_layer() |>
+  mutate(regctx_layer = factor_layer(regctx_layer))
+
+env_vmr <- read_many("environment_convergence_vmr_level.tsv") |>
+  filter(population == !!population) |>
+  ensure_run_tag() |>
+  regctx_plot_layer() |>
+  mutate(regctx_layer = factor_layer(regctx_layer))
+
 prox_group <- read_many("proximity_h2_group_summary.tsv") |>
   filter(population == !!population)
 prox_bin <- read_many("proximity_h2_bin_summary.tsv") |>
@@ -118,11 +220,18 @@ prox_bin <- read_many("proximity_h2_bin_summary.tsv") |>
 
 plots <- list()
 
-if (nrow(group_df) > 0) {
-  p_group <- group_df |>
+group_main <- main_layers(group_df)
+bin_main <- main_layers(bin_df)
+env_main <- main_layers(env_df)
+env_wilcoxon_main <- main_layers(env_wilcoxon)
+env_vmr_main <- main_layers(env_vmr)
+
+if (nrow(group_main) > 0) {
+  p_group <- group_main |>
     mutate(
       h2_category = factor(h2_category,
-                           levels = c("Heritable", "Non-heritable", "Low prediction"))
+                           levels = c("Heritable", "Non-heritable", "Low prediction")),
+      tissue = factor_tissue(tissue)
     ) |>
     ggplot(aes(h2_category, prop_any_fdr10, fill = h2_category)) +
     geom_col(width = 0.68, color = "white", linewidth = 0.2) +
@@ -138,13 +247,9 @@ if (nrow(group_df) > 0) {
   save_panel(p_group, "panel_h2_group_burden", 6.8, 4.2)
 }
 
-if (nrow(bin_df) > 0) {
-  pal_layer_line <- c(
-    "Expression · ABC" = "#3B6EA8",
-    "Expression · nearest gene" = "#7EB8DA",
-    "PSI" = "#5A8F61"
-  )
-  p_bin <- bin_df |>
+if (nrow(bin_main) > 0) {
+  p_bin <- bin_main |>
+    mutate(tissue = factor_tissue(tissue)) |>
     ggplot(aes(h2_bin, prop_any_fdr10, group = regctx_layer,
                color = regctx_layer)) +
     geom_line(linewidth = 0.55) +
@@ -160,11 +265,96 @@ if (nrow(bin_df) > 0) {
   save_panel(p_bin, "panel_h2_quintile_burden", 6.8, 2.8)
 }
 
-if (nrow(env_df) > 0) {
-  p_env <- env_df |>
+env_keys <- c(
+  "cohort", "tissue", "population", "modality", "run_tag",
+  "regctx_layer", "env", "term"
+)
+
+env_evidence <- tibble()
+if (nrow(env_main) > 0 || nrow(env_wilcoxon_main) > 0 || nrow(env_vmr_main) > 0) {
+  fisher_part <- env_main |>
+    select(any_of(env_keys), fisher_or = odds_ratio, fisher_fdr = fdr,
+           fisher_p = p_value)
+  wilcoxon_part <- env_wilcoxon_main |>
+    select(any_of(env_keys), wilcoxon_shift = location_shift,
+           wilcoxon_fdr = fdr, wilcoxon_p = p_value)
+  vmr_part <- env_vmr_main |>
+    select(any_of(env_keys), vmr_shift = location_shift,
+           vmr_fdr = fdr, vmr_p = p_value)
+
+  env_evidence <- full_join(vmr_part, wilcoxon_part, by = env_keys) |>
+    full_join(fisher_part, by = env_keys) |>
     mutate(
-      env_label = gsub("_", " ", env),
-      log_or = log2(odds_ratio),
+      regctx_layer = factor_layer(regctx_layer),
+      tissue = factor_tissue(tissue),
+      tissue_num = as.integer(tissue),
+      env_label = env_term_label(env, term),
+      fisher_sig = !is.na(fisher_fdr) & fisher_fdr < 0.10,
+      wilcoxon_sig = !is.na(wilcoxon_fdr) & wilcoxon_fdr < 0.10,
+      vmr_sig = !is.na(vmr_fdr) & vmr_fdr < 0.10
+    )
+}
+
+if (nrow(env_evidence) > 0) {
+  env_levels <- order_env_labels(env_evidence)
+  shift_lim <- max(abs(env_evidence$vmr_shift), na.rm = TRUE)
+  if (!is.finite(shift_lim) || shift_lim == 0) shift_lim <- 0.1
+  shift_lim <- ceiling(shift_lim * 20) / 20
+
+  evidence_marks <- bind_rows(
+    env_evidence |>
+      transmute(tissue_num = tissue_num - 0.22, env_label, regctx_layer,
+                test = "VMR-level", sig = vmr_sig),
+    env_evidence |>
+      transmute(tissue_num = tissue_num, env_label, regctx_layer,
+                test = "Feature-rank", sig = wilcoxon_sig),
+    env_evidence |>
+      transmute(tissue_num = tissue_num + 0.22, env_label, regctx_layer,
+                test = "Thresholded", sig = fisher_sig)
+  ) |>
+    filter(sig) |>
+    mutate(
+      env_label = factor(env_label, levels = env_levels),
+      test = factor(test, levels = c("VMR-level", "Feature-rank", "Thresholded"))
+    )
+
+  p_env <- env_evidence |>
+    mutate(env_label = factor(env_label, levels = env_levels)) |>
+    ggplot(aes(tissue_num, env_label)) +
+    geom_tile(aes(fill = vmr_shift), color = "white",
+              linewidth = 0.3, width = 0.92, height = 0.9) +
+    geom_point(data = evidence_marks, aes(tissue_num, env_label, shape = test),
+               color = "black", fill = "black", size = 1.65,
+               stroke = 0.35, inherit.aes = FALSE) +
+    facet_wrap(~ regctx_layer, nrow = 1) +
+    scale_x_continuous(breaks = seq_along(tissue_levels),
+                       labels = tissue_labels[tissue_levels],
+                       expand = expansion(add = 0.05)) +
+    scale_fill_gradient2(
+      low = "#3B6EA8", mid = "white", high = "#C65146",
+      midpoint = 0, limits = c(-shift_lim, shift_lim),
+      na.value = "grey92", name = "VMR-level shift"
+    ) +
+    scale_shape_manual(
+      values = c("VMR-level" = 21, "Feature-rank" = 24, "Thresholded" = 22),
+      name = "FDR < 0.10"
+    ) +
+    labs(x = NULL, y = NULL) +
+    theme_regctx() +
+    theme(
+      axis.text.x = element_text(angle = 35, hjust = 1),
+      legend.position = "right",
+      panel.grid = element_blank()
+    )
+  plots$env <- p_env
+  save_panel(p_env, "panel_environment_convergence", 6.8, 4.2)
+
+  p_env_fisher <- env_main |>
+    mutate(
+      env_label = env_term_label(env, term),
+      env_label = factor(env_label, levels = env_levels),
+      tissue = factor_tissue(tissue),
+      log_or = bounded_log2_or(odds_ratio),
       sig = fdr < 0.10
     ) |>
     ggplot(aes(env_label, tissue, fill = log_or, alpha = sig)) +
@@ -178,8 +368,7 @@ if (nrow(env_df) > 0) {
     theme_regctx() +
     theme(axis.text.x = element_text(angle = 35, hjust = 1),
           legend.position = "right")
-  plots$env <- p_env
-  save_panel(p_env, "panel_environment_convergence", 6.8, 3.6)
+  save_panel(p_env_fisher, "supplement_environment_thresholded_overlap", 6.8, 3.8)
 }
 
 if (nrow(prox_group) > 0) {
@@ -187,7 +376,8 @@ if (nrow(prox_group) > 0) {
     mutate(
       h2_category = factor(h2_category,
                            levels = c("Heritable", "Non-heritable", "Low prediction")),
-      feature_type = factor(feature_type, levels = c("gene", "psi"))
+      feature_type = factor(feature_type, levels = c("gene", "psi")),
+      tissue = factor_tissue(tissue)
     ) |>
     ggplot(aes(h2_category, median_distance + 1, color = h2_category,
                group = h2_category)) +
@@ -201,12 +391,15 @@ if (nrow(prox_group) > 0) {
     theme(axis.text.x = element_text(angle = 35, hjust = 1),
           legend.position = "none")
   plots$prox_group <- p_prox_group
-  save_panel(p_prox_group, "panel_nearest_feature_h2_group", 6.8, 3.4)
+  save_panel(p_prox_group, "panel_nearest_feature_h2_group", 4.8, 3.4)
 }
 
 if (nrow(prox_bin) > 0) {
   p_prox_bin <- prox_bin |>
-    mutate(feature_type = factor(feature_type, levels = c("gene", "psi"))) |>
+    mutate(
+      feature_type = factor(feature_type, levels = c("gene", "psi")),
+      tissue = factor_tissue(tissue)
+    ) |>
     ggplot(aes(h2_bin, median_distance + 1, group = feature_type,
                color = feature_type)) +
     geom_line(linewidth = 0.55) +
@@ -221,13 +414,87 @@ if (nrow(prox_bin) > 0) {
   save_panel(p_prox_bin, "panel_nearest_feature_h2_quintile", 6.8, 2.4)
 }
 
+abc_group <- abc_layers(group_df)
+abc_bin <- abc_layers(bin_df)
+abc_env <- abc_layers(env_df)
+
+if (nrow(abc_group) > 0) {
+  p_abc_group <- abc_group |>
+    mutate(
+      h2_category = factor(h2_category,
+                           levels = c("Heritable", "Non-heritable", "Low prediction")),
+      tissue = factor_tissue(tissue)
+    ) |>
+    ggplot(aes(h2_category, prop_any_fdr10, fill = h2_category)) +
+    geom_col(width = 0.68, color = "white", linewidth = 0.2) +
+    facet_wrap(~ tissue, nrow = 1) +
+    scale_fill_manual(values = pal_group, drop = FALSE) +
+    scale_y_continuous(labels = percent_format(accuracy = 1),
+                       expand = expansion(mult = c(0, 0.08))) +
+    labs(x = NULL, y = "VMRs with linked feature") +
+    theme_regctx() +
+    theme(axis.text.x = element_text(angle = 35, hjust = 1),
+          legend.position = "none")
+  save_panel(p_abc_group, "supplement_abc_h2_group_burden", 6.8, 2.2)
+}
+
+if (nrow(abc_bin) > 0) {
+  p_abc_bin <- abc_bin |>
+    mutate(tissue = factor_tissue(tissue)) |>
+    ggplot(aes(h2_bin, prop_any_fdr10, group = tissue, color = tissue)) +
+    geom_line(linewidth = 0.55) +
+    geom_point(size = 1.8) +
+    scale_color_manual(values = c(
+      DLPFC = "#3B6EA8",
+      Hippocampus = "#5A8F61",
+      Caudate = "#C65146"
+    ), drop = FALSE) +
+    scale_y_continuous(labels = percent_format(accuracy = 1),
+                       expand = expansion(mult = c(0.02, 0.08))) +
+    labs(x = "h2 quintile", y = "VMRs with ABC-linked gene") +
+    theme_regctx() +
+    theme(legend.position = "top")
+  save_panel(p_abc_bin, "supplement_abc_h2_quintile_burden", 4.8, 2.6)
+}
+
+if (nrow(abc_env) > 0) {
+  p_abc_env <- abc_env |>
+    mutate(
+      env_label = env_term_label(env, term),
+      tissue = factor_tissue(tissue),
+      log_or = bounded_log2_or(odds_ratio),
+      sig = fdr < 0.10
+    ) |>
+    ggplot(aes(env_label, tissue, fill = log_or, alpha = sig)) +
+    geom_tile(color = "white", linewidth = 0.25) +
+    scale_fill_gradient2(low = "#3B6EA8", mid = "white", high = "#C65146",
+                         midpoint = 0, limits = c(-4, 4), na.value = "grey90",
+                         name = "log2 OR") +
+    scale_alpha_manual(values = c("TRUE" = 1, "FALSE" = 0.45), guide = "none") +
+    labs(x = NULL, y = NULL) +
+    theme_regctx() +
+    theme(axis.text.x = element_text(angle = 35, hjust = 1),
+          legend.position = "right")
+  save_panel(p_abc_env, "supplement_abc_environment_thresholded_overlap", 4.8, 2.2)
+}
+
 if (length(plots) >= 2) {
   ordered <- plots[c("group", "bin", "prox_group", "prox_bin", "env")]
   ordered <- ordered[!vapply(ordered, is.null, logical(1))]
-  main <- wrap_plots(ordered, ncol = 1, guides = "collect") &
+  panel_heights <- c(
+    group = 3.6,
+    bin = 2.4,
+    prox_group = 3.0,
+    prox_bin = 2.2,
+    env = 4.1
+  )
+  main <- wrap_plots(
+    ordered, ncol = 1, guides = "collect",
+    heights = unname(panel_heights[names(ordered)])
+  ) &
     theme(legend.position = "bottom")
   save_panel(main, "main_regulatory_context", 7.2,
-             max(4, 2.2 * length(ordered)))
+             max(4, sum(panel_heights[names(ordered)]) + 0.5))
 }
 
 message("Saved regulatory-context figures to: ", fig_dir)
