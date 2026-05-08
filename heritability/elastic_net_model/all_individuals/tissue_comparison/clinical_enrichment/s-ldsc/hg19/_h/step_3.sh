@@ -52,7 +52,7 @@ for REGION in "${BRAIN_REGIONS[@]}"; do
     log_message "Processing region: $REGION"
 
     # Annotation and output directory
-    OUT_DIR="./custom_ldscores/${REGION}"
+    OUT_DIR="./custom_ldscores/${REGION}/EA"
 
     # Input annotation file
     ANNOT_FILE="${OUT_DIR}/${REGION}.${CHR}.annot.gz"
