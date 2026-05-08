@@ -13,18 +13,18 @@ save_plot <- function(p, fn, w, h){
     }
 }
 
-get_top_GO <- function(tissue, h2_cat, gene_set, pop){
+get_top_GO <- function(tissue, h2_cat, gene_set, pop, top_n = 10){
   err <- 1e-15
   fn  <- here(file.path("heritability/elastic_net_model/all_individuals/tissue_comparison/functional_enrichment/_m", 
                         gene_set, paste0(tolower(tissue), "_", h2_cat, "_", pop, ".csv")))
   return(data.table::fread(fn) |>
            filter(stringr::str_detect(id, "^GO")) |>
            filter(p_adjust < 0.05) |>
-           arrange(p_adjust) |> head(10) |>
+           arrange(p_adjust) |> head(top_n) |>
            mutate(`Log10`=-log10(p_adjust+err), Tissue=tissue))
 }
 
-get_top_KEGG <- function(tissue, h2_cat, pop){
+get_top_KEGG <- function(tissue, h2_cat, pop, top_n = 10){
   err <- 1e-15
   fn  <- here(file.path("heritability/elastic_net_model/all_individuals/tissue_comparison/functional_enrichment/_m/KEGG", 
                         paste0(tolower(tissue), "_", h2_cat, "_", pop, ".csv")))
@@ -44,7 +44,7 @@ get_top_KEGG <- function(tissue, h2_cat, pop){
   # Get top KEGG 
   dt <- dt |>
     filter(p_adjust < 0.05) |>
-    arrange(p_adjust) |> head(10) |>
+    arrange(p_adjust) |> head(top_n) |>
     mutate(Log10 = -log10(p_adjust + err), Tissue = tissue)
   
   # Merge in descriptions
@@ -62,6 +62,10 @@ generate_dataframe <- function(gene_set, h2_cat, pop){
         df_list[[jj]] <- get_top_GO(tissues[jj], h2_cat, gene_set, pop)
       } else if (gene_set == "KEGG"){
         df_list[[jj]] <- get_top_KEGG(tissues[jj], h2_cat, pop)
+      } else if (gene_set == "GO_BP_KEGG"){
+        df_list[[jj]] <- bind_rows(
+          get_top_KEGG(tissues[jj], h2_cat, pop, top_n = 3),
+          get_top_GO(tissues[jj], h2_cat, "GO_BP", pop, top_n = 3))
       } else {
         stop("Invalid gene set")
       }
@@ -94,7 +98,7 @@ plot_enrichment <- function(gene_set, h2_cat, pop){
 # Main
 for (pop in c("AA", "EA", "matched")){
   for (h2_cat in c("heritable", "non_heritable", "low_prediction", "all")){
-    for (gene_set in c("GO_BP", "GO_MF", "KEGG")){
+    for (gene_set in c("GO_BP", "GO_MF", "KEGG", "GO_BP_KEGG")){
       # create subdirs for plots
       out_path = here("heritability/elastic_net_model/all_individuals/tissue_comparison/functional_enrichment/_m/", gene_set, "plots")
       if (!dir.exists(out_path)) {
