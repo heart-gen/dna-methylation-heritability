@@ -64,8 +64,8 @@ generate_dataframe <- function(gene_set, h2_cat){
         df_list[[jj]] <- get_top_KEGG(tissues[jj], h2_cat)
       } else if (gene_set == "GO_BP_KEGG"){
         df_list[[jj]] <- bind_rows(
-          get_top_KEGG(tissues[jj], h2_cat, top_n = 3),
-          get_top_GO(tissues[jj], h2_cat, "GO_BP", top_n = 3))
+          get_top_KEGG(tissues[jj], h2_cat, top_n = 5),
+          get_top_GO(tissues[jj], h2_cat, "GO_BP", top_n = 5))
       } else{
         stop("Invalid gene set")
       }
