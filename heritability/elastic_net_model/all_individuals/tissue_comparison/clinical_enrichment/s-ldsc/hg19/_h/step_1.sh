@@ -43,7 +43,7 @@ run_munge() {
 # -----------------------------------------------------------------------------
 # --- Alzheimer's Disease (AD) ---
 log_message "Processing: Alzheimer's Disease (ad)"
-AD_GWAS="${GWAS_BASE}/alz/bellenguez2022/35379992-GCST90027158-MONDO_0004975.h.tsv.gz"
+AD_GWAS="${GWAS_BASE}/alz/bellenguez2022/35379992-GCST90027158-MONDO_0004975.h.tsv"
 if [[ -f "$AD_GWAS" ]]; then
     AD_GWAS_CLEAN="${OUT_DIR}/ad.single_rsid.tsv.gz"
     if [[ ! -f "$AD_GWAS_CLEAN" ]]; then
