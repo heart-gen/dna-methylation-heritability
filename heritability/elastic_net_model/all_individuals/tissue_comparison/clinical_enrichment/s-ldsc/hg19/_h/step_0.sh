@@ -41,7 +41,7 @@ for REGION in "${BRAIN_REGIONS[@]}"; do
     INPUT_FILE="$(get_input_file "$REGION")"
 
     # Output directory
-    OUTPUT_DIR="./vmr/${REGION}"
+    OUTPUT_DIR="./vmr/${REGION}/EA"
     mkdir -p "$OUTPUT_DIR"
 
     # Verify input file exists

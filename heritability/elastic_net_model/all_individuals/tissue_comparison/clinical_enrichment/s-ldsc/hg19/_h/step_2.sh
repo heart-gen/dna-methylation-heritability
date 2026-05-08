@@ -63,7 +63,7 @@ for REGION in "${BRAIN_REGIONS[@]}"; do
     log_message "Processing region: $REGION"
 
     # Quintile BED files
-    BED_DIR="./vmr/${REGION}"
+    BED_DIR="./vmr/${REGION}/EA"
 
     BED_FILES=(
         "${BED_DIR}/Q1.bed"
@@ -74,7 +74,7 @@ for REGION in "${BRAIN_REGIONS[@]}"; do
     )
 
     # Output directory
-    OUT_DIR="./custom_ldscores/${REGION}"
+    OUT_DIR="./custom_ldscores/${REGION}/EA"
     mkdir -p "$OUT_DIR"
 
     SORTED_BEDS=()
@@ -148,7 +148,7 @@ log_message "Verifying annotation files..."
 echo ""
 echo "=== Annotation Files ==="
 for REGION in "${BRAIN_REGIONS[@]}"; do
-    OUT_DIR="./custom_ldscores/${REGION}"
+    OUT_DIR="./custom_ldscores/${REGION}/EA"
     count=$(ls -1 "${OUT_DIR}"/*.annot.gz 2>/dev/null | wc -l)
     if [[ $count -eq 22 ]]; then
         echo "[OK] ${REGION}: $count annotation files"

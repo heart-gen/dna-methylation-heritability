@@ -49,7 +49,7 @@ import numpy as np
 def create_quintiles(df, n_quintiles=5):
     # Compute quantile breaks
     breaks = np.quantile(
-        df["h2_unscaled"].dropna(),
+        df["h2_unscaled_EA"].dropna(),
         q=np.linspace(0, 1, n_quintiles + 1)
     )
 
@@ -65,15 +65,15 @@ def create_quintiles(df, n_quintiles=5):
         print(f"Warning: Reduced h2 bins from {n_quintiles} to {n_bins}")
 
     # Assign bins
-    df["h2_quintile"] = pd.cut(
-        df["h2_unscaled"],
+    df["h2_quintile_EA"] = pd.cut(
+        df["h2_unscaled_EA"],
         bins=breaks,
         labels=[f"Q{i}" for i in range(1, n_bins + 1)],
         include_lowest=True
     )
 
     # Drop NA bins
-    df = df.dropna(subset=["h2_quintile"])
+    df = df.dropna(subset=["h2_quintile_EA"])
 
     return df
 
@@ -95,10 +95,10 @@ def main():
     df = pd.read_csv(input_file, sep='\t')
 
     # Remove low prediction VMRs
-    df = df[df["r_squared_cv"] >= 0.3]
+    df = df[df["r_squared_cv_EA"] >= 0.3]
 
     # Keep only necessary columns (continuous annotation retained)
-    cols_to_keep = ["chrom", "start", "end", "h2_unscaled"]
+    cols_to_keep = ["chrom", "start", "end", "h2_unscaled_EA"]
     df = df[cols_to_keep].copy()
 
     lo = LiftOver(str(chain_file))
@@ -106,7 +106,7 @@ def main():
     df = create_quintiles(df)
 
     # Create separate BED files per quintile
-    for quintile, subset in df.groupby("h2_quintile"):
+    for quintile, subset in df.groupby("h2_quintile_EA"):
         # Convert category to string just in case
         quintile_str = str(quintile)
 
