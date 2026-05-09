@@ -71,14 +71,14 @@ for DISEASE in "${DISEASES[@]}"; do
         log_message "  Processing region: ${REGION} (${current}/${total})"
 
         # Custom LD scores directory
-        CUSTOM_LD_DIR="./custom_ldscores/${REGION}"
+        CUSTOM_LD_DIR="./custom_ldscores/${REGION}/EA"
 
         # Output directory
-        OUT_DIR="./results/${DISEASE}/${REGION}"
+        OUT_DIR="./results/${DISEASE}/${REGION}/EA"
         mkdir -p "$OUT_DIR"
 
         # Output file prefix
-        OUT_PREFIX="${OUT_DIR}/${DISEASE}_${REGION}"
+        OUT_PREFIX="${OUT_DIR}/${DISEASE}_${REGION}_EA"
 
         # Check if custom LD scores exist
         if [[ ! -f "${CUSTOM_LD_DIR}/${REGION}.1.l2.ldscore.gz" ]]; then
@@ -131,7 +131,7 @@ total_count=0
 
 for DISEASE in "${DISEASES[@]}"; do
     for REGION in "${BRAIN_REGIONS[@]}"; do
-        RESULT_FILE="./results/${DISEASE}/${REGION}/${DISEASE}_${REGION}.results"
+        RESULT_FILE="./results/${DISEASE}/${REGION}/${DISEASE}_${REGION}_EA.results"
         if [[ -f "$RESULT_FILE" ]]; then
             ((total_count++))
             case $DISEASE in
