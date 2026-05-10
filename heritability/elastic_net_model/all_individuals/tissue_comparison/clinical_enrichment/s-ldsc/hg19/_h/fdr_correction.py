@@ -19,9 +19,13 @@ for filepath in glob.glob(os.path.join(base_dir, file_pattern), recursive=True):
     try:
         parts = filepath.split(os.sep)
 
+        # Expected structure:
+        # ./results/$disease/$tissue/$ancestry/file.results
+
         # Extract metadata
-        disease = parts[-3]
-        tissue = parts[-2]
+        disease = parts[-4]
+        tissue = parts[-3]
+        ancestry = parts[-2]
 
         # Skip unwanted diseases
         if disease not in allowed_diseases:
@@ -30,24 +34,36 @@ for filepath in glob.glob(os.path.join(base_dir, file_pattern), recursive=True):
         # Read file
         df = pd.read_csv(filepath, sep="\t")
 
-        # Filter for L2_1
-        l2_row = df[df.iloc[:, 0].str.contains(r"^ANNOT_Q\d+L2_1$", regex=True, na=False)]
+        # Filter rows like ANNOT_Q#L2_1
+        row_mask = df.iloc[:, 0].str.contains(
+            r"^ANNOT_Q\d+L2_1$", regex=True, na=False
+        )
 
-        if not l2_row.empty:
-            l2_row = l2_row.copy()
+        l2_rows = df[row_mask].copy()
 
-            # Keep only Coefficient_z-score + metadata
-            keep_cols = ["Coefficient_z-score"]
-            if "Coefficient_z-score" not in l2_row.columns:
+        if not l2_rows.empty:
+
+            # Check required column
+            if "Coefficient_z-score" not in l2_rows.columns:
                 print(f"Warning: 'Coefficient_z-score' not found in {filepath}")
                 continue
 
-            l2_row = l2_row[keep_cols]
-            l2_row["disease"] = disease
-            l2_row["tissue"] = tissue
-            l2_row["annotation"] = df.iloc[:, 0].str.extract(r"(ANNOT_Q\d+L2_1)")
+            # Extract annotation names from matching rows only
+            l2_rows["annotation"] = (
+                l2_rows.iloc[:, 0]
+                .str.extract(r"(ANNOT_Q\d+L2_1)", expand=False)
+            )
 
-            rows.append(l2_row)
+            # Keep desired columns
+            l2_rows = l2_rows[["annotation", "Coefficient_z-score"]]
+
+            # Add metadata
+            l2_rows["disease"] = disease
+            l2_rows["tissue"] = tissue
+            l2_rows["ancestry"] = ancestry
+
+            rows.append(l2_rows)
+
         else:
             print(f"No ANNOT_Q#L2_1 rows in {filepath}")
 
@@ -58,28 +74,60 @@ for filepath in glob.glob(os.path.join(base_dir, file_pattern), recursive=True):
 if rows:
     combined_df = pd.concat(rows, ignore_index=True)
 
-    # Reorder columns (metadata first)
-    cols = ["disease", "tissue", "annotation", "Coefficient_z-score"]
+    # Reorder columns
+    cols = [
+        "disease",
+        "tissue",
+        "ancestry",
+        "annotation",
+        "Coefficient_z-score"
+    ]
     combined_df = combined_df[cols]
 
-    # Save
-    combined_df.to_csv("combined_ANNOT_Q_L2_1_Coeff_zscore.tsv", sep="\t", index=False)
-    print("Done! Saved combined_ANNOT_Q_L2_1_Coeff_zscore.tsv")
+    # Save combined table
+    combined_output = "combined_ANNOT_Q_L2_1_Coeff_zscore.tsv"
+    combined_df.to_csv(combined_output, sep="\t", index=False)
+
+    print(f"Done! Saved {combined_output}")
+
 else:
     print("No matching ANNOT_Q#L2_1 rows found.")
+    exit()
 
-# --- Step 1: Load your summary table ---
-input_file = "combined_ANNOT_Q_L2_1_Coeff_zscore.tsv"  # change this to your file path
-df = pd.read_csv(input_file, sep="\t")
+# ---------------------------------------------------------
+# Calculate p-values and FDR separately for each ancestry
+# ---------------------------------------------------------
 
-# --- Step 2: Convert Coefficient_z_score to two-tailed p-values ---
-df['p_value'] = 2 * (1 - norm.cdf(df['Coefficient_z-score'].abs()))
+results = []
 
-# --- Step 3: Apply FDR correction (Benjamini-Hochberg) ---
-df['FDR_q'] = multipletests(df['p_value'], method='fdr_bh')[1]
+for ancestry, subdf in combined_df.groupby("ancestry"):
 
-# --- Step 4: Save the new table ---
-output_file = "summary_table_fdr.tsv"
-df.to_csv(output_file, sep="\t", index=False)
+    subdf = subdf.copy()
 
-print(f"FDR-corrected table saved to {output_file}")
+    # Convert z-scores to two-tailed p-values
+    subdf["p_value"] = 2 * (
+        1 - norm.cdf(subdf["Coefficient_z-score"].abs())
+    )
+
+    # FDR correction within ancestry
+    subdf["FDR_q"] = multipletests(
+        subdf["p_value"],
+        method="fdr_bh"
+    )[1]
+
+    results.append(subdf)
+
+    # Save ancestry-specific output
+    ancestry_output = f"summary_table_fdr_{ancestry}.tsv"
+    subdf.to_csv(ancestry_output, sep="\t", index=False)
+
+    print(f"Saved ancestry-specific table: {ancestry_output}")
+
+# Combine all ancestry-specific results
+final_df = pd.concat(results, ignore_index=True)
+
+# Save full table with ancestry-specific FDR
+final_output = "summary_table_fdr_all.tsv"
+final_df.to_csv(final_output, sep="\t", index=False)
+
+print(f"Combined FDR-corrected table saved to {final_output}")
