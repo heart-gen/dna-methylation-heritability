@@ -17,8 +17,9 @@ save_table <- function(pp, fn){
     }
 }
 
-clean_table <- function(pheno_file_path, vars){
+clean_table <- function(pheno_file_path, samples_to_include, vars){
     pheno_df <- fread(pheno_file_path, header = TRUE) |>
+    inner_join(samples_to_include, by = c("brnum", "region")) |>
     select(all_of(vars_to_include)) |>
     filter(agedeath > 17) |>
     mutate(region = recode(region,
@@ -51,7 +52,21 @@ vars_to_include <- c(
 
                                         # Generate phenotype data
 pheno_file_path <- here("inputs/phenotypes/_m/phenotypes-AA.tsv")
-pheno_df <- clean_table(pheno_file_path, vars_to_include)
+
+                                        # Get sample list for valid ids
+valid_samples <- list()
+
+for (tissue in c("caudate", "dlpfc", "hippocampus")) {
+  samples_fn <- here("vmr-analysis/", paste0(tissue), "_m/samples.txt")
+  samples <- fread(samples_fn, header = F, col.names = c("brnum", "FID")) %>%
+    mutate(region = tissue)
+  
+  valid_samples[[tissue]] <- samples
+}
+
+samples_to_include <- bind_rows(valid_samples)
+
+pheno_df <- clean_table(pheno_file_path, samples_to_include, vars_to_include)
 
                                          # Generate pretty tables
 fn <- "environmental_factors.table"
