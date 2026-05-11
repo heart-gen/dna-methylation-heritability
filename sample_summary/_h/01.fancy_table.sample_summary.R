@@ -16,8 +16,9 @@ save_table <- function(pp, fn){
     }
 }
 
-clean_pheno <- function(pheno_file_path){
+clean_pheno <- function(pheno_file_path, samples_to_include){
   pheno_df <- fread(pheno_file_path, header = TRUE) |>
+    inner_join(samples_to_include, by = c("brnum", "region")) |>
     filter(agedeath > 17) |>
     mutate(region = recode(region,
                            "caudate" = "Caudate",
@@ -31,7 +32,21 @@ clean_pheno <- function(pheno_file_path){
 ## Main
                                         # Generate phenotype data
 pheno_file_path <- here("inputs/phenotypes/_m/phenotypes-all.tsv")
-pheno_df <- clean_pheno(pheno_file_path)
+
+# Get sample list for valid ids
+valid_samples <- list()
+
+for (tissue in c("caudate", "dlpfc", "hippocampus")) {
+  samples_fn <- here("vmr-analysis/all_individuals/", paste0(tissue), "_m/samples.txt")
+  samples <- fread(samples_fn, header = F, col.names = c("brnum", "FID")) %>%
+    mutate(region = tissue)
+  
+  valid_samples[[tissue]] <- samples
+}
+
+samples_to_include <- bind_rows(valid_samples)
+
+pheno_df <- clean_pheno(pheno_file_path, samples_to_include)
 
 data.table::fwrite(pheno_df, file="phenotype_data.tsv", sep="\t",
                    row.names=FALSE, col.names=TRUE)
