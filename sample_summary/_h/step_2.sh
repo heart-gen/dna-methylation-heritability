@@ -36,7 +36,7 @@ echo "**** Summarize sample data ****"
 
 ## Activate conda environment
 source /projects/p32505/opt/miniforge3/etc/profile.d/conda.sh
-conda activate /projects/p32505/opt/envs/genomics
+conda activate /projects/p32505/opt/envs/epigenomics
 export LD_LIBRARY_PATH=$CONDA_PREFIX/lib:$LD_LIBRARY_PATH
 python ../_h/02.summarize.py
 conda deactivate
