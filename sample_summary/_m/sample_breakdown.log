@@ -1,0 +1,65 @@
+        region  len
+0      Caudate  282
+1  Hippocampus  176
+2        DLPFC  166
+  race       region  len
+0   EA        DLPFC   55
+1   EA      Caudate  129
+2   AA      Caudate  153
+3   AA  Hippocampus  116
+4   EA  Hippocampus   60
+5   AA        DLPFC  111
+   race       region primarydx  len
+0    EA      Caudate   Control   74
+1    AA      Caudate    Schizo   65
+2    EA        DLPFC    Schizo   29
+3    EA      Caudate    Schizo   55
+4    AA        DLPFC   Control   68
+5    AA  Hippocampus   Control   68
+6    EA        DLPFC   Control   26
+7    AA  Hippocampus    Schizo   48
+8    AA      Caudate   Control   88
+9    AA        DLPFC    Schizo   43
+10   EA  Hippocampus    Schizo   29
+11   EA  Hippocampus   Control   31
+   race       region primarydx sex  len
+0    EA  Hippocampus   Control   F    6
+1    EA      Caudate   Control   F   16
+2    AA      Caudate    Schizo   M   45
+3    EA      Caudate   Control   M   58
+4    AA      Caudate   Control   M   54
+5    EA      Caudate    Schizo   F   17
+6    AA  Hippocampus   Control   F   29
+7    AA        DLPFC   Control   F   29
+8    AA  Hippocampus   Control   M   39
+9    EA        DLPFC    Schizo   M   18
+10   EA      Caudate    Schizo   M   38
+11   EA        DLPFC    Schizo   F   11
+12   AA      Caudate    Schizo   F   20
+13   EA  Hippocampus   Control   M   25
+14   AA        DLPFC    Schizo   F   17
+15   EA  Hippocampus    Schizo   M   18
+16   AA        DLPFC   Control   M   39
+17   AA  Hippocampus    Schizo   M   29
+18   EA        DLPFC   Control   M   22
+19   EA        DLPFC   Control   F    4
+20   EA  Hippocampus    Schizo   F   11
+21   AA  Hippocampus    Schizo   F   19
+22   AA        DLPFC    Schizo   M   26
+23   AA      Caudate   Control   F   34
+Mean:
+  race       region   Age_mean
+0   AA        DLPFC  49.176486
+1   EA  Hippocampus  50.515500
+2   EA        DLPFC  50.484909
+3   EA      Caudate  50.439070
+4   AA      Caudate  49.803856
+5   AA  Hippocampus  49.811207
+Standard deviation
+  race       region     Age_sd
+0   EA      Caudate  16.912015
+1   EA  Hippocampus  17.602464
+2   EA        DLPFC  17.419416
+3   AA  Hippocampus  14.101457
+4   AA        DLPFC  13.913779
+5   AA      Caudate  13.825411
