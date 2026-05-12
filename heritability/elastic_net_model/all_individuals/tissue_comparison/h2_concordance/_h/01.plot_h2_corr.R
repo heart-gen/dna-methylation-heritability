@@ -8,8 +8,6 @@ suppressPackageStartupMessages({
   library(ggpubr)
 })
 
-N_QUINTILES <- 5
-
 ## Function
 filter_sites <- function(enet) {
   vmr <- na.omit(enet)
@@ -24,49 +22,6 @@ filter_sites <- function(enet) {
                                                  "Low prediction"))
     )
   return(vmr)
-}
-
-quintile_summary <- function(df, tissue, out_path){
-  df <- df %>%
-    filter(h2_category %in% c("Heritable", "Non-heritable"))
-  
-  breaks_AA <- quantile(df$h2_unscaled_AA,
-                        probs = seq(0, 1, 1 / N_QUINTILES),
-                        na.rm = TRUE) |>
-    unique()
-  n_bins_AA <- length(breaks_AA) - 1
-  
-  breaks_EA <- quantile(df$h2_unscaled_EA,
-                        probs = seq(0, 1, 1 / N_QUINTILES),
-                        na.rm = TRUE) |>
-    unique()
-  n_bins_EA <- length(breaks_EA) - 1
-  
-  df <- df |>
-    mutate(h2_quintile_AA = cut(h2_unscaled_AA,
-                                breaks = breaks_AA,
-                                labels = paste0("Q", seq_len(n_bins_AA)),
-                                include.lowest = TRUE)) |>
-    mutate(h2_quintile_EA = cut(h2_unscaled_EA,
-                                breaks = breaks_EA,
-                                labels = paste0("Q", seq_len(n_bins_EA)),
-                                include.lowest = TRUE)) |>
-    filter(!is.na(h2_quintile_AA), !is.na(h2_quintile_EA))
-  
-  quintile_summary <- df %>%
-    count(h2_quintile_AA, h2_quintile_EA) %>%
-    tidyr::complete(h2_quintile_AA, h2_quintile_EA, fill = list(n = 0))
-  
-  matched_count <- sum(df$h2_quintile_AA == df$h2_quintile_EA, na.rm = TRUE)
-  percent_matched <- (matched_count / nrow(df)) * 100
-  
-  print(paste0(matched_count, " VMRs matched across quintiles (", 
-               round(percent_matched, 2), "%)"))
-  
-  write.csv(quintile_summary, 
-            file = file.path(out_path, 
-                             paste0("quintile_match_summary_AA_EA_", tissue, ".csv")), 
-            row.names = FALSE)
 }
 
 spearman_corr <- function(h2_df, h2_cat, tissue, out_path){
@@ -111,6 +66,8 @@ save_plot <- function(p, fn, w, h){
   }
 }
 
+## Main
+
 tissues <- c("caudate", "hippocampus", "dlpfc")
 
 out_path <- here("heritability/elastic_net_model/all_individuals/tissue_comparison/h2_concordance/_m")
@@ -140,9 +97,6 @@ for (tissue in tissues) {
   
   vmr_combined <- vmr_combined %>%
     mutate(feature_id = paste(chrom, start, end, sep = "_"))
-  
-  # Quantify matched VMRs across quintiles
-  quintile_summary(vmr_combined, tissue, out_path)
   
   h2_cats <- c("Heritable", "Non-heritable", "Low prediction")
   
