@@ -6,9 +6,6 @@ suppressPackageStartupMessages({
   library(dplyr)
   library(tidyr)
   library(ggplot2)
-  library(patchwork)
-  library(scales)
-  library(grid)
 })
 
 ## Function
@@ -58,7 +55,7 @@ build_heatmap <- function(df, fill_scale) {
 }
 
 ## Main
-out_path <- here("heritability/elastic_net_model/all_individuals/tissue_comparison/h2_concordance/_m")
+out_path <- here("heritability/elastic_net_model/all_individuals/tissue_comparison/quintile_summary/_m")
 if (!dir.exists(out_path)) {
   dir.create(out_path, recursive = TRUE)
 }
