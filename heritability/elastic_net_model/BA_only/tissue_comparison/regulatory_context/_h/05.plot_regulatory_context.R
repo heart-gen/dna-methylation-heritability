@@ -20,14 +20,14 @@ fig_dir <- file.path(base_dir, "figures", population)
 dir.create(fig_dir, recursive = TRUE, showWarnings = FALSE)
 
 pal_group <- c(
-  "Heritable" = "#3B6EA8",
-  "Non-heritable" = "#C65146",
-  "Low prediction" = "#7A7A7A"
+  "Heritable" = "#497C8A",
+  "Non-heritable" = "#8CA77B",
+  "Low prediction" = "#E3A27F"
 )
 
 pal_layer_line <- c(
-  "Expression · nearest gene" = "#3B6EA8",
-  "PSI" = "#5A8F61"
+  "Expression · nearest gene" = "#7B61FF",
+  "PSI" = "#D28E00"
 )
 
 tissue_levels <- c("dlpfc", "hippocampus", "caudate")
@@ -405,7 +405,7 @@ if (nrow(prox_bin) > 0) {
     geom_line(linewidth = 0.55) +
     geom_point(size = 1.7) +
     facet_wrap(~ tissue, nrow = 1) +
-    scale_color_manual(values = c(gene = "#3B6EA8", psi = "#5A8F61")) +
+    scale_color_manual(values = c(gene = "#7B61FF", psi = "#D28E00")) +
     scale_y_log10(labels = label_number(scale_cut = cut_short_scale())) +
     labs(x = "h2 quintile", y = "Median nearest distance, bp") +
     theme_regctx() +
@@ -445,9 +445,9 @@ if (nrow(abc_bin) > 0) {
     geom_line(linewidth = 0.55) +
     geom_point(size = 1.8) +
     scale_color_manual(values = c(
-      DLPFC = "#3B6EA8",
-      Hippocampus = "#5A8F61",
-      Caudate = "#C65146"
+      Caudate = "#7372A6",
+      DLPFC = "#B36F61",
+      Hippocampus = "#C5AC47"
     ), drop = FALSE) +
     scale_y_continuous(labels = percent_format(accuracy = 1),
                        expand = expansion(mult = c(0.02, 0.08))) +
