@@ -1,0 +1,30 @@
+2026-05-08 21:39:54 - **** Job starts ****
+**** QUEST info ****
+User: owb0346
+Job id: 7525870
+Job name: regctx_assoc
+Node name: 
+Hostname: qnode1040
+Task id: 5
+No modules loaded
+2026-05-08 21:40:05 - Running local associations
+Running local associations: cohort=all_individuals tissue=caudate modality=psi population=AA vmr_set=AA_only
+psi: assay rows with variation 541385 / 690907; VMR-feature links 2308605 -> 1943042 after dropping constant / all-zero features
+Testing 1943042 VMR-feature pairs (batched by VMR) [psi]
+  tested 104757 / 1943042 pairs (564 / 11297 VMRs) [psi]
+  tested 184576 / 1943042 pairs (1128 / 11297 VMRs) [psi]
+  tested 306127 / 1943042 pairs (1692 / 11297 VMRs) [psi]
+  tested 396028 / 1943042 pairs (2256 / 11297 VMRs) [psi]
+  tested 460334 / 1943042 pairs (2820 / 11297 VMRs) [psi]
+  tested 586563 / 1943042 pairs (3384 / 11297 VMRs) [psi]
+  tested 695001 / 1943042 pairs (3948 / 11297 VMRs) [psi]
+  tested 802156 / 1943042 pairs (4512 / 11297 VMRs) [psi]
+  tested 876271 / 1943042 pairs (5076 / 11297 VMRs) [psi]
+  tested 982198 / 1943042 pairs (5640 / 11297 VMRs) [psi]
+  tested 1111162 / 1943042 pairs (6204 / 11297 VMRs) [psi]
+  tested 1214224 / 1943042 pairs (6768 / 11297 VMRs) [psi]
+  tested 1337637 / 1943042 pairs (7332 / 11297 VMRs) [psi]
+  tested 1427235 / 1943042 pairs (7896 / 11297 VMRs) [psi]
+  tested 1490696 / 1943042 pairs (8460 / 11297 VMRs) [psi]
+  tested 1588733 / 1943042 pairs (9024 / 11297 VMRs) [psi]
+slurmstepd: error: *** JOB 7525870 ON qnode1040 CANCELLED AT 2026-05-09T05:45:07 DUE TO TIME LIMIT ***

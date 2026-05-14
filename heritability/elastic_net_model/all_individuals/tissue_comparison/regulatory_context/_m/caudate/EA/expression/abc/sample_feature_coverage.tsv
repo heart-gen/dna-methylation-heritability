@@ -1,0 +1,2 @@
+cohort	tissue	modality	population	vmr_set	assay	n_control_pheno	n_rna_samples	n_model_samples_pre_pair_filter	n_features_total	n_features_assay_varying	n_pairs_before_constant_filter	n_pairs_after_constant_filter	n_features_linked	model
+all_individuals	caudate	expression	EA	shared	counts	166	487	166	78932	68172	102	100	98	feature ~ VMR_methylation + RNA_covariates
