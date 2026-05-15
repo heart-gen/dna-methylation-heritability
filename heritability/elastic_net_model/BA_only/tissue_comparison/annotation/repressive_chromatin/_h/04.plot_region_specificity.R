@@ -368,16 +368,16 @@ panel_c <- ggplot(
 ## Assemble and save
 ## ============================================================
 
-fig_main <- (panel_a / panel_b / panel_c) +
+fig_main <- ((panel_a | panel_c) / panel_b) +
   plot_layout(heights = c(0.8, 1.0, 1.0)) +
   plot_annotation(tag_levels = "A") &
   theme(plot.tag = element_text(size = 12, face = "bold"))
 
-save_plot(fig_main, "region_specificity_main", width = 10.5, height = 10.5)
-save_plot(panel_a, "region_specificity_sharing_rates", width = 9.5, height = 3.0)
-save_plot(panel_a_ig, "region_specificity_sharing_rates_intergenic", width = 9.5, height = 3.0)
+save_plot(fig_main, "region_specificity_main", width = 11, height = 7)
+save_plot(panel_a, "region_specificity_sharing_rates", width = 6, height = 3.0)
+save_plot(panel_a_ig, "region_specificity_sharing_rates_intergenic", width = 6, height = 3.0)
 save_plot(panel_b, "region_specificity_repressive_by_sharing", width = 9.5, height = 3.8)
-save_plot(panel_c, "region_specificity_h2_concordance", width = 7.5, height = 4.5)
+save_plot(panel_c, "region_specificity_h2_concordance", width = 6, height = 4.5)
 
 cat("Figures written to:", OUT_DIR, "\n")
 

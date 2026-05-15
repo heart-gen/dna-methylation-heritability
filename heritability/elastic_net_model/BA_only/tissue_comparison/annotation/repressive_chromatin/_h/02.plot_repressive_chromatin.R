@@ -489,7 +489,7 @@ fig_hmm_supp <- fig_B_abs / fig_B_fc +
 save_plot(fig_main, "repressive_chromatin_main", width = 10.8, height = 6.2)
 save_plot(fig_A, "repressive_chromatin_fishers", width = 8.6, height = 5.4)
 save_plot(fig_B_quintile, "repressive_chromatin_quintiles", width = 7.8, height = 3.5)
-save_plot(fig_hmm_supp, "repressive_chromatin_chromhmm", width = 7.6, height = 8.6)
+save_plot(fig_hmm_supp, "repressive_chromatin_chromhmm", width = 4.5, height = 7)
 save_plot(fig_A_sens, "repressive_chromatin_sensitivity_peaktype", width = 7.4, height = 3.8)
 
 cat("Figures written to:", OUT_DIR, "\n")
