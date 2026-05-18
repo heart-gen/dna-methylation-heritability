@@ -32,6 +32,8 @@ mkdir -p ../_m/logs
 source /projects/p32505/opt/miniforge3/etc/profile.d/conda.sh
 conda activate rnaseq
 
+# EA/shared still runs here: quintile summaries use population-specific h2_unscaled
+# while association inputs are read from the canonical AA/shared pass.
 RUNS=(
   "caudate expression AA 250000 shared"
   "caudate psi AA 250000 shared"

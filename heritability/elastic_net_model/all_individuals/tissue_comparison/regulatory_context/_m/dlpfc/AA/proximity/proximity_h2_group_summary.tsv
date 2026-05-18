@@ -1,0 +1,7 @@
+cohort	tissue	population	vmr_set	feature_type	h2_category	n_vmrs	median_distance	q25_distance	q75_distance	prop_within_10kb	prop_within_100kb
+all_individuals	dlpfc	AA	shared	gene	Heritable	4264	0	0	0	0.955206378986867	0.99812382739212
+all_individuals	dlpfc	AA	shared	gene	Non-heritable	690	0	0	0	0.957971014492754	0.998550724637681
+all_individuals	dlpfc	AA	shared	gene	Low prediction	28	0	0	0	0.964285714285714	1
+all_individuals	dlpfc	AA	shared	psi	Heritable	4264	0	0	10675.75	0.741322701688555	0.972326454033771
+all_individuals	dlpfc	AA	shared	psi	Non-heritable	690	51	0	9020.75	0.763768115942029	0.973913043478261
+all_individuals	dlpfc	AA	shared	psi	Low prediction	28	7.5	0	13846.25	0.75	0.785714285714286

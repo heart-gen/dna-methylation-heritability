@@ -30,10 +30,14 @@ vmr_set <- validate_vmr_set(cohort, population, vmr_set)
 run_tags <- resolve_regulatory_run_tags(modality, window, expression_layers)
 
 for (run_tag in run_tags) {
+  assoc_pop <- regctx_assoc_source_population(population, vmr_set)
   in_dir  <- regctx_output_dir(
+    cohort, tissue, assoc_pop, modality, run_tag, vmr_set
+  )
+  out_dir <- regctx_output_dir(
     cohort, tissue, population, modality, run_tag, vmr_set
   )
-  out_dir <- in_dir
+  dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
 
   summary_fn <- file.path(in_dir, "vmr_association_summary.tsv")
   links_fn   <- file.path(in_dir, "tested_vmr_feature_links.tsv.gz")

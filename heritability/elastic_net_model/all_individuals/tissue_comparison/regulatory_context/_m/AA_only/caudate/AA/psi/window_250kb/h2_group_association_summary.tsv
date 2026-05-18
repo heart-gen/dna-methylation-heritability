@@ -1,0 +1,4 @@
+cohort	tissue	population	vmr_set	modality	run_tag	h2_category	n_vmrs	n_any_fdr05	n_any_fdr10	prop_any_fdr05	prop_any_fdr10	median_max_abs_beta	median_pairs_tested
+all_individuals	caudate	AA	AA_only	psi	window_250kb	Heritable	3357	232	287	0.0691093238010128	0.085492999702115	2.21731793513327	62
+all_individuals	caudate	AA	AA_only	psi	window_250kb	Non-heritable	3690	50	96	0.013550135501355	0.0260162601626016	2.8775115037968	86
+all_individuals	caudate	AA	AA_only	psi	window_250kb	Low prediction	106	6	8	0.0566037735849057	0.0754716981132076	3.98785939596274	89.5

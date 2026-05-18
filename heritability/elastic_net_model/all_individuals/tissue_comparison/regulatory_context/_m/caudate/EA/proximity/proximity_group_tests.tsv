@@ -1,0 +1,9 @@
+cohort	tissue	population	vmr_set	feature_type	comparison	outcome	test	statistic	p_value	term	estimate	conf.low	conf.high	fdr
+all_individuals	caudate	EA	shared	gene	Heritable_vs_non-heritable	log_nearest_distance	wilcoxon	7259875	3.09233552100523e-39					8.24622805601393e-39
+all_individuals	caudate	EA	shared	gene	Heritable_vs_non-heritable_adjusted	within_10kb	logistic		4.81065038176783e-20	h2_categoryNon-heritable	2.67593538698887	2.17356271558223	3.3119162486037	7.69704061082852e-20
+all_individuals	caudate	EA	shared	gene	Heritable_vs_non-heritable_adjusted	within_100kb	logistic		0.000913066689699126	h2_categoryNon-heritable	7.63181738288825	2.67250741197347	32.1608171886573	0.000913066689699126
+all_individuals	caudate	EA	shared	gene	h2_quintile	log_nearest_distance	kruskal	260.149948771777	4.23327198020662e-55					1.69330879208265e-54
+all_individuals	caudate	EA	shared	psi	Heritable_vs_non-heritable	log_nearest_distance	wilcoxon	7399446.5	4.17172196351184e-29					8.34344392702369e-29
+all_individuals	caudate	EA	shared	psi	Heritable_vs_non-heritable_adjusted	within_10kb	logistic		3.20145674603188e-18	h2_categoryNon-heritable	1.61239834095206	1.44809140902197	1.79573050152266	4.26860899470917e-18
+all_individuals	caudate	EA	shared	psi	Heritable_vs_non-heritable_adjusted	within_100kb	logistic		6.59203682060156e-16	h2_categoryNon-heritable	3.22735643438581	2.44280603143089	4.31754267418226	7.53375636640179e-16
+all_individuals	caudate	EA	shared	psi	h2_quintile	log_nearest_distance	kruskal	280.748264799211	1.53694685150714e-59					1.22955748120571e-58

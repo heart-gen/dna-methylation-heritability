@@ -1,0 +1,4 @@
+cohort	tissue	population	vmr_set	modality	run_tag	h2_category	n_vmrs	n_any_fdr05	n_any_fdr10	prop_any_fdr05	prop_any_fdr10	median_max_abs_beta	median_pairs_tested
+all_individuals	dlpfc	AA	shared	expression_nearest_gene	nearest_gene_window_250kb	Heritable	3679	85	96	0.0231041043761892	0.0260940472954607	0.120041485553051	1
+all_individuals	dlpfc	AA	shared	expression_nearest_gene	nearest_gene_window_250kb	Non-heritable	606	4	4	0.0066006600660066	0.0066006600660066	0.11778546639836	1
+all_individuals	dlpfc	AA	shared	expression_nearest_gene	nearest_gene_window_250kb	Low prediction	9	1	2	0.111111111111111	0.222222222222222	0.13325091962405	1

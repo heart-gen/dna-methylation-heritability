@@ -1,0 +1,9 @@
+cohort	tissue	population	vmr_set	modality	run_tag	bin_type	h2_bin	n_vmrs	n_any_fdr10	prop_any_fdr10	median_max_abs_beta	median_pairs_tested
+all_individuals	hippocampus	AA	AA_only	psi	window_250kb	h2_quintile	Q1	985	19	0.0192893401015228	2.65723004128189	58
+all_individuals	hippocampus	AA	AA_only	psi	window_250kb	h2_quintile	Q2	985	12	0.0121827411167513	2.58210310528765	59
+all_individuals	hippocampus	AA	AA_only	psi	window_250kb	h2_quintile	Q3	984	7	0.00711382113821138	2.59849557334459	65
+all_individuals	hippocampus	AA	AA_only	psi	window_250kb	h2_quintile	Q4	985	10	0.0101522842639594	2.62125740475754	61
+all_individuals	hippocampus	AA	AA_only	psi	window_250kb	h2_quintile	Q5	985	1	0.00101522842639594	2.18770309077896	48
+all_individuals	hippocampus	AA	AA_only	psi	window_250kb	h2_tertile	T1	1642	28	0.0170523751522534	2.62328592708246	59
+all_individuals	hippocampus	AA	AA_only	psi	window_250kb	h2_tertile	T2	1641	16	0.00975015234613041	2.58246533217937	62
+all_individuals	hippocampus	AA	AA_only	psi	window_250kb	h2_tertile	T3	1641	5	0.00304692260816575	2.40007849407692	53

@@ -1,0 +1,7 @@
+cohort	tissue	population	vmr_set	feature_type	h2_category	n_vmrs	median_distance	q25_distance	q75_distance	prop_within_10kb	prop_within_100kb
+all_individuals	hippocampus	EA	EA_only	gene	Heritable	8142	0	0	0	0.943871284696635	0.997297961188897
+all_individuals	hippocampus	EA	EA_only	gene	Non-heritable	1081	0	0	0	0.962072155411656	0.998149861239593
+all_individuals	hippocampus	EA	EA_only	gene	Low prediction	55	0	0	2030	0.836363636363636	0.981818181818182
+all_individuals	hippocampus	EA	EA_only	psi	Heritable	8142	99	0	12159.75	0.728076639646279	0.968803733726357
+all_individuals	hippocampus	EA	EA_only	psi	Non-heritable	1081	0	0	7335	0.776133209990749	0.975023126734505
+all_individuals	hippocampus	EA	EA_only	psi	Low prediction	55	599	0	113659	0.636363636363636	0.709090909090909

@@ -1,0 +1,4 @@
+cohort	tissue	population	vmr_set	modality	run_tag	h2_category	n_vmrs	n_any_fdr05	n_any_fdr10	prop_any_fdr05	prop_any_fdr10	median_max_abs_beta	median_pairs_tested
+all_individuals	dlpfc	EA	EA_only	psi	window_250kb	Heritable	4242	492	635	0.115983026874116	0.14969354078265	2.64689302692916	62
+all_individuals	dlpfc	EA	EA_only	psi	window_250kb	Non-heritable	686	109	135	0.158892128279883	0.196793002915452	3.18669944827353	53.5
+all_individuals	dlpfc	EA	EA_only	psi	window_250kb	Low prediction	27	2	3	0.0740740740740741	0.111111111111111	2.6499076087853	154

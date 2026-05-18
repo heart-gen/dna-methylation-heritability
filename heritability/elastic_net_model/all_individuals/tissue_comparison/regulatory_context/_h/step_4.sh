@@ -9,7 +9,7 @@
 #SBATCH --job-name=regctx_prox
 #SBATCH --mail-user=kynon.benjamin@northwestern.edu
 #SBATCH --output=logs/regctx_prox.%A_%a.log
-#SBATCH --array=0-11
+#SBATCH --array=0-8
 
 log_message() {
     echo "$(date '+%Y-%m-%d %H:%M:%S') - $1"
@@ -34,17 +34,15 @@ conda activate rnaseq
 
 log_message "Calculating feature proximity"
 
+# Shared proximity depends only on VMR coordinates and matched h2_category (one AA run).
 RUNS=(
   "caudate AA shared"
-  "caudate EA shared"
   "caudate AA AA_only"
   "caudate EA EA_only"
   "dlpfc AA shared"
-  "dlpfc EA shared"
   "dlpfc AA AA_only"
   "dlpfc EA EA_only"
   "hippocampus AA shared"
-  "hippocampus EA shared"
   "hippocampus AA AA_only"
   "hippocampus EA EA_only"
 )

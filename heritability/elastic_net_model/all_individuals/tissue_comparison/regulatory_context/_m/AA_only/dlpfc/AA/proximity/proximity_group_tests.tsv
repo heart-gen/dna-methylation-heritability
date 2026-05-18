@@ -1,0 +1,9 @@
+cohort	tissue	population	vmr_set	feature_type	comparison	outcome	test	statistic	p_value	term	estimate	conf.low	conf.high	fdr
+all_individuals	dlpfc	AA	AA_only	gene	Heritable_vs_non-heritable	log_nearest_distance	wilcoxon	11473739	0.197042399838215					0.262723199784287
+all_individuals	dlpfc	AA	AA_only	gene	Heritable_vs_non-heritable_adjusted	within_10kb	logistic		0.716783267402328	h2_categoryNon-heritable	1.03706524617462	0.852007547337758	1.26287311472602	0.716783267402328
+all_individuals	dlpfc	AA	AA_only	gene	Heritable_vs_non-heritable_adjusted	within_100kb	logistic		0.185280840246904	h2_categoryNon-heritable	0.550264499976322	0.217205658924676	1.30956328893276	0.262723199784287
+all_individuals	dlpfc	AA	AA_only	gene	h2_quintile	log_nearest_distance	kruskal	7.94927092351468	0.0934542405984012					0.262723199784287
+all_individuals	dlpfc	AA	AA_only	psi	Heritable_vs_non-heritable	log_nearest_distance	wilcoxon	11573475.5	0.100121329142505					0.262723199784287
+all_individuals	dlpfc	AA	AA_only	psi	Heritable_vs_non-heritable_adjusted	within_10kb	logistic		0.0307341076309064	h2_categoryNon-heritable	1.10857910229938	1.00965866836738	1.21731852962678	0.245872861047251
+all_individuals	dlpfc	AA	AA_only	psi	Heritable_vs_non-heritable_adjusted	within_100kb	logistic		0.530101193710127	h2_categoryNon-heritable	1.0845367201043	0.842115768616194	1.39858196441701	0.605829935668717
+all_individuals	dlpfc	AA	AA_only	psi	h2_quintile	log_nearest_distance	kruskal	6.29366077154993	0.178264637399421					0.262723199784287

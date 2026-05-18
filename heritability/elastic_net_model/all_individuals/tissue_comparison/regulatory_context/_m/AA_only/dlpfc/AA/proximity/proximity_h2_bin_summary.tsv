@@ -1,0 +1,17 @@
+cohort	tissue	population	vmr_set	feature_type	bin_type	h2_bin	n_vmrs	median_distance	q25_distance	q75_distance	prop_within_10kb	prop_within_100kb
+all_individuals	dlpfc	AA	AA_only	gene	h2_quintile	Q1	1908	0	0	0	0.964884696016771	0.99685534591195
+all_individuals	dlpfc	AA	AA_only	gene	h2_quintile	Q2	1908	0	0	0	0.95125786163522	0.996331236897275
+all_individuals	dlpfc	AA	AA_only	gene	h2_quintile	Q3	1907	0	0	0	0.957000524383849	0.999475616151022
+all_individuals	dlpfc	AA	AA_only	gene	h2_quintile	Q4	1908	0	0	0	0.955450733752621	1
+all_individuals	dlpfc	AA	AA_only	gene	h2_quintile	Q5	1908	0	0	0	0.951781970649895	0.996331236897275
+all_individuals	dlpfc	AA	AA_only	gene	h2_tertile	T1	3180	0	0	0	0.960691823899371	0.99622641509434
+all_individuals	dlpfc	AA	AA_only	gene	h2_tertile	T2	3179	0	0	0	0.953759043724442	0.99937087134319
+all_individuals	dlpfc	AA	AA_only	gene	h2_tertile	T3	3180	0	0	0	0.95377358490566	0.997798742138365
+all_individuals	dlpfc	AA	AA_only	psi	h2_quintile	Q1	1908	0	0	8182.75	0.769392033542977	0.972746331236897
+all_individuals	dlpfc	AA	AA_only	psi	h2_quintile	Q2	1908	0	0	9852	0.752620545073375	0.978511530398323
+all_individuals	dlpfc	AA	AA_only	psi	h2_quintile	Q3	1907	0	0	9771	0.753539590980598	0.974305191400105
+all_individuals	dlpfc	AA	AA_only	psi	h2_quintile	Q4	1908	23	0	10442.25	0.743710691823899	0.970649895178197
+all_individuals	dlpfc	AA	AA_only	psi	h2_quintile	Q5	1908	0	0	10451	0.744234800838575	0.973794549266247
+all_individuals	dlpfc	AA	AA_only	psi	h2_tertile	T1	3180	0	0	8976.5	0.761006289308176	0.975157232704403
+all_individuals	dlpfc	AA	AA_only	psi	h2_tertile	T2	3179	0	0	9372	0.757785467128028	0.974205725070777
+all_individuals	dlpfc	AA	AA_only	psi	h2_tertile	T3	3180	0	0	10863.5	0.739308176100629	0.972641509433962

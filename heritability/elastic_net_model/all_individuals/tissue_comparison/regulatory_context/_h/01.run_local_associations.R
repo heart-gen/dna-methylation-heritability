@@ -322,6 +322,17 @@ if (cohort == "BA_only" && population != "AA") {
 }
 vmr_set <- validate_vmr_set(cohort, population, vmr_set)
 
+if (should_skip_shared_duplicate_population(population, vmr_set)) {
+  message2(
+    paste0(
+      "Skipping duplicate shared-VMR association run for population=%s ",
+      "(canonical outputs under population=%s; step 02/03 read those inputs)."
+    ),
+    population, SHARED_VMR_CANONICAL_POPULATION
+  )
+  quit(save = "no", status = 0)
+}
+
 message2("Running local associations: cohort=%s tissue=%s modality=%s population=%s vmr_set=%s",
          cohort, tissue, modality, population, vmr_set)
 

@@ -1,0 +1,9 @@
+cohort	tissue	population	vmr_set	modality	run_tag	bin_type	h2_bin	n_vmrs	n_any_fdr10	prop_any_fdr10	median_max_abs_beta	median_pairs_tested
+all_individuals	caudate	AA	shared	psi	window_250kb	h2_quintile	Q1	1410	53	0.0375886524822695	3.05566069857704	93
+all_individuals	caudate	AA	shared	psi	window_250kb	h2_quintile	Q2	1409	41	0.0290986515259049	2.74201538513796	81
+all_individuals	caudate	AA	shared	psi	window_250kb	h2_quintile	Q3	1409	61	0.0432931156848829	2.76594354429061	80
+all_individuals	caudate	AA	shared	psi	window_250kb	h2_quintile	Q4	1409	118	0.0837473385379702	2.53850434177432	77
+all_individuals	caudate	AA	shared	psi	window_250kb	h2_quintile	Q5	1410	160	0.113475177304965	1.73582735353817	38.5
+all_individuals	caudate	AA	shared	psi	window_250kb	h2_tertile	T1	2349	79	0.0336313324819072	2.99469102071148	90
+all_individuals	caudate	AA	shared	psi	window_250kb	h2_tertile	T2	2349	102	0.0434227330779055	2.74041765210272	80
+all_individuals	caudate	AA	shared	psi	window_250kb	h2_tertile	T3	2349	252	0.10727969348659	1.99279500204702	53

@@ -1,0 +1,9 @@
+cohort	tissue	population	vmr_set	feature_type	comparison	outcome	test	statistic	p_value	term	estimate	conf.low	conf.high	fdr
+all_individuals	caudate	AA	AA_only	gene	Heritable_vs_non-heritable	log_nearest_distance	wilcoxon	16972540	2.49311866900837e-29					6.64831645068898e-29
+all_individuals	caudate	AA	AA_only	gene	Heritable_vs_non-heritable_adjusted	within_10kb	logistic		2.18241052132592e-22	h2_categoryNon-heritable	2.26490340293154	1.92305863410448	2.67333779097142	3.49185683412148e-22
+all_individuals	caudate	AA	AA_only	gene	Heritable_vs_non-heritable_adjusted	within_100kb	logistic		4.26912180405173e-05	h2_categoryNon-heritable	7.0869713451568	3.04281866982301	20.6723680110408	4.26912180405173e-05
+all_individuals	caudate	AA	AA_only	gene	h2_quintile	log_nearest_distance	kruskal	267.08591127464	1.35485317586881e-56					1.08388254069505e-55
+all_individuals	caudate	AA	AA_only	psi	Heritable_vs_non-heritable	log_nearest_distance	wilcoxon	17267015.5	1.8501077558424e-22					3.49185683412148e-22
+all_individuals	caudate	AA	AA_only	psi	Heritable_vs_non-heritable_adjusted	within_10kb	logistic		4.10775100584101e-18	h2_categoryNon-heritable	1.45661036744308	1.33795601523377	1.58580164709659	4.69457257810401e-18
+all_individuals	caudate	AA	AA_only	psi	Heritable_vs_non-heritable_adjusted	within_100kb	logistic		3.91010535346134e-19	h2_categoryNon-heritable	2.74359166787297	2.20495541370173	3.43381188018292	5.21347380461512e-19
+all_individuals	caudate	AA	AA_only	psi	h2_quintile	log_nearest_distance	kruskal	244.486875098145	1.00256704933436e-51					4.01026819733744e-51

@@ -1,0 +1,4 @@
+env	term	odds_ratio	ci_lo	ci_hi	p_value	n_nonheritable_features	n_heritable_features	n_env_linked_nonheritable	n_env_linked_heritable	fdr	cohort	tissue	population	vmr_set	modality	run_tag
+ethanol	env_valueTRUE	Inf	0.00514375000000001	Inf	1	1	5	0	1	1	all_individuals	caudate	EA	shared	expression	abc
+nicotine	env_valueTRUE	Inf	0.00514375000000001	Inf	1	1	5	0	1	1	all_individuals	caudate	EA	shared	expression	abc
+any_trauma_hx	env_value	Inf	0.0128359375	Inf	1	1	5	0	2	1	all_individuals	caudate	EA	shared	expression	abc

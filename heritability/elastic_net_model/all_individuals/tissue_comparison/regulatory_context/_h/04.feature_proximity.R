@@ -24,6 +24,19 @@ population <- ifelse(length(args) >= 3, toupper(args[[3]]), "AA")
 vmr_set <- ifelse(length(args) >= 4, args[[4]], "shared")
 vmr_set <- validate_vmr_set(cohort, population, vmr_set)
 
+if (should_skip_shared_duplicate_population(population, vmr_set)) {
+  message2(
+    paste0(
+      "Skipping duplicate shared-VMR proximity run for population=%s ",
+      "(identical genomic distances and h2_category; see %s)."
+    ),
+    population,
+    regctx_output_dir(cohort, tissue, SHARED_VMR_CANONICAL_POPULATION,
+                      "proximity", vmr_set = vmr_set)
+  )
+  quit(save = "no", status = 0)
+}
+
 out_dir <- regctx_output_dir(cohort, tissue, population, "proximity",
                              vmr_set = vmr_set)
 dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)

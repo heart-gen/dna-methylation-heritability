@@ -1,0 +1,22 @@
+term	estimate	std.error	statistic	p.value	conf.low	conf.high	model	estimate_scale	cohort	tissue	modality	population	vmr_set	run_tag
+(Intercept)	1.47954331717258e-21	6380.11249180515	-0.00751750906332751	0.994001952077285		Inf	burden_fdr10_category	odds_ratio	all_individuals	dlpfc	expression	EA	shared	abc
+h2_categoryNon-heritable	8.74790273889776e-05	12123.9061538135	-0.000770717899146245	0.999385056148417		Inf	burden_fdr10_category	odds_ratio	all_individuals	dlpfc	expression	EA	shared	abc
+log_vmr_length	2.2061708613926e-06	13.2758776093206	-0.981046418954216	0.32656985125053	1.51704379796666e-27	0.285008142187159	burden_fdr10_category	odds_ratio	all_individuals	dlpfc	expression	EA	shared	abc
+log_num_snps	31706.1645408116	13.2762002319943	0.780665116890335	0.434999482242259	0.0459328758141615	2.03911251645151e+30	burden_fdr10_category	odds_ratio	all_individuals	dlpfc	expression	EA	shared	abc
+methylation_variance	1.57442784510989e+236	717.000983333831	0.75852611993798	0.448136082328069	1.11253692931696e-308	Inf	burden_fdr10_category	odds_ratio	all_individuals	dlpfc	expression	EA	shared	abc
+log_min_distance	10.3881462328586	2.82629816516036	0.828173545045345	0.407572223684301	0.292912799067374	98409.3865265213	burden_fdr10_category	odds_ratio	all_individuals	dlpfc	expression	EA	shared	abc
+chromatin_stateIntergenic	65112287592900.6	6379.94082257173	0.0049854905055401	0.996022170575842	0		burden_fdr10_category	odds_ratio	all_individuals	dlpfc	expression	EA	shared	abc
+(Intercept)	9.25882333851303	3.76595249009733	2.45856084559201	0.0222900266557354	1.44871589429407	17.068930782732	strength_category	log_abs_beta	all_individuals	dlpfc	expression	EA	shared	abc
+h2_categoryNon-heritable	-1.00321535270032	0.730723607467023	-1.37290672211599	0.183614880616447	-2.51864336230785	0.512212656907212	strength_category	log_abs_beta	all_individuals	dlpfc	expression	EA	shared	abc
+log_vmr_length	-0.599756330343603	0.311195864348237	-1.92726317748381	0.0669581728804841	-1.24513705225853	0.0456243915713204	strength_category	log_abs_beta	all_individuals	dlpfc	expression	EA	shared	abc
+log_num_snps	-1.06482457770562	0.626972255438389	-1.69835996484577	0.103540722867434	-2.36508545258233	0.235436297171101	strength_category	log_abs_beta	all_individuals	dlpfc	expression	EA	shared	abc
+methylation_variance	-71.3569744837422	112.209549401535	-0.635926040736478	0.531385097178695	-304.065336949232	161.351387981747	strength_category	log_abs_beta	all_individuals	dlpfc	expression	EA	shared	abc
+log_min_distance	-0.11295227881757	0.211836144702326	-0.533205884086927	0.599236890929972	-0.552273554124343	0.326368996489204	strength_category	log_abs_beta	all_individuals	dlpfc	expression	EA	shared	abc
+chromatin_stateIntergenic	0.204806827872832	0.515561487684314	0.39725005215719	0.695010897912434	-0.8644022562842	1.27401591202986	strength_category	log_abs_beta	all_individuals	dlpfc	expression	EA	shared	abc
+(Intercept)	0	743267.248666351	-0.00172065192645416	0.998627119070802	0	Inf	burden_fdr10_continuous_h2	odds_ratio_per_0.1_h2	all_individuals	dlpfc	expression	EA	shared	abc
+h2_scaled	5.77857524364185e-54	30962.5205629385	-0.00395915563843829	0.996841059094964	0	Inf	burden_fdr10_continuous_h2	odds_ratio_per_0.1_h2	all_individuals	dlpfc	expression	EA	shared	abc
+log_vmr_length	1.7896850962522e-219	125517.635427635	-0.00401285519735265	0.996798213386363	0	Inf	burden_fdr10_continuous_h2	odds_ratio_per_0.1_h2	all_individuals	dlpfc	expression	EA	shared	abc
+log_num_snps	6.44030195349843e+259	188827.58298161	0.00316813944798481	0.997472194676625	0	Inf	burden_fdr10_continuous_h2	odds_ratio_per_0.1_h2	all_individuals	dlpfc	expression	EA	shared	abc
+methylation_variance	0	5196662.26413366	-0.00343094047400611	0.997262510937416	0	Inf	burden_fdr10_continuous_h2	odds_ratio_per_0.1_h2	all_individuals	dlpfc	expression	EA	shared	abc
+log_min_distance	7.86470583964355e+20	19994.3178558328	0.00240638802190824	0.998079982003061	0	Inf	burden_fdr10_continuous_h2	odds_ratio_per_0.1_h2	all_individuals	dlpfc	expression	EA	shared	abc
+chromatin_stateIntergenic	Inf	197748.160949263	0.00393761623586131	0.996858244917767	0	Inf	burden_fdr10_continuous_h2	odds_ratio_per_0.1_h2	all_individuals	dlpfc	expression	EA	shared	abc

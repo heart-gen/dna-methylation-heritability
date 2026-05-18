@@ -1,0 +1,105 @@
+2026-05-15 13:00:26 - **** Job starts ****
+**** QUEST info ****
+User: owb0346
+Job id: 8120251
+Job name: regctx_assoc
+Node name: 
+Hostname: qnode1019
+Task id: 5
+No modules loaded
+2026-05-15 13:00:38 - Running local associations
+Running local associations: cohort=all_individuals tissue=caudate modality=psi population=AA vmr_set=AA_only
+psi: assay rows with variation 541385 / 690907; VMR-feature links 2308605 -> 1943042 after dropping constant / all-zero features
+Testing 1943042 VMR-feature pairs (batched by VMR) [psi]
+  tested 104757 / 1943042 pairs (564 / 11297 VMRs) [psi]
+  tested 184576 / 1943042 pairs (1128 / 11297 VMRs) [psi]
+  tested 306127 / 1943042 pairs (1692 / 11297 VMRs) [psi]
+  tested 396028 / 1943042 pairs (2256 / 11297 VMRs) [psi]
+  tested 460334 / 1943042 pairs (2820 / 11297 VMRs) [psi]
+  tested 586563 / 1943042 pairs (3384 / 11297 VMRs) [psi]
+  tested 695001 / 1943042 pairs (3948 / 11297 VMRs) [psi]
+  tested 802156 / 1943042 pairs (4512 / 11297 VMRs) [psi]
+  tested 876271 / 1943042 pairs (5076 / 11297 VMRs) [psi]
+  tested 982198 / 1943042 pairs (5640 / 11297 VMRs) [psi]
+  tested 1111162 / 1943042 pairs (6204 / 11297 VMRs) [psi]
+  tested 1214224 / 1943042 pairs (6768 / 11297 VMRs) [psi]
+  tested 1337637 / 1943042 pairs (7332 / 11297 VMRs) [psi]
+  tested 1427235 / 1943042 pairs (7896 / 11297 VMRs) [psi]
+  tested 1490696 / 1943042 pairs (8460 / 11297 VMRs) [psi]
+  tested 1588733 / 1943042 pairs (9024 / 11297 VMRs) [psi]
+  tested 1659542 / 1943042 pairs (9588 / 11297 VMRs) [psi]
+  tested 1736818 / 1943042 pairs (10152 / 11297 VMRs) [psi]
+  tested 1827724 / 1943042 pairs (10716 / 11297 VMRs) [psi]
+  tested 1942649 / 1943042 pairs (11280 / 11297 VMRs) [psi]
+Saved [psi] outputs to /gpfs/projects/b1213/users/kynon/projects/dna-methylation-heritability/heritability/elastic_net_model/all_individuals/tissue_comparison/regulatory_context/_m/AA_only/caudate/AA/psi/window_250kb
+Saved outputs to /gpfs/projects/b1213/users/kynon/projects/dna-methylation-heritability/heritability/elastic_net_model/all_individuals/tissue_comparison/regulatory_context/_m/AA_only/caudate/AA/psi/window_250kb
+There were 50 or more warnings (use warnings() to see the first 50)
+[1] "2026-05-15 23:57:04 CDT"
+     user    system   elapsed 
+36706.663  2058.216 39386.384 
+─ Session info ───────────────────────────────────────────────────────────────────────────────────────────────────────
+ setting  value
+ version  R version 4.4.3 (2025-02-28)
+ os       Red Hat Enterprise Linux 8.10 (Ootpa)
+ system   x86_64, linux-gnu
+ ui       X11
+ language (EN)
+ collate  en_US.UTF-8
+ ctype    en_US.UTF-8
+ tz       America/Chicago
+ date     2026-05-15
+ pandoc   3.8 @ /projects/p32505/opt/envs/rnaseq/bin/pandoc
+ quarto   1.9.35 @ /projects/p32505/opt/bin/quarto
+
+─ Packages ───────────────────────────────────────────────────────────────────────────────────────────────────────────
+ package              * version date (UTC) lib source
+ abind                  1.4-8   2024-09-12 [1] CRAN (R 4.4.3)
+ backports              1.5.0   2024-05-23 [1] CRAN (R 4.4.3)
+ Biobase              * 2.66.0  2024-10-29 [1] Bioconductor 3.20 (R 4.4.2)
+ BiocGenerics         * 0.52.0  2024-10-29 [1] Bioconductor 3.20 (R 4.4.2)
+ broom                * 1.0.10  2025-09-13 [1] CRAN (R 4.4.3)
+ cli                    3.6.5   2025-04-23 [1] CRAN (R 4.4.3)
+ crayon                 1.5.3   2024-06-20 [1] CRAN (R 4.4.3)
+ data.table           * 1.17.8  2025-07-10 [1] CRAN (R 4.4.3)
+ DelayedArray           0.32.0  2024-10-29 [1] Bioconductor 3.20 (R 4.4.2)
+ dplyr                * 1.1.4   2023-11-17 [1] CRAN (R 4.4.3)
+ generics               0.1.4   2025-05-09 [1] CRAN (R 4.4.3)
+ GenomeInfoDb         * 1.42.0  2024-10-29 [1] Bioconductor 3.20 (R 4.4.2)
+ GenomeInfoDbData       1.2.13  2025-09-21 [1] Bioconductor
+ GenomicRanges        * 1.58.0  2024-10-29 [1] Bioconductor 3.20 (R 4.4.2)
+ glue                   1.8.0   2024-09-30 [1] CRAN (R 4.4.3)
+ here                 * 1.0.2   2025-09-15 [1] CRAN (R 4.4.3)
+ httr                   1.4.7   2023-08-15 [1] CRAN (R 4.4.3)
+ IRanges              * 2.40.0  2024-10-29 [1] Bioconductor 3.20 (R 4.4.2)
+ jsonlite               2.0.0   2025-03-27 [1] CRAN (R 4.4.3)
+ lattice                0.22-7  2025-04-02 [1] CRAN (R 4.4.3)
+ lifecycle              1.0.4   2023-11-07 [1] CRAN (R 4.4.3)
+ magrittr               2.0.4   2025-09-12 [1] CRAN (R 4.4.3)
+ Matrix                 1.7-4   2025-08-28 [1] CRAN (R 4.4.3)
+ MatrixGenerics       * 1.18.0  2024-10-29 [1] Bioconductor 3.20 (R 4.4.2)
+ matrixStats          * 1.5.0   2025-01-07 [1] CRAN (R 4.4.3)
+ pillar                 1.11.1  2025-09-17 [1] CRAN (R 4.4.3)
+ pkgconfig              2.0.3   2019-09-22 [1] CRAN (R 4.4.3)
+ purrr                  1.1.0   2025-07-10 [1] CRAN (R 4.4.3)
+ R6                     2.6.1   2025-02-15 [1] CRAN (R 4.4.3)
+ rlang                  1.1.6   2025-04-11 [1] CRAN (R 4.4.3)
+ rprojroot              2.1.1   2025-08-26 [1] CRAN (R 4.4.3)
+ S4Arrays               1.6.0   2024-10-29 [1] Bioconductor 3.20 (R 4.4.3)
+ S4Vectors            * 0.44.0  2024-10-29 [1] Bioconductor 3.20 (R 4.4.2)
+ sessioninfo            1.2.3   2025-02-05 [1] CRAN (R 4.4.3)
+ SparseArray            1.6.0   2024-10-29 [1] Bioconductor 3.20 (R 4.4.3)
+ SummarizedExperiment * 1.36.0  2024-10-29 [1] Bioconductor 3.20 (R 4.4.2)
+ tibble                 3.3.0   2025-06-08 [1] CRAN (R 4.4.3)
+ tidyr                * 1.3.1   2024-01-24 [1] CRAN (R 4.4.3)
+ tidyselect             1.2.1   2024-03-11 [1] CRAN (R 4.4.3)
+ UCSC.utils             1.2.0   2024-10-29 [1] Bioconductor 3.20 (R 4.4.2)
+ vctrs                  0.6.5   2023-12-01 [1] CRAN (R 4.4.3)
+ withr                  3.0.2   2024-10-28 [1] CRAN (R 4.4.3)
+ XVector                0.46.0  2024-10-29 [1] Bioconductor 3.20 (R 4.4.2)
+ zlibbioc               1.52.0  2024-10-29 [1] Bioconductor 3.20 (R 4.4.2)
+
+ [1] /gpfs/projects/p32505/opt/envs/rnaseq/lib/R/library
+ * ── Packages attached to the search path.
+
+──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+2026-05-15 23:57:18 - **** Job ends ****

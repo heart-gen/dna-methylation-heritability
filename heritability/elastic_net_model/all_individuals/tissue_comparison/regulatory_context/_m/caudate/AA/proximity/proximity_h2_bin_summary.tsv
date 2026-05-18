@@ -1,0 +1,17 @@
+cohort	tissue	population	vmr_set	feature_type	bin_type	h2_bin	n_vmrs	median_distance	q25_distance	q75_distance	prop_within_10kb	prop_within_100kb
+all_individuals	caudate	AA	shared	gene	h2_quintile	Q1	1439	0	0	0	0.956219596942321	0.997915218902015
+all_individuals	caudate	AA	shared	gene	h2_quintile	Q2	1439	0	0	0	0.968033356497568	1
+all_individuals	caudate	AA	shared	gene	h2_quintile	Q3	1438	0	0	0	0.964534075104311	0.998609179415855
+all_individuals	caudate	AA	shared	gene	h2_quintile	Q4	1439	0	0	0	0.922168172341904	0.993050729673384
+all_individuals	caudate	AA	shared	gene	h2_quintile	Q5	1439	0	0	3577.5	0.817929117442669	0.981236970118138
+all_individuals	caudate	AA	shared	gene	h2_tertile	T1	2398	0	0	0	0.960383653044203	0.998748957464554
+all_individuals	caudate	AA	shared	gene	h2_tertile	T2	2398	0	0	0	0.961217681401168	0.998748957464554
+all_individuals	caudate	AA	shared	gene	h2_tertile	T3	2398	0	0	752	0.855713094245204	0.984987489574646
+all_individuals	caudate	AA	shared	psi	h2_quintile	Q1	1439	0	0	7652.5	0.780403057678944	0.979847116052814
+all_individuals	caudate	AA	shared	psi	h2_quintile	Q2	1439	45	0	9118.5	0.757470465601112	0.984016678248784
+all_individuals	caudate	AA	shared	psi	h2_quintile	Q3	1438	14.5	0	9515	0.755910987482615	0.980528511821975
+all_individuals	caudate	AA	shared	psi	h2_quintile	Q4	1439	384	0	14082.5	0.708825573314802	0.954829742876998
+all_individuals	caudate	AA	shared	psi	h2_quintile	Q5	1439	8683	0	46769	0.51772063933287	0.865184155663655
+all_individuals	caudate	AA	shared	psi	h2_tertile	T1	2398	0	0	7901.5	0.774395329441201	0.980817347789825
+all_individuals	caudate	AA	shared	psi	h2_tertile	T2	2398	26.5	0	9872.75	0.750625521267723	0.979149291075896
+all_individuals	caudate	AA	shared	psi	h2_tertile	T3	2398	3822.5	0	32386.5	0.587155963302752	0.898665554628857

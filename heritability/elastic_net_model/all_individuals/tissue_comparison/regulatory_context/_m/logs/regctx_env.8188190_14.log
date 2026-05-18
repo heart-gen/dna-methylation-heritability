@@ -1,0 +1,115 @@
+2026-05-16 12:52:58 - **** Job starts ****
+**** QUEST info ****
+User: owb0346
+Job id: 8188203
+Job name: regctx_env
+Node name: 
+Hostname: qnode1205
+Task id: 14
+No modules loaded
+2026-05-16 12:53:09 - Checking environment convergence
+Testing 62 features for environment convergence [run_tag=abc]
+Testing environment variable: smoking [run_tag=abc]
+Testing environment variable: codeine [run_tag=abc]
+Testing environment variable: morphine [run_tag=abc]
+Testing environment variable: cocaine [run_tag=abc]
+Testing environment variable: ethanol [run_tag=abc]
+Testing environment variable: antipsychotics [run_tag=abc]
+Testing environment variable: nicotine [run_tag=abc]
+Testing environment variable: amphetamines [run_tag=abc]
+Testing environment variable: any_trauma_hx [run_tag=abc]
+Testing environment variable: education [run_tag=abc]
+Testing environment variable: marital_status [run_tag=abc]
+Saved environment convergence outputs to /gpfs/projects/b1213/users/kynon/projects/dna-methylation-heritability/heritability/elastic_net_model/all_individuals/tissue_comparison/regulatory_context/_m/EA_only/dlpfc/EA/expression/abc [run_tag=abc]
+Testing 2915 features for environment convergence [run_tag=nearest_gene_window_250kb]
+Testing environment variable: smoking [run_tag=nearest_gene_window_250kb]
+Testing environment variable: codeine [run_tag=nearest_gene_window_250kb]
+Testing environment variable: morphine [run_tag=nearest_gene_window_250kb]
+Testing environment variable: cocaine [run_tag=nearest_gene_window_250kb]
+Testing environment variable: ethanol [run_tag=nearest_gene_window_250kb]
+Testing environment variable: antipsychotics [run_tag=nearest_gene_window_250kb]
+Testing environment variable: nicotine [run_tag=nearest_gene_window_250kb]
+Testing environment variable: amphetamines [run_tag=nearest_gene_window_250kb]
+Testing environment variable: any_trauma_hx [run_tag=nearest_gene_window_250kb]
+Testing environment variable: education [run_tag=nearest_gene_window_250kb]
+Testing environment variable: marital_status [run_tag=nearest_gene_window_250kb]
+Saved environment convergence outputs to /gpfs/projects/b1213/users/kynon/projects/dna-methylation-heritability/heritability/elastic_net_model/all_individuals/tissue_comparison/regulatory_context/_m/EA_only/dlpfc/EA/expression/nearest_gene_window_250kb [run_tag=nearest_gene_window_250kb]
+Warning messages:
+1: In data.table::fwrite(x, fn, ...) :
+  Input has no columns; creating an empty file at '/gpfs/projects/b1213/users/kynon/projects/dna-methylation-heritability/heritability/elastic_net_model/all_individuals/tissue_comparison/regulatory_context/_m/EA_only/dlpfc/EA/expression/abc/environment_convergence_enrichment.tsv' and exiting.
+2: In data.table::fwrite(x, fn, ...) :
+  Input has no columns; creating an empty file at '/gpfs/projects/b1213/users/kynon/projects/dna-methylation-heritability/heritability/elastic_net_model/all_individuals/tissue_comparison/regulatory_context/_m/EA_only/dlpfc/EA/expression/abc/environment_convergence_wilcoxon.tsv' and exiting.
+3: In data.table::fwrite(x, fn, ...) :
+  Input has no columns; creating an empty file at '/gpfs/projects/b1213/users/kynon/projects/dna-methylation-heritability/heritability/elastic_net_model/all_individuals/tissue_comparison/regulatory_context/_m/EA_only/dlpfc/EA/expression/abc/environment_convergence_vmr_level.tsv' and exiting.
+[1] "2026-05-16 12:53:37 CDT"
+   user  system elapsed 
+ 25.398   1.390  28.453 
+─ Session info ───────────────────────────────────────────────────────────────────────────────────────────────────────
+ setting  value
+ version  R version 4.4.3 (2025-02-28)
+ os       Red Hat Enterprise Linux 8.10 (Ootpa)
+ system   x86_64, linux-gnu
+ ui       X11
+ language (EN)
+ collate  en_US.UTF-8
+ ctype    en_US.UTF-8
+ tz       America/Chicago
+ date     2026-05-16
+ pandoc   3.8 @ /projects/p32505/opt/envs/rnaseq/bin/pandoc
+ quarto   1.9.35 @ /projects/p32505/opt/bin/quarto
+
+─ Packages ───────────────────────────────────────────────────────────────────────────────────────────────────────────
+ package              * version date (UTC) lib source
+ abind                  1.4-8   2024-09-12 [1] CRAN (R 4.4.3)
+ Biobase              * 2.66.0  2024-10-29 [1] Bioconductor 3.20 (R 4.4.2)
+ BiocGenerics         * 0.52.0  2024-10-29 [1] Bioconductor 3.20 (R 4.4.2)
+ cli                    3.6.5   2025-04-23 [1] CRAN (R 4.4.3)
+ crayon                 1.5.3   2024-06-20 [1] CRAN (R 4.4.3)
+ data.table           * 1.17.8  2025-07-10 [1] CRAN (R 4.4.3)
+ DelayedArray           0.32.0  2024-10-29 [1] Bioconductor 3.20 (R 4.4.2)
+ dplyr                * 1.1.4   2023-11-17 [1] CRAN (R 4.4.3)
+ generics               0.1.4   2025-05-09 [1] CRAN (R 4.4.3)
+ GenomeInfoDb         * 1.42.0  2024-10-29 [1] Bioconductor 3.20 (R 4.4.2)
+ GenomeInfoDbData       1.2.13  2025-09-21 [1] Bioconductor
+ GenomicRanges        * 1.58.0  2024-10-29 [1] Bioconductor 3.20 (R 4.4.2)
+ glue                   1.8.0   2024-09-30 [1] CRAN (R 4.4.3)
+ here                 * 1.0.2   2025-09-15 [1] CRAN (R 4.4.3)
+ httr                   1.4.7   2023-08-15 [1] CRAN (R 4.4.3)
+ IRanges              * 2.40.0  2024-10-29 [1] Bioconductor 3.20 (R 4.4.2)
+ jsonlite               2.0.0   2025-03-27 [1] CRAN (R 4.4.3)
+ lattice                0.22-7  2025-04-02 [1] CRAN (R 4.4.3)
+ lifecycle              1.0.4   2023-11-07 [1] CRAN (R 4.4.3)
+ limma                * 3.62.1  2024-11-03 [1] Bioconductor 3.20 (R 4.4.2)
+ magrittr               2.0.4   2025-09-12 [1] CRAN (R 4.4.3)
+ Matrix                 1.7-4   2025-08-28 [1] CRAN (R 4.4.3)
+ MatrixGenerics       * 1.18.0  2024-10-29 [1] Bioconductor 3.20 (R 4.4.2)
+ matrixStats          * 1.5.0   2025-01-07 [1] CRAN (R 4.4.3)
+ pillar                 1.11.1  2025-09-17 [1] CRAN (R 4.4.3)
+ pkgconfig              2.0.3   2019-09-22 [1] CRAN (R 4.4.3)
+ purrr                  1.1.0   2025-07-10 [1] CRAN (R 4.4.3)
+ R.methodsS3            1.8.2   2022-06-13 [1] CRAN (R 4.4.3)
+ R.oo                   1.27.1  2025-05-02 [1] CRAN (R 4.4.3)
+ R.utils                2.13.0  2025-02-24 [1] CRAN (R 4.4.3)
+ R6                     2.6.1   2025-02-15 [1] CRAN (R 4.4.3)
+ rlang                  1.1.6   2025-04-11 [1] CRAN (R 4.4.3)
+ rprojroot              2.1.1   2025-08-26 [1] CRAN (R 4.4.3)
+ S4Arrays               1.6.0   2024-10-29 [1] Bioconductor 3.20 (R 4.4.3)
+ S4Vectors            * 0.44.0  2024-10-29 [1] Bioconductor 3.20 (R 4.4.2)
+ sessioninfo            1.2.3   2025-02-05 [1] CRAN (R 4.4.3)
+ SparseArray            1.6.0   2024-10-29 [1] Bioconductor 3.20 (R 4.4.3)
+ statmod                1.5.0   2023-01-06 [1] CRAN (R 4.4.3)
+ SummarizedExperiment * 1.36.0  2024-10-29 [1] Bioconductor 3.20 (R 4.4.2)
+ tibble                 3.3.0   2025-06-08 [1] CRAN (R 4.4.3)
+ tidyr                * 1.3.1   2024-01-24 [1] CRAN (R 4.4.3)
+ tidyselect             1.2.1   2024-03-11 [1] CRAN (R 4.4.3)
+ UCSC.utils             1.2.0   2024-10-29 [1] Bioconductor 3.20 (R 4.4.2)
+ vctrs                  0.6.5   2023-12-01 [1] CRAN (R 4.4.3)
+ withr                  3.0.2   2024-10-28 [1] CRAN (R 4.4.3)
+ XVector                0.46.0  2024-10-29 [1] Bioconductor 3.20 (R 4.4.2)
+ zlibbioc               1.52.0  2024-10-29 [1] Bioconductor 3.20 (R 4.4.2)
+
+ [1] /gpfs/projects/p32505/opt/envs/rnaseq/lib/R/library
+ * ── Packages attached to the search path.
+
+──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+2026-05-16 12:53:40 - **** Job ends ****

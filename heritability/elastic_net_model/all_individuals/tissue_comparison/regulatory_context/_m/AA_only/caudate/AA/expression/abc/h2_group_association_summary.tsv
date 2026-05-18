@@ -1,0 +1,3 @@
+cohort	tissue	population	vmr_set	modality	run_tag	h2_category	n_vmrs	n_any_fdr05	n_any_fdr10	prop_any_fdr05	prop_any_fdr10	median_max_abs_beta	median_pairs_tested
+all_individuals	caudate	AA	AA_only	expression	abc	Heritable	22	5	5	0.227272727272727	0.227272727272727	0.272450880918455	1.5
+all_individuals	caudate	AA	AA_only	expression	abc	Non-heritable	26	1	1	0.0384615384615385	0.0384615384615385	0.213057600188503	1

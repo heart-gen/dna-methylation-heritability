@@ -1,0 +1,14 @@
+env	term	odds_ratio	ci_lo	ci_hi	p_value	n_nonheritable_features	n_heritable_features	n_env_linked_nonheritable	n_env_linked_heritable	fdr	cohort	tissue	population	vmr_set	modality	run_tag
+smoking	env_valueTRUE	1.24341954624344	0.419992303135447	4.99502289914023	1	119	627	4	26	1	all_individuals	dlpfc	EA	shared	psi	window_250kb
+codeine	env_valueTRUE	0.887504942469563	0.242103644658271	4.89445633366091	0.743877252802505	115	603	3	14	1	all_individuals	dlpfc	EA	shared	psi	window_250kb
+morphine	env_valueTRUE	1.11585094549696	0.243258201073196	10.4042302448124	1	111	598	2	12	1	all_individuals	dlpfc	EA	shared	psi	window_250kb
+cocaine	env_valueTRUE	2.1465631973714	0.310719660355948	92.7815983917426	0.703158826679002	95	537	1	12	1	all_individuals	dlpfc	EA	shared	psi	window_250kb
+ethanol	env_valueTRUE	0.932246951834997	0.302054710636806	3.83796083555688	0.781004804485619	119	605	4	19	1	all_individuals	dlpfc	EA	shared	psi	window_250kb
+nicotine	env_valueTRUE	0.85735373092386	0.275519262424657	3.54600643412686	0.768184835915969	120	627	4	18	1	all_individuals	dlpfc	EA	shared	psi	window_250kb
+amphetamines	env_valueTRUE	0.510122865944487	0.119982035489689	3.03291841197192	0.398670580631904	110	568	3	8	1	all_individuals	dlpfc	EA	shared	psi	window_250kb
+any_trauma_hx	env_value	4.41874524047211	0.698724878844091	184.174903328982	0.152019600228951	108	554	1	22	1	all_individuals	dlpfc	EA	shared	psi	window_250kb
+education	env_valueless_than_hs	0.566096981507049	0.13852967311441	3.29936343514492	0.419905852601844	118	619	3	9	1	all_individuals	dlpfc	EA	shared	psi	window_250kb
+education	env_valueMD	0.608832380727266	0.209074529676793	2.16164877647081	0.363161065260311	100	548	5	17	1	all_individuals	dlpfc	EA	shared	psi	window_250kb
+education	env_valuemore_than_hs	0.825227391853507	0.393828794775718	1.89656325563683	0.56566065726362	118	620	10	44	1	all_individuals	dlpfc	EA	shared	psi	window_250kb
+marital_status	env_valuepreviously_married	0.565902426629149	0.167552416294563	2.45133293674995	0.305508293561715	115	601	4	12	1	all_individuals	dlpfc	EA	shared	psi	window_250kb
+marital_status	env_valuesingle	0.986332731066861	0.612712784805839	1.6228018428428	1	115	601	29	150	1	all_individuals	dlpfc	EA	shared	psi	window_250kb
