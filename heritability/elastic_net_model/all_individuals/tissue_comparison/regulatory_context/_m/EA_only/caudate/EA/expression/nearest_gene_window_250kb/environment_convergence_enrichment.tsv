@@ -1,0 +1,13 @@
+env	term	odds_ratio	ci_lo	ci_hi	p_value	n_nonheritable_features	n_heritable_features	n_env_linked_nonheritable	n_env_linked_heritable	fdr	cohort	tissue	population	vmr_set	modality	run_tag
+smoking	env_valueTRUE	0.994298386662009	0.26668703346182	4.04122435355878	1	179	252	5	7	1	all_individuals	caudate	EA	EA_only	expression	nearest_gene_window_250kb
+codeine	env_valueTRUE	0.746458753828577	0.326053843266197	1.71868518292994	0.443606317244118	179	252	14	15	0.760467972418488	all_individuals	caudate	EA	EA_only	expression	nearest_gene_window_250kb
+morphine	env_valueTRUE	1.77526524953168	0.681302508856842	5.178827579198	0.286543993156946	179	252	7	17	0.760467972418488	all_individuals	caudate	EA	EA_only	expression	nearest_gene_window_250kb
+cocaine	env_valueTRUE	1.24936599742154	0.312023683796335	5.91070280616426	1	179	252	4	7	1	all_individuals	caudate	EA	EA_only	expression	nearest_gene_window_250kb
+ethanol	env_valueTRUE	1.28814747950261	0.37988676865631	4.98054858472353	0.786030691471788	179	252	5	9	0.961981910253963	all_individuals	caudate	EA	EA_only	expression	nearest_gene_window_250kb
+nicotine	env_valueTRUE	1.19097564838072	0.38369653503379	4.06585445873206	0.801651591878303	179	252	6	10	0.961981910253963	all_individuals	caudate	EA	EA_only	expression	nearest_gene_window_250kb
+amphetamines	env_valueTRUE	0.701422965408279	0.224636565791474	2.18989378562091	0.606628099268472	179	252	8	8	0.909942148902708	all_individuals	caudate	EA	EA_only	expression	nearest_gene_window_250kb
+any_trauma_hx	env_value	2.50952531404052	0.470333053218391	25.0401647050397	0.317046777540295	178	252	2	7	0.760467972418488	all_individuals	caudate	EA	EA_only	expression	nearest_gene_window_250kb
+education	env_valueless_than_hs	1.89026981022424	0.618063509525674	6.89993194718915	0.328802973410719	179	252	5	13	0.760467972418488	all_individuals	caudate	EA	EA_only	expression	nearest_gene_window_250kb
+education	env_valuemore_than_hs	2.83169379598641	0.997071127096335	9.89422721862343	0.0349608086988766	179	252	5	19	0.306898943434211	all_individuals	caudate	EA	EA_only	expression	nearest_gene_window_250kb
+marital_status	env_valuepreviously_married	6.57200331980358	0.896665279594307	290.186930134627	0.0511498239057018	179	252	1	9	0.306898943434211	all_individuals	caudate	EA	EA_only	expression	nearest_gene_window_250kb
+marital_status	env_valuesingle	1.45177326758503	0.601861275437237	3.76203884927128	0.424631868798085	179	252	9	18	0.760467972418488	all_individuals	caudate	EA	EA_only	expression	nearest_gene_window_250kb

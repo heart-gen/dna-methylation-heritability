@@ -1,0 +1,17 @@
+cohort	tissue	population	vmr_set	feature_type	bin_type	h2_bin	n_vmrs	median_distance	q25_distance	q75_distance	prop_within_10kb	prop_within_100kb
+all_individuals	dlpfc	AA	shared	gene	h2_quintile	Q1	991	0	0	0	0.955600403632694	0.997981836528759
+all_individuals	dlpfc	AA	shared	gene	h2_quintile	Q2	991	0	0	0	0.963673057517659	1
+all_individuals	dlpfc	AA	shared	gene	h2_quintile	Q3	990	0	0	0	0.955555555555556	1
+all_individuals	dlpfc	AA	shared	gene	h2_quintile	Q4	991	0	0	0	0.966700302724521	1
+all_individuals	dlpfc	AA	shared	gene	h2_quintile	Q5	991	0	0	0	0.936427850655903	0.992936427850656
+all_individuals	dlpfc	AA	shared	gene	h2_tertile	T1	1652	0	0	0	0.958837772397094	0.998789346246973
+all_individuals	dlpfc	AA	shared	gene	h2_tertile	T2	1651	0	0	0	0.958207147183525	1
+all_individuals	dlpfc	AA	shared	gene	h2_tertile	T3	1651	0	0	0	0.949727437916414	0.995760145366445
+all_individuals	dlpfc	AA	shared	psi	h2_quintile	Q1	991	211	0	10166	0.747729566094854	0.972754793138244
+all_individuals	dlpfc	AA	shared	psi	h2_quintile	Q2	991	35	0	9782.5	0.754793138244198	0.976791120080727
+all_individuals	dlpfc	AA	shared	psi	h2_quintile	Q3	990	0	0	10436	0.744444444444445	0.968686868686869
+all_individuals	dlpfc	AA	shared	psi	h2_quintile	Q4	991	0	0	9972.5	0.749747729566095	0.973763874873865
+all_individuals	dlpfc	AA	shared	psi	h2_quintile	Q5	991	154	0	11903	0.725529767911201	0.970736629667003
+all_individuals	dlpfc	AA	shared	psi	h2_tertile	T1	1652	83	0	9910.5	0.751210653753027	0.975786924939467
+all_individuals	dlpfc	AA	shared	psi	h2_tertile	T2	1651	21	0	10986.5	0.737734706238643	0.969109630526953
+all_individuals	dlpfc	AA	shared	psi	h2_tertile	T3	1651	0	0	10397.5	0.744397334948516	0.972743791641429

@@ -1,0 +1,3 @@
+cohort	tissue	population	vmr_set	modality	run_tag	h2_category	n_vmrs	n_any_fdr05	n_any_fdr10	prop_any_fdr05	prop_any_fdr10	median_max_abs_beta	median_pairs_tested
+all_individuals	hippocampus	EA	shared	expression	abc	Heritable	26	1	3	0.0384615384615385	0.115384615384615	0.236953962798701	1
+all_individuals	hippocampus	EA	shared	expression	abc	Non-heritable	5	0	0	0	0	0.269576398870147	2

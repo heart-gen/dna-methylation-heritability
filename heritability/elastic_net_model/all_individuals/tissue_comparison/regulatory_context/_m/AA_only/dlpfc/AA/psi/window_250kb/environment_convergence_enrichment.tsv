@@ -1,0 +1,14 @@
+env	term	odds_ratio	ci_lo	ci_hi	p_value	n_nonheritable_features	n_heritable_features	n_env_linked_nonheritable	n_env_linked_heritable	fdr	cohort	tissue	population	vmr_set	modality	run_tag
+smoking	env_valueTRUE	2.00924227173524	0.893266063437754	4.83711732170797	0.098363339276619	438	468	10	21	0.458302703945055	all_individuals	dlpfc	AA	AA_only	psi	window_250kb
+codeine	env_valueTRUE	0.561595761591075	0.236633699393808	1.27316521960143	0.185089857014254	423	452	18	11	0.601542035296325	all_individuals	dlpfc	AA	AA_only	psi	window_250kb
+morphine	env_valueTRUE	0.432973628770676	0.147804480726617	1.14197674398571	0.0828045093836585	421	445	15	7	0.458302703945055	all_individuals	dlpfc	AA	AA_only	psi	window_250kb
+cocaine	env_valueTRUE	1.14483439653338	0.374932430589426	3.6582206141078	1	357	402	7	9	1	all_individuals	dlpfc	AA	AA_only	psi	window_250kb
+ethanol	env_valueTRUE	2.05498822847144	0.82989099123041	5.56321054369086	0.105762162448859	429	452	8	17	0.458302703945055	all_individuals	dlpfc	AA	AA_only	psi	window_250kb
+nicotine	env_valueTRUE	0.659405239500518	0.311743129686197	1.36215424483717	0.237893156025401	439	468	21	15	0.618522205666043	all_individuals	dlpfc	AA	AA_only	psi	window_250kb
+amphetamines	env_valueTRUE	1.07813383240889	0.307274930257776	3.91923046563024	1	396	429	6	7	1	all_individuals	dlpfc	AA	AA_only	psi	window_250kb
+any_trauma_hx	env_value	1.10942813989117	0.452495338617655	2.7708614413395	0.838590357988188	395	422	11	13	1	all_individuals	dlpfc	AA	AA_only	psi	window_250kb
+education	env_valueless_than_hs	0.704024215669658	0.199593599152647	2.33535391001932	0.595771969060849	434	460	8	6	1	all_individuals	dlpfc	AA	AA_only	psi	window_250kb
+education	env_valueMD	0.808571694102451	0.247038111920661	2.57925735116093	0.796350856200839	384	414	8	7	1	all_individuals	dlpfc	AA	AA_only	psi	window_250kb
+education	env_valuemore_than_hs	1.02651540044184	0.617665593456244	1.71021410567245	1	434	460	35	38	1	all_individuals	dlpfc	AA	AA_only	psi	window_250kb
+marital_status	env_valuepreviously_married	1.13928343973593	0.424322244199579	3.14486060318084	0.824171263890964	422	454	9	11	1	all_individuals	dlpfc	AA	AA_only	psi	window_250kb
+marital_status	env_valuesingle	0.961891811116125	0.687539819443595	1.34622349141528	0.869219532835361	422	454	92	96	1	all_individuals	dlpfc	AA	AA_only	psi	window_250kb

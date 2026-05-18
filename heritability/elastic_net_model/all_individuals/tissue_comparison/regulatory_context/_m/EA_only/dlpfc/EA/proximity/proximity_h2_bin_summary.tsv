@@ -1,0 +1,17 @@
+cohort	tissue	population	vmr_set	feature_type	bin_type	h2_bin	n_vmrs	median_distance	q25_distance	q75_distance	prop_within_10kb	prop_within_100kb
+all_individuals	dlpfc	EA	EA_only	gene	h2_quintile	Q1	1908	0	0	0	0.958071278825996	0.99895178197065
+all_individuals	dlpfc	EA	EA_only	gene	h2_quintile	Q2	1907	0	0	0	0.964341898269533	0.998951232302045
+all_individuals	dlpfc	EA	EA_only	gene	h2_quintile	Q3	1907	0	0	0	0.961195595175669	0.99790246460409
+all_individuals	dlpfc	EA	EA_only	gene	h2_quintile	Q4	1907	0	0	0	0.953854221289984	0.998951232302045
+all_individuals	dlpfc	EA	EA_only	gene	h2_quintile	Q5	1907	0	0	0	0.942842160461458	0.993707393812271
+all_individuals	dlpfc	EA	EA_only	gene	h2_tertile	T1	3179	0	0	0	0.959106637307329	0.999056307014784
+all_individuals	dlpfc	EA	EA_only	gene	h2_tertile	T2	3178	0	0	0	0.960981749528005	0.99842668344871
+all_individuals	dlpfc	EA	EA_only	gene	h2_tertile	T3	3179	0	0	0	0.948096885813149	0.995596099402328
+all_individuals	dlpfc	EA	EA_only	psi	h2_quintile	Q1	1908	3.5	0	9697.25	0.7541928721174	0.974318658280922
+all_individuals	dlpfc	EA	EA_only	psi	h2_quintile	Q2	1907	0	0	8953	0.76140534871526	0.974829575249082
+all_individuals	dlpfc	EA	EA_only	psi	h2_quintile	Q3	1907	0	0	9949	0.751442055584688	0.972207656004195
+all_individuals	dlpfc	EA	EA_only	psi	h2_quintile	Q4	1907	0	0	9343.5	0.756161510225485	0.979024646040902
+all_individuals	dlpfc	EA	EA_only	psi	h2_quintile	Q5	1907	89	0	10882	0.739905610907184	0.96906135291033
+all_individuals	dlpfc	EA	EA_only	psi	h2_tertile	T1	3179	0	0	9619.5	0.755583516829192	0.974520289399182
+all_individuals	dlpfc	EA	EA_only	psi	h2_tertile	T2	3178	0	0	9520.75	0.755506607929515	0.973253618628068
+all_individuals	dlpfc	EA	EA_only	psi	h2_tertile	T3	3179	8	0	10296.5	0.746775715633847	0.973891160742372

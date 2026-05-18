@@ -12,6 +12,12 @@ suppressPackageStartupMessages({
 TISSUES <- c("caudate", "dlpfc", "hippocampus")
 H2_GROUP_LEVELS <- c("Heritable", "Non-heritable", "Low prediction")
 
+## Matched shared VMRs use one genomic list (matched_r2_0.3.tsv) with per-population
+## h2_unscaled / r_squared_cv columns and a single concordant h2_category column.
+## Association tests and genomic proximity do not depend on population; only
+## continuous-h2 quintile summaries differ by population.
+SHARED_VMR_CANONICAL_POPULATION <- "AA"
+
 rna_file_map <- list(
   expression = c(
     caudate = "rse-gene.bsp3.caudate-n487.gencode-v47.RData",
@@ -70,19 +76,57 @@ normalize_vmr_set <- function(vmr_set = "shared") {
   )
 }
 
+is_shared_plot_population <- function(population) {
+  toupper(trimws(as.character(population))) %in% c("SHARED", "BOTH")
+}
+
+should_skip_shared_duplicate_population <- function(
+    population,
+    vmr_set = "shared",
+    canonical = SHARED_VMR_CANONICAL_POPULATION) {
+  normalize_vmr_set(vmr_set) == "shared" &&
+    !is_shared_plot_population(population) &&
+    toupper(trimws(as.character(population))) != toupper(canonical)
+}
+
+regctx_assoc_source_population <- function(
+    population,
+    vmr_set = "shared",
+    canonical = SHARED_VMR_CANONICAL_POPULATION) {
+  if (should_skip_shared_duplicate_population(population, vmr_set, canonical)) {
+    return(toupper(canonical))
+  }
+  toupper(trimws(as.character(population)))
+}
+
+shared_vmr_plot_populations <- function(population, vmr_set = "shared") {
+  vmr_set <- normalize_vmr_set(vmr_set)
+  if (vmr_set != "shared") {
+    return(toupper(trimws(as.character(population))))
+  }
+  if (is_shared_plot_population(population)) {
+    return(c("AA", "EA"))
+  }
+  toupper(trimws(as.character(population)))
+}
+
 validate_vmr_set <- function(cohort, population, vmr_set = "shared") {
   vmr_set <- normalize_vmr_set(vmr_set)
+  pop <- toupper(trimws(as.character(population)))
   if (is.na(vmr_set)) {
     stop("vmr_set must be shared, AA_only, or EA_only")
   }
   if (cohort == "BA_only" && vmr_set != "shared") {
     stop("BA_only supports vmr_set shared only")
   }
-  if (vmr_set == "AA_only" && population != "AA") {
+  if (vmr_set == "AA_only" && pop != "AA") {
     stop("vmr_set AA_only must be run with population AA")
   }
-  if (vmr_set == "EA_only" && population != "EA") {
+  if (vmr_set == "EA_only" && pop != "EA") {
     stop("vmr_set EA_only must be run with population EA")
+  }
+  if (vmr_set == "shared" && !pop %in% c("AA", "EA", "SHARED", "BOTH")) {
+    stop("vmr_set shared requires population AA, EA, or SHARED (combined plots)")
   }
   vmr_set
 }
@@ -104,11 +148,16 @@ regctx_output_dir <- function(cohort, tissue, population, modality = NULL,
 
 regctx_fig_dir <- function(cohort, population, vmr_set = "shared") {
   vmr_set <- validate_vmr_set(cohort, population, vmr_set)
+  pop_dir <- if (vmr_set == "shared" && is_shared_plot_population(population)) {
+    "shared"
+  } else {
+    toupper(trimws(as.character(population)))
+  }
   parts <- c(
     here("heritability", "elastic_net_model", cohort,
          "tissue_comparison", "regulatory_context", "_m", "figures"),
     if (vmr_set == "shared") character(0) else vmr_set,
-    population
+    pop_dir
   )
   do.call(file.path, as.list(parts[!is.na(parts) & nzchar(parts)]))
 }
@@ -440,6 +489,7 @@ load_enet <- function(cohort, tissue, population = "AA", vmr_set = "shared") {
           h2_unscaled = .data[[h2_col]],
           r_squared_cv = .data[[r2_col]],
           num_snps = .data[[snp_col]],
+          ## Matched-set h2_category is concordant across AA/EA (see tissue_comparison/h2_distribution).
           h2_category = factor(h2_category, levels = H2_GROUP_LEVELS),
           population = population,
           vmr_set = vmr_set

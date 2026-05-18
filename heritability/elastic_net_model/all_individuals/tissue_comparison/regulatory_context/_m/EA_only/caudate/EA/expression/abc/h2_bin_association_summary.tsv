@@ -1,0 +1,9 @@
+cohort	tissue	population	vmr_set	modality	run_tag	bin_type	h2_bin	n_vmrs	n_any_fdr10	prop_any_fdr10	median_max_abs_beta	median_pairs_tested
+all_individuals	caudate	EA	EA_only	expression	abc	h2_quintile	Q1	10	0	0	0.2460570338574	1
+all_individuals	caudate	EA	EA_only	expression	abc	h2_quintile	Q2	9	0	0	0.166603830239143	1
+all_individuals	caudate	EA	EA_only	expression	abc	h2_quintile	Q3	10	1	0.1	0.240080659095184	1
+all_individuals	caudate	EA	EA_only	expression	abc	h2_quintile	Q4	9	2	0.222222222222222	0.241087804528972	2
+all_individuals	caudate	EA	EA_only	expression	abc	h2_quintile	Q5	10	3	0.3	0.235759885353552	1.5
+all_individuals	caudate	EA	EA_only	expression	abc	h2_tertile	T1	16	0	0	0.213057600188503	1
+all_individuals	caudate	EA	EA_only	expression	abc	h2_tertile	T2	16	2	0.125	0.258179172906377	1
+all_individuals	caudate	EA	EA_only	expression	abc	h2_tertile	T3	16	4	0.25	0.216562203814398	1.5

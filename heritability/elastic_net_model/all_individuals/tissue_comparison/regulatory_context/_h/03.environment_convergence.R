@@ -35,12 +35,28 @@ expression_layers <- ifelse(length(args) >= 7, args[[7]], "both")
 vmr_set <- ifelse(length(args) >= 8, args[[8]], "shared")
 vmr_set <- validate_vmr_set(cohort, population, vmr_set)
 
+if (should_skip_shared_duplicate_population(population, vmr_set)) {
+  message2(
+    paste0(
+      "Skipping duplicate shared-VMR environment convergence for population=%s ",
+      "(uses canonical association inputs from population=%s)."
+    ),
+    population, SHARED_VMR_CANONICAL_POPULATION
+  )
+  quit(save = "no", status = 0)
+}
+
 run_tags <- resolve_regulatory_run_tags(modality, window, expression_layers)
 
 for (run_tag in run_tags) {
+  assoc_pop <- regctx_assoc_source_population(population, vmr_set)
   in_dir <- regctx_output_dir(
+    cohort, tissue, assoc_pop, modality, run_tag, vmr_set
+  )
+  out_dir <- regctx_output_dir(
     cohort, tissue, population, modality, run_tag, vmr_set
   )
+  dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
   assoc_fn <- file.path(in_dir, "vmr_feature_associations.tsv.gz")
   if (!file.exists(assoc_fn)) {
     message2(
@@ -164,7 +180,7 @@ for (run_tag in run_tags) {
       cohort = cohort, tissue = tissue, population = population,
       vmr_set = vmr_set, modality = modality, run_tag = run_tag
     )
-  safe_fwrite(env_assoc, file.path(in_dir, "feature_environment_associations.tsv.gz"),
+  safe_fwrite(env_assoc, file.path(out_dir, "feature_environment_associations.tsv.gz"),
               sep = "\t")
 
   ## Build feature context table: classify each feature as linked exclusively to
@@ -231,7 +247,7 @@ for (run_tag in run_tags) {
         vmr_set = vmr_set, modality = modality, run_tag = run_tag
       )
   }
-  safe_fwrite(enrichment, file.path(in_dir, "environment_convergence_enrichment.tsv"),
+  safe_fwrite(enrichment, file.path(out_dir, "environment_convergence_enrichment.tsv"),
               sep = "\t")
 
   ## Rank-based Wilcoxon test (no threshold)
@@ -275,7 +291,7 @@ for (run_tag in run_tags) {
       )
   }
   safe_fwrite(wilcoxon_enrichment,
-              file.path(in_dir, "environment_convergence_wilcoxon.tsv"),
+              file.path(out_dir, "environment_convergence_wilcoxon.tsv"),
               sep = "\t")
 
   ## VMR-level aggregation via Cauchy combination
@@ -342,10 +358,10 @@ for (run_tag in run_tags) {
       )
   }
   safe_fwrite(vmr_level_enrichment,
-              file.path(in_dir, "environment_convergence_vmr_level.tsv"),
+              file.path(out_dir, "environment_convergence_vmr_level.tsv"),
               sep = "\t")
 
-  message2("Saved environment convergence outputs to %s [run_tag=%s]", in_dir, run_tag)
+  message2("Saved environment convergence outputs to %s [run_tag=%s]", out_dir, run_tag)
 }
 
 #### Reproducibility ####

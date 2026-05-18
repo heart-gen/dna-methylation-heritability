@@ -1,0 +1,13 @@
+env	term	odds_ratio	ci_lo	ci_hi	p_value	n_nonheritable_features	n_heritable_features	n_env_linked_nonheritable	n_env_linked_heritable	fdr	cohort	tissue	population	vmr_set	modality	run_tag
+smoking	env_valueTRUE	0.461037814495704	0.0444064064356803	23.9638317257007	0.432319463961442	7	99	1	7	0.648479195942163	all_individuals	hippocampus	EA	EA_only	expression	nearest_gene_window_250kb
+codeine	env_valueTRUE	0.324475662847314	0.0283026743032269	17.5826419637049	0.343146644836171	7	99	1	5	0.588251391147721	all_individuals	hippocampus	EA	EA_only	expression	nearest_gene_window_250kb
+cocaine	env_valueTRUE	Inf	0.0265134997080183	Inf	1	7	99	0	3	1	all_individuals	hippocampus	EA	EA_only	expression	nearest_gene_window_250kb
+ethanol	env_valueTRUE	0.258215354379819	0.0204905449464307	14.4927938832348	0.294232033281417	7	99	1	4	0.588251391147721	all_individuals	hippocampus	EA	EA_only	expression	nearest_gene_window_250kb
+nicotine	env_valueTRUE	0.193227879541097	0.0129406544020337	11.467312062115	0.242228077838996	7	99	1	3	0.588251391147721	all_individuals	hippocampus	EA	EA_only	expression	nearest_gene_window_250kb
+amphetamines	env_valueTRUE	0.258215354379819	0.0204905449464307	14.4927938832348	0.294232033281417	7	99	1	4	0.588251391147721	all_individuals	hippocampus	EA	EA_only	expression	nearest_gene_window_250kb
+any_trauma_hx	env_value	0.193227879541097	0.0129406544020337	11.467312062115	0.242228077838996	7	99	1	3	0.588251391147721	all_individuals	hippocampus	EA	EA_only	expression	nearest_gene_window_250kb
+education	env_valueless_than_hs	0.258215354379819	0.0204905449464307	14.4927938832348	0.294232033281417	7	99	1	4	0.588251391147721	all_individuals	hippocampus	EA	EA_only	expression	nearest_gene_window_250kb
+education	env_valueMD	Inf	0.0265134997080183	Inf	1	7	99	0	3	1	all_individuals	hippocampus	EA	EA_only	expression	nearest_gene_window_250kb
+education	env_valuemore_than_hs	Inf	0.0125450830637254	Inf	1	7	99	0	2	1	all_individuals	hippocampus	EA	EA_only	expression	nearest_gene_window_250kb
+marital_status	env_valuepreviously_married	0.193227879541097	0.0129406544020337	11.467312062115	0.242228077838996	7	99	1	3	0.588251391147721	all_individuals	hippocampus	EA	EA_only	expression	nearest_gene_window_250kb
+marital_status	env_valuesingle	0.603466015843925	0.0612233542526088	30.6286049072855	0.510908521969725	7	99	1	9	0.681211362626301	all_individuals	hippocampus	EA	EA_only	expression	nearest_gene_window_250kb

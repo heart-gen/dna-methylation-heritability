@@ -19,6 +19,12 @@ cohort <- ifelse(length(args) >= 1, args[[1]], "all_individuals")
 population <- ifelse(length(args) >= 2, toupper(args[[2]]), "AA")
 vmr_set <- ifelse(length(args) >= 3, args[[3]], "shared")
 vmr_set <- validate_vmr_set(cohort, population, vmr_set)
+plot_populations <- shared_vmr_plot_populations(population, vmr_set)
+canonical_pop <- if (normalize_vmr_set(vmr_set) == "shared") {
+  SHARED_VMR_CANONICAL_POPULATION
+} else {
+  plot_populations[[1]]
+}
 
 base_dir <- here("heritability", "elastic_net_model", cohort,
                  "tissue_comparison", "regulatory_context", "_m")
@@ -60,7 +66,7 @@ theme_regctx <- function(base_size = 8) {
     )
 }
 
-read_many <- function(pattern) {
+read_many <- function(pattern, populations = plot_populations) {
   files <- list.files(base_dir, pattern = pattern, recursive = TRUE,
                       full.names = TRUE)
   if (length(files) == 0) return(tibble())
@@ -72,7 +78,22 @@ read_many <- function(pattern) {
   })
   tabs <- Filter(Negate(is.null), tabs)
   if (length(tabs) == 0) return(tibble())
-  rbindlist(tabs, fill = TRUE) |> as_tibble()
+  out <- rbindlist(tabs, fill = TRUE) |> as_tibble()
+  if (!"population" %in% names(out)) return(out)
+  out |> filter(population %in% populations)
+}
+
+## Shared matched VMRs: category-stratified summaries are population-invariant.
+dedupe_shared_population_invariant <- function(df, value_cols) {
+  if (!nrow(df) || length(plot_populations) <= 1L) return(df)
+  key_cols <- setdiff(
+    names(df),
+    c(value_cols, "population", "cohort", "vmr_set")
+  )
+  df |>
+    group_by(across(all_of(key_cols))) |>
+    filter(population == canonical_pop) |>
+    ungroup()
 }
 
 ## Older summaries lacked run_tag (expression implied ABC; PSI implied window_*).
@@ -191,47 +212,71 @@ save_panel <- function(plot, name, width, height) {
 
 group_df <- read_many("h2_group_association_summary.tsv") |>
   ensure_vmr_set_column() |>
-  filter(population == !!population, vmr_set == !!vmr_set) |>
+  filter(vmr_set == !!vmr_set) |>
+  dedupe_shared_population_invariant(
+    value_cols = c(
+      "n_vmrs", "n_any_fdr05", "n_any_fdr10",
+      "prop_any_fdr05", "prop_any_fdr10",
+      "median_max_abs_beta", "median_pairs_tested"
+    )
+  ) |>
   ensure_run_tag() |>
   regctx_plot_layer() |>
   mutate(regctx_layer = factor_layer(regctx_layer))
 
 bin_df <- read_many("h2_bin_association_summary.tsv") |>
   ensure_vmr_set_column() |>
-  filter(population == !!population, vmr_set == !!vmr_set,
-         bin_type == "h2_quintile") |>
+  filter(vmr_set == !!vmr_set, bin_type == "h2_quintile") |>
   ensure_run_tag() |>
   regctx_plot_layer() |>
-  mutate(regctx_layer = factor_layer(regctx_layer))
+  mutate(
+    regctx_layer = factor_layer(regctx_layer),
+    population = factor(population, levels = plot_populations)
+  )
 
 env_df <- read_many("environment_convergence_enrichment.tsv") |>
   ensure_vmr_set_column() |>
-  filter(population == !!population, vmr_set == !!vmr_set) |>
+  filter(vmr_set == !!vmr_set) |>
+  dedupe_shared_population_invariant(
+    value_cols = c("odds_ratio", "p_value", "fdr", "n_vmrs", "n_sig")
+  ) |>
   ensure_run_tag() |>
   regctx_plot_layer() |>
   mutate(regctx_layer = factor_layer(regctx_layer))
 
 env_wilcoxon <- read_many("environment_convergence_wilcoxon.tsv") |>
   ensure_vmr_set_column() |>
-  filter(population == !!population, vmr_set == !!vmr_set) |>
+  filter(vmr_set == !!vmr_set) |>
+  dedupe_shared_population_invariant(
+    value_cols = c("location_shift", "p_value", "fdr")
+  ) |>
   ensure_run_tag() |>
   regctx_plot_layer() |>
   mutate(regctx_layer = factor_layer(regctx_layer))
 
 env_vmr <- read_many("environment_convergence_vmr_level.tsv") |>
   ensure_vmr_set_column() |>
-  filter(population == !!population, vmr_set == !!vmr_set) |>
+  filter(vmr_set == !!vmr_set) |>
+  dedupe_shared_population_invariant(
+    value_cols = c("location_shift", "p_value", "fdr")
+  ) |>
   ensure_run_tag() |>
   regctx_plot_layer() |>
   mutate(regctx_layer = factor_layer(regctx_layer))
 
 prox_group <- read_many("proximity_h2_group_summary.tsv") |>
   ensure_vmr_set_column() |>
-  filter(population == !!population, vmr_set == !!vmr_set)
+  filter(vmr_set == !!vmr_set) |>
+  dedupe_shared_population_invariant(
+    value_cols = c(
+      "n_vmrs", "median_distance", "q25_distance", "q75_distance",
+      "prop_within_10kb", "prop_within_100kb"
+    )
+  )
 prox_bin <- read_many("proximity_h2_bin_summary.tsv") |>
   ensure_vmr_set_column() |>
-  filter(population == !!population, vmr_set == !!vmr_set,
-         bin_type == "h2_quintile")
+  filter(vmr_set == !!vmr_set, bin_type == "h2_quintile") |>
+  mutate(population = factor(population, levels = plot_populations))
 
 plots <- list()
 
@@ -265,15 +310,19 @@ if (nrow(group_main) > 0) {
 if (nrow(bin_main) > 0) {
   p_bin <- bin_main |>
     mutate(tissue = factor_tissue(tissue)) |>
-    ggplot(aes(h2_bin, prop_any_fdr10, group = regctx_layer,
-               color = regctx_layer)) +
+    ggplot(aes(h2_bin, prop_any_fdr10,
+               group = interaction(regctx_layer, population),
+               color = regctx_layer,
+               linetype = population)) +
     geom_line(linewidth = 0.55) +
     geom_point(size = 1.8) +
     facet_wrap(~ tissue, nrow = 1) +
     scale_color_manual(values = pal_layer_line, drop = FALSE) +
+    scale_linetype_manual(values = c(AA = "solid", EA = "22"), drop = FALSE) +
     scale_y_continuous(labels = percent_format(accuracy = 1),
                        expand = expansion(mult = c(0.02, 0.08))) +
-    labs(x = "h2 quintile", y = "VMRs with linked feature", color = NULL) +
+    labs(x = "h2 quintile", y = "VMRs with linked feature",
+         color = NULL, linetype = "Population") +
     theme_regctx() +
     theme(legend.position = "top")
   plots$bin <- p_bin
@@ -415,14 +464,18 @@ if (nrow(prox_bin) > 0) {
       feature_type = factor(feature_type, levels = c("gene", "psi")),
       tissue = factor_tissue(tissue)
     ) |>
-    ggplot(aes(h2_bin, median_distance + 1, group = feature_type,
-               color = feature_type)) +
+    ggplot(aes(h2_bin, median_distance + 1,
+               group = interaction(feature_type, population),
+               color = feature_type,
+               linetype = population)) +
     geom_line(linewidth = 0.55) +
     geom_point(size = 1.7) +
     facet_wrap(~ tissue, nrow = 1) +
     scale_color_manual(values = c(gene = "#3B6EA8", psi = "#5A8F61")) +
+    scale_linetype_manual(values = c(AA = "solid", EA = "22"), drop = FALSE) +
     scale_y_log10(labels = label_number(scale_cut = cut_short_scale())) +
-    labs(x = "h2 quintile", y = "Median nearest distance, bp") +
+    labs(x = "h2 quintile", y = "Median nearest distance, bp",
+         linetype = "Population") +
     theme_regctx() +
     theme(legend.position = "top")
   plots$prox_bin <- p_prox_bin
@@ -454,21 +507,44 @@ if (nrow(abc_group) > 0) {
 }
 
 if (nrow(abc_bin) > 0) {
-  p_abc_bin <- abc_bin |>
-    mutate(tissue = factor_tissue(tissue)) |>
-    ggplot(aes(h2_bin, prop_any_fdr10, group = tissue, color = tissue)) +
-    geom_line(linewidth = 0.55) +
-    geom_point(size = 1.8) +
-    scale_color_manual(values = c(
-      DLPFC = "#3B6EA8",
-      Hippocampus = "#5A8F61",
-      Caudate = "#C65146"
-    ), drop = FALSE) +
-    scale_y_continuous(labels = percent_format(accuracy = 1),
-                       expand = expansion(mult = c(0.02, 0.08))) +
-    labs(x = "h2 quintile", y = "VMRs with ABC-linked gene") +
-    theme_regctx() +
-    theme(legend.position = "top")
+  if (length(plot_populations) > 1L) {
+    p_abc_bin <- abc_bin |>
+      mutate(tissue = factor_tissue(tissue)) |>
+      ggplot(aes(h2_bin, prop_any_fdr10,
+                 group = interaction(tissue, population),
+                 color = tissue,
+                 linetype = population)) +
+      geom_line(linewidth = 0.55) +
+      geom_point(size = 1.8) +
+      scale_color_manual(values = c(
+        DLPFC = "#3B6EA8",
+        Hippocampus = "#5A8F61",
+        Caudate = "#C65146"
+      ), drop = FALSE) +
+      scale_linetype_manual(values = c(AA = "solid", EA = "22"), drop = FALSE) +
+      scale_y_continuous(labels = percent_format(accuracy = 1),
+                         expand = expansion(mult = c(0.02, 0.08))) +
+      labs(x = "h2 quintile", y = "VMRs with ABC-linked gene",
+           linetype = "Population") +
+      theme_regctx() +
+      theme(legend.position = "top")
+  } else {
+    p_abc_bin <- abc_bin |>
+      mutate(tissue = factor_tissue(tissue)) |>
+      ggplot(aes(h2_bin, prop_any_fdr10, group = tissue, color = tissue)) +
+      geom_line(linewidth = 0.55) +
+      geom_point(size = 1.8) +
+      scale_color_manual(values = c(
+        DLPFC = "#3B6EA8",
+        Hippocampus = "#5A8F61",
+        Caudate = "#C65146"
+      ), drop = FALSE) +
+      scale_y_continuous(labels = percent_format(accuracy = 1),
+                         expand = expansion(mult = c(0.02, 0.08))) +
+      labs(x = "h2 quintile", y = "VMRs with ABC-linked gene") +
+      theme_regctx() +
+      theme(legend.position = "top")
+  }
   save_panel(p_abc_bin, "supplement_abc_h2_quintile_burden", 4.8, 2.6)
 }
 

@@ -1,0 +1,9 @@
+cohort	tissue	population	vmr_set	modality	run_tag	bin_type	h2_bin	n_vmrs	n_any_fdr10	prop_any_fdr10	median_max_abs_beta	median_pairs_tested
+all_individuals	dlpfc	EA	EA_only	expression_nearest_gene	nearest_gene_window_250kb	h2_quintile	Q1	857	9	0.0105017502917153	0.109953497181044	1
+all_individuals	dlpfc	EA	EA_only	expression_nearest_gene	nearest_gene_window_250kb	h2_quintile	Q2	857	17	0.0198366394399067	0.117533891790346	1
+all_individuals	dlpfc	EA	EA_only	expression_nearest_gene	nearest_gene_window_250kb	h2_quintile	Q3	857	13	0.015169194865811	0.123820980342388	1
+all_individuals	dlpfc	EA	EA_only	expression_nearest_gene	nearest_gene_window_250kb	h2_quintile	Q4	857	12	0.014002333722287	0.113846494187146	1
+all_individuals	dlpfc	EA	EA_only	expression_nearest_gene	nearest_gene_window_250kb	h2_quintile	Q5	857	49	0.0571761960326721	0.125764209384897	1
+all_individuals	dlpfc	EA	EA_only	expression_nearest_gene	nearest_gene_window_250kb	h2_tertile	T1	1429	23	0.0160951714485654	0.115536127370023	1
+all_individuals	dlpfc	EA	EA_only	expression_nearest_gene	nearest_gene_window_250kb	h2_tertile	T2	1428	20	0.0140056022408964	0.119067409360902	1
+all_individuals	dlpfc	EA	EA_only	expression_nearest_gene	nearest_gene_window_250kb	h2_tertile	T3	1428	57	0.0399159663865546	0.122339151268622	1

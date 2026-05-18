@@ -1,0 +1,9 @@
+cohort	tissue	population	vmr_set	feature_type	comparison	outcome	test	statistic	p_value	term	estimate	conf.low	conf.high	fdr
+all_individuals	hippocampus	EA	shared	gene	Heritable_vs_non-heritable	log_nearest_distance	wilcoxon	1449368	0.00282323836598471					0.00451718138557554
+all_individuals	hippocampus	EA	shared	gene	Heritable_vs_non-heritable_adjusted	within_10kb	logistic		0.0552565626872886	h2_categoryNon-heritable	1.4895478826591	1.00972124899473	2.28802821017543	0.0736754169163848
+all_individuals	hippocampus	EA	shared	gene	Heritable_vs_non-heritable_adjusted	within_100kb	logistic		0.560859220278663	h2_categoryNon-heritable	1.82882953377443	0.364548201493183	33.2387169188329	0.560859220278663
+all_individuals	hippocampus	EA	shared	gene	h2_quintile	log_nearest_distance	kruskal	28.5880144972084	9.47791521386324e-06					3.96469120758756e-05
+all_individuals	hippocampus	EA	shared	psi	Heritable_vs_non-heritable	log_nearest_distance	wilcoxon	1504860	8.79832979052879e-05					0.000234622127747434
+all_individuals	hippocampus	EA	shared	psi	Heritable_vs_non-heritable_adjusted	within_10kb	logistic		0.000136931187226621	h2_categoryNon-heritable	1.47629089839966	1.21177415895676	1.80896016378378	0.000273862374453242
+all_individuals	hippocampus	EA	shared	psi	Heritable_vs_non-heritable_adjusted	within_100kb	logistic		0.309501088432735	h2_categoryNon-heritable	1.30198744583009	0.806069300675744	2.24494845790704	0.353715529637412
+all_individuals	hippocampus	EA	shared	psi	h2_quintile	log_nearest_distance	kruskal	28.4922333605928	9.9117280189689e-06					3.96469120758756e-05

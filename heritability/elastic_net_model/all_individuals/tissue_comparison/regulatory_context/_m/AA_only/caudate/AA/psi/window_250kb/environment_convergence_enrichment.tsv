@@ -1,0 +1,13 @@
+env	term	odds_ratio	ci_lo	ci_hi	p_value	n_nonheritable_features	n_heritable_features	n_env_linked_nonheritable	n_env_linked_heritable	fdr	cohort	tissue	population	vmr_set	modality	run_tag
+smoking	env_valueTRUE	0.583892538058003	0.290953396119099	1.17545087909131	0.12440819683985	335	590	19	20	0.458380074973314	all_individuals	caudate	AA	AA_only	psi	window_250kb
+codeine	env_valueTRUE	1.77736673175451	0.765613916398607	4.6154407917118	0.196005940902863	321	575	8	25	0.470414258166871	all_individuals	caudate	AA	AA_only	psi	window_250kb
+morphine	env_valueTRUE	1.37834200814242	0.601069597090958	3.44406110441032	0.567909102351398	326	584	9	22	0.840756700767383	all_individuals	caudate	AA	AA_only	psi	window_250kb
+cocaine	env_valueTRUE	2.82601678527028	1.05197064571982	9.52729538014612	0.0328901654977914	283	537	5	26	0.275116945034288	all_individuals	caudate	AA	AA_only	psi	window_250kb
+ethanol	env_valueTRUE	1.53875591530894	0.710678848601941	3.61061123357356	0.296066237821718	331	590	10	27	0.592132475643436	all_individuals	caudate	AA	AA_only	psi	window_250kb
+nicotine	env_valueTRUE	0.634321518948391	0.33236331078865	1.21920823693262	0.152793358324438	335	590	21	24	0.458380074973314	all_individuals	caudate	AA	AA_only	psi	window_250kb
+amphetamines	env_valueTRUE	0.843403232996584	0.480785229035967	1.5040179521033	0.580105868782367	321	580	24	37	0.840756700767383	all_individuals	caudate	AA	AA_only	psi	window_250kb
+any_trauma_hx	env_value	1.03944514655816	0.500464066756439	2.25581530929428	1	330	587	13	24	1	all_individuals	caudate	AA	AA_only	psi	window_250kb
+education	env_valueless_than_hs	1.14580969609422	0.611095050190963	2.22429307637654	0.764822051652675	335	589	17	34	0.91778646198321	all_individuals	caudate	AA	AA_only	psi	window_250kb
+education	env_valuemore_than_hs	1.23021084014958	0.621725385416533	2.55012146259465	0.630567525575538	335	589	14	30	0.840756700767383	all_individuals	caudate	AA	AA_only	psi	window_250kb
+marital_status	env_valuepreviously_married	0.550797623842732	0.294055830092642	1.03156684791311	0.0458528241723813	335	589	24	24	0.275116945034288	all_individuals	caudate	AA	AA_only	psi	window_250kb
+marital_status	env_valuesingle	1.02529004107885	0.56658179847545	1.90371732476568	1	335	589	20	36	1	all_individuals	caudate	AA	AA_only	psi	window_250kb

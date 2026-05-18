@@ -1,0 +1,9 @@
+cohort	tissue	population	vmr_set	modality	run_tag	bin_type	h2_bin	n_vmrs	n_any_fdr10	prop_any_fdr10	median_max_abs_beta	median_pairs_tested
+all_individuals	caudate	AA	AA_only	expression_nearest_gene	nearest_gene_window_250kb	h2_quintile	Q1	1202	78	0.064891846921797	0.177732804521836	1
+all_individuals	caudate	AA	AA_only	expression_nearest_gene	nearest_gene_window_250kb	h2_quintile	Q2	1201	78	0.0649458784346378	0.19746940685855	1
+all_individuals	caudate	AA	AA_only	expression_nearest_gene	nearest_gene_window_250kb	h2_quintile	Q3	1201	83	0.0691090757701915	0.166204105827069	1
+all_individuals	caudate	AA	AA_only	expression_nearest_gene	nearest_gene_window_250kb	h2_quintile	Q4	1201	144	0.119900083263947	0.174491971988981	1
+all_individuals	caudate	AA	AA_only	expression_nearest_gene	nearest_gene_window_250kb	h2_quintile	Q5	1202	129	0.107321131447587	0.138705291151864	1
+all_individuals	caudate	AA	AA_only	expression_nearest_gene	nearest_gene_window_250kb	h2_tertile	T1	2003	125	0.0624063904143784	0.183998052315935	1
+all_individuals	caudate	AA	AA_only	expression_nearest_gene	nearest_gene_window_250kb	h2_tertile	T2	2002	146	0.0729270729270729	0.177922042463043	1
+all_individuals	caudate	AA	AA_only	expression_nearest_gene	nearest_gene_window_250kb	h2_tertile	T3	2002	241	0.12037962037962	0.150636139086527	1

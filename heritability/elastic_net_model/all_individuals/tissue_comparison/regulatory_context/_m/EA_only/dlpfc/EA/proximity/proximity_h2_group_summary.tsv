@@ -1,0 +1,7 @@
+cohort	tissue	population	vmr_set	feature_type	h2_category	n_vmrs	median_distance	q25_distance	q75_distance	prop_within_10kb	prop_within_100kb
+all_individuals	dlpfc	EA	EA_only	gene	Heritable	8237	0	0	0	0.955809153818138	0.997450528104893
+all_individuals	dlpfc	EA	EA_only	gene	Non-heritable	1299	0	0	0	0.9576597382602	0.999230177059276
+all_individuals	dlpfc	EA	EA_only	gene	Low prediction	33	0	0	0	0.96969696969697	1
+all_individuals	dlpfc	EA	EA_only	psi	Heritable	8237	0	0	9948	0.751001578244507	0.973776860507466
+all_individuals	dlpfc	EA	EA_only	psi	Non-heritable	1299	0	0	9013.5	0.762894534257121	0.97459584295612
+all_individuals	dlpfc	EA	EA_only	psi	Low prediction	33	0	0	1661	0.787878787878788	0.818181818181818

@@ -1,0 +1,17 @@
+cohort	tissue	population	vmr_set	feature_type	bin_type	h2_bin	n_vmrs	median_distance	q25_distance	q75_distance	prop_within_10kb	prop_within_100kb
+all_individuals	hippocampus	EA	shared	gene	h2_quintile	Q1	993	0	0	0	0.958710976837865	0.998992950654582
+all_individuals	hippocampus	EA	shared	gene	h2_quintile	Q2	993	0	0	0	0.953675730110776	0.998992950654582
+all_individuals	hippocampus	EA	shared	gene	h2_quintile	Q3	993	0	0	0	0.955689828801611	0.998992950654582
+all_individuals	hippocampus	EA	shared	gene	h2_quintile	Q4	993	0	0	0	0.931520644511581	0.995971802618328
+all_individuals	hippocampus	EA	shared	gene	h2_quintile	Q5	993	0	0	0	0.902316213494461	0.991943605236657
+all_individuals	hippocampus	EA	shared	gene	h2_tertile	T1	1655	0	0	0	0.956495468277946	0.999395770392749
+all_individuals	hippocampus	EA	shared	gene	h2_tertile	T2	1655	0	0	0	0.95226586102719	0.998187311178248
+all_individuals	hippocampus	EA	shared	gene	h2_tertile	T3	1655	0	0	0	0.91238670694864	0.993353474320242
+all_individuals	hippocampus	EA	shared	psi	h2_quintile	Q1	993	0	0	9898	0.75226586102719	0.972809667673716
+all_individuals	hippocampus	EA	shared	psi	h2_quintile	Q2	993	0	0	11102	0.739174219536757	0.973816717019134
+all_individuals	hippocampus	EA	shared	psi	h2_quintile	Q3	993	408	0	13106	0.719033232628399	0.965760322255791
+all_individuals	hippocampus	EA	shared	psi	h2_quintile	Q4	993	80	0	12328	0.725075528700906	0.964753272910373
+all_individuals	hippocampus	EA	shared	psi	h2_quintile	Q5	993	1051	0	19486	0.656596173212487	0.945619335347432
+all_individuals	hippocampus	EA	shared	psi	h2_tertile	T1	1655	0	0	10436	0.747432024169184	0.972809667673716
+all_individuals	hippocampus	EA	shared	psi	h2_tertile	T2	1655	151	0	12011.5	0.728700906344411	0.969184290030211
+all_individuals	hippocampus	EA	shared	psi	h2_tertile	T3	1655	641	0	17818	0.679154078549849	0.95166163141994

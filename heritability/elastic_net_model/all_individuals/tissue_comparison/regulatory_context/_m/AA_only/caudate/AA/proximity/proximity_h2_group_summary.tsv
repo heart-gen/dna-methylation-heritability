@@ -1,0 +1,7 @@
+cohort	tissue	population	vmr_set	feature_type	h2_category	n_vmrs	median_distance	q25_distance	q75_distance	prop_within_10kb	prop_within_100kb
+all_individuals	caudate	AA	AA_only	gene	Heritable	4867	0	0	0	0.905280460242449	0.991575919457571
+all_individuals	caudate	AA	AA_only	gene	Non-heritable	6443	0	0	0	0.962750271612603	0.999223963991929
+all_individuals	caudate	AA	AA_only	gene	Low prediction	147	0	0	0	0.931972789115646	1
+all_individuals	caudate	AA	AA_only	psi	Heritable	4867	882	0	18678	0.67063899732895	0.937333059379494
+all_individuals	caudate	AA	AA_only	psi	Non-heritable	6443	49	0	8933.5	0.764705882352941	0.981530343007915
+all_individuals	caudate	AA	AA_only	psi	Low prediction	147	0	0	7298	0.768707482993197	0.891156462585034

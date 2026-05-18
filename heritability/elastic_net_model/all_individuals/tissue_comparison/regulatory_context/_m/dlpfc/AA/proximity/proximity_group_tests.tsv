@@ -1,0 +1,9 @@
+cohort	tissue	population	vmr_set	feature_type	comparison	outcome	test	statistic	p_value	term	estimate	conf.low	conf.high	fdr
+all_individuals	dlpfc	AA	shared	gene	Heritable_vs_non-heritable	log_nearest_distance	wilcoxon	1496149.5	0.245016633490065					0.490033266980129
+all_individuals	dlpfc	AA	shared	gene	Heritable_vs_non-heritable_adjusted	within_10kb	logistic		0.695742858922629	h2_categoryNon-heritable	1.08341699947554	0.737092973754625	1.65023129715693	0.885153029796337
+all_individuals	dlpfc	AA	shared	gene	Heritable_vs_non-heritable_adjusted	within_100kb	logistic		0.885153029796337	h2_categoryNon-heritable	1.1660952560824	0.211990587719629	21.7019882359127	0.885153029796337
+all_individuals	dlpfc	AA	shared	gene	h2_quintile	log_nearest_distance	kruskal	12.2019250287287	0.0159111974719242					0.127289579775393
+all_individuals	dlpfc	AA	shared	psi	Heritable_vs_non-heritable	log_nearest_distance	wilcoxon	1463991.5	0.8278395264088					0.885153029796337
+all_individuals	dlpfc	AA	shared	psi	Heritable_vs_non-heritable_adjusted	within_10kb	logistic		0.157146423571564	h2_categoryNon-heritable	1.14671901596503	0.950689800423968	1.3895623520889	0.490033266980129
+all_individuals	dlpfc	AA	shared	psi	Heritable_vs_non-heritable_adjusted	within_100kb	logistic		0.818065772233115	h2_categoryNon-heritable	1.06107131731096	0.657396854351202	1.81601245154562	0.885153029796337
+all_individuals	dlpfc	AA	shared	psi	h2_quintile	log_nearest_distance	kruskal	5.81278438117497	0.213572707068427					0.490033266980129

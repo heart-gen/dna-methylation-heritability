@@ -1,0 +1,9 @@
+cohort	tissue	population	vmr_set	modality	run_tag	bin_type	h2_bin	n_vmrs	n_any_fdr10	prop_any_fdr10	median_max_abs_beta	median_pairs_tested
+all_individuals	dlpfc	AA	shared	expression	abc	h2_quintile	Q1	6	0	0	0.172197090307914	1
+all_individuals	dlpfc	AA	shared	expression	abc	h2_quintile	Q2	6	1	0.166666666666667	0.198729137132153	1.5
+all_individuals	dlpfc	AA	shared	expression	abc	h2_quintile	Q3	5	0	0	0.250371027958661	1
+all_individuals	dlpfc	AA	shared	expression	abc	h2_quintile	Q4	6	1	0.166666666666667	0.218871596698131	1
+all_individuals	dlpfc	AA	shared	expression	abc	h2_quintile	Q5	6	0	0	0.222579384084118	1.5
+all_individuals	dlpfc	AA	shared	expression	abc	h2_tertile	T1	10	1	0.1	0.173361102803294	1
+all_individuals	dlpfc	AA	shared	expression	abc	h2_tertile	T2	9	1	0.111111111111111	0.250371027958661	1
+all_individuals	dlpfc	AA	shared	expression	abc	h2_tertile	T3	10	0	0	0.127019307403899	1

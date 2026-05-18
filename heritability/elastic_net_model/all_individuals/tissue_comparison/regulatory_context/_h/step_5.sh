@@ -30,8 +30,7 @@ conda activate rnaseq
 log_message "Plotting regulatory context"
 
 RUNS=(
-  "AA shared"
-  "EA shared"
+  "SHARED shared"
   "AA AA_only"
   "EA EA_only"
 )

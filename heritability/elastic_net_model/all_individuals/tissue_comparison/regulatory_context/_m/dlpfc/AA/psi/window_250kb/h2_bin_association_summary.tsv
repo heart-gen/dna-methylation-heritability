@@ -1,0 +1,9 @@
+cohort	tissue	population	vmr_set	modality	run_tag	bin_type	h2_bin	n_vmrs	n_any_fdr10	prop_any_fdr10	median_max_abs_beta	median_pairs_tested
+all_individuals	dlpfc	AA	shared	psi	window_250kb	h2_quintile	Q1	986	184	0.186612576064909	3.06178073734545	56
+all_individuals	dlpfc	AA	shared	psi	window_250kb	h2_quintile	Q2	985	171	0.173604060913706	2.90969461031252	59
+all_individuals	dlpfc	AA	shared	psi	window_250kb	h2_quintile	Q3	986	143	0.145030425963489	2.6268159811082	60
+all_individuals	dlpfc	AA	shared	psi	window_250kb	h2_quintile	Q4	985	133	0.13502538071066	2.78697046964061	67
+all_individuals	dlpfc	AA	shared	psi	window_250kb	h2_quintile	Q5	986	127	0.128803245436105	2.28434938075188	62
+all_individuals	dlpfc	AA	shared	psi	window_250kb	h2_tertile	T1	1643	301	0.183201460742544	2.97892069910602	59
+all_individuals	dlpfc	AA	shared	psi	window_250kb	h2_tertile	T2	1642	243	0.147990255785627	2.80140908456238	60
+all_individuals	dlpfc	AA	shared	psi	window_250kb	h2_tertile	T3	1643	214	0.130249543517955	2.43237549562844	65

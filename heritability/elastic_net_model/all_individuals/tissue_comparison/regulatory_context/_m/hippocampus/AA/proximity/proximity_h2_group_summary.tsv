@@ -1,0 +1,7 @@
+cohort	tissue	population	vmr_set	feature_type	h2_category	n_vmrs	median_distance	q25_distance	q75_distance	prop_within_10kb	prop_within_100kb
+all_individuals	hippocampus	AA	shared	gene	Heritable	4327	0	0	0	0.937832216316154	0.99676450196441
+all_individuals	hippocampus	AA	shared	gene	Non-heritable	638	0	0	0	0.957680250783699	0.998432601880878
+all_individuals	hippocampus	AA	shared	gene	Low prediction	44	0	0	1798.5	0.818181818181818	0.977272727272727
+all_individuals	hippocampus	AA	shared	psi	Heritable	4327	242	0	14085	0.709267390801941	0.963253986595794
+all_individuals	hippocampus	AA	shared	psi	Non-heritable	638	0	0	6989	0.780564263322884	0.973354231974922
+all_individuals	hippocampus	AA	shared	psi	Low prediction	44	678.5	0	161388.5	0.590909090909091	0.636363636363636
