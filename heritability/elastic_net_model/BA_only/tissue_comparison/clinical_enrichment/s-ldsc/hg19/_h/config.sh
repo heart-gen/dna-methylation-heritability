@@ -9,8 +9,8 @@
 # -----------------------------------------------------------------------------
 # Base Paths
 # -----------------------------------------------------------------------------
-CONFIG_DIR="/projects/b1213/users/elisa/dna-methylation-heritability/heritability/elastic_net_model/BA_only/tissue_comparison/sensitivity_analysis/clinical_enrichment/s-ldsc/hg19/_h"
-export PROJECT_BASE="${PROJECT_BASE:-$(cd "${CONFIG_DIR}/../../../../../../../../.." && pwd)}"
+CONFIG_DIR="/projects/b1213/users/elisa/dna-methylation-heritability/heritability/elastic_net_model/BA_only/tissue_comparison/clinical_enrichment/s-ldsc/hg19/_h"
+export PROJECT_BASE="${PROJECT_BASE:-$(cd "${CONFIG_DIR}/../../../../../../../.." && pwd)}"
 export LDSC_DIR="/projects/p32505/opt/ldsc"
 export RESOURCE_DIR="/projects/b1213/resources/ldsc"
 export GWAS_DIR="/projects/b1213/resources/gwas"
