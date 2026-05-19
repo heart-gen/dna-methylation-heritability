@@ -1,0 +1,266 @@
+2026-04-26 21:42:23 - **** Job starts ****
+**** PSC Bridges-2 info ****
+User: uyb5533
+Job id: 6548006
+Job name: compute_ldscores
+Node name: 
+Hostname: qnode0711
+Task id: 21
+No modules loaded
+2026-04-26 21:42:24 - **** Loading conda environment ****
+2026-04-26 21:42:27 - Processing chromosome: 21
+Validating resources...
+All resources validated successfully.
+2026-04-26 21:42:27 - Processing region: caudate
+2026-04-26 21:42:27 -     Computing LD scores...
+/projects/p32505/opt/ldsc/ldscore/parse.py:266: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  self.df = pd.read_csv(fname, header=self.__header__, usecols=self.__usecols__,
+/projects/p32505/opt/ldsc/ldscore/parse.py:266: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  self.df = pd.read_csv(fname, header=self.__header__, usecols=self.__usecols__,
+/projects/p32505/opt/ldsc/ldscore/parse.py:266: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  self.df = pd.read_csv(fname, header=self.__header__, usecols=self.__usecols__,
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out ./custom_ldscores/caudate/caudate.21 \
+--bfile /projects/b1213/resources/ldsc/1000G_EUR_Phase3_plink/1000G.EUR.QC.21 \
+--l2  \
+--ld-wind-cm 1.0 \
+--print-snps /projects/b1213/resources/ldsc/hm3_no_MHC.list.txt \
+--annot ./custom_ldscores/caudate/caudate.21.annot.gz \
+--thin-annot  
+
+Beginning analysis at Sun Apr 26 21:42:30 2026
+Read list of 138712 SNPs from /projects/b1213/resources/ldsc/1000G_EUR_Phase3_plink/1000G.EUR.QC.21.bim
+Read 5 annotations for 138712 SNPs from ./custom_ldscores/caudate/caudate.21.annot.gz
+Read list of 489 individuals from /projects/b1213/resources/ldsc/1000G_EUR_Phase3_plink/1000G.EUR.QC.21.fam
+Reading genotypes from /projects/b1213/resources/ldsc/1000G_EUR_Phase3_plink/1000G.EUR.QC.21.bed
+After filtering, 138712 SNPs remain
+Estimating LD Score.
+Reading list of 1217311 SNPs for which to print LD Scores from /projects/b1213/resources/ldsc/hm3_no_MHC.list.txt
+After merging with --print-snps, LD Scores for 17040 SNPs will be printed.
+Writing LD Scores for 17040 SNPs to ./custom_ldscores/caudate/caudate.21.l2.ldscore.gz
+
+Summary of LD Scores in ./custom_ldscores/caudate/caudate.21.l2.ldscore.gz
+         MAF  ANNOT_Q1L2  ANNOT_Q2L2  ANNOT_Q3L2  ANNOT_Q4L2  ANNOT_Q5L2
+mean  0.2420      0.0091      0.0107      0.0036      0.0389      0.0415
+std   0.1414      0.0805      0.0930      0.0338      0.2679      0.2702
+min   0.0051     -0.0098     -0.0121     -0.0113     -0.0347     -0.0548
+25%   0.1186      0.0000      0.0000      0.0000      0.0000      0.0000
+50%   0.2321      0.0000      0.0000      0.0000      0.0000      0.0000
+75%   0.3650      0.0000      0.0000      0.0000      0.0000      0.0000
+max   0.5000      2.0143      3.8742      1.0047      5.0902      5.3584
+
+MAF/LD Score Correlation Matrix
+               MAF  ANNOT_Q1L2  ANNOT_Q2L2  ANNOT_Q3L2  ANNOT_Q4L2  ANNOT_Q5L2
+MAF         1.0000     -0.0167     -0.0139     -0.0066      0.0588      0.0628
+ANNOT_Q1L2 -0.0167      1.0000      0.1910      0.0247     -0.0073      0.0392
+ANNOT_Q2L2 -0.0139      0.1910      1.0000     -0.0097     -0.0015      0.1384
+ANNOT_Q3L2 -0.0066      0.0247     -0.0097      1.0000     -0.0107     -0.0150
+ANNOT_Q4L2  0.0588     -0.0073     -0.0015     -0.0107      1.0000      0.0055
+ANNOT_Q5L2  0.0628      0.0392      0.1384     -0.0150      0.0055      1.0000
+
+LD Score Matrix Condition Number
+8.145867918610973
+
+Annotation Correlation Matrix
+            ANNOT_Q1  ANNOT_Q2    ANNOT_Q3  ANNOT_Q4  ANNOT_Q5
+ANNOT_Q1  1.0000e+00   -0.0001 -9.5650e-05   -0.0002   -0.0003
+ANNOT_Q2 -1.4706e-04    1.0000 -1.2193e-04   -0.0003   -0.0004
+ANNOT_Q3 -9.5650e-05   -0.0001  1.0000e+00   -0.0002   -0.0002
+ANNOT_Q4 -2.1777e-04   -0.0003 -1.8056e-04    1.0000   -0.0005
+ANNOT_Q5 -2.8993e-04   -0.0004 -2.4039e-04   -0.0005    1.0000
+
+Annotation Matrix Column Sums
+ANNOT_Q1     16
+ANNOT_Q2     26
+ANNOT_Q3     11
+ANNOT_Q4     57
+ANNOT_Q5    101
+
+Summary of Annotation Matrix Row Sums
+count    138712.0000
+mean          0.0015
+std           0.0390
+min           0.0000
+25%           0.0000
+50%           0.0000
+75%           0.0000
+max           1.0000
+Analysis finished at Sun Apr 26 21:42:56 2026
+Total time elapsed: 26.55s
+2026-04-26 21:42:57 - Processing region: dlpfc
+2026-04-26 21:42:57 -     Computing LD scores...
+/projects/p32505/opt/ldsc/ldscore/parse.py:266: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  self.df = pd.read_csv(fname, header=self.__header__, usecols=self.__usecols__,
+/projects/p32505/opt/ldsc/ldscore/parse.py:266: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  self.df = pd.read_csv(fname, header=self.__header__, usecols=self.__usecols__,
+/projects/p32505/opt/ldsc/ldscore/parse.py:266: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  self.df = pd.read_csv(fname, header=self.__header__, usecols=self.__usecols__,
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out ./custom_ldscores/dlpfc/dlpfc.21 \
+--bfile /projects/b1213/resources/ldsc/1000G_EUR_Phase3_plink/1000G.EUR.QC.21 \
+--l2  \
+--ld-wind-cm 1.0 \
+--print-snps /projects/b1213/resources/ldsc/hm3_no_MHC.list.txt \
+--annot ./custom_ldscores/dlpfc/dlpfc.21.annot.gz \
+--thin-annot  
+
+Beginning analysis at Sun Apr 26 21:42:58 2026
+Read list of 138712 SNPs from /projects/b1213/resources/ldsc/1000G_EUR_Phase3_plink/1000G.EUR.QC.21.bim
+Read 5 annotations for 138712 SNPs from ./custom_ldscores/dlpfc/dlpfc.21.annot.gz
+Read list of 489 individuals from /projects/b1213/resources/ldsc/1000G_EUR_Phase3_plink/1000G.EUR.QC.21.fam
+Reading genotypes from /projects/b1213/resources/ldsc/1000G_EUR_Phase3_plink/1000G.EUR.QC.21.bed
+After filtering, 138712 SNPs remain
+Estimating LD Score.
+Reading list of 1217311 SNPs for which to print LD Scores from /projects/b1213/resources/ldsc/hm3_no_MHC.list.txt
+After merging with --print-snps, LD Scores for 17040 SNPs will be printed.
+Writing LD Scores for 17040 SNPs to ./custom_ldscores/dlpfc/dlpfc.21.l2.ldscore.gz
+
+Summary of LD Scores in ./custom_ldscores/dlpfc/dlpfc.21.l2.ldscore.gz
+         MAF  ANNOT_Q1L2  ANNOT_Q2L2  ANNOT_Q3L2  ANNOT_Q4L2  ANNOT_Q5L2
+mean  0.2420      0.0209      0.0408      0.0100      0.0142      0.0465
+std   0.1414      0.1371      0.2130      0.0847      0.0889      0.2591
+min   0.0051     -0.0283     -0.0212     -0.0136     -0.0094     -0.0462
+25%   0.1186      0.0000      0.0000      0.0000      0.0000      0.0000
+50%   0.2321      0.0000      0.0000      0.0000      0.0000      0.0000
+75%   0.3650      0.0000      0.0007      0.0000      0.0000      0.0000
+max   0.5000      2.6316      3.1719      2.2245      1.7855      5.8425
+
+MAF/LD Score Correlation Matrix
+               MAF  ANNOT_Q1L2  ANNOT_Q2L2  ANNOT_Q3L2  ANNOT_Q4L2  ANNOT_Q5L2
+MAF         1.0000     -0.0013      0.0679      0.0188      0.0548      0.0514
+ANNOT_Q1L2 -0.0013      1.0000     -0.0145     -0.0159     -0.0119     -0.0237
+ANNOT_Q2L2  0.0679     -0.0145      1.0000     -0.0087      0.0469      0.2206
+ANNOT_Q3L2  0.0188     -0.0159     -0.0087      1.0000      0.1531     -0.0123
+ANNOT_Q4L2  0.0548     -0.0119      0.0469      0.1531      1.0000      0.0076
+ANNOT_Q5L2  0.0514     -0.0237      0.2206     -0.0123      0.0076      1.0000
+
+LD Score Matrix Condition Number
+3.470473924421948
+
+Annotation Correlation Matrix
+          ANNOT_Q1  ANNOT_Q2  ANNOT_Q3  ANNOT_Q4  ANNOT_Q5
+ANNOT_Q1    1.0000   -0.0004   -0.0002   -0.0002   -0.0005
+ANNOT_Q2   -0.0004    1.0000   -0.0003   -0.0003   -0.0006
+ANNOT_Q3   -0.0002   -0.0003    1.0000   -0.0002   -0.0004
+ANNOT_Q4   -0.0002   -0.0003   -0.0002    1.0000   -0.0004
+ANNOT_Q5   -0.0005   -0.0006   -0.0004   -0.0004    1.0000
+
+Annotation Matrix Column Sums
+ANNOT_Q1     40
+ANNOT_Q2     62
+ANNOT_Q3     26
+ANNOT_Q4     24
+ANNOT_Q5    114
+
+Summary of Annotation Matrix Row Sums
+count    138712.0000
+mean          0.0019
+std           0.0437
+min           0.0000
+25%           0.0000
+50%           0.0000
+75%           0.0000
+max           1.0000
+Analysis finished at Sun Apr 26 21:43:25 2026
+Total time elapsed: 26.55s
+2026-04-26 21:43:25 - Processing region: hippocampus
+2026-04-26 21:43:25 -     Computing LD scores...
+/projects/p32505/opt/ldsc/ldscore/parse.py:266: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  self.df = pd.read_csv(fname, header=self.__header__, usecols=self.__usecols__,
+/projects/p32505/opt/ldsc/ldscore/parse.py:266: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  self.df = pd.read_csv(fname, header=self.__header__, usecols=self.__usecols__,
+/projects/p32505/opt/ldsc/ldscore/parse.py:266: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  self.df = pd.read_csv(fname, header=self.__header__, usecols=self.__usecols__,
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out ./custom_ldscores/hippocampus/hippocampus.21 \
+--bfile /projects/b1213/resources/ldsc/1000G_EUR_Phase3_plink/1000G.EUR.QC.21 \
+--l2  \
+--ld-wind-cm 1.0 \
+--print-snps /projects/b1213/resources/ldsc/hm3_no_MHC.list.txt \
+--annot ./custom_ldscores/hippocampus/hippocampus.21.annot.gz \
+--thin-annot  
+
+Beginning analysis at Sun Apr 26 21:43:26 2026
+Read list of 138712 SNPs from /projects/b1213/resources/ldsc/1000G_EUR_Phase3_plink/1000G.EUR.QC.21.bim
+Read 5 annotations for 138712 SNPs from ./custom_ldscores/hippocampus/hippocampus.21.annot.gz
+Read list of 489 individuals from /projects/b1213/resources/ldsc/1000G_EUR_Phase3_plink/1000G.EUR.QC.21.fam
+Reading genotypes from /projects/b1213/resources/ldsc/1000G_EUR_Phase3_plink/1000G.EUR.QC.21.bed
+After filtering, 138712 SNPs remain
+Estimating LD Score.
+Reading list of 1217311 SNPs for which to print LD Scores from /projects/b1213/resources/ldsc/hm3_no_MHC.list.txt
+After merging with --print-snps, LD Scores for 17040 SNPs will be printed.
+Writing LD Scores for 17040 SNPs to ./custom_ldscores/hippocampus/hippocampus.21.l2.ldscore.gz
+
+Summary of LD Scores in ./custom_ldscores/hippocampus/hippocampus.21.l2.ldscore.gz
+         MAF  ANNOT_Q1L2  ANNOT_Q2L2  ANNOT_Q3L2  ANNOT_Q4L2  ANNOT_Q5L2
+mean  0.2420      0.0137      0.0230      0.0298      0.0066      0.0383
+std   0.1414      0.1170      0.1577      0.1878      0.0722      0.2336
+min   0.0051     -0.0236     -0.0191     -0.0219     -0.0103     -0.0615
+25%   0.1186      0.0000      0.0000      0.0000      0.0000      0.0000
+50%   0.2321      0.0000      0.0000      0.0000      0.0000      0.0000
+75%   0.3650      0.0000      0.0000      0.0000      0.0000      0.0000
+max   0.5000      2.8920      3.2007      3.9061      2.7509      5.8452
+
+MAF/LD Score Correlation Matrix
+               MAF  ANNOT_Q1L2  ANNOT_Q2L2  ANNOT_Q3L2  ANNOT_Q4L2  ANNOT_Q5L2
+MAF         1.0000      0.0076      0.0234      0.0016      0.0463      0.0378
+ANNOT_Q1L2  0.0076      1.0000      0.0871     -0.0029      0.0039     -0.0184
+ANNOT_Q2L2  0.0234      0.0871      1.0000     -0.0090      0.0070      0.0025
+ANNOT_Q3L2  0.0016     -0.0029     -0.0090      1.0000      0.0162     -0.0121
+ANNOT_Q4L2  0.0463      0.0039      0.0070      0.0162      1.0000     -0.0077
+ANNOT_Q5L2  0.0378     -0.0184      0.0025     -0.0121     -0.0077      1.0000
+
+LD Score Matrix Condition Number
+3.2721327968215284
+
+Annotation Correlation Matrix
+          ANNOT_Q1  ANNOT_Q2  ANNOT_Q3  ANNOT_Q4  ANNOT_Q5
+ANNOT_Q1    1.0000   -0.0003   -0.0003   -0.0002   -0.0004
+ANNOT_Q2   -0.0003    1.0000   -0.0004   -0.0002   -0.0005
+ANNOT_Q3   -0.0003   -0.0004    1.0000   -0.0002   -0.0005
+ANNOT_Q4   -0.0002   -0.0002   -0.0002    1.0000   -0.0003
+ANNOT_Q5   -0.0004   -0.0005   -0.0005   -0.0003    1.0000
+
+Annotation Matrix Column Sums
+ANNOT_Q1     32
+ANNOT_Q2     51
+ANNOT_Q3     55
+ANNOT_Q4     14
+ANNOT_Q5    102
+
+Summary of Annotation Matrix Row Sums
+count    138712.0000
+mean          0.0018
+std           0.0428
+min           0.0000
+25%           0.0000
+50%           0.0000
+75%           0.0000
+max           1.0000
+Analysis finished at Sun Apr 26 21:43:53 2026
+Total time elapsed: 26.81s
+2026-04-26 21:43:55 - **** Job ends ****

@@ -1,0 +1,57 @@
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./munge_sumstats.py \
+--sumstats ./sumstats/ad.single_rsid.tsv.gz \
+--out ./sumstats/ad \
+--merge-alleles /projects/b1213/resources/ldsc/w_hm3.snplist \
+--chunksize 500000 \
+--snp hm_rsid \
+--N-cas-col n_cas \
+--N-con-col n_con \
+--a1 hm_effect_allele \
+--a2 hm_other_allele \
+--p p_value \
+--frq hm_effect_allele_frequency \
+--signed-sumstats hm_beta,0 
+
+Interpreting column names as follows:
+hm_rsid:	Variant ID (e.g., rs number)
+hm_other_allele:	Allele 2, interpreted as non-ref allele for signed sumstat.
+hm_effect_allele:	Allele 1, interpreted as ref allele for signed sumstat.
+hm_beta:	Directional summary statistic as specified by --signed-sumstats.
+hm_effect_allele_frequency:	Allele frequency
+p_value:	p-Value
+n_cas:	Number of cases
+n_con:	Number of controls
+
+Reading list of SNPs for allele merge from /projects/b1213/resources/ldsc/w_hm3.snplist
+Read 1190321 SNPs for allele merge.
+Reading sumstats from ./sumstats/ad.single_rsid.tsv.gz into memory 500000 SNPs at a time.
+Read 21101022 SNPs from --sumstats file.
+Removed 19797457 SNPs not in --merge-alleles.
+Removed 132476 SNPs with missing values.
+Removed 0 SNPs with INFO <= 0.9.
+Removed 10368 SNPs with MAF <= 0.01.
+Removed 0 SNPs with out-of-bounds p-values.
+Removed 0 variants that were not SNPs or were strand-ambiguous.
+1160721 SNPs remain.
+Removed 0 SNPs with duplicated rs numbers (1160721 SNPs remain).
+Removed 616 SNPs with N < 325007.3333333326 (1160105 SNPs remain).
+Median value of SIGNED_SUMSTATS was 0.0002, which seems sensible.
+Removed 1 SNPs whose alleles did not match --merge-alleles (1160104 SNPs remain).
+Writing summary statistics for 1190321 SNPs (1160104 with nonmissing beta) to ./sumstats/ad.sumstats.gz.
+
+Metadata:
+Mean chi^2 = 1.28
+Lambda GC = 1.211
+Max chi^2 = 367.168
+645 Genome-wide significant SNPs (some may have been removed by filtering).
+
+Conversion finished at Tue Apr 21 11:20:16 2026
+Total time elapsed: 1.0m:40.400000000000006s

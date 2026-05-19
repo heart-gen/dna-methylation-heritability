@@ -1,0 +1,75 @@
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out ./custom_ldscores/dlpfc/dlpfc.15 \
+--bfile /projects/b1213/resources/ldsc/1000G_EUR_Phase3_plink/1000G.EUR.QC.15 \
+--l2  \
+--ld-wind-cm 1.0 \
+--print-snps /projects/b1213/resources/ldsc/hm3_no_MHC.list.txt \
+--annot ./custom_ldscores/dlpfc/dlpfc.15.annot.gz \
+--thin-annot  
+
+Beginning analysis at Sun Apr 26 21:43:36 2026
+Read list of 287001 SNPs from /projects/b1213/resources/ldsc/1000G_EUR_Phase3_plink/1000G.EUR.QC.15.bim
+Read 5 annotations for 287001 SNPs from ./custom_ldscores/dlpfc/dlpfc.15.annot.gz
+Read list of 489 individuals from /projects/b1213/resources/ldsc/1000G_EUR_Phase3_plink/1000G.EUR.QC.15.fam
+Reading genotypes from /projects/b1213/resources/ldsc/1000G_EUR_Phase3_plink/1000G.EUR.QC.15.bed
+Estimating LD Score.
+Reading list of 1217311 SNPs for which to print LD Scores from /projects/b1213/resources/ldsc/hm3_no_MHC.list.txt
+After merging with --print-snps, LD Scores for 35839 SNPs will be printed.
+Writing LD Scores for 35839 SNPs to ./custom_ldscores/dlpfc/dlpfc.15.l2.ldscore.gz
+
+Summary of LD Scores in ./custom_ldscores/dlpfc/dlpfc.15.l2.ldscore.gz
+         MAF  ANNOT_Q1L2  ANNOT_Q2L2  ANNOT_Q3L2  ANNOT_Q4L2  ANNOT_Q5L2
+mean  0.2379      0.0482      0.0512      0.1019      0.0666      0.0724
+std   0.1441      0.2617      0.2509      0.7048      0.2996      0.3738
+min   0.0051     -0.0302     -0.0296     -0.1122     -0.0337     -0.0631
+25%   0.1104      0.0000      0.0000      0.0000      0.0000      0.0000
+50%   0.2270      0.0000      0.0000      0.0000      0.0000      0.0000
+75%   0.3640      0.0029      0.0093      0.0145      0.0097      0.0139
+max   0.5000     10.3489      5.8571     35.1936      6.1600     14.5673
+
+MAF/LD Score Correlation Matrix
+               MAF  ANNOT_Q1L2  ANNOT_Q2L2  ANNOT_Q3L2  ANNOT_Q4L2  ANNOT_Q5L2
+MAF         1.0000     -0.0045      0.0266      0.0119     -0.0089      0.0273
+ANNOT_Q1L2 -0.0045      1.0000      0.1264      0.1876      0.0710      0.1542
+ANNOT_Q2L2  0.0266      0.1264      1.0000      0.2359      0.0813      0.3715
+ANNOT_Q3L2  0.0119      0.1876      0.2359      1.0000     -0.0014      0.3801
+ANNOT_Q4L2 -0.0089      0.0710      0.0813     -0.0014      1.0000      0.0656
+ANNOT_Q5L2  0.0273      0.1542      0.3715      0.3801      0.0656      1.0000
+
+LD Score Matrix Condition Number
+3.337204370029842
+
+Annotation Correlation Matrix
+          ANNOT_Q1  ANNOT_Q2  ANNOT_Q3  ANNOT_Q4  ANNOT_Q5
+ANNOT_Q1    1.0000   -0.0004   -0.0006   -0.0005   -0.0005
+ANNOT_Q2   -0.0004    1.0000   -0.0006   -0.0005   -0.0006
+ANNOT_Q3   -0.0006   -0.0006    1.0000   -0.0008   -0.0008
+ANNOT_Q4   -0.0005   -0.0005   -0.0008    1.0000   -0.0007
+ANNOT_Q5   -0.0005   -0.0006   -0.0008   -0.0007    1.0000
+
+Annotation Matrix Column Sums
+ANNOT_Q1    113
+ANNOT_Q2    131
+ANNOT_Q3    245
+ANNOT_Q4    189
+ANNOT_Q5    197
+
+Summary of Annotation Matrix Row Sums
+count    287001.0000
+mean          0.0030
+std           0.0551
+min           0.0000
+25%           0.0000
+50%           0.0000
+75%           0.0000
+max           1.0000
+Analysis finished at Sun Apr 26 21:44:46 2026
+Total time elapsed: 1.0m:10.129999999999995s
