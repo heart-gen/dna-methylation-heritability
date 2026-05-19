@@ -158,21 +158,26 @@ env_term_label <- function(env, term) {
 }
 
 order_env_labels <- function(df, label_col = "env_label") {
+  env_ord <- c(
+    "Smoking",
+    "Nicotine",
+    "Cocaine",
+    "Morphine",
+    "Codeine",
+    "Amphetamines",
+    "Ethanol",
+    "Education",
+    "Marital status"
+  )
+  
   ord <- df |>
     mutate(
-      best_fdr = pmin(vmr_fdr, wilcoxon_fdr, fisher_fdr, na.rm = TRUE),
-      best_fdr = ifelse(is.infinite(best_fdr), NA_real_, best_fdr),
-      evidence_rank = ifelse(is.na(best_fdr), 1, best_fdr),
-      shift_rank = ifelse(is.finite(vmr_shift), abs(vmr_shift), 0)
+      env_base = sub(":.*$", "", .data[[label_col]]),
+      env_base = factor(env_base, levels = env_ord)
     ) |>
-    group_by(.data[[label_col]]) |>
-    summarise(
-      best_fdr = min(evidence_rank, na.rm = TRUE),
-      max_shift = max(shift_rank, na.rm = TRUE),
-      .groups = "drop"
-    ) |>
-    arrange(best_fdr, desc(max_shift), .data[[label_col]]) |>
-    pull(.data[[label_col]])
+    arrange(env_base, .data[[label_col]]) |>
+    pull(.data[[label_col]]) |>
+    unique()
   rev(ord)
 }
 
@@ -292,6 +297,9 @@ if (nrow(env_main) > 0 || nrow(env_wilcoxon_main) > 0 || nrow(env_vmr_main) > 0)
       fisher_sig = !is.na(fisher_fdr) & fisher_fdr < 0.10,
       wilcoxon_sig = !is.na(wilcoxon_fdr) & wilcoxon_fdr < 0.10,
       vmr_sig = !is.na(vmr_fdr) & vmr_fdr < 0.10
+    ) |>
+    filter(
+      !grepl("trauma", env_label, ignore.case = TRUE)
     )
 }
 
