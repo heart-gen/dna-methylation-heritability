@@ -103,6 +103,8 @@ def main():
 
     lo = LiftOver(str(chain_file))
 
+    df = process_subset(df, lo)
+
     df = create_quintiles(df)
 
     # Create separate BED files per quintile

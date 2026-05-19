@@ -45,7 +45,7 @@ for filepath in glob.glob(os.path.join(base_dir, file_pattern), recursive=True):
             l2_row = l2_row[keep_cols]
             l2_row["disease"] = disease
             l2_row["tissue"] = tissue
-            l2_row["annotation"] = df.iloc[:, 0].str.extract(r"(ANNOT_Q\d+L2_1)")
+            l2_row["annotation"] = l2_row.iloc[:, 0].str.extract(r"(ANNOT_Q\d+L2_1)")
 
             rows.append(l2_row)
         else:
