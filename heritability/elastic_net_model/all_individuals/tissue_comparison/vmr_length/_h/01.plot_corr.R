@@ -218,8 +218,8 @@ combined_corr <- ggarrange(plotlist = corr_plots, ncol = 3, nrow = 2)
 
 fn_hist <- file.path(out_path, "VMR_length_distribution")
 fn_corr <- file.path(out_path, "VMR_length_h2_correlation")
-save_plot(combined_hist, fn_hist, 18, 14)
-save_plot(combined_corr, fn_corr, 18, 14)
+save_plot(combined_hist, fn_hist, 16, 10)
+save_plot(combined_corr, fn_corr, 16, 10)
 
 #### Reproducibility information ####
 print("Reproducibility information:")
