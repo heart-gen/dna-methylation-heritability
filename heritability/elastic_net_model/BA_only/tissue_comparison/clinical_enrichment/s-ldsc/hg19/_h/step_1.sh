@@ -43,13 +43,13 @@ run_munge() {
 # -----------------------------------------------------------------------------
 # --- Alzheimer's Disease (AD) ---
 log_message "Processing: Alzheimer's Disease (ad)"
-AD_GWAS="${GWAS_BASE}/alz/bellenguez2022/35379992-GCST90027158-MONDO_0004975.h.tsv.gz"
+AD_GWAS="${GWAS_BASE}/alz/bellenguez2022/35379992-GCST90027158-MONDO_0004975.h.tsv"
 if [[ -f "$AD_GWAS" ]]; then
-    AD_GWAS_CLEAN="${OUT_DIR}/ad.single_rsid.tsv.gz"
+    AD_GWAS_CLEAN="${OUT_DIR}/ad.single_rsid.tsv"
     if [[ ! -f "$AD_GWAS_CLEAN" ]]; then
         log_message "Cleaning AD GWAS: dropping duplicate columns"
         AD_GWAS="$AD_GWAS" AD_GWAS_CLEAN="$AD_GWAS_CLEAN" python - <<'PY'
-import gzip, os
+import os
 src = os.environ["AD_GWAS"]
 dst = os.environ["AD_GWAS_CLEAN"]
 duplicate_pairs = [
@@ -58,14 +58,16 @@ duplicate_pairs = [
     ("hm_beta","beta"), ("hm_odds_ratio","odds_ratio"), ("hm_ci_lower","ci_lower"),
     ("hm_ci_upper","ci_upper"), ("hm_effect_allele_frequency","effect_allele_frequency")
 ]
-with gzip.open(src,"rt") as fin, gzip.open(dst,"wt") as fout:
+with open(src, "rt") as fin, open(dst, "wt") as fout:
     header = fin.readline().rstrip("\n").split("\t")
-    drop_cols = {drop for keep,drop in duplicate_pairs if keep in header and drop in header}
-    keep_idx = [i for i,col in enumerate(header) if col not in drop_cols]
-    fout.write("\t".join(header[i] for i in keep_idx)+"\n")
+    drop_cols = {drop for keep, drop in duplicate_pairs if keep in header and drop in header}
+    keep_idx = [i for i, col in enumerate(header) if col not in drop_cols]
+
+    fout.write("\t".join(header[i] for i in keep_idx) + "\n")
+
     for line in fin:
         parts = line.rstrip("\n").split("\t")
-        fout.write("\t".join(parts[i] for i in keep_idx)+"\n")
+        fout.write("\t".join(parts[i] for i in keep_idx) + "\n")
 PY
     fi
     run_munge python "$LDSC_WRAPPER" "$LDSC_DIR" "$LOCAL_MUNGE" \
