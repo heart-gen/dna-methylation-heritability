@@ -1,13 +1,13 @@
 #!/bin/bash
 #SBATCH --account=b1042
 #SBATCH --partition=genomics
-#SBATCH --time=01:00:00
+#SBATCH --time=00:20:00
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
-#SBATCH --mem=12G
+#SBATCH --mem=8G
 #SBATCH --mail-type=FAIL
 #SBATCH --job-name=regctx_plot
-#SBATCH --mail-user=kynon.benjamin@northwestern.edu
+#SBATCH --mail-user=alexis.bennett@northwestern.edu
 #SBATCH --output=logs/regctx_plot.%j.log
 
 log_message() {
