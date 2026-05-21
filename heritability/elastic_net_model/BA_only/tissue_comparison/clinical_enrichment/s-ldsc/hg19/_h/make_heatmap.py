@@ -6,7 +6,7 @@ from matplotlib.colors import LinearSegmentedColormap
 # =========================
 # Load data
 # =========================
-df = pd.read_csv("summary_table_fdr.tsv", sep="\t")
+df = pd.read_csv("summary_table_fdr_BA_only.tsv", sep="\t")
 
 # =========================
 # Simplify annotation labels
