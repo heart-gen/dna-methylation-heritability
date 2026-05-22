@@ -20,36 +20,50 @@ clean_pheno <- function(pheno_file_path, samples_to_include){
                            "hippocampus" = "Hippocampus"),
             snpPC1 = as.numeric(snpPC1),
             snpPC2 = as.numeric(snpPC2),
-            race = recode(race, "AA" = "BA", "EA" = "WA")) |>
+            pop = recode(race, "AA" = "BA", "EA" = "WA")) |>
     mutate_if(is.character, as.factor)
     
   return(pheno_df)
 }
 
-plot_pc <- function(pheno_df){
+plot_pc <- function(pheno_df, ref_df){
 
   # Define palette
   donor_group_colors <- c(
     "BA" = "#a52a2a66",
     "WA" = "#0000ff66"
   )
+
+  # Define palette
+  ref_group_colors <- c(
+    "AFR" = "#e41a1c",
+    "EUR" = "#377eb8",
+    "EAS" = "#4daf4a",
+    "SAS" = "#984ea3",
+    "AMR" = "#ff7f00"
+  )
   
-  p <- ggscatter(pheno_df, x = "snpPC1", y = "snpPC2",
-                      size = 1.5, alpha = 0.75,
-                      xlab = "SNP PC1", ylab = "SNP PC2", 
-                      color = "race",
-                      ggtheme = theme_pubr(base_size = 16, border = TRUE)
-  ) +
+  ggplot() +
+    geom_point(
+      data = ref_df,
+      aes(x = snpPC1, y = snpPC2, shape = 17, color = super_pop),
+      size = 1,
+      alpha = 0.5
+    ) +
+    geom_point(
+      data = pheno_df,
+      aes(x = snpPC1, y = snpPC2, color = pop),
+      size = 1.5,
+      alpha = 0.8
+    ) +
     facet_wrap(~region, scales = "free_y") +
-    scale_color_manual(values = donor_group_colors) +
-    labs(color = NULL) +
-    font("xy.title", face = "bold", size = 14) +
+    ggtheme = theme_pubr(base_size = 16, border = TRUE) +
+    scale_color_manual(values = c(ref_group_colors, donor_group_colors)) +
+    labs(color = NULL, x = "SNP PC1", y = "SNP PC2") +
     theme(
       axis.text.x = element_text(angle = 45, hjust = 1),
       plot.title = element_text(hjust = 0.5)
     )
-
-  return(p)
 }
 
 save_plot <- function(p, fn, w, h){
@@ -64,6 +78,18 @@ out_path <- here("qc_analysis/replication_cohort/_m")
 if (!dir.exists(out_path)) {
   dir.create(out_path, recursive = TRUE)
 }
+
+                                        # Get 1000GP ref samples
+ref_samples_fn <- "/projects/b1213/resources/1kGP/data_raw/integrated_call_samples_v3.20130502.ALL.panel"
+ref_samples <- fread(ref_samples_fn, header = TRUE) |>
+    col.names(c("IID", "pop", "super_pop", "gender"))
+
+ref_pc_fn <- "/projects/b1213/resources/1kGP/GRCh38_phased_vcf/_m/1kGP.eigenvec"
+ref_pc <- fread(ref_pc_fn, header = FALSE) |>
+    col.names(c("FID", "IID", paste0("snpPC", 1:10))) |>
+    mutate(dataset = "1000 Genomes") |>
+    left_join(ref_samples, by = "IID")
+
                                         # Generate phenotype data
 pheno_file_path <- here("inputs/phenotypes/_m/phenotypes-all.tsv")
 
@@ -85,11 +111,11 @@ samples_to_include <- bind_rows(valid_samples)
 pheno_df <- clean_pheno(pheno_file_path, samples_to_include)
 
                                         # Plot PC1 vs PC2
-p <- plot_pc(pheno_df)
+p <- plot_pc(pheno_df, ref_pc)
 
                                         # Write to file
 fn_pc <- file.path(out_path, "SNP_PC_AA_EA")
-save_plot(p, fn_pc, 9, 4.5)
+save_plot(p, fn_pc, 10, 8)
 
 
 #### Reproducibility information
