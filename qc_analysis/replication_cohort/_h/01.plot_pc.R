@@ -36,28 +36,29 @@ plot_pc <- function(pheno_df, ref_df){
 
   # Define palette
   ref_group_colors <- c(
-    "AFR" = "#e41a1c",
-    "EUR" = "#377eb8",
-    "EAS" = "#4daf4a",
-    "SAS" = "#984ea3",
-    "AMR" = "#ff7f00"
+    "AFR" = "grey30",
+    "EUR" = "grey50",
+    "EAS" = "grey70",
+    "SAS" = "grey85",
+    "AMR" = "grey60"
   )
   
   ggplot() +
     geom_point(
       data = ref_df,
-      aes(x = snpPC1, y = snpPC2, shape = 17, color = super_pop),
-      size = 1,
+      aes(x = snpPC1, y = snpPC2, color = super_pop),
+      shape = 17, 
+      size = 1.5,
       alpha = 0.5
     ) +
     geom_point(
       data = pheno_df,
       aes(x = snpPC1, y = snpPC2, color = pop),
-      size = 1.5,
+      size = 2,
       alpha = 0.8
     ) +
     facet_wrap(~region, scales = "free_y") +
-    ggtheme = theme_pubr(base_size = 16, border = TRUE) +
+    theme_pubr(base_size = 16, border = TRUE) +
     scale_color_manual(values = c(ref_group_colors, donor_group_colors)) +
     labs(color = NULL, x = "SNP PC1", y = "SNP PC2") +
     theme(
@@ -81,14 +82,15 @@ if (!dir.exists(out_path)) {
 
                                         # Get 1000GP ref samples
 ref_samples_fn <- "/projects/b1213/resources/1kGP/data_raw/integrated_call_samples_v3.20130502.ALL.panel"
-ref_samples <- fread(ref_samples_fn, header = TRUE) |>
-    col.names(c("IID", "pop", "super_pop", "gender"))
+ref_samples <- fread(ref_samples_fn, header = TRUE)
+setnames(ref_samples, c("IID", "pop", "super_pop", "gender"))
 
-ref_pc_fn <- "/projects/b1213/resources/1kGP/GRCh38_phased_vcf/_m/1kGP.eigenvec"
-ref_pc <- fread(ref_pc_fn, header = FALSE) |>
-    col.names(c("FID", "IID", paste0("snpPC", 1:10))) |>
-    mutate(dataset = "1000 Genomes") |>
-    left_join(ref_samples, by = "IID")
+ref_pc_fn <- "/projects/b1213/resources/1kGP/GRCh38_phased_vcf/_m/1kGP-pc.eigenvec"
+ref_pc <- fread(ref_pc_fn, header = TRUE)
+setnames(ref_pc, c("IID", paste0("snpPC", 1:10)))
+ref_pc <- ref_pc |>
+  mutate(dataset = "1000 Genomes") |>
+  inner_join(ref_samples, by = "IID")
 
                                         # Generate phenotype data
 pheno_file_path <- here("inputs/phenotypes/_m/phenotypes-all.tsv")
@@ -114,8 +116,8 @@ pheno_df <- clean_pheno(pheno_file_path, samples_to_include)
 p <- plot_pc(pheno_df, ref_pc)
 
                                         # Write to file
-fn_pc <- file.path(out_path, "SNP_PC_AA_EA")
-save_plot(p, fn_pc, 10, 8)
+fn_pc <- file.path(out_path, "SNP_PC_AA_EA_1kGP_overlay")
+save_plot(p, fn_pc, 12, 6)
 
 
 #### Reproducibility information
