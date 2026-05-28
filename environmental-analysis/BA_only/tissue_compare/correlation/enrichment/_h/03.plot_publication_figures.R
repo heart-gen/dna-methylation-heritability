@@ -55,7 +55,7 @@ test_labels <- c(Logit = "VMR", DMR = "DMR", Both = "VMR + DMR")
 h2_levels <- c("Heritable", "Non-heritable")
 h2_labels <- c(Heritable = "Heritable", "Non-heritable" = "Non-heritable")
 h2_short_labels <- c(Heritable = "H", "Non-heritable" = "N")
-h2_palette <- c("Heritable" = "#3B6EA8", "Non-heritable" = "#C65146")
+h2_palette <- c("Heritable" = "#497C8A", "Non-heritable" = "#8CA77B")
 
 env_label_map <- c(
   less_than_hs = "< high school",
@@ -210,12 +210,19 @@ contrast_df <- plot_df |>
     )
   )
 
-env_order <- contrast_df |>
-  filter(cohort_key == "discovery", is.finite(contrast_log2or)) |>
-  group_by(Env, env_label) |>
-  summarise(max_abs_contrast = max(abs(contrast_log2or)), .groups = "drop") |>
-  arrange(desc(max_abs_contrast), env_label) |>
-  pull(env_label)
+env_ord <- c(
+    "Smoking",
+    "Nicotine",
+    "Cocaine",
+    "Morphine",
+    "Codeine",
+    "Amphetamines",
+    "Ethanol",
+    "< high school",
+    "> high school",
+    "Previously married",
+    "Single"
+  )
 
 if (length(env_order) == 0) {
   env_order <- sort(unique(plot_df$env_label))
