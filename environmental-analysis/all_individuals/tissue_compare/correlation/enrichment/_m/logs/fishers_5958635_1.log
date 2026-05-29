@@ -1,0 +1,1077 @@
+2026-04-21 16:31:37 - **** Job starts ****
+**** Quest info ****
+User: skc6679
+Job id: 5958643
+Job name: fishers_exact
+Node name: 
+Hostname: qnode0019
+OFFSET: 
+SLURM_ARRAY_TASK_ID: 1
+No modules loaded
+2026-04-21 16:31:37 - **** Run fisher's exact for BA****
+/gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/tissue_compare/correlation/enrichment/_m/../_h/01.fishers_enrichment.py:17: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  enet_df['chrom'] = 'chr' + enet_df['chrom'].astype(str)
+/gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/tissue_compare/correlation/enrichment/_m/../_h/01.fishers_enrichment.py:20: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  enet_df['h2_category'] = enet_df.apply(
+/gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/tissue_compare/correlation/enrichment/_m/../_h/01.fishers_enrichment.py:30: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  enet_df['feature_id'] = (
+/gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/tissue_compare/correlation/enrichment/_m/../_h/01.fishers_enrichment.py:17: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  enet_df['chrom'] = 'chr' + enet_df['chrom'].astype(str)
+/gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/tissue_compare/correlation/enrichment/_m/../_h/01.fishers_enrichment.py:20: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  enet_df['h2_category'] = enet_df.apply(
+/gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/tissue_compare/correlation/enrichment/_m/../_h/01.fishers_enrichment.py:30: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  enet_df['feature_id'] = (
+/gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/tissue_compare/correlation/enrichment/_m/../_h/01.fishers_enrichment.py:17: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  enet_df['chrom'] = 'chr' + enet_df['chrom'].astype(str)
+/gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/tissue_compare/correlation/enrichment/_m/../_h/01.fishers_enrichment.py:20: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  enet_df['h2_category'] = enet_df.apply(
+/gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/tissue_compare/correlation/enrichment/_m/../_h/01.fishers_enrichment.py:30: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  enet_df['feature_id'] = (
+/gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/tissue_compare/correlation/enrichment/_m/../_h/01.fishers_enrichment.py:17: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  enet_df['chrom'] = 'chr' + enet_df['chrom'].astype(str)
+/gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/tissue_compare/correlation/enrichment/_m/../_h/01.fishers_enrichment.py:20: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  enet_df['h2_category'] = enet_df.apply(
+/gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/tissue_compare/correlation/enrichment/_m/../_h/01.fishers_enrichment.py:30: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  enet_df['feature_id'] = (
+/gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/tissue_compare/correlation/enrichment/_m/../_h/01.fishers_enrichment.py:17: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  enet_df['chrom'] = 'chr' + enet_df['chrom'].astype(str)
+/gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/tissue_compare/correlation/enrichment/_m/../_h/01.fishers_enrichment.py:20: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  enet_df['h2_category'] = enet_df.apply(
+/gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/tissue_compare/correlation/enrichment/_m/../_h/01.fishers_enrichment.py:30: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  enet_df['feature_id'] = (
+/gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/tissue_compare/correlation/enrichment/_m/../_h/01.fishers_enrichment.py:17: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  enet_df['chrom'] = 'chr' + enet_df['chrom'].astype(str)
+/gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/tissue_compare/correlation/enrichment/_m/../_h/01.fishers_enrichment.py:20: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  enet_df['h2_category'] = enet_df.apply(
+/gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/tissue_compare/correlation/enrichment/_m/../_h/01.fishers_enrichment.py:30: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  enet_df['feature_id'] = (
+[VMR] sig counts:
+sig
+False    6486
+True      569
+Name: count, dtype: int64
+[DMR] sig counts:
+sig
+False    6500
+True      555
+Name: count, dtype: int64
+[MERGE] Before pivot:                feature_id    chr      start  ...  level  coefficients  p.value
+0  10_100932348_100932948  chr10  100932348  ...    NaN           NaN      NaN
+1  10_101005650_101007117  chr10  101005650  ...    NaN           NaN      NaN
+2  10_101008423_101008841  chr10  101008423  ...    NaN           NaN      NaN
+3  10_101310581_101310723  chr10  101310581  ...    NaN           NaN      NaN
+4  10_101774199_101774853  chr10  101774199  ...    NaN           NaN      NaN
+
+[5 rows x 16 columns]
+[ENET] AA shape (raw): (11467, 10)
+[ENET] EA shape (raw): (11469, 10)
+   chrom      start        end    h2_category
+0   chrX  100407724  100408397  Non-heritable
+1   chrX  101931120  101932284  Non-heritable
+2   chrX  131783237  131783925  Non-heritable
+3   chr1    2449834    2450419      Heritable
+4  chr16   85538147   85538402  Non-heritable
+   chrom      start        end    h2_category
+0   chrX  100407724  100408397  Non-heritable
+1   chrX  101931120  101932284  Non-heritable
+2   chrX  131783237  131783925  Non-heritable
+3   chr1    2449834    2450419  Non-heritable
+4  chr16   85538147   85538402  Non-heritable
+[ENET] Combined shape (after merge): (11437, 23)
+[ENET] After h2_category match filter: (7304, 23)
+[ENET] Final columns: ['task_id_AA', 'chrom', 'start', 'end', 'num_snps_AA', 'boosting_iterations_performed_AA', 'h2_unscaled_AA', 'r_squared_cv_AA', 'region_AA', 'h2_category', 'feature_id', 'task_id_EA', 'num_snps_EA', 'boosting_iterations_performed_EA', 'h2_unscaled_EA', 'r_squared_cv_EA', 'region_EA']
+[ENET] Final shape: (7304, 17)
+[[np.int64(221), np.int64(348)], [np.int64(3233), np.int64(3253)]]
+[VMR] sig counts:
+sig
+False    6839
+True      216
+Name: count, dtype: int64
+[DMR] sig counts:
+sig
+False    6837
+True      218
+Name: count, dtype: int64
+[MERGE] Before pivot:                feature_id    chr      start  ...  level  coefficients  p.value
+0  10_100932348_100932948  chr10  100932348  ...    NaN           NaN      NaN
+1  10_101005650_101007117  chr10  101005650  ...    NaN           NaN      NaN
+2  10_101008423_101008841  chr10  101008423  ...    NaN           NaN      NaN
+3  10_101310581_101310723  chr10  101310581  ...    NaN           NaN      NaN
+4  10_101774199_101774853  chr10  101774199  ...    NaN           NaN      NaN
+
+[5 rows x 16 columns]
+[[np.int64(132), np.int64(84)], [np.int64(3322), np.int64(3517)]]
+[VMR] sig counts:
+sig
+False    6833
+True      222
+Name: count, dtype: int64
+[DMR] sig counts:
+sig
+False    6829
+True      226
+Name: count, dtype: int64
+[MERGE] Before pivot:                feature_id    chr      start  ...  level  coefficients  p.value
+0  10_100932348_100932948  chr10  100932348  ...    NaN           NaN      NaN
+1  10_101005650_101007117  chr10  101005650  ...    NaN           NaN      NaN
+2  10_101008423_101008841  chr10  101008423  ...    NaN           NaN      NaN
+3  10_101310581_101310723  chr10  101310581  ...    NaN           NaN      NaN
+4  10_101774199_101774853  chr10  101774199  ...    NaN           NaN      NaN
+
+[5 rows x 16 columns]
+[[np.int64(125), np.int64(97)], [np.int64(3329), np.int64(3504)]]
+[VMR] sig counts:
+sig
+False    6849
+True      206
+Name: count, dtype: int64
+[DMR] sig counts:
+sig
+False    6846
+True      209
+Name: count, dtype: int64
+[MERGE] Before pivot:                feature_id    chr      start  ...  level  coefficients  p.value
+0  10_100932348_100932948  chr10  100932348  ...    NaN           NaN      NaN
+1  10_101005650_101007117  chr10  101005650  ...    NaN           NaN      NaN
+2  10_101008423_101008841  chr10  101008423  ...    NaN           NaN      NaN
+3  10_101310581_101310723  chr10  101310581  ...    NaN           NaN      NaN
+4  10_101774199_101774853  chr10  101774199  ...    NaN           NaN      NaN
+
+[5 rows x 16 columns]
+[[np.int64(128), np.int64(78)], [np.int64(3326), np.int64(3523)]]
+[VMR] sig counts:
+sig
+False    6572
+True      483
+Name: count, dtype: int64
+[DMR] sig counts:
+sig
+False    6581
+True      474
+Name: count, dtype: int64
+[MERGE] Before pivot:                feature_id    chr      start  ...  level  coefficients  p.value
+0  10_100932348_100932948  chr10  100932348  ...    NaN           NaN      NaN
+1  10_101005650_101007117  chr10  101005650  ...    NaN           NaN      NaN
+2  10_101008423_101008841  chr10  101008423  ...    NaN           NaN      NaN
+3  10_101310581_101310723  chr10  101310581  ...    NaN           NaN      NaN
+4  10_101774199_101774853  chr10  101774199  ...    NaN           NaN      NaN
+
+[5 rows x 16 columns]
+[[np.int64(223), np.int64(260)], [np.int64(3231), np.int64(3341)]]
+[VMR] sig counts:
+sig
+False    6411
+True      644
+Name: count, dtype: int64
+[DMR] sig counts:
+sig
+False    6418
+True      637
+Name: count, dtype: int64
+[MERGE] Before pivot:                feature_id    chr      start  ...  level  coefficients  p.value
+0  10_100932348_100932948  chr10  100932348  ...    NaN           NaN      NaN
+1  10_101005650_101007117  chr10  101005650  ...    NaN           NaN      NaN
+2  10_101008423_101008841  chr10  101008423  ...    NaN           NaN      NaN
+3  10_101310581_101310723  chr10  101310581  ...    NaN           NaN      NaN
+4  10_101774199_101774853  chr10  101774199  ...    NaN           NaN      NaN
+
+[5 rows x 16 columns]
+[[np.int64(235), np.int64(409)], [np.int64(3219), np.int64(3192)]]
+[VMR] sig counts:
+sig
+False    6779
+True      276
+Name: count, dtype: int64
+[DMR] sig counts:
+sig
+False    6775
+True      280
+Name: count, dtype: int64
+[MERGE] Before pivot:                feature_id    chr      start  ...  level  coefficients  p.value
+0  10_100932348_100932948  chr10  100932348  ...    NaN           NaN      NaN
+1  10_101005650_101007117  chr10  101005650  ...    NaN           NaN      NaN
+2  10_101008423_101008841  chr10  101008423  ...    NaN           NaN      NaN
+3  10_101310581_101310723  chr10  101310581  ...    NaN           NaN      NaN
+4  10_101774199_101774853  chr10  101774199  ...    NaN           NaN      NaN
+
+[5 rows x 16 columns]
+[[np.int64(141), np.int64(135)], [np.int64(3313), np.int64(3466)]]
+[VMR] sig counts:
+sig
+False    6779
+True      276
+Name: count, dtype: int64
+[DMR] sig counts:
+sig
+False    6777
+True      278
+Name: count, dtype: int64
+[MERGE] Before pivot:                feature_id    chr      start  ...  level  coefficients  p.value
+0  10_100932348_100932948  chr10  100932348  ...    NaN           NaN      NaN
+2  10_101005650_101007117  chr10  101005650  ...    NaN           NaN      NaN
+4  10_101008423_101008841  chr10  101008423  ...    NaN           NaN      NaN
+6  10_101310581_101310723  chr10  101310581  ...    NaN           NaN      NaN
+8  10_101774199_101774853  chr10  101774199  ...    NaN           NaN      NaN
+
+[5 rows x 16 columns]
+[[np.int64(149), np.int64(127)], [np.int64(3305), np.int64(3474)]]
+[VMR] sig counts:
+sig
+False    6750
+True      305
+Name: count, dtype: int64
+[DMR] sig counts:
+sig
+False    6749
+True      306
+Name: count, dtype: int64
+[MERGE] Before pivot:                feature_id    chr      start  ...  level  coefficients  p.value
+1  10_100932348_100932948  chr10  100932348  ...    NaN           NaN      NaN
+3  10_101005650_101007117  chr10  101005650  ...    NaN           NaN      NaN
+5  10_101008423_101008841  chr10  101008423  ...    NaN           NaN      NaN
+7  10_101310581_101310723  chr10  101310581  ...    NaN           NaN      NaN
+9  10_101774199_101774853  chr10  101774199  ...    NaN           NaN      NaN
+
+[5 rows x 16 columns]
+[[np.int64(167), np.int64(138)], [np.int64(3287), np.int64(3463)]]
+[VMR] sig counts:
+sig
+False    6789
+True      266
+Name: count, dtype: int64
+[DMR] sig counts:
+sig
+False    6786
+True      269
+Name: count, dtype: int64
+[MERGE] Before pivot:                feature_id    chr      start  ...  level  coefficients  p.value
+1  10_100932348_100932948  chr10  100932348  ...    NaN           NaN      NaN
+3  10_101005650_101007117  chr10  101005650  ...    NaN           NaN      NaN
+5  10_101008423_101008841  chr10  101008423  ...    NaN           NaN      NaN
+7  10_101310581_101310723  chr10  101310581  ...    NaN           NaN      NaN
+9  10_101774199_101774853  chr10  101774199  ...    NaN           NaN      NaN
+
+[5 rows x 16 columns]
+[[np.int64(157), np.int64(109)], [np.int64(3297), np.int64(3492)]]
+[VMR] sig counts:
+sig
+False    6869
+True      186
+Name: count, dtype: int64
+[DMR] sig counts:
+sig
+False    6871
+True      184
+Name: count, dtype: int64
+[MERGE] Before pivot:                feature_id    chr      start  ...  level  coefficients  p.value
+0  10_100932348_100932948  chr10  100932348  ...    NaN           NaN      NaN
+2  10_101005650_101007117  chr10  101005650  ...    NaN           NaN      NaN
+4  10_101008423_101008841  chr10  101008423  ...    NaN           NaN      NaN
+6  10_101310581_101310723  chr10  101310581  ...    NaN           NaN      NaN
+8  10_101774199_101774853  chr10  101774199  ...    NaN           NaN      NaN
+
+[5 rows x 16 columns]
+[[np.int64(124), np.int64(62)], [np.int64(3330), np.int64(3539)]]
+[[np.int64(217), np.int64(338)], [np.int64(3237), np.int64(3263)]]
+[[np.int64(133), np.int64(85)], [np.int64(3321), np.int64(3516)]]
+[[np.int64(129), np.int64(97)], [np.int64(3325), np.int64(3504)]]
+[[np.int64(131), np.int64(78)], [np.int64(3323), np.int64(3523)]]
+[[np.int64(218), np.int64(256)], [np.int64(3236), np.int64(3345)]]
+[[np.int64(230), np.int64(407)], [np.int64(3224), np.int64(3194)]]
+[[np.int64(145), np.int64(135)], [np.int64(3309), np.int64(3466)]]
+[[np.int64(153), np.int64(125)], [np.int64(3301), np.int64(3476)]]
+[[np.int64(166), np.int64(140)], [np.int64(3288), np.int64(3461)]]
+[[np.int64(157), np.int64(112)], [np.int64(3297), np.int64(3489)]]
+[[np.int64(123), np.int64(61)], [np.int64(3331), np.int64(3540)]]
+[[np.int64(210), np.int64(335)], [np.int64(3244), np.int64(3266)]]
+[[np.int64(127), np.int64(83)], [np.int64(3327), np.int64(3518)]]
+[[np.int64(121), np.int64(92)], [np.int64(3333), np.int64(3509)]]
+[[np.int64(127), np.int64(75)], [np.int64(3327), np.int64(3526)]]
+[[np.int64(214), np.int64(253)], [np.int64(3240), np.int64(3348)]]
+[[np.int64(227), np.int64(400)], [np.int64(3227), np.int64(3201)]]
+[[np.int64(134), np.int64(133)], [np.int64(3320), np.int64(3468)]]
+[[np.int64(142), np.int64(122)], [np.int64(3312), np.int64(3479)]]
+[[np.int64(160), np.int64(134)], [np.int64(3294), np.int64(3467)]]
+[[np.int64(149), np.int64(103)], [np.int64(3305), np.int64(3498)]]
+[[np.int64(116), np.int64(58)], [np.int64(3338), np.int64(3543)]]
+[[np.int64(344), np.int64(225)], [np.int64(3204), np.int64(3282)]]
+[[np.int64(83), np.int64(133)], [np.int64(3465), np.int64(3374)]]
+[[np.int64(93), np.int64(129)], [np.int64(3455), np.int64(3378)]]
+[[np.int64(75), np.int64(131)], [np.int64(3473), np.int64(3376)]]
+[[np.int64(259), np.int64(224)], [np.int64(3289), np.int64(3283)]]
+[[np.int64(405), np.int64(239)], [np.int64(3143), np.int64(3268)]]
+[[np.int64(129), np.int64(147)], [np.int64(3419), np.int64(3360)]]
+[[np.int64(124), np.int64(152)], [np.int64(3424), np.int64(3355)]]
+[[np.int64(134), np.int64(171)], [np.int64(3414), np.int64(3336)]]
+[[np.int64(109), np.int64(157)], [np.int64(3439), np.int64(3350)]]
+[[np.int64(62), np.int64(124)], [np.int64(3486), np.int64(3383)]]
+[[np.int64(335), np.int64(220)], [np.int64(3213), np.int64(3287)]]
+[[np.int64(84), np.int64(134)], [np.int64(3464), np.int64(3373)]]
+[[np.int64(92), np.int64(134)], [np.int64(3456), np.int64(3373)]]
+[[np.int64(75), np.int64(134)], [np.int64(3473), np.int64(3373)]]
+[[np.int64(255), np.int64(219)], [np.int64(3293), np.int64(3288)]]
+[[np.int64(403), np.int64(234)], [np.int64(3145), np.int64(3273)]]
+[[np.int64(129), np.int64(151)], [np.int64(3419), np.int64(3356)]]
+[[np.int64(123), np.int64(155)], [np.int64(3425), np.int64(3352)]]
+[[np.int64(136), np.int64(170)], [np.int64(3412), np.int64(3337)]]
+[[np.int64(112), np.int64(157)], [np.int64(3436), np.int64(3350)]]
+[[np.int64(61), np.int64(123)], [np.int64(3487), np.int64(3384)]]
+[[np.int64(332), np.int64(213)], [np.int64(3216), np.int64(3294)]]
+[[np.int64(82), np.int64(128)], [np.int64(3466), np.int64(3379)]]
+[[np.int64(88), np.int64(125)], [np.int64(3460), np.int64(3382)]]
+[[np.int64(72), np.int64(130)], [np.int64(3476), np.int64(3377)]]
+[[np.int64(252), np.int64(215)], [np.int64(3296), np.int64(3292)]]
+[[np.int64(396), np.int64(231)], [np.int64(3152), np.int64(3276)]]
+[[np.int64(127), np.int64(140)], [np.int64(3421), np.int64(3367)]]
+[[np.int64(120), np.int64(144)], [np.int64(3428), np.int64(3363)]]
+[[np.int64(130), np.int64(164)], [np.int64(3418), np.int64(3343)]]
+[[np.int64(103), np.int64(149)], [np.int64(3445), np.int64(3358)]]
+[[np.int64(58), np.int64(116)], [np.int64(3490), np.int64(3391)]]
+[[np.int64(4), np.int64(565)], [np.int64(49), np.int64(6437)]]
+[[np.int64(1), np.int64(215)], [np.int64(52), np.int64(6787)]]
+[[np.int64(4), np.int64(218)], [np.int64(49), np.int64(6784)]]
+[[np.int64(3), np.int64(203)], [np.int64(50), np.int64(6799)]]
+[[np.int64(1), np.int64(482)], [np.int64(52), np.int64(6520)]]
+[[np.int64(4), np.int64(640)], [np.int64(49), np.int64(6362)]]
+[[np.int64(6), np.int64(270)], [np.int64(47), np.int64(6732)]]
+[[np.int64(3), np.int64(273)], [np.int64(50), np.int64(6729)]]
+[[np.int64(4), np.int64(301)], [np.int64(49), np.int64(6701)]]
+[[np.int64(0), np.int64(266)], [np.int64(53), np.int64(6736)]]
+[[np.int64(0), np.int64(186)], [np.int64(53), np.int64(6816)]]
+[[np.int64(3), np.int64(552)], [np.int64(50), np.int64(6450)]]
+[[np.int64(1), np.int64(217)], [np.int64(52), np.int64(6785)]]
+[[np.int64(5), np.int64(221)], [np.int64(48), np.int64(6781)]]
+[[np.int64(3), np.int64(206)], [np.int64(50), np.int64(6796)]]
+[[np.int64(1), np.int64(473)], [np.int64(52), np.int64(6529)]]
+[[np.int64(4), np.int64(633)], [np.int64(49), np.int64(6369)]]
+[[np.int64(6), np.int64(274)], [np.int64(47), np.int64(6728)]]
+[[np.int64(2), np.int64(276)], [np.int64(51), np.int64(6726)]]
+[[np.int64(4), np.int64(302)], [np.int64(49), np.int64(6700)]]
+[[np.int64(0), np.int64(269)], [np.int64(53), np.int64(6733)]]
+[[np.int64(0), np.int64(184)], [np.int64(53), np.int64(6818)]]
+[[np.int64(3), np.int64(542)], [np.int64(50), np.int64(6460)]]
+[[np.int64(1), np.int64(209)], [np.int64(52), np.int64(6793)]]
+[[np.int64(4), np.int64(209)], [np.int64(49), np.int64(6793)]]
+[[np.int64(3), np.int64(199)], [np.int64(50), np.int64(6803)]]
+[[np.int64(1), np.int64(466)], [np.int64(52), np.int64(6536)]]
+[[np.int64(4), np.int64(623)], [np.int64(49), np.int64(6379)]]
+[[np.int64(6), np.int64(261)], [np.int64(47), np.int64(6741)]]
+[[np.int64(2), np.int64(262)], [np.int64(51), np.int64(6740)]]
+[[np.int64(4), np.int64(290)], [np.int64(49), np.int64(6712)]]
+[[np.int64(0), np.int64(252)], [np.int64(53), np.int64(6750)]]
+[[np.int64(0), np.int64(174)], [np.int64(53), np.int64(6828)]]
+[VMR] sig counts:
+sig
+False    4095
+True      859
+Name: count, dtype: int64
+[DMR] sig counts:
+sig
+False    4096
+True      858
+Name: count, dtype: int64
+[MERGE] Before pivot:                feature_id    chr      start  ...  level  coefficients  p.value
+0  10_100348146_100351440  chr10  100348146  ...    NaN           NaN      NaN
+1  10_101006502_101007099  chr10  101006502  ...    NaN           NaN      NaN
+2  10_101008138_101008841  chr10  101008138  ...    NaN           NaN      NaN
+3  10_101149994_101151895  chr10  101149994  ...    NaN           NaN      NaN
+4    10_10157082_10157472  chr10   10157082  ...    NaN           NaN      NaN
+
+[5 rows x 16 columns]
+[ENET] AA shape (raw): (9295, 10)
+[ENET] EA shape (raw): (9294, 10)
+  chrom      start        end    h2_category
+0  chrX  101097622  101098473      Heritable
+1  chrX  118974315  118976419      Heritable
+2  chrX   48071222   48071328      Heritable
+3  chr1    8233895    8234123      Heritable
+4  chr1    8240722    8241369  Non-heritable
+  chrom      start        end    h2_category
+0  chrX  101097622  101098473  Non-heritable
+1  chrX  118974315  118976419  Non-heritable
+2  chrX   48071222   48071328      Heritable
+3  chr1    8233895    8234123      Heritable
+4  chr1    8240722    8241369      Heritable
+[ENET] Combined shape (after merge): (9271, 23)
+[ENET] After h2_category match filter: (5009, 23)
+[ENET] Final columns: ['task_id_AA', 'chrom', 'start', 'end', 'num_snps_AA', 'boosting_iterations_performed_AA', 'h2_unscaled_AA', 'r_squared_cv_AA', 'region_AA', 'h2_category', 'feature_id', 'task_id_EA', 'num_snps_EA', 'boosting_iterations_performed_EA', 'h2_unscaled_EA', 'r_squared_cv_EA', 'region_EA']
+[ENET] Final shape: (5009, 17)
+[[np.int64(761), np.int64(98)], [np.int64(3533), np.int64(562)]]
+[VMR] sig counts:
+sig
+False    4734
+True      220
+Name: count, dtype: int64
+[DMR] sig counts:
+sig
+False    4743
+True      211
+Name: count, dtype: int64
+[MERGE] Before pivot:                feature_id    chr      start  ...  level  coefficients  p.value
+0  10_100348146_100351440  chr10  100348146  ...    NaN           NaN      NaN
+1  10_101006502_101007099  chr10  101006502  ...    NaN           NaN      NaN
+2  10_101008138_101008841  chr10  101008138  ...    NaN           NaN      NaN
+3  10_101149994_101151895  chr10  101149994  ...    NaN           NaN      NaN
+4    10_10157082_10157472  chr10   10157082  ...    NaN           NaN      NaN
+
+[5 rows x 16 columns]
+[[np.int64(192), np.int64(28)], [np.int64(4102), np.int64(632)]]
+[VMR] sig counts:
+sig
+False    4837
+True      117
+Name: count, dtype: int64
+[DMR] sig counts:
+sig
+False    4834
+True      120
+Name: count, dtype: int64
+[MERGE] Before pivot:                feature_id    chr      start  ...  level  coefficients  p.value
+0  10_100348146_100351440  chr10  100348146  ...    NaN           NaN      NaN
+1  10_101006502_101007099  chr10  101006502  ...    NaN           NaN      NaN
+2  10_101008138_101008841  chr10  101008138  ...    NaN           NaN      NaN
+3  10_101149994_101151895  chr10  101149994  ...    NaN           NaN      NaN
+4    10_10157082_10157472  chr10   10157082  ...    NaN           NaN      NaN
+
+[5 rows x 16 columns]
+[[np.int64(106), np.int64(11)], [np.int64(4188), np.int64(649)]]
+[VMR] sig counts:
+sig
+False    4863
+True       91
+Name: count, dtype: int64
+[DMR] sig counts:
+sig
+False    4859
+True       95
+Name: count, dtype: int64
+[MERGE] Before pivot:                feature_id    chr      start  ...  level  coefficients  p.value
+0  10_100348146_100351440  chr10  100348146  ...    NaN           NaN      NaN
+1  10_101006502_101007099  chr10  101006502  ...    NaN           NaN      NaN
+2  10_101008138_101008841  chr10  101008138  ...    NaN           NaN      NaN
+3  10_101149994_101151895  chr10  101149994  ...    NaN           NaN      NaN
+4    10_10157082_10157472  chr10   10157082  ...    NaN           NaN      NaN
+
+[5 rows x 16 columns]
+[[np.int64(85), np.int64(6)], [np.int64(4209), np.int64(654)]]
+[VMR] sig counts:
+sig
+False    4809
+True      145
+Name: count, dtype: int64
+[DMR] sig counts:
+sig
+False    4811
+True      143
+Name: count, dtype: int64
+[MERGE] Before pivot:                feature_id    chr      start  ...  level  coefficients  p.value
+0  10_100348146_100351440  chr10  100348146  ...    NaN           NaN      NaN
+1  10_101006502_101007099  chr10  101006502  ...    NaN           NaN      NaN
+2  10_101008138_101008841  chr10  101008138  ...    NaN           NaN      NaN
+3  10_101149994_101151895  chr10  101149994  ...    NaN           NaN      NaN
+4    10_10157082_10157472  chr10   10157082  ...    NaN           NaN      NaN
+
+[5 rows x 16 columns]
+[[np.int64(135), np.int64(10)], [np.int64(4159), np.int64(650)]]
+[VMR] sig counts:
+sig
+False    3708
+True     1246
+Name: count, dtype: int64
+[DMR] sig counts:
+sig
+False    3709
+True     1245
+Name: count, dtype: int64
+[MERGE] Before pivot:                feature_id    chr      start  ...  level  coefficients  p.value
+0  10_100348146_100351440  chr10  100348146  ...    NaN           NaN      NaN
+1  10_101006502_101007099  chr10  101006502  ...    NaN           NaN      NaN
+2  10_101008138_101008841  chr10  101008138  ...    NaN           NaN      NaN
+3  10_101149994_101151895  chr10  101149994  ...    NaN           NaN      NaN
+4    10_10157082_10157472  chr10   10157082  ...    NaN           NaN      NaN
+
+[5 rows x 16 columns]
+[[np.int64(1071), np.int64(175)], [np.int64(3223), np.int64(485)]]
+[VMR] sig counts:
+sig
+False    4248
+True      706
+Name: count, dtype: int64
+[DMR] sig counts:
+sig
+False    4252
+True      702
+Name: count, dtype: int64
+[MERGE] Before pivot:                feature_id    chr      start  ...  level  coefficients  p.value
+0  10_100348146_100351440  chr10  100348146  ...    NaN           NaN      NaN
+1  10_101006502_101007099  chr10  101006502  ...    NaN           NaN      NaN
+2  10_101008138_101008841  chr10  101008138  ...    NaN           NaN      NaN
+3  10_101149994_101151895  chr10  101149994  ...    NaN           NaN      NaN
+4    10_10157082_10157472  chr10   10157082  ...    NaN           NaN      NaN
+
+[5 rows x 16 columns]
+[[np.int64(566), np.int64(140)], [np.int64(3728), np.int64(520)]]
+[VMR] sig counts:
+sig
+False    4814
+True      140
+Name: count, dtype: int64
+[DMR] sig counts:
+sig
+False    4819
+True      135
+Name: count, dtype: int64
+[MERGE] Before pivot:                feature_id    chr      start  ...  level  coefficients  p.value
+0  10_100348146_100351440  chr10  100348146  ...    NaN           NaN      NaN
+2  10_101006502_101007099  chr10  101006502  ...    NaN           NaN      NaN
+4  10_101008138_101008841  chr10  101008138  ...    NaN           NaN      NaN
+6  10_101149994_101151895  chr10  101149994  ...    NaN           NaN      NaN
+8    10_10157082_10157472  chr10   10157082  ...    NaN           NaN      NaN
+
+[5 rows x 16 columns]
+[[np.int64(129), np.int64(11)], [np.int64(4165), np.int64(649)]]
+[VMR] sig counts:
+sig
+False    4796
+True      158
+Name: count, dtype: int64
+[DMR] sig counts:
+sig
+False    4796
+True      158
+Name: count, dtype: int64
+[MERGE] Before pivot:                feature_id    chr      start  ...  level  coefficients  p.value
+1  10_100348146_100351440  chr10  100348146  ...    NaN           NaN      NaN
+3  10_101006502_101007099  chr10  101006502  ...    NaN           NaN      NaN
+5  10_101008138_101008841  chr10  101008138  ...    NaN           NaN      NaN
+7  10_101149994_101151895  chr10  101149994  ...    NaN           NaN      NaN
+9    10_10157082_10157472  chr10   10157082  ...    NaN           NaN      NaN
+
+[5 rows x 16 columns]
+[[np.int64(145), np.int64(13)], [np.int64(4149), np.int64(647)]]
+[VMR] sig counts:
+sig
+False    4775
+True      179
+Name: count, dtype: int64
+[DMR] sig counts:
+sig
+False    4779
+True      175
+Name: count, dtype: int64
+[MERGE] Before pivot:                feature_id    chr      start  ...  level  coefficients  p.value
+1  10_100348146_100351440  chr10  100348146  ...    NaN           NaN      NaN
+3  10_101006502_101007099  chr10  101006502  ...    NaN           NaN      NaN
+5  10_101008138_101008841  chr10  101008138  ...    NaN           NaN      NaN
+7  10_101149994_101151895  chr10  101149994  ...    NaN           NaN      NaN
+9    10_10157082_10157472  chr10   10157082  ...    NaN           NaN      NaN
+
+[5 rows x 16 columns]
+[[np.int64(164), np.int64(15)], [np.int64(4130), np.int64(645)]]
+[VMR] sig counts:
+sig
+False    4789
+True      165
+Name: count, dtype: int64
+[DMR] sig counts:
+sig
+False    4791
+True      163
+Name: count, dtype: int64
+[MERGE] Before pivot:                feature_id    chr      start  ...  level  coefficients  p.value
+0  10_100348146_100351440  chr10  100348146  ...    NaN           NaN      NaN
+2  10_101006502_101007099  chr10  101006502  ...    NaN           NaN      NaN
+4  10_101008138_101008841  chr10  101008138  ...    NaN           NaN      NaN
+6  10_101149994_101151895  chr10  101149994  ...    NaN           NaN      NaN
+8    10_10157082_10157472  chr10   10157082  ...    NaN           NaN      NaN
+
+[5 rows x 16 columns]
+[[np.int64(149), np.int64(16)], [np.int64(4145), np.int64(644)]]
+[[np.int64(761), np.int64(97)], [np.int64(3533), np.int64(563)]]
+[[np.int64(182), np.int64(29)], [np.int64(4112), np.int64(631)]]
+[[np.int64(110), np.int64(10)], [np.int64(4184), np.int64(650)]]
+[[np.int64(89), np.int64(6)], [np.int64(4205), np.int64(654)]]
+[[np.int64(133), np.int64(10)], [np.int64(4161), np.int64(650)]]
+[[np.int64(1070), np.int64(175)], [np.int64(3224), np.int64(485)]]
+[[np.int64(561), np.int64(141)], [np.int64(3733), np.int64(519)]]
+[[np.int64(126), np.int64(9)], [np.int64(4168), np.int64(651)]]
+[[np.int64(144), np.int64(14)], [np.int64(4150), np.int64(646)]]
+[[np.int64(160), np.int64(15)], [np.int64(4134), np.int64(645)]]
+[[np.int64(145), np.int64(18)], [np.int64(4149), np.int64(642)]]
+[[np.int64(747), np.int64(96)], [np.int64(3547), np.int64(564)]]
+[[np.int64(180), np.int64(28)], [np.int64(4114), np.int64(632)]]
+[[np.int64(101), np.int64(10)], [np.int64(4193), np.int64(650)]]
+[[np.int64(82), np.int64(6)], [np.int64(4212), np.int64(654)]]
+[[np.int64(129), np.int64(10)], [np.int64(4165), np.int64(650)]]
+[[np.int64(1057), np.int64(173)], [np.int64(3237), np.int64(487)]]
+[[np.int64(556), np.int64(139)], [np.int64(3738), np.int64(521)]]
+[[np.int64(121), np.int64(9)], [np.int64(4173), np.int64(651)]]
+[[np.int64(140), np.int64(13)], [np.int64(4154), np.int64(647)]]
+[[np.int64(151), np.int64(15)], [np.int64(4143), np.int64(645)]]
+[[np.int64(140), np.int64(16)], [np.int64(4154), np.int64(644)]]
+[[np.int64(86), np.int64(773)], [np.int64(531), np.int64(3564)]]
+[[np.int64(24), np.int64(196)], [np.int64(593), np.int64(4141)]]
+[[np.int64(9), np.int64(108)], [np.int64(608), np.int64(4229)]]
+[[np.int64(5), np.int64(86)], [np.int64(612), np.int64(4251)]]
+[[np.int64(10), np.int64(135)], [np.int64(607), np.int64(4202)]]
+[[np.int64(167), np.int64(1079)], [np.int64(450), np.int64(3258)]]
+[[np.int64(133), np.int64(573)], [np.int64(484), np.int64(3764)]]
+[[np.int64(10), np.int64(130)], [np.int64(607), np.int64(4207)]]
+[[np.int64(12), np.int64(146)], [np.int64(605), np.int64(4191)]]
+[[np.int64(14), np.int64(165)], [np.int64(603), np.int64(4172)]]
+[[np.int64(15), np.int64(150)], [np.int64(602), np.int64(4187)]]
+[[np.int64(85), np.int64(773)], [np.int64(532), np.int64(3564)]]
+[[np.int64(25), np.int64(186)], [np.int64(592), np.int64(4151)]]
+[[np.int64(8), np.int64(112)], [np.int64(609), np.int64(4225)]]
+[[np.int64(5), np.int64(90)], [np.int64(612), np.int64(4247)]]
+[[np.int64(10), np.int64(133)], [np.int64(607), np.int64(4204)]]
+[[np.int64(168), np.int64(1077)], [np.int64(449), np.int64(3260)]]
+[[np.int64(134), np.int64(568)], [np.int64(483), np.int64(3769)]]
+[[np.int64(8), np.int64(127)], [np.int64(609), np.int64(4210)]]
+[[np.int64(13), np.int64(145)], [np.int64(604), np.int64(4192)]]
+[[np.int64(14), np.int64(161)], [np.int64(603), np.int64(4176)]]
+[[np.int64(17), np.int64(146)], [np.int64(600), np.int64(4191)]]
+[[np.int64(84), np.int64(759)], [np.int64(533), np.int64(3578)]]
+[[np.int64(24), np.int64(184)], [np.int64(593), np.int64(4153)]]
+[[np.int64(8), np.int64(103)], [np.int64(609), np.int64(4234)]]
+[[np.int64(5), np.int64(83)], [np.int64(612), np.int64(4254)]]
+[[np.int64(10), np.int64(129)], [np.int64(607), np.int64(4208)]]
+[[np.int64(166), np.int64(1064)], [np.int64(451), np.int64(3273)]]
+[[np.int64(132), np.int64(563)], [np.int64(485), np.int64(3774)]]
+[[np.int64(8), np.int64(122)], [np.int64(609), np.int64(4215)]]
+[[np.int64(12), np.int64(141)], [np.int64(605), np.int64(4196)]]
+[[np.int64(14), np.int64(152)], [np.int64(603), np.int64(4185)]]
+[[np.int64(15), np.int64(141)], [np.int64(602), np.int64(4196)]]
+[[np.int64(12), np.int64(847)], [np.int64(31), np.int64(4064)]]
+[[np.int64(4), np.int64(216)], [np.int64(39), np.int64(4695)]]
+[[np.int64(2), np.int64(115)], [np.int64(41), np.int64(4796)]]
+[[np.int64(1), np.int64(90)], [np.int64(42), np.int64(4821)]]
+[[np.int64(0), np.int64(145)], [np.int64(43), np.int64(4766)]]
+[[np.int64(8), np.int64(1238)], [np.int64(35), np.int64(3673)]]
+[[np.int64(7), np.int64(699)], [np.int64(36), np.int64(4212)]]
+[[np.int64(1), np.int64(139)], [np.int64(42), np.int64(4772)]]
+[[np.int64(1), np.int64(157)], [np.int64(42), np.int64(4754)]]
+[[np.int64(1), np.int64(178)], [np.int64(42), np.int64(4733)]]
+[[np.int64(1), np.int64(164)], [np.int64(42), np.int64(4747)]]
+[[np.int64(12), np.int64(846)], [np.int64(31), np.int64(4065)]]
+[[np.int64(4), np.int64(207)], [np.int64(39), np.int64(4704)]]
+[[np.int64(2), np.int64(118)], [np.int64(41), np.int64(4793)]]
+[[np.int64(1), np.int64(94)], [np.int64(42), np.int64(4817)]]
+[[np.int64(0), np.int64(143)], [np.int64(43), np.int64(4768)]]
+[[np.int64(7), np.int64(1238)], [np.int64(36), np.int64(3673)]]
+[[np.int64(7), np.int64(695)], [np.int64(36), np.int64(4216)]]
+[[np.int64(1), np.int64(134)], [np.int64(42), np.int64(4777)]]
+[[np.int64(1), np.int64(157)], [np.int64(42), np.int64(4754)]]
+[[np.int64(1), np.int64(174)], [np.int64(42), np.int64(4737)]]
+[[np.int64(1), np.int64(162)], [np.int64(42), np.int64(4749)]]
+[[np.int64(12), np.int64(831)], [np.int64(31), np.int64(4080)]]
+[[np.int64(4), np.int64(204)], [np.int64(39), np.int64(4707)]]
+[[np.int64(2), np.int64(109)], [np.int64(41), np.int64(4802)]]
+[[np.int64(1), np.int64(87)], [np.int64(42), np.int64(4824)]]
+[[np.int64(0), np.int64(139)], [np.int64(43), np.int64(4772)]]
+[[np.int64(7), np.int64(1223)], [np.int64(36), np.int64(3688)]]
+[[np.int64(7), np.int64(688)], [np.int64(36), np.int64(4223)]]
+[[np.int64(1), np.int64(129)], [np.int64(42), np.int64(4782)]]
+[[np.int64(1), np.int64(152)], [np.int64(42), np.int64(4759)]]
+[[np.int64(1), np.int64(165)], [np.int64(42), np.int64(4746)]]
+[[np.int64(1), np.int64(155)], [np.int64(42), np.int64(4756)]]
+[VMR] sig counts:
+sig
+False    4155
+True      770
+Name: count, dtype: int64
+[DMR] sig counts:
+sig
+False    4190
+True      735
+Name: count, dtype: int64
+[MERGE] Before pivot:                feature_id    chr      start  ...  level  coefficients  p.value
+0  10_100025847_100026058  chr10  100025847  ...    NaN           NaN      NaN
+1  10_100982514_100983141  chr10  100982514  ...    NaN           NaN      NaN
+2  10_101033653_101034328  chr10  101033653  ...    NaN           NaN      NaN
+3  10_101150691_101151624  chr10  101150691  ...    NaN           NaN      NaN
+4    10_10157082_10157472  chr10   10157082  ...    NaN           NaN      NaN
+
+[5 rows x 16 columns]
+[ENET] AA shape (raw): (9594, 10)
+[ENET] EA shape (raw): (9597, 10)
+  chrom      start        end    h2_category
+0  chrX  101931553  101932132  Non-heritable
+1  chrX  119468148  119468527      Heritable
+2  chrX   48675892   48676877  Non-heritable
+3  chr1    7060660    7061401  Non-heritable
+4  chr1   72324264   72324382      Heritable
+  chrom      start        end h2_category
+0  chrX  101931553  101932132   Heritable
+1  chrX  119468148  119468527   Heritable
+2  chrX   48675892   48676877   Heritable
+3  chr1    7060660    7061401   Heritable
+4  chr1   72324264   72324382   Heritable
+[ENET] Combined shape (after merge): (9562, 23)
+[ENET] After h2_category match filter: (4982, 23)
+[ENET] Final columns: ['task_id_AA', 'chrom', 'start', 'end', 'num_snps_AA', 'boosting_iterations_performed_AA', 'h2_unscaled_AA', 'r_squared_cv_AA', 'region_AA', 'h2_category', 'feature_id', 'task_id_EA', 'num_snps_EA', 'boosting_iterations_performed_EA', 'h2_unscaled_EA', 'r_squared_cv_EA', 'region_EA']
+[ENET] Final shape: (4982, 17)
+[[np.int64(695), np.int64(75)], [np.int64(3535), np.int64(620)]]
+[VMR] sig counts:
+sig
+False    4815
+True      110
+Name: count, dtype: int64
+[DMR] sig counts:
+sig
+False    4815
+True      110
+Name: count, dtype: int64
+[MERGE] Before pivot:                feature_id    chr      start  ...  level  coefficients  p.value
+0  10_100025847_100026058  chr10  100025847  ...    NaN           NaN      NaN
+1  10_100982514_100983141  chr10  100982514  ...    NaN           NaN      NaN
+2  10_101033653_101034328  chr10  101033653  ...    NaN           NaN      NaN
+3  10_101150691_101151624  chr10  101150691  ...    NaN           NaN      NaN
+4    10_10157082_10157472  chr10   10157082  ...    NaN           NaN      NaN
+
+[5 rows x 16 columns]
+[[np.int64(99), np.int64(11)], [np.int64(4131), np.int64(684)]]
+[VMR] sig counts:
+sig
+False    4816
+True      109
+Name: count, dtype: int64
+[DMR] sig counts:
+sig
+False    4818
+True      107
+Name: count, dtype: int64
+[MERGE] Before pivot:                feature_id    chr      start  ...  level  coefficients  p.value
+0  10_100025847_100026058  chr10  100025847  ...    NaN           NaN      NaN
+1  10_100982514_100983141  chr10  100982514  ...    NaN           NaN      NaN
+2  10_101033653_101034328  chr10  101033653  ...    NaN           NaN      NaN
+3  10_101150691_101151624  chr10  101150691  ...    NaN           NaN      NaN
+4    10_10157082_10157472  chr10   10157082  ...    NaN           NaN      NaN
+
+[5 rows x 16 columns]
+[[np.int64(96), np.int64(13)], [np.int64(4134), np.int64(682)]]
+[VMR] sig counts:
+sig
+False    4817
+True      108
+Name: count, dtype: int64
+[DMR] sig counts:
+sig
+False    4822
+True      103
+Name: count, dtype: int64
+[MERGE] Before pivot:                feature_id    chr      start  ...  level  coefficients  p.value
+0  10_100025847_100026058  chr10  100025847  ...    NaN           NaN      NaN
+1  10_100982514_100983141  chr10  100982514  ...    NaN           NaN      NaN
+2  10_101033653_101034328  chr10  101033653  ...    NaN           NaN      NaN
+3  10_101150691_101151624  chr10  101150691  ...    NaN           NaN      NaN
+4    10_10157082_10157472  chr10   10157082  ...    NaN           NaN      NaN
+
+[5 rows x 16 columns]
+[[np.int64(91), np.int64(17)], [np.int64(4139), np.int64(678)]]
+[VMR] sig counts:
+sig
+False    4832
+True       93
+Name: count, dtype: int64
+[DMR] sig counts:
+sig
+False    4832
+True       93
+Name: count, dtype: int64
+[MERGE] Before pivot:                feature_id    chr      start  ...  level  coefficients  p.value
+0  10_100025847_100026058  chr10  100025847  ...    NaN           NaN      NaN
+1  10_100982514_100983141  chr10  100982514  ...    NaN           NaN      NaN
+2  10_101033653_101034328  chr10  101033653  ...    NaN           NaN      NaN
+3  10_101150691_101151624  chr10  101150691  ...    NaN           NaN      NaN
+4    10_10157082_10157472  chr10   10157082  ...    NaN           NaN      NaN
+
+[5 rows x 16 columns]
+[[np.int64(82), np.int64(11)], [np.int64(4148), np.int64(684)]]
+[VMR] sig counts:
+sig
+False    4055
+True      870
+Name: count, dtype: int64
+[DMR] sig counts:
+sig
+False    4075
+True      850
+Name: count, dtype: int64
+[MERGE] Before pivot:                feature_id    chr      start  ...  level  coefficients  p.value
+0  10_100025847_100026058  chr10  100025847  ...    NaN           NaN      NaN
+1  10_100982514_100983141  chr10  100982514  ...    NaN           NaN      NaN
+2  10_101033653_101034328  chr10  101033653  ...    NaN           NaN      NaN
+3  10_101150691_101151624  chr10  101150691  ...    NaN           NaN      NaN
+4    10_10157082_10157472  chr10   10157082  ...    NaN           NaN      NaN
+
+[5 rows x 16 columns]
+[[np.int64(776), np.int64(94)], [np.int64(3454), np.int64(601)]]
+[VMR] sig counts:
+sig
+False    4827
+True       98
+Name: count, dtype: int64
+[DMR] sig counts:
+sig
+False    4834
+True       91
+Name: count, dtype: int64
+[MERGE] Before pivot:                feature_id    chr      start  ...  level  coefficients  p.value
+0  10_100025847_100026058  chr10  100025847  ...    NaN           NaN      NaN
+1  10_100982514_100983141  chr10  100982514  ...    NaN           NaN      NaN
+2  10_101033653_101034328  chr10  101033653  ...    NaN           NaN      NaN
+3  10_101150691_101151624  chr10  101150691  ...    NaN           NaN      NaN
+4    10_10157082_10157472  chr10   10157082  ...    NaN           NaN      NaN
+
+[5 rows x 16 columns]
+[[np.int64(86), np.int64(12)], [np.int64(4144), np.int64(683)]]
+[VMR] sig counts:
+sig
+False    4839
+True       86
+Name: count, dtype: int64
+[DMR] sig counts:
+sig
+False    4841
+True       84
+Name: count, dtype: int64
+[MERGE] Before pivot:                feature_id    chr      start  ...  level  coefficients  p.value
+0  10_100025847_100026058  chr10  100025847  ...    NaN           NaN      NaN
+2  10_100982514_100983141  chr10  100982514  ...    NaN           NaN      NaN
+4  10_101033653_101034328  chr10  101033653  ...    NaN           NaN      NaN
+6  10_101150691_101151624  chr10  101150691  ...    NaN           NaN      NaN
+8    10_10157082_10157472  chr10   10157082  ...    NaN           NaN      NaN
+
+[5 rows x 16 columns]
+[[np.int64(82), np.int64(4)], [np.int64(4148), np.int64(691)]]
+[VMR] sig counts:
+sig
+False    4745
+True      180
+Name: count, dtype: int64
+[DMR] sig counts:
+sig
+False    4754
+True      171
+Name: count, dtype: int64
+[MERGE] Before pivot:                feature_id    chr      start  ...  level  coefficients  p.value
+1  10_100025847_100026058  chr10  100025847  ...    NaN           NaN      NaN
+3  10_100982514_100983141  chr10  100982514  ...    NaN           NaN      NaN
+5  10_101033653_101034328  chr10  101033653  ...    NaN           NaN      NaN
+7  10_101150691_101151624  chr10  101150691  ...    NaN           NaN      NaN
+9    10_10157082_10157472  chr10   10157082  ...    NaN           NaN      NaN
+
+[5 rows x 16 columns]
+[[np.int64(155), np.int64(25)], [np.int64(4075), np.int64(670)]]
+[VMR] sig counts:
+sig
+False    4143
+True      782
+Name: count, dtype: int64
+[DMR] sig counts:
+sig
+False    4131
+True      794
+Name: count, dtype: int64
+[MERGE] Before pivot:                feature_id    chr      start  ...  level  coefficients  p.value
+1  10_100025847_100026058  chr10  100025847  ...    NaN           NaN      NaN
+3  10_100982514_100983141  chr10  100982514  ...    NaN           NaN      NaN
+5  10_101033653_101034328  chr10  101033653  ...    NaN           NaN      NaN
+7  10_101150691_101151624  chr10  101150691  ...    NaN           NaN      NaN
+9    10_10157082_10157472  chr10   10157082  ...    NaN           NaN      NaN
+
+[5 rows x 16 columns]
+[[np.int64(645), np.int64(137)], [np.int64(3585), np.int64(558)]]
+[VMR] sig counts:
+sig
+False    4034
+True      891
+Name: count, dtype: int64
+[DMR] sig counts:
+sig
+False    4033
+True      892
+Name: count, dtype: int64
+[MERGE] Before pivot:                feature_id    chr      start  ...  level  coefficients  p.value
+0  10_100025847_100026058  chr10  100025847  ...    NaN           NaN      NaN
+2  10_100982514_100983141  chr10  100982514  ...    NaN           NaN      NaN
+4  10_101033653_101034328  chr10  101033653  ...    NaN           NaN      NaN
+6  10_101150691_101151624  chr10  101150691  ...    NaN           NaN      NaN
+8    10_10157082_10157472  chr10   10157082  ...    NaN           NaN      NaN
+
+[5 rows x 16 columns]
+[[np.int64(735), np.int64(156)], [np.int64(3495), np.int64(539)]]
+[[np.int64(669), np.int64(66)], [np.int64(3561), np.int64(629)]]
+[[np.int64(100), np.int64(10)], [np.int64(4130), np.int64(685)]]
+[[np.int64(94), np.int64(13)], [np.int64(4136), np.int64(682)]]
+[[np.int64(89), np.int64(14)], [np.int64(4141), np.int64(681)]]
+[[np.int64(82), np.int64(11)], [np.int64(4148), np.int64(684)]]
+[[np.int64(758), np.int64(92)], [np.int64(3472), np.int64(603)]]
+[[np.int64(79), np.int64(12)], [np.int64(4151), np.int64(683)]]
+[[np.int64(80), np.int64(4)], [np.int64(4150), np.int64(691)]]
+[[np.int64(146), np.int64(25)], [np.int64(4084), np.int64(670)]]
+[[np.int64(659), np.int64(135)], [np.int64(3571), np.int64(560)]]
+[[np.int64(738), np.int64(154)], [np.int64(3492), np.int64(541)]]
+[[np.int64(664), np.int64(66)], [np.int64(3566), np.int64(629)]]
+[[np.int64(98), np.int64(10)], [np.int64(4132), np.int64(685)]]
+[[np.int64(91), np.int64(12)], [np.int64(4139), np.int64(683)]]
+[[np.int64(89), np.int64(14)], [np.int64(4141), np.int64(681)]]
+[[np.int64(80), np.int64(11)], [np.int64(4150), np.int64(684)]]
+[[np.int64(747), np.int64(91)], [np.int64(3483), np.int64(604)]]
+[[np.int64(79), np.int64(11)], [np.int64(4151), np.int64(684)]]
+[[np.int64(79), np.int64(4)], [np.int64(4151), np.int64(691)]]
+[[np.int64(142), np.int64(24)], [np.int64(4088), np.int64(671)]]
+[[np.int64(639), np.int64(134)], [np.int64(3591), np.int64(561)]]
+[[np.int64(720), np.int64(152)], [np.int64(3510), np.int64(543)]]
+[[np.int64(66), np.int64(704)], [np.int64(603), np.int64(3552)]]
+[[np.int64(9), np.int64(101)], [np.int64(660), np.int64(4155)]]
+[[np.int64(11), np.int64(98)], [np.int64(658), np.int64(4158)]]
+[[np.int64(16), np.int64(92)], [np.int64(653), np.int64(4164)]]
+[[np.int64(11), np.int64(82)], [np.int64(658), np.int64(4174)]]
+[[np.int64(90), np.int64(780)], [np.int64(579), np.int64(3476)]]
+[[np.int64(11), np.int64(87)], [np.int64(658), np.int64(4169)]]
+[[np.int64(3), np.int64(83)], [np.int64(666), np.int64(4173)]]
+[[np.int64(24), np.int64(156)], [np.int64(645), np.int64(4100)]]
+[[np.int64(136), np.int64(646)], [np.int64(533), np.int64(3610)]]
+[[np.int64(152), np.int64(739)], [np.int64(517), np.int64(3517)]]
+[[np.int64(57), np.int64(678)], [np.int64(612), np.int64(3578)]]
+[[np.int64(8), np.int64(102)], [np.int64(661), np.int64(4154)]]
+[[np.int64(11), np.int64(96)], [np.int64(658), np.int64(4160)]]
+[[np.int64(13), np.int64(90)], [np.int64(656), np.int64(4166)]]
+[[np.int64(11), np.int64(82)], [np.int64(658), np.int64(4174)]]
+[[np.int64(88), np.int64(762)], [np.int64(581), np.int64(3494)]]
+[[np.int64(11), np.int64(80)], [np.int64(658), np.int64(4176)]]
+[[np.int64(3), np.int64(81)], [np.int64(666), np.int64(4175)]]
+[[np.int64(24), np.int64(147)], [np.int64(645), np.int64(4109)]]
+[[np.int64(134), np.int64(660)], [np.int64(535), np.int64(3596)]]
+[[np.int64(150), np.int64(742)], [np.int64(519), np.int64(3514)]]
+[[np.int64(57), np.int64(673)], [np.int64(612), np.int64(3583)]]
+[[np.int64(8), np.int64(100)], [np.int64(661), np.int64(4156)]]
+[[np.int64(10), np.int64(93)], [np.int64(659), np.int64(4163)]]
+[[np.int64(13), np.int64(90)], [np.int64(656), np.int64(4166)]]
+[[np.int64(11), np.int64(80)], [np.int64(658), np.int64(4176)]]
+[[np.int64(87), np.int64(751)], [np.int64(582), np.int64(3505)]]
+[[np.int64(10), np.int64(80)], [np.int64(659), np.int64(4176)]]
+[[np.int64(3), np.int64(80)], [np.int64(666), np.int64(4176)]]
+[[np.int64(23), np.int64(143)], [np.int64(646), np.int64(4113)]]
+[[np.int64(133), np.int64(640)], [np.int64(536), np.int64(3616)]]
+[[np.int64(148), np.int64(724)], [np.int64(521), np.int64(3532)]]
+[[np.int64(9), np.int64(761)], [np.int64(17), np.int64(4138)]]
+[[np.int64(2), np.int64(108)], [np.int64(24), np.int64(4791)]]
+[[np.int64(2), np.int64(107)], [np.int64(24), np.int64(4792)]]
+[[np.int64(1), np.int64(107)], [np.int64(25), np.int64(4792)]]
+[[np.int64(0), np.int64(93)], [np.int64(26), np.int64(4806)]]
+[[np.int64(4), np.int64(866)], [np.int64(22), np.int64(4033)]]
+[[np.int64(1), np.int64(97)], [np.int64(25), np.int64(4802)]]
+[[np.int64(1), np.int64(85)], [np.int64(25), np.int64(4814)]]
+[[np.int64(1), np.int64(179)], [np.int64(25), np.int64(4720)]]
+[[np.int64(1), np.int64(781)], [np.int64(25), np.int64(4118)]]
+[[np.int64(4), np.int64(887)], [np.int64(22), np.int64(4012)]]
+[[np.int64(9), np.int64(726)], [np.int64(17), np.int64(4173)]]
+[[np.int64(2), np.int64(108)], [np.int64(24), np.int64(4791)]]
+[[np.int64(2), np.int64(105)], [np.int64(24), np.int64(4794)]]
+[[np.int64(1), np.int64(102)], [np.int64(25), np.int64(4797)]]
+[[np.int64(0), np.int64(93)], [np.int64(26), np.int64(4806)]]
+[[np.int64(4), np.int64(846)], [np.int64(22), np.int64(4053)]]
+[[np.int64(1), np.int64(90)], [np.int64(25), np.int64(4809)]]
+[[np.int64(1), np.int64(83)], [np.int64(25), np.int64(4816)]]
+[[np.int64(1), np.int64(170)], [np.int64(25), np.int64(4729)]]
+[[np.int64(1), np.int64(793)], [np.int64(25), np.int64(4106)]]
+[[np.int64(4), np.int64(888)], [np.int64(22), np.int64(4011)]]
+[[np.int64(9), np.int64(721)], [np.int64(17), np.int64(4178)]]
+[[np.int64(2), np.int64(106)], [np.int64(24), np.int64(4793)]]
+[[np.int64(2), np.int64(101)], [np.int64(24), np.int64(4798)]]
+[[np.int64(1), np.int64(102)], [np.int64(25), np.int64(4797)]]
+[[np.int64(0), np.int64(91)], [np.int64(26), np.int64(4808)]]
+[[np.int64(4), np.int64(834)], [np.int64(22), np.int64(4065)]]
+[[np.int64(1), np.int64(89)], [np.int64(25), np.int64(4810)]]
+[[np.int64(1), np.int64(82)], [np.int64(25), np.int64(4817)]]
+[[np.int64(1), np.int64(165)], [np.int64(25), np.int64(4734)]]
+[[np.int64(1), np.int64(772)], [np.int64(25), np.int64(4127)]]
+[[np.int64(4), np.int64(868)], [np.int64(22), np.int64(4031)]]
+-----
+numpy               2.2.6
+pandas              2.3.3
+pyhere              1.0.3
+scipy               1.16.2
+session_info        v1.0.1
+statsmodels         0.14.5
+-----
+Python 3.11.13 | packaged by conda-forge | (main, Jun  4 2025, 14:48:23) [GCC 13.3.0]
+Linux-4.18.0-553.64.1.el8_10.x86_64-x86_64-with-glibc2.28
+-----
+Session information updated at 2026-04-21 16:32
+2026-04-21 16:32:09 - **** Job ends ****

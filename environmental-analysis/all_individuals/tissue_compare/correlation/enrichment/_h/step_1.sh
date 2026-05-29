@@ -7,7 +7,7 @@
 #SBATCH --output=logs/fishers_%A_%a.log
 #SBATCH --nodes=1
 #SBATCH --cpus-per-task=1
-#SBATCH --array=2
+#SBATCH --array=0-2
 #SBATCH --mem=10G
 #SBATCH --time=00:15:00
 

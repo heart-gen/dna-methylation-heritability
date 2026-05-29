@@ -1,0 +1,1209 @@
+2026-05-29 13:39:19 - **** Job starts ****
+**** Quest info ****
+User: skc6679
+Job id: 9514180
+Job name: fishers_exact
+Node name: 
+Hostname: qnode0017
+OFFSET: 
+SLURM_ARRAY_TASK_ID: 0
+No modules loaded
+2026-05-29 13:39:19 - **** Run fisher's exact for all****
+/gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/tissue_compare/correlation/enrichment/_m/../_h/01.fishers_enrichment.py:17: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  enet_df['chrom'] = 'chr' + enet_df['chrom'].astype(str)
+/gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/tissue_compare/correlation/enrichment/_m/../_h/01.fishers_enrichment.py:20: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  enet_df['h2_category'] = enet_df.apply(
+/gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/tissue_compare/correlation/enrichment/_m/../_h/01.fishers_enrichment.py:30: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  enet_df['feature_id'] = (
+/gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/tissue_compare/correlation/enrichment/_m/../_h/01.fishers_enrichment.py:17: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  enet_df['chrom'] = 'chr' + enet_df['chrom'].astype(str)
+/gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/tissue_compare/correlation/enrichment/_m/../_h/01.fishers_enrichment.py:20: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  enet_df['h2_category'] = enet_df.apply(
+/gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/tissue_compare/correlation/enrichment/_m/../_h/01.fishers_enrichment.py:30: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  enet_df['feature_id'] = (
+/gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/tissue_compare/correlation/enrichment/_m/../_h/01.fishers_enrichment.py:17: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  enet_df['chrom'] = 'chr' + enet_df['chrom'].astype(str)
+/gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/tissue_compare/correlation/enrichment/_m/../_h/01.fishers_enrichment.py:20: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  enet_df['h2_category'] = enet_df.apply(
+/gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/tissue_compare/correlation/enrichment/_m/../_h/01.fishers_enrichment.py:30: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  enet_df['feature_id'] = (
+/gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/tissue_compare/correlation/enrichment/_m/../_h/01.fishers_enrichment.py:17: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  enet_df['chrom'] = 'chr' + enet_df['chrom'].astype(str)
+/gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/tissue_compare/correlation/enrichment/_m/../_h/01.fishers_enrichment.py:20: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  enet_df['h2_category'] = enet_df.apply(
+/gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/tissue_compare/correlation/enrichment/_m/../_h/01.fishers_enrichment.py:30: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  enet_df['feature_id'] = (
+/gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/tissue_compare/correlation/enrichment/_m/../_h/01.fishers_enrichment.py:17: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  enet_df['chrom'] = 'chr' + enet_df['chrom'].astype(str)
+/gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/tissue_compare/correlation/enrichment/_m/../_h/01.fishers_enrichment.py:20: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  enet_df['h2_category'] = enet_df.apply(
+/gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/tissue_compare/correlation/enrichment/_m/../_h/01.fishers_enrichment.py:30: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  enet_df['feature_id'] = (
+/gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/tissue_compare/correlation/enrichment/_m/../_h/01.fishers_enrichment.py:17: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  enet_df['chrom'] = 'chr' + enet_df['chrom'].astype(str)
+/gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/tissue_compare/correlation/enrichment/_m/../_h/01.fishers_enrichment.py:20: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  enet_df['h2_category'] = enet_df.apply(
+/gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/tissue_compare/correlation/enrichment/_m/../_h/01.fishers_enrichment.py:30: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  enet_df['feature_id'] = (
+[VMR LOAD] tissue=Caudate env=smoking pop=all
+[VMR FILE] /gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/caudate/correlation/_m/smoking_linear-all.csv.gz
+[VMR] sig counts:
+sig
+False    6646
+True      409
+Name: count, dtype: int64
+[DMR LOAD] tissue=Caudate env=smoking pop=all
+[DMR FILE] /gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/caudate/correlation/_m/smoking_dmr-all.csv.gz
+[DMR] sig counts:
+sig
+False    6650
+True      405
+Name: count, dtype: int64
+[MERGE] Before pivot:                feature_id    chr      start  ...  level  coefficients  p.value
+0  10_100932348_100932948  chr10  100932348  ...    NaN           NaN      NaN
+1  10_101005650_101007117  chr10  101005650  ...    NaN           NaN      NaN
+2  10_101008423_101008841  chr10  101008423  ...    NaN           NaN      NaN
+3  10_101310581_101310723  chr10  101310581  ...    NaN           NaN      NaN
+4  10_101774199_101774853  chr10  101774199  ...    NaN           NaN      NaN
+
+[5 rows x 16 columns]
+[ENET] AA shape (raw): (11467, 10)
+[ENET] EA shape (raw): (11469, 10)
+   chrom      start        end    h2_category
+0   chrX  100407724  100408397  Non-heritable
+1   chrX  101931120  101932284  Non-heritable
+2   chrX  131783237  131783925  Non-heritable
+3   chr1    2449834    2450419      Heritable
+4  chr16   85538147   85538402  Non-heritable
+   chrom      start        end    h2_category
+0   chrX  100407724  100408397  Non-heritable
+1   chrX  101931120  101932284  Non-heritable
+2   chrX  131783237  131783925  Non-heritable
+3   chr1    2449834    2450419  Non-heritable
+4  chr16   85538147   85538402  Non-heritable
+[ENET] Combined shape (after merge): (11437, 23)
+[ENET] After h2_category match filter: (7304, 23)
+[ENET] Final columns: ['task_id_AA', 'chrom', 'start', 'end', 'num_snps_AA', 'boosting_iterations_performed_AA', 'h2_unscaled_AA', 'r_squared_cv_AA', 'region_AA', 'h2_category', 'feature_id', 'task_id_EA', 'num_snps_EA', 'boosting_iterations_performed_EA', 'h2_unscaled_EA', 'r_squared_cv_EA', 'region_EA']
+[ENET] Final shape: (7304, 17)
+[[np.int64(185), np.int64(224)], [np.int64(3269), np.int64(3377)]]
+[VMR LOAD] tissue=Caudate env=codeine pop=all
+[VMR FILE] /gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/caudate/correlation/_m/codeine_linear-all.csv.gz
+[VMR] sig counts:
+sig
+False    6771
+True      284
+Name: count, dtype: int64
+[DMR LOAD] tissue=Caudate env=codeine pop=all
+[DMR FILE] /gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/caudate/correlation/_m/codeine_dmr-all.csv.gz
+[DMR] sig counts:
+sig
+False    6771
+True      284
+Name: count, dtype: int64
+[MERGE] Before pivot:                feature_id    chr      start  ...  level  coefficients  p.value
+0  10_100932348_100932948  chr10  100932348  ...    NaN           NaN      NaN
+1  10_101005650_101007117  chr10  101005650  ...    NaN           NaN      NaN
+2  10_101008423_101008841  chr10  101008423  ...    NaN           NaN      NaN
+3  10_101310581_101310723  chr10  101310581  ...    NaN           NaN      NaN
+4  10_101774199_101774853  chr10  101774199  ...    NaN           NaN      NaN
+
+[5 rows x 16 columns]
+[[np.int64(170), np.int64(114)], [np.int64(3284), np.int64(3487)]]
+[VMR LOAD] tissue=Caudate env=morphine pop=all
+[VMR FILE] /gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/caudate/correlation/_m/morphine_linear-all.csv.gz
+[VMR] sig counts:
+sig
+False    6583
+True      472
+Name: count, dtype: int64
+[DMR LOAD] tissue=Caudate env=morphine pop=all
+[DMR FILE] /gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/caudate/correlation/_m/morphine_dmr-all.csv.gz
+[DMR] sig counts:
+sig
+False    6584
+True      471
+Name: count, dtype: int64
+[MERGE] Before pivot:                feature_id    chr      start  ...  level  coefficients  p.value
+0  10_100932348_100932948  chr10  100932348  ...    NaN           NaN      NaN
+1  10_101005650_101007117  chr10  101005650  ...    NaN           NaN      NaN
+2  10_101008423_101008841  chr10  101008423  ...    NaN           NaN      NaN
+3  10_101310581_101310723  chr10  101310581  ...    NaN           NaN      NaN
+4  10_101774199_101774853  chr10  101774199  ...    NaN           NaN      NaN
+
+[5 rows x 16 columns]
+[[np.int64(229), np.int64(243)], [np.int64(3225), np.int64(3358)]]
+[VMR LOAD] tissue=Caudate env=cocaine pop=all
+[VMR FILE] /gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/caudate/correlation/_m/cocaine_linear-all.csv.gz
+[VMR] sig counts:
+sig
+False    6787
+True      268
+Name: count, dtype: int64
+[DMR LOAD] tissue=Caudate env=cocaine pop=all
+[DMR FILE] /gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/caudate/correlation/_m/cocaine_dmr-all.csv.gz
+[DMR] sig counts:
+sig
+False    6785
+True      270
+Name: count, dtype: int64
+[MERGE] Before pivot:                feature_id    chr      start  ...  level  coefficients  p.value
+0  10_100932348_100932948  chr10  100932348  ...    NaN           NaN      NaN
+1  10_101005650_101007117  chr10  101005650  ...    NaN           NaN      NaN
+2  10_101008423_101008841  chr10  101008423  ...    NaN           NaN      NaN
+3  10_101310581_101310723  chr10  101310581  ...    NaN           NaN      NaN
+4  10_101774199_101774853  chr10  101774199  ...    NaN           NaN      NaN
+
+[5 rows x 16 columns]
+[[np.int64(171), np.int64(97)], [np.int64(3283), np.int64(3504)]]
+[VMR LOAD] tissue=Caudate env=ethanol pop=all
+[VMR FILE] /gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/caudate/correlation/_m/ethanol_linear-all.csv.gz
+[VMR] sig counts:
+sig
+False    6660
+True      395
+Name: count, dtype: int64
+[DMR LOAD] tissue=Caudate env=ethanol pop=all
+[DMR FILE] /gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/caudate/correlation/_m/ethanol_dmr-all.csv.gz
+[DMR] sig counts:
+sig
+False    6656
+True      399
+Name: count, dtype: int64
+[MERGE] Before pivot:                feature_id    chr      start  ...  level  coefficients  p.value
+0  10_100932348_100932948  chr10  100932348  ...    NaN           NaN      NaN
+1  10_101005650_101007117  chr10  101005650  ...    NaN           NaN      NaN
+2  10_101008423_101008841  chr10  101008423  ...    NaN           NaN      NaN
+3  10_101310581_101310723  chr10  101310581  ...    NaN           NaN      NaN
+4  10_101774199_101774853  chr10  101774199  ...    NaN           NaN      NaN
+
+[5 rows x 16 columns]
+[[np.int64(196), np.int64(199)], [np.int64(3258), np.int64(3402)]]
+[VMR LOAD] tissue=Caudate env=nicotine pop=all
+[VMR FILE] /gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/caudate/correlation/_m/nicotine_linear-all.csv.gz
+[VMR] sig counts:
+sig
+False    6650
+True      405
+Name: count, dtype: int64
+[DMR LOAD] tissue=Caudate env=nicotine pop=all
+[DMR FILE] /gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/caudate/correlation/_m/nicotine_dmr-all.csv.gz
+[DMR] sig counts:
+sig
+False    6646
+True      409
+Name: count, dtype: int64
+[MERGE] Before pivot:                feature_id    chr      start  ...  level  coefficients  p.value
+0  10_100932348_100932948  chr10  100932348  ...    NaN           NaN      NaN
+1  10_101005650_101007117  chr10  101005650  ...    NaN           NaN      NaN
+2  10_101008423_101008841  chr10  101008423  ...    NaN           NaN      NaN
+3  10_101310581_101310723  chr10  101310581  ...    NaN           NaN      NaN
+4  10_101774199_101774853  chr10  101774199  ...    NaN           NaN      NaN
+
+[5 rows x 16 columns]
+[[np.int64(182), np.int64(223)], [np.int64(3272), np.int64(3378)]]
+[VMR LOAD] tissue=Caudate env=amphetamines pop=all
+[VMR FILE] /gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/caudate/correlation/_m/amphetamines_linear-all.csv.gz
+[VMR] sig counts:
+sig
+False    6772
+True      283
+Name: count, dtype: int64
+[DMR LOAD] tissue=Caudate env=amphetamines pop=all
+[DMR FILE] /gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/caudate/correlation/_m/amphetamines_dmr-all.csv.gz
+[DMR] sig counts:
+sig
+False    6778
+True      277
+Name: count, dtype: int64
+[MERGE] Before pivot:                feature_id    chr      start  ...  level  coefficients  p.value
+0  10_100932348_100932948  chr10  100932348  ...    NaN           NaN      NaN
+1  10_101005650_101007117  chr10  101005650  ...    NaN           NaN      NaN
+2  10_101008423_101008841  chr10  101008423  ...    NaN           NaN      NaN
+3  10_101310581_101310723  chr10  101310581  ...    NaN           NaN      NaN
+4  10_101774199_101774853  chr10  101774199  ...    NaN           NaN      NaN
+
+[5 rows x 16 columns]
+[[np.int64(147), np.int64(136)], [np.int64(3307), np.int64(3465)]]
+[VMR LOAD] tissue=Caudate env=education pop=all
+[VMR FILE] /gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/caudate/correlation/_m/education_linear-all.csv.gz
+[VMR] sig counts:
+sig
+False    6710
+True      345
+Name: count, dtype: int64
+[DMR LOAD] tissue=Caudate env=education pop=all
+[DMR FILE] /gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/caudate/correlation/_m/education_dmr-all.csv.gz
+[DMR] sig counts:
+sig
+False    6709
+True      346
+Name: count, dtype: int64
+[MERGE] Before pivot:                feature_id    chr      start  ...  level  coefficients  p.value
+0  10_100932348_100932948  chr10  100932348  ...    NaN           NaN      NaN
+2  10_101005650_101007117  chr10  101005650  ...    NaN           NaN      NaN
+4  10_101008423_101008841  chr10  101008423  ...    NaN           NaN      NaN
+6  10_101310581_101310723  chr10  101310581  ...    NaN           NaN      NaN
+8  10_101774199_101774853  chr10  101774199  ...    NaN           NaN      NaN
+
+[5 rows x 16 columns]
+[[np.int64(174), np.int64(171)], [np.int64(3280), np.int64(3430)]]
+[VMR LOAD] tissue=Caudate env=education pop=all
+[VMR FILE] /gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/caudate/correlation/_m/education_linear-all.csv.gz
+[VMR] sig counts:
+sig
+False    6727
+True      328
+Name: count, dtype: int64
+[DMR LOAD] tissue=Caudate env=education pop=all
+[DMR FILE] /gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/caudate/correlation/_m/education_dmr-all.csv.gz
+[DMR] sig counts:
+sig
+False    6720
+True      335
+Name: count, dtype: int64
+[MERGE] Before pivot:                feature_id    chr      start  ...  level  coefficients  p.value
+1  10_100932348_100932948  chr10  100932348  ...    NaN           NaN      NaN
+3  10_101005650_101007117  chr10  101005650  ...    NaN           NaN      NaN
+5  10_101008423_101008841  chr10  101008423  ...    NaN           NaN      NaN
+7  10_101310581_101310723  chr10  101310581  ...    NaN           NaN      NaN
+9  10_101774199_101774853  chr10  101774199  ...    NaN           NaN      NaN
+
+[5 rows x 16 columns]
+[[np.int64(182), np.int64(146)], [np.int64(3272), np.int64(3455)]]
+[VMR LOAD] tissue=Caudate env=marital_status pop=all
+[VMR FILE] /gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/caudate/correlation/_m/marital_status_linear-all.csv.gz
+[VMR] sig counts:
+sig
+False    6750
+True      305
+Name: count, dtype: int64
+[DMR LOAD] tissue=Caudate env=marital_status pop=all
+[DMR FILE] /gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/caudate/correlation/_m/marital_status_dmr-all.csv.gz
+[DMR] sig counts:
+sig
+False    6752
+True      303
+Name: count, dtype: int64
+[MERGE] Before pivot:                feature_id    chr      start  ...  level  coefficients  p.value
+1  10_100932348_100932948  chr10  100932348  ...    NaN           NaN      NaN
+3  10_101005650_101007117  chr10  101005650  ...    NaN           NaN      NaN
+5  10_101008423_101008841  chr10  101008423  ...    NaN           NaN      NaN
+7  10_101310581_101310723  chr10  101310581  ...    NaN           NaN      NaN
+9  10_101774199_101774853  chr10  101774199  ...    NaN           NaN      NaN
+
+[5 rows x 16 columns]
+[[np.int64(181), np.int64(124)], [np.int64(3273), np.int64(3477)]]
+[VMR LOAD] tissue=Caudate env=marital_status pop=all
+[VMR FILE] /gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/caudate/correlation/_m/marital_status_linear-all.csv.gz
+[VMR] sig counts:
+sig
+False    6848
+True      207
+Name: count, dtype: int64
+[DMR LOAD] tissue=Caudate env=marital_status pop=all
+[DMR FILE] /gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/caudate/correlation/_m/marital_status_dmr-all.csv.gz
+[DMR] sig counts:
+sig
+False    6845
+True      210
+Name: count, dtype: int64
+[MERGE] Before pivot:                feature_id    chr      start  ...  level  coefficients  p.value
+0  10_100932348_100932948  chr10  100932348  ...    NaN           NaN      NaN
+2  10_101005650_101007117  chr10  101005650  ...    NaN           NaN      NaN
+4  10_101008423_101008841  chr10  101008423  ...    NaN           NaN      NaN
+6  10_101310581_101310723  chr10  101310581  ...    NaN           NaN      NaN
+8  10_101774199_101774853  chr10  101774199  ...    NaN           NaN      NaN
+
+[5 rows x 16 columns]
+[[np.int64(131), np.int64(76)], [np.int64(3323), np.int64(3525)]]
+[[np.int64(188), np.int64(217)], [np.int64(3266), np.int64(3384)]]
+[[np.int64(171), np.int64(113)], [np.int64(3283), np.int64(3488)]]
+[[np.int64(228), np.int64(243)], [np.int64(3226), np.int64(3358)]]
+[[np.int64(172), np.int64(98)], [np.int64(3282), np.int64(3503)]]
+[[np.int64(201), np.int64(198)], [np.int64(3253), np.int64(3403)]]
+[[np.int64(185), np.int64(224)], [np.int64(3269), np.int64(3377)]]
+[[np.int64(144), np.int64(133)], [np.int64(3310), np.int64(3468)]]
+[[np.int64(174), np.int64(172)], [np.int64(3280), np.int64(3429)]]
+[[np.int64(184), np.int64(151)], [np.int64(3270), np.int64(3450)]]
+[[np.int64(185), np.int64(118)], [np.int64(3269), np.int64(3483)]]
+[[np.int64(133), np.int64(77)], [np.int64(3321), np.int64(3524)]]
+[[np.int64(185), np.int64(216)], [np.int64(3269), np.int64(3385)]]
+[[np.int64(166), np.int64(113)], [np.int64(3288), np.int64(3488)]]
+[[np.int64(225), np.int64(239)], [np.int64(3229), np.int64(3362)]]
+[[np.int64(169), np.int64(97)], [np.int64(3285), np.int64(3504)]]
+[[np.int64(194), np.int64(194)], [np.int64(3260), np.int64(3407)]]
+[[np.int64(178), np.int64(218)], [np.int64(3276), np.int64(3383)]]
+[[np.int64(142), np.int64(133)], [np.int64(3312), np.int64(3468)]]
+[[np.int64(171), np.int64(168)], [np.int64(3283), np.int64(3433)]]
+[[np.int64(180), np.int64(145)], [np.int64(3274), np.int64(3456)]]
+[[np.int64(179), np.int64(117)], [np.int64(3275), np.int64(3484)]]
+[[np.int64(129), np.int64(73)], [np.int64(3325), np.int64(3528)]]
+[[np.int64(221), np.int64(188)], [np.int64(3327), np.int64(3319)]]
+[[np.int64(113), np.int64(171)], [np.int64(3435), np.int64(3336)]]
+[[np.int64(243), np.int64(229)], [np.int64(3305), np.int64(3278)]]
+[[np.int64(95), np.int64(173)], [np.int64(3453), np.int64(3334)]]
+[[np.int64(199), np.int64(196)], [np.int64(3349), np.int64(3311)]]
+[[np.int64(221), np.int64(184)], [np.int64(3327), np.int64(3323)]]
+[[np.int64(135), np.int64(148)], [np.int64(3413), np.int64(3359)]]
+[[np.int64(170), np.int64(175)], [np.int64(3378), np.int64(3332)]]
+[[np.int64(141), np.int64(187)], [np.int64(3407), np.int64(3320)]]
+[[np.int64(124), np.int64(181)], [np.int64(3424), np.int64(3326)]]
+[[np.int64(73), np.int64(134)], [np.int64(3475), np.int64(3373)]]
+[[np.int64(214), np.int64(191)], [np.int64(3334), np.int64(3316)]]
+[[np.int64(112), np.int64(172)], [np.int64(3436), np.int64(3335)]]
+[[np.int64(242), np.int64(229)], [np.int64(3306), np.int64(3278)]]
+[[np.int64(96), np.int64(174)], [np.int64(3452), np.int64(3333)]]
+[[np.int64(198), np.int64(201)], [np.int64(3350), np.int64(3306)]]
+[[np.int64(222), np.int64(187)], [np.int64(3326), np.int64(3320)]]
+[[np.int64(132), np.int64(145)], [np.int64(3416), np.int64(3362)]]
+[[np.int64(171), np.int64(175)], [np.int64(3377), np.int64(3332)]]
+[[np.int64(146), np.int64(189)], [np.int64(3402), np.int64(3318)]]
+[[np.int64(118), np.int64(185)], [np.int64(3430), np.int64(3322)]]
+[[np.int64(74), np.int64(136)], [np.int64(3474), np.int64(3371)]]
+[[np.int64(213), np.int64(188)], [np.int64(3335), np.int64(3319)]]
+[[np.int64(112), np.int64(167)], [np.int64(3436), np.int64(3340)]]
+[[np.int64(239), np.int64(225)], [np.int64(3309), np.int64(3282)]]
+[[np.int64(95), np.int64(171)], [np.int64(3453), np.int64(3336)]]
+[[np.int64(194), np.int64(194)], [np.int64(3354), np.int64(3313)]]
+[[np.int64(216), np.int64(180)], [np.int64(3332), np.int64(3327)]]
+[[np.int64(132), np.int64(143)], [np.int64(3416), np.int64(3364)]]
+[[np.int64(167), np.int64(172)], [np.int64(3381), np.int64(3335)]]
+[[np.int64(140), np.int64(185)], [np.int64(3408), np.int64(3322)]]
+[[np.int64(117), np.int64(179)], [np.int64(3431), np.int64(3328)]]
+[[np.int64(70), np.int64(132)], [np.int64(3478), np.int64(3375)]]
+[[np.int64(3), np.int64(406)], [np.int64(50), np.int64(6596)]]
+[[np.int64(1), np.int64(283)], [np.int64(52), np.int64(6719)]]
+[[np.int64(0), np.int64(472)], [np.int64(53), np.int64(6530)]]
+[[np.int64(2), np.int64(266)], [np.int64(51), np.int64(6736)]]
+[[np.int64(0), np.int64(395)], [np.int64(53), np.int64(6607)]]
+[[np.int64(2), np.int64(403)], [np.int64(51), np.int64(6599)]]
+[[np.int64(1), np.int64(282)], [np.int64(52), np.int64(6720)]]
+[[np.int64(1), np.int64(344)], [np.int64(52), np.int64(6658)]]
+[[np.int64(5), np.int64(323)], [np.int64(48), np.int64(6679)]]
+[[np.int64(0), np.int64(305)], [np.int64(53), np.int64(6697)]]
+[[np.int64(3), np.int64(204)], [np.int64(50), np.int64(6798)]]
+[[np.int64(3), np.int64(402)], [np.int64(50), np.int64(6600)]]
+[[np.int64(1), np.int64(283)], [np.int64(52), np.int64(6719)]]
+[[np.int64(1), np.int64(470)], [np.int64(52), np.int64(6532)]]
+[[np.int64(2), np.int64(268)], [np.int64(51), np.int64(6734)]]
+[[np.int64(0), np.int64(399)], [np.int64(53), np.int64(6603)]]
+[[np.int64(2), np.int64(407)], [np.int64(51), np.int64(6595)]]
+[[np.int64(1), np.int64(276)], [np.int64(52), np.int64(6726)]]
+[[np.int64(1), np.int64(345)], [np.int64(52), np.int64(6657)]]
+[[np.int64(5), np.int64(330)], [np.int64(48), np.int64(6672)]]
+[[np.int64(0), np.int64(303)], [np.int64(53), np.int64(6699)]]
+[[np.int64(3), np.int64(207)], [np.int64(50), np.int64(6795)]]
+[[np.int64(3), np.int64(398)], [np.int64(50), np.int64(6604)]]
+[[np.int64(1), np.int64(278)], [np.int64(52), np.int64(6724)]]
+[[np.int64(0), np.int64(464)], [np.int64(53), np.int64(6538)]]
+[[np.int64(2), np.int64(264)], [np.int64(51), np.int64(6738)]]
+[[np.int64(0), np.int64(388)], [np.int64(53), np.int64(6614)]]
+[[np.int64(2), np.int64(394)], [np.int64(51), np.int64(6608)]]
+[[np.int64(1), np.int64(274)], [np.int64(52), np.int64(6728)]]
+[[np.int64(1), np.int64(338)], [np.int64(52), np.int64(6664)]]
+[[np.int64(5), np.int64(320)], [np.int64(48), np.int64(6682)]]
+[[np.int64(0), np.int64(296)], [np.int64(53), np.int64(6706)]]
+[[np.int64(3), np.int64(199)], [np.int64(50), np.int64(6803)]]
+[VMR LOAD] tissue=Hippocampus env=smoking pop=all
+[VMR FILE] /gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/hippocampus/correlation/_m/smoking_linear-all.csv.gz
+[VMR] sig counts:
+sig
+False    4738
+True      216
+Name: count, dtype: int64
+[DMR LOAD] tissue=Hippocampus env=smoking pop=all
+[DMR FILE] /gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/hippocampus/correlation/_m/smoking_dmr-all.csv.gz
+[DMR] sig counts:
+sig
+False    4736
+True      218
+Name: count, dtype: int64
+[MERGE] Before pivot:                feature_id    chr      start  ...  level  coefficients  p.value
+0  10_100348146_100351440  chr10  100348146  ...    NaN           NaN      NaN
+1  10_101006502_101007099  chr10  101006502  ...    NaN           NaN      NaN
+2  10_101008138_101008841  chr10  101008138  ...    NaN           NaN      NaN
+3  10_101149994_101151895  chr10  101149994  ...    NaN           NaN      NaN
+4    10_10157082_10157472  chr10   10157082  ...    NaN           NaN      NaN
+
+[5 rows x 16 columns]
+[ENET] AA shape (raw): (9295, 10)
+[ENET] EA shape (raw): (9294, 10)
+  chrom      start        end    h2_category
+0  chrX  101097622  101098473      Heritable
+1  chrX  118974315  118976419      Heritable
+2  chrX   48071222   48071328      Heritable
+3  chr1    8233895    8234123      Heritable
+4  chr1    8240722    8241369  Non-heritable
+  chrom      start        end    h2_category
+0  chrX  101097622  101098473  Non-heritable
+1  chrX  118974315  118976419  Non-heritable
+2  chrX   48071222   48071328      Heritable
+3  chr1    8233895    8234123      Heritable
+4  chr1    8240722    8241369      Heritable
+[ENET] Combined shape (after merge): (9271, 23)
+[ENET] After h2_category match filter: (5009, 23)
+[ENET] Final columns: ['task_id_AA', 'chrom', 'start', 'end', 'num_snps_AA', 'boosting_iterations_performed_AA', 'h2_unscaled_AA', 'r_squared_cv_AA', 'region_AA', 'h2_category', 'feature_id', 'task_id_EA', 'num_snps_EA', 'boosting_iterations_performed_EA', 'h2_unscaled_EA', 'r_squared_cv_EA', 'region_EA']
+[ENET] Final shape: (5009, 17)
+[[np.int64(191), np.int64(25)], [np.int64(4103), np.int64(635)]]
+[VMR LOAD] tissue=Hippocampus env=codeine pop=all
+[VMR FILE] /gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/hippocampus/correlation/_m/codeine_linear-all.csv.gz
+[VMR] sig counts:
+sig
+False    4724
+True      230
+Name: count, dtype: int64
+[DMR LOAD] tissue=Hippocampus env=codeine pop=all
+[DMR FILE] /gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/hippocampus/correlation/_m/codeine_dmr-all.csv.gz
+[DMR] sig counts:
+sig
+False    4732
+True      222
+Name: count, dtype: int64
+[MERGE] Before pivot:                feature_id    chr      start  ...  level  coefficients  p.value
+0  10_100348146_100351440  chr10  100348146  ...    NaN           NaN      NaN
+1  10_101006502_101007099  chr10  101006502  ...    NaN           NaN      NaN
+2  10_101008138_101008841  chr10  101008138  ...    NaN           NaN      NaN
+3  10_101149994_101151895  chr10  101149994  ...    NaN           NaN      NaN
+4    10_10157082_10157472  chr10   10157082  ...    NaN           NaN      NaN
+
+[5 rows x 16 columns]
+[[np.int64(205), np.int64(25)], [np.int64(4089), np.int64(635)]]
+[VMR LOAD] tissue=Hippocampus env=morphine pop=all
+[VMR FILE] /gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/hippocampus/correlation/_m/morphine_linear-all.csv.gz
+[VMR] sig counts:
+sig
+False    4815
+True      139
+Name: count, dtype: int64
+[DMR LOAD] tissue=Hippocampus env=morphine pop=all
+[DMR FILE] /gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/hippocampus/correlation/_m/morphine_dmr-all.csv.gz
+[DMR] sig counts:
+sig
+False    4815
+True      139
+Name: count, dtype: int64
+[MERGE] Before pivot:                feature_id    chr      start  ...  level  coefficients  p.value
+0  10_100348146_100351440  chr10  100348146  ...    NaN           NaN      NaN
+1  10_101006502_101007099  chr10  101006502  ...    NaN           NaN      NaN
+2  10_101008138_101008841  chr10  101008138  ...    NaN           NaN      NaN
+3  10_101149994_101151895  chr10  101149994  ...    NaN           NaN      NaN
+4    10_10157082_10157472  chr10   10157082  ...    NaN           NaN      NaN
+
+[5 rows x 16 columns]
+[[np.int64(121), np.int64(18)], [np.int64(4173), np.int64(642)]]
+[VMR LOAD] tissue=Hippocampus env=cocaine pop=all
+[VMR FILE] /gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/hippocampus/correlation/_m/cocaine_linear-all.csv.gz
+[VMR] sig counts:
+sig
+False    4854
+True      100
+Name: count, dtype: int64
+[DMR LOAD] tissue=Hippocampus env=cocaine pop=all
+[DMR FILE] /gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/hippocampus/correlation/_m/cocaine_dmr-all.csv.gz
+[DMR] sig counts:
+sig
+False    4854
+True      100
+Name: count, dtype: int64
+[MERGE] Before pivot:                feature_id    chr      start  ...  level  coefficients  p.value
+0  10_100348146_100351440  chr10  100348146  ...    NaN           NaN      NaN
+1  10_101006502_101007099  chr10  101006502  ...    NaN           NaN      NaN
+2  10_101008138_101008841  chr10  101008138  ...    NaN           NaN      NaN
+3  10_101149994_101151895  chr10  101149994  ...    NaN           NaN      NaN
+4    10_10157082_10157472  chr10   10157082  ...    NaN           NaN      NaN
+
+[5 rows x 16 columns]
+[[np.int64(93), np.int64(7)], [np.int64(4201), np.int64(653)]]
+[VMR LOAD] tissue=Hippocampus env=ethanol pop=all
+[VMR FILE] /gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/hippocampus/correlation/_m/ethanol_linear-all.csv.gz
+[VMR] sig counts:
+sig
+False    4829
+True      125
+Name: count, dtype: int64
+[DMR LOAD] tissue=Hippocampus env=ethanol pop=all
+[DMR FILE] /gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/hippocampus/correlation/_m/ethanol_dmr-all.csv.gz
+[DMR] sig counts:
+sig
+False    4832
+True      122
+Name: count, dtype: int64
+[MERGE] Before pivot:                feature_id    chr      start  ...  level  coefficients  p.value
+0  10_100348146_100351440  chr10  100348146  ...    NaN           NaN      NaN
+1  10_101006502_101007099  chr10  101006502  ...    NaN           NaN      NaN
+2  10_101008138_101008841  chr10  101008138  ...    NaN           NaN      NaN
+3  10_101149994_101151895  chr10  101149994  ...    NaN           NaN      NaN
+4    10_10157082_10157472  chr10   10157082  ...    NaN           NaN      NaN
+
+[5 rows x 16 columns]
+[[np.int64(116), np.int64(9)], [np.int64(4178), np.int64(651)]]
+[VMR LOAD] tissue=Hippocampus env=nicotine pop=all
+[VMR FILE] /gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/hippocampus/correlation/_m/nicotine_linear-all.csv.gz
+[VMR] sig counts:
+sig
+False    4542
+True      412
+Name: count, dtype: int64
+[DMR LOAD] tissue=Hippocampus env=nicotine pop=all
+[DMR FILE] /gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/hippocampus/correlation/_m/nicotine_dmr-all.csv.gz
+[DMR] sig counts:
+sig
+False    4559
+True      395
+Name: count, dtype: int64
+[MERGE] Before pivot:                feature_id    chr      start  ...  level  coefficients  p.value
+0  10_100348146_100351440  chr10  100348146  ...    NaN           NaN      NaN
+1  10_101006502_101007099  chr10  101006502  ...    NaN           NaN      NaN
+2  10_101008138_101008841  chr10  101008138  ...    NaN           NaN      NaN
+3  10_101149994_101151895  chr10  101149994  ...    NaN           NaN      NaN
+4    10_10157082_10157472  chr10   10157082  ...    NaN           NaN      NaN
+
+[5 rows x 16 columns]
+[[np.int64(341), np.int64(71)], [np.int64(3953), np.int64(589)]]
+[VMR LOAD] tissue=Hippocampus env=amphetamines pop=all
+[VMR FILE] /gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/hippocampus/correlation/_m/amphetamines_linear-all.csv.gz
+[VMR] sig counts:
+sig
+False    4476
+True      478
+Name: count, dtype: int64
+[DMR LOAD] tissue=Hippocampus env=amphetamines pop=all
+[DMR FILE] /gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/hippocampus/correlation/_m/amphetamines_dmr-all.csv.gz
+[DMR] sig counts:
+sig
+False    4488
+True      466
+Name: count, dtype: int64
+[MERGE] Before pivot:                feature_id    chr      start  ...  level  coefficients  p.value
+0  10_100348146_100351440  chr10  100348146  ...    NaN           NaN      NaN
+1  10_101006502_101007099  chr10  101006502  ...    NaN           NaN      NaN
+2  10_101008138_101008841  chr10  101008138  ...    NaN           NaN      NaN
+3  10_101149994_101151895  chr10  101149994  ...    NaN           NaN      NaN
+4    10_10157082_10157472  chr10   10157082  ...    NaN           NaN      NaN
+
+[5 rows x 16 columns]
+[[np.int64(386), np.int64(92)], [np.int64(3908), np.int64(568)]]
+[VMR LOAD] tissue=Hippocampus env=education pop=all
+[VMR FILE] /gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/hippocampus/correlation/_m/education_linear-all.csv.gz
+[VMR] sig counts:
+sig
+False    4759
+True      195
+Name: count, dtype: int64
+[DMR LOAD] tissue=Hippocampus env=education pop=all
+[DMR FILE] /gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/hippocampus/correlation/_m/education_dmr-all.csv.gz
+[DMR] sig counts:
+sig
+False    4765
+True      189
+Name: count, dtype: int64
+[MERGE] Before pivot:                feature_id    chr      start  ...  level  coefficients  p.value
+0  10_100348146_100351440  chr10  100348146  ...    NaN           NaN      NaN
+2  10_101006502_101007099  chr10  101006502  ...    NaN           NaN      NaN
+4  10_101008138_101008841  chr10  101008138  ...    NaN           NaN      NaN
+6  10_101149994_101151895  chr10  101149994  ...    NaN           NaN      NaN
+8    10_10157082_10157472  chr10   10157082  ...    NaN           NaN      NaN
+
+[5 rows x 16 columns]
+[[np.int64(179), np.int64(16)], [np.int64(4115), np.int64(644)]]
+[VMR LOAD] tissue=Hippocampus env=education pop=all
+[VMR FILE] /gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/hippocampus/correlation/_m/education_linear-all.csv.gz
+[VMR] sig counts:
+sig
+False    4792
+True      162
+Name: count, dtype: int64
+[DMR LOAD] tissue=Hippocampus env=education pop=all
+[DMR FILE] /gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/hippocampus/correlation/_m/education_dmr-all.csv.gz
+[DMR] sig counts:
+sig
+False    4801
+True      153
+Name: count, dtype: int64
+[MERGE] Before pivot:                feature_id    chr      start  ...  level  coefficients  p.value
+1  10_100348146_100351440  chr10  100348146  ...    NaN           NaN      NaN
+3  10_101006502_101007099  chr10  101006502  ...    NaN           NaN      NaN
+5  10_101008138_101008841  chr10  101008138  ...    NaN           NaN      NaN
+7  10_101149994_101151895  chr10  101149994  ...    NaN           NaN      NaN
+9    10_10157082_10157472  chr10   10157082  ...    NaN           NaN      NaN
+
+[5 rows x 16 columns]
+[[np.int64(146), np.int64(16)], [np.int64(4148), np.int64(644)]]
+[VMR LOAD] tissue=Hippocampus env=marital_status pop=all
+[VMR FILE] /gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/hippocampus/correlation/_m/marital_status_linear-all.csv.gz
+[VMR] sig counts:
+sig
+False    4793
+True      161
+Name: count, dtype: int64
+[DMR LOAD] tissue=Hippocampus env=marital_status pop=all
+[DMR FILE] /gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/hippocampus/correlation/_m/marital_status_dmr-all.csv.gz
+[DMR] sig counts:
+sig
+False    4795
+True      159
+Name: count, dtype: int64
+[MERGE] Before pivot:                feature_id    chr      start  ...  level  coefficients  p.value
+1  10_100348146_100351440  chr10  100348146  ...    NaN           NaN      NaN
+3  10_101006502_101007099  chr10  101006502  ...    NaN           NaN      NaN
+5  10_101008138_101008841  chr10  101008138  ...    NaN           NaN      NaN
+7  10_101149994_101151895  chr10  101149994  ...    NaN           NaN      NaN
+9    10_10157082_10157472  chr10   10157082  ...    NaN           NaN      NaN
+
+[5 rows x 16 columns]
+[[np.int64(149), np.int64(12)], [np.int64(4145), np.int64(648)]]
+[VMR LOAD] tissue=Hippocampus env=marital_status pop=all
+[VMR FILE] /gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/hippocampus/correlation/_m/marital_status_linear-all.csv.gz
+[VMR] sig counts:
+sig
+False    4726
+True      228
+Name: count, dtype: int64
+[DMR LOAD] tissue=Hippocampus env=marital_status pop=all
+[DMR FILE] /gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/hippocampus/correlation/_m/marital_status_dmr-all.csv.gz
+[DMR] sig counts:
+sig
+False    4731
+True      223
+Name: count, dtype: int64
+[MERGE] Before pivot:                feature_id    chr      start  ...  level  coefficients  p.value
+0  10_100348146_100351440  chr10  100348146  ...    NaN           NaN      NaN
+2  10_101006502_101007099  chr10  101006502  ...    NaN           NaN      NaN
+4  10_101008138_101008841  chr10  101008138  ...    NaN           NaN      NaN
+6  10_101149994_101151895  chr10  101149994  ...    NaN           NaN      NaN
+8    10_10157082_10157472  chr10   10157082  ...    NaN           NaN      NaN
+
+[5 rows x 16 columns]
+[[np.int64(204), np.int64(24)], [np.int64(4090), np.int64(636)]]
+[[np.int64(192), np.int64(26)], [np.int64(4102), np.int64(634)]]
+[[np.int64(199), np.int64(23)], [np.int64(4095), np.int64(637)]]
+[[np.int64(120), np.int64(19)], [np.int64(4174), np.int64(641)]]
+[[np.int64(93), np.int64(7)], [np.int64(4201), np.int64(653)]]
+[[np.int64(113), np.int64(9)], [np.int64(4181), np.int64(651)]]
+[[np.int64(326), np.int64(69)], [np.int64(3968), np.int64(591)]]
+[[np.int64(374), np.int64(92)], [np.int64(3920), np.int64(568)]]
+[[np.int64(173), np.int64(16)], [np.int64(4121), np.int64(644)]]
+[[np.int64(139), np.int64(14)], [np.int64(4155), np.int64(646)]]
+[[np.int64(147), np.int64(12)], [np.int64(4147), np.int64(648)]]
+[[np.int64(199), np.int64(24)], [np.int64(4095), np.int64(636)]]
+[[np.int64(185), np.int64(25)], [np.int64(4109), np.int64(635)]]
+[[np.int64(196), np.int64(23)], [np.int64(4098), np.int64(637)]]
+[[np.int64(117), np.int64(18)], [np.int64(4177), np.int64(642)]]
+[[np.int64(89), np.int64(7)], [np.int64(4205), np.int64(653)]]
+[[np.int64(110), np.int64(8)], [np.int64(4184), np.int64(652)]]
+[[np.int64(322), np.int64(69)], [np.int64(3972), np.int64(591)]]
+[[np.int64(370), np.int64(89)], [np.int64(3924), np.int64(571)]]
+[[np.int64(173), np.int64(16)], [np.int64(4121), np.int64(644)]]
+[[np.int64(135), np.int64(14)], [np.int64(4159), np.int64(646)]]
+[[np.int64(144), np.int64(12)], [np.int64(4150), np.int64(648)]]
+[[np.int64(194), np.int64(23)], [np.int64(4100), np.int64(637)]]
+[[np.int64(22), np.int64(194)], [np.int64(595), np.int64(4143)]]
+[[np.int64(22), np.int64(208)], [np.int64(595), np.int64(4129)]]
+[[np.int64(14), np.int64(125)], [np.int64(603), np.int64(4212)]]
+[[np.int64(6), np.int64(94)], [np.int64(611), np.int64(4243)]]
+[[np.int64(9), np.int64(116)], [np.int64(608), np.int64(4221)]]
+[[np.int64(69), np.int64(343)], [np.int64(548), np.int64(3994)]]
+[[np.int64(87), np.int64(391)], [np.int64(530), np.int64(3946)]]
+[[np.int64(16), np.int64(179)], [np.int64(601), np.int64(4158)]]
+[[np.int64(16), np.int64(146)], [np.int64(601), np.int64(4191)]]
+[[np.int64(12), np.int64(149)], [np.int64(605), np.int64(4188)]]
+[[np.int64(23), np.int64(205)], [np.int64(594), np.int64(4132)]]
+[[np.int64(23), np.int64(195)], [np.int64(594), np.int64(4142)]]
+[[np.int64(21), np.int64(201)], [np.int64(596), np.int64(4136)]]
+[[np.int64(15), np.int64(124)], [np.int64(602), np.int64(4213)]]
+[[np.int64(6), np.int64(94)], [np.int64(611), np.int64(4243)]]
+[[np.int64(8), np.int64(114)], [np.int64(609), np.int64(4223)]]
+[[np.int64(67), np.int64(328)], [np.int64(550), np.int64(4009)]]
+[[np.int64(87), np.int64(379)], [np.int64(530), np.int64(3958)]]
+[[np.int64(16), np.int64(173)], [np.int64(601), np.int64(4164)]]
+[[np.int64(14), np.int64(139)], [np.int64(603), np.int64(4198)]]
+[[np.int64(12), np.int64(147)], [np.int64(605), np.int64(4190)]]
+[[np.int64(23), np.int64(200)], [np.int64(594), np.int64(4137)]]
+[[np.int64(22), np.int64(188)], [np.int64(595), np.int64(4149)]]
+[[np.int64(21), np.int64(198)], [np.int64(596), np.int64(4139)]]
+[[np.int64(14), np.int64(121)], [np.int64(603), np.int64(4216)]]
+[[np.int64(6), np.int64(90)], [np.int64(611), np.int64(4247)]]
+[[np.int64(8), np.int64(110)], [np.int64(609), np.int64(4227)]]
+[[np.int64(67), np.int64(324)], [np.int64(550), np.int64(4013)]]
+[[np.int64(84), np.int64(375)], [np.int64(533), np.int64(3962)]]
+[[np.int64(16), np.int64(173)], [np.int64(601), np.int64(4164)]]
+[[np.int64(14), np.int64(135)], [np.int64(603), np.int64(4202)]]
+[[np.int64(12), np.int64(144)], [np.int64(605), np.int64(4193)]]
+[[np.int64(22), np.int64(195)], [np.int64(595), np.int64(4142)]]
+[[np.int64(3), np.int64(213)], [np.int64(40), np.int64(4698)]]
+[[np.int64(3), np.int64(227)], [np.int64(40), np.int64(4684)]]
+[[np.int64(4), np.int64(135)], [np.int64(39), np.int64(4776)]]
+[[np.int64(1), np.int64(99)], [np.int64(42), np.int64(4812)]]
+[[np.int64(0), np.int64(125)], [np.int64(43), np.int64(4786)]]
+[[np.int64(2), np.int64(410)], [np.int64(41), np.int64(4501)]]
+[[np.int64(5), np.int64(473)], [np.int64(38), np.int64(4438)]]
+[[np.int64(0), np.int64(195)], [np.int64(43), np.int64(4716)]]
+[[np.int64(0), np.int64(162)], [np.int64(43), np.int64(4749)]]
+[[np.int64(0), np.int64(161)], [np.int64(43), np.int64(4750)]]
+[[np.int64(1), np.int64(227)], [np.int64(42), np.int64(4684)]]
+[[np.int64(3), np.int64(215)], [np.int64(40), np.int64(4696)]]
+[[np.int64(2), np.int64(220)], [np.int64(41), np.int64(4691)]]
+[[np.int64(4), np.int64(135)], [np.int64(39), np.int64(4776)]]
+[[np.int64(1), np.int64(99)], [np.int64(42), np.int64(4812)]]
+[[np.int64(1), np.int64(121)], [np.int64(42), np.int64(4790)]]
+[[np.int64(2), np.int64(393)], [np.int64(41), np.int64(4518)]]
+[[np.int64(5), np.int64(461)], [np.int64(38), np.int64(4450)]]
+[[np.int64(0), np.int64(189)], [np.int64(43), np.int64(4722)]]
+[[np.int64(0), np.int64(153)], [np.int64(43), np.int64(4758)]]
+[[np.int64(0), np.int64(159)], [np.int64(43), np.int64(4752)]]
+[[np.int64(1), np.int64(222)], [np.int64(42), np.int64(4689)]]
+[[np.int64(3), np.int64(207)], [np.int64(40), np.int64(4704)]]
+[[np.int64(2), np.int64(217)], [np.int64(41), np.int64(4694)]]
+[[np.int64(4), np.int64(131)], [np.int64(39), np.int64(4780)]]
+[[np.int64(1), np.int64(95)], [np.int64(42), np.int64(4816)]]
+[[np.int64(0), np.int64(118)], [np.int64(43), np.int64(4793)]]
+[[np.int64(2), np.int64(389)], [np.int64(41), np.int64(4522)]]
+[[np.int64(5), np.int64(454)], [np.int64(38), np.int64(4457)]]
+[[np.int64(0), np.int64(189)], [np.int64(43), np.int64(4722)]]
+[[np.int64(0), np.int64(149)], [np.int64(43), np.int64(4762)]]
+[[np.int64(0), np.int64(156)], [np.int64(43), np.int64(4755)]]
+[[np.int64(1), np.int64(216)], [np.int64(42), np.int64(4695)]]
+[VMR LOAD] tissue=DLPFC env=smoking pop=all
+[VMR FILE] /gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/dlpfc/correlation/_m/smoking_linear-all.csv.gz
+[VMR] sig counts:
+sig
+False    4788
+True      137
+Name: count, dtype: int64
+[DMR LOAD] tissue=DLPFC env=smoking pop=all
+[DMR FILE] /gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/dlpfc/correlation/_m/smoking_dmr-all.csv.gz
+[DMR] sig counts:
+sig
+False    4768
+True      157
+Name: count, dtype: int64
+[MERGE] Before pivot:                feature_id    chr      start  ...  level  coefficients  p.value
+0  10_100025847_100026058  chr10  100025847  ...    NaN           NaN      NaN
+1  10_100982514_100983141  chr10  100982514  ...    NaN           NaN      NaN
+2  10_101033653_101034328  chr10  101033653  ...    NaN           NaN      NaN
+3  10_101150691_101151624  chr10  101150691  ...    NaN           NaN      NaN
+4    10_10157082_10157472  chr10   10157082  ...    NaN           NaN      NaN
+
+[5 rows x 16 columns]
+[ENET] AA shape (raw): (9594, 10)
+[ENET] EA shape (raw): (9597, 10)
+  chrom      start        end    h2_category
+0  chrX  101931553  101932132  Non-heritable
+1  chrX  119468148  119468527      Heritable
+2  chrX   48675892   48676877  Non-heritable
+3  chr1    7060660    7061401  Non-heritable
+4  chr1   72324264   72324382      Heritable
+  chrom      start        end h2_category
+0  chrX  101931553  101932132   Heritable
+1  chrX  119468148  119468527   Heritable
+2  chrX   48675892   48676877   Heritable
+3  chr1    7060660    7061401   Heritable
+4  chr1   72324264   72324382   Heritable
+[ENET] Combined shape (after merge): (9562, 23)
+[ENET] After h2_category match filter: (4982, 23)
+[ENET] Final columns: ['task_id_AA', 'chrom', 'start', 'end', 'num_snps_AA', 'boosting_iterations_performed_AA', 'h2_unscaled_AA', 'r_squared_cv_AA', 'region_AA', 'h2_category', 'feature_id', 'task_id_EA', 'num_snps_EA', 'boosting_iterations_performed_EA', 'h2_unscaled_EA', 'r_squared_cv_EA', 'region_EA']
+[ENET] Final shape: (4982, 17)
+[[np.int64(125), np.int64(12)], [np.int64(4105), np.int64(683)]]
+[VMR LOAD] tissue=DLPFC env=codeine pop=all
+[VMR FILE] /gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/dlpfc/correlation/_m/codeine_linear-all.csv.gz
+[VMR] sig counts:
+sig
+False    4751
+True      174
+Name: count, dtype: int64
+[DMR LOAD] tissue=DLPFC env=codeine pop=all
+[DMR FILE] /gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/dlpfc/correlation/_m/codeine_dmr-all.csv.gz
+[DMR] sig counts:
+sig
+False    4749
+True      176
+Name: count, dtype: int64
+[MERGE] Before pivot:                feature_id    chr      start  ...  level  coefficients  p.value
+0  10_100025847_100026058  chr10  100025847  ...    NaN           NaN      NaN
+1  10_100982514_100983141  chr10  100982514  ...    NaN           NaN      NaN
+2  10_101033653_101034328  chr10  101033653  ...    NaN           NaN      NaN
+3  10_101150691_101151624  chr10  101150691  ...    NaN           NaN      NaN
+4    10_10157082_10157472  chr10   10157082  ...    NaN           NaN      NaN
+
+[5 rows x 16 columns]
+[[np.int64(151), np.int64(23)], [np.int64(4079), np.int64(672)]]
+[VMR LOAD] tissue=DLPFC env=morphine pop=all
+[VMR FILE] /gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/dlpfc/correlation/_m/morphine_linear-all.csv.gz
+[VMR] sig counts:
+sig
+False    4838
+True       87
+Name: count, dtype: int64
+[DMR LOAD] tissue=DLPFC env=morphine pop=all
+[DMR FILE] /gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/dlpfc/correlation/_m/morphine_dmr-all.csv.gz
+[DMR] sig counts:
+sig
+False    4838
+True       87
+Name: count, dtype: int64
+[MERGE] Before pivot:                feature_id    chr      start  ...  level  coefficients  p.value
+0  10_100025847_100026058  chr10  100025847  ...    NaN           NaN      NaN
+1  10_100982514_100983141  chr10  100982514  ...    NaN           NaN      NaN
+2  10_101033653_101034328  chr10  101033653  ...    NaN           NaN      NaN
+3  10_101150691_101151624  chr10  101150691  ...    NaN           NaN      NaN
+4    10_10157082_10157472  chr10   10157082  ...    NaN           NaN      NaN
+
+[5 rows x 16 columns]
+[[np.int64(80), np.int64(7)], [np.int64(4150), np.int64(688)]]
+[VMR LOAD] tissue=DLPFC env=cocaine pop=all
+[VMR FILE] /gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/dlpfc/correlation/_m/cocaine_linear-all.csv.gz
+[VMR] sig counts:
+sig
+False    4871
+True       54
+Name: count, dtype: int64
+[DMR LOAD] tissue=DLPFC env=cocaine pop=all
+[DMR FILE] /gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/dlpfc/correlation/_m/cocaine_dmr-all.csv.gz
+[DMR] sig counts:
+sig
+False    4868
+True       57
+Name: count, dtype: int64
+[MERGE] Before pivot:                feature_id    chr      start  ...  level  coefficients  p.value
+0  10_100025847_100026058  chr10  100025847  ...    NaN           NaN      NaN
+1  10_100982514_100983141  chr10  100982514  ...    NaN           NaN      NaN
+2  10_101033653_101034328  chr10  101033653  ...    NaN           NaN      NaN
+3  10_101150691_101151624  chr10  101150691  ...    NaN           NaN      NaN
+4    10_10157082_10157472  chr10   10157082  ...    NaN           NaN      NaN
+
+[5 rows x 16 columns]
+[[np.int64(45), np.int64(9)], [np.int64(4185), np.int64(686)]]
+[VMR LOAD] tissue=DLPFC env=ethanol pop=all
+[VMR FILE] /gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/dlpfc/correlation/_m/ethanol_linear-all.csv.gz
+[VMR] sig counts:
+sig
+False    4804
+True      121
+Name: count, dtype: int64
+[DMR LOAD] tissue=DLPFC env=ethanol pop=all
+[DMR FILE] /gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/dlpfc/correlation/_m/ethanol_dmr-all.csv.gz
+[DMR] sig counts:
+sig
+False    4810
+True      115
+Name: count, dtype: int64
+[MERGE] Before pivot:                feature_id    chr      start  ...  level  coefficients  p.value
+0  10_100025847_100026058  chr10  100025847  ...    NaN           NaN      NaN
+1  10_100982514_100983141  chr10  100982514  ...    NaN           NaN      NaN
+2  10_101033653_101034328  chr10  101033653  ...    NaN           NaN      NaN
+3  10_101150691_101151624  chr10  101150691  ...    NaN           NaN      NaN
+4    10_10157082_10157472  chr10   10157082  ...    NaN           NaN      NaN
+
+[5 rows x 16 columns]
+[[np.int64(104), np.int64(17)], [np.int64(4126), np.int64(678)]]
+[VMR LOAD] tissue=DLPFC env=nicotine pop=all
+[VMR FILE] /gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/dlpfc/correlation/_m/nicotine_linear-all.csv.gz
+[VMR] sig counts:
+sig
+False    4814
+True      111
+Name: count, dtype: int64
+[DMR LOAD] tissue=DLPFC env=nicotine pop=all
+[DMR FILE] /gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/dlpfc/correlation/_m/nicotine_dmr-all.csv.gz
+[DMR] sig counts:
+sig
+False    4811
+True      114
+Name: count, dtype: int64
+[MERGE] Before pivot:                feature_id    chr      start  ...  level  coefficients  p.value
+0  10_100025847_100026058  chr10  100025847  ...    NaN           NaN      NaN
+1  10_100982514_100983141  chr10  100982514  ...    NaN           NaN      NaN
+2  10_101033653_101034328  chr10  101033653  ...    NaN           NaN      NaN
+3  10_101150691_101151624  chr10  101150691  ...    NaN           NaN      NaN
+4    10_10157082_10157472  chr10   10157082  ...    NaN           NaN      NaN
+
+[5 rows x 16 columns]
+[[np.int64(102), np.int64(9)], [np.int64(4128), np.int64(686)]]
+[VMR LOAD] tissue=DLPFC env=amphetamines pop=all
+[VMR FILE] /gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/dlpfc/correlation/_m/amphetamines_linear-all.csv.gz
+[VMR] sig counts:
+sig
+False    4883
+True       42
+Name: count, dtype: int64
+[DMR LOAD] tissue=DLPFC env=amphetamines pop=all
+[DMR FILE] /gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/dlpfc/correlation/_m/amphetamines_dmr-all.csv.gz
+[DMR] sig counts:
+sig
+False    4881
+True       44
+Name: count, dtype: int64
+[MERGE] Before pivot:                feature_id    chr      start  ...  level  coefficients  p.value
+0  10_100025847_100026058  chr10  100025847  ...    NaN           NaN      NaN
+1  10_100982514_100983141  chr10  100982514  ...    NaN           NaN      NaN
+2  10_101033653_101034328  chr10  101033653  ...    NaN           NaN      NaN
+3  10_101150691_101151624  chr10  101150691  ...    NaN           NaN      NaN
+4    10_10157082_10157472  chr10   10157082  ...    NaN           NaN      NaN
+
+[5 rows x 16 columns]
+[[np.int64(41), np.int64(1)], [np.int64(4189), np.int64(694)]]
+[VMR LOAD] tissue=DLPFC env=education pop=all
+[VMR FILE] /gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/dlpfc/correlation/_m/education_linear-all.csv.gz
+[VMR] sig counts:
+sig
+False    4867
+True       58
+Name: count, dtype: int64
+[DMR LOAD] tissue=DLPFC env=education pop=all
+[DMR FILE] /gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/dlpfc/correlation/_m/education_dmr-all.csv.gz
+[DMR] sig counts:
+sig
+False    4875
+True       50
+Name: count, dtype: int64
+[MERGE] Before pivot:                feature_id    chr      start  ...  level  coefficients  p.value
+0  10_100025847_100026058  chr10  100025847  ...    NaN           NaN      NaN
+2  10_100982514_100983141  chr10  100982514  ...    NaN           NaN      NaN
+4  10_101033653_101034328  chr10  101033653  ...    NaN           NaN      NaN
+6  10_101150691_101151624  chr10  101150691  ...    NaN           NaN      NaN
+8    10_10157082_10157472  chr10   10157082  ...    NaN           NaN      NaN
+
+[5 rows x 16 columns]
+[[np.int64(57), np.int64(1)], [np.int64(4173), np.int64(694)]]
+[VMR LOAD] tissue=DLPFC env=education pop=all
+[VMR FILE] /gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/dlpfc/correlation/_m/education_linear-all.csv.gz
+[VMR] sig counts:
+sig
+False    4853
+True       72
+Name: count, dtype: int64
+[DMR LOAD] tissue=DLPFC env=education pop=all
+[DMR FILE] /gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/dlpfc/correlation/_m/education_dmr-all.csv.gz
+[DMR] sig counts:
+sig
+False    4860
+True       65
+Name: count, dtype: int64
+[MERGE] Before pivot:                feature_id    chr      start  ...  level  coefficients  p.value
+1  10_100025847_100026058  chr10  100025847  ...    NaN           NaN      NaN
+3  10_100982514_100983141  chr10  100982514  ...    NaN           NaN      NaN
+5  10_101033653_101034328  chr10  101033653  ...    NaN           NaN      NaN
+7  10_101150691_101151624  chr10  101150691  ...    NaN           NaN      NaN
+9    10_10157082_10157472  chr10   10157082  ...    NaN           NaN      NaN
+
+[5 rows x 16 columns]
+[[np.int64(67), np.int64(5)], [np.int64(4163), np.int64(690)]]
+[VMR LOAD] tissue=DLPFC env=marital_status pop=all
+[VMR FILE] /gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/dlpfc/correlation/_m/marital_status_linear-all.csv.gz
+[VMR] sig counts:
+sig
+False    4860
+True       65
+Name: count, dtype: int64
+[DMR LOAD] tissue=DLPFC env=marital_status pop=all
+[DMR FILE] /gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/dlpfc/correlation/_m/marital_status_dmr-all.csv.gz
+[DMR] sig counts:
+sig
+False    4855
+True       70
+Name: count, dtype: int64
+[MERGE] Before pivot:                feature_id    chr      start  ...  level  coefficients  p.value
+1  10_100025847_100026058  chr10  100025847  ...    NaN           NaN      NaN
+3  10_100982514_100983141  chr10  100982514  ...    NaN           NaN      NaN
+5  10_101033653_101034328  chr10  101033653  ...    NaN           NaN      NaN
+7  10_101150691_101151624  chr10  101150691  ...    NaN           NaN      NaN
+9    10_10157082_10157472  chr10   10157082  ...    NaN           NaN      NaN
+
+[5 rows x 16 columns]
+[[np.int64(64), np.int64(1)], [np.int64(4166), np.int64(694)]]
+[VMR LOAD] tissue=DLPFC env=marital_status pop=all
+[VMR FILE] /gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/dlpfc/correlation/_m/marital_status_linear-all.csv.gz
+[VMR] sig counts:
+sig
+False    4648
+True      277
+Name: count, dtype: int64
+[DMR LOAD] tissue=DLPFC env=marital_status pop=all
+[DMR FILE] /gpfs/projects/b1213/users/alexis/projects/dna-methylation-heritability/environmental-analysis/all_individuals/dlpfc/correlation/_m/marital_status_dmr-all.csv.gz
+[DMR] sig counts:
+sig
+False    4658
+True      267
+Name: count, dtype: int64
+[MERGE] Before pivot:                feature_id    chr      start  ...  level  coefficients  p.value
+0  10_100025847_100026058  chr10  100025847  ...    NaN           NaN      NaN
+2  10_100982514_100983141  chr10  100982514  ...    NaN           NaN      NaN
+4  10_101033653_101034328  chr10  101033653  ...    NaN           NaN      NaN
+6  10_101150691_101151624  chr10  101150691  ...    NaN           NaN      NaN
+8    10_10157082_10157472  chr10   10157082  ...    NaN           NaN      NaN
+
+[5 rows x 16 columns]
+[[np.int64(226), np.int64(51)], [np.int64(4004), np.int64(644)]]
+[[np.int64(145), np.int64(12)], [np.int64(4085), np.int64(683)]]
+[[np.int64(151), np.int64(25)], [np.int64(4079), np.int64(670)]]
+[[np.int64(81), np.int64(6)], [np.int64(4149), np.int64(689)]]
+[[np.int64(48), np.int64(9)], [np.int64(4182), np.int64(686)]]
+[[np.int64(99), np.int64(16)], [np.int64(4131), np.int64(679)]]
+[[np.int64(105), np.int64(9)], [np.int64(4125), np.int64(686)]]
+[[np.int64(43), np.int64(1)], [np.int64(4187), np.int64(694)]]
+[[np.int64(49), np.int64(1)], [np.int64(4181), np.int64(694)]]
+[[np.int64(60), np.int64(5)], [np.int64(4170), np.int64(690)]]
+[[np.int64(67), np.int64(3)], [np.int64(4163), np.int64(692)]]
+[[np.int64(218), np.int64(49)], [np.int64(4012), np.int64(646)]]
+[[np.int64(121), np.int64(11)], [np.int64(4109), np.int64(684)]]
+[[np.int64(142), np.int64(23)], [np.int64(4088), np.int64(672)]]
+[[np.int64(79), np.int64(6)], [np.int64(4151), np.int64(689)]]
+[[np.int64(45), np.int64(9)], [np.int64(4185), np.int64(686)]]
+[[np.int64(97), np.int64(16)], [np.int64(4133), np.int64(679)]]
+[[np.int64(98), np.int64(9)], [np.int64(4132), np.int64(686)]]
+[[np.int64(40), np.int64(1)], [np.int64(4190), np.int64(694)]]
+[[np.int64(47), np.int64(1)], [np.int64(4183), np.int64(694)]]
+[[np.int64(57), np.int64(5)], [np.int64(4173), np.int64(690)]]
+[[np.int64(61), np.int64(1)], [np.int64(4169), np.int64(694)]]
+[[np.int64(211), np.int64(47)], [np.int64(4019), np.int64(648)]]
+[[np.int64(11), np.int64(126)], [np.int64(658), np.int64(4130)]]
+[[np.int64(22), np.int64(152)], [np.int64(647), np.int64(4104)]]
+[[np.int64(4), np.int64(83)], [np.int64(665), np.int64(4173)]]
+[[np.int64(8), np.int64(46)], [np.int64(661), np.int64(4210)]]
+[[np.int64(17), np.int64(104)], [np.int64(652), np.int64(4152)]]
+[[np.int64(8), np.int64(103)], [np.int64(661), np.int64(4153)]]
+[[np.int64(1), np.int64(41)], [np.int64(668), np.int64(4215)]]
+[[np.int64(0), np.int64(58)], [np.int64(669), np.int64(4198)]]
+[[np.int64(4), np.int64(68)], [np.int64(665), np.int64(4188)]]
+[[np.int64(0), np.int64(65)], [np.int64(669), np.int64(4191)]]
+[[np.int64(50), np.int64(227)], [np.int64(619), np.int64(4029)]]
+[[np.int64(10), np.int64(147)], [np.int64(659), np.int64(4109)]]
+[[np.int64(24), np.int64(152)], [np.int64(645), np.int64(4104)]]
+[[np.int64(4), np.int64(83)], [np.int64(665), np.int64(4173)]]
+[[np.int64(8), np.int64(49)], [np.int64(661), np.int64(4207)]]
+[[np.int64(16), np.int64(99)], [np.int64(653), np.int64(4157)]]
+[[np.int64(8), np.int64(106)], [np.int64(661), np.int64(4150)]]
+[[np.int64(1), np.int64(43)], [np.int64(668), np.int64(4213)]]
+[[np.int64(0), np.int64(50)], [np.int64(669), np.int64(4206)]]
+[[np.int64(4), np.int64(61)], [np.int64(665), np.int64(4195)]]
+[[np.int64(2), np.int64(68)], [np.int64(667), np.int64(4188)]]
+[[np.int64(46), np.int64(221)], [np.int64(623), np.int64(4035)]]
+[[np.int64(10), np.int64(122)], [np.int64(659), np.int64(4134)]]
+[[np.int64(22), np.int64(143)], [np.int64(647), np.int64(4113)]]
+[[np.int64(4), np.int64(81)], [np.int64(665), np.int64(4175)]]
+[[np.int64(8), np.int64(46)], [np.int64(661), np.int64(4210)]]
+[[np.int64(16), np.int64(97)], [np.int64(653), np.int64(4159)]]
+[[np.int64(8), np.int64(99)], [np.int64(661), np.int64(4157)]]
+[[np.int64(1), np.int64(40)], [np.int64(668), np.int64(4216)]]
+[[np.int64(0), np.int64(48)], [np.int64(669), np.int64(4208)]]
+[[np.int64(4), np.int64(58)], [np.int64(665), np.int64(4198)]]
+[[np.int64(0), np.int64(62)], [np.int64(669), np.int64(4194)]]
+[[np.int64(46), np.int64(212)], [np.int64(623), np.int64(4044)]]
+[[np.int64(1), np.int64(136)], [np.int64(25), np.int64(4763)]]
+[[np.int64(1), np.int64(173)], [np.int64(25), np.int64(4726)]]
+[[np.int64(3), np.int64(84)], [np.int64(23), np.int64(4815)]]
+[[np.int64(1), np.int64(53)], [np.int64(25), np.int64(4846)]]
+[[np.int64(0), np.int64(121)], [np.int64(26), np.int64(4778)]]
+[[np.int64(1), np.int64(110)], [np.int64(25), np.int64(4789)]]
+[[np.int64(0), np.int64(42)], [np.int64(26), np.int64(4857)]]
+[[np.int64(1), np.int64(57)], [np.int64(25), np.int64(4842)]]
+[[np.int64(1), np.int64(71)], [np.int64(25), np.int64(4828)]]
+[[np.int64(1), np.int64(64)], [np.int64(25), np.int64(4835)]]
+[[np.int64(1), np.int64(276)], [np.int64(25), np.int64(4623)]]
+[[np.int64(2), np.int64(155)], [np.int64(24), np.int64(4744)]]
+[[np.int64(1), np.int64(175)], [np.int64(25), np.int64(4724)]]
+[[np.int64(2), np.int64(85)], [np.int64(24), np.int64(4814)]]
+[[np.int64(1), np.int64(56)], [np.int64(25), np.int64(4843)]]
+[[np.int64(0), np.int64(115)], [np.int64(26), np.int64(4784)]]
+[[np.int64(1), np.int64(113)], [np.int64(25), np.int64(4786)]]
+[[np.int64(0), np.int64(44)], [np.int64(26), np.int64(4855)]]
+[[np.int64(1), np.int64(49)], [np.int64(25), np.int64(4850)]]
+[[np.int64(1), np.int64(64)], [np.int64(25), np.int64(4835)]]
+[[np.int64(1), np.int64(69)], [np.int64(25), np.int64(4830)]]
+[[np.int64(3), np.int64(264)], [np.int64(23), np.int64(4635)]]
+[[np.int64(1), np.int64(131)], [np.int64(25), np.int64(4768)]]
+[[np.int64(1), np.int64(164)], [np.int64(25), np.int64(4735)]]
+[[np.int64(2), np.int64(83)], [np.int64(24), np.int64(4816)]]
+[[np.int64(1), np.int64(53)], [np.int64(25), np.int64(4846)]]
+[[np.int64(0), np.int64(113)], [np.int64(26), np.int64(4786)]]
+[[np.int64(1), np.int64(106)], [np.int64(25), np.int64(4793)]]
+[[np.int64(0), np.int64(41)], [np.int64(26), np.int64(4858)]]
+[[np.int64(1), np.int64(47)], [np.int64(25), np.int64(4852)]]
+[[np.int64(1), np.int64(61)], [np.int64(25), np.int64(4838)]]
+[[np.int64(1), np.int64(61)], [np.int64(25), np.int64(4838)]]
+[[np.int64(1), np.int64(257)], [np.int64(25), np.int64(4642)]]
+-----
+numpy               2.2.6
+pandas              2.3.3
+pyhere              1.0.3
+scipy               1.16.2
+session_info        v1.0.1
+statsmodels         0.14.5
+-----
+Python 3.11.13 | packaged by conda-forge | (main, Jun  4 2025, 14:48:23) [GCC 13.3.0]
+Linux-4.18.0-553.64.1.el8_10.x86_64-x86_64-with-glibc2.28
+-----
+Session information updated at 2026-05-29 13:39
+2026-05-29 13:39:40 - **** Job ends ****
