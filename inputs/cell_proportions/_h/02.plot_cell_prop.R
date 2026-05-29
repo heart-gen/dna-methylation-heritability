@@ -117,6 +117,60 @@ plot_stack <- function(cell_prop){
     return(combined)
 }
 
+plot_box <- function(cell_prop){
+
+  cell_type_colors <- c(
+    "Astro"  = "#E64B35", 
+    "Excit"  = "#4DBBD5", 
+    "Immune" = "#91D1C2",
+    "Inhib"  = "#00A087", 
+    "Micro"  = "#6B6ECF", 
+    "D1-SPN" = "#7E6148",
+    "D2-SPN" = "#B09C85", 
+    "Mural"  = "#DC91C0", 
+    "Oligo"  = "#3C5488",
+    "OPC"    = "#F39B7F"
+    )
+    celltype_order <- names(cell_type_colors)
+
+    cell_prop <- cell_prop |>
+        mutate(cell_type = factor(cell_type, levels = celltype_order))
+
+    donor_group_colors <- c(
+    "BA" = "#a52a2a66",
+    "WA" = "#0000ff66"
+    )
+
+    p <- ggplot(cell_prop, aes(x = cell_type, y = proportion, fill = cell_type)) +
+        geom_boxplot(
+          width = 0.7,
+          alpha = 0.8,
+          outlier.shape = NA
+        ) +
+        geom_point(
+          aes(color = donor_group),
+          position = position_jitterdodge(
+            jitter.width = 0.2,
+            dodge.width = 0.4
+          ),
+          size = 1,
+          alpha = 0.2
+        ) +
+        scale_fill_manual(values = cell_type_colors, name = "Cell Type",
+                          drop = TRUE) +
+        scale_color_manual(values = donor_group_colors, name = "Donor Group") +
+        labs(x = "Cell Type", y = "Proportion") +
+        theme_bw(base_size = 18) +
+        theme(strip.background   = element_blank(),
+              axis.text.x = element_text(angle = 35, hjust = 1),
+              panel.grid.major.x = element_blank(),
+              panel.grid.minor   = element_blank(),
+              plot.title = element_text(hjust = 0.5, face = "bold"),
+              plot.margin = margin(5, 5, 0, 5))
+    
+    return(p)
+}
+
 save_plot <- function(p, fn, w, h){
   for(ext in c('.png', '.pdf')){
     ggsave(file=paste0(fn, ext), plot=p, width=w, height=h)
@@ -154,10 +208,13 @@ for (tissue in c("caudate", "dlpfc", "hippocampus")) {
 
   summarize_prop(prop_df, tissue, out_path)
 
-  p <- plot_stack(prop_df)
-  p_fn <- file.path(out_path, paste0("music_proportions_stacked-", tissue))
-  save_plot(p, p_fn, 12, 6)
+  p_stack <- plot_stack(prop_df)
+  stacked_fn <- file.path(out_path, paste0("music_proportions_stacked-", tissue))
+  save_plot(p_stack, stacked_fn, 12, 6)
 
+  p_box <- plot_box(prop_df)
+  box_fn <- file.path(out_path, paste0("music_proportions_box-", tissue))
+  save_plot(p_box, box_fn, 8, 6)
 }
 
 #### Reproducibility information ####
