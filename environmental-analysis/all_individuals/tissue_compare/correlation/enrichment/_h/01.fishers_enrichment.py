@@ -79,7 +79,7 @@ def get_matching_enet(tissue):
 
 @lru_cache()
 def get_vmrs(tissue, env, pop, cat=None):
-    fn = here(f"environmental-analysis/all_individuals/{tissue.lower()}/correlation/_m/{env.lower()}_logit-{pop}.csv.gz")
+    fn = here(f"environmental-analysis/all_individuals/{tissue.lower()}/correlation/_m/{env.lower()}_linear-{pop}.csv.gz")
 
     print(f"[VMR LOAD] tissue={tissue} env={env} pop={pop}")
     print(f"[VMR FILE] {fn}")
@@ -89,7 +89,7 @@ def get_vmrs(tissue, env, pop, cat=None):
     if cat is not None:
         vmrs = vmrs[vmrs['var'] == f"{env}{cat}"]
 
-    vmrs['test'] = 'logit'
+    vmrs['test'] = 'linear'
     vmrs['sig'] = vmrs['p'] < 0.05
 
     print(f"[VMR] sig counts:\n{vmrs['sig'].value_counts()}")
@@ -128,7 +128,7 @@ def merge_dataframe(tissue, env, pop, cat=None):
     df = merged.pivot_table(values='sig', columns='test', fill_value=0,
                          index=['chr', 'start', 'end'])
     
-    df["both"] = ((df['logit'] == 1) & (df['dmr'] == 1)).astype(int)
+    df["both"] = ((df['linear'] == 1) & (df['dmr'] == 1)).astype(int)
     
     return df.merge(get_matching_enet(tissue), 
                     left_on=['chr', 'start', 'end'],
@@ -149,7 +149,7 @@ def calculate_enrichment(pop):
     region_lt = []; h2_lt = []; test_lt = []; fdr_lt = []; pval_lt = []; oddratio_lt = []; env_lt = []
 
     env_vars = ["smoking", "codeine", "morphine", "cocaine", "ethanol", 
-                "antipsychotics", "nicotine", "amphetamines", "any_trauma_hx"]
+                "nicotine", "amphetamines"]
 
     categorical_vars = {
         "education": ['less_than_hs', 'more_than_hs'],
@@ -159,7 +159,7 @@ def calculate_enrichment(pop):
     for tissue in ["Caudate", "Hippocampus", "DLPFC"]:
         for h2_cat in ["Heritable", "Non-heritable", "Low prediction"]:
             pvals = []
-            for test in ["Logit", "DMR", "Both"]:
+            for test in ["Linear", "DMR", "Both"]:
                 for env in env_vars:
                     odd_ratio, pval = cal_fishers_annot(tissue, test, h2_cat, pop, env, None)
                     pvals.append(pval); h2_lt.append(h2_cat)
