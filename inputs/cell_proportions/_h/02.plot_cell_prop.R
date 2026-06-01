@@ -119,19 +119,10 @@ plot_stack <- function(cell_prop){
 
 plot_box <- function(cell_prop){
 
-  cell_type_colors <- c(
-    "Astro"  = "#E64B35", 
-    "Excit"  = "#4DBBD5", 
-    "Immune" = "#91D1C2",
-    "Inhib"  = "#00A087", 
-    "Micro"  = "#6B6ECF", 
-    "D1-SPN" = "#7E6148",
-    "D2-SPN" = "#B09C85", 
-    "Mural"  = "#DC91C0", 
-    "Oligo"  = "#3C5488",
-    "OPC"    = "#F39B7F"
+    celltype_order <- c(
+    "Astro", "Excit", "Immune", "Inhib", "Micro", 
+    "D1-SPN", "D2-SPN", "Mural", "Oligo", "OPC"
     )
-    celltype_order <- names(cell_type_colors)
 
     cell_prop <- cell_prop |>
         mutate(cell_type = factor(cell_type, levels = celltype_order))
@@ -141,8 +132,10 @@ plot_box <- function(cell_prop){
     "WA" = "#0000ff66"
     )
 
-    p <- ggplot(cell_prop, aes(x = cell_type, y = proportion, fill = cell_type)) +
+    p <- ggplot(cell_prop, aes(x = cell_type, y = proportion)) +
         geom_boxplot(
+          color= "black",
+          fill = "grey60",
           width = 0.7,
           alpha = 0.8,
           outlier.shape = NA
@@ -154,10 +147,8 @@ plot_box <- function(cell_prop){
             dodge.width = 0.4
           ),
           size = 1,
-          alpha = 0.2
+          alpha = 0.6
         ) +
-        scale_fill_manual(values = cell_type_colors, name = "Cell Type",
-                          drop = TRUE) +
         scale_color_manual(values = donor_group_colors, name = "Donor Group") +
         labs(x = "Cell Type", y = "Proportion") +
         theme_bw(base_size = 18) +
