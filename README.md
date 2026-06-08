@@ -65,8 +65,8 @@ https://doi.org/10.5281/zenodo.20547606.
 
 | Tool | Use |
 |---|---|
-| R (≥4.1) | Data processing, VMR identification, visualization |
-| Python (≥3.9) | Supporting scripts and data wrangling |
+| R (≥4.4) | Data processing, VMR identification, visualization |
+| Python (≥3.10) | Supporting scripts and data wrangling |
 | [PLINK2](https://www.cog-genomics.org/plink/2.0/) | Genotype extraction and LD-based filtering |
 | [GENBoostGPU](https://github.com/heart-gen/GENBoostGPU) | GPU-accelerated elastic-net SNP heritability estimation |
 | [GCTA](https://yanglab.westlake.edu.cn/software/gcta/) | GREML-based heritability comparison |
