@@ -82,7 +82,7 @@ Pipeline steps are designed for SLURM-based HPC systems. Submission scripts
 If you use this code or data, please cite:
 
 ```
-Bennett A, Johnson EK, Terry NN, Hemphill J, Benjamin KJM.
+Bennett A, Johnson EK, Terry NN, Hemphill J, and Kynon JM Benjamin.
 Local SNP-explained methylation variation reveals genetically anchored and
 exposure-associated methylation architecture in the human brain.
 bioRxiv (2026). DOI: pending
