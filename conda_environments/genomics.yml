@@ -1,0 +1,41 @@
+name: genomics
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  # ---- Core system ----
+  - libstdcxx-ng
+  - ipykernel
+  - python=3.11
+  - cython
+  - openssl
+  - bzip2
+  - ca-certificates
+  - zlib
+  - xz
+  - lz4
+  - ncurses
+  - readline
+
+  # ---- Python scientific stack ----
+  - numpy<2.3
+  - pandas
+  - polars
+  - h5py
+  - scipy
+  - scikit-learn
+  - statsmodels
+  - pyarrow
+  - matplotlib
+  - seaborn
+  - tqdm
+  - tabulate
+
+  # ---- Genomic packages ----
+  - bcftools
+  - samtools
+  - pigz
+  - seqtk
+  - plink2
+  - admixture

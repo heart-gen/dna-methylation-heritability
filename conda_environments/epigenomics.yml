@@ -1,0 +1,56 @@
+name: epigenomics
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  # ---- Core system libraries ----
+  - r-base=4.4.*
+  - r-essentials
+  - r-cairo
+  - r-nloptr
+  - r-pgenlibr
+  - openssl
+  - libcurl
+  - libxml2
+  - xz
+  - zlib
+
+  # ---- R (CRAN/Bioconductor) packages ----
+  - bioconductor-rtracklayer
+  - bioconductor-gwascat
+  - bioconductor-impute
+  - bioconductor-illuminahumanmethylation450kmanifest
+  - bioconductor-illuminahumanmethylation450kanno.ilmn12.hg19
+  - bioconductor-m3c
+  - bioconductor-bsgenome.hsapiens.ucsc.hg38
+  - r-here
+  - r-glmnet
+  - r-bigsnpr
+  - r-bigstatsr
+  - r-sessioninfo
+  - r-data.table
+  - r-tidyverse
+  - r-ggplot2
+  - r-ggpubr
+  - r-circlize
+  - r-rcolorbrewer
+  - r-memoise
+  - r-rstatix
+  - r-matrixstats
+  - r-genio
+  - r-pheatmap
+  - r-susier
+  - r-emmeans
+  - r-ggvenn
+  - r-ordinal
+
+  # ---- Python core ----
+  - python=3.12
+  - numpy
+  - polars
+  - pandas
+  - scipy
+  - scikit-learn
+  - statsmodels
+  - pysam
