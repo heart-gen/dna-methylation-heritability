@@ -8,7 +8,7 @@ Analysis code for the manuscript:
 > Alexis Bennett, Elisa Kain Johnson, Nia N. Terry, Jalil Hemphill,
 > Kynon J.M. Benjamin†
 >
-> *bioRxiv* (2026). DOI: *pending screening*
+> *bioRxiv* (2026). DOI: [10.64898/2026.06.05.730443](https://doi.org/10.64898/2026.06.05.730443).
 >
 > † Corresponding author: kynon.benjamin@northwestern.edu
 
@@ -65,8 +65,8 @@ https://doi.org/10.5281/zenodo.20547606.
 
 | Tool | Use |
 |---|---|
-| R (≥4.1) | Data processing, VMR identification, visualization |
-| Python (≥3.9) | Supporting scripts and data wrangling |
+| R (≥4.4) | Data processing, VMR identification, visualization |
+| Python (≥3.10) | Supporting scripts and data wrangling |
 | [PLINK2](https://www.cog-genomics.org/plink/2.0/) | Genotype extraction and LD-based filtering |
 | [GENBoostGPU](https://github.com/heart-gen/GENBoostGPU) | GPU-accelerated elastic-net SNP heritability estimation |
 | [GCTA](https://yanglab.westlake.edu.cn/software/gcta/) | GREML-based heritability comparison |
@@ -82,8 +82,8 @@ Pipeline steps are designed for SLURM-based HPC systems. Submission scripts
 If you use this code or data, please cite:
 
 ```
-Bennett A, Johnson EK, Terry NN, Hemphill J, Benjamin KJM.
+Bennett A, Johnson EK, Terry NN, Hemphill J, and Kynon JM Benjamin.
 Local SNP-explained methylation variation reveals genetically anchored and
 exposure-associated methylation architecture in the human brain.
-bioRxiv (2026). DOI: pending
+bioRxiv (2026). DOI: 10.64898/2026.06.05.730443.
 ```
