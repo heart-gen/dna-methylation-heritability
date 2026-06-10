@@ -1,0 +1,25 @@
+cohort	tissue	population	feature_type	comparison	outcome	test	statistic	p_value	term	estimate	conf.low	conf.high	fdr
+Discovery	caudate	AA	gene	HighSNP_vs_lowSNP	log_nearest_distance	wilcoxon	18247809.5	1.78790871414048e-36					4.76775657104128e-36
+Discovery	caudate	AA	gene	HighSNP_vs_lowSNP_adjusted	within_10kb	logistic		4.86447789827025e-22	h2_category_low_SNP	2.2805095766437	1.93104003051187	2.69948521862683	7.78316463723239e-22
+Discovery	caudate	AA	gene	HighSNP_vs_lowSNP_adjusted	within_100kb	logistic		0.000172804224719614	h2_category_low_SNP	7.51435891010286	2.93419414891765	25.4781568926479	0.000172804224719614
+Discovery	caudate	AA	gene	h2_quintile	log_nearest_distance	kruskal	296.488971696948	6.19635252182891e-63					4.95708201746313e-62
+Discovery	caudate	AA	psi	HighSNP_vs_lowSNP	log_nearest_distance	wilcoxon	18476044	2.798799042689e-24					5.597598085378e-24
+Discovery	caudate	AA	psi	HighSNP_vs_lowSNP_adjusted	within_10kb	logistic		7.7421081530173e-17	h2_category_low_SNP	1.42904232782558	1.31397800898777	1.55420635123095	1.03228108706897e-16
+Discovery	caudate	AA	psi	HighSNP_vs_lowSNP_adjusted	within_100kb	logistic		5.4892227625612e-13	h2_category_low_SNP	2.31439072447443	1.84682446435447	2.91525655478924	6.27339744292708e-13
+Discovery	caudate	AA	psi	h2_quintile	log_nearest_distance	kruskal	235.436972399992	8.91311224108879e-50					3.56524489643552e-49
+Discovery	dlpfc	AA	gene	HighSNP_vs_lowSNPlog_nearest_distance	wilcoxon	11393585.5	0.0112442342861178					0.0224884685722357
+Discovery	dlpfc	AA	gene	HighSNP_vs_lowSNP_adjusted	within_10kb	logistic		0.0189015755516045	h2_category_low_SNP	1.235291017862	1.0364555661111	1.47532006766664	0.0302425208825673
+Discovery	dlpfc	AA	gene	HighSNP_vs_lowSNP_adjusted	within_100kb	logistic		0.207811452493563	h2_category_low_SNP	1.77230306309932	0.755632244245707	4.6220827842802	0.207811452493563
+Discovery	dlpfc	AA	gene	h2_quintile	log_nearest_distance	kruskal	28.2654613211889	1.10192075256524e-05					8.81536602052191e-05
+Discovery	dlpfc	AA	psi	HighSNP_vs_lowSNP	log_nearest_distance	wilcoxon	11486824	0.00998084150996023					0.0224884685722357
+Discovery	dlpfc	AA	psi	HighSNP_vs_lowSNP_adjusted	within_10kb	logistic		0.045579954396294	h2_category_low_SNP	1.09706341954847	1.00191487076463	1.20148506537631	0.060773272528392
+Discovery	dlpfc	AA	psi	HighSNP_vs_lowSNP_adjusted	within_100kb	logistic		0.175082545734454	h2_category_low_SNP	1.17767991034775	0.931190749434947	1.49478329069968	0.200094337982233
+Discovery	dlpfc	AA	psi	h2_quintile	log_nearest_distance	kruskal	21.7681257526522	0.000222882768193847					0.000891531072775389
+Discovery	hippocampus	AA	gene	HighSNP_vs_lowSNP	log_nearest_distance	wilcoxon	12297763	8.72217637162887e-06					2.32591369910103e-05
+Discovery	hippocampus	AA	gene	HighSNP_vs_lowSNP_adjusted	within_10kb	logistic		0.00208923619043439	h2_category_low_SNP	1.32971717814762	1.11018672903312	1.59639573462613	0.00278564825391251
+Discovery	hippocampus	AA	gene	HighSNP_vs_lowSNP_adjusted	within_100kb	logistic		0.232674057004421	h2_category_low_SNP	1.67866845338569	0.738050477535973	4.15026604465403	0.232674057004421
+Discovery	hippocampus	AA	gene	h2_quintile	log_nearest_distance	kruskal	54.9081757999347	3.39614158877196e-11					1.35845663550878e-10
+Discovery	hippocampus	AA	psi	HighSNP_vs_lowSNP	log_nearest_distance	wilcoxon	12313707.5	0.000975886708361392					0.00186528235787261
+Discovery	hippocampus	AA	psi	HighSNP_vs_lowSNP_adjusted	within_10kb	logistic		0.00116580147367038	h2_category_low_SNP	1.16169198776422	1.06131566510936	1.27182808303501	0.00186528235787261
+Discovery	hippocampus	AA	psi	HighSNP_vs_lowSNP_adjusted	within_100kb	logistic		0.119727887134261	h2_category_low_SNP	1.19807920045398	0.95541670228474	1.50703312959792	0.136831871010585
+Discovery	hippocampus	AA	psi	h2_quintile	log_nearest_distance	kruskal	58.1327687475075	7.15666787191436e-12					5.72533429753149e-11

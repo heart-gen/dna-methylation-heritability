@@ -1,0 +1,19 @@
+cohort	tissue	population	feature_type	h2_category	n_vmrs	median_distance	q25_distance	q75_distance	prop_within_10kb	prop_within_100kb
+Discovery	caudate	AA	gene	High-SNP	5069	0	0	0	0.912211481554547	0.993292562635628
+Discovery	caudate	AA	gene	Low-SNP	6605	0	0	0	0.965177895533687	0.999394398183195
+Discovery	caudate	AA	gene	Low prediction	67	0	0	0	0.895522388059702	1
+Discovery	caudate	AA	psi	High-SNP	5069	884	0	17242	0.682974945748668	0.949694219767212
+Discovery	caudate	AA	psi	Low-SNP	6605	3	0	8625	0.767146101438304	0.982134746404239
+Discovery	caudate	AA	psi	Low prediction	67	0	0	34769.5	0.73134328358209	0.835820895522388
+Discovery	dlpfc	AA	gene	High-SNP	5343	0	0	0	0.936365337825192	0.99681826689126
+Discovery	dlpfc	AA	gene	Low-SNP	4179	0	0	0	0.94879157693228	0.998324958123953
+Discovery	dlpfc	AA	gene	Low prediction	42	0	0	3038.25	0.857142857142857	0.976190476190476
+Discovery	dlpfc	AA	psi	High-SNP	5343	319	0	13439	0.712895377128954	0.966311061201572
+Discovery	dlpfc	AA	psi	Low-SNP	4179	4	0	11410.5	0.733189758315386	0.971763579803781
+Discovery	dlpfc	AA	psi	Low prediction	42	1833	0	108652.25	0.595238095238095	0.738095238095238
+Discovery	hippocampus	AA	gene	High-SNP	5390	0	0	0	0.939703153988868	0.996846011131725
+Discovery	hippocampus	AA	gene	Low-SNP	4409	0	0	0	0.954865048763892	0.998185529598548
+Discovery	hippocampus	AA	gene	Low prediction	39	0	0	3991	0.846153846153846	0.948717948717949
+Discovery	hippocampus	AA	psi	High-SNP	5390	271	0	13050	0.717996289424861	0.96456400742115
+Discovery	hippocampus	AA	psi	Low-SNP	4409	0	0	10121	0.748922658199138	0.970741664776593
+Discovery	hippocampus	AA	psi	Low prediction	39	7959	0	117004	0.512820512820513	0.692307692307692
