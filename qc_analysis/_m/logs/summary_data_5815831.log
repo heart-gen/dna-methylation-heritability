@@ -1,0 +1,88 @@
+2026-04-20 15:14:55 - **** Job starts ****
+**** Quest info ****
+User: ecy5537
+Job id: 5815831
+Job name: qc
+Node name: 
+Hostname: qnode0151
+SLURM_ARRAY_TASK_ID: N/A
+No modules loaded
+2026-04-20 15:14:55 - **** Run summary ****
+[31m
+
+processing file: qc_dlpfc_final.qmd
+[39m1/45                         
+2/45 [setup]                 
+3/45                         
+4/45 [load-data]             
+5/45                         
+6/45 [phenotype-overview]    
+7/45                         
+8/45 [sample-table]          
+9/45                         
+10/45 [coverage-calculation]  
+11/45                         
+12/45 [fig-coverage-barplot]  
+13/45                         
+14/45 [low-coverage-samples]  
+15/45                         
+16/45 [cpg-coverage]          
+17/45                         
+18/45 [fig-cpg-coverage-hist] 
+19/45                         
+20/45 [methylation-extraction]
+21/45                         
+22/45 [fig-meth-histograms]   
+23/45                         
+24/45 [fig-meth-density]      
+25/45                         
+26/45 [correlation-matrix]    
+27/45                         
+28/45 [outlier-detection]     
+29/45                         
+30/45 [cpg-filtering]         
+31/45                         
+32/45 [pca-analysis]          
+33/45                         
+34/45 [fig-pca-diagnosis]     
+35/45                         
+36/45 [qc-summary-table]      
+37/45                         
+38/45 [samples-review]        
+39/45                         
+40/45 [save-results]          
+41/45                         
+42/45 [unnamed-chunk-1]       
+43/45                         
+44/45 [session-info]          
+45/45                         
+[31moutput file: qc_dlpfc_final.knit.md
+
+[39m[1mpandoc [22m
+  to: html
+  output-file: qc_dlpfc_final.html
+  standalone: true
+  self-contained: true
+  section-divs: true
+  html-math-method: mathjax
+  wrap: none
+  default-image-extension: png
+  toc: true
+  toc-depth: 3
+  variables: {}
+  
+[1mmetadata[22m
+  document-css: false
+  link-citations: true
+  date-format: long
+  lang: en
+  engines:
+    - path: /gpfs/projects/p32505/opt/quarto-1.9.35/share/extension-subtrees/julia-engine/_extensions/julia-engine/julia-engine.js
+  title: 'WGBS Quality Control: Dorsolateral Prefrontal Cortex (DLPFC)'
+  author: HEART-GeN Lab
+  theme: cosmo
+  
+Output created: qc_dlpfc_final.html
+
+
+2026-04-20 15:49:27 - **** Job ends ****
