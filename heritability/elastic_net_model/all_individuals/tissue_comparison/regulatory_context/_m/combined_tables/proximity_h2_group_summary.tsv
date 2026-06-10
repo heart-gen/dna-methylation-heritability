@@ -1,0 +1,37 @@
+cohort	tissue	population	vmr_set	feature_type	h2_category	n_vmrs	median_distance	q25_distance	q75_distance	prop_within_10kb	prop_within_100kb
+Replication	caudate	BA	shared	gene	High-SNP	3488	0	0	71.25	0.885321100917431	0.98881880733945
+Replication	caudate	BA	shared	gene	Low-SNP	3706	0	0	0	0.963842417701025	0.999190501888829
+Replication	caudate	BA	shared	gene	Low prediction	110	0	0	0	0.936363636363636	1
+Replication	caudate	BA	shared	psi	High-SNP	3488	1607	0	23580.75	0.63704128440367	0.922018348623853
+Replication	caudate	BA	shared	psi	Low-SNP	3706	7.5	0	8631.75	0.767134376686454	0.981921208850513
+Replication	caudate	BA	shared	psi	Low prediction	110	0	0	8869.25	0.754545454545455	0.9
+Replication	caudate	WA	shared	gene	High-SNP	3488	0	0	71.25	0.885321100917431	0.98881880733945
+Replication	caudate	WA	shared	gene	Low-SNP	3706	0	0	0	0.963842417701025	0.999190501888829
+Replication	caudate	WA	shared	gene	Low prediction	110	0	0	0	0.936363636363636	1
+Replication	caudate	WA	shared	psi	High-SNP	3488	1607	0	23580.75	0.63704128440367	0.922018348623853
+Replication	caudate	WA	shared	psi	Low-SNP	3706	7.5	0	8631.75	0.767134376686454	0.981921208850513
+Replication	caudate	WA	shared	psi	Low prediction	110	0	0	8869.25	0.754545454545455	0.9
+Replication	dlpfc	BA	shared	gene	High-SNP	4264	0	0	0	0.955206378986867	0.99812382739212
+Replication	dlpfc	BA	shared	gene	Low-SNP	690	0	0	0	0.957971014492754	0.998550724637681
+Replication	dlpfc	BA	shared	gene	Low prediction	28	0	0	0	0.964285714285714	1
+Replication	dlpfc	BA	shared	psi	High-SNP	4264	0	0	10675.75	0.741322701688555	0.972326454033771
+Replication	dlpfc	BA	shared	psi	Low-SNP	690	51	0	9020.75	0.763768115942029	0.973913043478261
+Replication	dlpfc	BA	shared	psi	Low prediction	28	7.5	0	13846.25	0.75	0.785714285714286
+Replication	dlpfc	WA	shared	gene	High-SNP	4264	0	0	0	0.955206378986867	0.99812382739212
+Replication	dlpfc	WA	shared	gene	Low-SNP	690	0	0	0	0.957971014492754	0.998550724637681
+Replication	dlpfc	WA	shared	gene	Low prediction	28	0	0	0	0.964285714285714	1
+Replication	dlpfc	WA	shared	psi	High-SNP	4264	0	0	10675.75	0.741322701688555	0.972326454033771
+Replication	dlpfc	WA	shared	psi	Low-SNP	690	51	0	9020.75	0.763768115942029	0.973913043478261
+Replication	dlpfc	WA	shared	psi	Low prediction	28	7.5	0	13846.25	0.75	0.785714285714286
+Replication	hippocampus	BA	shared	gene	High-SNP	4327	0	0	0	0.937832216316154	0.99676450196441
+Replication	hippocampus	BA	shared	gene	Low-SNP	638	0	0	0	0.957680250783699	0.998432601880878
+Replication	hippocampus	BA	shared	gene	Low prediction	44	0	0	1798.5	0.818181818181818	0.977272727272727
+Replication	hippocampus	BA	shared	psi	High-SNP	4327	242	0	14085	0.709267390801941	0.963253986595794
+Replication	hippocampus	BA	shared	psi	Low-SNP	638	0	0	6989	0.780564263322884	0.973354231974922
+Replication	hippocampus	BA	shared	psi	Low prediction	44	678.5	0	161388.5	0.590909090909091	0.636363636363636
+Replication	hippocampus	WA	shared	gene	High-SNP	4327	0	0	0	0.937832216316154	0.99676450196441
+Replication	hippocampus	WA	shared	gene	Low-SNP	638	0	0	0	0.957680250783699	0.998432601880878
+Replication	hippocampus	WA	shared	gene	Low prediction	44	0	0	1798.5	0.818181818181818	0.977272727272727
+Replication	hippocampus	WA	shared	psi	High-SNP	4327	242	0	14085	0.709267390801941	0.963253986595794
+Replication	hippocampus	WA	shared	psi	Low-SNP	638	0	0	6989	0.780564263322884	0.973354231974922
+Replication	hippocampus	WA	shared	psi	Low prediction	44	678.5	0	161388.5	0.590909090909091	0.636363636363636

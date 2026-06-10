@@ -1,0 +1,19 @@
+cohort	tissue	population	vmr_set	modality	run_tag	h2_category	n_vmrs	n_any_fdr05	n_any_fdr10	prop_any_fdr05	prop_any_fdr10	median_max_abs_beta	median_pairs_tested
+Replication	caudate	BA	shared	expression_nearest_gene	nearest_gene_window_250kb	High-SNP	2747	249	305	0.0906443392792137	0.11103021477976	0.158627052096346	1
+Replication	caudate	BA	shared	expression_nearest_gene	nearest_gene_window_250kb	Low-SNP	3260	150	207	0.0460122699386503	0.0634969325153374	0.181533468306198	1
+Replication	caudate	BA	shared	expression_nearest_gene	nearest_gene_window_250kb	Low prediction	79	7	7	0.0886075949367089	0.0886075949367089	0.278677094171041	1
+Replication	caudate	WA	shared	expression_nearest_gene	nearest_gene_window_250kb	High-SNP	2747	249	305	0.0906443392792137	0.11103021477976	0.158627052096346	1
+Replication	caudate	WA	shared	expression_nearest_gene	nearest_gene_window_250kb	Low-SNP	3260	150	207	0.0460122699386503	0.0634969325153374	0.181533468306198	1
+Replication	caudate	WA	shared	expression_nearest_gene	nearest_gene_window_250kb	Low prediction	79	7	7	0.0886075949367089	0.0886075949367089	0.278677094171041	1
+Replication	dlpfc	BA	shared	expression_nearest_gene	nearest_gene_window_250kb	High-SNP	3679	85	96	0.0231041043761892	0.0260940472954607	0.120041485553051	1
+Replication	dlpfc	BA	shared	expression_nearest_gene	nearest_gene_window_250kb	Low-SNP	606	4	4	0.0066006600660066	0.0066006600660066	0.11778546639836	1
+Replication	dlpfc	BA	shared	expression_nearest_gene	nearest_gene_window_250kb	Low prediction	9	1	2	0.111111111111111	0.222222222222222	0.13325091962405	1
+Replication	dlpfc	WA	shared	expression_nearest_gene	nearest_gene_window_250kb	High-SNP	3679	85	96	0.0231041043761892	0.0260940472954607	0.120041485553051	1
+Replication	dlpfc	WA	shared	expression_nearest_gene	nearest_gene_window_250kb	Low-SNP	606	4	4	0.0066006600660066	0.0066006600660066	0.11778546639836	1
+Replication	dlpfc	WA	shared	expression_nearest_gene	nearest_gene_window_250kb	Low prediction	9	1	2	0.111111111111111	0.222222222222222	0.13325091962405	1
+Replication	hippocampus	BA	shared	expression_nearest_gene	nearest_gene_window_250kb	High-SNP	3593	89	116	0.0247703868633454	0.0322849986084052	0.190340139342857	1
+Replication	hippocampus	BA	shared	expression_nearest_gene	nearest_gene_window_250kb	Low-SNP	542	5	8	0.00922509225092251	0.014760147601476	0.211555615229507	1
+Replication	hippocampus	BA	shared	expression_nearest_gene	nearest_gene_window_250kb	Low prediction	17	3	6	0.176470588235294	0.352941176470588	0.164552171191922	1
+Replication	hippocampus	WA	shared	expression_nearest_gene	nearest_gene_window_250kb	High-SNP	3593	89	116	0.0247703868633454	0.0322849986084052	0.190340139342857	1
+Replication	hippocampus	WA	shared	expression_nearest_gene	nearest_gene_window_250kb	Low-SNP	542	5	8	0.00922509225092251	0.014760147601476	0.211555615229507	1
+Replication	hippocampus	WA	shared	expression_nearest_gene	nearest_gene_window_250kb	Low prediction	17	3	6	0.176470588235294	0.352941176470588	0.164552171191922	1
