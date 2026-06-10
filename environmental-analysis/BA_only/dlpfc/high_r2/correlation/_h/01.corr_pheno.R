@@ -47,9 +47,9 @@ for (vmr in feature_ids) {
 
   # Test control variables
   cov_model <- as.formula(paste("meth ~", covars))
-  cov_logit <- glm(cov_model, data = vmr_merged)
+  cov_lm <- lm(cov_model, data = vmr_merged)
 
-  cov_summary <- as.data.frame(summary(cov_logit)$coefficients)
+  cov_summary <- as.data.frame(summary(cov_lm)$coefficients)
   cov_summary$var <- rownames(cov_summary)
   cov_summary <- cov_summary %>%
     filter(var != "(Intercept)") %>%
@@ -79,8 +79,8 @@ for (cov in cov_names){
   cov_filtered <- cov_results %>% filter(startsWith(var, cov))
 
   # Write results
-  out_cov_logit <- file.path(out_path, paste0(cov, "_logit.csv.gz"))
-  fwrite(cov_filtered, out_cov_logit)
+  out_cov_lm <- file.path(out_path, paste0(cov, "_linear.csv.gz"))
+  fwrite(cov_filtered, out_cov_lm)
 }
 
 ####### Environmental testing #########
@@ -102,17 +102,17 @@ for (env in testing_envs) {
   # Initialize results matrix
   env_results <- tibble()
 
-  # Grouped logistic regression
+  # Grouped linear regression
   for (vmr in feature_ids) {
-    print(paste("Running logistic regression on", vmr, "as a function of", env))
+    print(paste("Running linear regression on", vmr, "as a function of", env))
 
     vmr_merged <- merged_env %>% filter(feature_id == vmr)
 
     # Test environmental variables
     env_model <- as.formula(paste("meth ~", env, "+", covars))
-    env_logit <- glm(env_model, data = vmr_merged)
+    env_lm <- lm(env_model, data = vmr_merged)
 
-    env_summary <- as.data.frame(summary(env_logit)$coefficients)
+    env_summary <- as.data.frame(summary(env_lm)$coefficients)
     env_summary$var <- rownames(env_summary)
     env_summary <- env_summary %>%
       filter(grepl(paste0("^", env), var)) %>%
@@ -139,8 +139,8 @@ for (env in testing_envs) {
     inner_join(env_results, "feature_id")
 
   # Write results
-  out_logit <- file.path(out_path, paste0(env, "_logit.csv.gz"))
-  fwrite(env_results, out_logit)
+  out_lm <- file.path(out_path, paste0(env, "_linear.csv.gz"))
+  fwrite(env_results, out_lm)
 }
 
 #### Reproducibility ####
