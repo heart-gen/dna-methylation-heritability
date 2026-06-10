@@ -31,6 +31,6 @@ ENV_PATH="/projects/p32505/opt/envs"
 
 
 log_message "**** Run summary ****"
-conda run -p "${ENV_PATH}/epigenomics" quarto render ../_h/qc_hippocampus_final.qmd
+conda run -p "${ENV_PATH}/epigenomics" quarto render ../_h/02.qc_hippocampus.qmd
 
 log_message "**** Job ends ****"
