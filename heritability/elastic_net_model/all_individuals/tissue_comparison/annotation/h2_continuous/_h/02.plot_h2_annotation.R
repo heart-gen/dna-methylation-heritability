@@ -136,7 +136,7 @@ for (pop in POPULATIONS) {
       legend.direction = "vertical"
     )
 
-  save_plot(fig_a, paste0("h2_annotation_quintile_", pop), width = 7.2, height = 3.2)
+  save_plot(fig_a, paste0("h2_annotation_quintile_", pop), width = 5.8, height = 2.5)
 
   ## Figure B — Spline-predicted probabilities (supplemental)
 
