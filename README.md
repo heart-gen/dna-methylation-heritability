@@ -8,7 +8,7 @@ Analysis code for the manuscript:
 > Alexis Bennett, Elisa Kain Johnson, Nia N. Terry, Jalil Hemphill,
 > Kynon J.M. Benjamin†
 >
-> *bioRxiv* (2026). DOI: *pending screening*
+> *bioRxiv* (2026). DOI: [10.64898/2026.06.05.730443](https://doi.org/10.64898/2026.06.05.730443).
 >
 > † Corresponding author: kynon.benjamin@northwestern.edu
 
@@ -85,5 +85,5 @@ If you use this code or data, please cite:
 Bennett A, Johnson EK, Terry NN, Hemphill J, and Kynon JM Benjamin.
 Local SNP-explained methylation variation reveals genetically anchored and
 exposure-associated methylation architecture in the human brain.
-bioRxiv (2026). DOI: pending
+bioRxiv (2026). DOI: 10.64898/2026.06.05.730443.
 ```
