@@ -1,0 +1,49 @@
+cohort	tissue	population	vmr_set	feature_type	comparison	outcome	test	statistic	p_value	term	estimate	conf.low	conf.high	fdr
+Replication	caudate	BA	shared	gene	HighSNP_vs_lowSNP	log_nearest_distance	wilcoxon	7259875	3.09233552100523e-39					8.24622805601393e-39
+Replication	caudate	BA	shared	gene	HighSNP_vs_lowSNP_adjusted	within_10kb	logistic		4.99528673095383e-20	h2_category_low_SNP	2.67491828107453	2.17271130717724	3.31069790934318	7.99245876952612e-20
+Replication	caudate	BA	shared	gene	HighSNP_vs_lowSNP_adjusted	within_100kb	logistic		0.000794012370685285	h2_category_low_SNP	7.82602242683203	2.73781309906175	32.9970403618201	0.000794012370685285
+Replication	caudate	BA	shared	gene	h2_quintile	log_nearest_distance	kruskal	272.676877350832	8.4481286309544e-58					3.37925145238176e-57
+Replication	caudate	BA	shared	psi	HighSNP_vs_lowSNP	log_nearest_distance	wilcoxon	7399446.5	4.17172196351184e-29					8.34344392702369e-29
+Replication	caudate	BA	shared	psi	HighSNP_vs_lowSNP_adjusted	within_10kb	logistic		3.29480229220076e-18	h2_category_low_SNP	1.61210931083196	1.44783184638342	1.79540835989909	4.39306972293435e-18
+Replication	caudate	BA	shared	psi	HighSNP_vs_lowSNP_adjusted	within_100kb	logistic		5.86897038991143e-16	h2_category_low_SNP	3.23550923324639	2.44869634614703	4.32893573041756	6.70739473132735e-16
+Replication	caudate	BA	shared	psi	h2_quintile	log_nearest_distance	kruskal	281.217704721655	1.21742359918856e-59					9.7393887935085e-59
+Replication	caudate	WA	shared	gene	HighSNP_vs_lowSNP	log_nearest_distance	wilcoxon	7259875	3.09233552100523e-39					8.24622805601393e-39
+Replication	caudate	WA	shared	gene	HighSNP_vs_lowSNP_adjusted	within_10kb	logistic		4.81065038176783e-20	h2_category_low_SNP	2.67593538698887	2.17356271558223	3.3119162486037	7.69704061082852e-20
+Replication	caudate	WA	shared	gene	HighSNP_vs_lowSNP_adjusted	within_100kb	logistic		0.000913066689699126	h2_category_low_SNP	7.63181738288825	2.67250741197347	32.1608171886573	0.000913066689699126
+Replication	caudate	WA	shared	gene	h2_quintile	log_nearest_distance	kruskal	260.149948771777	4.23327198020662e-55					1.69330879208265e-54
+Replication	caudate	WA	shared	psi	HighSNP_vs_lowSNP	log_nearest_distance	wilcoxon	7399446.5	4.17172196351184e-29					8.34344392702369e-29
+Replication	caudate	WA	shared	psi	HighSNP_vs_lowSNP_adjusted	within_10kb	logistic		3.20145674603188e-18	h2_category_low_SNP	1.61239834095206	1.44809140902197	1.79573050152266	4.26860899470917e-18
+Replication	caudate	WA	shared	psi	HighSNP_vs_lowSNP_adjusted	within_100kb	logistic		6.59203682060156e-16	h2_category_low_SNP	3.22735643438581	2.44280603143089	4.31754267418226	7.53375636640179e-16
+Replication	caudate	WA	shared	psi	h2_quintile	log_nearest_distance	kruskal	280.748264799211	1.53694685150714e-59					1.22955748120571e-58
+Replication	dlpfc	BA	shared	gene	HighSNP_vs_lowSNP	log_nearest_distance	wilcoxon	1496149.5	0.245016633490065					0.490033266980129
+Replication	dlpfc	BA	shared	gene	HighSNP_vs_lowSNP_adjusted	within_10kb	logistic		0.695742858922629	h2_category_low_SNP	1.08341699947554	0.737092973754625	1.65023129715693	0.885153029796337
+Replication	dlpfc	BA	shared	gene	HighSNP_vs_lowSNP_adjusted	within_100kb	logistic		0.885153029796337	h2_category_low_SNP	1.1660952560824	0.211990587719629	21.7019882359127	0.885153029796337
+Replication	dlpfc	BA	shared	gene	h2_quintile	log_nearest_distance	kruskal	12.2019250287287	0.0159111974719242					0.127289579775393
+Replication	dlpfc	BA	shared	psi	HighSNP_vs_lowSNP	log_nearest_distance	wilcoxon	1463991.5	0.8278395264088					0.885153029796337
+Replication	dlpfc	BA	shared	psi	HighSNP_vs_lowSNP_adjusted	within_10kb	logistic		0.157146423571564	h2_category_low_SNP	1.14671901596503	0.950689800423968	1.3895623520889	0.490033266980129
+Replication	dlpfc	BA	shared	psi	HighSNP_vs_lowSNP_adjusted	within_100kb	logistic		0.818065772233115	h2_category_low_SNP	1.06107131731096	0.657396854351202	1.81601245154562	0.885153029796337
+Replication	dlpfc	BA	shared	psi	h2_quintile	log_nearest_distance	kruskal	5.81278438117497	0.213572707068427					0.490033266980129
+Replication	dlpfc	WA	shared	gene	HighSNP_vs_lowSNP	log_nearest_distance	wilcoxon	1496149.5	0.245016633490065					0.653377689306839
+Replication	dlpfc	WA	shared	gene	HighSNP_vs_lowSNP_adjusted	within_10kb	logistic		0.690935244667417	h2_category_low_SNP	1.08486010193779	0.738087648097201	1.65240680056818	0.874133865777709
+Replication	dlpfc	WA	shared	gene	HighSNP_vs_lowSNP_adjusted	within_100kb	logistic		0.874133865777709	h2_category_low_SNP	1.18349164741692	0.215385992575442	22.0187844026106	0.874133865777709
+Replication	dlpfc	WA	shared	gene	h2_quintile	log_nearest_distance	kruskal	11.7100560909145	0.0196427760125349					0.15714220810028
+Replication	dlpfc	WA	shared	psi	HighSNP_vs_lowSNP	log_nearest_distance	wilcoxon	1463991.5	0.8278395264088					0.874133865777709
+Replication	dlpfc	WA	shared	psi	HighSNP_vs_lowSNP_adjusted	within_10kb	logistic		0.169213955826007	h2_category_low_SNP	1.14223621093953	0.947032803705036	1.38403601545952	0.653377689306839
+Replication	dlpfc	WA	shared	psi	HighSNP_vs_lowSNP_adjusted	within_100kb	logistic		0.838123070981331	h2_category_low_SNP	1.05403580683108	0.653165591732523	1.80364829055999	0.874133865777709
+Replication	dlpfc	WA	shared	psi	h2_quintile	log_nearest_distance	kruskal	4.52985715795978	0.339021859551118					0.678043719102236
+Replication	hippocampus	BA	shared	gene	HighSNP_vs_lowSNP	log_nearest_distance	wilcoxon	1449368	0.00282323836598471					0.00451718138557554
+Replication	hippocampus	BA	shared	gene	HighSNP_vs_lowSNP_adjusted	within_10kb	logistic		0.0581357335012532	h2_category_low_SNP	1.48227091203676	1.00498734978331	2.27645728002098	0.0775143113350043
+Replication	hippocampus	BA	shared	gene	HighSNP_vs_lowSNP_adjusted	within_100kb	logistic		0.552061574000672	h2_category_low_SNP	1.85403293871202	0.369443194177292	33.7015373846478	0.552061574000672
+Replication	hippocampus	BA	shared	gene	h2_quintile	log_nearest_distance	kruskal	57.035369965445	1.21621139727128e-11					9.72969117817024e-11
+Replication	hippocampus	BA	shared	psi	HighSNP_vs_lowSNP	log_nearest_distance	wilcoxon	1504860	8.79832979052879e-05					0.000234622127747434
+Replication	hippocampus	BA	shared	psi	HighSNP_vs_lowSNP_adjusted	within_10kb	logistic		0.000137086143857934	h2_category_low_SNP	1.47622323680066	1.21173038063961	1.80886268161364	0.000274172287715868
+Replication	hippocampus	BA	shared	psi	HighSNP_vs_lowSNP_adjusted	within_100kb	logistic		0.305634030912631	h2_category_low_SNP	1.30469755745959	0.807815500597141	2.24947851582471	0.349296035328721
+Replication	hippocampus	BA	shared	psi	h2_quintile	log_nearest_distance	kruskal	47.8086661318646	1.03455830591195e-09					4.13823322364778e-09
+Replication	hippocampus	WA	shared	gene	HighSNP_vs_lowSNP	log_nearest_distance	wilcoxon	1449368	0.00282323836598471					0.00451718138557554
+Replication	hippocampus	WA	shared	gene	HighSNP_vs_lowSNP_adjusted	within_10kb	logistic		0.0552565626872886	h2_category_low_SNP	1.4895478826591	1.00972124899473	2.28802821017543	0.0736754169163848
+Replication	hippocampus	WA	shared	gene	HighSNP_vs_lowSNP_adjusted	within_100kb	logistic		0.560859220278663	h2_category_low_SNP	1.82882953377443	0.364548201493183	33.2387169188329	0.560859220278663
+Replication	hippocampus	WA	shared	gene	h2_quintile	log_nearest_distance	kruskal	28.5880144972084	9.47791521386324e-06					3.96469120758756e-05
+Replication	hippocampus	WA	shared	psi	HighSNP_vs_lowSNP	log_nearest_distance	wilcoxon	1504860	8.79832979052879e-05					0.000234622127747434
+Replication	hippocampus	WA	shared	psi	HighSNP_vs_lowSNP_adjusted	within_10kb	logistic		0.000136931187226621	h2_category_low_SNP	1.47629089839966	1.21177415895676	1.80896016378378	0.000273862374453242
+Replication	hippocampus	WA	shared	psi	HighSNP_vs_lowSNP_adjusted	within_100kb	logistic		0.309501088432735	h2_category_low_SNP	1.30198744583009	0.806069300675744	2.24494845790704	0.353715529637412
+Replication	hippocampus	WA	shared	psi	h2_quintile	log_nearest_distance	kruskal	28.4922333605928	9.9117280189689e-06					3.96469120758756e-05
