@@ -1,0 +1,10 @@
+cohort	tissue	population	modality	run_tag	h2_category	n_vmrs	n_any_fdr05	n_any_fdr10	prop_any_fdr05	prop_any_fdr10	median_max_abs_beta	median_pairs_tested
+Discovery	caudate	AA	expression_nearest_gene	nearest_gene_window_250kb	High-SNP	4111	170	217	0.0413524689856483	0.0527852104110922	0.225031115968936	1
+Discovery	caudate	AA	expression_nearest_gene	nearest_gene_window_250kb	Low-SNP	5794	133	196	0.0229547808077321	0.0338280980324474	0.265784547657656	1
+Discovery	caudate	AA	expression_nearest_gene	nearest_gene_window_250kb	Low prediction	35	7	7	0.2	0.2	0.389423120264048	1
+Discovery	dlpfc	AA	expression_nearest_gene	nearest_gene_window_250kb	High-SNP	4471	76	89	0.0169984343547305	0.0199060612838291	0.166852444935381	1
+Discovery	dlpfc	AA	expression_nearest_gene	nearest_gene_window_250kb	Low-SNP	3583	15	26	0.00418643594753	0.00725648897571867	0.168189074719354	1
+Discovery	dlpfc	AA	expression_nearest_gene	nearest_gene_window_250kb	Low prediction	12	5	5	0.416666666666667	0.416666666666667	1.3547314289856	1
+Discovery	hippocampus	AA	expression_nearest_gene	nearest_gene_window_250kb	High-SNP	4469	75	85	0.0167822779145223	0.0190199149697919	0.263657510266006	1
+Discovery	hippocampus	AA	expression_nearest_gene	nearest_gene_window_250kb	Low-SNP	3816	24	30	0.00628930817610063	0.00786163522012579	0.273936861287336	1
+Discovery	hippocampus	AA	expression_nearest_gene	nearest_gene_window_250kb	Low prediction	11	3	4	0.272727272727273	0.363636363636364	1.28624396950536	1

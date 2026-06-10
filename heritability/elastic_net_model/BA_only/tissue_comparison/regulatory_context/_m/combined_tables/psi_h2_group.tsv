@@ -1,0 +1,10 @@
+cohort	tissue	population	modality	run_tag	h2_category	n_vmrs	n_any_fdr05	n_any_fdr10	prop_any_fdr05	prop_any_fdr10	median_max_abs_beta	median_pairs_tested
+Discovery	caudate	AA	psi	window_250kb	High-SNP	4938	76	114	0.0153908464965573	0.023086269744836	2.75908970372824	64
+Discovery	caudate	AA	psi	window_250kb	Low-SNP	6579	37	63	0.00562395500835993	0.00957592339261286	3.27990569906741	77
+Discovery	caudate	AA	psi	window_250kb	Low prediction	62	0	1	0	0.0161290322580645	3.7153256302039	96
+Discovery	dlpfc	AA	psi	window_250kb	High-SNP	5291	18	31	0.0034020034020034	0.00585900585900586	2.12960711124128	51
+Discovery	dlpfc	AA	psi	window_250kb	Low-SNP	4158	11	17	0.00264550264550265	0.00408850408850409	2.13396883005228	49
+Discovery	dlpfc	AA	psi	window_250kb	Low prediction	40	0	0	0	0	2.8107838859829	132.5
+Discovery	hippocampus	AA	psi	window_250kb	High-SNP	5340	17	29	0.00318352059925094	0.00543071161048689	2.56485095328736	49
+Discovery	hippocampus	AA	psi	window_250kb	Low-SNP	4376	11	20	0.00251371115173675	0.00457038391224863	2.65075768992085	48
+Discovery	hippocampus	AA	psi	window_250kb	Low prediction	37	1	1	0.027027027027027	0.027027027027027	3.43633030478678	96

@@ -1,0 +1,7 @@
+cohort	tissue	population	modality	run_tag	h2_category	n_vmrs	n_any_fdr05	n_any_fdr10	prop_any_fdr05	prop_any_fdr10	median_max_abs_beta	median_pairs_tested
+Discovery	caudate	AA	expression	abc	High-SNP	34	2	2	0.0588235294117647	0.0588235294117647	0.390441999423628	1
+Discovery	caudate	AA	expression	abc	Low-SNP	50	1	1	0.02	0.02	0.43403778868223	1.5
+Discovery	dlpfc	AA	expression	abc	High-SNP	29	0	0	0	0	0.318834418987517	1
+Discovery	dlpfc	AA	expression	abc	Low-SNP	32	0	0	0	0	0.273276173017474	1
+Discovery	hippocampus	AA	expression	abc	High-SNP	38	1	1	0.0263157894736842	0.0263157894736842	0.454694832566802	1
+Discovery	hippocampus	AA	expression	abc	Low-SNP	25	0	0	0	0	0.640913803016034	2
