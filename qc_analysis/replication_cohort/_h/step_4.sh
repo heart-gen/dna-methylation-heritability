@@ -36,7 +36,7 @@ ENV_PATH="/projects/p32505/opt/envs"
 echo "**** Plot SNP PC1 vs. PC2 ****"
 
 ## Activate conda environment
-conda run -p $ENV_PATH/epigenomics Rscript ../_h/01.plot_pc.R
+conda run -p $ENV_PATH/epigenomics Rscript ../_h/04.plot_pc.R
 
 if [ $? -ne 0 ]; then
     log_message "Error: Conda or script execution failed"
