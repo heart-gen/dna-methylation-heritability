@@ -1,0 +1,72 @@
+# Analysis thresholds and decision criteria
+
+significance:
+  meqtl_fdr: 0.05
+  architecture_fdr: 0.05
+  external_validation_fdr: 0.05
+  transcription_integration_fdr: 0.05
+  scz_risk_variant_cpg_fdr: 0.05  # separate family from genome-wide meQTL
+
+matching:
+  method: nearest_neighbor
+  caliper_sd: 0.25
+  replace: false
+  balance_smd_max: 0.1
+
+external_meqtl:
+  primary_resource_id: brainseq_wgbs_meqtl
+  min_cpg_overlap_for_test: 1000
+  require_genome_build_harmonization: true
+  pool_incompatible_platforms: false
+
+cross_region:
+  downsample_caudate_to_match: true
+  compare_standardized_effects: true
+  shared_donor_analysis: true
+
+donor_group:
+  require_interaction_for_ancestry_claim: true
+  min_n_per_group_for_stratified: 50
+
+repeat_sensitivity:
+  high_mappability_min: 0.9
+  snp_proximity_bp: 150
+  exclude_segmental_duplications: true
+  consolidated_robustness_table: true
+
+phase2_validation_success:
+  burden_increases_with_predictability: required
+  survives_covariate_adjustment: required
+  survives_matched_analysis: required
+  direction_consistent_in_ge_2_regions: required
+  external_resource_support_ge_1: required
+
+phase7_scz:
+  status: deferred_until_phase1
+  primary_region: caudate
+  max_illustrative_loci: 5
+  ld_r2_proxy_min: 0.8
+  retain_in_main_if:
+    - ge_1_credible_risk_locus_with_cpg_meqtl
+    - enrichment_toward_higher_predictability_or_interpretable_contrast
+    - ge_1_locus_with_expression_or_splicing_coupling
+    - caudate_not_explained_solely_by_sample_size
+    - internal_or_external_meqtl_replication
+    - robust_to_maf_ld_mappability_coverage_annotation
+  omit_or_supplement_if:
+    - no_credible_risk_variant_meqtl
+    - results_vanish_after_technical_adjustment
+    - single_problematic_locus_drives_signal
+    - no_vmr_connects_to_expression_or_splicing
+    - caudate_specificity_disappears_after_downsampling
+    - conclusions_rely_only_on_nominal_pvalues
+    - adds_nothing_beyond_nonsignificant_sldsc
+
+strong_go_requires:
+  - internal_meqtl_burden_validates_predictability
+  - survives_adjustment_and_matching
+  - ge_1_public_brain_meqtl_resource
+  - repeat_repressive_survives_mappability_sensitivity
+  - ge_1_cross_region_or_donor_group_insight
+  - meqtl_supported_vmrs_show_transcriptional_or_splicing_coupling
+  - manuscript_focused_genetic_architecture_narrative
