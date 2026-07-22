@@ -1,0 +1,23 @@
+family_id	analysis	feature_scope	fdr_scope	analysis_tier
+meqtl_cpg_caudate	Internal CpG-level cis-meQTL mapping	CpG-SNP pairs in predefined caudate VMRs	within caudate	primary
+meqtl_cpg_dlpfc	Internal CpG-level cis-meQTL mapping	CpG-SNP pairs in predefined DLPFC VMRs	within DLPFC	primary
+meqtl_cpg_hippocampus	Internal CpG-level cis-meQTL mapping	CpG-SNP pairs in predefined hippocampus VMRs	within hippocampus	primary
+meqtl_architecture	VMR-level meQTL burden architecture tests	VMR-level burden models	across prespecified burden architecture tests	primary
+sz_mean_caudate	Schizophrenia mean methylation	Caudate VMRs	within caudate	primary
+sz_mean_dlpfc	Schizophrenia mean methylation	DLPFC VMRs	within DLPFC	secondary
+sz_mean_hippocampus	Schizophrenia mean methylation	Hippocampus VMRs	within hippocampus	secondary
+sz_variance_caudate	Schizophrenia methylation variability	Caudate VMRs	within caudate	secondary
+sz_variance_dlpfc	Schizophrenia methylation variability	DLPFC VMRs	within DLPFC	secondary
+sz_variance_hippocampus	Schizophrenia methylation variability	Hippocampus VMRs	within hippocampus	secondary
+sz_architecture	Schizophrenia architecture-level tests	Prespecified architecture summaries	across schizophrenia architecture tests	primary
+age_mean_caudate	Age mean methylation	Caudate VMRs	within caudate	primary
+age_mean_dlpfc	Age mean methylation	DLPFC VMRs	within DLPFC	primary
+age_mean_hippocampus	Age mean methylation	Hippocampus VMRs	within hippocampus	primary
+age_variance_caudate	Age-related methylation variability	Caudate VMRs	within caudate	secondary
+age_variance_dlpfc	Age-related methylation variability	DLPFC VMRs	within DLPFC	secondary
+age_variance_hippocampus	Age-related methylation variability	Hippocampus VMRs	within hippocampus	secondary
+age_architecture	Aging architecture-level tests	Prespecified architecture summaries	across aging architecture tests	primary
+expression_convergence_sz	Schizophrenia expression convergence	Linked expression features	within schizophrenia expression convergence tests	validation
+psi_convergence_sz	Schizophrenia splicing convergence	Linked PSI features	within schizophrenia PSI convergence tests	validation
+expression_convergence_age	Aging expression convergence	Linked expression features	within aging expression convergence tests	validation
+psi_convergence_age	Aging splicing convergence	Linked PSI features	within aging PSI convergence tests	validation

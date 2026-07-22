@@ -1,0 +1,7 @@
+root	region	path	exists	n_vmrs
+project	caudate	/projects/b1213/users/kynon/projects/dna-methylation-heritability/vmr-analysis/caudate/_m/vmr.bed	True	12001
+project	dlpfc	/projects/b1213/users/kynon/projects/dna-methylation-heritability/vmr-analysis/dlpfc/_m/vmr.bed	True	10372
+project	hippocampus	/projects/b1213/users/kynon/projects/dna-methylation-heritability/vmr-analysis/hippocampus/_m/vmr.bed	True	10216
+staff	caudate	/projects/b1213/users/alexis/projects/dna-methylation-heritability/vmr-analysis/caudate/_m/vmr.bed	True	12001
+staff	dlpfc	/projects/b1213/users/alexis/projects/dna-methylation-heritability/vmr-analysis/dlpfc/_m/vmr.bed	True	10372
+staff	hippocampus	/projects/b1213/users/alexis/projects/dna-methylation-heritability/vmr-analysis/hippocampus/_m/vmr.bed	True	10216

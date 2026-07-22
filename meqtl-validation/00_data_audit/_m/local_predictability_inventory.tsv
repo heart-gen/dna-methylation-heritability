@@ -1,0 +1,7 @@
+root	region	path	exists	n_rows_excluding_header	n_columns
+project	caudate	/projects/b1213/users/kynon/projects/dna-methylation-heritability/heritability/elastic_net_model/all_individuals/caudate/_m/caudate_summary_elastic-net_AA.tsv	True	11467	10
+project	dlpfc	/projects/b1213/users/kynon/projects/dna-methylation-heritability/heritability/elastic_net_model/all_individuals/dlpfc/_m/dlpfc_summary_elastic-net_AA.tsv	True	9594	10
+project	hippocampus	/projects/b1213/users/kynon/projects/dna-methylation-heritability/heritability/elastic_net_model/all_individuals/hippocampus/_m/hippocampus_summary_elastic-net_AA.tsv	True	9295	10
+staff	caudate	/projects/b1213/users/alexis/projects/dna-methylation-heritability/heritability/elastic_net_model/all_individuals/caudate/_m/caudate_summary_elastic-net_AA.tsv	True	11467	10
+staff	dlpfc	/projects/b1213/users/alexis/projects/dna-methylation-heritability/heritability/elastic_net_model/all_individuals/dlpfc/_m/dlpfc_summary_elastic-net_AA.tsv	True	9594	10
+staff	hippocampus	/projects/b1213/users/alexis/projects/dna-methylation-heritability/heritability/elastic_net_model/all_individuals/hippocampus/_m/hippocampus_summary_elastic-net_AA.tsv	True	9295	10

@@ -1,0 +1,7 @@
+root	region	path	exists	n_rows	n_samples	cell_types
+project	caudate	/projects/b1213/users/kynon/projects/dna-methylation-heritability/inputs/cell_proportions/_m/music-proportions-caudate.tsv	True	3896	487	Astro,D1-SPN,D2-SPN,Immune,Inhib,Micro,OPC,Oligo
+project	dlpfc	/projects/b1213/users/kynon/projects/dna-methylation-heritability/inputs/cell_proportions/_m/music-proportions-dlpfc.tsv	True	4000	500	Astro,Excit,Immune,Inhib,Micro,Mural,OPC,Oligo
+project	hippocampus	/projects/b1213/users/kynon/projects/dna-methylation-heritability/inputs/cell_proportions/_m/music-proportions-hippocampus.tsv	True	3616	452	Astro,Excit,Immune,Inhib,Micro,Mural,OPC,Oligo
+staff	caudate	/projects/b1213/users/alexis/projects/dna-methylation-heritability/inputs/cell_proportions/_m/music-proportions-caudate.tsv	True	3896	487	Astro,D1-SPN,D2-SPN,Immune,Inhib,Micro,OPC,Oligo
+staff	dlpfc	/projects/b1213/users/alexis/projects/dna-methylation-heritability/inputs/cell_proportions/_m/music-proportions-dlpfc.tsv	True	4000	500	Astro,Excit,Immune,Inhib,Micro,Mural,OPC,Oligo
+staff	hippocampus	/projects/b1213/users/alexis/projects/dna-methylation-heritability/inputs/cell_proportions/_m/music-proportions-hippocampus.tsv	True	3616	452	Astro,Excit,Immune,Inhib,Micro,Mural,OPC,Oligo
