@@ -1,0 +1,84 @@
+# CpG-level cis-meQTL mapping parameters (prespecified; do not tune after results)
+
+genome_build: hg38
+cis_window_bp: 500000
+cis_window_sensitivity_bp: 1000000
+
+predictability_score_column: h2_unscaled
+predictability_class_column: null  # derived secondary high/low classes if present
+
+genotype_qc:
+  chromosomes: autosomal
+  maf_min: 0.05
+  imputation_r2_min: 0.8
+  missingness_max: 0.05
+  hwe_p_min: 1.0e-6
+
+cpg_qc:
+  within_vmr: true
+  min_coverage: 5
+  min_fraction_samples_passing_coverage: 0.8
+  require_nonzero_variance: true
+  exclude_blacklist: true
+  exclude_common_ct_snp_at_cpg: true
+  common_snp_maf_min: 0.05
+  methylation_source: non_residualized  # cpg_meth.phen
+  residualized_allowed_as: negative_control_sensitivity_only
+
+mapping:
+  engine: tensorqtl
+  mode_primary: cis_nominal_and_permutation
+  seed: 20260722
+  fdr_method: storey_qvalue
+  fdr_threshold: 0.05
+  fdr_family: per_brain_region
+  primary_population: AA
+  region_order:
+    - caudate
+    - dlpfc
+    - hippocampus
+
+outputs_required:
+  - nominal_p
+  - beta
+  - se
+  - statistic
+  - qvalue_or_perm_fdr
+  - lead_snp_per_cpg
+  - n_tested_snps_per_cpg
+
+qc_plots_required:
+  - pvalue_histogram
+  - qq_plot
+  - genomic_inflation
+  - effect_size_distribution
+  - lead_snp_maf_distribution
+  - lead_snp_distance_distribution
+  - chromosome_result_counts
+  - covariate_model_comparison
+  - positive_control_public_meqtl_overlap
+
+vmr_aggregation_metrics:
+  - vmr_id
+  - local_predictability
+  - predictability_class
+  - n_tested_cpgs
+  - n_cpgs_with_sig_meqtl
+  - proportion_cpgs_with_sig_meqtl
+  - min_cpg_pvalue
+  - strongest_abs_beta
+  - strongest_lead_snp_r2
+  - n_distinct_lead_snps
+  - median_cpg_lead_snp_distance
+  - public_meqtl_support
+  - vmr_mean_methylation
+  - vmr_methylation_variance
+  - average_cpg_coverage
+  - vmr_length
+  - cpg_density
+  - local_snp_count
+  - local_common_snp_density
+  - repeat_overlap
+  - mappability
+  - genomic_annotation
+  - chromatin_annotation

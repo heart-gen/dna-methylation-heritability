@@ -1,0 +1,78 @@
+# Covariate specifications for CpG meQTL and downstream models
+
+primary_meqtl:
+  description: Primary CpG-level cis-meQTL model (AA discovery, region-specific)
+  formula: >
+    CpG_methylation ~ SNP_dosage + agedeath + sex + primarydx
+    + snpPC1 + snpPC2 + snpPC3 + snpPC4 + snpPC5
+    + technical_covariates + optional_latent_factors
+  required_phenotype_columns:
+    - agedeath
+    - sex
+    - primarydx
+    - snpPC1
+    - snpPC2
+    - snpPC3
+    - snpPC4
+    - snpPC5
+  ancestry_pcs:
+    - snpPC1
+    - snpPC2
+    - snpPC3
+    - snpPC4
+    - snpPC5
+  optional_technical:
+    - pmi
+    - ph
+    - batch
+  latent_factor_policy: >
+    Include brain-region-specific latent factors only after comparing genomic
+    inflation, QQ plots, known-meQTL enrichment, and genetic-signal retention.
+    Do not auto-include a large surrogate-variable set.
+  cell_composition: sensitivity_only
+
+vmr_burden:
+  description: Primary VMR-level meQTL-burden validation model
+  formula: >
+    meqtl_burden ~ continuous_predictability + n_tested_cpgs + mean_methylation
+    + methylation_variance + mean_coverage + vmr_length + cpg_density
+    + local_snp_density + mean_testable_maf + mappability + repeat_overlap
+    + genomic_annotation + effective_sample_size
+  region_strategy: region_specific_primary_pooled_with_interaction_secondary
+
+matching_variables:
+  - n_tested_cpgs
+  - methylation_variance
+  - mean_coverage
+  - vmr_length
+  - cpg_density
+  - local_snp_density
+  - mappability
+  - repeat_status
+  - genomic_annotation
+  - brain_region
+
+sensitivity_covariates:
+  toxicology:
+    - smoking
+    - nicotine
+    - cocaine
+    - ethanol
+    - amphetamines
+    - codeine
+    - morphine
+    - fentanyl
+  clinical:
+    - antipsychotics
+    - lifetime_antipsych
+  technical:
+    - pmi
+    - ph
+
+donor_group_labels:
+  AA: Black American
+  EA: non-Hispanic white American
+
+diagnosis_coding:
+  control: Control
+  schizophrenia: Schizo

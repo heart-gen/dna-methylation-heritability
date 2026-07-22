@@ -1,0 +1,61 @@
+# Paths for AJHG CpG meQTL strengthening analyses
+# All relative paths are relative to project_root unless absolute.
+
+project_root: /projects/b1213/users/kynon/projects/dna-methylation-heritability
+staff_project_root: /projects/b1213/users/alexis/projects/dna-methylation-heritability
+eqtl_scaffold_root: /projects/b1213/users/kynon/projects/sex_context_brain/eqtl_analysis
+eqtl_conda_env: eqtl
+
+regions:
+  - caudate
+  - dlpfc
+  - hippocampus
+
+primary_population: AA
+expanded_populations:
+  - AA
+  - EA
+
+phenotype_table: sample_summary/_m/phenotype_data.tsv
+
+region_phenotype_tables:
+  caudate: inputs/wgbs-data/combined/_m/caudate_phenotypes.csv
+  dlpfc: inputs/wgbs-data/combined/_m/dlpfc_phenotypes.csv
+  hippocampus: inputs/wgbs-data/combined/_m/hippocampus_phenotypes.csv
+
+vmr_bed_template: vmr-analysis/{region}/_m/vmr.bed
+
+local_predictability_summary_template: heritability/elastic_net_model/all_individuals/{region}/_m/{region}_summary_elastic-net_AA.tsv
+local_predictability_ea_template: heritability/elastic_net_model/all_individuals/{region}/_m/{region}_summary_elastic-net_EA.tsv
+
+vmr_annotation_template: heritability/elastic_net_model/all_individuals/tissue_comparison/annotation/_m/{region}_vmr_annotations_hg38.tsv
+vmr_annotation_wide_template: heritability/elastic_net_model/all_individuals/tissue_comparison/annotation/_m/{region}_vmr_annotations_hg38_wide.tsv
+
+cell_proportions_template: inputs/cell_proportions/_m/music-proportions-{region}.tsv
+
+genotype:
+  AA:
+    pgen: inputs/genotypes/TOPMed_LIBD.AA.pgen
+    psam: inputs/genotypes/TOPMed_LIBD.AA.psam
+    pvar: inputs/genotypes/TOPMed_LIBD.AA.pvar
+    eigenvec: inputs/genotypes/TOPMed_LIBD.AA.eigenvec
+    eigenval: inputs/genotypes/TOPMed_LIBD.AA.eigenval
+  all_individuals_dir: inputs/genotypes/all_individuals
+
+# Non-residualized CpG matrices live in the staff (Alexis) repo
+cpg_methylation_root: /projects/b1213/users/alexis/projects/dna-methylation-heritability
+cpg_methylation_matrix_template: vmr-analysis/{region}/_m/cpg/chr_{chrom}/cpg_meth.phen
+residualized_cpg_methylation_matrix_template: vmr-analysis/{region}/_m/cpg/chr_{chrom}/res_cpg_meth.phen
+
+regulatory_context_root: heritability/elastic_net_model/all_individuals/tissue_comparison/regulatory_context/_m
+
+data_dictionary:
+  script_dir: inputs/data_dictionary/_h
+  output_dir: inputs/data_dictionary/_m
+
+meqtl_validation_root: meqtl-validation
+config_dir: config
+
+support_files:
+  repeat_masker: inputs/supportfiles/_m/repeat-masker-hg38.gz
+  hg38_to_hg19_chain: inputs/supportfiles/_m/hg38ToHg19.over.chain
