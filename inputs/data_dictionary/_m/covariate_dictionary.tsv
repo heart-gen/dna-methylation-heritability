@@ -1,0 +1,21 @@
+variable	role	description	source_table	missingness_policy
+agedeath	primary_covariate	Age at death	sample_summary/_m/phenotype_data.tsv	required for primary model
+sex	primary_covariate	Biological sex	sample_summary/_m/phenotype_data.tsv	required for primary model
+primarydx	primary_covariate	Primary diagnosis (Control / Schizo)	sample_summary/_m/phenotype_data.tsv	required for primary model
+snpPC1	primary_covariate	Ancestry PC1	sample_summary/_m/phenotype_data.tsv	required for primary model
+snpPC2	primary_covariate	Ancestry PC2	sample_summary/_m/phenotype_data.tsv	required for primary model
+snpPC3	primary_covariate	Ancestry PC3	sample_summary/_m/phenotype_data.tsv	required for primary model
+snpPC4	primary_covariate	Ancestry PC4	sample_summary/_m/phenotype_data.tsv	required for primary model
+snpPC5	primary_covariate	Ancestry PC5	sample_summary/_m/phenotype_data.tsv	required for primary model
+pmi	technical_sensitivity	Postmortem interval	sample_summary/_m/phenotype_data.tsv	sensitivity subset
+ph	technical_sensitivity	Brain pH	sample_summary/_m/phenotype_data.tsv	sensitivity subset
+smoking	toxicology_sensitivity	Smoking exposure	sample_summary/_m/phenotype_data.tsv	sensitivity subset
+nicotine	toxicology_sensitivity	Nicotine	sample_summary/_m/phenotype_data.tsv	sensitivity subset
+cocaine	toxicology_sensitivity	Cocaine	sample_summary/_m/phenotype_data.tsv	sensitivity subset
+ethanol	toxicology_sensitivity	Ethanol	sample_summary/_m/phenotype_data.tsv	sensitivity subset
+amphetamines	toxicology_sensitivity	Amphetamines	sample_summary/_m/phenotype_data.tsv	sensitivity subset
+antipsychotics	clinical_sensitivity	Antipsychotic exposure	sample_summary/_m/phenotype_data.tsv	sensitivity subset
+lifetime_antipsych	clinical_sensitivity	Lifetime antipsychotic exposure	sample_summary/_m/phenotype_data.tsv	sensitivity subset
+cell_proportions	sensitivity_covariate	MuSiC cell-type proportions	inputs/cell_proportions/_m/music-proportions-{region}.tsv	sensitivity; not in primary meQTL model by default
+latent_factors	optional_meqtl_covariate	Region-specific methylation latent factors	derived during Phase 1 calibration	include only if calibration improves without removing genetic signal
+batch	technical_covariate	Sequencing or processing batch if available	region phenotype tables / WGBS metadata	include when available without large sample loss
