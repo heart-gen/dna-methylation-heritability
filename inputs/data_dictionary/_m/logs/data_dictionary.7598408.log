@@ -1,0 +1,13 @@
+2026-07-22 13:58:39 - **** Job starts ****
+**** QUEST info ****
+User: owb0346
+Job id: 7598408
+Job name: data_dictionary
+Node name: 
+Hostname: qnode0007
+Task id: N/A
+Working directory: /projects/b1213/users/kynon/projects/dna-methylation-heritability/inputs/data_dictionary/_m
+No modules loaded
+2026-07-22 13:58:39 - Building Phase 0 data dictionary tables
+Wrote data dictionary tables to /gpfs/projects/b1213/users/kynon/projects/dna-methylation-heritability/inputs/data_dictionary/_m
+2026-07-22 13:59:01 - **** Job ends ****

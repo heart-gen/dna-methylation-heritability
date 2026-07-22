@@ -1,0 +1,10 @@
+race	region	n_phenotype_samples	n_unique_donors	n_with_genotype_id_match	n_with_cell_proportion	n_with_cpg_matrix_id_match	n_complete_primary_covariates	n_control	n_schizophrenia	has_vmr_bed	has_predictability_summary	has_cpg_matrices_staff
+AA	caudate	153	153	153	153	153	153	88	65	True	True	True
+AA	dlpfc	111	111	111	111	111	111	68	43	True	True	True
+AA	hippocampus	116	116	116	116	116	116	68	48	True	True	True
+EA	caudate	129	129	0	128	0	129	74	55	True	True	True
+EA	dlpfc	55	55	0	54	0	55	26	29	True	True	True
+EA	hippocampus	60	60	0	59	0	60	31	29	True	True	True
+ALL	repeated_donors_1_regions		127									
+ALL	repeated_donors_2_regions		43									
+ALL	repeated_donors_3_regions		137									

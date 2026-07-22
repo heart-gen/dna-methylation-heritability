@@ -1,0 +1,12 @@
+dataset	path_template	genome_build	coordinate_system	evidence	liftOver_needed	example_exists	notes
+VMR BED intervals	vmr-analysis/{region}/_m/vmr.bed	hg38	0-based BED	filenames and annotation companions use hg38	no	True	Primary analysis build
+VMR genomic annotations	heritability/elastic_net_model/all_individuals/tissue_comparison/annotation/_m/{region}_vmr_annotations_hg38.tsv	hg38	interval annotations	files named *_vmr_annotations_hg38*.tsv	no	True	
+Local genetic predictability summaries	heritability/elastic_net_model/all_individuals/{region}/_m/{region}_summary_elastic-net_AA.tsv	hg38	VMR-level (inherits VMR BED)	built from hg38 VMRs	no	True	
+AA TOPMed genotypes	inputs/genotypes/TOPMed_LIBD.AA.pvar	hg38	variant positions in pvar	TOPMed-imputed LIBD genotypes used throughout manuscript	no	True	Confirm chrom naming (chr1 vs 1) during Phase 1 preflight
+CpG methylation matrices (staff repo)	vmr-analysis/{region}/_m/cpg/chr_{chrom}/cpg_meth.phen	hg38	CpG site columns / BED conversion	WGBS pipeline aligned to hg38	no	True	Matrices live under Alexis repo; project cpg dirs empty
+RepeatMasker	inputs/supportfiles/_m/repeat-masker-hg38.gz	hg38	interval	filename repeat-masker-hg38.gz	no	True	
+hg38ToHg19 chain	inputs/supportfiles/_m/hg38ToHg19.over.chain	chain	liftOver chain	file present for S-LDSC / legacy analyses	n/a	True	Use only when mapping to hg19 resources
+BrainSeq WGBS meQTL (external)	external; see public_meqtl_resources.tsv	hg38 (confirm on download)	CpG / SNP positions	Perzel Mandell et al. 2021 Nat Commun	maybe	n/a	Primary external resource; verify build on ingest
+Jaffe DLPFC 450K meQTL (external)	external; see public_meqtl_resources.tsv	hg19 likely	Illumina cg IDs + positions	published prefrontal meQTL catalog	yes_if_hg19	n/a	Harmonize cg IDs to WGBS CpGs via genomic position
+Hippocampus array meQTL (Schulz 2017)	external; see public_meqtl_resources.tsv	hg19 likely	array CpG positions	Nat Commun 2017	yes_if_hg19	n/a	
+S-LDSC schizophrenia sumstats (existing)	heritability/.../clinical_enrichment/s-ldsc/hg19/	hg19	GWAS variants	existing pipeline under hg19/	already handled in existing pipeline	n/a	Not primary AJHG strengthening path

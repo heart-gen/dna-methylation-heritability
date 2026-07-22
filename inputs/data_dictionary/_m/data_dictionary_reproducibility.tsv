@@ -1,0 +1,2 @@
+script	execution_utc	python_version	platform	git_commit	paths_config	pyyaml_available
+/gpfs/projects/b1213/users/kynon/projects/dna-methylation-heritability/inputs/data_dictionary/_h/00_build_data_dictionary.py	2026-07-22T18:59:01.604690+00:00	3.12.9 | packaged by conda-forge | (main, Mar  4 2025, 22:48:41) [GCC 13.3.0]	Linux-4.18.0-553.136.1.el8_10.x86_64-x86_64-with-glibc2.28	unavailable	/gpfs/projects/b1213/users/kynon/projects/dna-methylation-heritability/config/paths.yml	True
