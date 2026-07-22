@@ -9,4 +9,4 @@ hg38ToHg19 chain	inputs/supportfiles/_m/hg38ToHg19.over.chain	chain	liftOver cha
 BrainSeq WGBS meQTL (external)	external; see public_meqtl_resources.tsv	hg38 (confirm on download)	CpG / SNP positions	Perzel Mandell et al. 2021 Nat Commun	maybe	n/a	Primary external resource; verify build on ingest
 Jaffe DLPFC 450K meQTL (external)	external; see public_meqtl_resources.tsv	hg19 likely	Illumina cg IDs + positions	published prefrontal meQTL catalog	yes_if_hg19	n/a	Harmonize cg IDs to WGBS CpGs via genomic position
 Hippocampus array meQTL (Schulz 2017)	external; see public_meqtl_resources.tsv	hg19 likely	array CpG positions	Nat Commun 2017	yes_if_hg19	n/a	
-S-LDSC schizophrenia sumstats (existing)	heritability/.../clinical_enrichment/s-ldsc/hg19/	hg19	GWAS variants	existing pipeline under hg19/	already handled in existing pipeline	n/a	Not primary AJHG strengthening path
+S-LDSC schizophrenia sumstats (existing)	heritability/.../clinical_enrichment/s-ldsc/hg19/	hg19	GWAS variants	existing pipeline under hg19/	already handled in existing pipeline	n/a	Not primary meQTL-validation path

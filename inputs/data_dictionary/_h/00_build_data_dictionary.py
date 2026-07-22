@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate Phase 0 data-dictionary tables for AJHG strengthening analyses.
+"""Generate Phase 0 data-dictionary tables for meQTL-validation analyses.
 
 Extends the meqtl-validation data audit into the formal deliverables required by
 AGENTS.md / analysis_strategy.md. Does not fit meQTL or phenotype models.
@@ -373,7 +373,7 @@ def write_genome_build_audit(cfg: dict) -> None:
             "coordinate_system": "GWAS variants",
             "evidence": "existing pipeline under hg19/",
             "liftOver_needed": "already handled in existing pipeline",
-            "notes": "Not primary AJHG strengthening path",
+            "notes": "Not primary meQTL-validation path",
         },
     ]
     # existence flags
