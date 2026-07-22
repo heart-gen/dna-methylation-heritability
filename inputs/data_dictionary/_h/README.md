@@ -24,7 +24,7 @@ Do not pool incompatible platforms without justification.
 - **Citation:** Perzel Mandell AM et al. Genome-wide sequencing-based identification of methylation quantitative trait loci and their role in schizophrenia risk. *Nature Communications* 2021.
 - **Why primary:** WGBS in adult DLPFC and hippocampus — platform-matched to this study.
 - **Browser:** https://eqtl.brainseq.org/WGBS_meQTL/
-- **Download plan:** retrieve cis-meQTL summary tables from BrainSeq / PsychENCODE release associated with the paper; store under `meqtl-validation/external_meqtl_validation/_m/raw/brainseq_wgbs/` without overwriting source archives.
+- **Download plan:** retrieve cis-meQTL summary tables from BrainSeq / PsychENCODE release associated with the paper; store under `meqtl-validation/03_external_meqtl_validation/_m/raw/brainseq_wgbs/` without overwriting source archives.
 - **Harmonization:** confirm genome build on ingest; map CpG coordinates to hg38; record liftOver success/failure if needed; do not require exact lead-SNP identity for enrichment tests.
 
 ## Secondary resources
@@ -50,7 +50,7 @@ Do not pool incompatible platforms without justification.
 
 ## Download checklist (Phase 3)
 
-1. Create `meqtl-validation/external_meqtl_validation/_m/raw/{resource_id}/`
+1. Create `meqtl-validation/03_external_meqtl_validation/_m/raw/{resource_id}/`
 2. Save original files + checksums / URLs / download date in `download_manifest.tsv`
 3. Run harmonization scripts to produce `*_hg38_harmonized.tsv.gz`
 4. Quantify CpG overlap with VMR CpGs per region
