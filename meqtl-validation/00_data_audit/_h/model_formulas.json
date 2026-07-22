@@ -1,0 +1,38 @@
+{
+  "phase1_cpg_meqtl_mapping": {
+    "analysis_tier": "primary",
+    "unit": "CpG-SNP pair within region-specific cis windows",
+    "formula": "CpG_methylation ~ SNP_dosage + age + sex + diagnosis + ancestry_PCs + technical_covariates + validated_latent_factors",
+    "notes": "Validated latent factors are included only if calibration improves without removing genetic signal."
+  },
+  "phase1_vmr_meqtl_burden": {
+    "analysis_tier": "primary",
+    "unit": "VMR",
+    "formula": "meqtl_burden ~ continuous_predictability + n_cpg + mean_methylation + methylation_variance + mean_coverage + vmr_length + cpg_density + local_snp_density + mean_testable_maf + mappability + repeat_overlap + genomic_annotation + brain_region + effective_sample_size"
+  },
+  "schizophrenia_mean_region": {
+    "analysis_tier": "primary for caudate, secondary for DLPFC and hippocampus",
+    "unit": "VMR methylation in one region",
+    "formula": "VMR_methylation ~ diagnosis + age + sex + ancestry_PCs + technical_covariates + cell_covariates"
+  },
+  "schizophrenia_shared_region": {
+    "analysis_tier": "sensitivity",
+    "unit": "shared VMR methylation across repeated donor-region samples",
+    "formula": "VMR_methylation ~ diagnosis * region + age + sex + ancestry_PCs + technical_covariates + cell_covariates + (1 | donor)"
+  },
+  "aging_linear_region": {
+    "analysis_tier": "primary",
+    "unit": "VMR methylation in one region",
+    "formula": "VMR_methylation ~ age + sex + diagnosis + ancestry_PCs + technical_covariates + cell_covariates"
+  },
+  "aging_spline_region": {
+    "analysis_tier": "secondary",
+    "unit": "VMR methylation in one region",
+    "formula": "VMR_methylation ~ rcs(age, df = 3) + sex + diagnosis + ancestry_PCs + technical_covariates + cell_covariates"
+  },
+  "aging_shared_region": {
+    "analysis_tier": "validation",
+    "unit": "shared VMR methylation across repeated donor-region samples",
+    "formula": "VMR_methylation ~ age * region + diagnosis + sex + ancestry_PCs + technical_covariates + cell_covariates + (1 | donor)"
+  }
+}

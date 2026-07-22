@@ -1,0 +1,7 @@
+root	region	cpg_dir	cpg_dir_exists	n_chr_dirs	n_cpg_meth_phen	n_residualized_cpg_meth_phen	example_cpg_meth_path	example_cpg_columns_including_FID_IID	archive_exists
+project	caudate	/projects/b1213/users/kynon/projects/dna-methylation-heritability/vmr-analysis/caudate/_m/cpg	True	0	0	0			False
+project	dlpfc	/projects/b1213/users/kynon/projects/dna-methylation-heritability/vmr-analysis/dlpfc/_m/cpg	True	0	0	0			False
+project	hippocampus	/projects/b1213/users/kynon/projects/dna-methylation-heritability/vmr-analysis/hippocampus/_m/cpg	True	0	0	0			False
+staff	caudate	/projects/b1213/users/alexis/projects/dna-methylation-heritability/vmr-analysis/caudate/_m/cpg	True	24	24	24	/projects/b1213/users/alexis/projects/dna-methylation-heritability/vmr-analysis/caudate/_m/cpg/chr_1/cpg_meth.phen	1994366	True
+staff	dlpfc	/projects/b1213/users/alexis/projects/dna-methylation-heritability/vmr-analysis/dlpfc/_m/cpg	True	24	24	24	/projects/b1213/users/alexis/projects/dna-methylation-heritability/vmr-analysis/dlpfc/_m/cpg/chr_1/cpg_meth.phen	1810615	False
+staff	hippocampus	/projects/b1213/users/alexis/projects/dna-methylation-heritability/vmr-analysis/hippocampus/_m/cpg	True	24	24	24	/projects/b1213/users/alexis/projects/dna-methylation-heritability/vmr-analysis/hippocampus/_m/cpg/chr_1/cpg_meth.phen	1829023	False

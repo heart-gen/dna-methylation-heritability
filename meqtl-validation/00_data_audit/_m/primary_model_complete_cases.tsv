@@ -1,0 +1,7 @@
+race	region	analysis	required_covariates	n_total	n_complete	n_control_complete	n_schizophrenia_complete
+AA	caudate	primary_schizophrenia_or_aging_covariate_set	agedeath,sex,primarydx,snpPC1,snpPC2,snpPC3,snpPC4,snpPC5	153	153	88	65
+AA	dlpfc	primary_schizophrenia_or_aging_covariate_set	agedeath,sex,primarydx,snpPC1,snpPC2,snpPC3,snpPC4,snpPC5	111	111	68	43
+AA	hippocampus	primary_schizophrenia_or_aging_covariate_set	agedeath,sex,primarydx,snpPC1,snpPC2,snpPC3,snpPC4,snpPC5	116	116	68	48
+EA	caudate	primary_schizophrenia_or_aging_covariate_set	agedeath,sex,primarydx,snpPC1,snpPC2,snpPC3,snpPC4,snpPC5	129	129	74	55
+EA	dlpfc	primary_schizophrenia_or_aging_covariate_set	agedeath,sex,primarydx,snpPC1,snpPC2,snpPC3,snpPC4,snpPC5	55	55	26	29
+EA	hippocampus	primary_schizophrenia_or_aging_covariate_set	agedeath,sex,primarydx,snpPC1,snpPC2,snpPC3,snpPC4,snpPC5	60	60	31	29
