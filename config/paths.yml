@@ -1,4 +1,4 @@
-# Paths for AJHG CpG meQTL strengthening analyses
+# Paths for CpG meQTL strengthening analyses
 # All relative paths are relative to project_root unless absolute.
 
 project_root: /projects/b1213/users/kynon/projects/dna-methylation-heritability
