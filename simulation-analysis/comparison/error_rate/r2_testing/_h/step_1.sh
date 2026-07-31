@@ -1,0 +1,51 @@
+#!/bin/bash
+#SBATCH --account=p32505        # Replace with your allocation
+#SBATCH --partition=short       # Partition (queue) name
+#SBATCH --time=00:10:00         # Time limit hrs:min:sec
+#SBATCH --nodes=1               # Number of nodes
+#SBATCH --ntasks-per-node=1     # Number of cores (CPU)
+#SBATCH --mem=8G                # Memory limit
+#SBATCH --mail-type=FAIL
+#SBATCH --mail-user=alexis.bennett@northwestern.edu
+#SBATCH --job-name=error_rate # Job name
+#SBATCH --output=error_rate.%j.log # Standard output log
+
+# Log function
+log_message() {
+    echo "$(date '+%Y-%m-%d %H:%M:%S') - $1"
+}
+
+log_message "**** Job starts ****"
+
+echo "**** QUEST info ****"
+echo "User: ${USER}"
+echo "Job id: ${SLURM_JOBID}"
+echo "Job name: ${SLURM_JOB_NAME}"
+echo "Node name: ${SLURM_NODENAME}"
+echo "Hostname: ${HOSTNAME}"
+echo "Task id: ${SLURM_ARRAY_TASK_ID:-N/A}"
+
+## List current modules for reproducibility
+
+module purge
+module list
+
+# Set path variables
+ENV_PATH="/projects/p32505/opt/envs"
+
+log_message "Calculating empirical power and type 1 error rate"
+
+## Activate conda environment
+r2_thresh=(0.05 0.1 0.15 0.2 0.3 0.4 0.5 0.6 0.7 0.75 0.8 0.9 0.99)
+
+for r2 in "${r2_thresh[@]}"; do
+	log_message "Running for r2 = ${r2}"
+	
+	conda run -p $ENV_PATH/epigenomics python ../_h/01.error_rate.py --r2_thresh ${r2}
+
+	if [ $? -ne 0 ]; then
+		log_message "Error: Conda or script execution failed"
+		exit 1
+	fi
+done
+log_message "**** Job ends ****"
