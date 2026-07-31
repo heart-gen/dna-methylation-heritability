@@ -12,7 +12,7 @@ import glob
 import os, sys
 import platform
 from pathlib import Path
-from datatime import datetime, timezone
+from datetime import datetime, timezone
 from collections import Counter, defaultdict
 
 try:
@@ -116,6 +116,70 @@ def header_n_columns(path: Path) -> int | str:
         return f"ERROR: {exc}"
 
 
+def _read_psam_ids(psam: Path) -> set[str]:
+    ids: set[str] = set()
+    if not psam.exists():
+        return ids
+    with psam.open() as handle:
+        first = handle.readline().rstrip("\n").split("\t")
+        headerish = [h.lstrip("#") for h in first]
+        has_header = "FID" in headerish or "IID" in headerish
+        if has_header:
+            fid_idx = headerish.index("FID") if "FID" in headerish else 0
+            for line in handle:
+                parts = line.rstrip("\n").split("\t")
+                if len(parts) > fid_idx:
+                    ids.add(parts[fid_idx])
+        else:
+            if first and first[0]:
+                ids.add(first[0])
+            for line in handle:
+                parts = line.rstrip("\n").split("\t")
+                if parts:
+                    ids.add(parts[0])
+    return ids
+
+
+def _read_cpg_sample_ids(staff: Path, cfg: dict, region: str, cohort: str) -> set[str]:
+    """cohort: AA | all_individuals. Prefer samples.txt over wide phen matrices."""
+    if cohort == "AA":
+        samples_tmpl = cfg.get("cpg_samples_aa_template", f"vmr-analysis/{region}/_m/samples.txt")
+        matrix_tmpl = cfg.get(
+            "cpg_methylation_matrix_aa_template",
+            cfg.get("cpg_methylation_matrix_template", "vmr-analysis/{region}/_m/cpg/chr_{chrom}/cpg_meth.phen"),
+        )
+    else:
+        samples_tmpl = cfg.get(
+            "cpg_samples_all_individuals_template",
+            f"vmr-analysis/all_individuals/{region}/_m/samples.txt",
+        )
+        matrix_tmpl = cfg.get(
+            "cpg_methylation_matrix_all_individuals_template",
+            "vmr-analysis/all_individuals/{region}/_m/cpg/chr_{chrom}/cpg_meth.phen",
+        )
+    samples_path = staff / samples_tmpl.format(region=region)
+    ids: set[str] = set()
+    if samples_path.exists():
+        with samples_path.open() as handle:
+            for line in handle:
+                parts = line.rstrip("\n").split("\t")
+                if parts and parts[0] and not parts[0].startswith("#"):
+                    ids.add(parts[0])
+        return ids
+    for chrom in ("22", "21", "1"):
+        candidate = staff / matrix_tmpl.format(region=region, chrom=chrom)
+        if not candidate.exists():
+            continue
+        with candidate.open() as handle:
+            handle.readline()
+            for line in handle:
+                parts = line.rstrip("\n").split("\t", 1)
+                if parts:
+                    ids.add(parts[0])
+        break
+    return ids
+
+
 def write_sample_overlap(cfg: dict) -> None:
     project = Path(cfg["project_root"])
     phen_path = project / cfg["phenotype_table"]
@@ -123,26 +187,11 @@ def write_sample_overlap(cfg: dict) -> None:
     for row in rows:
         row["_region"] = norm_region(row.get("region", ""))
 
-    # Genotype sample IDs (psam may lack a header; column 0 is BrNum / FID)
-    psam = project / cfg["genotype"]["AA"]["psam"]
-    geno_ids: set[str] = set()
-    if psam.exists():
-        with psam.open() as handle:
-            first = handle.readline().rstrip("\n").split("\t")
-            headerish = [h.lstrip("#") for h in first]
-            has_header = "FID" in headerish or "IID" in headerish
-            if has_header:
-                fid_idx = headerish.index("FID") if "FID" in headerish else 0
-                for line in handle:
-                    parts = line.rstrip("\n").split("\t")
-                    if len(parts) > fid_idx:
-                        geno_ids.add(parts[fid_idx])
-            else:
-                geno_ids.add(first[0])
-                for line in handle:
-                    parts = line.rstrip("\n").split("\t")
-                    if parts:
-                        geno_ids.add(parts[0])
+    geno = cfg.get("genotype", {})
+    geno_aa = _read_psam_ids(project / geno.get("AA", {}).get("psam", ""))
+    geno_all = _read_psam_ids(
+        project / geno.get("all_individuals", geno.get("EA", {})).get("psam", "")
+    )
 
     # Cell composition sample IDs by region
     cell_ids: dict[str, set[str]] = {}
@@ -156,25 +205,12 @@ def write_sample_overlap(cfg: dict) -> None:
                     ids.add(sid)
         cell_ids[region] = ids
 
-    # CpG matrix sample IDs: PLINK phen FID column (BrNum); prefer small chr_22
     staff = Path(cfg["cpg_methylation_root"])
-    cpg_ids: dict[str, set[str]] = {}
+    cpg_aa: dict[str, set[str]] = {}
+    cpg_all: dict[str, set[str]] = {}
     for region in cfg["regions"]:
-        ids: set[str] = set()
-        example = None
-        for chrom in ("22", "21", "1"):
-            candidate = staff / "vmr-analysis" / region / "_m" / "cpg" / f"chr_{chrom}" / "cpg_meth.phen"
-            if candidate.exists():
-                example = candidate
-                break
-        if example is not None:
-            with example.open() as handle:
-                handle.readline()  # site header
-                for line in handle:
-                    parts = line.rstrip("\n").split("\t")
-                    if parts:
-                        ids.add(parts[0])  # FID = BrNum
-        cpg_ids[region] = ids
+        cpg_aa[region] = _read_cpg_sample_ids(staff, cfg, region, "AA")
+        cpg_all[region] = _read_cpg_sample_ids(staff, cfg, region, "all_individuals")
 
     out_rows = []
     for race in sorted({r.get("race", "") for r in rows}):
@@ -183,13 +219,27 @@ def write_sample_overlap(cfg: dict) -> None:
             if not subset:
                 continue
             brnums = {r.get("brnum", "") for r in subset if r.get("brnum")}
+            # Race-appropriate genotype / CpG trees
+            if race == "AA":
+                geno_ids = geno_aa
+                cpg_ids = cpg_aa.get(region, set())
+                cpg_source = "vmr-analysis/{region} (AA-only)"
+            else:
+                geno_ids = geno_all
+                cpg_ids = cpg_all.get(region, set())
+                cpg_source = "vmr-analysis/all_individuals/{region}"
             n_pheno = len(subset)
             n_geno = sum(1 for b in brnums if b in geno_ids) if geno_ids else 0
             n_cell = sum(1 for b in brnums if b in cell_ids.get(region, set()))
-            n_cpg = sum(1 for b in brnums if b in cpg_ids.get(region, set()))
+            n_cpg = sum(1 for b in brnums if b in cpg_ids)
             primary_covars = ["agedeath", "sex", "primarydx", "snpPC1", "snpPC2", "snpPC3", "snpPC4", "snpPC5"]
             n_complete = sum(1 for r in subset if all(nonmissing(r, c) for c in primary_covars))
             dx = Counter(r.get("primarydx", "") for r in subset)
+            pred_tmpl = (
+                cfg["local_predictability_summary_template"]
+                if race == "AA"
+                else cfg.get("local_predictability_ea_template", cfg["local_predictability_summary_template"])
+            )
             out_rows.append({
                 "race": race,
                 "region": region,
@@ -202,10 +252,14 @@ def write_sample_overlap(cfg: dict) -> None:
                 "n_control": dx.get("Control", 0),
                 "n_schizophrenia": dx.get("Schizo", 0),
                 "has_vmr_bed": (project / cfg["vmr_bed_template"].format(region=region)).exists(),
-                "has_predictability_summary": (
-                    project / cfg["local_predictability_summary_template"].format(region=region)
-                ).exists(),
-                "has_cpg_matrices_staff": bool(cpg_ids.get(region)),
+                "has_predictability_summary": (project / pred_tmpl.format(region=region)).exists(),
+                "has_cpg_matrices_staff": bool(cpg_ids),
+                "cpg_matrix_source": cpg_source.format(region=region),
+                "genotype_source": (
+                    "inputs/genotypes/TOPMed_LIBD.AA"
+                    if race == "AA"
+                    else "inputs/genotypes/all_individuals/TOPMed_LIBD"
+                ),
             })
 
     # repeated donor summary
@@ -228,6 +282,8 @@ def write_sample_overlap(cfg: dict) -> None:
             "has_vmr_bed": "",
             "has_predictability_summary": "",
             "has_cpg_matrices_staff": "",
+            "cpg_matrix_source": "",
+            "genotype_source": "",
         })
 
     write_tsv(
@@ -239,6 +295,7 @@ def write_sample_overlap(cfg: dict) -> None:
             "n_with_cpg_matrix_id_match", "n_complete_primary_covariates",
             "n_control", "n_schizophrenia", "has_vmr_bed",
             "has_predictability_summary", "has_cpg_matrices_staff",
+            "cpg_matrix_source", "genotype_source",
         ],
     )
 
