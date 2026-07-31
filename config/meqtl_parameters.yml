@@ -24,6 +24,11 @@ cpg_qc:
   common_snp_maf_min: 0.05
   methylation_source: non_residualized  # cpg_meth.phen
   residualized_allowed_as: negative_control_sensitivity_only
+  # Phen matrices from Alexis pipeline already apply min_coverage in
+  # >= min_fraction_samples_passing_coverage. Real depth for Phase 2/6 is
+  # extracted by 06_extract_cpg_coverage.R from stats.rda BSobj getCoverage().
+  coverage_source: stats.rda_BSobj_getCoverage
+  coverage_proxy_fallback: fraction_nonmissing  # only if stats.rda unavailable
 
 mapping:
   engine: tensorqtl
