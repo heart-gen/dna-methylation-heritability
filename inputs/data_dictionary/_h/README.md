@@ -24,8 +24,9 @@ Do not pool incompatible platforms without justification.
 - **Citation:** Perzel Mandell AM et al. Genome-wide sequencing-based identification of methylation quantitative trait loci and their role in schizophrenia risk. *Nature Communications* 2021.
 - **Why primary:** WGBS in adult DLPFC and hippocampus — platform-matched to this study.
 - **Browser:** https://eqtl.brainseq.org/WGBS_meQTL/
-- **Download plan:** retrieve cis-meQTL summary tables from BrainSeq / PsychENCODE release associated with the paper; store under `meqtl-validation/03_external_meqtl_validation/_m/raw/brainseq_wgbs/` without overwriting source archives.
-- **Harmonization:** confirm genome build on ingest; map CpG coordinates to hg38; record liftOver success/failure if needed; do not require exact lead-SNP identity for enrichment tests.
+- **Download plan:** full catalogs on Synapse `syn25992404` (DOI 10.7303/syn25992404) under PsychENCODE controlled access — **not available for this project currently**. Nature supplements only contain SCZ-risk SNP–CpG tables (interim `brainseq_wgbs_meqtl_scz_subset`).
+- **Harmonization:** WGBS paper used GRCh38; do not require exact lead-SNP identity for enrichment tests.
+- **Decision:** treat BrainSeq published full catalog as deferred. Phase 3 external validation proceeds with Jaffe (DLPFC 450K) and Schulz (hippocampus array). Regenerating meQTLs on overlapping BrainSeq AA/EA discovery samples is **not** independent external validation; that role is already filled by Phase 1 internal cis-meQTL mapping.
 
 ## Secondary resources
 
