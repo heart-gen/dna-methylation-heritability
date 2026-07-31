@@ -28,6 +28,56 @@ def load_paths() -> dict[str, Any]:
     return load_yaml("paths.yml")
 
 
+def cohort_key(population: str) -> str:
+    """Map analysis population to path cohort: AA vs all_individuals (EA/expanded)."""
+    pop = (population or "AA").upper()
+    if pop == "AA":
+        return "AA"
+    if pop in {"EA", "ALL", "ALL_INDIVIDUALS", "EXPANDED"}:
+        return "all_individuals"
+    raise ValueError(f"Unknown population/cohort: {population}")
+
+
+def genotype_paths(paths: dict[str, Any], population: str = "AA") -> dict[str, str]:
+    """Return genotype file dict for AA or all_individuals/EA."""
+    key = "AA" if cohort_key(population) == "AA" else "EA"
+    geno = paths.get("genotype", {})
+    if key in geno:
+        return geno[key]
+    if key == "EA" and "all_individuals" in geno:
+        return geno["all_individuals"]
+    raise KeyError(f"genotype.{key} missing from paths.yml")
+
+
+def cpg_matrix_relpath(paths: dict[str, Any], region: str, chrom: str, population: str = "AA") -> str:
+    """Relative path (under cpg_methylation_root) to non-residualized cpg_meth.phen."""
+    chrom = str(chrom).replace("chr", "")
+    if cohort_key(population) == "AA":
+        tmpl = paths.get(
+            "cpg_methylation_matrix_aa_template",
+            paths.get("cpg_methylation_matrix_template"),
+        )
+    else:
+        tmpl = paths.get(
+            "cpg_methylation_matrix_ea_template",
+            paths.get("cpg_methylation_matrix_all_individuals_template"),
+        )
+    if not tmpl:
+        raise KeyError("CpG methylation matrix template missing from paths.yml")
+    return tmpl.format(region=region, chrom=chrom)
+
+
+def cpg_samples_relpath(paths: dict[str, Any], region: str, population: str = "AA") -> str:
+    if cohort_key(population) == "AA":
+        tmpl = paths.get("cpg_samples_aa_template", f"vmr-analysis/{region}/_m/samples.txt")
+    else:
+        tmpl = paths.get(
+            "cpg_samples_all_individuals_template",
+            f"vmr-analysis/all_individuals/{region}/_m/samples.txt",
+        )
+    return tmpl.format(region=region)
+
+
 def write_tsv(path: Path, rows: list[dict], fieldnames: list[str] | None = None) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     if fieldnames is None:
