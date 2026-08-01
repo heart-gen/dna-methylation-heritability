@@ -1,0 +1,2 @@
+pilot_region	chosen_model	date	reason
+all_regions	M3a	2026-08-01	Investigator lock: M3a (M0+methPC1-5) chosen for directional λ_NS improvement and increased FDR meQTL detection in caudate/DLPFC/hippocampus with retained external enrichment; overrides automated Δλ_NS≥0.15 threshold.
