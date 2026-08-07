@@ -1,0 +1,10 @@
+name: calibrated-local-h2
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - "r-base>=4.3,<4.5"
+  - "r-glmnet>=4.1,<4.2"
+  - "r-bigsnpr>=1.12,<1.13"
+  - "r-ggplot2>=3.5,<4.1"
+  - "r-sessioninfo>=1.2,<1.3"
