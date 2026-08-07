@@ -1,0 +1,2 @@
+region	n_expected_samples	n_estimated_samples	estimated_sample_fraction	all_fractions_bounded	all_fractions_sum_to_one	neuronal_rho	neuronal_fdr	integration_pass
+caudate	282	280	0.99290780141844	TRUE	TRUE	0.720214611720762	2.05114396120964e-45	TRUE

@@ -83,3 +83,7 @@ protected-data/
 *.h5
 simulation-analysis.bak/
 __pycache__/
+
+# Recreated by inputs/cell_proportions/_h/step_3_reference.sh
+inputs/cell_proportions/_m/reference/R_libs/
+inputs/cell_proportions/_m/conda_env/

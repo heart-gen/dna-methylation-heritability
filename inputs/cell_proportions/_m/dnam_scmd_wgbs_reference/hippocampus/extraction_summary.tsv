@@ -1,0 +1,2 @@
+region	n_expected_samples	n_bsseq_overlap_samples	n_samples_passing	n_reference_candidate_coordinates	n_coordinates_found	n_coordinates_passing_coverage	n_target_ids_in_bulk	signature_platform	min_coverage
+hippocampus	176	176	176	3093	2986	2842	2886	WGBS	5

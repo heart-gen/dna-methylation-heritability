@@ -1,0 +1,33 @@
+name: cell-deconvolution
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - r-base=4.4.*
+  - c-compiler
+  - cxx-compiler
+  - fortran-compiler
+  - make
+  - r-data.table
+  - r-yaml
+  - r-tidyverse
+  - r-quadprog
+  - r-sessioninfo
+  - r-patchwork
+  - r-scales
+  - r-remotes
+  - bioconductor-bsseq
+  - bioconductor-hdf5array
+  - bioconductor-summarizedexperiment
+  - bioconductor-genomicranges
+  - bioconductor-rtracklayer
+  - bioconductor-epidish
+  - bioconductor-minfi
+  - bioconductor-illuminahumanmethylationepicanno.ilm10b4.hg19=0.6.0
+  - bioconductor-illuminahumanmethylation450kanno.ilmn12.hg19=0.6.1
+
+# scMD itself has a large GitHub/Bioconductor dependency graph. The workflow
+# uses the pinned scMD 850K reference data and a self-contained reference
+# ensemble by default. If the exact upstream scMD package is installed in the
+# active R library, the runner detects and uses it automatically.

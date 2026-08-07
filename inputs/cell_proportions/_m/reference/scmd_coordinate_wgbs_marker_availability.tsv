@@ -1,0 +1,15 @@
+reference	cell_type	n_candidates	n_unique_liftover	n_blacklist	n_ct_snp	n_duplicate_coordinate	n_eligible
+Lee	Astro	250	250	5	4	0	242
+Lee	Endo	250	250	6	3	0	241
+Lee	Exc	250	250	17	1	0	232
+Lee	Inh	250	250	2	1	0	247
+Lee	Micro	250	250	5	1	0	244
+Lee	OPC	250	250	18	5	0	227
+Lee	Oligo	250	250	23	3	0	224
+Tian	Astro	250	250	6	3	0	241
+Tian	Endo	250	250	8	0	0	242
+Tian	Exc	250	250	12	4	0	236
+Tian	Inh	250	250	11	2	0	238
+Tian	Micro	250	250	11	6	0	233
+Tian	OPC	250	250	28	0	0	222
+Tian	Oligo	250	250	30	5	0	215

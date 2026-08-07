@@ -1,0 +1,29 @@
+R version 4.4.3 (2025-02-28)
+Platform: x86_64-conda-linux-gnu
+Running under: Red Hat Enterprise Linux 8.10 (Ootpa)
+
+Matrix products: default
+BLAS/LAPACK: /gpfs/projects/p32505/opt/envs/epigenomics/lib/libopenblasp-r0.3.30.so;  LAPACK version 3.12.0
+
+locale:
+ [1] LC_CTYPE=C.UTF-8       LC_NUMERIC=C           LC_TIME=C.UTF-8       
+ [4] LC_COLLATE=C.UTF-8     LC_MONETARY=C.UTF-8    LC_MESSAGES=C.UTF-8   
+ [7] LC_PAPER=C.UTF-8       LC_NAME=C              LC_ADDRESS=C          
+[10] LC_TELEPHONE=C         LC_MEASUREMENT=C.UTF-8 LC_IDENTIFICATION=C   
+
+time zone: America/Chicago
+tzcode source: system (glibc)
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+other attached packages:
+[1] quadprog_1.5-8    yaml_2.3.10       data.table_1.17.8
+
+loaded via a namespace (and not attached):
+ [1] Matrix_1.7-4      lattice_0.22-7    magrittr_2.0.4    e1071_1.7-16     
+ [5] splines_4.4.3     glue_1.8.0        matrixStats_1.5.0 stringr_1.5.2    
+ [9] parallel_4.4.3    EpiDISH_2.22.0    lifecycle_1.0.5   cli_3.6.6        
+[13] locfdr_1.1-8      grid_4.4.3        proxy_0.4-27      class_7.3-23     
+[17] compiler_4.4.3    tools_4.4.3       rlang_1.2.0       stringi_1.8.7    
+[21] MASS_7.3-65      

@@ -1,0 +1,5 @@
+covariate	available	source	note
+mean_marker_coverage	TRUE	WGBS marker extraction	tested
+pmi	TRUE	phenotype_data.tsv	tested
+ph	TRUE	phenotype_data.tsv	tested
+processing_batch	FALSE		No processing-batch field was present in phenotype_data.tsv or the HDF5 BSseq colData

@@ -1,0 +1,2 @@
+region	n_expected_samples	n_bsseq_overlap_samples	n_samples_passing	n_reference_candidate_coordinates	n_coordinates_found	n_coordinates_passing_coverage	n_target_ids_in_bulk	min_coverage
+caudate	282	282	280	3055	3029	2998	2998	5
