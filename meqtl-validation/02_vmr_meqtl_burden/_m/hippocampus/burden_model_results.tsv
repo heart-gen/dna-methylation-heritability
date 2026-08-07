@@ -1,0 +1,5 @@
+model	n_vmrs	covariates	coef_predictability	se_predictability	pval_predictability	converged	region
+unadjusted	7799	local_predictability	2.0927755513524997	0.016467666809023156	0.0	True	hippocampus
+adjusted_minimal	7799	local_predictability,n_tested_cpgs	2.0989366045514215	0.016527792776646802	0.0	True	hippocampus
+adjusted_technical	7799	local_predictability,n_tested_cpgs,average_cpg_coverage,mean_cpg_variance	2.066183032245463	0.016627252745767672	0.0	True	hippocampus
+ols_proportion_secondary	7799	local_predictability,log1p(n_tested_cpgs)	1.8729010091852023	0.03350566955882027	0.0		hippocampus

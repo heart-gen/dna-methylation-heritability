@@ -1,0 +1,2 @@
+region	n_vmrs	n_vmrs_with_predictability	n_vmrs_with_tech	mean_proportion_sig	output
+dlpfc	10196	4918	6242	0.13018516286151496	/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/02_vmr_meqtl_burden/_m/EA/dlpfc/vmr_meqtl_burden.tsv.gz

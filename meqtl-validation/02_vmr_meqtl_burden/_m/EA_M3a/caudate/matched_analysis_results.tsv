@@ -1,0 +1,2 @@
+analysis	n_pairs	mean_proportion_high	mean_proportion_low	mean_difference	permutation_pvalue	matching_variables	region
+matched_high_vs_low_predictability	625	0.9787139000619284	0.09726999494537811	0.8814439051165504	0.0004997501249375312	n_tested_cpgs,mean_cpg_variance,length,umap_k24_mean	caudate

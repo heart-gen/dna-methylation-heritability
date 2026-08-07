@@ -1,0 +1,29 @@
+BrainSeq WGBS full cis-meQTL catalogs (Perzel Mandell et al. 2021)
+
+Synapse folder: syn25992404
+  https://www.synapse.org/Synapse:syn25992404
+  DOI: 10.7303/syn25992404
+  Parent PsychENCODE folder: syn23592219
+
+Status (2026-07-30): CONTROLLED ACCESS — not available for this project at present.
+
+IMPORTANT — NOT INDEPENDENT EXTERNAL VALIDATION:
+  The BrainSeq / LIBD WGBS+genotype cohort overlaps this project's discovery
+  donors (AA and EA postmortem brain samples). Even if the full syn25992404
+  catalog becomes available, it must NOT be treated as independent external
+  meQTL validation of the VMR predictability axis. It is same-/overlapping-
+  cohort evidence, closer to an alternate internal analysis than to Jaffe or
+  Schulz. Regenerating BrainSeq-style cis-meQTLs on these samples is likewise
+  not external validation — Phase 1 already provides within-cohort CpG meQTLs.
+
+Access notes:
+  - PsychENCODE Knowledge Portal data-access requirements apply
+    (https://psychencode.synapse.org/DataAccess).
+  - Genotype / identifiable data additionally require dbGaP phs000979.
+  - Nature supplements only provide SCZ-risk SNP–CpG meQTL tables
+    (harmonized interim file: brainseq_wgbs_meqtl_scz_subset.hg38.tsv.gz);
+    that subset is exploratory only.
+
+Independent external validation (use these for Phase 3):
+  - jaffe_dlpfc_450k_meqtl (GEO GSE74193) — available, harmonized
+  - schulz_hippocampus_array_meqtl (Nature MOESM4) — available, harmonized

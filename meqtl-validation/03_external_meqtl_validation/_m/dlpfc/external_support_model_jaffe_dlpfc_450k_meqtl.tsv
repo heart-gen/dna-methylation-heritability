@@ -1,0 +1,6 @@
+model	n_vmrs	n_supported_vmrs	mean_external_support	covariates	coef_predictability	se_predictability	pval_predictability	converged	region	resource_id	analysis_role	preferred_region
+unadjusted	4916	1195	0.24308380797396256	local_predictability	0.15006470301939887	0.030484638213254082	8.538725160959288e-07	True	dlpfc	jaffe_dlpfc_450k_meqtl	primary	dlpfc
+adjusted_minimal	4916	1195	0.24308380797396256	local_predictability,n_tested_cpgs	0.1494610897974876	0.032230095854073826	3.5296519513728454e-06	True	dlpfc	jaffe_dlpfc_450k_meqtl	primary	dlpfc
+adjusted_technical	4916	1195	0.24308380797396256	local_predictability,n_tested_cpgs,average_cpg_coverage,mean_cpg_variance	0.1519415043821038	0.0330151675565973	4.181061903233213e-06	True	dlpfc	jaffe_dlpfc_450k_meqtl	primary	dlpfc
+binomial_cpg_proportion_secondary	4916	1195	0.24308380797396256	local_predictability,n_tested_cpgs	0.21261728617735948	0.015341603559338645	1.1243058339674297e-43	True	dlpfc	jaffe_dlpfc_450k_meqtl	primary	dlpfc
+descriptive	4916	1195	0.24308380797396256		nan	nan	nan	True	dlpfc	jaffe_dlpfc_450k_meqtl	primary	dlpfc
