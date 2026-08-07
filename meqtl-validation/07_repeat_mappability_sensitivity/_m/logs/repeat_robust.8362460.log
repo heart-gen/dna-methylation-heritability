@@ -1,0 +1,27 @@
+2026-07-30 18:25:46 - **** Job starts ****
+2026-07-30 18:25:48 - Running consolidated repeat/mappability robustness analyses
+==== caudate ====
+  features+tech n=7134 wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/07_repeat_mappability_sensitivity/_m/caudate/vmr_features_with_tech.tsv.gz
+  LINE_L1_enrichment_vs_predictability: OR=2.435434121976726 p=2.084064473483378e-220
+  H3K9me3_enrichment_vs_predictability: OR=2.0683387720867863 p=1.9460371133071683e-98
+  quiescent_chromatin_enrichment_vs_predictability: OR=2.779814420350616 p=1.4697876339036451e-236
+  burden: coef=3.7739942271764266 p=0.0
+==== dlpfc ====
+  features+tech n=4917 wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/07_repeat_mappability_sensitivity/_m/dlpfc/vmr_features_with_tech.tsv.gz
+  LINE_L1_enrichment_vs_predictability: OR=1.234969792001854 p=2.1749001366504547e-11
+  H3K9me3_enrichment_vs_predictability: OR=1.3444782112266338 p=2.6261443682201398e-11
+  quiescent_chromatin_enrichment_vs_predictability: OR=1.3988517063341077 p=7.181123533423904e-29
+  burden: coef=2.1819864003519696 p=0.0
+==== hippocampus ====
+  features+tech n=4922 wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/07_repeat_mappability_sensitivity/_m/hippocampus/vmr_features_with_tech.tsv.gz
+  LINE_L1_enrichment_vs_predictability: OR=1.474974768772233 p=5.201571772777969e-37
+  H3K9me3_enrichment_vs_predictability: OR=1.6460197218550687 p=4.886615303309029e-30
+  quiescent_chromatin_enrichment_vs_predictability: OR=1.8009004379025544 p=3.5131677106191525e-77
+  burden: coef=2.4769605330618507 p=0.0
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/07_repeat_mappability_sensitivity/_m/consolidated_robustness_table.tsv
+                                        analysis  n_regions_direction_consistent  n_regions  passes_phase6_claim
+            LINE_L1_enrichment_vs_predictability                               2          3                 True
+            H3K9me3_enrichment_vs_predictability                               3          3                 True
+quiescent_chromatin_enrichment_vs_predictability                               3          3                 True
+         predictability_meqtl_burden_association                               3          3                 True
+2026-07-30 18:26:01 - **** Job ends ****

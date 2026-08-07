@@ -1,0 +1,6 @@
+2026-07-30 18:38:20 - **** Job starts ****
+2026-07-30 18:38:28 - meQTL × PSI enrichment for caudate
+caudate psi: n=5924 meQTL+=3119 tx+=272 both=229 Fisher OR=5.090 p=3.90e-29 → /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/06_transcription_splicing_integration/_m/caudate/meqtl_x_psi_enrichment.tsv
+2026-07-30 18:38:37 - meQTL × ABC expression enrichment for caudate
+caudate expression_abc: n=41 meQTL+=25 tx+=4 both=4 Fisher OR=inf p=1.25e-01 → /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/06_transcription_splicing_integration/_m/caudate/meqtl_x_expression_abc_enrichment.tsv
+2026-07-30 18:38:42 - **** Job ends ****
