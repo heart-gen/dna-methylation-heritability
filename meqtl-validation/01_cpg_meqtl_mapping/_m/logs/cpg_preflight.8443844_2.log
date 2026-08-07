@@ -1,0 +1,11 @@
+2026-08-01 09:13:19 - **** Job starts ****
+**** QUEST info ****
+User: owb0346
+Job id: 8443844
+Node name: N/A
+Array task: 2
+No modules loaded
+2026-08-01 09:13:19 - Preflight + covariates for hippocampus (EA)
+hippocampus EA: 60 samples ready; wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/hippocampus/_m/preflight/EA
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/hippocampus/_m/prepared/EA/covariates.txt shape=(60, 8) (samples x covariates)
+2026-08-01 09:13:25 - **** Job ends ****

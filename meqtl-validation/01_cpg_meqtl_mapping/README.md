@@ -12,7 +12,10 @@ Do CpGs within predefined VMRs show conventional cis-meQTL associations in each 
 - FDR: separate family per brain region
 - Engine: TensorQTL (`/projects/p32505/opt/envs/genomics` conda env)
 - Covariates: **locked M3a** — age, sex, diagnosis, snpPC1–5, methPC1–5 (`config/covariates.yml`; see `PHASE1_LOCK_DECISION.md`)
-- Genotypes: filtered AA pfile with `FID=IID=BrNum` to match phenotype sample IDs
+- Genotypes: filtered population-specific pfile (`meqtl_AA` or `meqtl_EA`) with `FID=IID=BrNum`
+- EA outputs are isolated under `prepared/EA/` and `tensorqtl/EA/` (AA primary M3a untouched)
+- Submit with `POPULATION=EA` for stratified mapping, e.g. `sbatch --export=ALL,POPULATION=EA ../_h/step_1.sh`
+- EA-M3a caudate sensitivity (EA-estimated methPC1–5): `step_ea_m3a_caudate.sh` → `step_ea_m3a_tensorqtl.sh` → `02_vmr_meqtl_burden/_h/step_ea_m3a_burden.sh` (writes `tensorqtl/EA/M3a/` and `02_.../_m/EA_M3a/`; does not overwrite EA M0)
 
 ## Run (Quest)
 
@@ -94,4 +97,4 @@ sbatch --partition=short --export=ALL,DEVICE=cpu ../_h/step_4.sh
 - Submit scripts from `_m/` so relative `../_h/` paths resolve (SLURM spool copies break `$0`-based paths)
 - Phen matrices are already depth-filtered in Alexis prep (`cov>=5` in ≥80% samples); `step_6` attaches per-CpG `mean_coverage` for Phase 2 matching
 - Primary CpG significance uses Storey **qval** (per-region FDR); `step_7` reports λ_GC overall and within qval strata (does not change calls)
-- **Phase 1 not locked:** covariate/latent-factor sensitivity still required before locking the primary meQTL model — see `PHASE1_LOCK_TODO.md`
+- **Phase 1 locked to M3a** for AA primary — see `PHASE1_LOCK_DECISION.md`. EA stratified uses M0 covariates under `prepared/EA/` / `tensorqtl/EA/`.

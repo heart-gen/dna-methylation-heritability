@@ -1,0 +1,46 @@
+PLINK v2.0.0-a.6.9LM 64-bit Intel (29 Jan 2025)
+Options in effect:
+  --autosome
+  --geno 0.05
+  --hwe 1e-6
+  --keep /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/caudate/_m/genotypes/keep_brnum_brnum.txt
+  --maf 0.05
+  --make-pgen
+  --out /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/caudate/_m/genotypes/meqtl_EA.tmp
+  --pfile /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/_m/genotype_source/TOPMed_LIBD.all_individuals
+  --update-ids /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/caudate/_m/genotypes/update_ids_to_brnum.txt
+
+Hostname: qnode0107
+Working directory: /gpfs/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/_m
+Start time: Sat Aug  1 09:13:45 2026
+
+Random number seed: 1785593625
+193095 MiB RAM detected, ~145865 available; reserving 96547 MiB for main
+workspace.
+Using up to 4 compute threads.
+1938 samples (0 females, 0 males, 1938 ambiguous; 1938 founders) loaded from
+/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/_m/genotype_source/TOPMed_LIBD.all_individuals.psam.
+6911333 out of 7109096 variants loaded from
+/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/_m/genotype_source/TOPMed_LIBD.all_individuals.pvar.
+Note: No phenotype data present.
+--update-ids: 129 samples updated.
+--keep: 129 samples remaining.
+129 samples (0 females, 0 males, 129 ambiguous; 129 founders) remaining after
+main filters.
+Calculating allele frequencies... done.
+--geno: 241977 variants removed due to missing genotype data.
+--hwe: 0 variants removed due to Hardy-Weinberg exact test (founders only).
+1151279 variants removed due to allele frequency threshold(s)
+(--maf/--max-maf/--mac/--max-mac).
+5518077 variants remaining after main filters.
+Writing
+/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/caudate/_m/genotypes/meqtl_EA.tmp.psam
+... done.
+Writing
+/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/caudate/_m/genotypes/meqtl_EA.tmp.pvar
+... done.
+Writing
+/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/caudate/_m/genotypes/meqtl_EA.tmp.pgen
+... done.
+
+End time: Sat Aug  1 09:13:50 2026

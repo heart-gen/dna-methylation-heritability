@@ -1,0 +1,2 @@
+region	method	n_samples	n_cpgs_used	n_cpgs_available	max_k	seed	variance_explained_k5	variance_explained_k10	variance_explained_k15	note
+caudate	PCA_on_M0_residuals	153	50000	201353	15	20260730	0.23867352998179384	0.2888088472809571	0.33051078122670063	PEER package unavailable; PCA residual factors used as planned PEER-style latents

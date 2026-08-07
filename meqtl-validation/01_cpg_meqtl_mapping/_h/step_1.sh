@@ -38,9 +38,10 @@ REGIONS=(caudate dlpfc hippocampus)
 if [[ -z "${REGION:-}" ]]; then
   REGION="${REGIONS[${SLURM_ARRAY_TASK_ID}]}"
 fi
+POPULATION="${POPULATION:-AA}"
 
-log_message "Preflight + covariates for ${REGION}"
-python3 "../_h/00_preflight.py" --region "${REGION}" --population AA
-python3 "../_h/01_prepare_covariates.py" --region "${REGION}" --population AA
+log_message "Preflight + covariates for ${REGION} (${POPULATION})"
+python3 "../_h/00_preflight.py" --region "${REGION}" --population "${POPULATION}"
+python3 "../_h/01_prepare_covariates.py" --region "${REGION}" --population "${POPULATION}"
 
 log_message "**** Job ends ****"

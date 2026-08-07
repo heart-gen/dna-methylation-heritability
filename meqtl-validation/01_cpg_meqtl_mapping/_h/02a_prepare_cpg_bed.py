@@ -150,7 +150,10 @@ def main() -> None:
     if not intervals:
         print(f"No VMRs on chr{chrom}; writing empty outputs")
     
-    outdir = project / "meqtl-validation" / "01_cpg_meqtl_mapping" / region / "_m" / "prepared"
+    prepared_root = (
+        project / "meqtl-validation" / "01_cpg_meqtl_mapping" / region / "_m" / "prepared"
+    )
+    outdir = prepared_root if args.population == "AA" else prepared_root / args.population
     outdir.mkdir(parents=True, exist_ok=True)
 
     # Read phen: header positions, rows samples

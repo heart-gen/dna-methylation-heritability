@@ -1,0 +1,2 @@
+region	n_vmrs	n_cpgs	mean_of_vmr_mean_coverage	path
+dlpfc	10213	159146	23.058264470001557	/gpfs/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/dlpfc/_m/prepared/vmr_mean_coverage.tsv

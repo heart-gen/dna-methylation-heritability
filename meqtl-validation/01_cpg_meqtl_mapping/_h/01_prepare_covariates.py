@@ -24,13 +24,19 @@ def main() -> None:
     paths = load_paths()
     covars = load_yaml("covariates.yml")
     project = Path(paths["project_root"])
-    outdir = project / "meqtl-validation" / "01_cpg_meqtl_mapping" / args.region / "_m" / "prepared"
+    # AA keeps prepared/ for primary lock compatibility; EA under prepared/EA/
+    prepared_root = (
+        project / "meqtl-validation" / "01_cpg_meqtl_mapping" / args.region / "_m" / "prepared"
+    )
+    outdir = prepared_root if args.population == "AA" else prepared_root / args.population
     outdir.mkdir(parents=True, exist_ok=True)
 
-    inclusion = read_tsv(
-        project / "meqtl-validation" / "01_cpg_meqtl_mapping" / args.region / "_m"
-        / "preflight" / "sample_inclusion_primary.tsv"
+    preflight_dir = (
+        project / "meqtl-validation" / "01_cpg_meqtl_mapping" / args.region / "_m" / "preflight"
     )
+    if args.population != "AA":
+        preflight_dir = preflight_dir / args.population
+    inclusion = read_tsv(preflight_dir / "sample_inclusion_primary.tsv")
     keep = [r["brnum"] for r in inclusion]
 
     phen = pd.read_csv(project / paths["phenotype_table"], sep="\t")

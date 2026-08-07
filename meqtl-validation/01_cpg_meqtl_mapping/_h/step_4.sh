@@ -42,6 +42,7 @@ REGIONS=(caudate dlpfc hippocampus)
 if [[ -z "${REGION:-}" ]]; then
   REGION="${REGIONS[${SLURM_ARRAY_TASK_ID}]}"
 fi
+POPULATION="${POPULATION:-AA}"
 DEVICE="${DEVICE:-gpu}"
 CHUNK_SIZE="${CHUNK_SIZE:-chr}"
 
@@ -49,9 +50,18 @@ ROOT="/projects/b1213/users/kynon/projects/dna-methylation-heritability"
 # Submit from _m/; do not resolve $0 (SLURM copies the batch script to spool).
 H="${ROOT}/meqtl-validation/01_cpg_meqtl_mapping/_h"
 M="${ROOT}/meqtl-validation/01_cpg_meqtl_mapping/${REGION}/_m"
-PREP="${M}/prepared"
+if [[ "${POPULATION}" == "AA" ]]; then
+  PREP="${M}/prepared"
+  OUTDIR="${M}/tensorqtl"
+  PREFIX="cpg_meqtl_${REGION}"
+else
+  PREP="${M}/prepared/${POPULATION}"
+  OUTDIR="${M}/tensorqtl/${POPULATION}"
+  PREFIX="cpg_meqtl_${REGION}_${POPULATION}"
+fi
 PHENO_BED="${PREP}/cpg_phenotypes.all_autosomes.bed"
 PHENO_GZ="${PREP}/cpg_phenotypes.all_autosomes.bed.gz"
+GENO_PREFIX="${M}/genotypes/meqtl_${POPULATION}"
 
 log_message "**** Loading conda environment ****"
 # shellcheck disable=SC1091
@@ -66,14 +76,14 @@ if [[ ! -f "${PHENO_GZ}" ]]; then
     log_message "ERROR: missing phenotype BED: ${PHENO_BED}"
     exit 1
   fi
-  log_message "bgzip + tabix phenotype BED for ${REGION}"
+  log_message "bgzip + tabix phenotype BED for ${REGION} (${POPULATION})"
   bgzip -c "${PHENO_BED}" > "${PHENO_GZ}"
   tabix -f -p bed "${PHENO_GZ}"
 fi
 PHENO="${PHENO_GZ}"
 
-if [[ ! -f "${M}/genotypes/meqtl_AA.pgen" ]]; then
-  log_message "ERROR: missing filtered genotypes under ${M}/genotypes/"
+if [[ ! -f "${GENO_PREFIX}.pgen" ]]; then
+  log_message "ERROR: missing filtered genotypes: ${GENO_PREFIX}.pgen"
   exit 1
 fi
 if [[ ! -f "${PREP}/covariates.txt" ]]; then
@@ -81,15 +91,16 @@ if [[ ! -f "${PREP}/covariates.txt" ]]; then
   exit 1
 fi
 
-log_message "Running TensorQTL cis-meQTL for ${REGION} (device=${DEVICE}, chunk=${CHUNK_SIZE})"
+mkdir -p "${OUTDIR}"
+log_message "Running TensorQTL cis-meQTL for ${REGION} (${POPULATION}; device=${DEVICE}, chunk=${CHUNK_SIZE})"
 python "${H}/04_tensorqtl_map.py" \
   --region "${REGION}" \
   --mode cis \
   --phenotype-bed "${PHENO}" \
   --covariates "${PREP}/covariates.txt" \
-  --genotype-prefix "${M}/genotypes/meqtl_AA" \
-  --outdir "${M}/tensorqtl" \
-  --prefix "cpg_meqtl_${REGION}" \
+  --genotype-prefix "${GENO_PREFIX}" \
+  --outdir "${OUTDIR}" \
+  --prefix "${PREFIX}" \
   --window 500000 \
   --maf 0.05 \
   --device "${DEVICE}" \

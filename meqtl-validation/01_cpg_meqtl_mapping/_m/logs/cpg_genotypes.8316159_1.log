@@ -1,0 +1,37 @@
+2026-07-30 08:37:28 - **** Job starts ****
+**** QUEST info ****
+User: owb0346
+Job id: 8316165
+Node name: N/A
+Array task: 1
+No modules loaded
+2026-07-30 08:37:28 - **** Loading conda environment ****
+2026-07-30 08:37:29 - Filtering genotypes for dlpfc
+keep n=111; missing_from_psam n=0
+PLINK v2.0.0-a.6.9LM 64-bit Intel (29 Jan 2025)    cog-genomics.org/plink/2.0/
+(C) 2005-2025 Shaun Purcell, Christopher Chang   GNU General Public License v3
+Logging to /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/dlpfc/_m/genotypes/meqtl_AA.tmp.log.
+Options in effect:
+  --autosome
+  --geno 0.05
+  --hwe 1e-6
+  --keep /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/dlpfc/_m/genotypes/keep_fid_iid.txt
+  --maf 0.05
+  --make-pgen
+  --out /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/dlpfc/_m/genotypes/meqtl_AA.tmp
+  --pfile /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/_m/genotype_source/TOPMed_LIBD.AA
+  --update-ids /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/dlpfc/_m/genotypes/update_ids_to_brnum.txt
+
+Start time: Thu Jul 30 08:37:29 2026
+193095 MiB RAM detected, ~138685 available; reserving 96547 MiB for main
+workspace.
+Using up to 4 compute threads.
+526 samples (0 females, 0 males, 526 ambiguous; 526 founders) loaded from
+/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/_m/genotype_source/TOPMed_LIBD.AA.psam.
+15370444 out of 15865072 variants loaded from
+/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/_m/genotype_source/TOPMed_LIBD.AA.pvar.
+Note: No phenotype data present.
+--update-ids: 111 samples updated.
+--keep: 0 samples remaining.
+Error: No samples remaining after main filters.
+End time: Thu Jul 30 08:37:31 2026

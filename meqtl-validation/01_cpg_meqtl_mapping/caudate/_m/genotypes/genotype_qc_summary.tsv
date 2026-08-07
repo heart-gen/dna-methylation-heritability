@@ -1,0 +1,2 @@
+region	n_samples	n_variants	maf_min	geno_missing_max	hwe_p_min	imputation_r2_min_applied	imputation_r2_note	sample_id_scheme	source_pfile	pfile_prefix	generated_at
+caudate	153	8318782	0.05	0.05	1e-6	NA	INFO/R2 absent from TOPMed_LIBD.AA.pvar; filter not applied	FID=IID=BrNum	/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/_m/genotype_source/TOPMed_LIBD.AA	/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/caudate/_m/genotypes/meqtl_AA	2026-07-30T08:38:49

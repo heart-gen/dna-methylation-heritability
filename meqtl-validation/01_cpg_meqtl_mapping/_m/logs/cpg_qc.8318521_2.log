@@ -1,0 +1,11 @@
+2026-07-30 12:09:57 - **** Job starts ****
+**** QUEST info ****
+User: owb0346
+Job id: 8318521
+Node name: N/A
+Array task: 2
+No modules loaded
+2026-07-30 12:09:58 - **** Loading conda environment ****
+2026-07-30 12:10:12 - Summarizing meQTL QC for hippocampus
+QC summary written to /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/hippocampus/_m/tensorqtl/qc; lambda_gc=3.299; n_sig=47630
+2026-07-30 12:10:44 - **** Job ends ****

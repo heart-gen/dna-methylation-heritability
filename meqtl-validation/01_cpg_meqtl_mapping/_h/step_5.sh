@@ -41,18 +41,23 @@ REGIONS=(caudate dlpfc hippocampus)
 if [[ -z "${REGION:-}" ]]; then
   REGION="${REGIONS[${SLURM_ARRAY_TASK_ID}]}"
 fi
+POPULATION="${POPULATION:-AA}"
 
 ROOT="/projects/b1213/users/kynon/projects/dna-methylation-heritability"
 # Submit from _m/; do not resolve $0 (SLURM copies the batch script to spool).
 H="${ROOT}/meqtl-validation/01_cpg_meqtl_mapping/_h"
-CIS="${ROOT}/meqtl-validation/01_cpg_meqtl_mapping/${REGION}/_m/tensorqtl/cpg_meqtl_${REGION}.cis_qtl.txt.gz"
+if [[ "${POPULATION}" == "AA" ]]; then
+  CIS="${ROOT}/meqtl-validation/01_cpg_meqtl_mapping/${REGION}/_m/tensorqtl/cpg_meqtl_${REGION}.cis_qtl.txt.gz"
+else
+  CIS="${ROOT}/meqtl-validation/01_cpg_meqtl_mapping/${REGION}/_m/tensorqtl/${POPULATION}/cpg_meqtl_${REGION}_${POPULATION}.cis_qtl.txt.gz"
+fi
 
 if [[ ! -f "${CIS}" ]]; then
   log_message "ERROR: missing cis QTL results: ${CIS}"
   exit 1
 fi
 
-log_message "Summarizing meQTL QC for ${REGION}"
+log_message "Summarizing meQTL QC for ${REGION} (${POPULATION})"
 python "${H}/05_qc_summarize.py" \
   --region "${REGION}" \
   --cis-qtl "${CIS}"

@@ -2,7 +2,7 @@
 """Generate Phase 0 data-dictionary tables for meQTL-validation analyses.
 
 Extends the meqtl-validation data audit into the formal deliverables required by
-AGENTS.md / analysis_strategy.md. Does not fit meQTL or phenotype models.
+project data-audit requirements. Does not fit meQTL or phenotype models.
 """
 
 from __future__ import annotations

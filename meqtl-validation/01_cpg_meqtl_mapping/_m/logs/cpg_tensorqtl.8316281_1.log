@@ -1,0 +1,29 @@
+2026-07-30 08:48:52 - **** Job starts ****
+**** QUEST info ****
+User: owb0346
+Job id: 8316313
+Node name: N/A
+Array task: 1
+CUDA_VISIBLE_DEVICES: 0
+No modules loaded
+2026-07-30 08:48:52 - **** Loading conda environment ****
+2026-07-30 08:49:07 - Running TensorQTL cis-meQTL for dlpfc (device=gpu, chunk=chr)
+/projects/p32505/opt/envs/genomics/lib/python3.11/site-packages/tensorqtl/core.py:423: FutureWarning: DataFrameGroupBy.apply operated on the grouping columns. This behavior is deprecated, and in a future version of pandas the grouping columns will be excluded from the operation. Either pass `include_groups=False` to exclude the groupings or explicitly select the grouping columns after groupby to silence this warning.
+  pos_df.groupby('chr', sort=False, group_keys=False).apply(lambda x: x.sort_values(['start', 'end']))
+Warning: 'rfunc' cannot be imported. R with the 'qvalue' library and the 'rpy2' Python package are needed to compute q-values.
+region=dlpfc samples=111 phenotypes=159146 covariates=8 variants=8278458 chunk_size=chr device=gpu
+Traceback (most recent call last):
+  File "/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/_h/04_tensorqtl_map.py", line 235, in <module>
+    main()
+  File "/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/_h/04_tensorqtl_map.py", line 183, in main
+    cis_df = map_cis_chunked(
+             ^^^^^^^^^^^^^^^^
+  File "/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/_h/04_tensorqtl_map.py", line 108, in map_cis_chunked
+    for gt_df, var_df, p_df, p_pos_df, chunk_idx in genotypeio.generate_paired_chunks(
+  File "/projects/p32505/opt/envs/genomics/lib/python3.11/site-packages/tensorqtl/genotypeio.py", line 545, in generate_paired_chunks
+    cis_ranges, _ = get_cis_ranges(phenotype_pos_df, pgr.variant_dfs, window)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/projects/p32505/opt/envs/genomics/lib/python3.11/site-packages/tensorqtl/genotypeio.py", line 401, in get_cis_ranges
+    m = len(chr_variant_dfs[chrom]['pos'].values)
+            ~~~~~~~~~~~~~~~^^^^^^^
+KeyError: 'chr1'

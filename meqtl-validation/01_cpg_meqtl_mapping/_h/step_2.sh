@@ -45,21 +45,32 @@ REGIONS=(caudate dlpfc hippocampus)
 if [[ -z "${REGION:-}" ]]; then
   REGION="${REGIONS[${SLURM_ARRAY_TASK_ID}]}"
 fi
+POPULATION="${POPULATION:-AA}"
 
-PREP="../${REGION}/_m/prepared"
-CPG_ROOT="/projects/b1213/users/alexis/projects/dna-methylation-heritability/vmr-analysis/${REGION}/_m/cpg"
+PREP_ROOT="../${REGION}/_m/prepared"
+if [[ "${POPULATION}" == "AA" ]]; then
+  PREP="${PREP_ROOT}"
+  CPG_ROOT="/projects/b1213/users/alexis/projects/dna-methylation-heritability/vmr-analysis/${REGION}/_m/cpg"
+else
+  PREP="${PREP_ROOT}/${POPULATION}"
+  CPG_ROOT="/projects/b1213/users/alexis/projects/dna-methylation-heritability/vmr-analysis/all_individuals/${REGION}/_m/cpg"
+fi
+mkdir -p "${PREP}"
 
-log_message "Building CpG phenotype BEDs for ${REGION}"
+log_message "Building CpG phenotype BEDs for ${REGION} (${POPULATION})"
 for d in "${CPG_ROOT}"/chr_*; do
   chrom="${d##*_}"
   if [[ "${chrom}" =~ ^(X|Y|M|MT)$ ]]; then
     continue
   fi
   log_message "  chr${chrom}"
-  python3 "../_h/02a_prepare_cpg_bed.py" --region "${REGION}" --chrom "${chrom}"
+  python3 "../_h/02a_prepare_cpg_bed.py" \
+    --region "${REGION}" \
+    --chrom "${chrom}" \
+    --population "${POPULATION}"
 done
 
-log_message "Merging autosomal CpG BEDs for ${REGION}"
+log_message "Merging autosomal CpG BEDs for ${REGION} (${POPULATION})"
 python3 "../_h/02b_merge_cpg_beds.py" --prepared-dir "${PREP}"
 
 conda deactivate

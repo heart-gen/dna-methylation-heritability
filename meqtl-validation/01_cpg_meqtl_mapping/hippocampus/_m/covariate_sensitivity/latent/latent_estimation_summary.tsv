@@ -1,0 +1,2 @@
+region	method	n_samples	n_cpgs_used	n_cpgs_available	max_k	seed	variance_explained_k5	variance_explained_k10	variance_explained_k15	note
+hippocampus	PCA_on_M0_residuals	116	50000	161616	15	20260730	0.4146778511777034	0.47551852873480366	0.5169895612190486	PEER package unavailable; PCA residual factors used as planned PEER-style latents
