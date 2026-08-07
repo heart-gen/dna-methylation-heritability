@@ -1,0 +1,2 @@
+n_pairs_fitted	n_sig_joint_interaction_fdr	frac_sig_joint_interaction	n_sig_interaction_dlpfc_fdr	n_sig_interaction_hippocampus_fdr	interpretation
+3000	737	0.24566666666666667	485	432	Significant genotype×region interactions support regional effect heterogeneity among shared donors for a minority of architecture-screened pairs; absence of interaction for most pairs means regional discovery differences should not be described as widespread caudate-selective effect heterogeneity.

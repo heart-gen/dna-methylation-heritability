@@ -1,0 +1,66 @@
+2026-08-05 12:34:53 - **** Job starts ****
+2026-08-05 12:35:05 - Build downsample sample lists (n_reps=30)
+Wrote 30 lists under /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/04_cross_region_sharing/_m/caudate_downsample/sample_lists (target_n=111; shared3=92; fill=19)
+2026-08-05 12:35:13 - Run N-matched lead-SNP retention meQTL
+/projects/p32505/opt/envs/genomics/lib/python3.11/site-packages/tensorqtl/core.py:423: FutureWarning: DataFrameGroupBy.apply operated on the grouping columns. This behavior is deprecated, and in a future version of pandas the grouping columns will be excluded from the operation. Either pass `include_groups=False` to exclude the groupings or explicitly select the grouping columns after groupby to silence this warning.
+  pos_df.groupby('chr', sort=False, group_keys=False).apply(lambda x: x.sort_values(['start', 'end']))
+Loaded 197613 lead pairs (full-N sig=81007/197613; sig_only=False)
+Warning: 'rfunc' cannot be imported. R with the 'qvalue' library and the 'rpy2' Python package are needed to compute q-values.
+Loading dosages for 29139 unique lead variants...
+Retesting 197613 pairs; phenotypes=197613; variants=29139; donors_full=153
+rep 001: n=111 tests=164846 sig=121868 retain_full_sig=63539
+rep 002: n=111 tests=165498 sig=123874 retain_full_sig=63947
+rep 003: n=111 tests=165456 sig=123492 retain_full_sig=64210
+rep 004: n=111 tests=165233 sig=123263 retain_full_sig=64058
+rep 005: n=111 tests=164620 sig=122221 retain_full_sig=63637
+rep 006: n=111 tests=165259 sig=122771 retain_full_sig=64091
+rep 007: n=111 tests=164590 sig=122391 retain_full_sig=64087
+rep 008: n=111 tests=165465 sig=123099 retain_full_sig=63831
+rep 009: n=111 tests=165833 sig=123120 retain_full_sig=64058
+rep 010: n=111 tests=166387 sig=123576 retain_full_sig=64283
+rep 011: n=111 tests=165581 sig=123513 retain_full_sig=64017
+rep 012: n=111 tests=165121 sig=122439 retain_full_sig=63753
+rep 013: n=111 tests=165402 sig=122743 retain_full_sig=63930
+rep 014: n=111 tests=165686 sig=123161 retain_full_sig=64065
+rep 015: n=111 tests=165493 sig=122988 retain_full_sig=63883
+rep 016: n=111 tests=165540 sig=123204 retain_full_sig=64061
+rep 017: n=111 tests=164696 sig=122636 retain_full_sig=64038
+rep 018: n=111 tests=164792 sig=121612 retain_full_sig=63824
+rep 019: n=111 tests=165150 sig=121951 retain_full_sig=63715
+rep 020: n=111 tests=164735 sig=122220 retain_full_sig=63676
+rep 021: n=111 tests=165214 sig=122608 retain_full_sig=63917
+rep 022: n=111 tests=165653 sig=124035 retain_full_sig=64182
+rep 023: n=111 tests=165174 sig=122907 retain_full_sig=63951
+rep 024: n=111 tests=164342 sig=122396 retain_full_sig=63525
+rep 025: n=111 tests=164910 sig=122622 retain_full_sig=63704
+rep 026: n=111 tests=165537 sig=122234 retain_full_sig=63629
+rep 027: n=111 tests=165174 sig=122607 retain_full_sig=64019
+rep 028: n=111 tests=166027 sig=124275 retain_full_sig=64582
+rep 029: n=111 tests=165137 sig=122506 retain_full_sig=63796
+rep 030: n=111 tests=165571 sig=123349 retain_full_sig=63906
+Done. Median sig CpGs=122757.0
+2026-08-05 12:41:18 - Summarize vs DLPFC/hippocampus
+Downsample claim:
+                                                                                                                                                                                         0
+n_reps                                                                                                                                                                                  30
+target_n                                                                                                                                                                               111
+n_shared3                                                                                                                                                                               92
+method                                                                                                                                                 lead_snp_retention_M3a_residualized
+full_caudate_n_sig                                                                                                                                                                   81007
+downsample_median_n_sig                                                                                                                                                           122757.0
+downsample_mean_n_sig                                                                                                                                                        122856.033333
+downsample_iqr_n_sig                                                                                                                                                     122406.8-123248.2
+downsample_median_n_sig_vmrs                                                                                                                                                        9555.0
+median_frac_full_sig_retained                                                                                                                                                     0.789296
+dlpfc_n_sig                                                                                                                                                                          51273
+hippocampus_n_sig                                                                                                                                                                    55957
+median_ratio_vs_dlpfc                                                                                                                                                             2.394184
+median_ratio_vs_hippocampus                                                                                                                                                       2.193774
+frac_reps_sig_le_dlpfc                                                                                                                                                                 0.0
+frac_reps_sig_le_hippocampus                                                                                                                                                           0.0
+frac_reps_exceed_both_comparators                                                                                                                                                      1.0
+criterion_not_solely_sample_size                                                                                                                                                      True
+flag_collapses_toward_comparator                                                                                                                                                     False
+interpretation                     Caudate cis-meQTL discovery remains higher than DLPFC/hippocampus after N-matched lead-SNP retention downsampling; excess is not explained solely by N.
+Wrote summaries under /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/04_cross_region_sharing/_m/caudate_downsample
+2026-08-05 12:41:19 - **** Job ends ****

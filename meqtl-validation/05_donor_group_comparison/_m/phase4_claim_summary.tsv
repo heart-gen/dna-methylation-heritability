@@ -1,0 +1,11 @@
+claim	metric	n_pairwise_pass	n_pairwise	passes	detail
+cpg_effect_direction_concordance	direction_concordance_both_sig>0.7	3	3	True	caudate_vs_dlpfc:0.912; caudate_vs_hippocampus:0.905; dlpfc_vs_hippocampus:0.924
+cpg_standardized_effect_correlation	pearson_z_either_sig>0 & p<0.05	3	3	True	caudate_vs_dlpfc:r=0.894; caudate_vs_hippocampus:r=0.885; dlpfc_vs_hippocampus:r=0.923
+predictability_associates_with_shared_meqtl_support	logistic OR>1 & p<0.05	3	3	True	caudate_vs_dlpfc:OR=1.807; caudate_vs_hippocampus:OR=2.023; dlpfc_vs_hippocampus:OR=1.953
+aa_burden_gradient_reproducible_across_regions	adjusted_technical coef>0 & p<0.05	3	3	True	caudate:3.201; dlpfc:1.775; hippocampus:2.066
+aa_ea_predictability_portability	spearman_r>0 & p<0.05	3	3	True	caudate:rho=0.506; dlpfc:rho=0.123; hippocampus:rho=0.304
+ea_stratified_meqtl_burden	EA meQTL mapped + positive burden~predictability in ≥2 regions	3	3	True	mapped=3/3; caudate:coef=3.207; dlpfc:coef=1.134; hippocampus:coef=1.295
+caudate_n_matched_downsample	status=done in pending_analyses.tsv (+ claim snapshot)	1	1	True	not_solely_N=True; median_n_sig=122757.0; ratio_dlpfc=2.394184073488971
+shared_donor_gxregion	status=done in pending_analyses.tsv (+ claim snapshot)	1	1	True	fitted=3000; joint_FDR_sig=737; frac=0.2456666666666666
+aa_ea_cpg_effect_concordance	direction_concordance_both_sig>0.7 in ≥2 regions	3	3	True	caudate:dir=0.749,n_both=50716; dlpfc:dir=0.737,n_both=19336; hippocampus:dir=0.724,n_both=26003
+aa_ea_maf_ld_matched_discovery	documented MAF/cis-SNP-density sensitivity (no ancestry claim)	2	3	True	caudate:Δ 0.093→0.100; dlpfc:Δ 0.192→0.162; hippocampus:Δ 0.167→0.113

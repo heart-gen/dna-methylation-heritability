@@ -1,0 +1,5 @@
+region	n_samples	n_sig_fdr	n_tested	n_sig_vmrs	frac_sig	analysis
+caudate	153	81007	197613	nan	0.4099274845278398	full
+caudate	111	122757.0	165246.0	9555.0	0.7432505768110738	caudate_downsample_median
+dlpfc	111	51273	155546	nan	0.32963239170406183	full
+hippocampus	116	55957	157925	nan	0.35432642076935256	full

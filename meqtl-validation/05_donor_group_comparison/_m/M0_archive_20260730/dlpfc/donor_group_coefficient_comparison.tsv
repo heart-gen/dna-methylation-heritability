@@ -1,0 +1,6 @@
+region	donor_group	model	coef_predictability	se_predictability	pval_predictability	n_vmrs
+dlpfc	AA	unadjusted	2.184592450161561	0.0188459882088252	0.0	4916
+dlpfc	AA	adjusted_minimal	2.1819864003519696	0.0188956165889416	0.0	4916
+dlpfc	AA	adjusted_technical	2.156924547086353	0.019204011003913	0.0	4916
+dlpfc	AA	ols_proportion_secondary	2.097298048068758	0.0393615028675847	0.0	4916
+dlpfc	EA	not_run				

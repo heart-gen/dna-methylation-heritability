@@ -1,0 +1,15 @@
+2026-08-01 09:04:22 - **** Job starts ****
+2026-08-01 09:04:28 - Donor-group predictability portability and EA readiness
+Wrote donor-group outputs under /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/05_donor_group_comparison/_m
+     region  n_shared_vmrs  pearson_r  pearson_p  spearman_r    spearman_p  high_pred_quantile  n_concordant_high  n_discordant_high  jaccard_high_pred  median_h2_AA  median_h2_EA
+    caudate          11466   0.873065        0.0    0.506432  0.000000e+00                0.75               2093               1548           0.574842      0.090369      0.106184
+      dlpfc           9593   0.419210        0.0    0.122611  1.872125e-33                0.75                869               3060           0.221176      0.100992      0.155818
+hippocampus           9294   0.665637        0.0    0.304045 5.197370e-198                0.75               1162               2324           0.333333      0.101574      0.154675
+     region donor_group        status
+    caudate          EA         ready
+      dlpfc          EA         ready
+hippocampus          EA         ready
+    caudate          AA mapped_phase1
+      dlpfc          AA mapped_phase1
+hippocampus          AA mapped_phase1
+2026-08-01 09:04:39 - **** Job ends ****

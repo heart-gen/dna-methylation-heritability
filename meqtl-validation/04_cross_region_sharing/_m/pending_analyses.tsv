@@ -1,0 +1,3 @@
+analysis	status	reason	n_shared_all3
+caudate_donor_downsample_remap	done	Lead-SNP retention downsample complete (n_reps=30, target_n=111); median_n_sig=122757; not_solely_N=True	92
+shared_donor_genotype_by_region	done	Shared-donor G×region complete (fitted=3000, joint FDR sig=737, shared_donors=92)	92

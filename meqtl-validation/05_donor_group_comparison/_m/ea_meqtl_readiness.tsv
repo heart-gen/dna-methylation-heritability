@@ -1,0 +1,7 @@
+region	donor_group	status	n_phenotype_samples	n_with_genotype_id_match	n_with_cpg_matrix_id_match	has_predictability_summary	reason
+caudate	EA	mapped_phase1	129.0	129.0	129.0	True	EA stratified CpG cis-meQTL + Phase 2 burden complete
+dlpfc	EA	mapped_phase1	55.0	55.0	55.0	True	EA stratified CpG cis-meQTL + Phase 2 burden complete
+hippocampus	EA	mapped_phase1	60.0	60.0	60.0	True	EA stratified CpG cis-meQTL + Phase 2 burden complete
+caudate	AA	mapped_phase1	153.0	153.0	153.0	True	Primary Phase 1 cis-meQTL complete
+dlpfc	AA	mapped_phase1	111.0	111.0	111.0	True	Primary Phase 1 cis-meQTL complete
+hippocampus	AA	mapped_phase1	116.0	116.0	116.0	True	Primary Phase 1 cis-meQTL complete

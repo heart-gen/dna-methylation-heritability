@@ -1,0 +1,4 @@
+region	annot_type	n_concordant_high	n_other	odds_ratio	pvalue	note
+caudate	AA_meqtl_support_enrichment_in_concordant_high	0	0	nan	1.0	Uses AA Phase 1 meQTL only; not EA meQTL
+dlpfc	AA_meqtl_support_enrichment_in_concordant_high	0	0	nan	1.0	Uses AA Phase 1 meQTL only; not EA meQTL
+hippocampus	AA_meqtl_support_enrichment_in_concordant_high	0	0	nan	1.0	Uses AA Phase 1 meQTL only; not EA meQTL

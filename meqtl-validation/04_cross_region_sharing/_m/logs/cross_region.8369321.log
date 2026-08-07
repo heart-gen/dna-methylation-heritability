@@ -1,0 +1,15 @@
+2026-07-30 19:30:40 - **** Job starts ****
+2026-07-30 19:30:46 - Cross-region meQTL sharing and concordance
+Loading burden tables...
+Loading lead cis-meQTL tables...
+Wrote Phase 4 cross-region outputs under /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/04_cross_region_sharing/_m
+              contrast  n_shared_tested  n_supported_both  jaccard_support
+      caudate_vs_dlpfc             3962               544         0.213585
+caudate_vs_hippocampus             6292              1063         0.254306
+  dlpfc_vs_hippocampus             4143               495         0.234375
+                  all3             3131               161         0.067932
+              contrast  n_shared_tested  n_sig_both  direction_concordance_both_sig  pearson_z_either_sig
+      caudate_vs_dlpfc            69030       22776                        0.918730              0.896956
+caudate_vs_hippocampus            71892       25675                        0.909250              0.889930
+  dlpfc_vs_hippocampus           106366       29629                        0.939991              0.936499
+2026-07-30 19:30:58 - **** Job ends ****

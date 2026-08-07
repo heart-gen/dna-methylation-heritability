@@ -1,0 +1,24 @@
+2026-08-05 12:34:53 - **** Job starts ****
+2026-08-05 12:35:05 - AA–EA CpG lead-effect concordance
+caudate: shared=196101 both_sig=50716 dir_both=0.7486986355390803
+dlpfc: shared=153922 both_sig=19336 dir_both=0.7374327678940836
+hippocampus: shared=156377 both_sig=26003 dir_both=0.7241087566819213
+     region  n_shared_cpgs  n_sig_both  direction_concordance_both_sig  pearson_z_all  frac_same_lead_snp  aa_ea_discovery_rate_ratio
+    caudate         196101       50716                        0.748699       0.492114            0.041779                    1.295467
+      dlpfc         153922       19336                        0.737433       0.326864            0.024272                    2.398731
+hippocampus         156377       26003                        0.724109       0.371478            0.031290                    1.890077
+2026-08-05 12:35:54 - MAF / cis-SNP-density matched discovery contrasts
+/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/05_donor_group_comparison/_h/03_maf_ld_matched_discovery.py:62: RuntimeWarning: Mean of empty slice
+  df["abs_tss"] = np.nanmean(
+/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/05_donor_group_comparison/_h/03_maf_ld_matched_discovery.py:62: RuntimeWarning: Mean of empty slice
+  df["abs_tss"] = np.nanmean(
+/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/05_donor_group_comparison/_h/03_maf_ld_matched_discovery.py:62: RuntimeWarning: Mean of empty slice
+  df["abs_tss"] = np.nanmean(
+caudate: unmatched Δ=0.093 matched Δ=nan shrinks=False
+dlpfc: unmatched Δ=0.192 matched Δ=nan shrinks=False
+hippocampus: unmatched Δ=0.167 matched Δ=nan shrinks=False
+     region  unmatched_rate_diff  matched_rate_diff  gap_attenuation_frac  unmatched_rate_ratio  matched_rate_ratio  mcnemar_p_unmatched  mcnemar_p_matched  gap_shrinks_after_matching  gap_eliminated                                                                                                                                                                                                                                                                               interpretation_note
+    caudate             0.093375                NaN                   NaN              1.295467                 NaN                  0.0                1.0                       False           False Discovery-rate differences that shrink after MAF/cis-SNP-density matching are consistent with allele-frequency / testing-opportunity explanations; residual gaps may reflect power (N), LD, or true effect heterogeneity — do not label as ancestry-specific without formal interaction evidence.
+      dlpfc             0.191896                NaN                   NaN              2.398731                 NaN                  0.0                1.0                       False           False Discovery-rate differences that shrink after MAF/cis-SNP-density matching are consistent with allele-frequency / testing-opportunity explanations; residual gaps may reflect power (N), LD, or true effect heterogeneity — do not label as ancestry-specific without formal interaction evidence.
+hippocampus             0.166629                NaN                   NaN              1.890077                 NaN                  0.0                1.0                       False           False Discovery-rate differences that shrink after MAF/cis-SNP-density matching are consistent with allele-frequency / testing-opportunity explanations; residual gaps may reflect power (N), LD, or true effect heterogeneity — do not label as ancestry-specific without formal interaction evidence.
+2026-08-05 12:36:01 - **** Job ends ****

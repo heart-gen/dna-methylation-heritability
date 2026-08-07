@@ -1,0 +1,6 @@
+region	donor_group	model	coef_predictability	se_predictability	pval_predictability	n_vmrs
+caudate	AA	unadjusted	3.7957224694539087	0.0249733087048797	0.0	9479
+caudate	AA	adjusted_minimal	3.773994227176426	0.0249755352801574	0.0	9479
+caudate	AA	adjusted_technical	3.642872297534703	0.0254462054625181	0.0	9479
+caudate	AA	ols_proportion_secondary	1.5574062737747905	0.0223060827204859	0.0	9479
+caudate	EA	not_run				

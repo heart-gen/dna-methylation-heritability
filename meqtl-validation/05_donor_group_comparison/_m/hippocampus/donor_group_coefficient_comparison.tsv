@@ -1,0 +1,9 @@
+region	donor_group	model	coef_predictability	se_predictability	pval_predictability	n_vmrs
+hippocampus	AA	unadjusted	2.0927755513525	0.0164676668090231	0.0	7799
+hippocampus	AA	adjusted_minimal	2.098936604551421	0.0165277927766468	0.0	7799
+hippocampus	AA	adjusted_technical	2.066183032245463	0.0166272527457676	0.0	7799
+hippocampus	AA	ols_proportion_secondary	1.8729010091852023	0.0335056695588202	0.0	7799
+hippocampus	EA	unadjusted	1.3329765245327794	0.0098114163609985	0.0	7798
+hippocampus	EA	adjusted_minimal	1.3310525605591566	0.0098221509524062	0.0	7798
+hippocampus	EA	adjusted_technical	1.2946087476011978	0.0099317243758773	0.0	7798
+hippocampus	EA	ols_proportion_secondary	2.013231708029968	0.0325201255727474	0.0	7798

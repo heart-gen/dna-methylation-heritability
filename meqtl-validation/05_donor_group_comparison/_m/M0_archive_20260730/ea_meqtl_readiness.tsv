@@ -1,0 +1,7 @@
+region	donor_group	status	n_phenotype_samples	n_with_genotype_id_match	n_with_cpg_matrix_id_match	has_predictability_summary	reason
+caudate	EA	ready	129.0	129.0	129.0	True	Paths ready: all_individuals genotypes + vmr-analysis/all_individuals CpG matrices; EA stratified meQTL not yet executed
+dlpfc	EA	ready	55.0	55.0	55.0	True	Paths ready: all_individuals genotypes + vmr-analysis/all_individuals CpG matrices; EA stratified meQTL not yet executed
+hippocampus	EA	ready	60.0	60.0	60.0	True	Paths ready: all_individuals genotypes + vmr-analysis/all_individuals CpG matrices; EA stratified meQTL not yet executed
+caudate	AA	mapped_phase1	153.0	153.0	153.0	True	Primary Phase 1 cis-meQTL complete
+dlpfc	AA	mapped_phase1	111.0	111.0	111.0	True	Primary Phase 1 cis-meQTL complete
+hippocampus	AA	mapped_phase1	116.0	116.0	116.0	True	Primary Phase 1 cis-meQTL complete

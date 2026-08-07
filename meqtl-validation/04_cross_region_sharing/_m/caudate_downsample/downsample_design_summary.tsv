@@ -1,0 +1,2 @@
+n_caudate_full	n_dlpfc	n_hippocampus	n_shared_all3	n_caudate_nonshared	target_n	n_reps	seed	strategy	matched_to	method_note
+153	111	116	92	61	111	30	20260805	keep_all_shared3_then_fill_random_without_replacement	min(n_dlpfc, n_hippocampus)	Lead-SNP retention under N-matched downsample (not full cis remapping per replicate); same design as Phase 7 Tier A

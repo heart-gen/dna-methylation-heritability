@@ -1,0 +1,16 @@
+region	donor_group	model	coef_predictability	se_predictability	pval_predictability	n_vmrs
+caudate	AA	unadjusted	3.7957224694539087	0.0249733087048797	0.0	9479
+caudate	AA	adjusted_minimal	3.773994227176426	0.0249755352801574	0.0	9479
+caudate	AA	adjusted_technical	3.642872297534703	0.0254462054625181	0.0	9479
+caudate	AA	ols_proportion_secondary	1.5574062737747905	0.0223060827204859	0.0	9479
+caudate	EA	not_run				
+dlpfc	AA	unadjusted	2.184592450161561	0.0188459882088252	0.0	4916
+dlpfc	AA	adjusted_minimal	2.1819864003519696	0.0188956165889416	0.0	4916
+dlpfc	AA	adjusted_technical	2.156924547086353	0.019204011003913	0.0	4916
+dlpfc	AA	ols_proportion_secondary	2.097298048068758	0.0393615028675847	0.0	4916
+dlpfc	EA	not_run				
+hippocampus	AA	unadjusted	2.4699092466388284	0.0182929277449443	0.0	7799
+hippocampus	AA	adjusted_minimal	2.4769605330618507	0.0183577483547939	0.0	7799
+hippocampus	AA	adjusted_technical	2.43105110872941	0.0184662716278343	0.0	7799
+hippocampus	AA	ols_proportion_secondary	2.0036245364251264	0.0312181224413377	0.0	7799
+hippocampus	EA	not_run				
