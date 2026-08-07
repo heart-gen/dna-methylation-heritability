@@ -1,0 +1,16 @@
+region	analysis	model	estimate	or	pvalue	n	error
+caudate	predictability_meqtl_burden_association	original	3.329462619525022		0.0	9479	
+caudate	predictability_meqtl_burden_association	adjusted_technical	3.2005423371746944		0.0	9479	
+caudate	predictability_meqtl_burden_association	cellPC_r2_adj	3.5101759408578412		0.0	3123	
+caudate	predictability_meqtl_burden_association	oligo_r2_adj	3.5200501030017786		0.0	3123	
+caudate	predictability_meqtl_burden_association	dnamCellPC_r2_adj	3.484103381554456		0.0	3123	
+dlpfc	predictability_meqtl_burden_association	original	1.801615359627308		0.0	4916	
+dlpfc	predictability_meqtl_burden_association	adjusted_technical	1.7749961044343623		0.0	4916	
+dlpfc	predictability_meqtl_burden_association	cellPC_r2_adj	2.1977217853765874		0.0	964	
+dlpfc	predictability_meqtl_burden_association	oligo_r2_adj	2.219198506120027		0.0	964	
+dlpfc	predictability_meqtl_burden_association	dnamCellPC_r2_adj	2.0090452687467995		5.402688481896296e-292	964	
+hippocampus	predictability_meqtl_burden_association	original	2.0989366045514215		0.0	7799	
+hippocampus	predictability_meqtl_burden_association	adjusted_technical	2.066183032245463		0.0	7799	
+hippocampus	predictability_meqtl_burden_association	cellPC_r2_adj	2.343706658940107		0.0	3105	
+hippocampus	predictability_meqtl_burden_association	oligo_r2_adj	2.343228033276677		0.0	3105	
+hippocampus	predictability_meqtl_burden_association	dnamCellPC_r2_adj	2.2064133966720036		0.0	3105	

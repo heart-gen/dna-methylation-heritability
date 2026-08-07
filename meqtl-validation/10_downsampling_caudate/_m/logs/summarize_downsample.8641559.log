@@ -1,0 +1,27 @@
+2026-08-05 21:36:15 - **** Job starts ****
+2026-08-05 21:36:30 - Summarizing TensorQTL downsample replicates
+                                                                                                                                                                                                      0
+n_reps_completed                                                                                                                                                                                     30
+n_reps_planned                                                                                                                                                                                       30
+target_n                                                                                                                                                                                            111
+n_shared3                                                                                                                                                                                            92
+method                                                                                                                                                                tensorqtl_cis_permutation_fdr_M3a
+full_caudate_n_sig                                                                                                                                                                                81007
+downsample_median_n_sig                                                                                                                                                                         67562.5
+downsample_mean_n_sig                                                                                                                                                                           67563.9
+downsample_iqr_n_sig                                                                                                                                                                    67180.8-67922.5
+downsample_median_lambda_gc                                                                                                                                                                    3.892912
+median_frac_full_sig_retained                                                                                                                                                                  0.783185
+dlpfc_n_sig                                                                                                                                                                                       51273
+hippocampus_n_sig                                                                                                                                                                                 55957
+median_ratio_vs_dlpfc                                                                                                                                                                          1.317701
+median_ratio_vs_hippocampus                                                                                                                                                                      1.2074
+frac_reps_sig_le_dlpfc                                                                                                                                                                              0.0
+frac_reps_sig_le_hippocampus                                                                                                                                                                        0.0
+frac_reps_exceed_both_comparators                                                                                                                                                                   1.0
+criterion_not_solely_sample_size                                                                                                                                                                   True
+flag_collapses_toward_comparator                                                                                                                                                                  False
+fdr_family_matched                                                                                                                                                                                 True
+interpretation                     After official TensorQTL permutation-FDR remapping at N=111, caudate discovery remains higher than DLPFC/hippocampus; excess is not explained solely by sample size.
+Wrote summaries under /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/10_downsampling_caudate/_m
+2026-08-05 21:38:00 - **** Job ends ****
