@@ -1,0 +1,73 @@
+seed: 20260730
+
+regions:
+  - caudate
+  - dlpfc
+  - hippocampus
+
+reference:
+  name: scMD_Lee_Tian_WGBS
+  source_build: hg19
+  target_build: hg38
+  primary_signature_platform: 850K
+  fallback_signature_platform: 450K
+  scmd_version: 1.0.0
+  scmd_commit: 9b4f52f4bc22ab1e39266f61a80233597e6b52c1
+  scmd_tarball_url: https://github.com/randel/scMD/archive/9b4f52f4bc22ab1e39266f61a80233597e6b52c1.tar.gz
+  scmd_tarball_sha256: fd85dcaa013ccddbd4f564d03fdc3c64efcb0c59e4b6cf79156a1a626d1dc967
+  epic_annotation_version: 0.6.0
+  epic_annotation_url: https://bioconductor.org/packages/3.17/data/annotation/src/contrib/IlluminaHumanMethylationEPICanno.ilm10b4.hg19_0.6.0.tar.gz
+  epic_annotation_sha256: 2c8128126b63e7fa805a5f3b02449367dca9c3be3eb5f6300acc718826590719
+  direct_dependency_commits:
+    EnsDeconv: 8c3425dc7e2e60946cfcfb2c0bdae68be01de63a
+    MIND: 5a71540597e4b12da8925ff45e3e8087160d6c17
+  candidate_markers_per_cell: 250
+  markers_per_cell: 100
+
+filtering:
+  min_coverage: 5
+  min_marker_sample_fraction: 0.80
+  min_sample_marker_fraction: 0.80
+  max_failed_sample_fraction_for_integration: 0.05
+  exclude_blacklist: true
+  exclude_ct_snps: true
+  exclude_ambiguous_liftover: true
+
+engine:
+  preferred: scMD
+  # WGBS beta values are extracted at EPIC signature CpGs.
+  bulk_type: 450k_or_850k
+  allow_reference_ensemble_fallback: true
+  fallback_name: scmd_reference_ensemble_v1
+  fallback_methods:
+    - RPC
+    - CP
+    - simplex_QP
+
+validation:
+  min_neuronal_spearman_rho: 0.30
+  max_neuronal_fdr: 0.05
+  fraction_sum_tolerance: 1.0e-6
+
+paths:
+  phenotype_table: sample_summary/_m/phenotype_data.tsv
+  hdf5_bsseq_template: inputs/wgbs-data/combined/_m/{region}_bsseq_h5se
+  output_root: inputs/cell_proportions/_m
+  reference_dir: inputs/cell_proportions/_m/reference
+  dnam_work_template: inputs/cell_proportions/_m/dnam_scmd/{region}
+  dnam_proportions_template: inputs/cell_proportions/_m/dnam-scmd-proportions-{region}.tsv
+  dnam_wgbs_work_template: inputs/cell_proportions/_m/dnam_scmd_wgbs_reference/{region}
+  dnam_wgbs_proportions_template: inputs/cell_proportions/_m/dnam-scmd-wgbs-reference-proportions-{region}.tsv
+  rna_proportions_template: inputs/cell_proportions/_m/music-proportions-{region}.tsv
+  hg19_to_hg38_chain: meqtl-validation/03_external_meqtl_validation/_m/support/hg19ToHg38.over.chain.gz
+  blacklist_hg38: inputs/supportfiles/_m/hg38-blacklist.v2.bed.gz
+  ct_snps_hg38: inputs/supportfiles/_m/libd_CT_snps_at_cpg.hg38.bed.gz
+
+cell_type_labels:
+  Astro: Astrocyte
+  Micro: Microglia
+  Endo: Endothelial
+  Oligo: Oligodendrocyte
+  OPC: OPC
+  Inh: Inhibitory_neuron
+  Exc: Excitatory_neuron

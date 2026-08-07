@@ -1,0 +1,2 @@
+region	engine	upstream_scmd_installed	upstream_error	n_samples	n_cell_types	n_bulk_marker_ids	signature_platform	seed
+"dlpfc"	"scmd_reference_ensemble_v1"	FALSE	NA	165	7	2937	"850K"	20260730

@@ -1,0 +1,2 @@
+region	engine	upstream_scmd_installed	upstream_error	n_samples	n_cell_types	n_bulk_marker_ids	signature_platform	seed
+"hippocampus"	"scmd_reference_ensemble_v1"	FALSE	NA	176	7	2886	"WGBS"	20260730
