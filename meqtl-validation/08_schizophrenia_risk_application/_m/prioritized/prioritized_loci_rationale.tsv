@@ -1,0 +1,6 @@
+rank	locus_id	index_snp	priority_score	rationale
+1	123.0	rs8048039	14.0	index in FINEMAP CS (PIP=0.291); locus max CS PIP=0.291; caudate FDR meQTL q=1.22e-13 (24 pairs); max VMR predictability=0.364; PSI coupling; sig in 2 regions; genes=-,CDIP1,CORO7-PAM16,DNAJA3,HMOX2,NMRAL1
+2	295.0	rs2710323	13.0	index in FINEMAP CS (PIP=0.182); locus max CS PIP=0.993; caudate FDR meQTL q=5.84e-08 (44 pairs); max VMR predictability=0.155; sig in 3 regions; genes=-,CACNA1D,DCP1A,GLT8D1,GNAI2,GNL3,HYAL2,ITIH1,NCKIPSD,NEK4,PBRM1,RP11-493K19.3,RP11-72H11.1,SNORA26,TKT
+3	440.0	rs4758662	12.5	caudate FDR meQTL q=3.68e-25 (30 pairs); max VMR predictability=0.69; PSI coupling; sig in 3 regions
+4	544.0	rs13331198	11.5	caudate FDR meQTL q=6.16e-06 (30 pairs); max VMR predictability=0.333; expression coupling; sig in 3 regions
+5	423.0	rs12514660	11.0	caudate FDR meQTL q=1.16e-83 (6 pairs); max VMR predictability=0.788; expression coupling; umap=0.926

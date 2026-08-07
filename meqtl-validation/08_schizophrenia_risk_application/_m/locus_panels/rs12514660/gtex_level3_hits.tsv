@@ -1,0 +1,4 @@
+tissue	gtex_tissue	qtl_type	match_type	phenotype_id	gene_id	gene_symbol	variant_id	variant_key	index_snp	pval_nominal	slope	slope_se	af
+caudate	Brain_Caudate_basal_ganglia	eQTL	gene_and_variant	ENSG00000164197.12	ENSG00000164197	RNF180	chr5_64432139_G_C_b38	chr5_64432139_G_C	rs12514660	2.7791402828169695e-05	0.17553405	0.04108701	0.59563756
+dlpfc	Brain_Frontal_Cortex_BA9	eQTL	gene_and_variant	ENSG00000164197.12	ENSG00000164197	RNF180	chr5_64432139_G_C_b38	chr5_64432139_G_C	rs12514660	5.159884071669321e-05	0.14803517	0.035823043	0.5932836
+hippocampus	Brain_Hippocampus	eQTL	gene_and_variant	ENSG00000164197.12	ENSG00000164197	RNF180	chr5_64432139_G_C_b38	chr5_64432139_G_C	rs12514660	1.3066527733787269e-06	0.19950046	0.039970495	0.5885827

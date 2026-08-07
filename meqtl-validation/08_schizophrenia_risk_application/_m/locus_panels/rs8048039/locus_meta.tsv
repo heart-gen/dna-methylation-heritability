@@ -1,0 +1,2 @@
+rank	locus_id	index_snp	chrom_hg38	pos_hg38	chrom_hg19	pos_hg19	gwas_window_start_hg19	gwas_window_end_hg19	gwas_p	gwas_or	risk_allele	best_vmr_id	max_predictability	tx_expression	tx_psi	level3_pass	n_gwas_points	n_caudate_meqtl_tests	n_caudate_meqtl_fdr
+1	123.0	rs8048039	chr16	4448485	16	4498486	4435186	4737486	1.979e-10	1.05253	A	9799	0.364318121073299	False	True	True	860	280	24

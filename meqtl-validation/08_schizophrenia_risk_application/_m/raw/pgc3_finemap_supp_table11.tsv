@@ -1,0 +1,3 @@
+Name	Description
+Credible Sets	"FINEMAP 95% credible sets for a) each of the 250 analysed regions; b) regions consistent with 3 or fewer causal variants; c) regions with 5 or fewer SNPs in the credible set; d) same as (a) but using the ""marginal posterior inclusion probabilities"" as FINEMAP metric, which take all assessed causal models into account. SNP annotations provided by GRCh37 Ensembl VEP. Note that the xMHC has not been finemapped and thus is missing from this list. "
+Region definitions	e) Region boundaries used as FINEMAP input and LD clump index SNPs contained within each region

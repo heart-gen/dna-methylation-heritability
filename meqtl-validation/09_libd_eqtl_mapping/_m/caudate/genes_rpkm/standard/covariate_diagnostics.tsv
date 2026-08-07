@@ -1,0 +1,2 @@
+region	feature	model	n_samples	n_features	n_expr_pcs	pc_error	formula	cohort_policy
+	genes	standard_libd_aa	213	18473	16		~ Sex + Dx + Age + snpPC1 + snpPC2 + snpPC3 + PC1..k	AA_AgeGt13_ControlSCZD_genotyped

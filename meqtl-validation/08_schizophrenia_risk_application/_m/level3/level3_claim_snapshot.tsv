@@ -1,0 +1,2 @@
+n_prioritized_loci	n_loci_libd_sig	n_loci_gtex_caudate_gene_variant	n_loci_level3_pass	success_criterion	pass	libd_recipe
+5	0	3	3	>=1 locus with risk->meQTL and risk->eQTL/sQTL	True	AA_AgeGt13_ControlSCZD; Sex+Dx+Age+snpPC1-3+exprPCs; filterByExpr+TMM-logCPM

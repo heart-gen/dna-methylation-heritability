@@ -1,0 +1,2 @@
+n_loci_sig_any_region	n_loci_sig_ge2_regions	n_loci_sig_all3_regions	n_loci_sig_caudate_only_pattern	caudate_dlpfc_dir_conc_both_sig	caudate_hip_dir_conc_both_sig	pending_caudate_downsample_remap	pending_shared_donor_Gxregion	interpretation
+45	14	5	19	1.0	1.0	True	True	Significance-only caudate enrichment is not sufficient for caudate-selectivity; use effect-size concordance and pending downsample/GxR analyses.

@@ -1,0 +1,2 @@
+primary_region	n_candidate_loci	n_prioritized	n_prioritized_with_tx	n_prioritized_in_credible_set	n_prioritized_multiregion	min_priority_score	max_priority_score	output
+caudate	31	5	4	2	4	11.0	14.0	/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/08_schizophrenia_risk_application/_m/prioritized/prioritized_loci.tsv

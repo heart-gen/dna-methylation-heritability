@@ -1,0 +1,3 @@
+vmr_id	is_best	local_predictability	chrom	start	end	umap_k24_mean	line_l1_frac
+9897	True	0.333471228537332	16	69315778	69316391		
+9898	False	0.040751086243065	16	69444334	69444622		

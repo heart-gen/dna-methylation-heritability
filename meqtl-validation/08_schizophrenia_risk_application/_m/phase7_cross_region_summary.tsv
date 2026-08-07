@@ -1,0 +1,4 @@
+region	n_tests	n_sig_fdr	n_sig_loci	n_sig_vmrs	arch_coef_techadj	arch_pval	matched_perm_p	enrich_higher_predictability	n_tx_coupled_vmrs
+caudate	40001	361	31	38	0.526081	0.000158	0.002999	True	8
+dlpfc	28546	217	17	18	0.550012	0.001078	1.000000	True	0
+hippocampus	29522	196	16	16	0.305858	0.115559	0.503748	False	0

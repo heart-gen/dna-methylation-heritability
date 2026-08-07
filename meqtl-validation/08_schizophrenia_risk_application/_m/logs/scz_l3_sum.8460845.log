@@ -1,0 +1,14 @@
+2026-08-01 19:45:39 - **** Job starts ****
+Warning: 'rfunc' cannot be imported. R with the 'qvalue' library and the 'rpy2' Python package are needed to compute q-values.
+ n_pairs_tested  n_sig_fdr  n_loci_with_sig_eqtl  n_pairs_same_sign_meqtl  n_samples  fdr  maf
+             53          0                     0                        0        212 0.05 0.01
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/08_schizophrenia_risk_application/_m/level3/libd_eqtl
+ n_prioritized_loci  n_loci_libd_sig  n_loci_gtex_caudate_gene_variant  n_loci_level3_pass                              success_criterion  pass                                                                  libd_recipe
+                  5                0                                 3                   3 >=1 locus with risk->meQTL and risk->eQTL/sQTL  True AA_AgeGt13_ControlSCZD; Sex+Dx+Age+snpPC1-3+exprPCs; filterByExpr+TMM-logCPM
+ index_snp  libd_n_sig_fdr  gtex_caudate_gene_variant  level3_pass
+ rs8048039               0                       True         True
+ rs2710323               0                      False        False
+ rs4758662               0                      False        False
+rs13331198               0                       True         True
+rs12514660               0                       True         True
+2026-08-01 19:46:55 - **** Job ends ****

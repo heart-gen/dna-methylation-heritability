@@ -1,0 +1,2 @@
+region	population	n_loci	n_index_snps	n_index_in_genotype_panel	n_index_assigned_to_locus	loci_tsv	index_tsv	genotype_prefix
+dlpfc	AA	624	624	485	485	/projects/b1213/resources/gwas/pgc3/fine_mapped_loci/to_hg38/_m/gwas_loci_hg38.tsv	/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/08_schizophrenia_risk_application/_m/raw/pgc3_primary_gwas_index_snps.tsv	/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/dlpfc/_m/genotypes/meqtl_AA

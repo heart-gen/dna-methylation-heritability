@@ -1,0 +1,5 @@
+region	n_samples	n_sig_fdr	n_sig_loci	n_sig_vmrs	n_tests	analysis
+caudate	153	361	31	38	40001	full
+caudate	111	334.5	23.0	28.0	39183.0	caudate_downsample_median
+dlpfc	111	217	17	18	28546	full
+hippocampus	116	196	16	16	29522	full

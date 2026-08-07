@@ -1,0 +1,2 @@
+region	feature	cohort_policy	n_samples	n_features_input	n_features	min_age	feature_filter	norm_method	phenotype	genotype_prefix	rse_path	sensitivity
+caudate	genes	AA_AgeGt13_ControlSCZD_genotyped	213	78932	18473	13	mean_RPKM>0.2	RPKM	log2(RPKM+1)	inputs/genotypes/TOPMed_LIBD.AA	/projects/b1213/users/kynon/projects/dna-methylation-heritability/inputs/counts/rse-gene.bsp3.caudate-n487.gencode-v47.RData	rpkm_vs_filterByExpr_cpm

@@ -1,0 +1,2 @@
+region	n_sig_risk_loci	n_sig_pairs	n_sig_vmrs	primary_model	coef_predictability	pval_predictability	matched_diff	matched_p	criterion_ge1_locus_meqtl	criterion_enrich_higher_predictability
+hippocampus	16	196	16	adjusted_technical	0.3058576912985786	0.11555862155321991	0.023529411764705882	0.5037481259370314	True	False

@@ -1,0 +1,2 @@
+region	population	window_bp	n_index_in_panel	n_link_rows	n_primary_link_rows	n_vmrs_primary	n_loci_primary	n_direct_lead_links	n_window_sig_meqtl_links	n_overlap_links	lead_path	output
+hippocampus	AA	500000	486	11569	9601	586	285	0	9599	2	/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/hippocampus/_m/tensorqtl/qc/lead_snp_per_cpg.tsv.gz	/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/08_schizophrenia_risk_application/_m/hippocampus/vmr_locus_links.tsv.gz

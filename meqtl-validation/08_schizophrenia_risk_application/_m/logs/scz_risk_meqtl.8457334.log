@@ -1,0 +1,15 @@
+2026-08-01 17:15:24 - **** Job starts ****
+2026-08-01 17:15:25 - Analysis 3: targeted risk-variant CpG meQTL (caudate, AA)
+/projects/p32505/opt/envs/genomics/lib/python3.11/site-packages/tensorqtl/core.py:423: FutureWarning: DataFrameGroupBy.apply operated on the grouping columns. This behavior is deprecated, and in a future version of pandas the grouping columns will be excluded from the operation. Either pass `include_groups=False` to exclude the groupings or explicitly select the grouping columns after groupby to silence this warning.
+  pos_df.groupby('chr', sort=False, group_keys=False).apply(lambda x: x.sort_values(['start', 'end']))
+Warning: 'rfunc' cannot be imported. R with the 'qvalue' library and the 'rpy2' Python package are needed to compute q-values.
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/08_schizophrenia_risk_application/_m/caudate/risk_variant_cpg_meqtl.tsv.gz; tests=40001; FDR<0.05=0; loci=0
+2026-08-01 17:17:00 - Analysis 4: predictability architecture
+Architecture results under /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/08_schizophrenia_risk_application/_m/caudate; sig loci=0
+2026-08-01 17:17:08 - Analysis 6 (light): transcriptional coupling
+/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/08_schizophrenia_risk_application/_h/05_tx_integration.py:87: FutureWarning: Downcasting object dtype arrays on .fillna, .ffill, .bfill is deprecated and will change in a future version. Call result.infer_objects(copy=False) instead. To opt-in to the future behavior, set `pd.set_option('future.no_silent_downcasting', True)`
+  merged["tx_associated"] = merged["tx_associated"].fillna(False)
+/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/08_schizophrenia_risk_application/_h/05_tx_integration.py:87: FutureWarning: Downcasting object dtype arrays on .fillna, .ffill, .bfill is deprecated and will change in a future version. Call result.infer_objects(copy=False) instead. To opt-in to the future behavior, set `pd.set_option('future.no_silent_downcasting', True)`
+  merged["tx_associated"] = merged["tx_associated"].fillna(False)
+TX integration written under /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/08_schizophrenia_risk_application/_m/caudate; coupled VMRs=0
+2026-08-01 17:17:09 - **** Job ends ****

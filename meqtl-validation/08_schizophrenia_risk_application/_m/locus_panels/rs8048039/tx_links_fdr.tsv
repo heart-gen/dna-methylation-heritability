@@ -1,0 +1,2 @@
+locus_id	index_snp	task_id	tx_expression	tx_psi	finemap_genes	gwas_or	gwas_p	vmr_coord	chrom	start	end	vmr_id	modality	feature_id	gene_id	gene_symbol	beta	p	fdr	sig_fdr_05	distance	link_type	sig_tx_fdr	source_priority
+123.0	rs8048039	9799.0	False	True	-,CDIP1,CORO7-PAM16,DNAJA3,HMOX2,NMRAL1	1.05253	1.979e-10	chr16_4370391_4371252	16.0	4370391.0	4371252.0	chr16_4370391_4371252	psi	p34722	ENSG00000153406	NMRAL1	0.275485814945465	6.36295056538665e-08	0.0002392742801716	True	102913.0	local_250kb	True	1
