@@ -1,0 +1,2 @@
+decision	allowed_language	line_l1_passes_celltype_claim	n_regions_line_direction_cellPC	primary_adjustment	dnam_primary_region
+keep_main_figure_with_cell_composition_row	LINE/L1–repressive enrichment of high-predictability VMRs remains after adjustment for cell-composition–correlated methylation properties in caudate and ≥1 other region.	True	3	cellPC_r2 from meth ~ MuSiC cellPC1-3	caudate (M6d / integration gate)
