@@ -42,10 +42,15 @@ phase2_validation_success:
   external_resource_support_ge_1: required
 
 phase7_scz:
-  status: deferred_until_phase1
+  status: active_v1
   primary_region: caudate
+  primary_population: AA
+  covariate_model: M3a
+  cis_window_bp: 500000
   max_illustrative_loci: 5
   ld_r2_proxy_min: 0.8
+  v1_analyses: [1, 2, 3, 4, 6_light]
+  deferred_analyses: [5_regional_specificity, 7_diagnosis_validation, coloc]
   retain_in_main_if:
     - ge_1_credible_risk_locus_with_cpg_meqtl
     - enrichment_toward_higher_predictability_or_interpretable_contrast
