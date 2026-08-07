@@ -2,10 +2,12 @@
 
 primary_meqtl:
   description: Primary CpG-level cis-meQTL model (AA discovery, region-specific)
+  # Locked 2026-08-01: M3a (see meqtl-validation/01_cpg_meqtl_mapping/PHASE1_LOCK_DECISION.md)
+  locked_model: M3a
   formula: >
     CpG_methylation ~ SNP_dosage + agedeath + sex + primarydx
     + snpPC1 + snpPC2 + snpPC3 + snpPC4 + snpPC5
-    + technical_covariates + optional_latent_factors
+    + methPC1 + methPC2 + methPC3 + methPC4 + methPC5
   required_phenotype_columns:
     - agedeath
     - sex
@@ -21,26 +23,48 @@ primary_meqtl:
     - snpPC3
     - snpPC4
     - snpPC5
+  locked_latent_factors:
+    - methPC1
+    - methPC2
+    - methPC3
+    - methPC4
+    - methPC5
   optional_technical:
     - pmi
     - ph
     - batch
   latent_factor_policy: >
-    Include brain-region-specific latent factors only after comparing genomic
-    inflation, QQ plots, known-meQTL enrichment, and genetic-signal retention.
-    Do not auto-include a large surrogate-variable set.
+    Locked primary uses methPC1–5 (PCA on M0-residualized CpG phenotypes).
+    Do not auto-include a larger surrogate-variable set without a new lock review.
   cell_composition: sensitivity_only
   # Phase 1 lock sensitivity grid (see PHASE1_COVARIATE_SENSITIVITY_PLAN.md)
   sensitivity_models:
     M0: baseline (agedeath+sex+primarydx+snpPC1-5)
     M1: M0 + pmi + ph
     M2: M0 + snpPC6-10
-    M3a: M0 + methPC1-5 (PCA on M0 residuals; PEER unavailable)
+    M3a: M0 + methPC1-5 (PCA on M0 residuals; PEER unavailable) [LOCKED PRIMARY]
     M3b: M0 + methPC1-10
     M3c: M0 + methPC1-15
     M4: M1 + best methPC k (after pilot)
-    M5: M0 + cellPC1-3 (sensitivity only)
-  lock_status: open
+    M5: M0 + RNA MuSiC cellPC1-3 (legacy sensitivity only)
+    M6d: M3a + DNAm scMD dnamCellPC1-3 (gated sensitivity only)
+  dnam_cell_composition_model:
+    model_id: M6d
+    formula: M3a + dnamCellPC1 + dnamCellPC2 + dnamCellPC3
+    transform: within-model zero replacement + closure + centered log ratio + PCA
+    integration_gate: >
+      Use only when the region-specific DNAm fractions are bounded, sum to one,
+      pass marker/sample coverage QC, and total-neuronal DNAm-RNA concordance has
+      Spearman rho >= 0.30 and BH FDR <= 0.05.
+    rank_policy: >
+      Retain up to three DNAm cell PCs, dropping the highest-numbered PC only
+      when needed to preserve full design-matrix rank.
+    primary_model_unchanged: true
+  lock_status: locked_M3a
+  lock_date: 2026-08-01
+  lock_rationale: >
+    M3a improves λ_NS vs M0 and increases FDR-significant CpG discoveries in all
+    three regions while retaining external meQTL enrichment.
 
 vmr_burden:
   description: Primary VMR-level meQTL-burden validation model

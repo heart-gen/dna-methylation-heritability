@@ -34,7 +34,12 @@ local_predictability_ea_template: heritability/elastic_net_model/all_individuals
 vmr_annotation_template: heritability/elastic_net_model/all_individuals/tissue_comparison/annotation/_m/{region}_vmr_annotations_hg38.tsv
 vmr_annotation_wide_template: heritability/elastic_net_model/all_individuals/tissue_comparison/annotation/_m/{region}_vmr_annotations_hg38_wide.tsv
 
+# Keep RNA and DNAm composition tracks explicit. The legacy alias remains for
+# scripts that predate DNAm deconvolution and always means RNA MuSiC.
 cell_proportions_template: inputs/cell_proportions/_m/music-proportions-{region}.tsv
+rna_cell_proportions_template: inputs/cell_proportions/_m/music-proportions-{region}.tsv
+dnam_cell_proportions_template: inputs/cell_proportions/_m/dnam-scmd-proportions-{region}.tsv
+dnam_cell_validation_template: inputs/cell_proportions/_m/dnam-scmd-validation-{region}.tsv
 
 genotype:
   AA:
@@ -78,6 +83,13 @@ data_dictionary:
 
 meqtl_validation_root: meqtl-validation
 config_dir: config
+
+# Phase 7 schizophrenia-risk application (prespecified; not methylation-defined)
+schizophrenia_gwas:
+  pgc3_loci_hg38: /projects/b1213/resources/gwas/pgc3/fine_mapped_loci/to_hg38/_m/gwas_loci_hg38.tsv
+  pgc3_index_snp_xls: /projects/b1213/resources/gwas/pgc3/fine_mapped_loci/_m/primaryGWAS_indexSNP.xls
+  pgc3_index_snp_tsv: meqtl-validation/08_schizophrenia_risk_application/_m/raw/pgc3_primary_gwas_index_snps.tsv
+  module_root: meqtl-validation/08_schizophrenia_risk_application
 
 support_files:
   repeat_masker: inputs/supportfiles/_m/repeat-masker-hg38.gz
