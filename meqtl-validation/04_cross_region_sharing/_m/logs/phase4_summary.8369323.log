@@ -1,0 +1,10 @@
+2026-07-30 19:31:07 - **** Job starts ****
+2026-07-30 19:31:13 - Summarizing Phase 4 claims
+                                              claim  passes  n_pairwise_pass  n_pairwise                                                                                    detail
+                   cpg_effect_direction_concordance    True                3           3          caudate_vs_dlpfc:0.919; caudate_vs_hippocampus:0.909; dlpfc_vs_hippocampus:0.940
+                cpg_standardized_effect_correlation    True                3           3    caudate_vs_dlpfc:r=0.897; caudate_vs_hippocampus:r=0.890; dlpfc_vs_hippocampus:r=0.936
+predictability_associates_with_shared_meqtl_support    True                3           3 caudate_vs_dlpfc:OR=1.961; caudate_vs_hippocampus:OR=2.177; dlpfc_vs_hippocampus:OR=2.152
+     aa_burden_gradient_reproducible_across_regions    True                3           3                                             caudate:3.643; dlpfc:2.157; hippocampus:2.431
+                   aa_ea_predictability_portability    True                3           3                                 caudate:rho=0.506; dlpfc:rho=0.123; hippocampus:rho=0.304
+                         ea_stratified_meqtl_burden   False                0           3                                                      blocked: caudate; dlpfc; hippocampus
+2026-07-30 19:31:18 - **** Job ends ****

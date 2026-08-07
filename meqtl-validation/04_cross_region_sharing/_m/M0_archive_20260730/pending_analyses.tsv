@@ -1,0 +1,3 @@
+analysis	status	reason	n_shared_all3
+caudate_donor_downsample_remap	pending	Requires re-running Phase 1 tensorQTL on downsampled caudate donors matched to DLPFC/hippocampus N	92
+shared_donor_genotype_by_region	pending	Requires region×genotype models on repeated donors; shared-donor counts reported in shared_donor_counts.tsv	92

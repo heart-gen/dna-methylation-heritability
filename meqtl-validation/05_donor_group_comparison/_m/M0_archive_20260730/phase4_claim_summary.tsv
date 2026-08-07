@@ -1,0 +1,7 @@
+claim	metric	n_pairwise_pass	n_pairwise	passes	detail
+cpg_effect_direction_concordance	direction_concordance_both_sig>0.7	3	3	True	caudate_vs_dlpfc:0.919; caudate_vs_hippocampus:0.909; dlpfc_vs_hippocampus:0.940
+cpg_standardized_effect_correlation	pearson_z_either_sig>0 & p<0.05	3	3	True	caudate_vs_dlpfc:r=0.897; caudate_vs_hippocampus:r=0.890; dlpfc_vs_hippocampus:r=0.936
+predictability_associates_with_shared_meqtl_support	logistic OR>1 & p<0.05	3	3	True	caudate_vs_dlpfc:OR=1.961; caudate_vs_hippocampus:OR=2.177; dlpfc_vs_hippocampus:OR=2.152
+aa_burden_gradient_reproducible_across_regions	adjusted_technical coef>0 & p<0.05	3	3	True	caudate:3.643; dlpfc:2.157; hippocampus:2.431
+aa_ea_predictability_portability	spearman_r>0 & p<0.05	3	3	True	caudate:rho=0.506; dlpfc:rho=0.123; hippocampus:rho=0.304
+ea_stratified_meqtl_burden	EA meQTL mapped	0	3	False	blocked: caudate; dlpfc; hippocampus

@@ -1,0 +1,7 @@
+region	n_samples	n_cpgs_tested	n_cpgs_sig	frac_cpgs_sig	n_cpgs_sig_per_sqrtN	n_vmrs	n_vmrs_meqtl_supported	frac_vmrs_supported	n_vmrs_supported_per_sqrtN	note
+caudate	153	197613	81007	0.4099274845278398	6549.027792439409	11527.0	5953.0	0.5164396633989763	481.27152528043007	N-normalized rates are descriptive; formal donor-downsample remapping not run
+dlpfc	111	155546	51273	0.32963239170406183	4866.6177916217885	10213.0	3983.0	0.3899931459904044	378.0496297082204	N-normalized rates are descriptive; formal donor-downsample remapping not run
+hippocampus	116	157925	55957	0.35432642076935256	5195.4770191866455	10042.0	4226.0	0.4208325034853615	392.3742495681106	N-normalized rates are descriptive; formal donor-downsample remapping not run
+shared_cpgs_caudate_vs_dlpfc	153;111	69030	31942;29346	0.462726;0.425120						Equal CpG set; residual sample-size power differences remain
+shared_cpgs_caudate_vs_hippocampus	153;116	71892	34468;31976	0.479441;0.444778						Equal CpG set; residual sample-size power differences remain
+shared_cpgs_dlpfc_vs_hippocampus	111;116	106366	39591;40813	0.372215;0.383703						Equal CpG set; residual sample-size power differences remain

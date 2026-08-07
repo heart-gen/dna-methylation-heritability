@@ -1,0 +1,2 @@
+n_reps	n_pairs_input	n_pairs_tested	sig_only	method	median_n_sig_fdr	mean_n_sig_fdr	median_n_sig_vmrs	median_frac_full_sig_retained	n_sig_full_caudate	fdr	maf
+30	197613	197613	False	lead_snp_retention_M3a_residualized	122757.0	122856.03333333334	9555.0	0.7892959867665756	81007	0.05	0.05
