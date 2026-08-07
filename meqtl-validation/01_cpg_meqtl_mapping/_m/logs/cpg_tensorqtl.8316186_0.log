@@ -1,0 +1,12 @@
+2026-07-30 08:43:17 - **** Job starts ****
+**** QUEST info ****
+User: owb0346
+Job id: 8316204
+Node name: N/A
+Array task: 0
+CUDA_VISIBLE_DEVICES: 0
+No modules loaded
+2026-07-30 08:43:18 - **** Loading conda environment ****
+2026-07-30 08:43:29 - bgzip + tabix phenotype BED for caudate
+2026-07-30 08:43:43 - Running TensorQTL cis-meQTL for caudate (device=gpu, chunk=chr)
+python: can't open file '/var/spool/slurmd/job8316204/04_tensorqtl_map.py': [Errno 2] No such file or directory

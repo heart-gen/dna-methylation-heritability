@@ -1,0 +1,2 @@
+region	significance_rule	n_tested	n_significant	n_nonsignificant	primary_pval_column	lambda_gc_all	lambda_gc_nonsignificant	lambda_gc_significant	lambda_gc_near_null_qval_gt_0.5	outdir
+caudate	qval <= 0.05	197613	73375	124238	pval_beta	4.362800058653838	1.4677979532454644	62.343417313363496	nan	/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/caudate/_m/tensorqtl/qc/calibration

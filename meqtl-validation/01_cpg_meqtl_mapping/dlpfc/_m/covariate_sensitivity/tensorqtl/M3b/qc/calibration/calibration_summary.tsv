@@ -1,0 +1,2 @@
+region	significance_rule	n_tested	n_significant	n_nonsignificant	primary_pval_column	lambda_gc_all	lambda_gc_nonsignificant	lambda_gc_significant	lambda_gc_near_null_qval_gt_0.5	outdir
+dlpfc	qval <= 0.05	155546	51265	104281	pval_beta	3.635670949370183	1.4606170744697287	47.056920799797446	nan	/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/dlpfc/_m/covariate_sensitivity/tensorqtl/M3b/qc/calibration

@@ -1,0 +1,16 @@
+2026-07-30 21:39:22 - **** Job starts ****
+2026-07-30 21:39:25 - Comparing covariate models for caudate
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/caudate/_m/covariate_sensitivity/comparison_summary.tsv
+model_id  n_significant_fdr  lambda_gc_nonsignificant  enrichment_or
+      M0            73375.0                  1.467798       1.649908
+      M1            72749.0                  1.465379       1.650965
+      M2            72216.0                  1.480686       1.638065
+     M3a            81007.0                  1.459178       1.638660
+     M3b            80748.0                  1.448133       1.670292
+     M3c            79422.0                  1.477839       1.637325
+      M4                NaN                       NaN            NaN
+      M5                NaN                       NaN            NaN
+2026-07-30 21:39:58 - Writing lock decision (pilot-driven)
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/PHASE1_LOCK_DECISION.md
+Chose M0
+2026-07-30 21:39:59 - **** Job ends ****

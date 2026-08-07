@@ -1,0 +1,2 @@
+region	chrom	n_target_cpgs	n_matched	n_unmatched	n_samples_coverage	min_coverage_threshold	mean_of_mean_coverage	median_of_mean_coverage	mean_frac_samples_cov_ge_min	out_path
+hippocampus	chr21	2362	2362	0	116	5	41.9065593156005	23.7672413793103	0.958714123040089	/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/hippocampus/_m/prepared/cpg_coverage.chr21.tsv

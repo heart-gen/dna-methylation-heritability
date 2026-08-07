@@ -1,0 +1,13 @@
+2026-08-01 17:06:00 - **** Job starts ****
+2026-08-01 17:06:01 - Estimate EA methPCs for caudate
+Loading phenotypes from /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/caudate/_m/prepared/EA/cpg_phenotypes.all_autosomes.bed.gz
+Subsampled 50000 / 201795 CpGs for latent estimation
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/caudate/_m/prepared/EA/latent/latent_factors_k5.tsv
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/caudate/_m/prepared/EA/latent/latent_factors_k10.tsv
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/caudate/_m/prepared/EA/latent/latent_factors_k15.tsv
+Latent estimation complete for caudate (EA)
+2026-08-01 17:06:21 - Build EA covariate models (incl. M3a)
+Wrote covariate models for caudate under /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/caudate/_m/prepared/EA
+2026-08-01 17:06:22 - Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/caudate/_m/prepared/EA/covariates_M3a_primary.txt
+id	agedeath	sex	primarydx	snpPC1	snpPC2	snpPC3	snpPC4	snpPC5	methPC1	methPC2	methPC3	methPC4	methPC5
+2026-08-01 17:06:22 - **** Job ends ****

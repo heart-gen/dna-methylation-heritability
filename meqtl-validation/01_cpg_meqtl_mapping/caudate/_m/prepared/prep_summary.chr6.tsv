@@ -1,0 +1,2 @@
+region	chrom	n_samples	n_sites_in_phen	n_sites_in_vmrs	n_sites_retained	bed_path
+caudate	chr6	153	1336910	11328	11328	/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/caudate/_m/prepared/cpg_phenotypes.chr6.bed

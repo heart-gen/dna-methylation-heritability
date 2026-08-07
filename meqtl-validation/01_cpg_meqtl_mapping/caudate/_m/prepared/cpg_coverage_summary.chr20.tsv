@@ -1,0 +1,2 @@
+region	chrom	n_target_cpgs	n_matched	n_unmatched	n_samples_coverage	min_coverage_threshold	mean_of_mean_coverage	median_of_mean_coverage	mean_frac_samples_cov_ge_min	out_path
+caudate	chr20	5936	5936	0	153	5	12.4065170093195	10.9771241830065	0.939743979352747	/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/caudate/_m/prepared/cpg_coverage.chr20.tsv

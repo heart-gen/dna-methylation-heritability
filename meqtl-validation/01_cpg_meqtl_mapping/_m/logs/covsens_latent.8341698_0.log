@@ -1,0 +1,11 @@
+2026-07-30 15:31:10 - **** Job starts ****
+2026-07-30 15:31:14 - Estimating latent factors for caudate
+Loading phenotypes from /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/caudate/_m/prepared/cpg_phenotypes.all_autosomes.bed.gz
+Subsampled 50000 / 201353 CpGs for latent estimation
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/caudate/_m/covariate_sensitivity/latent/latent_factors_k5.tsv
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/caudate/_m/covariate_sensitivity/latent/latent_factors_k10.tsv
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/caudate/_m/covariate_sensitivity/latent/latent_factors_k15.tsv
+Latent estimation complete for caudate
+2026-07-30 15:31:36 - Building covariate model matrices for caudate
+Wrote covariate models for caudate under /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/caudate/_m/covariate_sensitivity
+2026-07-30 15:31:40 - **** Job ends ****

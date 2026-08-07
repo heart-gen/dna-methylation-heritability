@@ -1,0 +1,2 @@
+region	n_phenotypes_tested	n_significant_fdr	fdr_threshold	lambda_gc	median_pval	cis_qtl_path
+dlpfc	155546	42291	0.05	3.095594842674872	0.235339	/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/dlpfc/_m/covariate_sensitivity/tensorqtl/M1/cpg_meqtl_dlpfc_M1.cis_qtl.txt.gz

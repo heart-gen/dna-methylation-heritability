@@ -1,0 +1,11 @@
+2026-07-22 14:39:38 - **** Job starts ****
+**** QUEST info ****
+User: owb0346
+Job id: 7601446
+Node name: N/A
+Array task: 0
+No modules loaded
+2026-07-22 14:39:38 - Preflight + covariates for caudate
+caudate AA: 153 samples ready; wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/caudate/_m/preflight
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/caudate/_m/prepared/covariates.txt shape=(8, 153)
+2026-07-22 14:39:51 - **** Job ends ****

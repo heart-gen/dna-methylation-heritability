@@ -1,0 +1,2 @@
+region	chrom	n_samples	n_sites_in_phen	n_sites_in_vmrs	n_sites_retained	bed_path
+dlpfc	chr9	111	899262	7092	7092	/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/dlpfc/_m/prepared/cpg_phenotypes.chr9.bed

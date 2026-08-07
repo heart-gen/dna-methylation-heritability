@@ -1,0 +1,2 @@
+region	chrom	n_target_cpgs	n_matched	n_unmatched	n_samples_coverage	min_coverage_threshold	mean_of_mean_coverage	median_of_mean_coverage	mean_frac_samples_cov_ge_min	out_path
+dlpfc	chr21	2361	2361	0	111	5	43.4927824902412	23.6396396396396	0.957698486288067	/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/dlpfc/_m/prepared/cpg_coverage.chr21.tsv

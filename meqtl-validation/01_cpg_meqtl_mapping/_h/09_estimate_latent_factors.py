@@ -33,6 +33,7 @@ SEED = 20260730
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--region", required=True, choices=["caudate", "dlpfc", "hippocampus"])
+    p.add_argument("--population", default="AA", choices=["AA", "EA"])
     p.add_argument("--subsample-cpgs", type=int, default=DEFAULT_SUBSAMPLE)
     p.add_argument("--seed", type=int, default=SEED)
     return p.parse_args()
@@ -72,11 +73,23 @@ def main() -> None:
     paths = load_paths()
     region = args.region
     base = PROJECT / "meqtl-validation" / "01_cpg_meqtl_mapping" / region / "_m"
-    prep = base / "prepared"
-    outdir = base / "covariate_sensitivity" / "latent"
+    # AA: prepared/ + covariate_sensitivity/latent/; EA: prepared/EA/ + .../latent/
+    if args.population == "AA":
+        prep = base / "prepared"
+        outdir = base / "covariate_sensitivity" / "latent"
+    else:
+        prep = base / "prepared" / args.population
+        outdir = prep / "latent"
     outdir.mkdir(parents=True, exist_ok=True)
 
-    cov0 = pd.read_csv(prep / "covariates.txt", sep="\t", index_col=0)
+    # Prefer M0-only covariates for residualization (strip methPCs if present)
+    cov_path = prep / "covariates.txt"
+    if args.population != "AA" and (prep / "covariates_M0.txt").exists():
+        cov_path = prep / "covariates_M0.txt"
+    cov0 = pd.read_csv(cov_path, sep="\t", index_col=0)
+    meth_cols = [c for c in cov0.columns if str(c).startswith("methPC")]
+    if meth_cols:
+        cov0 = cov0.drop(columns=meth_cols)
     cov0.index = cov0.index.astype(str)
     sample_ids = cov0.index.tolist()
 
@@ -126,6 +139,7 @@ def main() -> None:
         outdir / "latent_estimation_summary.tsv",
         [{
             "region": region,
+            "population": args.population,
             "method": "PCA_on_M0_residuals",
             "n_samples": len(sample_ids),
             "n_cpgs_used": int(phen.shape[0]),
@@ -138,7 +152,7 @@ def main() -> None:
             "note": "PEER package unavailable; PCA residual factors used as planned PEER-style latents",
         }],
     )
-    print(f"Latent estimation complete for {region}")
+    print(f"Latent estimation complete for {region} ({args.population})")
 
 
 if __name__ == "__main__":

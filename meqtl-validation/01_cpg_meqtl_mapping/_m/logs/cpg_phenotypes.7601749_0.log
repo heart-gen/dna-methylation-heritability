@@ -1,0 +1,78 @@
+2026-07-22 14:42:37 - **** Job starts ****
+**** QUEST info ****
+User: owb0346
+Job id: 7601750
+Node name: N/A
+Array task: 0
+No modules loaded
+2026-07-22 14:42:38 - Building CpG phenotype BEDs for caudate
+2026-07-22 14:42:38 -   chr1
+WARNING: bgzip/tabix unavailable; left uncompressed BED
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/caudate/_m/prepared/cpg_phenotypes.chr1.bed with 17123 CpGs for 153 samples
+2026-07-22 14:44:55 -   chr10
+WARNING: bgzip/tabix unavailable; left uncompressed BED
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/caudate/_m/prepared/cpg_phenotypes.chr10.bed with 10505 CpGs for 153 samples
+2026-07-22 14:45:44 -   chr11
+WARNING: bgzip/tabix unavailable; left uncompressed BED
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/caudate/_m/prepared/cpg_phenotypes.chr11.bed with 9502 CpGs for 153 samples
+2026-07-22 14:46:26 -   chr12
+WARNING: bgzip/tabix unavailable; left uncompressed BED
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/caudate/_m/prepared/cpg_phenotypes.chr12.bed with 9557 CpGs for 153 samples
+2026-07-22 14:47:14 -   chr13
+WARNING: bgzip/tabix unavailable; left uncompressed BED
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/caudate/_m/prepared/cpg_phenotypes.chr13.bed with 6111 CpGs for 153 samples
+2026-07-22 14:47:47 -   chr14
+WARNING: bgzip/tabix unavailable; left uncompressed BED
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/caudate/_m/prepared/cpg_phenotypes.chr14.bed with 6508 CpGs for 153 samples
+2026-07-22 14:48:29 -   chr15
+WARNING: bgzip/tabix unavailable; left uncompressed BED
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/caudate/_m/prepared/cpg_phenotypes.chr15.bed with 6229 CpGs for 153 samples
+2026-07-22 14:49:08 -   chr16
+WARNING: bgzip/tabix unavailable; left uncompressed BED
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/caudate/_m/prepared/cpg_phenotypes.chr16.bed with 8000 CpGs for 153 samples
+2026-07-22 14:50:03 -   chr17
+WARNING: bgzip/tabix unavailable; left uncompressed BED
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/caudate/_m/prepared/cpg_phenotypes.chr17.bed with 8574 CpGs for 153 samples
+2026-07-22 14:51:03 -   chr18
+WARNING: bgzip/tabix unavailable; left uncompressed BED
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/caudate/_m/prepared/cpg_phenotypes.chr18.bed with 5409 CpGs for 153 samples
+2026-07-22 14:51:35 -   chr19
+WARNING: bgzip/tabix unavailable; left uncompressed BED
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/caudate/_m/prepared/cpg_phenotypes.chr19.bed with 7788 CpGs for 153 samples
+2026-07-22 14:52:24 -   chr2
+WARNING: bgzip/tabix unavailable; left uncompressed BED
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/caudate/_m/prepared/cpg_phenotypes.chr2.bed with 16816 CpGs for 153 samples
+2026-07-22 14:54:57 -   chr20
+WARNING: bgzip/tabix unavailable; left uncompressed BED
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/caudate/_m/prepared/cpg_phenotypes.chr20.bed with 5936 CpGs for 153 samples
+2026-07-22 14:55:30 -   chr21
+WARNING: bgzip/tabix unavailable; left uncompressed BED
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/caudate/_m/prepared/cpg_phenotypes.chr21.bed with 3155 CpGs for 153 samples
+2026-07-22 14:55:46 -   chr22
+WARNING: bgzip/tabix unavailable; left uncompressed BED
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/caudate/_m/prepared/cpg_phenotypes.chr22.bed with 4265 CpGs for 153 samples
+2026-07-22 14:56:10 -   chr3
+WARNING: bgzip/tabix unavailable; left uncompressed BED
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/caudate/_m/prepared/cpg_phenotypes.chr3.bed with 12127 CpGs for 153 samples
+2026-07-22 14:57:55 -   chr4
+WARNING: bgzip/tabix unavailable; left uncompressed BED
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/caudate/_m/prepared/cpg_phenotypes.chr4.bed with 11219 CpGs for 153 samples
+2026-07-22 14:59:19 -   chr5
+WARNING: bgzip/tabix unavailable; left uncompressed BED
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/caudate/_m/prepared/cpg_phenotypes.chr5.bed with 10997 CpGs for 153 samples
+2026-07-22 15:00:48 -   chr6
+WARNING: bgzip/tabix unavailable; left uncompressed BED
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/caudate/_m/prepared/cpg_phenotypes.chr6.bed with 11328 CpGs for 153 samples
+2026-07-22 15:02:13 -   chr7
+WARNING: bgzip/tabix unavailable; left uncompressed BED
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/caudate/_m/prepared/cpg_phenotypes.chr7.bed with 11857 CpGs for 153 samples
+2026-07-22 15:03:39 -   chr8
+WARNING: bgzip/tabix unavailable; left uncompressed BED
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/caudate/_m/prepared/cpg_phenotypes.chr8.bed with 9840 CpGs for 153 samples
+2026-07-22 15:04:54 -   chr9
+WARNING: bgzip/tabix unavailable; left uncompressed BED
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/caudate/_m/prepared/cpg_phenotypes.chr9.bed with 8507 CpGs for 153 samples
+2026-07-22 15:05:57 - Merging autosomal CpG BEDs for caudate
+Wrote ../caudate/_m/prepared/cpg_phenotypes.all_autosomes.bed with 201353 CpGs
+WARNING: bgzip/tabix unavailable or failed ([Errno 2] No such file or directory: 'bgzip'); left ../caudate/_m/prepared/cpg_phenotypes.all_autosomes.bed
+2026-07-22 15:06:02 - **** Job ends ****

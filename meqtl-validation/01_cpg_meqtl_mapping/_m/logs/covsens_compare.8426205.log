@@ -1,0 +1,16 @@
+2026-07-31 17:38:18 - **** Job starts ****
+2026-07-31 17:38:19 - Comparing covariate models for dlpfc
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/dlpfc/_m/covariate_sensitivity/comparison_summary.tsv
+model_id  n_significant_fdr  lambda_gc_nonsignificant  enrichment_or
+      M0            42496.0                  1.503024       2.441817
+      M1            42291.0                  1.498598       2.440271
+      M2            41714.0                  1.465015       2.396297
+     M3a            51273.0                  1.468304       2.365776
+     M3b            51265.0                  1.460617       2.348642
+     M3c            49453.0                  1.497140       2.362136
+      M4                NaN                       NaN            NaN
+      M5                NaN                       NaN            NaN
+2026-07-31 17:38:41 - Writing lock decision (pilot-driven)
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/PHASE1_LOCK_DECISION.md
+Chose M0
+2026-07-31 17:38:42 - **** Job ends ****

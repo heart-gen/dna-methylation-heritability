@@ -1,0 +1,2 @@
+region	n_phenotypes_tested	n_significant_fdr	fdr_threshold	lambda_gc	median_pval	cis_qtl_path
+caudate	197613	81007	0.05	4.979572460424359	0.132293	/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/caudate/_m/covariate_sensitivity/tensorqtl/M3a/cpg_meqtl_caudate_M3a.cis_qtl.txt.gz

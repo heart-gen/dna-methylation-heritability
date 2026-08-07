@@ -1,0 +1,78 @@
+2026-07-22 14:42:37 - **** Job starts ****
+**** QUEST info ****
+User: owb0346
+Job id: 7601749
+Node name: N/A
+Array task: 2
+No modules loaded
+2026-07-22 14:42:38 - Building CpG phenotype BEDs for hippocampus
+2026-07-22 14:42:38 -   chr1
+WARNING: bgzip/tabix unavailable; left uncompressed BED
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/hippocampus/_m/prepared/cpg_phenotypes.chr1.bed with 16433 CpGs for 116 samples
+2026-07-22 14:44:30 -   chr10
+WARNING: bgzip/tabix unavailable; left uncompressed BED
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/hippocampus/_m/prepared/cpg_phenotypes.chr10.bed with 8545 CpGs for 116 samples
+2026-07-22 14:45:20 -   chr11
+WARNING: bgzip/tabix unavailable; left uncompressed BED
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/hippocampus/_m/prepared/cpg_phenotypes.chr11.bed with 7574 CpGs for 116 samples
+2026-07-22 14:46:11 -   chr12
+WARNING: bgzip/tabix unavailable; left uncompressed BED
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/hippocampus/_m/prepared/cpg_phenotypes.chr12.bed with 7590 CpGs for 116 samples
+2026-07-22 14:46:57 -   chr13
+WARNING: bgzip/tabix unavailable; left uncompressed BED
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/hippocampus/_m/prepared/cpg_phenotypes.chr13.bed with 4361 CpGs for 116 samples
+2026-07-22 14:47:24 -   chr14
+WARNING: bgzip/tabix unavailable; left uncompressed BED
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/hippocampus/_m/prepared/cpg_phenotypes.chr14.bed with 4792 CpGs for 116 samples
+2026-07-22 14:47:57 -   chr15
+WARNING: bgzip/tabix unavailable; left uncompressed BED
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/hippocampus/_m/prepared/cpg_phenotypes.chr15.bed with 5035 CpGs for 116 samples
+2026-07-22 14:48:26 -   chr16
+WARNING: bgzip/tabix unavailable; left uncompressed BED
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/hippocampus/_m/prepared/cpg_phenotypes.chr16.bed with 7280 CpGs for 116 samples
+2026-07-22 14:49:16 -   chr17
+WARNING: bgzip/tabix unavailable; left uncompressed BED
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/hippocampus/_m/prepared/cpg_phenotypes.chr17.bed with 7939 CpGs for 116 samples
+2026-07-22 14:50:06 -   chr18
+WARNING: bgzip/tabix unavailable; left uncompressed BED
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/hippocampus/_m/prepared/cpg_phenotypes.chr18.bed with 4241 CpGs for 116 samples
+2026-07-22 14:50:27 -   chr19
+WARNING: bgzip/tabix unavailable; left uncompressed BED
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/hippocampus/_m/prepared/cpg_phenotypes.chr19.bed with 7624 CpGs for 116 samples
+2026-07-22 14:51:09 -   chr2
+WARNING: bgzip/tabix unavailable; left uncompressed BED
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/hippocampus/_m/prepared/cpg_phenotypes.chr2.bed with 12941 CpGs for 116 samples
+2026-07-22 14:52:40 -   chr20
+WARNING: bgzip/tabix unavailable; left uncompressed BED
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/hippocampus/_m/prepared/cpg_phenotypes.chr20.bed with 5370 CpGs for 116 samples
+2026-07-22 14:53:04 -   chr21
+WARNING: bgzip/tabix unavailable; left uncompressed BED
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/hippocampus/_m/prepared/cpg_phenotypes.chr21.bed with 2362 CpGs for 116 samples
+2026-07-22 14:53:14 -   chr22
+WARNING: bgzip/tabix unavailable; left uncompressed BED
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/hippocampus/_m/prepared/cpg_phenotypes.chr22.bed with 3989 CpGs for 116 samples
+2026-07-22 14:53:35 -   chr3
+WARNING: bgzip/tabix unavailable; left uncompressed BED
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/hippocampus/_m/prepared/cpg_phenotypes.chr3.bed with 8515 CpGs for 116 samples
+2026-07-22 14:54:42 -   chr4
+WARNING: bgzip/tabix unavailable; left uncompressed BED
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/hippocampus/_m/prepared/cpg_phenotypes.chr4.bed with 7425 CpGs for 116 samples
+2026-07-22 14:55:35 -   chr5
+WARNING: bgzip/tabix unavailable; left uncompressed BED
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/hippocampus/_m/prepared/cpg_phenotypes.chr5.bed with 8004 CpGs for 116 samples
+2026-07-22 14:56:29 -   chr6
+WARNING: bgzip/tabix unavailable; left uncompressed BED
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/hippocampus/_m/prepared/cpg_phenotypes.chr6.bed with 8123 CpGs for 116 samples
+2026-07-22 14:57:24 -   chr7
+WARNING: bgzip/tabix unavailable; left uncompressed BED
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/hippocampus/_m/prepared/cpg_phenotypes.chr7.bed with 9051 CpGs for 116 samples
+2026-07-22 14:58:20 -   chr8
+WARNING: bgzip/tabix unavailable; left uncompressed BED
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/hippocampus/_m/prepared/cpg_phenotypes.chr8.bed with 7293 CpGs for 116 samples
+2026-07-22 14:59:08 -   chr9
+WARNING: bgzip/tabix unavailable; left uncompressed BED
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/hippocampus/_m/prepared/cpg_phenotypes.chr9.bed with 7129 CpGs for 116 samples
+2026-07-22 14:59:50 - Merging autosomal CpG BEDs for hippocampus
+Wrote ../hippocampus/_m/prepared/cpg_phenotypes.all_autosomes.bed with 161616 CpGs
+WARNING: bgzip/tabix unavailable or failed ([Errno 2] No such file or directory: 'bgzip'); left ../hippocampus/_m/prepared/cpg_phenotypes.all_autosomes.bed
+2026-07-22 14:59:53 - **** Job ends ****

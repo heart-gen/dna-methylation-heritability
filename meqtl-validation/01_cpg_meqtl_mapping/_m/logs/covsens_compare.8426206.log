@@ -1,0 +1,16 @@
+2026-07-31 21:56:59 - **** Job starts ****
+2026-07-31 21:57:00 - Comparing covariate models for hippocampus
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/hippocampus/_m/covariate_sensitivity/comparison_summary.tsv
+model_id  n_significant_fdr  lambda_gc_nonsignificant  enrichment_or
+      M0            47630.0                  1.459641       6.371749
+      M1            47665.0                  1.418826       6.466619
+      M2            46712.0                  1.392282       6.383938
+     M3a            55957.0                  1.418517       6.877335
+     M3b            55409.0                  1.475883       6.855709
+     M3c            54731.0                  1.443659       6.539989
+      M4                NaN                       NaN            NaN
+      M5                NaN                       NaN            NaN
+2026-07-31 21:57:28 - Writing lock decision (pilot-driven)
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/PHASE1_LOCK_DECISION.md
+Chose M0
+2026-07-31 21:57:28 - **** Job ends ****

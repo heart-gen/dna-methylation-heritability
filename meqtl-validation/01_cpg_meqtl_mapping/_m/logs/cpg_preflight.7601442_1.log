@@ -1,0 +1,11 @@
+2026-07-22 14:39:38 - **** Job starts ****
+**** QUEST info ****
+User: owb0346
+Job id: 7601447
+Node name: N/A
+Array task: 1
+No modules loaded
+2026-07-22 14:39:38 - Preflight + covariates for dlpfc
+dlpfc AA: 111 samples ready; wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/dlpfc/_m/preflight
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/dlpfc/_m/prepared/covariates.txt shape=(8, 111)
+2026-07-22 14:39:51 - **** Job ends ****

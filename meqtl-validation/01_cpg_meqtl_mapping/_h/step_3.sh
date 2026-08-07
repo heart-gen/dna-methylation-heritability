@@ -43,9 +43,10 @@ REGIONS=(caudate dlpfc hippocampus)
 if [[ -z "${REGION:-}" ]]; then
   REGION="${REGIONS[${SLURM_ARRAY_TASK_ID}]}"
 fi
+POPULATION="${POPULATION:-AA}"
 
-log_message "Filtering genotypes for ${REGION}"
-bash "../_h/03_prepare_genotypes.sh" "${REGION}"
+log_message "Filtering genotypes for ${REGION} (${POPULATION})"
+bash "../_h/03_prepare_genotypes.sh" "${REGION}" "${POPULATION}"
 
 conda deactivate
 log_message "**** Job ends ****"

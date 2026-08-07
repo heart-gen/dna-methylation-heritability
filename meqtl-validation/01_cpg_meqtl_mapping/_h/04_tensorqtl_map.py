@@ -207,6 +207,8 @@ def main() -> None:
     parser.add_argument("--seed", type=int, default=20260722)
     parser.add_argument("--fdr", type=float, default=0.05)
     parser.add_argument("--device", choices=["cpu", "gpu"], default="cpu")
+    parser.add_argument("--sample-list", default="",
+                        help="Optional one-ID-per-line sample subset applied to phenotype and genotype")
     parser.add_argument(
         "--chunk-size",
         type=parse_chunk_size,
@@ -228,6 +230,13 @@ def main() -> None:
     sample_probe = pgen.PgenReader(args.genotype_prefix)
     geno_ids = set(map(str, sample_probe.sample_ids))
     pheno_ids = [s for s in phenotype_df.columns if s in geno_ids]
+    if args.sample_list:
+        requested = [x.strip() for x in Path(args.sample_list).read_text().splitlines() if x.strip()]
+        requested_set = set(requested)
+        pheno_ids = [s for s in pheno_ids if s in requested_set]
+        absent = [s for s in requested if s not in pheno_ids]
+        if absent:
+            raise SystemExit(f"Requested sample list contains {len(absent)} samples absent from phenotype/genotype data: {absent[:5]}")
     if not pheno_ids:
         raise SystemExit(
             "No shared samples between phenotypes and genotypes. "

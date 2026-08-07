@@ -1,0 +1,8 @@
+model_id	n_covariates	description	region	n_samples	path
+M0	8	baseline age+sex+dx+snpPC1–5	dlpfc	111	/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/dlpfc/_m/covariate_sensitivity/covariates_M0.txt
+M1	10	M0 + pmi + ph	dlpfc	111	/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/dlpfc/_m/covariate_sensitivity/covariates_M1.txt
+M2	13	M0 + snpPC6–10	dlpfc	111	/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/dlpfc/_m/covariate_sensitivity/covariates_M2.txt
+M3a	13	M0 + methPC1–5	dlpfc	111	/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/dlpfc/_m/covariate_sensitivity/covariates_M3a.txt
+M3b	18	M0 + methPC1–10	dlpfc	111	/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/dlpfc/_m/covariate_sensitivity/covariates_M3b.txt
+M3c	23	M0 + methPC1–15	dlpfc	111	/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/dlpfc/_m/covariate_sensitivity/covariates_M3c.txt
+M5	11	M0 + legacy RNA MuSiC cellPC1–3	dlpfc	111	/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/dlpfc/_m/covariate_sensitivity/covariates_M5.txt

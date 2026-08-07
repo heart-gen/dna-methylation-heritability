@@ -1,0 +1,16 @@
+region	pval_column	stratum	fdr_threshold	significance_rule	n_cpgs	lambda_gc	median_pval	mean_qval
+hippocampus	pval_beta	all_tested	0.05	qval <= 0.05	157925	4.026684659463069	0.175905	0.18667400090065692
+hippocampus	pval_beta	nonsignificant_qval_gt_fdr	0.05	qval <= 0.05	102516	1.4758827921622426	0.4125525	0.2843749866859807
+hippocampus	pval_beta	significant_qval_le_fdr	0.05	qval <= 0.05	55409	52.08489084025814	1.12857e-06	0.005910690630335289
+hippocampus	pval_beta	near_null_qval_gt_0.5	0.05	qval <= 0.05	0	nan	nan	nan
+hippocampus	pval_beta	weak_0.05_lt_qval_le_0.5	0.05	qval <= 0.05	102516	1.4758827921622426	0.4125525	0.2843749866859807
+hippocampus	pval_perm	all_tested	0.05	qval <= 0.05	157925	4.017808654193884	0.176382	0.18667400090065692
+hippocampus	pval_perm	nonsignificant_qval_gt_fdr	0.05	qval <= 0.05	102516	1.4439287077527425	0.417658	0.2843749866859807
+hippocampus	pval_perm	significant_qval_le_fdr	0.05	qval <= 0.05	55409	33.27254813144178	9.999e-05	0.005910690630335289
+hippocampus	pval_perm	near_null_qval_gt_0.5	0.05	qval <= 0.05	0	nan	nan	nan
+hippocampus	pval_perm	weak_0.05_lt_qval_le_0.5	0.05	qval <= 0.05	102516	1.4439287077527425	0.417658	0.2843749866859807
+hippocampus	pval_nominal	all_tested	0.05	qval <= 0.05	157925	30.162126150923196	0.000211974	0.18667400090065692
+hippocampus	pval_nominal	nonsignificant_qval_gt_fdr	0.05	qval <= 0.05	102516	25.148277150865415	0.0007184625	0.2843749866859807
+hippocampus	pval_nominal	significant_qval_le_fdr	0.05	qval <= 0.05	55409	92.31091963215744	9.1479e-11	0.005910690630335289
+hippocampus	pval_nominal	near_null_qval_gt_0.5	0.05	qval <= 0.05	0	nan	nan	nan
+hippocampus	pval_nominal	weak_0.05_lt_qval_le_0.5	0.05	qval <= 0.05	102516	25.148277150865415	0.0007184625	0.2843749866859807

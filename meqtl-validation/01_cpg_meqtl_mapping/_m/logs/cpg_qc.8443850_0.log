@@ -1,0 +1,11 @@
+2026-08-01 11:48:22 - **** Job starts ****
+**** QUEST info ****
+User: owb0346
+Job id: 8451051
+Node name: N/A
+Array task: 0
+No modules loaded
+2026-08-01 11:48:22 - **** Loading conda environment ****
+2026-08-01 11:48:23 - Summarizing meQTL QC for caudate (EA)
+QC summary written to /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/caudate/_m/tensorqtl/EA/qc; lambda_gc=3.518; n_sig=62595
+2026-08-01 11:48:53 - **** Job ends ****

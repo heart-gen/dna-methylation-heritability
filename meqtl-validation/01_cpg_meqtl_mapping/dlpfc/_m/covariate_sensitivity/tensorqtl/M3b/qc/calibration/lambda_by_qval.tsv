@@ -1,0 +1,16 @@
+region	pval_column	stratum	fdr_threshold	significance_rule	n_cpgs	lambda_gc	median_pval	mean_qval
+dlpfc	pval_beta	all_tested	0.05	qval <= 0.05	155546	3.635670949370183	0.19841550000000002	0.19463506475450024
+dlpfc	pval_beta	nonsignificant_qval_gt_fdr	0.05	qval <= 0.05	104281	1.4606170744697287	0.41498	0.28717946145223
+dlpfc	pval_beta	significant_qval_le_fdr	0.05	qval <= 0.05	51265	47.056920799797446	3.71237e-06	0.006385338195718203
+dlpfc	pval_beta	near_null_qval_gt_0.5	0.05	qval <= 0.05	0	nan	nan	nan
+dlpfc	pval_beta	weak_0.05_lt_qval_le_0.5	0.05	qval <= 0.05	104281	1.4606170744697287	0.41498	0.28717946145223
+dlpfc	pval_perm	all_tested	0.05	qval <= 0.05	155546	3.623312458719291	0.19918	0.19463506475450024
+dlpfc	pval_perm	nonsignificant_qval_gt_fdr	0.05	qval <= 0.05	104281	1.4346505050479232	0.419158	0.28717946145223
+dlpfc	pval_perm	significant_qval_le_fdr	0.05	qval <= 0.05	51265	33.27254813144178	9.999e-05	0.006385338195718203
+dlpfc	pval_perm	near_null_qval_gt_0.5	0.05	qval <= 0.05	0	nan	nan	nan
+dlpfc	pval_perm	weak_0.05_lt_qval_le_0.5	0.05	qval <= 0.05	104281	1.4346505050479232	0.419158	0.28717946145223
+dlpfc	pval_nominal	all_tested	0.05	qval <= 0.05	155546	29.697066308610626	0.0002372605	0.19463506475450024
+dlpfc	pval_nominal	nonsignificant_qval_gt_fdr	0.05	qval <= 0.05	104281	25.22651129293172	0.000704833	0.28717946145223
+dlpfc	pval_nominal	significant_qval_le_fdr	0.05	qval <= 0.05	51265	85.51414183072153	4.45282e-10	0.006385338195718203
+dlpfc	pval_nominal	near_null_qval_gt_0.5	0.05	qval <= 0.05	0	nan	nan	nan
+dlpfc	pval_nominal	weak_0.05_lt_qval_le_0.5	0.05	qval <= 0.05	104281	25.22651129293172	0.000704833	0.28717946145223

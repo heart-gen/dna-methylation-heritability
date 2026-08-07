@@ -1,0 +1,57 @@
+2026-08-01 09:13:43 - **** Job starts ****
+**** QUEST info ****
+User: owb0346
+Job id: 8443845
+Node name: N/A
+Array task: 2
+No modules loaded
+2026-08-01 09:13:44 - **** Loading conda environment ****
+2026-08-01 09:13:45 - Building CpG phenotype BEDs for hippocampus (EA)
+2026-08-01 09:13:45 -   chr1
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/hippocampus/_m/prepared/EA/cpg_phenotypes.chr1.bed.gz with 16397 CpGs for 60 samples
+2026-08-01 09:15:23 -   chr10
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/hippocampus/_m/prepared/EA/cpg_phenotypes.chr10.bed.gz with 8499 CpGs for 60 samples
+2026-08-01 09:16:10 -   chr11
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/hippocampus/_m/prepared/EA/cpg_phenotypes.chr11.bed.gz with 7544 CpGs for 60 samples
+2026-08-01 09:16:54 -   chr12
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/hippocampus/_m/prepared/EA/cpg_phenotypes.chr12.bed.gz with 7527 CpGs for 60 samples
+2026-08-01 09:17:38 -   chr13
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/hippocampus/_m/prepared/EA/cpg_phenotypes.chr13.bed.gz with 4318 CpGs for 60 samples
+2026-08-01 09:17:58 -   chr14
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/hippocampus/_m/prepared/EA/cpg_phenotypes.chr14.bed.gz with 4720 CpGs for 60 samples
+2026-08-01 09:18:22 -   chr15
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/hippocampus/_m/prepared/EA/cpg_phenotypes.chr15.bed.gz with 5012 CpGs for 60 samples
+2026-08-01 09:18:45 -   chr16
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/hippocampus/_m/prepared/EA/cpg_phenotypes.chr16.bed.gz with 7261 CpGs for 60 samples
+2026-08-01 09:19:22 -   chr17
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/hippocampus/_m/prepared/EA/cpg_phenotypes.chr17.bed.gz with 7905 CpGs for 60 samples
+2026-08-01 09:20:04 -   chr18
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/hippocampus/_m/prepared/EA/cpg_phenotypes.chr18.bed.gz with 4208 CpGs for 60 samples
+2026-08-01 09:20:21 -   chr19
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/hippocampus/_m/prepared/EA/cpg_phenotypes.chr19.bed.gz with 7599 CpGs for 60 samples
+2026-08-01 09:20:59 -   chr2
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/hippocampus/_m/prepared/EA/cpg_phenotypes.chr2.bed.gz with 12897 CpGs for 60 samples
+2026-08-01 09:22:23 -   chr20
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/hippocampus/_m/prepared/EA/cpg_phenotypes.chr20.bed.gz with 5361 CpGs for 60 samples
+2026-08-01 09:22:44 -   chr21
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/hippocampus/_m/prepared/EA/cpg_phenotypes.chr21.bed.gz with 2297 CpGs for 60 samples
+2026-08-01 09:22:51 -   chr22
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/hippocampus/_m/prepared/EA/cpg_phenotypes.chr22.bed.gz with 3946 CpGs for 60 samples
+2026-08-01 09:23:07 -   chr3
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/hippocampus/_m/prepared/EA/cpg_phenotypes.chr3.bed.gz with 8473 CpGs for 60 samples
+2026-08-01 09:24:05 -   chr4
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/hippocampus/_m/prepared/EA/cpg_phenotypes.chr4.bed.gz with 7219 CpGs for 60 samples
+2026-08-01 09:24:49 -   chr5
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/hippocampus/_m/prepared/EA/cpg_phenotypes.chr5.bed.gz with 7972 CpGs for 60 samples
+2026-08-01 09:25:37 -   chr6
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/hippocampus/_m/prepared/EA/cpg_phenotypes.chr6.bed.gz with 8056 CpGs for 60 samples
+2026-08-01 09:26:27 -   chr7
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/hippocampus/_m/prepared/EA/cpg_phenotypes.chr7.bed.gz with 9002 CpGs for 60 samples
+2026-08-01 09:27:21 -   chr8
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/hippocampus/_m/prepared/EA/cpg_phenotypes.chr8.bed.gz with 7218 CpGs for 60 samples
+2026-08-01 09:28:03 -   chr9
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/hippocampus/_m/prepared/EA/cpg_phenotypes.chr9.bed.gz with 7022 CpGs for 60 samples
+2026-08-01 09:28:39 - Merging autosomal CpG BEDs for hippocampus (EA)
+Wrote ../hippocampus/_m/prepared/EA/cpg_phenotypes.all_autosomes.bed with 160453 CpGs
+Wrote ../hippocampus/_m/prepared/EA/cpg_phenotypes.all_autosomes.bed.gz + tabix index
+2026-08-01 09:28:49 - **** Job ends ****

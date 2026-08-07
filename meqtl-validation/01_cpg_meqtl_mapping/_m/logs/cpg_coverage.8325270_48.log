@@ -1,0 +1,9 @@
+2026-07-30 11:45:30 - coverage extract hippocampus chr5
+Loading /projects/b1213/users/alexis/projects/dna-methylation-heritability/vmr-analysis/hippocampus/_m/cpg/chr_5/stats.rda
+Annotating 8004 prepared VMR CpGs
+matched 8004 / 8004 (unmatched 0)
+  coverage chunk 1-8004
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/hippocampus/_m/prepared/cpg_coverage.chr5.tsv
+Updated /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/hippocampus/_m/prepared/cpg_vmr_map.chr5.tsv
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/hippocampus/_m/prepared/cpg_coverage_summary.chr5.tsv
+2026-07-30 11:45:46 - done hippocampus chr5

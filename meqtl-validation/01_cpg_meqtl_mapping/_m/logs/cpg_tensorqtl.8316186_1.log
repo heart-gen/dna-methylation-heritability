@@ -1,0 +1,12 @@
+2026-07-30 08:43:17 - **** Job starts ****
+**** QUEST info ****
+User: owb0346
+Job id: 8316205
+Node name: N/A
+Array task: 1
+CUDA_VISIBLE_DEVICES: 0
+No modules loaded
+2026-07-30 08:43:17 - **** Loading conda environment ****
+2026-07-30 08:43:28 - bgzip + tabix phenotype BED for dlpfc
+2026-07-30 08:43:39 - Running TensorQTL cis-meQTL for dlpfc (device=gpu, chunk=chr)
+python: can't open file '/var/spool/slurmd/job8316205/04_tensorqtl_map.py': [Errno 2] No such file or directory

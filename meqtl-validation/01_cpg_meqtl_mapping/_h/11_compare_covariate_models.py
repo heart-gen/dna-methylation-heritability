@@ -26,7 +26,10 @@ PREFERRED_EXTERNAL = {
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--region", required=True)
-    p.add_argument("--models", nargs="+", default=["M0", "M1", "M2", "M3a", "M3b", "M3c", "M4", "M5"])
+    p.add_argument("--models", nargs="+", default=["M0", "M1", "M2", "M3a", "M3b", "M3c", "M4", "M5", "M6d"])
+    p.add_argument("--baseline-model", default="M0",
+                   help="Model used for relative discovery and enrichment metrics")
+    p.add_argument("--output-name", default="comparison_summary.tsv")
     p.add_argument("--fdr", type=float, default=0.05)
     return p.parse_args()
 
@@ -89,7 +92,7 @@ def main() -> None:
     ext_ids = load_external_supported_cpgs(resource, region)
 
     rows = []
-    m0_or = None
+    baseline_or = None
     for model in args.models:
         cis = resolve_cis_path(region, model)
         if cis is None:
@@ -128,8 +131,8 @@ def main() -> None:
         enr = enrichment(sig_ids, all_ids, ext_ids)
         lam_all = genomic_inflation(p.to_numpy())
         lam_ns = genomic_inflation(p[ns_mask.fillna(False)].to_numpy())
-        if model == "M0":
-            m0_or = enr["enrichment_or"]
+        if model == args.baseline_model:
+            baseline_or = enr["enrichment_or"]
         row = {
             "region": region,
             "model_id": model,
@@ -141,18 +144,21 @@ def main() -> None:
             "lambda_gc_nonsignificant": lam_ns,
             "external_resource": resource,
             **enr,
-            "enrichment_or_vs_M0": (
-                float(enr["enrichment_or"] / m0_or) if (m0_or and model != "M0") else (1.0 if model == "M0" else np.nan)
+            "enrichment_or_vs_baseline": (
+                float(enr["enrichment_or"] / baseline_or)
+                if (baseline_or and model != args.baseline_model)
+                else (1.0 if model == args.baseline_model else np.nan)
             ),
         }
         rows.append(row)
 
-    # Ensure M0 first for OR ratio — recompute ratios after
+    # Recompute ratios after reading all models so argument order is irrelevant.
     tab = pd.DataFrame(rows)
-    if (tab["model_id"] == "M0").any() and "enrichment_or" in tab.columns:
-        m0_or = float(tab.loc[tab["model_id"] == "M0", "enrichment_or"].iloc[0])
-        tab["enrichment_or_vs_M0"] = tab["enrichment_or"] / m0_or
-    out = outdir / "comparison_summary.tsv"
+    if (tab["model_id"] == args.baseline_model).any() and "enrichment_or" in tab.columns:
+        baseline_or = float(tab.loc[tab["model_id"] == args.baseline_model, "enrichment_or"].iloc[0])
+        tab["enrichment_or_vs_baseline"] = tab["enrichment_or"] / baseline_or
+    tab["baseline_model"] = args.baseline_model
+    out = outdir / args.output_name
     tab.to_csv(out, sep="\t", index=False)
     print(f"Wrote {out}")
     if not tab.empty and "lambda_gc_nonsignificant" in tab.columns:
