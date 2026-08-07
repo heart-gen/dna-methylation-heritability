@@ -1,0 +1,4 @@
+region	modality	model	n_vmrs	n_meqtl_supported	n_tx_associated	n_both	estimate	pvalue
+caudate	expression_and_psi	fisher_meqtl_support_x_both_tx	4990	2764	48	44	8.986029411764706	3.9294900656066216e-08
+dlpfc	expression_and_psi	fisher_meqtl_support_x_both_tx	2300	1044	10	10	inf	0.0003626258721343279
+hippocampus	expression_and_psi	fisher_meqtl_support_x_both_tx	3475	1793	0	0		1.0

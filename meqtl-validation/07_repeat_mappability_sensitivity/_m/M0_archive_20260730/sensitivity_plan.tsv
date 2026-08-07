@@ -1,0 +1,7 @@
+step	threshold	status
+restrict_high_mappability	>=0.9	applied
+exclude_segmental_duplications	overlaps_segdup==0	applied
+exclude_snp_proximal_vmrs	overlap common SNP ±150bp windows	applied
+adjust_length_num_snps_or_coverage_variance	GLM covariates	applied
+match_high_vs_low_predictability	NN on z-scored technical vars	applied
+repeat_LINE_L1_H3K9me3_Quies_burden	n/a	applied

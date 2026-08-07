@@ -1,0 +1,5 @@
+analysis	n_regions_direction_consistent	n_regions	passes_phase6_claim
+LINE_L1_enrichment_vs_predictability	2	3	True
+H3K9me3_enrichment_vs_predictability	3	3	True
+quiescent_chromatin_enrichment_vs_predictability	3	3	True
+predictability_meqtl_burden_association	3	3	True

@@ -1,0 +1,11 @@
+==== caudate ====
+  umap 0.822 -> 0.822 (n=9479/11527)
+==== dlpfc ====
+  umap 0.481 -> 0.481 (n=4916/10213)
+==== hippocampus ====
+  umap 0.777 -> 0.777 (n=7799/10042)
+     region  frac_umap_before  frac_umap_after  delta_frac_umap  frac_snp_prox_after
+    caudate          0.822330         0.822330              0.0             0.822330
+      dlpfc          0.481347         0.481347              0.0             0.481347
+hippocampus          0.776638         0.776638              0.0             0.776638
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/07_repeat_mappability_sensitivity/_m/tech_join_completeness.tsv and updated /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/07_repeat_mappability_sensitivity/_m/consolidated_robustness_table.tsv

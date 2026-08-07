@@ -1,0 +1,17 @@
+2026-07-30 11:58:45 - **** Job starts ****
+exists: /gpfs/projects/b1213/users/kynon/projects/dna-methylation-heritability/inputs/supportfiles/_m/hg38-blacklist.v2.bed.gz
+exists: /gpfs/projects/b1213/users/kynon/projects/dna-methylation-heritability/inputs/supportfiles/_m/genomicSuperDups.txt.gz
+exists: /gpfs/projects/b1213/users/kynon/projects/dna-methylation-heritability/inputs/supportfiles/_m/genomicSuperDups.hg38.bed.gz
+exists: /gpfs/projects/b1213/users/kynon/projects/dna-methylation-heritability/inputs/supportfiles/_m/k24.Umap.MultiTrackMappability.bw
+exists: /gpfs/projects/b1213/users/kynon/projects/dna-methylation-heritability/inputs/supportfiles/_m/libd_CT_snps_at_cpg.hg38.bed.gz
+exists: /gpfs/projects/b1213/users/kynon/projects/dna-methylation-heritability/inputs/supportfiles/_m/repeat-masker.LINE_L1.hg38.bed.gz
+exists: /gpfs/projects/b1213/users/kynon/projects/dna-methylation-heritability/inputs/supportfiles/_m/common_snp_windows_pm150bp.hg38.bed.gz
+Wrote manifest with 8 assets
+processing chromosomes
+processing chromosomes
+processing chromosomes
+caudate: wrote /gpfs/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/07_repeat_mappability_sensitivity/_m/caudate/vmr_technical_annotations.tsv (12,001 VMRs; high_mappability=9236; blacklist_NA=0)
+dlpfc: wrote /gpfs/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/07_repeat_mappability_sensitivity/_m/dlpfc/vmr_technical_annotations.tsv (10,372 VMRs; high_mappability=6898; blacklist_NA=0)
+hippocampus: wrote /gpfs/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/07_repeat_mappability_sensitivity/_m/hippocampus/vmr_technical_annotations.tsv (10,216 VMRs; high_mappability=6739; blacklist_NA=0)
+Wrote robustness scaffold under /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/07_repeat_mappability_sensitivity/_m
+2026-07-30 12:01:51 - **** Job ends ****

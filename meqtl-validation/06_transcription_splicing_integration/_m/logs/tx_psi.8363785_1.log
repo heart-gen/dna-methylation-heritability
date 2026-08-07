@@ -1,0 +1,8 @@
+2026-07-30 18:38:20 - **** Job starts ****
+2026-07-30 18:38:28 - meQTL × PSI enrichment for dlpfc
+dlpfc psi: n=2747 meQTL+=1063 tx+=92 both=52 Fisher OR=2.114 p=3.23e-04 → /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/06_transcription_splicing_integration/_m/dlpfc/meqtl_x_psi_enrichment.tsv
+2026-07-30 18:38:38 - meQTL × ABC expression enrichment for dlpfc
+/projects/p32505/opt/envs/genomics/lib/python3.11/site-packages/statsmodels/genmod/families/links.py:198: RuntimeWarning: overflow encountered in exp
+  t = np.exp(-z)
+dlpfc expression_abc: n=21 meQTL+=7 tx+=1 both=1 Fisher OR=inf p=3.33e-01 → /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/06_transcription_splicing_integration/_m/dlpfc/meqtl_x_expression_abc_enrichment.tsv
+2026-07-30 18:38:45 - **** Job ends ****

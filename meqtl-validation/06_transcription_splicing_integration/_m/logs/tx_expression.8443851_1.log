@@ -1,0 +1,4 @@
+2026-08-01 09:13:10 - **** Job starts ****
+2026-08-01 09:13:12 - meQTL × expression enrichment for dlpfc
+dlpfc expression: n=2305 meQTL+=1046 tx+=87 both=79 Fisher OR=12.775 p=9.63e-20 → /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/06_transcription_splicing_integration/_m/dlpfc/meqtl_x_expression_enrichment.tsv
+2026-08-01 09:13:25 - **** Job ends ****

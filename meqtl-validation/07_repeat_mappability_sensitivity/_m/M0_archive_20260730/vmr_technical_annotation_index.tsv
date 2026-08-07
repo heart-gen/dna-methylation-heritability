@@ -1,0 +1,4 @@
+region	path	status
+caudate	/gpfs/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/07_repeat_mappability_sensitivity/_m/caudate/vmr_technical_annotations.tsv	ready
+dlpfc	/gpfs/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/07_repeat_mappability_sensitivity/_m/dlpfc/vmr_technical_annotations.tsv	ready
+hippocampus	/gpfs/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/07_repeat_mappability_sensitivity/_m/hippocampus/vmr_technical_annotations.tsv	ready
