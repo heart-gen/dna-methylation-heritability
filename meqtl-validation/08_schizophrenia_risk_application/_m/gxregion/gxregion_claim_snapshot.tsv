@@ -1,0 +1,2 @@
+n_pairs_fitted	n_sig_joint_interaction_fdr	frac_sig_joint_interaction	n_sig_interaction_dlpfc_fdr	n_sig_interaction_hippocampus_fdr	interpretation
+405	4	0.009876543209876543	1	0	Significant genotype×region interactions support regional effect heterogeneity among shared donors; absence of interaction means region differences in discovery are not detectable as effect heterogeneity in the shared-donor subset.

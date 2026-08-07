@@ -1,0 +1,3 @@
+modality	n_scz_tested_vmrs	n_scz_sig_vmrs	n_scz_sig_and_tx	odds_ratio	fisher_pvalue	path
+expression	1434	18	0	0.0	1.0	/projects/b1213/users/kynon/projects/dna-methylation-heritability/heritability/elastic_net_model/all_individuals/tissue_comparison/regulatory_context/_m/dlpfc/AA/expression/nearest_gene_window_250kb/architecture_model_input.tsv
+psi	1434	18	0	0.0	1.0	/projects/b1213/users/kynon/projects/dna-methylation-heritability/heritability/elastic_net_model/all_individuals/tissue_comparison/regulatory_context/_m/dlpfc/AA/psi/window_250kb/architecture_model_input.tsv

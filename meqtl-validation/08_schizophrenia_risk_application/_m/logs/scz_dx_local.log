@@ -1,0 +1,8 @@
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/08_schizophrenia_risk_application/_m/diagnosis/diagnosis_association_results.tsv
+Traceback (most recent call last):
+  File "/gpfs/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/08_schizophrenia_risk_application/_m/../_h/19_diagnosis_validation.py", line 646, in <module>
+    main()
+  File "/gpfs/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/08_schizophrenia_risk_application/_m/../_h/19_diagnosis_validation.py", line 642, in main
+    print(f"VMR FDR sig (best, primary): {n_vmr_sig}; transcript FDR sig: {n_tx_sig}")
+                                          ^^^^^^^^^
+NameError: name 'n_vmr_sig' is not defined. Did you mean: 'n_tx_sig'?

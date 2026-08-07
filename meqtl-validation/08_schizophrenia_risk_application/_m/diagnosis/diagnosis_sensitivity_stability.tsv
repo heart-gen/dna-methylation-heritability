@@ -1,0 +1,13 @@
+model	n_primary_sig_best_vmrs	n_remain_nominal_p0.05	frac_remain
+sens_smoking	0	0	
+sens_nicotine	0	0	
+sens_cocaine	0	0	
+sens_amphetamines	0	0	
+sens_opioid	0	0	
+sens_ethanol	0	0	
+sens_antipsychotics	0	0	
+sens_lifetime_antipsych	0	0	
+sens_pmi	0	0	
+sens_ph	0	0	
+primary_cell	0	0	
+primary_cell_plus_smoking	0	0	

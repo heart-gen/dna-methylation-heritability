@@ -1,0 +1,6 @@
+model	n_vmrs	n_vmrs_with_sig	covariates	coef_predictability	se_predictability	pval_predictability	converged	region	unit
+unadjusted	1167	11	local_predictability	0.3241647094344595	0.18928020530234724	0.08678281743671698	True	hippocampus	vmr
+adjusted_n_pairs	1167	11	local_predictability,n_tested_pairs	0.32215786128418583	0.19032163899490984	0.09051216205609668	True	hippocampus	vmr
+adjusted_technical	1167	11	local_predictability,n_tested_pairs,average_cpg_coverage,mean_cpg_variance	0.3058576912985786	0.19435674116583657	0.11555862155321991	True	hippocampus	vmr
+pair_unadjusted			local_predictability	0.48597067309446107	0.044563889805358234	1.0905412130095122e-27		hippocampus	pair
+pair_adjusted_distance			local_predictability,cpg_to_variant_distance,maf	0.5134367354302453	0.04494412158051789	3.176860652988031e-30		hippocampus	pair

@@ -1,0 +1,4 @@
+2026-08-01 18:17:22 - **** Job starts ****
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/08_schizophrenia_risk_application/_m/hippocampus/scz_risk_loci_hg38.tsv and scz_index_snps_hg38.tsv; panel matches=486/624
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/08_schizophrenia_risk_application/_m/hippocampus/vmr_locus_links.tsv.gz; primary VMRs=586
+2026-08-01 18:18:26 - **** Job ends ****

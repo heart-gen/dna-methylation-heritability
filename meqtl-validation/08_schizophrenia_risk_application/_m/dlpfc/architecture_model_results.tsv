@@ -1,0 +1,6 @@
+model	n_vmrs	n_vmrs_with_sig	covariates	coef_predictability	se_predictability	pval_predictability	converged	region	unit
+unadjusted	694	10	local_predictability	0.6152668337706311	0.15353146199009085	6.138262807209332e-05	True	dlpfc	vmr
+adjusted_n_pairs	694	10	local_predictability,n_tested_pairs	0.5904636043001871	0.15940615571138	0.00021210444362634303	True	dlpfc	vmr
+adjusted_technical	694	10	local_predictability,n_tested_pairs,average_cpg_coverage,mean_cpg_variance	0.5500117886334767	0.1682376478636386	0.0010783103597189925	True	dlpfc	vmr
+pair_unadjusted			local_predictability	0.6618172763514776	0.042399152990835916	6.3012537599001834e-55		dlpfc	pair
+pair_adjusted_distance			local_predictability,cpg_to_variant_distance,maf	0.6981287200672222	0.042190945610747106	1.6860394733392877e-61		dlpfc	pair

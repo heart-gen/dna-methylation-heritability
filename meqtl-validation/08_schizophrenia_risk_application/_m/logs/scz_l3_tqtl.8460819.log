@@ -1,0 +1,6 @@
+2026-08-01 19:43:21 - **** Job starts ****
+2026-08-01 19:43:24 - LIBD AA tensorQTL cis caudate genes (device=gpu)
+sample_id	SexM	DxSCZD	Age	snpPC1	snpPC2	snpPC3	PC1	PC2	PC3	PC4	PC5	PC6	PC7	PC8	PC9	PC10	PC11	PC12	PC13	PC14	PC15	PC16
+/projects/p32505/opt/envs/genomics/lib/python3.11/site-packages/tensorqtl/core.py:423: FutureWarning: DataFrameGroupBy.apply operated on the grouping columns. This behavior is deprecated, and in a future version of pandas the grouping columns will be excluded from the operation. Either pass `include_groups=False` to exclude the groupings or explicitly select the grouping columns after groupby to silence this warning.
+  pos_df.groupby('chr', sort=False, group_keys=False).apply(lambda x: x.sort_values(['start', 'end']))
+[2026-08-01T19:43:43.468] error: *** JOB 8460819 ON qgpu0405 CANCELLED AT 2026-08-01T19:43:43 DUE to SIGNAL Terminated ***

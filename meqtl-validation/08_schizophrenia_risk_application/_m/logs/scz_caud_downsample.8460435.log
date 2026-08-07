@@ -1,0 +1,68 @@
+2026-08-01 18:48:21 - **** Job starts ****
+2026-08-01 18:48:22 - Build downsample sample lists (n_reps=30)
+Wrote 30 lists under /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/08_schizophrenia_risk_application/_m/caudate_downsample/sample_lists (target_n=111; shared3=92; fill=19)
+2026-08-01 18:48:23 - Run downsampled targeted meQTL
+/projects/p32505/opt/envs/genomics/lib/python3.11/site-packages/tensorqtl/core.py:423: FutureWarning: DataFrameGroupBy.apply operated on the grouping columns. This behavior is deprecated, and in a future version of pandas the grouping columns will be excluded from the operation. Either pass `include_groups=False` to exclude the groupings or explicitly select the grouping columns after groupby to silence this warning.
+  pos_df.groupby('chr', sort=False, group_keys=False).apply(lambda x: x.sort_values(['start', 'end']))
+Loaded 40001 pairs from /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/08_schizophrenia_risk_application/_m/caudate/risk_variant_cpg_meqtl.tsv.gz
+Warning: 'rfunc' cannot be imported. R with the 'qvalue' library and the 'rpy2' Python package are needed to compute q-values.
+Retesting 40001 pairs; phenotypes=29641; variants=377
+rep 001: n=111 tests=39491 sig=335 loci=24
+rep 002: n=111 tests=38195 sig=376 loci=27
+rep 003: n=111 tests=39467 sig=491 loci=27
+rep 004: n=111 tests=39215 sig=276 loci=20
+rep 005: n=111 tests=39151 sig=359 loci=24
+rep 006: n=111 tests=39482 sig=310 loci=24
+rep 007: n=111 tests=38554 sig=319 loci=20
+rep 008: n=111 tests=39108 sig=384 loci=25
+rep 009: n=111 tests=38556 sig=310 loci=23
+rep 010: n=111 tests=38518 sig=341 loci=25
+rep 011: n=111 tests=38577 sig=269 loci=20
+rep 012: n=111 tests=38590 sig=273 loci=22
+rep 013: n=111 tests=39525 sig=316 loci=21
+rep 014: n=111 tests=38555 sig=263 loci=22
+rep 015: n=111 tests=39505 sig=334 loci=23
+rep 016: n=111 tests=39503 sig=358 loci=21
+rep 017: n=111 tests=38529 sig=458 loci=26
+rep 018: n=111 tests=37890 sig=382 loci=26
+rep 019: n=111 tests=38590 sig=281 loci=23
+rep 020: n=111 tests=39505 sig=345 loci=22
+rep 021: n=111 tests=39477 sig=314 loci=21
+rep 022: n=111 tests=39457 sig=310 loci=23
+rep 023: n=111 tests=38568 sig=289 loci=21
+rep 024: n=111 tests=38602 sig=430 loci=26
+rep 025: n=111 tests=39408 sig=340 loci=22
+rep 026: n=111 tests=39525 sig=323 loci=26
+rep 027: n=111 tests=38481 sig=407 loci=25
+rep 028: n=111 tests=39513 sig=372 loci=24
+rep 029: n=111 tests=39430 sig=329 loci=23
+rep 030: n=111 tests=39487 sig=336 loci=23
+Done. Median sig pairs=334.5
+2026-08-01 18:49:54 - Summarize vs DLPFC/hippocampus
+Downsample claim:
+                                                                                                                                       0
+n_reps                                                                                                                                30
+target_n                                                                                                                             111
+n_shared3                                                                                                                             92
+full_caudate_n_sig_pairs                                                                                                             361
+full_caudate_n_sig_loci                                                                                                               31
+downsample_median_n_sig_pairs                                                                                                      334.5
+downsample_mean_n_sig_pairs                                                                                                        341.0
+downsample_iqr_n_sig_pairs                                                                                                   310.0-368.8
+downsample_median_n_sig_loci                                                                                                        23.0
+dlpfc_n_sig_pairs                                                                                                                    217
+hippocampus_n_sig_pairs                                                                                                              196
+median_pair_ratio_vs_dlpfc                                                                                                      1.541475
+median_pair_ratio_vs_hippocampus                                                                                                1.706633
+median_loci_ratio_vs_dlpfc                                                                                                      1.352941
+median_loci_ratio_vs_hippocampus                                                                                                  1.4375
+frac_reps_sig_pairs_le_dlpfc                                                                                                         0.0
+frac_reps_sig_pairs_le_hippocampus                                                                                                   0.0
+frac_reps_sig_loci_le_dlpfc                                                                                                          0.0
+frac_reps_sig_loci_le_hippocampus                                                                                                    0.0
+frac_reps_exceed_both_comparators                                                                                                    1.0
+criterion_not_solely_sample_size                                                                                                    True
+flag_collapses_toward_comparator                                                                                                   False
+interpretation                      Caudate SCZ risk-meQTL discovery remains higher than DLPFC/hippocampus after N-matched downsampling.
+Wrote summaries under /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/08_schizophrenia_risk_application/_m/caudate_downsample
+2026-08-01 18:49:55 - **** Job ends ****

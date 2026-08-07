@@ -1,0 +1,6 @@
+model	n_vmrs	n_vmrs_with_sig	covariates	coef_predictability	se_predictability	pval_predictability	converged	region	unit
+unadjusted	1466	31	local_predictability	0.5803037454773604	0.10101747275068293	9.214515314938056e-09	True	caudate	vmr
+adjusted_n_pairs	1466	31	local_predictability,n_tested_pairs	0.5926372100895736	0.1023289682656139	6.976465810280712e-09	True	caudate	vmr
+adjusted_technical	1466	31	local_predictability,n_tested_pairs,average_cpg_coverage,mean_cpg_variance	0.52608080655756	0.13921956532489202	0.0001575954087463082	True	caudate	vmr
+pair_unadjusted			local_predictability	0.6043183833130837	0.027195672855536087	2.1463709795046765e-109		caudate	pair
+pair_adjusted_distance			local_predictability,cpg_to_variant_distance,maf	0.6621008829985926	0.02891937643652127	5.245055930075763e-116		caudate	pair

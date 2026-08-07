@@ -1,0 +1,6 @@
+rank	index_snp	outdir	n_gwas_points	n_forest_rows	hero
+1	rs8048039	/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/08_schizophrenia_risk_application/_m/locus_panels/rs8048039	860	8	True
+2	rs2710323	/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/08_schizophrenia_risk_application/_m/locus_panels/rs2710323	1942	24	False
+3	rs4758662	/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/08_schizophrenia_risk_application/_m/locus_panels/rs4758662	776	24	False
+4	rs13331198	/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/08_schizophrenia_risk_application/_m/locus_panels/rs13331198	522	23	True
+5	rs12514660	/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/08_schizophrenia_risk_application/_m/locus_panels/rs12514660	693	10	False

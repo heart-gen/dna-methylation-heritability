@@ -1,0 +1,2 @@
+region	feature	cohort_policy	n_samples	n_features_input	n_features	min_age	feature_filter	norm_method	phenotype	prior_count	genotype_prefix	rse_path
+caudate	genes	AA_AgeGt13_ControlSCZD_genotyped	213	78932	33206	13	edgeR::filterByExpr(~ Dx + Sex + Age)	TMM	log2-CPM	0.25	inputs/genotypes/TOPMed_LIBD.AA	/projects/b1213/users/kynon/projects/dna-methylation-heritability/inputs/counts/rse-gene.bsp3.caudate-n487.gencode-v47.RData

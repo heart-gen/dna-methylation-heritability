@@ -1,0 +1,2 @@
+locus_id	index_snp	task_id	tx_expression	tx_psi	finemap_genes	gwas_or	gwas_p	vmr_coord	chrom	start	end	vmr_id	modality	feature_id	gene_id	gene_symbol	beta	p	fdr	sig_fdr_05	distance	link_type	sig_tx_fdr	source_priority
+423.0	rs12514660	4265.0	True	False		0.95877	2.014e-07	chr5_64432318_64434379	5.0	64432318.0	64434379.0	chr5_64432318_64434379	expression	ENSG00000164197.12	ENSG00000164197	RNF180	-0.45715180774685	0.003191903036546	0.0486570594133393	True	59448.0	nearest_gene_250kb	True	0

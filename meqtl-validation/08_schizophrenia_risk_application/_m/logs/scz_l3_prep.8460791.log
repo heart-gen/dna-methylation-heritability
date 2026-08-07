@@ -1,0 +1,4 @@
+2026-08-01 19:35:33 - **** Job starts ****
+Error in storage.mode(expr) <- "double" : 
+  'list' object cannot be coerced to type 'double'
+Execution halted
