@@ -1,0 +1,6 @@
+model	n_vmrs	n_supported_vmrs	mean_external_support	covariates	coef_predictability	se_predictability	pval_predictability	converged	region	resource_id	analysis_role	preferred_region
+unadjusted	7799	503	0.0644954481343762	local_predictability	0.2745794981428381	0.034309258821546555	1.2135208523161647e-15	True	hippocampus	schulz_hippocampus_array_meqtl	primary	hippocampus
+adjusted_minimal	7799	503	0.0644954481343762	local_predictability,n_tested_cpgs	0.29766941390888935	0.035138635615270655	2.4269959911290033e-17	True	hippocampus	schulz_hippocampus_array_meqtl	primary	hippocampus
+adjusted_technical	7799	503	0.0644954481343762	local_predictability,n_tested_cpgs,average_cpg_coverage,mean_cpg_variance	0.3032902135033723	0.035950804416925525	3.2766280923764506e-17	True	hippocampus	schulz_hippocampus_array_meqtl	primary	hippocampus
+binomial_cpg_proportion_secondary	7799	503	0.0644954481343762	local_predictability,n_tested_cpgs	0.32389112927734415	0.023896370418707194	7.503943679235648e-42	True	hippocampus	schulz_hippocampus_array_meqtl	primary	hippocampus
+descriptive	7799	503	0.0644954481343762		nan	nan	nan	True	hippocampus	schulz_hippocampus_array_meqtl	primary	hippocampus

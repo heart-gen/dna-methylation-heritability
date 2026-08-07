@@ -1,0 +1,2 @@
+region	n_vmrs	n_vmrs_with_predictability	n_vmrs_with_tech	mean_proportion_sig	output
+hippocampus	10020	7798	5326	0.17717875357670487	/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/02_vmr_meqtl_burden/_m/EA/hippocampus/vmr_meqtl_burden.tsv.gz

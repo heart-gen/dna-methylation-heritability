@@ -1,0 +1,2 @@
+analysis	n_pairs	mean_proportion_high	mean_proportion_low	mean_difference	permutation_pvalue	matching_variables	region
+matched_high_vs_low_predictability	193	0.7207952484154894	0.109313275974919	0.6114819724405706	0.0004997501249375312	n_tested_cpgs,average_cpg_coverage,mean_cpg_variance,length,umap_k24_mean	dlpfc

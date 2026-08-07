@@ -1,0 +1,6 @@
+2026-08-01 19:08:09 - **** Job starts ****
+2026-08-01 19:08:10 - Aggregate EA-M3a burden caudate
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/02_vmr_meqtl_burden/_m/EA_M3a/caudate/vmr_meqtl_burden.tsv.gz
+2026-08-01 19:08:14 - Fit EA-M3a burden models caudate
+Wrote model and matched results under /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/02_vmr_meqtl_burden/_m/EA_M3a/caudate
+2026-08-01 19:08:22 - **** Job ends ****

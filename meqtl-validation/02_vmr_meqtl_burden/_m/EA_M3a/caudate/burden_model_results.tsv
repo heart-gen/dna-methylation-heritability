@@ -1,0 +1,5 @@
+model	n_vmrs	covariates	coef_predictability	se_predictability	pval_predictability	converged	region
+unadjusted	9479	local_predictability	2.93513758570667	0.019024666104452262	0.0	True	caudate
+adjusted_minimal	9479	local_predictability,n_tested_cpgs	2.9319379083351813	0.019089891230666272	0.0	True	caudate
+adjusted_technical	9479	local_predictability,n_tested_cpgs,mean_cpg_variance	2.858809129615824	0.0192251455820012	0.0	True	caudate
+ols_proportion_secondary	9479	local_predictability,log1p(n_tested_cpgs)	1.5582799781379	0.021066387905486175	0.0		caudate

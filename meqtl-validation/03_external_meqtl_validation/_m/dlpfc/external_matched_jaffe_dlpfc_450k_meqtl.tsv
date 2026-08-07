@@ -1,0 +1,2 @@
+analysis	n_pairs	mean_support_high	mean_support_low	mean_difference	permutation_pvalue	matching_variables	region	resource_id	analysis_role
+matched_high_vs_low_predictability	193	0.22797927461139897	0.11398963730569948	0.11398963730569948	0.00399800099950025	n_tested_cpgs,average_cpg_coverage,mean_cpg_variance,length,umap_k24_mean	dlpfc	jaffe_dlpfc_450k_meqtl	primary
