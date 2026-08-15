@@ -19,7 +19,8 @@ import pandas as pd
 import statsmodels.api as sm
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
-from _lib.io_utils import write_tsv  # noqa: E402
+from _lib.io_utils import ANALYSIS_SCHEMA_VERSION, load_yaml, write_tsv  # noqa: E402
+from _lib.stats_utils import greedy_nearest_neighbor_pairs, paired_randomization_pvalue  # noqa: E402
 
 PROJECT = Path("/projects/b1213/users/kynon/projects/dna-methylation-heritability")
 PHASE3 = PROJECT / "meqtl-validation" / "03_external_meqtl_validation" / "_m"
@@ -33,6 +34,11 @@ PREFERRED_REGION = {
 }
 
 EXPLORATORY_RESOURCES = {"brainseq_wgbs_meqtl_scz_subset"}
+# Resources with no recoverable tested-negative universe. Jaffe and Schulz are both
+# Illumina 450K studies whose universe is supplied by the array manifest in
+# `03_harmonize_external_meqtls.py`; BrainSeq is a WGBS SCZ-risk supplement with no
+# genome-wide catalog (and is same-cohort, so it is exploratory regardless).
+POSITIVE_ONLY_RESOURCES: set[str] = set()
 
 
 def parse_args() -> argparse.Namespace:
@@ -58,7 +64,10 @@ def aggregate_vmr_external(ext: pd.DataFrame) -> pd.DataFrame:
         raise SystemExit("harmonized external table must include vmr_id")
     if "external_meqtl_support" not in ext.columns:
         raise SystemExit("harmonized external table must include external_meqtl_support")
+    if "external_assayed" not in ext.columns:
+        raise SystemExit("harmonized external table must include external_assayed")
     e = ext.copy()
+    e = e[pd.to_numeric(e["external_assayed"], errors="coerce").eq(1)].copy()
     e["vmr_id"] = e["vmr_id"].astype(str)
     e["external_meqtl_support"] = (
         pd.to_numeric(e["external_meqtl_support"], errors="coerce").fillna(0).astype(int).clip(0, 1)
@@ -67,6 +76,7 @@ def aggregate_vmr_external(ext: pd.DataFrame) -> pd.DataFrame:
         n_cpgs_annotated=("external_meqtl_support", "size"),
         n_cpgs_with_external_support=("external_meqtl_support", "sum"),
         external_meqtl_support=("external_meqtl_support", "max"),
+        assay_universe_complete=("assay_universe_complete", "all"),
     ).reset_index()
     g["proportion_cpgs_with_external_support"] = (
         g["n_cpgs_with_external_support"] / g["n_cpgs_annotated"].replace(0, np.nan)
@@ -80,12 +90,17 @@ def fit_support_models(d: pd.DataFrame) -> list[dict]:
     base = d.dropna(subset=need).copy()
     if base.empty:
         return [{"model": "none", "error": "no complete cases"}]
+    if not base["assay_universe_complete"].fillna(False).astype(bool).all():
+        return [{
+            "model": "not_estimable",
+            "n_vmrs": len(base),
+            "error": "external tested-negative assay universe unavailable; positive-control overlap only",
+        }]
 
     specs: list[tuple[str, list[str]]] = [
         ("unadjusted", ["local_predictability"]),
     ]
-    if "n_tested_cpgs" in base.columns:
-        specs.append(("adjusted_minimal", ["local_predictability", "n_tested_cpgs"]))
+    specs.append(("adjusted_minimal", ["local_predictability", "n_cpgs_annotated"]))
 
     tech = []
     for c in [
@@ -94,8 +109,8 @@ def fit_support_models(d: pd.DataFrame) -> list[dict]:
     ]:
         if c in base.columns and base[c].notna().sum() >= max(50, int(0.4 * len(base))):
             tech.append(c)
-    if tech and "n_tested_cpgs" in base.columns:
-        specs.append(("adjusted_technical", ["local_predictability", "n_tested_cpgs"] + tech))
+    if tech:
+        specs.append(("adjusted_technical", ["local_predictability", "n_cpgs_annotated"] + tech))
 
     y_all = base["external_meqtl_support"].astype(float)
     for name, cols in specs:
@@ -107,7 +122,7 @@ def fit_support_models(d: pd.DataFrame) -> list[dict]:
             y = use["external_meqtl_support"].astype(float)
             exog = use[cols].apply(_z)
             exog = sm.add_constant(exog, has_constant="add")
-            res = sm.GLM(y, exog, family=sm.families.Binomial()).fit()
+            res = sm.GLM(y, exog, family=sm.families.Binomial()).fit(cov_type="HC3")
             rows.append({
                 "model": name,
                 "n_vmrs": len(use),
@@ -130,10 +145,12 @@ def fit_support_models(d: pd.DataFrame) -> list[dict]:
             use["n_ns"] = use["n_cpgs_annotated"] - use["n_cpgs_with_external_support"]
             endog = use[["n_cpgs_with_external_support", "n_ns"]]
             cols = ["local_predictability"]
-            if "n_tested_cpgs" in use.columns:
-                cols.append("n_tested_cpgs")
+            cols.append("n_cpgs_annotated")
             exog = sm.add_constant(use[cols].apply(_z), has_constant="add")
-            res = sm.GLM(endog, exog, family=sm.families.Binomial()).fit()
+            model = sm.GLM(endog, exog, family=sm.families.Binomial())
+            pilot = model.fit(maxiter=250)
+            dispersion = max(1.0, float(pilot.pearson_chi2 / max(pilot.df_resid, 1)))
+            res = model.fit(scale=dispersion, cov_type="HC3", maxiter=250)
             rows.append({
                 "model": "binomial_cpg_proportion_secondary",
                 "n_vmrs": len(use),
@@ -162,65 +179,47 @@ def fit_support_models(d: pd.DataFrame) -> list[dict]:
     return rows
 
 
-def matched_contrast(df: pd.DataFrame, seed: int) -> list[dict]:
+def matched_contrast(df: pd.DataFrame, seed: int) -> tuple[list[dict], pd.DataFrame]:
+    if not df["assay_universe_complete"].fillna(False).astype(bool).all():
+        return ([{
+            "analysis": "matched",
+            "error": "external tested-negative assay universe unavailable; positive-control overlap only",
+        }], pd.DataFrame())
     match_cols = []
-    for c in ["n_tested_cpgs", "average_cpg_coverage", "mean_cpg_variance", "length", "umap_k24_mean"]:
+    for c in ["n_cpgs_annotated", "average_cpg_coverage", "mean_cpg_variance", "length", "umap_k24_mean"]:
         if c in df.columns and df[c].notna().sum() >= 50:
             match_cols.append(c)
     if not match_cols:
-        match_cols = ["n_tested_cpgs"] if "n_tested_cpgs" in df.columns else []
+        match_cols = ["n_cpgs_annotated"] if "n_cpgs_annotated" in df.columns else []
     need = ["local_predictability", "external_meqtl_support"] + match_cols
     d = df.dropna(subset=need).copy()
     if len(d) < 40 or d["external_meqtl_support"].nunique() < 2:
-        return [{"analysis": "matched", "error": "too few VMRs or no outcome variation"}]
-
-    for c in match_cols:
-        d[f"z_{c}"] = _z(d[c]).astype(float)
-
-    q_hi = d["local_predictability"].quantile(0.8)
-    q_lo = d["local_predictability"].quantile(0.2)
-    hi = d[d["local_predictability"] >= q_hi].copy()
-    lo = d[d["local_predictability"] <= q_lo].copy()
-    if hi.empty or lo.empty:
-        return [{"analysis": "matched", "error": "empty high/low strata"}]
-
-    zcols = [f"z_{c}" for c in match_cols]
-    hi_z = hi[zcols].to_numpy(dtype=float)
-    lo_z = lo[zcols].to_numpy(dtype=float)
-    lo_y = lo["external_meqtl_support"].to_numpy(dtype=float)
-    used = np.zeros(len(lo), dtype=bool)
-    pairs = []
-    for i in range(len(hi)):
-        avail = ~used
-        if not avail.any():
-            break
-        diffs = lo_z[avail] - hi_z[i]
-        dist = np.sqrt((diffs ** 2).sum(axis=1))
-        j = int(np.flatnonzero(avail)[int(np.argmin(dist))])
-        used[j] = True
-        pairs.append((float(hi.iloc[i]["external_meqtl_support"]), float(lo_y[j])))
-    if not pairs:
-        return [{"analysis": "matched", "error": "no pairs"}]
-
-    hi_y, lo_y_p = map(np.asarray, zip(*pairs))
-    diff = hi_y.mean() - lo_y_p.mean()
-    rng = np.random.default_rng(seed)
-    pooled = np.concatenate([hi_y, lo_y_p])
-    n = len(hi_y)
-    null = np.empty(2000)
-    for k in range(2000):
-        rng.shuffle(pooled)
-        null[k] = pooled[:n].mean() - pooled[n:n + n].mean()
-    p_perm = (np.sum(np.abs(null) >= abs(diff)) + 1) / (len(null) + 1)
-    return [{
+        return ([{"analysis": "matched", "error": "too few VMRs or no outcome variation"}], pd.DataFrame())
+    thresholds = load_yaml("analysis_thresholds.yml")["matching"]
+    pairs, balance, meta = greedy_nearest_neighbor_pairs(
+        d,
+        exposure="local_predictability",
+        outcome="external_meqtl_support",
+        numeric_covariates=match_cols,
+        caliper_sd=float(thresholds["caliper_sd"]),
+        seed=seed,
+    )
+    if pairs.empty:
+        return ([{"analysis": "matched", **meta}], balance)
+    differences = pairs["outcome_high"] - pairs["outcome_low"]
+    p_perm = paired_randomization_pvalue(differences, seed=seed, n_perm=10000)
+    return ([{
         "analysis": "matched_high_vs_low_predictability",
-        "n_pairs": n,
-        "mean_support_high": float(hi_y.mean()),
-        "mean_support_low": float(lo_y_p.mean()),
-        "mean_difference": float(diff),
+        "n_pairs": int(len(pairs)),
+        "mean_support_high": float(pairs["outcome_high"].mean()),
+        "mean_support_low": float(pairs["outcome_low"].mean()),
+        "mean_difference": float(differences.mean()),
         "permutation_pvalue": float(p_perm),
         "matching_variables": ",".join(match_cols),
-    }]
+        "max_abs_smd_after": meta["max_abs_smd_after"],
+        "balance_pass": bool(meta["max_abs_smd_after"] <= float(thresholds["balance_smd_max"])),
+        "permutation_scheme": "within_pair_label_swap",
+    }], balance)
 
 
 def main() -> None:
@@ -231,7 +230,8 @@ def main() -> None:
     analysis_role = (
         "exploratory"
         if resource in EXPLORATORY_RESOURCES
-        else ("primary" if preferred == region else "secondary_cross_region")
+        else ("supportive_positive_only" if resource in POSITIVE_ONLY_RESOURCES else
+              ("primary" if preferred == region else "secondary_cross_region"))
     )
 
     harm = Path(args.harmonized_external) if args.harmonized_external else (
@@ -248,6 +248,8 @@ def main() -> None:
     ext = pd.read_csv(harm, sep="\t", compression="infer")
     vmr_ext = aggregate_vmr_external(ext)
     burden = pd.read_csv(burden_path, sep="\t", compression="infer")
+    if "analysis_schema_version" not in burden or not burden["analysis_schema_version"].eq(ANALYSIS_SCHEMA_VERSION).all():
+        raise SystemExit("Stale Phase 2 burden table; regenerate repair schema v2 before external validation")
     burden["vmr_id"] = burden["vmr_id"].astype(str)
     d = burden.merge(vmr_ext, on="vmr_id", how="inner")
     d = d.dropna(subset=["local_predictability"])
@@ -262,6 +264,7 @@ def main() -> None:
         "vmr_id", "region", "local_predictability", "n_tested_cpgs",
         "n_cpgs_annotated", "n_cpgs_with_external_support",
         "proportion_cpgs_with_external_support", "external_meqtl_support",
+        "assay_universe_complete",
         "average_cpg_coverage", "mean_cpg_variance", "length", "umap_k24_mean",
         "line_l1_frac", "segdup_frac",
     ]
@@ -277,14 +280,21 @@ def main() -> None:
         r["resource_id"] = resource
         r["analysis_role"] = analysis_role
         r["preferred_region"] = preferred or ""
+        r["assay_universe_complete"] = bool(
+            d["assay_universe_complete"].fillna(False).astype(bool).all()
+        )
     write_tsv(outdir / f"external_support_model_{resource}.tsv", model_rows)
 
-    match_rows = matched_contrast(d, args.seed)
+    match_rows, balance = matched_contrast(d, args.seed)
     for r in match_rows:
         r["region"] = region
         r["resource_id"] = resource
         r["analysis_role"] = analysis_role
     write_tsv(outdir / f"external_matched_{resource}.tsv", match_rows)
+    if not balance.empty:
+        balance.insert(0, "resource_id", resource)
+        balance.insert(0, "region", region)
+        balance.to_csv(outdir / f"external_match_balance_{resource}.tsv", sep="\t", index=False)
 
     print(
         f"Wrote Phase 3 results for {resource} / {region} "
