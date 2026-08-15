@@ -22,6 +22,7 @@ get_arg <- function(flag, default = NULL) {
 
 region <- get_arg("--region")
 chrom_raw <- get_arg("--chrom")
+population <- toupper(get_arg("--population", "AA"))
 min_cov <- as.integer(get_arg("--min-coverage", "5"))
 project_root <- get_arg("--project-root",
   "/projects/b1213/users/kynon/projects/dna-methylation-heritability")
@@ -34,12 +35,21 @@ if (is.null(region) || is.null(chrom_raw)) {
 chrom <- gsub("^chr", "", chrom_raw)
 chrom_label <- paste0("chr", chrom)
 
-prep_dir <- file.path(project_root, "meqtl-validation", "01_cpg_meqtl_mapping",
-                      region, "_m", "prepared")
-preflight <- file.path(project_root, "meqtl-validation", "01_cpg_meqtl_mapping",
-                       region, "_m", "preflight", "sample_inclusion_primary.tsv")
-stats_rda <- file.path(staff_root, "vmr-analysis", region, "_m", "cpg",
-                       paste0("chr_", chrom), "stats.rda")
+prep_root <- file.path(project_root, "meqtl-validation", "01_cpg_meqtl_mapping",
+                       region, "_m", "prepared")
+preflight_root <- file.path(project_root, "meqtl-validation", "01_cpg_meqtl_mapping",
+                            region, "_m", "preflight")
+if (population == "AA") {
+  prep_dir <- prep_root
+  preflight <- file.path(preflight_root, "sample_inclusion_primary.tsv")
+  stats_rda <- file.path(staff_root, "vmr-analysis", region, "_m", "cpg",
+                         paste0("chr_", chrom), "stats.rda")
+} else {
+  prep_dir <- file.path(prep_root, population)
+  preflight <- file.path(preflight_root, population, "sample_inclusion_primary.tsv")
+  stats_rda <- file.path(staff_root, "vmr-analysis", "all_individuals", region,
+                         "_m", "cpg", paste0("chr_", chrom), "stats.rda")
+}
 map_path <- file.path(prep_dir, paste0("cpg_vmr_map.", chrom_label, ".tsv"))
 out_path <- file.path(prep_dir, paste0("cpg_coverage.", chrom_label, ".tsv"))
 
@@ -66,10 +76,28 @@ n_samp <- ncol(BSobj)
 cov <- getCoverage(BSobj, type = "Cov")
 pos <- start(BSobj)
 
-if (file.exists(map_path)) {
+map_header <- if (file.exists(map_path)) {
+  readLines(map_path, n = 1L, warn = FALSE)
+} else {
+  character()
+}
+has_cpg_map <- length(map_header) == 1L && nzchar(trimws(map_header))
+
+if (has_cpg_map) {
   cmap <- fread(map_path)
   target_pos <- as.integer(cmap$pos_1based)
   message("Annotating ", length(target_pos), " prepared VMR CpGs")
+} else if (file.exists(map_path)) {
+  # Phenotype preparation writes an empty sentinel when a chromosome has no
+  # retained VMRs. Preserve that empty universe instead of asking fread() to
+  # parse it or expanding coverage to every CpG in the BSseq object.
+  target_pos <- integer()
+  cmap <- data.table(
+    phenotype_id = character(),
+    chrom = character(),
+    pos_1based = integer()
+  )
+  message("Empty cpg_vmr_map sentinel; exporting a header-only coverage table")
 } else {
   target_pos <- as.integer(pos)
   cmap <- data.table(
@@ -121,7 +149,7 @@ out <- data.table(
 fwrite(out, out_path, sep = "\t")
 message("Wrote ", out_path)
 
-if (file.exists(map_path)) {
+if (has_cpg_map) {
   cmap2 <- copy(cmap)
   drop_cols <- intersect(
     names(cmap2),
@@ -143,6 +171,7 @@ if (file.exists(map_path)) {
 sum_path <- file.path(prep_dir, paste0("cpg_coverage_summary.", chrom_label, ".tsv"))
 fwrite(data.table(
   region = region,
+  population = population,
   chrom = chrom_label,
   n_target_cpgs = length(target_pos),
   n_matched = length(found),

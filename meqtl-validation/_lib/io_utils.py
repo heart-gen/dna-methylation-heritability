@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import csv
+import re
 from pathlib import Path
 from typing import Any
 
@@ -14,6 +15,7 @@ except ImportError:  # pragma: no cover
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 CONFIG_DIR = PROJECT_ROOT / "config"
+ANALYSIS_SCHEMA_VERSION = 2
 
 
 def load_yaml(name: str) -> dict[str, Any]:
@@ -129,3 +131,47 @@ def read_psam_brnums(psam: Path) -> set[str]:
 def chrom_label(chrom: str | int) -> str:
     c = str(chrom).replace("chr", "")
     return f"chr{c}"
+
+
+def canonical_vmr_id(chrom: str | int, start: int | str, end: int | str) -> str:
+    """Return the cross-module VMR coordinate key (hg38, 0-based BED bounds)."""
+    c = str(chrom).replace("chr", "")
+    return f"{c}:{int(float(start))}-{int(float(end))}"
+
+
+def parse_vmr_coordinate(value: object) -> tuple[str, int, int] | None:
+    """Parse supported coordinate-like VMR IDs; reject region-local task IDs."""
+    text = str(value)
+    match = re.fullmatch(r"(?:chr)?([0-9]+|X|Y|M|MT):(\d+)-(\d+)", text)
+    if match:
+        return f"chr{match.group(1)}", int(match.group(2)), int(match.group(3))
+    match = re.fullmatch(r"chr([0-9]+|X|Y|M|MT)_(\d+)_(\d+)", text)
+    if match:
+        return f"chr{match.group(1)}", int(match.group(2)), int(match.group(3))
+    return None
+
+
+def add_vmr_coordinate_id(
+    frame,
+    *,
+    id_col: str = "vmr_id",
+    chrom_col: str = "chrom",
+    start_col: str = "start",
+    end_col: str = "end",
+    out_col: str = "vmr_coord_id",
+):
+    """Attach a canonical coordinate ID without treating numeric task IDs as shared loci."""
+    out = frame.copy()
+    if {chrom_col, start_col, end_col}.issubset(out.columns):
+        out[out_col] = [
+            canonical_vmr_id(c, s, e)
+            for c, s, e in zip(out[chrom_col], out[start_col], out[end_col])
+        ]
+        return out
+    if id_col not in out.columns:
+        raise KeyError(f"Cannot construct {out_col}: missing {id_col} and coordinate columns")
+    parsed = out[id_col].map(parse_vmr_coordinate)
+    out[out_col] = parsed.map(
+        lambda x: canonical_vmr_id(*x) if x is not None else None
+    )
+    return out

@@ -70,11 +70,11 @@ def main() -> None:
     })
 
     grad = pd.read_csv(CROSS / "burden_gradient_by_region.tsv", sep="\t")
-    tech = grad[grad["model"] == "adjusted_technical"]
+    tech = grad[grad["model"].isin(["adjusted_prespecified", "adjusted_technical"])]
     grad_ok = ((tech["coef_predictability"].astype(float) > 0) & (tech["pval_predictability"].astype(float) < 0.05)).sum()
     claims.append({
         "claim": "aa_burden_gradient_reproducible_across_regions",
-        "metric": "adjusted_technical coef>0 & p<0.05",
+        "metric": "adjusted_prespecified coef>0 & p<0.05",
         "n_pairwise_pass": int(grad_ok),
         "n_pairwise": int(len(tech)),
         "passes": bool(grad_ok >= 2),
@@ -96,7 +96,7 @@ def main() -> None:
     ea_rows = ready[ready["donor_group"] == "EA"]
     ea_mapped = ea_rows[ea_rows["status"] == "mapped_phase1"]
     coef = pd.read_csv(DONOR / "donor_group_coefficient_comparison.tsv", sep="\t")
-    ea_tech = coef[(coef["donor_group"] == "EA") & (coef["model"] == "adjusted_technical")].copy()
+    ea_tech = coef[(coef["donor_group"] == "EA") & (coef["model"].isin(["adjusted_prespecified", "adjusted_technical"]))].copy()
     if ea_tech.empty:
         ea_tech = coef[(coef["donor_group"] == "EA") & (coef["model"] == "adjusted_minimal")].copy()
     if ea_tech.empty:

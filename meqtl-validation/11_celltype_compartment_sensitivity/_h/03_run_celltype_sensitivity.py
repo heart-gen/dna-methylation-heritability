@@ -17,7 +17,7 @@ import pandas as pd
 import statsmodels.api as sm
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
-from _lib.io_utils import write_tsv  # noqa: E402
+from _lib.io_utils import ANALYSIS_SCHEMA_VERSION, write_tsv  # noqa: E402
 
 PROJECT = Path("/projects/b1213/users/kynon/projects/dna-methylation-heritability")
 MODULE = PROJECT / "meqtl-validation/11_celltype_compartment_sensitivity/_m"
@@ -61,7 +61,7 @@ def fit_logistic(df: pd.DataFrame, ycol: str, xcols: list[str]) -> dict:
     X = use[["local_predictability"] + xcols].apply(_z)
     X = sm.add_constant(X, has_constant="add")
     try:
-        res = sm.GLM(y, X, family=sm.families.Binomial()).fit()
+        res = sm.GLM(y, X, family=sm.families.Binomial()).fit(cov_type="HC3")
         return {
             "estimate": float(res.params["local_predictability"]),
             "or": float(np.exp(res.params["local_predictability"])),
@@ -86,7 +86,10 @@ def fit_burden(df: pd.DataFrame, xcols: list[str]) -> dict:
     endog = use[["n_cpgs_with_sig_meqtl", "n_ns"]]
     exog = sm.add_constant(use[cols].apply(_z), has_constant="add")
     try:
-        res = sm.GLM(endog, exog, family=sm.families.Binomial()).fit()
+        model = sm.GLM(endog, exog, family=sm.families.Binomial())
+        pilot = model.fit(maxiter=250)
+        dispersion = max(1.0, float(pilot.pearson_chi2 / max(pilot.df_resid, 1)))
+        res = model.fit(scale=dispersion, cov_type="HC3", maxiter=250)
         return {
             "estimate": float(res.params["local_predictability"]),
             "pvalue": float(res.pvalues["local_predictability"]),
@@ -221,6 +224,8 @@ def analyze_region(region: str) -> tuple[list[dict], list[dict], list[dict]]:
     burden_rows = []
     if burden_path.exists():
         b = pd.read_csv(burden_path, sep="\t")
+        if "analysis_schema_version" not in b or not b["analysis_schema_version"].eq(ANALYSIS_SCHEMA_VERSION).all():
+            raise SystemExit(f"{region}: stale Phase 2 burden; regenerate repair schema v2 before cell-type sensitivity")
         b["vmr_id"] = b["vmr_id"].astype(str)
         # join metrics via task_id / coord
         tech = pd.read_csv(PHASE6 / region / "vmr_technical_annotations.tsv", sep="\t")

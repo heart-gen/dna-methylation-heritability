@@ -14,6 +14,8 @@ cli <- parse_cli(list(
         unset = normalizePath(file.path(dirname(script_path), "..", ".."))
     ),
     plink_root = Sys.getenv("CAL_H2_PLINK_ROOT", unset = ""),
+    recovered_plink_root = Sys.getenv("CAL_H2_RECOVERED_PLINK_ROOT", unset = ""),
+    phenotype_root = Sys.getenv("CAL_H2_PHENOTYPE_ROOT", unset = ""),
     calibration_model = file.path(dirname(script_path), "..", "_m", "calibration", "elastic-net-calibration.rds"),
     output_root = file.path(dirname(script_path), "..", "_m", "observed"),
     cis_window_bp = "500000",
@@ -52,25 +54,52 @@ end <- as.integer(vmrs[task_id, 3L])
 chromosome_label <- sub("^chr", "", chromosome, ignore.case = TRUE)
 chromosome_dir <- paste0("chr_", chromosome_label)
 stem <- paste0(start, "_", end)
-if (toupper(chromosome_label) %in% c("X", "Y") &&
-    !as_bool(cli$include_sex_chromosomes, "include_sex_chromosomes")) {
-    excluded <- data.frame(
-        task_id = task_id,
-        region = region,
-        population = population,
-        chromosome = chromosome,
-        start = start,
-        end = end,
-        vmr_id = paste(chromosome, start, end, sep = ":"),
-        exclusion_reason = "non_autosomal_vmr",
-        stringsAsFactors = FALSE
+vmr_record <- data.frame(
+    task_id = task_id,
+    region = region,
+    population = population,
+    chromosome = chromosome,
+    start = start,
+    end = end,
+    vmr_id = paste(chromosome, start, end, sep = ":"),
+    stringsAsFactors = FALSE
+)
+write_exclusion <- function(reason, source_log = NA_character_) {
+    excluded <- cbind(
+        vmr_record,
+        data.frame(
+            exclusion_reason = reason,
+            source_log = source_log,
+            stringsAsFactors = FALSE
+        )
     )
     write_tsv(
         excluded,
         file.path(cli$output_root, region, population, "excluded",
                   sprintf("vmr-%07d.tsv", task_id))
     )
-    cat("Excluded non-autosomal VMR", excluded$vmr_id, "\n")
+    cat("Excluded", excluded$vmr_id, "because", reason, "\n")
+}
+write_qc_failure <- function(reason, snps_in_window, snps_after_qc) {
+    failure <- cbind(
+        vmr_record,
+        data.frame(
+            qc_failure_reason = reason,
+            snps_in_window = snps_in_window,
+            snps_after_qc = snps_after_qc,
+            stringsAsFactors = FALSE
+        )
+    )
+    write_tsv(
+        failure,
+        file.path(cli$output_root, region, population, "qc_failures",
+                  sprintf("vmr-%07d.tsv", task_id))
+    )
+    cat("Recorded QC failure for", failure$vmr_id, ":", reason, "\n")
+}
+if (toupper(chromosome_label) %in% c("X", "Y") &&
+    !as_bool(cli$include_sex_chromosomes, "include_sex_chromosomes")) {
+    write_exclusion("non_autosomal_vmr")
     quit(save = "no", status = 0L)
 }
 if (!requireNamespace("bigsnpr", quietly = TRUE)) stop("The bigsnpr package is required")
@@ -79,10 +108,59 @@ bed <- file.path(
     plink_base_dir, chromosome_dir,
     paste0("TOPMed_LIBD-", population, ".", stem, ".bed")
 )
-phenotype_file <- file.path(base_dir, "vmr", chromosome_dir, paste0(stem, "_meth.phen"))
+if (nzchar(cli$recovered_plink_root)) {
+    recovered_bed <- file.path(
+        cli$recovered_plink_root, region, "_m", "plink_format",
+        chromosome_dir,
+        paste0("TOPMed_LIBD-", population, ".", stem, ".bed")
+    )
+    recovered_no_snp <- sub("\\.bed$", ".no-snps", recovered_bed)
+    if (file.exists(recovered_bed) || file.exists(recovered_no_snp)) {
+        bed <- recovered_bed
+    }
+}
+bed_log <- sub("\\.bed$", ".log", bed)
+no_snp_marker <- sub("\\.bed$", ".no-snps", bed)
+if (!file.exists(bed)) {
+    upstream_bed <- file.path(
+        plink_base_dir, chromosome_dir,
+        paste0("TOPMed_LIBD-", population, ".", stem, ".bed")
+    )
+    upstream_log <- sub("\\.bed$", ".log", upstream_bed)
+    no_variants <- file.exists(no_snp_marker) ||
+        (file.exists(upstream_log) && any(grepl(
+            "No variants remaining after main filters",
+            readLines(upstream_log, warn = FALSE), fixed = TRUE
+        )))
+    if (no_variants) {
+        write_qc_failure("no_snp_in_prespecified_cis_window", 0L, 0L)
+        quit(save = "no", status = 0L)
+    }
+    stop("Required input is missing: ", bed)
+}
+local_phenotype <- file.path(
+    base_dir, "vmr", chromosome_dir, paste0(stem, "_meth.phen")
+)
+if (nzchar(cli$phenotype_root)) {
+    fallback_phenotype <- file.path(
+        cli$phenotype_root, region, "_m", "vmr", chromosome_dir,
+        paste0(stem, "_meth.phen")
+    )
+} else {
+    fallback_phenotype <- file.path(
+        "/projects/b1213/users/alexis/projects/dna-methylation-heritability",
+        "vmr-analysis", "all_individuals", region, "_m", "vmr",
+        chromosome_dir, paste0(stem, "_meth.phen")
+    )
+}
+phenotype_file <- if (file.exists(local_phenotype)) {
+    local_phenotype
+} else {
+    fallback_phenotype
+}
 covar_file <- file.path(base_dir, "covs", "TOPMed_LIBD.covar")
 qcovar_file <- file.path(base_dir, "covs", "TOPMed_LIBD.qcovar")
-for (path in c(bed, phenotype_file, covar_file, qcovar_file, cli$calibration_model)) {
+for (path in c(phenotype_file, covar_file, qcovar_file, cli$calibration_model)) {
     if (!file.exists(path)) stop("Required input is missing: ", path)
 }
 
@@ -92,7 +170,7 @@ big_snp <- bigsnpr::snp_attach(rds)
 on.exit({
     unlink(c(big_snp$genotypes$backingfile, big_snp$genotypes$rds), force = TRUE)
 }, add = TRUE)
-genotype <- big_snp$genotypes[]
+genotype <- as.matrix(big_snp$genotypes[])
 map <- big_snp$map
 if (!all(c("chromosome", "physical.pos") %in% names(map))) {
     stop("PLINK map does not contain chromosome and physical.pos columns")
@@ -103,7 +181,10 @@ window_end <- end + cis_window_bp
 map_chromosome <- sub("^chr", "", as.character(map$chromosome), ignore.case = TRUE)
 in_window <- map_chromosome == chromosome_label &
     map$physical.pos >= window_start & map$physical.pos <= window_end
-if (!any(in_window)) stop("No SNPs remain inside the prespecified cis window")
+if (!any(in_window)) {
+    write_qc_failure("no_snp_in_prespecified_cis_window", 0L, 0L)
+    quit(save = "no", status = 0L)
+}
 genotype <- genotype[, in_window, drop = FALSE]
 input_snps <- ncol(genotype)
 missingness <- colMeans(is.na(genotype))
@@ -114,7 +195,10 @@ missingness_max <- as_num(cli$snp_missingness_max, "snp_missingness_max")
 pass_qc <- is.finite(maf) & maf >= maf_min &
     is.finite(missingness) & missingness <= missingness_max
 genotype <- genotype[, pass_qc, drop = FALSE]
-if (ncol(genotype) < 2L) stop("Fewer than two SNPs remain after cis-window and genotype QC")
+if (ncol(genotype) < 2L) {
+    write_qc_failure("fewer_than_two_snps_after_qc", input_snps, ncol(genotype))
+    quit(save = "no", status = 0L)
+}
 fam <- big_snp$fam[, 1:2, drop = FALSE]
 names(fam) <- c("FID", "IID")
 fam$FID <- as.character(fam$FID)
@@ -198,7 +282,8 @@ summary <- cbind(data.frame(
     snps_after_qc = ncol(genotype),
     maf_min = maf_min,
     snp_missingness_max = missingness_max,
-    plink_source = normalizePath(plink_base_dir),
+        plink_source = normalizePath(bed),
+    phenotype_source = normalizePath(phenotype_file),
     calibration_model = normalizePath(cli$calibration_model),
     stringsAsFactors = FALSE
 ), fit$metrics, he_metrics, calibrated)

@@ -20,7 +20,7 @@ import statsmodels.api as sm
 from scipy.stats import pearsonr, spearmanr
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
-from _lib.io_utils import write_tsv  # noqa: E402
+from _lib.io_utils import ANALYSIS_SCHEMA_VERSION, canonical_vmr_id, parse_vmr_coordinate, write_tsv  # noqa: E402
 
 PROJECT = Path("/projects/b1213/users/kynon/projects/dna-methylation-heritability")
 PHASE1 = PROJECT / "meqtl-validation" / "01_cpg_meqtl_mapping"
@@ -50,12 +50,38 @@ def _z(s: pd.Series) -> pd.Series:
 def load_burden(region: str) -> pd.DataFrame:
     path = PHASE2 / region / "vmr_meqtl_burden.tsv.gz"
     df = pd.read_csv(path, sep="\t")
+    if "analysis_schema_version" not in df or not df["analysis_schema_version"].eq(ANALYSIS_SCHEMA_VERSION).all():
+        raise SystemExit(f"{region}: stale Phase 2 burden; regenerate repair schema v2 before Phase 4")
     df["vmr_id"] = df["vmr_id"].astype(str)
     df["meqtl_supported"] = pd.to_numeric(df["n_cpgs_with_sig_meqtl"], errors="coerce").fillna(0).gt(0)
     df["local_predictability"] = pd.to_numeric(df["local_predictability"], errors="coerce")
     df["proportion_cpgs_with_sig_meqtl"] = pd.to_numeric(
         df["proportion_cpgs_with_sig_meqtl"], errors="coerce"
     )
+    # Region-local task IDs are not cross-region locus identifiers. Resolve every
+    # row to its hg38 interval before any sharing analysis.
+    pred_path = (
+        PROJECT / "heritability/elastic_net_model/all_individuals" / region / "_m"
+        / f"{region}_summary_elastic-net_AA.tsv"
+    )
+    pred = pd.read_csv(pred_path, sep="\t")
+    pred["task_id"] = pred["task_id"].astype(str)
+    pred["vmr_coord_id"] = [
+        canonical_vmr_id(c, s, e) for c, s, e in zip(pred["chrom"], pred["start"], pred["end"])
+    ]
+    task_to_coord = pred.drop_duplicates("task_id").set_index("task_id")["vmr_coord_id"]
+    df["vmr_coord_id"] = df["vmr_id"].map(task_to_coord)
+    unresolved = df["vmr_coord_id"].isna()
+    if unresolved.any():
+        df.loc[unresolved, "vmr_coord_id"] = df.loc[unresolved, "vmr_id"].map(
+            lambda value: (
+                canonical_vmr_id(*parsed) if (parsed := parse_vmr_coordinate(value)) else np.nan
+            )
+        )
+    if df["vmr_coord_id"].isna().any():
+        raise SystemExit(
+            f"{region}: {int(df['vmr_coord_id'].isna().sum())} burden rows lack canonical coordinates"
+        )
     return df
 
 
@@ -94,15 +120,16 @@ def pairwise_vmr_sharing(burdens: dict[str, pd.DataFrame]) -> tuple[list[dict], 
     # wide support table for triple / predictability models
     base = None
     for region, df in burdens.items():
-        sub = df[["vmr_id", "meqtl_supported", "local_predictability",
+        sub = df[["vmr_coord_id", "vmr_id", "meqtl_supported", "local_predictability",
                   "proportion_cpgs_with_sig_meqtl", "n_tested_cpgs"]].copy()
         sub = sub.rename(columns={
+            "vmr_id": f"vmr_id_{region}",
             "meqtl_supported": f"supported_{region}",
             "local_predictability": f"pred_{region}",
             "proportion_cpgs_with_sig_meqtl": f"prop_{region}",
             "n_tested_cpgs": f"n_cpg_{region}",
         })
-        base = sub if base is None else base.merge(sub, on="vmr_id", how="outer")
+        base = sub if base is None else base.merge(sub, on="vmr_coord_id", how="outer")
 
     for a, b in combinations(REGIONS, 2):
         sa, sb = f"supported_{a}", f"supported_{b}"
@@ -163,9 +190,9 @@ def pairwise_cpg_concordance(leads: dict[str, pd.DataFrame], fdr: float) -> list
         both_sig = ma["sig"] & mb["sig"]
         either_sig = ma["sig"] | mb["sig"]
         same_lead = ma["variant_id"] == mb["variant_id"]
-        # direction among both-significant
-        dir_both = np.sign(ma.loc[both_sig, "slope"]) == np.sign(mb.loc[both_sig, "slope"])
-        # direction among both-sig with identical lead
+        # Effect sizes and signs are commensurate only for the identical tested
+        # variant with a common REF/ALT encoding. Independent lead variants are
+        # retained for discovery-overlap counts but never used for concordance.
         both_same = both_sig & same_lead
         dir_same = np.sign(ma.loc[both_same, "slope"]) == np.sign(mb.loc[both_same, "slope"])
 
@@ -173,15 +200,21 @@ def pairwise_cpg_concordance(leads: dict[str, pd.DataFrame], fdr: float) -> list
             m = x.notna() & y.notna()
             if m.sum() < 20:
                 return np.nan, np.nan, int(m.sum())
+            if x[m].nunique() < 2 or y[m].nunique() < 2:
+                return np.nan, np.nan, int(m.sum())
             r, p = pearsonr(x[m], y[m])
             return float(r), float(p), int(m.sum())
 
-        r_slope, p_slope, n_slope = _corr(ma["slope"], mb["slope"])
-        r_z, p_z, n_z = _corr(ma["z"], mb["z"])
-        r_slope_sig, p_slope_sig, n_slope_sig = _corr(
-            ma.loc[either_sig, "slope"], mb.loc[either_sig, "slope"]
+        r_slope, p_slope, n_slope = _corr(
+            ma.loc[same_lead, "slope"], mb.loc[same_lead, "slope"]
         )
-        r_z_sig, p_z_sig, n_z_sig = _corr(ma.loc[either_sig, "z"], mb.loc[either_sig, "z"])
+        r_z, p_z, n_z = _corr(ma.loc[same_lead, "z"], mb.loc[same_lead, "z"])
+        r_slope_sig, p_slope_sig, n_slope_sig = _corr(
+            ma.loc[either_sig & same_lead, "slope"], mb.loc[either_sig & same_lead, "slope"]
+        )
+        r_z_sig, p_z_sig, n_z_sig = _corr(
+            ma.loc[either_sig & same_lead, "z"], mb.loc[either_sig & same_lead, "z"]
+        )
 
         rows.append({
             "contrast": f"{a}_vs_{b}",
@@ -195,7 +228,8 @@ def pairwise_cpg_concordance(leads: dict[str, pd.DataFrame], fdr: float) -> list
             "frac_b_replicated_in_a": float(both_sig.sum() / mb["sig"].sum()) if mb["sig"].sum() else np.nan,
             "n_same_lead_variant": int(same_lead.sum()),
             "n_both_sig_same_lead": int(both_same.sum()),
-            "direction_concordance_both_sig": float(dir_both.mean()) if both_sig.sum() else np.nan,
+            "n_both_sig_different_lead_not_compared": int((both_sig & ~same_lead).sum()),
+            "direction_concordance_both_sig": float(dir_same.mean()) if both_same.sum() else np.nan,
             "direction_concordance_both_sig_same_lead": float(dir_same.mean()) if both_same.sum() else np.nan,
             "pearson_slope_all": r_slope,
             "pearson_slope_all_p": p_slope,
@@ -210,6 +244,7 @@ def pairwise_cpg_concordance(leads: dict[str, pd.DataFrame], fdr: float) -> list
             "pearson_z_either_sig_p": p_z_sig,
             "n_pearson_z_either_sig": n_z_sig,
             "fdr": fdr,
+            "effect_comparison_scope": "identical_lead_variant_only",
         })
     return rows
 
@@ -279,7 +314,8 @@ def write_shared_vmr_table(base: pd.DataFrame) -> None:
     out = base.dropna(subset=cols).copy()
     out["n_regions_supported"] = out[cols].astype(bool).sum(axis=1)
     out["supported_all3"] = out["n_regions_supported"].eq(3)
-    keep = ["vmr_id", "n_regions_supported", "supported_all3"] + cols
+    keep = ["vmr_coord_id", "n_regions_supported", "supported_all3"] + cols
+    keep.extend([f"vmr_id_{r}" for r in REGIONS])
     for r in REGIONS:
         keep.append(f"pred_{r}")
         keep.append(f"prop_{r}")

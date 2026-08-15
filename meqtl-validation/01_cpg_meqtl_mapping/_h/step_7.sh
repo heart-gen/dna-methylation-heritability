@@ -24,9 +24,14 @@ mkdir -p logs
 REGIONS=(caudate dlpfc hippocampus)
 REGION="${REGION:-${REGIONS[${SLURM_ARRAY_TASK_ID}]}}"
 FDR="${FDR:-0.05}"
-CIS="${ROOT}/meqtl-validation/01_cpg_meqtl_mapping/${REGION}/_m/tensorqtl/cpg_meqtl_${REGION}.cis_qtl.txt.gz"
+POPULATION="${POPULATION:-AA}"
+if [[ "${POPULATION}" == "AA" ]]; then
+  CIS="${ROOT}/meqtl-validation/01_cpg_meqtl_mapping/${REGION}/_m/tensorqtl/cpg_meqtl_${REGION}.cis_qtl.txt.gz"
+else
+  CIS="${ROOT}/meqtl-validation/01_cpg_meqtl_mapping/${REGION}/_m/tensorqtl/${POPULATION}/cpg_meqtl_${REGION}_${POPULATION}.cis_qtl.txt.gz"
+fi
 
-echo "$(date '+%Y-%m-%d %H:%M:%S') - calibration ${REGION}"
+echo "$(date '+%Y-%m-%d %H:%M:%S') - calibration ${REGION} (${POPULATION})"
 source /projects/p32505/opt/miniforge3/etc/profile.d/conda.sh
 conda activate /projects/p32505/opt/envs/genomics
 

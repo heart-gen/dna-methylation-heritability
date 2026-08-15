@@ -15,7 +15,7 @@ def burden_effect(path: Path) -> tuple[float, float]:
     if not path.exists():
         return np.nan, np.nan
     tab = pd.read_csv(path, sep="\t")
-    row = tab.loc[tab["model"].eq("adjusted_technical")]
+    row = tab.loc[tab["model"].isin(["adjusted_prespecified", "adjusted_technical"])]
     if row.empty:
         row = tab.loc[tab["model"].eq("adjusted_minimal")]
     if row.empty:

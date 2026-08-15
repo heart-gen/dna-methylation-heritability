@@ -40,6 +40,7 @@ def region_qc(region: str) -> dict:
                 "n_samples": {"caudate": 153, "dlpfc": 111, "hippocampus": 116}[region],
                 "n_tested": int(s["n_phenotypes_tested"]),
                 "n_sig_fdr": int(s["n_significant_fdr"]),
+                "discovery_rate": int(s["n_significant_fdr"]) / int(s["n_phenotypes_tested"]),
                 "lambda_gc": float(s["lambda_gc"]),
                 "cis_qtl_path": str(s["cis_qtl_path"]),
                 "qc_path": str(path),
@@ -47,36 +48,51 @@ def region_qc(region: str) -> dict:
     raise FileNotFoundError(f"No QC summary for {region}")
 
 
-def retention_vs_full(full_cis: Path, ds_cis: Path, fdr: float) -> dict:
+def load_qvalues(path: Path) -> pd.Series:
+    """Read a phenotype-indexed q-value vector from a TensorQTL cis table."""
+    if not path.exists():
+        raise FileNotFoundError(path)
+    table = pd.read_csv(path, sep="\t", index_col=0, usecols=lambda c: c == "qval" or c.startswith("phenotype"))
+    if "qval" not in table.columns:
+        raise ValueError(f"{path} lacks qval")
+    qval = pd.to_numeric(table["qval"], errors="coerce")
+    qval.index = qval.index.astype(str)
+    return qval
+
+
+def retention_vs_full(full: pd.Series, ds: pd.Series, fdr: float) -> dict:
     """Fraction of full-N FDR-significant CpGs that remain FDR-significant in downsample."""
-    if not full_cis.exists() or not ds_cis.exists():
-        return {
-            "n_full_sig": np.nan,
-            "n_full_sig_retained": np.nan,
-            "frac_full_sig_retained": np.nan,
-        }
-    full = pd.read_csv(full_cis, sep="\t", index_col=0, usecols=lambda c: True)
-    # Only need qval; re-read lightly if huge
-    if "qval" not in full.columns:
-        return {
-            "n_full_sig": np.nan,
-            "n_full_sig_retained": np.nan,
-            "frac_full_sig_retained": np.nan,
-        }
-    ds = pd.read_csv(ds_cis, sep="\t", index_col=0)
-    if "qval" not in ds.columns:
-        return {
-            "n_full_sig": np.nan,
-            "n_full_sig_retained": np.nan,
-            "frac_full_sig_retained": np.nan,
-        }
-    full_sig = set(full.index[pd.to_numeric(full["qval"], errors="coerce") <= fdr].astype(str))
-    ds_sig = set(ds.index[pd.to_numeric(ds["qval"], errors="coerce") <= fdr].astype(str))
+    full_sig = set(full.index[full <= fdr])
+    ds_sig = set(ds.index[ds <= fdr])
     retained = full_sig & ds_sig
     return {
         "n_full_sig": len(full_sig),
         "n_full_sig_retained": len(retained),
         "frac_full_sig_retained": float(len(retained) / len(full_sig)) if full_sig else np.nan,
+    }
+
+
+def common_universe_rates(
+    downsample: pd.Series,
+    dlpfc: pd.Series,
+    hippocampus: pd.Series,
+    fdr: float,
+) -> dict:
+    """Discovery rates on the identical CpG universe testable in all datasets."""
+    common = downsample.index.intersection(dlpfc.index).intersection(hippocampus.index)
+    if not len(common):
+        return {"n_common_cpgs_all3": 0}
+    ds_rate = float((downsample.loc[common] <= fdr).mean())
+    dlpfc_rate = float((dlpfc.loc[common] <= fdr).mean())
+    hip_rate = float((hippocampus.loc[common] <= fdr).mean())
+    return {
+        "n_common_cpgs_all3": int(len(common)),
+        "caudate_downsample_common_discovery_rate": ds_rate,
+        "dlpfc_common_discovery_rate": dlpfc_rate,
+        "hippocampus_common_discovery_rate": hip_rate,
+        "common_rate_ratio_vs_dlpfc": ds_rate / max(dlpfc_rate, 1e-12),
+        "common_rate_ratio_vs_hippocampus": ds_rate / max(hip_rate, 1e-12),
+        "common_rate_exceeds_both": bool(ds_rate > dlpfc_rate and ds_rate > hip_rate),
     }
 
 
@@ -87,11 +103,18 @@ def main() -> None:
     design = pd.read_csv(outdir / "downsample_design_summary.tsv", sep="\t").iloc[0]
 
     full = {r: region_qc(r) for r in ["caudate", "dlpfc", "hippocampus"]}
-    # Resolve full caudate cis path for retention
+    # Resolve full cis tables once for retention and common-universe comparisons.
     full_cis = Path(full["caudate"]["cis_qtl_path"])
     if not full_cis.exists():
         alt = PHASE1 / "caudate/_m/tensorqtl/cpg_meqtl_caudate.cis_qtl.txt.gz"
         full_cis = alt if alt.exists() else full_cis
+    full_q = load_qvalues(full_cis)
+    comparator_q = {}
+    for region in ["dlpfc", "hippocampus"]:
+        path = Path(full[region]["cis_qtl_path"])
+        if not path.exists():
+            path = PHASE1 / region / "_m/tensorqtl" / f"cpg_meqtl_{region}.cis_qtl.txt.gz"
+        comparator_q[region] = load_qvalues(path)
 
     rep_rows = []
     for _, mrow in manifest.iterrows():
@@ -102,16 +125,22 @@ def main() -> None:
             print(f"WARNING: missing QC for rep {rep}: {qc_path}")
             continue
         qc = pd.read_csv(qc_path, sep="\t").iloc[0]
-        ret = retention_vs_full(full_cis, cis_path, args.fdr)
+        ds_q = load_qvalues(cis_path)
+        ret = retention_vs_full(full_q, ds_q, args.fdr)
+        common = common_universe_rates(
+            ds_q, comparator_q["dlpfc"], comparator_q["hippocampus"], args.fdr
+        )
         rep_rows.append({
             "replicate": rep,
             "n_samples": int(mrow["n_samples"]),
             "n_tested": int(qc["n_phenotypes_tested"]),
             "n_sig_fdr": int(qc["n_significant_fdr"]),
+            "discovery_rate": int(qc["n_significant_fdr"]) / int(qc["n_phenotypes_tested"]),
             "lambda_gc": float(qc["lambda_gc"]),
             "median_pval": float(qc["median_pval"]),
             "cis_qtl_path": str(cis_path),
             **ret,
+            **common,
             "method": "tensorqtl_cis_permutation_fdr",
         })
 
@@ -126,18 +155,25 @@ def main() -> None:
     q25, q75 = np.percentile(reps["n_sig_fdr"], [25, 75])
     med_retain = float(reps["frac_full_sig_retained"].median())
     med_lambda = float(reps["lambda_gc"].median())
+    med_rate = float(reps["discovery_rate"].median())
 
     frac_le_dlpfc = float((reps["n_sig_fdr"] <= full["dlpfc"]["n_sig_fdr"]).mean())
     frac_le_hip = float((reps["n_sig_fdr"] <= full["hippocampus"]["n_sig_fdr"]).mean())
-    ratio_dlpfc = med_sig / max(full["dlpfc"]["n_sig_fdr"], 1)
-    ratio_hip = med_sig / max(full["hippocampus"]["n_sig_fdr"], 1)
+    # Primary regional comparison uses the same CpGs in all three datasets.
+    ratio_dlpfc = float(reps["common_rate_ratio_vs_dlpfc"].median())
+    ratio_hip = float(reps["common_rate_ratio_vs_hippocampus"].median())
+    frac_common_exceed_both = float(reps["common_rate_exceeds_both"].mean())
     exceed_both = float(
         ((reps["n_sig_fdr"] > full["dlpfc"]["n_sig_fdr"])
          & (reps["n_sig_fdr"] > full["hippocampus"]["n_sig_fdr"])).mean()
     )
-    # Same heuristic as Phase 4 lead-retention, but now method-matched
-    not_solely_n = bool(ratio_dlpfc >= 1.1 and ratio_hip >= 1.1 and exceed_both >= 0.7)
-    collapses = bool(frac_le_dlpfc >= 0.5 or frac_le_hip >= 0.5)
+    # Absolute discoveries and rates on different region-specific VMR universes
+    # are not comparable. Require an identical-CpG rate advantage that is stable
+    # across at least 80% of donor-downsampling replicates.
+    not_solely_n = bool(
+        ratio_dlpfc >= 1.1 and ratio_hip >= 1.1 and frac_common_exceed_both >= 0.8
+    )
+    collapses = bool(frac_common_exceed_both < 0.5)
 
     comp = [
         {**full["caudate"], "analysis": "full_tensorqtl_M3a"},
@@ -148,6 +184,7 @@ def main() -> None:
             "n_tested": float(reps["n_tested"].median()),
             "n_sig_fdr": med_sig,
             "lambda_gc": med_lambda,
+            "discovery_rate": med_rate,
             "cis_qtl_path": "",
             "qc_path": "",
         },
@@ -167,11 +204,23 @@ def main() -> None:
         "downsample_mean_n_sig": mean_sig,
         "downsample_iqr_n_sig": f"{q25:.1f}-{q75:.1f}",
         "downsample_median_lambda_gc": med_lambda,
+        "downsample_median_discovery_rate": med_rate,
+        "downsample_median_n_common_cpgs_all3": float(reps["n_common_cpgs_all3"].median()),
+        "downsample_median_common_discovery_rate": float(
+            reps["caudate_downsample_common_discovery_rate"].median()
+        ),
+        "dlpfc_median_common_discovery_rate": float(reps["dlpfc_common_discovery_rate"].median()),
+        "hippocampus_median_common_discovery_rate": float(
+            reps["hippocampus_common_discovery_rate"].median()
+        ),
         "median_frac_full_sig_retained": med_retain,
         "dlpfc_n_sig": full["dlpfc"]["n_sig_fdr"],
         "hippocampus_n_sig": full["hippocampus"]["n_sig_fdr"],
-        "median_ratio_vs_dlpfc": ratio_dlpfc,
-        "median_ratio_vs_hippocampus": ratio_hip,
+        "dlpfc_discovery_rate": full["dlpfc"]["discovery_rate"],
+        "hippocampus_discovery_rate": full["hippocampus"]["discovery_rate"],
+        "median_discovery_rate_ratio_vs_dlpfc": ratio_dlpfc,
+        "median_discovery_rate_ratio_vs_hippocampus": ratio_hip,
+        "frac_reps_common_rate_exceeds_both": frac_common_exceed_both,
         "frac_reps_sig_le_dlpfc": frac_le_dlpfc,
         "frac_reps_sig_le_hippocampus": frac_le_hip,
         "frac_reps_exceed_both_comparators": exceed_both,
@@ -179,12 +228,14 @@ def main() -> None:
         "flag_collapses_toward_comparator": collapses,
         "fdr_family_matched": True,
         "interpretation": (
-            "After official TensorQTL permutation-FDR remapping at N=111, caudate discovery "
-            "remains higher than DLPFC/hippocampus; excess is not explained solely by sample size."
+            "After official TensorQTL permutation-FDR remapping at N=111, caudate's "
+            "discovery rate on the identical all-region CpG universe remains at least "
+            "10% higher than both comparison regions and exceeds both in at least 80% "
+            "of replicates."
             if not_solely_n else
-            "After official TensorQTL permutation-FDR remapping at N=111, caudate discovery "
-            "advantage attenuates toward DLPFC/hippocampus; do not claim caudate-selective "
-            "discovery from full-N counts alone."
+            "The N-matched caudate discovery rate on the identical all-region CpG universe "
+            "does not satisfy the prespecified magnitude and stability gate; do not claim "
+            "caudate-selective discovery from unequal-universe counts or rates."
         ),
     }]
     write_tsv(outdir / "tensorqtl_downsample_claim_snapshot.tsv", claim)

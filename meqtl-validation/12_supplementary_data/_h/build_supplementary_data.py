@@ -22,6 +22,7 @@ import zipfile
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
 DEFAULT_OUTPUT = PROJECT_ROOT / "meqtl-validation/12_supplementary_data/_m"
 FIXED_ZIP_TIME = (2026, 8, 7, 0, 0, 0)
+REQUIRED_ANALYSIS_SCHEMA_VERSION = 2
 
 REGIONS = ("caudate", "dlpfc", "hippocampus")
 
@@ -80,9 +81,10 @@ measure. It is not a calibrated locus-level heritability estimate.
     12: """# Supplementary Data 12: External brain meQTL validation
 
 This archive contains harmonization/overlap summaries, VMR-level external support,
-adjusted models, and matched analyses for Jaffe DLPFC and Schulz hippocampus meQTL
-resources. BrainSeq/LIBD results are retained as explicitly exploratory because the
-cohort overlaps the internal discovery resource and is not independent validation.
+and complete-assay-universe adjusted/matched analyses for Jaffe DLPFC. Schulz
+hippocampus is retained as positive-only supporting overlap because tested negatives
+are unavailable. BrainSeq/LIBD results are explicitly exploratory because the cohort
+overlaps the internal discovery resource and is not independent validation.
 
 Original third-party supplementary tables and liftOver chain files are not
 redistributed. Consult `audit/public_meqtl_resources.tsv` in Supplementary Data 10
@@ -145,6 +147,39 @@ KNOWN_PATH_REPLACEMENTS = {
 
 def add(files: list[tuple[str, str]], source: str, target: str | None = None) -> None:
     files.append((source, target or source))
+
+
+def require_repaired_outputs() -> None:
+    """Fail closed rather than package pre-repair manuscript results."""
+    failures: list[str] = []
+    for region in REGIONS:
+        path = (
+            PROJECT_ROOT
+            / "meqtl-validation/02_vmr_meqtl_burden/_m"
+            / region
+            / "vmr_meqtl_burden.tsv.gz"
+        )
+        if not path.exists():
+            failures.append(f"missing {path}")
+            continue
+        opener = gzip.open if path.suffix == ".gz" else open
+        with opener(path, "rt", encoding="utf-8", newline="") as handle:
+            reader = csv.DictReader(handle, delimiter="\t")
+            first = next(reader, None)
+        try:
+            version = int(float((first or {}).get("analysis_schema_version", "")))
+        except ValueError:
+            version = -1
+        if version < REQUIRED_ANALYSIS_SCHEMA_VERSION:
+            failures.append(
+                f"{path} has schema {version}; need {REQUIRED_ANALYSIS_SCHEMA_VERSION}"
+            )
+    if failures:
+        raise SystemExit(
+            "Refusing to package stale meQTL-validation outputs:\n- "
+            + "\n- ".join(failures)
+            + "\nRerun in the order documented in meqtl-validation/REPAIR_V2.md."
+        )
 
 
 def package_files(number: int) -> list[tuple[str, str]]:
@@ -555,6 +590,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
     args = parser.parse_args()
+    require_repaired_outputs()
     output_root = args.output.resolve()
     output_root.mkdir(parents=True, exist_ok=True)
 

@@ -1,5 +1,7 @@
 # Analysis thresholds and decision criteria
 
+analysis_schema_version: 2
+
 significance:
   meqtl_fdr: 0.05
   architecture_fdr: 0.05
@@ -14,9 +16,10 @@ matching:
   balance_smd_max: 0.1
 
 external_meqtl:
-  primary_resource_id: brainseq_wgbs_meqtl
+  primary_resource_id: jaffe_dlpfc_450k_meqtl
   min_cpg_overlap_for_test: 1000
   require_genome_build_harmonization: true
+  require_complete_assay_universe_for_primary_test: true
   pool_incompatible_platforms: false
 
 cross_region:

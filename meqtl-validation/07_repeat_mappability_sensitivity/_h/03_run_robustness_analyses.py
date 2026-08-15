@@ -22,7 +22,8 @@ import pandas as pd
 import statsmodels.api as sm
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
-from _lib.io_utils import load_yaml, write_tsv  # noqa: E402
+from _lib.io_utils import ANALYSIS_SCHEMA_VERSION, load_yaml, write_tsv  # noqa: E402
+from _lib.stats_utils import greedy_nearest_neighbor_pairs, paired_randomization_pvalue  # noqa: E402
 
 PROJECT = Path("/projects/b1213/users/kynon/projects/dna-methylation-heritability")
 PHASE6 = PROJECT / "meqtl-validation" / "07_repeat_mappability_sensitivity" / "_m"
@@ -137,7 +138,7 @@ def fit_logistic(df: pd.DataFrame, ycol: str, xcols: list[str]) -> dict:
     X = use[["local_predictability"] + xcols].apply(_z)
     X = sm.add_constant(X, has_constant="add")
     try:
-        res = sm.GLM(y, X, family=sm.families.Binomial()).fit()
+        res = sm.GLM(y, X, family=sm.families.Binomial()).fit(cov_type="HC3")
         return {
             "estimate": float(res.params["local_predictability"]),
             "or": float(np.exp(res.params["local_predictability"])),
@@ -155,44 +156,29 @@ def matched_feature_delta(df: pd.DataFrame, ycol: str, match_cols: list[str], se
     d = df.dropna(subset=need).copy()
     if len(d) < 40 or d[ycol].nunique() < 2:
         return {"estimate": np.nan, "pvalue": np.nan, "n": len(d), "error": "too few"}
-    for c in match_cols:
-        d[f"z_{c}"] = _z(d[c]).astype(float)
-    q_hi = d["local_predictability"].quantile(0.8)
-    q_lo = d["local_predictability"].quantile(0.2)
-    hi = d[d["local_predictability"] >= q_hi]
-    lo = d[d["local_predictability"] <= q_lo]
-    zcols = [f"z_{c}" for c in match_cols]
-    hi_z = hi[zcols].to_numpy(dtype=float)
-    lo_z = lo[zcols].to_numpy(dtype=float)
-    lo_y = lo[ycol].to_numpy(dtype=float)
-    used = np.zeros(len(lo), dtype=bool)
-    pairs = []
-    for i in range(len(hi)):
-        avail = ~used
-        if not avail.any():
-            break
-        dist = np.sqrt(((lo_z[avail] - hi_z[i]) ** 2).sum(axis=1))
-        j = int(np.flatnonzero(avail)[int(np.argmin(dist))])
-        used[j] = True
-        pairs.append((float(hi.iloc[i][ycol]), float(lo_y[j])))
-    if not pairs:
+    thresholds = load_yaml("analysis_thresholds.yml")["matching"]
+    pairs, _balance, meta = greedy_nearest_neighbor_pairs(
+        d,
+        exposure="local_predictability",
+        outcome=ycol,
+        numeric_covariates=match_cols,
+        caliper_sd=float(thresholds["caliper_sd"]),
+        seed=seed,
+    )
+    if pairs.empty:
         return {"estimate": np.nan, "pvalue": np.nan, "n": 0, "error": "no pairs"}
-    hi_y, lo_y_p = map(np.asarray, zip(*pairs))
-    diff = hi_y.mean() - lo_y_p.mean()
-    rng = np.random.default_rng(seed)
-    pooled = np.concatenate([hi_y, lo_y_p])
-    n = len(hi_y)
-    null = np.empty(2000)
-    for k in range(2000):
-        rng.shuffle(pooled)
-        null[k] = pooled[:n].mean() - pooled[n:n + n].mean()
-    p = (np.sum(np.abs(null) >= abs(diff)) + 1) / (len(null) + 1)
+    hi_y = pairs["outcome_high"].to_numpy()
+    lo_y_p = pairs["outcome_low"].to_numpy()
+    differences = hi_y - lo_y_p
+    diff = differences.mean()
+    p = paired_randomization_pvalue(differences, seed=seed, n_perm=10000)
     return {
         "estimate": float(diff),
         "pvalue": float(p),
-        "n": n,
+        "n": int(len(pairs)),
         "mean_high": float(hi_y.mean()),
         "mean_low": float(lo_y_p.mean()),
+        "max_abs_smd_after": meta["max_abs_smd_after"],
         "error": "",
     }
 
@@ -209,7 +195,10 @@ def fit_burden(df: pd.DataFrame, xcols: list[str]) -> dict:
     endog = use[["n_cpgs_with_sig_meqtl", "n_ns"]]
     exog = sm.add_constant(use[cols].apply(_z), has_constant="add")
     try:
-        res = sm.GLM(endog, exog, family=sm.families.Binomial()).fit()
+        model = sm.GLM(endog, exog, family=sm.families.Binomial())
+        pilot = model.fit(maxiter=250)
+        dispersion = max(1.0, float(pilot.pearson_chi2 / max(pilot.df_resid, 1)))
+        res = model.fit(scale=dispersion, cov_type="HC3", maxiter=250)
         return {
             "estimate": float(res.params["local_predictability"]),
             "pvalue": float(res.pvalues["local_predictability"]),
@@ -308,6 +297,13 @@ def analyze_burden(region: str, seed: int) -> dict:
         return {"region": region, "analysis": "predictability_meqtl_burden_association",
                 "status": "missing_phase2_burden"}
     d = pd.read_csv(path, sep="\t")
+    if "analysis_schema_version" not in d or not d["analysis_schema_version"].eq(ANALYSIS_SCHEMA_VERSION).all():
+        raise SystemExit(f"{region}: stale Phase 2 burden; regenerate repair schema v2 before Phase 6")
+    if "tech_join_source" not in d.columns:
+        raise SystemExit(
+            f"{region}: repair-v2 technical join missing; run step_2_tech_joins.sh "
+            "between Phase 2 aggregation and modeling"
+        )
     d = d.dropna(subset=["local_predictability", "n_tested_cpgs", "n_cpgs_with_sig_meqtl"])
     tech = load_tech(region)
     # join tech on vmr_id (task) or coord
@@ -320,6 +316,9 @@ def analyze_burden(region: str, seed: int) -> dict:
         ] if c in t.columns
     ]
     d["vmr_id"] = d["vmr_id"].astype(str)
+    # Repair v2 completes technical joins before fitting Phase 2. Only backfill
+    # fields that are absent from the burden table here.
+    feat_cols = [c for c in feat_cols if c not in d.columns]
     if "task_id" in t.columns and feat_cols:
         by_task = t.dropna(subset=["task_id"]).copy()
         by_task["vmr_id"] = by_task["task_id"].astype(float).astype(int).astype(str)

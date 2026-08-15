@@ -44,14 +44,15 @@ def load_leads(region: str, population: str, fdr: float) -> pd.DataFrame:
         raise FileNotFoundError(path)
     cols = [
         "phenotype_id", "variant_id", "slope", "slope_se", "qval",
-        "pval_nominal", "maf", "tss_distance", "num_var", "ma_count", "ma_samples",
+        "pval_nominal", "maf", "af", "start_distance", "tss_distance", "num_var",
+        "ma_count", "ma_samples",
     ]
     peek = pd.read_csv(path, sep="\t", nrows=0)
     usecols = [c for c in cols if c in peek.columns]
     df = pd.read_csv(path, sep="\t", usecols=usecols)
     df["phenotype_id"] = df["phenotype_id"].astype(str)
     df["variant_id"] = df["variant_id"].astype(str)
-    for c in ["slope", "slope_se", "qval", "pval_nominal", "maf", "tss_distance", "num_var", "ma_count", "ma_samples"]:
+    for c in ["slope", "slope_se", "qval", "pval_nominal", "maf", "af", "start_distance", "tss_distance", "num_var", "ma_count", "ma_samples"]:
         if c in df.columns:
             df[c] = pd.to_numeric(df[c], errors="coerce")
     # Derive MAF when tensorQTL QC export omitted the maf column
@@ -59,6 +60,8 @@ def load_leads(region: str, population: str, fdr: float) -> pd.DataFrame:
         ("AA", "caudate"): 153, ("AA", "dlpfc"): 111, ("AA", "hippocampus"): 116,
         ("EA", "caudate"): 129, ("EA", "dlpfc"): 55, ("EA", "hippocampus"): 60,
     }
+    if "maf" not in df.columns and "af" in df.columns:
+        df["maf"] = np.minimum(df["af"], 1.0 - df["af"])
     if "maf" not in df.columns and "ma_count" in df.columns:
         n = n_by_pop_region.get((population, region))
         if n:
@@ -67,6 +70,8 @@ def load_leads(region: str, population: str, fdr: float) -> pd.DataFrame:
             df["maf"] = (df["ma_count"] / (2.0 * df["ma_samples"].clip(lower=1))).clip(upper=0.5)
     df["sig"] = df["qval"].le(fdr).fillna(False) if "qval" in df.columns else False
     df["z"] = df["slope"] / df["slope_se"].replace(0, np.nan)
+    if "tss_distance" not in df.columns and "start_distance" in df.columns:
+        df["tss_distance"] = df["start_distance"]
     return df
 
 
@@ -80,7 +85,10 @@ def summarize_region(region: str, fdr: float) -> tuple[dict, pd.DataFrame]:
         return {"region": region, "n_shared_cpgs": 0, "error": "no_overlap"}, m
 
     m["same_lead_snp"] = m["variant_id_AA"] == m["variant_id_EA"]
-    m["dir_concordant"] = np.sign(m["slope_AA"]) == np.sign(m["slope_EA"])
+    m["dir_concordant"] = (
+        m["same_lead_snp"]
+        & (np.sign(m["slope_AA"]) == np.sign(m["slope_EA"]))
+    )
     # Avoid zero-slope ties
     m.loc[(m["slope_AA"] == 0) | (m["slope_EA"] == 0), "dir_concordant"] = False
 
@@ -97,16 +105,19 @@ def summarize_region(region: str, fdr: float) -> tuple[dict, pd.DataFrame]:
         rs, ps = spearmanr(x[ok], y[ok])
         return float(rp), float(pp), float(rs), float(ps)
 
-    r_slope, p_slope, rs_slope, ps_slope = corr(m["slope_AA"].to_numpy(), m["slope_EA"].to_numpy())
-    r_z, p_z, rs_z, ps_z = corr(m["z_AA"].to_numpy(), m["z_EA"].to_numpy())
-
-    # Among identical lead SNP pairs
+    # Effect concordance is defined only for an identical SNP–CpG pair. Lead
+    # variants selected separately in AA and EA can differ in LD and allele
+    # orientation and are not comparable effect estimates.
     same = m[m["same_lead_snp"]]
     if len(same) >= 20:
-        r_same, p_same, _, _ = corr(same["slope_AA"].to_numpy(), same["slope_EA"].to_numpy())
+        r_same, p_same, rs_same, ps_same = corr(
+            same["slope_AA"].to_numpy(), same["slope_EA"].to_numpy()
+        )
+        r_z, p_z, _, _ = corr(same["z_AA"].to_numpy(), same["z_EA"].to_numpy())
         dir_same = float(same["dir_concordant"].mean())
     else:
-        r_same, p_same, dir_same = np.nan, np.nan, np.nan
+        r_same, p_same, rs_same, ps_same = np.nan, np.nan, np.nan, np.nan
+        r_z, p_z, dir_same = np.nan, np.nan, np.nan
 
     summary = {
         "region": region,
@@ -117,18 +128,19 @@ def summarize_region(region: str, fdr: float) -> tuple[dict, pd.DataFrame]:
         "n_sig_AA_only": int(aa_only.sum()),
         "n_sig_EA_only": int(ea_only.sum()),
         "frac_same_lead_snp": float(m["same_lead_snp"].mean()),
-        "direction_concordance_all": float(m["dir_concordant"].mean()),
-        "direction_concordance_both_sig": float(m.loc[both_sig, "dir_concordant"].mean()) if both_sig.any() else np.nan,
-        "direction_concordance_either_sig": float(m.loc[either_sig, "dir_concordant"].mean()) if either_sig.any() else np.nan,
+        "direction_concordance_all": dir_same,
+        "direction_concordance_both_sig": float(m.loc[both_sig & m['same_lead_snp'], "dir_concordant"].mean()) if (both_sig & m["same_lead_snp"]).any() else np.nan,
+        "direction_concordance_either_sig": float(m.loc[either_sig & m['same_lead_snp'], "dir_concordant"].mean()) if (either_sig & m["same_lead_snp"]).any() else np.nan,
         "direction_concordance_same_lead": dir_same,
-        "pearson_slope_all": r_slope,
-        "pearson_slope_all_p": p_slope,
-        "spearman_slope_all": rs_slope,
-        "spearman_slope_all_p": ps_slope,
+        "pearson_slope_all": r_same,
+        "pearson_slope_all_p": p_same,
+        "spearman_slope_all": rs_same,
+        "spearman_slope_all_p": ps_same,
         "pearson_z_all": r_z,
         "pearson_z_all_p": p_z,
         "pearson_slope_same_lead": r_same,
         "pearson_slope_same_lead_p": p_same,
+        "effect_comparison_scope": "identical_lead_variant_only",
         "aa_discovery_rate": float(m["sig_AA"].mean()),
         "ea_discovery_rate": float(m["sig_EA"].mean()),
         "aa_ea_discovery_rate_ratio": float(m["sig_AA"].mean() / max(m["sig_EA"].mean(), 1e-12)),

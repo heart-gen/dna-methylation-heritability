@@ -41,6 +41,13 @@ source /projects/p32505/opt/miniforge3/etc/profile.d/conda.sh
 conda activate /projects/p32505/opt/envs/genomics
 
 log_message "Fitting VMR burden models for ${REGION} (${POPULATION})"
-python3 "${H}/02_fit_burden_models.py" --region "${REGION}" --burden-tsv "${BURDEN}"
+MODEL_ARGS=()
+if [[ "${POPULATION}" == "AA" ]]; then
+  MODEL_ARGS+=(--require-complete-tech-join)
+fi
+python3 "${H}/02_fit_burden_models.py" \
+  --region "${REGION}" \
+  --burden-tsv "${BURDEN}" \
+  "${MODEL_ARGS[@]}"
 
 log_message "**** Job ends ****"
