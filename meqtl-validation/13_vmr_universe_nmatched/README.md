@@ -30,8 +30,13 @@ Measured across autosomes at full N:
 
 Caudate keeps **15.7% more CpGs** and therefore gets 15.7% more seeds by
 construction, which tracks the VMR surplus (+14% / +16%) almost exactly. So
-step 1 creates essentially the entire difference, and caudate's "top 1%" sits
-at a **lower absolute variability bar** than the comparators'.
+step 1 creates essentially the entire difference.
+
+The "mean sd cutoff" column is the pipeline's own stored value and is shown for
+completeness only. **Do not read a between-region variability claim off it** —
+it does not reproduce, and the cutoffs are not comparable across regions because
+DLPFC and hippocampus computed theirs on a truncated donor set. See
+[Open item](#open-item-reconcile-pccsv-before-any-cross-region-sd-claim).
 
 ## Design
 
@@ -120,11 +125,76 @@ The two disagree on the ordering — caudate has the highest bar on 17/22
 autosomes here but only 7/22 in the pipeline's own output, and the two series
 correlate at only r=0.377 across 66 region×chromosome cells. This module
 reproduces the pipeline's two-stage adjustment (regress on snpPC1–3, PCA the
-residuals, regress on 5 methylation PCs), but estimates the PCs from a 50,000
-CpG subsample per chromosome rather than however `02.pca.R` derives `pc.csv`.
-That difference is evidently enough to flip the ordering, so **no claim about
-which region's VMRs sit at a higher variability bar is supportable** from
-either source without first reconciling the PC estimation.
+residuals, regress on 5 methylation PCs), but estimates the PCs differently
+from `02.pca.R`. So **no claim about which region's VMRs sit at a higher
+variability bar is supportable** from either source until that is reconciled.
+
+Tracing the discrepancy surfaced a defect in `02.pca.R` that makes the
+pipeline's own column the less trustworthy of the two. See below.
+
+## Open item: reconcile `pc.csv` before any cross-region sd claim
+
+`02.pca.R` writes the methylation PCs (`pc.csv`, per region × chromosome) that
+`02b.res_var.R` regresses out before the top-1% VMR seed cutoff. Four
+differences separate it from this module, one of which is a bug.
+
+**1. `get_snp_pcs()` hardcodes `region == "caudate"` in all three regions'
+copies.** `vmr-analysis/{caudate,dlpfc,hippocampus}/_h/02.pca.R:34` is identical
+in each. snpPCs are per-donor so the *values* are right, but the filter
+restricts the donor set to donors having a caudate sample, and `res_snp_pcs()`
+then subsets methylation to those survivors:
+
+| Region | Donors w/ snpPCs | Also have caudate | **Dropped** |
+|---|---:|---:|---:|
+| Caudate | 153 | 153 | **0** |
+| DLPFC | 111 | 96 | **15** |
+| Hippocampus | 116 | 101 | **15** |
+
+`02b.res_var.R` then does `valid_ids <- intersect(valid_ids, pc$V1)`, so the
+loss propagates: DLPFC and hippocampus residual SDs — and therefore their
+top-1% cutoffs, VMR seeds, and VMR intervals — were computed on **96 and 101
+donors**, while caudate used all 153. All 30 dropped donors reappear in the
+downstream `_m/samples.txt` (111/116), so the regions' VMRs were *defined* on a
+truncated donor set but *modeled* on the full one.
+
+The asymmetry runs in the direction under dispute: it is caudate-sparing, and
+fewer donors gives a noisier SD estimate and a higher 99th percentile — which is
+what the pipeline column shows for DLPFC and hippocampus.
+
+**2. CpG selection.** `get_top_meth()` takes the top 1M CpGs by *raw*
+(unresidualized) SD; this module uses a random 50,000 coverage-passing CpGs.
+Variance-enriched and deterministic versus unbiased and random.
+
+**3. Scaling.** The pipeline uses `prcomp(scale. = TRUE)`, this module
+`scale. = FALSE`. On variance-ranked input, unit-scaling changes what PC1–5
+absorb.
+
+**4. Site count.** Up to 10^6 versus 5×10^4.
+
+Also cosmetic, in the DLPFC and hippocampus copies only: `v_top[1:10^6, ]`
+without caudate's `min(10^6, nrow(v_top))` guard, which pads with NA rows on
+chromosomes holding under 1M CpGs. Harmless — the NAs never match in
+`is.element()` — but it should carry the same guard.
+
+### To do
+
+1. Fix the hardcoded region and re-run `02.pca.R` → `02b` → `02c` for DLPFC and
+   hippocampus at their true N. This is required regardless of the
+   reconciliation; it changes the published VMR sets.
+2. Re-diff the two sd series after the fix, then vary selection, scaling, and
+   site count one at a time to close whatever gap remains.
+3. Only then decide whether a cross-region variability statement is supportable.
+
+Nothing in this module's headline result depends on the outcome. The
+`coverage_uniformity_not_sample_size` verdict rests on CpG counts under the
+coverage filter, which never touches `pc.csv`, and the within-caudate contrast
+(0.070605 → 0.070144) uses one method on both sides in a region with zero
+dropped donors.
+
+**Not yet verified empirically:** `heritability/<region>/_m/pca/` does not exist
+in this repo, so no `pc.csv` survives to confirm the row counts. The defect is
+read from the code and the phenotype table. Alexis's repo has caudate-only
+copies under `covar-analysis/caudate/{snp_pc,no_snp_pc,global_ances}/_m/pca/`.
 
 ## What this means for the caudate claim
 
