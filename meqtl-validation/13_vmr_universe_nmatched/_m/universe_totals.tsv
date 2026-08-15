@@ -1,7 +1,7 @@
 region	n_sites_pass	n_sites_pre	n_chr	n_donors	design	replicate
-caudate	23451375	25802333	22	154	full_n	nan
-dlpfc	20507140	25802333	22	112	full_n	nan
-hippocampus	20757353	25802333	22	117	full_n	nan
+caudate	23466905	25802333	22	153	full_n	nan
+dlpfc	20521441	25802333	22	111	full_n	nan
+hippocampus	20764810	25802333	22	116	full_n	nan
 caudate	23489987	25802333	22	111	n_matched	1.0
 caudate	23460717	25802333	22	111	n_matched	2.0
 caudate	23476768	25802333	22	111	n_matched	3.0

@@ -1,5 +1,5 @@
 region	chr	design	replicate	n_donors	n_sites_pre	n_sites_pass
-caudate	12	full_n		154	1225465	1144802
+caudate	12	full_n		153	1225465	1145480
 caudate	12	n_matched	1	111	1225465	1146381
 caudate	12	n_matched	2	111	1225465	1145107
 caudate	12	n_matched	3	111	1225465	1145864

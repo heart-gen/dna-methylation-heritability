@@ -1,0 +1,16 @@
+**** Job starts 2026-08-15 14:02:26 ****
+Job id: 9402950  Task: 44
+Region: dlpfc  Chromosome: 22
+region=dlpfc chr=22
+loading repaired HDF5SummarizedExperiment: /projects/b1213/users/alexis/projects/dna-methylation-heritability/inputs/wgbs-data/dlpfc/_m/dlpfc_chr22_BSobj
+donors=112 sites_pre_cov_filter=577753
+           used  (Mb) gc trigger  (Mb) max used  (Mb)
+Ncells  9939502 530.9   17926207 957.4 11930177 637.2
+Vcells 51847331 395.6   84205839 642.5 84205839 642.5
+            used  (Mb) gc trigger   (Mb)  max used   (Mb)
+Ncells   9966607 532.3   17926207  957.4  11930177  637.2
+Vcells 116626083 889.8  219694630 1676.2 181335852 1383.5
+Error in eval(stub[[3L]], x, enclos) : object '..region' not found
+Calls: [ -> [.data.table -> .prepareFastSubset -> eval -> eval
+Execution halted
+ERROR conda.cli.main_run:execute(148): `conda run Rscript ../_h/01_universe_decomposition.R 22 dlpfc` failed. (See above for error)
