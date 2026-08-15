@@ -1,0 +1,15 @@
+**** Job starts 2026-08-15 13:14:55 ****
+Job id: 9399490  Task: 66
+Region: hippocampus  Chromosome: 22
+region=hippocampus chr=22
+donors=117 sites_pre_cov_filter=577753
+           used  (Mb) gc trigger  (Mb) max used  (Mb)
+Ncells  9889285 528.2   17779255 949.6 11759958 628.1
+Vcells 53490242 408.1   87293085 666.0 87293085 666.0
+            used  (Mb) gc trigger   (Mb)  max used   (Mb)
+Ncells   9918291 529.7   17779255  949.6  11759958  628.1
+Vcells 121161895 924.4  228604042 1744.2 188760333 1440.2
+Error in svd(x, nu = 0, nv = k) : infinite or missing values in 'x'
+Calls: data.table -> sd_cutoff_for -> prcomp -> prcomp.default -> svd
+Execution halted
+ERROR conda.cli.main_run:execute(148): `conda run Rscript ../_h/01_universe_decomposition.R 22 hippocampus` failed. (See above for error)

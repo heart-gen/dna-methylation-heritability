@@ -1,0 +1,9 @@
+**** Job starts 2026-08-15 12:41:48 ****
+Job id: 9397517  Task: 56
+Region: hippocampus  Chromosome: 12
+region=hippocampus chr=12
+Error in .Call2("C_h5getdimscales", filepath, name, scalename, PACKAGE = "HDF5Array") : 
+  file '/tmp/RtmpJAWBET/HDF5Array_dump/auto12188740cf5942.h5' does not exist
+Calls: filter_pheno ... h5readDimnames -> get_h5dimnames -> h5getdimscales -> .Call2
+Execution halted
+ERROR conda.cli.main_run:execute(148): `conda run Rscript ../_h/01_universe_decomposition.R 12 hippocampus` failed. (See above for error)
