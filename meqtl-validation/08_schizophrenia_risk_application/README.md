@@ -1,5 +1,7 @@
 # Phase 7: Schizophrenia-risk locus application
 
+Biology-first manuscript summary: [`ANALYSIS_SUMMARY.md`](ANALYSIS_SUMMARY.md).
+
 ## Status
 
 **Complete.** This is a focused application of the VMR genetic-predictability framework and is not required for the core Phases 1–6 validation.
