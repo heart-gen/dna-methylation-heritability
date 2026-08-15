@@ -1,5 +1,5 @@
-model	n_vmrs	covariates	coef_predictability	se_predictability	pval_predictability	converged	region
-unadjusted	9479	local_predictability	3.3471468286513875	0.023149943996602536	0.0	True	caudate
-adjusted_minimal	9479	local_predictability,n_tested_cpgs	3.329462619525022	0.02315994404471132	0.0	True	caudate
-adjusted_technical	9479	local_predictability,n_tested_cpgs,average_cpg_coverage,mean_cpg_variance	3.2005423371746944	0.023558307688388402	0.0	True	caudate
-ols_proportion_secondary	9479	local_predictability,log1p(n_tested_cpgs)	1.4701839145425495	0.0230435267706211	0.0		caudate
+model	n_vmrs	covariates	coef_predictability	se_predictability	pval_predictability	converged	dispersion_pearson	covariance	region	analysis_schema_version
+unadjusted	9386	local_predictability	3.3570167594358495	0.11525796414340639	1.6768675771065308e-186	True	13.293590947684159	HC3_quasibinomial	caudate	2
+adjusted_minimal	9386	local_predictability,n_tested_cpgs	3.3389797990694916	0.11449479477288424	5.76265532867017e-187	True	13.21601532425416	HC3_quasibinomial	caudate	2
+adjusted_prespecified	8738	local_predictability,n_tested_cpgs,average_cpg_coverage,mean_cpg_variance,vmr_mean_methylation,length,cpg_density,mean_num_tested_snps_per_cpg,umap_k24_mean,line_l1_frac,segdup_frac,blacklist_frac,annotation_promoter,annotation_cpg_island,annotation_gene_body	3.1166891009720827	0.12319451476397673	3.2822243304251554e-141	True	13.215471659834808	HC3_quasibinomial	caudate	2
+ols_proportion_secondary	9386	local_predictability,log1p(n_tested_cpgs)	1.4673493080462385	0.023089084490624037	0.0				caudate	2

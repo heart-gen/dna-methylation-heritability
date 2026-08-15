@@ -1,0 +1,57 @@
+2026-08-08 12:13:37 - **** Job starts ****
+**** QUEST info ****
+User: owb0346
+Job id: 8831654
+Node name: N/A
+Array task: 1
+No modules loaded
+2026-08-08 12:13:37 - **** Loading conda environment ****
+2026-08-08 12:13:40 - Building CpG phenotype BEDs for dlpfc (AA)
+2026-08-08 12:13:40 -   chr1
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/dlpfc/_m/prepared/cpg_phenotypes.chr1.bed.gz with 16189 CpGs for 111 samples
+2026-08-08 12:17:17 -   chr10
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/dlpfc/_m/prepared/cpg_phenotypes.chr10.bed.gz with 8485 CpGs for 111 samples
+2026-08-08 12:18:39 -   chr11
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/dlpfc/_m/prepared/cpg_phenotypes.chr11.bed.gz with 7522 CpGs for 111 samples
+2026-08-08 12:19:48 -   chr12
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/dlpfc/_m/prepared/cpg_phenotypes.chr12.bed.gz with 7369 CpGs for 111 samples
+2026-08-08 12:21:16 -   chr13
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/dlpfc/_m/prepared/cpg_phenotypes.chr13.bed.gz with 4142 CpGs for 111 samples
+2026-08-08 12:21:54 -   chr14
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/dlpfc/_m/prepared/cpg_phenotypes.chr14.bed.gz with 4912 CpGs for 111 samples
+2026-08-08 12:22:46 -   chr15
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/dlpfc/_m/prepared/cpg_phenotypes.chr15.bed.gz with 4494 CpGs for 111 samples
+2026-08-08 12:23:31 -   chr16
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/dlpfc/_m/prepared/cpg_phenotypes.chr16.bed.gz with 7102 CpGs for 111 samples
+2026-08-08 12:24:32 -   chr17
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/dlpfc/_m/prepared/cpg_phenotypes.chr17.bed.gz with 7665 CpGs for 111 samples
+2026-08-08 12:25:55 -   chr18
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/dlpfc/_m/prepared/cpg_phenotypes.chr18.bed.gz with 4099 CpGs for 111 samples
+2026-08-08 12:26:45 -   chr19
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/dlpfc/_m/prepared/cpg_phenotypes.chr19.bed.gz with 7352 CpGs for 111 samples
+2026-08-08 12:28:02 -   chr2
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/dlpfc/_m/prepared/cpg_phenotypes.chr2.bed.gz with 11793 CpGs for 111 samples
+2026-08-08 12:32:18 -   chr20
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/dlpfc/_m/prepared/cpg_phenotypes.chr20.bed.gz with 5203 CpGs for 111 samples
+2026-08-08 12:33:07 -   chr21
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/dlpfc/_m/prepared/cpg_phenotypes.chr21.bed.gz with 1605 CpGs for 111 samples
+2026-08-08 12:33:32 -   chr22
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/dlpfc/_m/prepared/cpg_phenotypes.chr22.bed.gz with 3812 CpGs for 111 samples
+2026-08-08 12:34:10 -   chr3
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/dlpfc/_m/prepared/cpg_phenotypes.chr3.bed.gz with 7952 CpGs for 111 samples
+2026-08-08 12:36:34 -   chr4
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/dlpfc/_m/prepared/cpg_phenotypes.chr4.bed.gz with 6753 CpGs for 111 samples
+2026-08-08 12:38:38 -   chr5
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/dlpfc/_m/prepared/cpg_phenotypes.chr5.bed.gz with 7473 CpGs for 111 samples
+2026-08-08 12:40:41 -   chr6
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/dlpfc/_m/prepared/cpg_phenotypes.chr6.bed.gz with 7916 CpGs for 111 samples
+2026-08-08 12:42:46 -   chr7
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/dlpfc/_m/prepared/cpg_phenotypes.chr7.bed.gz with 8712 CpGs for 111 samples
+2026-08-08 12:44:52 -   chr8
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/dlpfc/_m/prepared/cpg_phenotypes.chr8.bed.gz with 7305 CpGs for 111 samples
+2026-08-08 12:46:35 -   chr9
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/dlpfc/_m/prepared/cpg_phenotypes.chr9.bed.gz with 6470 CpGs for 111 samples
+2026-08-08 12:48:17 - Merging autosomal CpG BEDs for dlpfc (AA)
+Wrote ../dlpfc/_m/prepared/cpg_phenotypes.all_autosomes.bed with 154325 CpGs
+Wrote ../dlpfc/_m/prepared/cpg_phenotypes.all_autosomes.bed.gz + tabix index
+2026-08-08 12:48:43 - **** Job ends ****

@@ -1,0 +1,24 @@
+2026-08-08 17:05:18 - **** Job starts ****
+2026-08-08 17:05:32 - Cross-region concordance
+Wrote cross-region concordance under /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/08_schizophrenia_risk_application/_m/cross_region
+loci sig in ≥2 regions=14; all3=5; caudate-only pattern=19
+2026-08-08 17:06:11 - Locus prioritization (caudate primary)
+/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/08_schizophrenia_risk_application/_h/07_prioritize_loci.py:156: FutureWarning: Downcasting object dtype arrays on .fillna, .ffill, .bfill is deprecated and will change in a future version. Call result.infer_objects(copy=False) instead. To opt-in to the future behavior, set `pd.set_option('future.no_silent_downcasting', True)`
+  tx_any=("tx_any", lambda s: bool(pd.Series(s).fillna(False).any())),
+/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/08_schizophrenia_risk_application/_h/07_prioritize_loci.py:157: FutureWarning: Downcasting object dtype arrays on .fillna, .ffill, .bfill is deprecated and will change in a future version. Call result.infer_objects(copy=False) instead. To opt-in to the future behavior, set `pd.set_option('future.no_silent_downcasting', True)`
+  tx_expression=("tx_expression", lambda s: bool(pd.Series(s).fillna(False).any())),
+/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/08_schizophrenia_risk_application/_h/07_prioritize_loci.py:158: FutureWarning: Downcasting object dtype arrays on .fillna, .ffill, .bfill is deprecated and will change in a future version. Call result.infer_objects(copy=False) instead. To opt-in to the future behavior, set `pd.set_option('future.no_silent_downcasting', True)`
+  tx_psi=("tx_psi", lambda s: bool(pd.Series(s).fillna(False).any())),
+/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/08_schizophrenia_risk_application/_h/07_prioritize_loci.py:200: FutureWarning: Downcasting object dtype arrays on .fillna, .ffill, .bfill is deprecated and will change in a future version. Call result.infer_objects(copy=False) instead. To opt-in to the future behavior, set `pd.set_option('future.no_silent_downcasting', True)`
+  s["score_finemap_index_in_cs"] = np.where(agg["index_in_credible_set"].fillna(False), 2.0, 0.0)
+/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/08_schizophrenia_risk_application/_h/07_prioritize_loci.py:274: FutureWarning: Downcasting object dtype arrays on .fillna, .ffill, .bfill is deprecated and will change in a future version. Call result.infer_objects(copy=False) instead. To opt-in to the future behavior, set `pd.set_option('future.no_silent_downcasting', True)`
+  top[c] = top[c].fillna(False).astype(bool)
+/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/08_schizophrenia_risk_application/_h/07_prioritize_loci.py:274: FutureWarning: Downcasting object dtype arrays on .fillna, .ffill, .bfill is deprecated and will change in a future version. Call result.infer_objects(copy=False) instead. To opt-in to the future behavior, set `pd.set_option('future.no_silent_downcasting', True)`
+  top[c] = top[c].fillna(False).astype(bool)
+Wrote top 5 loci to /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/08_schizophrenia_risk_application/_m/prioritized/prioritized_loci.tsv
+  #1 rs8048039 locus=123.0 score=14.0
+  #2 rs2710323 locus=295.0 score=13.0
+  #3 rs4758662 locus=440.0 score=12.5
+  #4 rs13331198 locus=544.0 score=11.5
+  #5 rs12514660 locus=423.0 score=11.0
+2026-08-08 17:06:13 - **** Job ends ****

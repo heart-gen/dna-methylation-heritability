@@ -1,0 +1,4 @@
+2026-08-08 16:52:29 - **** Job starts ****
+2026-08-08 16:52:39 - meQTL × expression enrichment for caudate
+caudate expression: n=4983 meQTL+=2767 tx+=360 both=252 Fisher OR=1.956 p=3.81e-09 → /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/06_transcription_splicing_integration/_m/caudate/meqtl_x_expression_enrichment.tsv
+2026-08-08 16:52:52 - **** Job ends ****

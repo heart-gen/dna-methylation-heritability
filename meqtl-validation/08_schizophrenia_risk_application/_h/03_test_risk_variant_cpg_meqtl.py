@@ -16,7 +16,7 @@ import pandas as pd
 from scipy import stats
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
-from _lib.io_utils import write_tsv  # noqa: E402
+from _lib.io_utils import ANALYSIS_SCHEMA_VERSION, write_tsv  # noqa: E402
 
 PROJECT = Path("/projects/b1213/users/kynon/projects/dna-methylation-heritability")
 WINDOW = 500_000
@@ -155,6 +155,8 @@ def main() -> None:
         sep="\t",
     )
     burden["vmr_id"] = burden["vmr_id"].astype(str)
+    if "analysis_schema_version" not in burden or not burden["analysis_schema_version"].eq(ANALYSIS_SCHEMA_VERSION).all():
+        raise SystemExit("Stale Phase 2 burden table; regenerate repair schema v2 before Phase 7")
     pred_map = burden.set_index("vmr_id")["local_predictability"].to_dict() if "local_predictability" in burden.columns else {}
 
     # Residualize all phenotypes once (n_samples × n_cpgs is large — do per chrom)

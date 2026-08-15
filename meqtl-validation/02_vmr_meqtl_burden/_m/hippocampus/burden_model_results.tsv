@@ -1,5 +1,5 @@
-model	n_vmrs	covariates	coef_predictability	se_predictability	pval_predictability	converged	region
-unadjusted	7799	local_predictability	2.0927755513524997	0.016467666809023156	0.0	True	hippocampus
-adjusted_minimal	7799	local_predictability,n_tested_cpgs	2.0989366045514215	0.016527792776646802	0.0	True	hippocampus
-adjusted_technical	7799	local_predictability,n_tested_cpgs,average_cpg_coverage,mean_cpg_variance	2.066183032245463	0.016627252745767672	0.0	True	hippocampus
-ols_proportion_secondary	7799	local_predictability,log1p(n_tested_cpgs)	1.8729010091852023	0.03350566955882027	0.0		hippocampus
+model	n_vmrs	covariates	coef_predictability	se_predictability	pval_predictability	converged	dispersion_pearson	covariance	region	analysis_schema_version
+unadjusted	7648	local_predictability	2.140279783641483	0.07746170980012802	4.832169875480096e-168	True	13.25247720586668	HC3_quasibinomial	hippocampus	2
+adjusted_minimal	7648	local_predictability,n_tested_cpgs	2.1455288733578195	0.07623225822043714	2.787757193603801e-174	True	13.233615292936133	HC3_quasibinomial	hippocampus	2
+adjusted_prespecified	7152	local_predictability,n_tested_cpgs,average_cpg_coverage,mean_cpg_variance,vmr_mean_methylation,length,cpg_density,mean_num_tested_snps_per_cpg,umap_k24_mean,line_l1_frac,segdup_frac,blacklist_frac,annotation_promoter,annotation_cpg_island,annotation_gene_body	2.1513650633865593	0.09099092791957174	1.3692702251840901e-123	True	15.118505541335422	HC3_quasibinomial	hippocampus	2
+ols_proportion_secondary	7648	local_predictability,log1p(n_tested_cpgs)	1.8715192730133972	0.033692985015949035	0.0				hippocampus	2

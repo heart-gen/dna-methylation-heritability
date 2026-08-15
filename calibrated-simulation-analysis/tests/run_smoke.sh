@@ -63,4 +63,28 @@ test "$(($(wc -l < "${SMOKE_DIR}/observed-combined/observed-run-qc.tsv") - 1))" 
 "${RSCRIPT}" -e \
     'x <- read.delim(commandArgs(TRUE)[1]); stopifnot(all(x$overall_qc_pass))' \
     "${SMOKE_DIR}/observed-combined/observed-run-qc.tsv"
+
+# A computational failure is never absorbed by the locus-QC tolerance.
+FAILED_OBSERVED_DIR=${SMOKE_DIR}/observed-with-computational-failure
+FAILED_EXPECTED_FILE=${SMOKE_DIR}/expected-failed-observed-tasks.tsv
+mkdir -p "${FAILED_OBSERVED_DIR}/caudate/AA/summary" \
+    "${FAILED_OBSERVED_DIR}/caudate/AA/failures"
+printf 'region\tpopulation\texpected_tasks\ncaudate\tAA\t2\n' > \
+    "${FAILED_EXPECTED_FILE}"
+{
+    printf 'task_id\tregion\tpopulation\tchromosome\tstart\tcalibration_status\tpositive_signal\n'
+    printf '1\tcaudate\tAA\tchr1\t100\twithin_domain\tTRUE\n'
+} > "${FAILED_OBSERVED_DIR}/caudate/AA/summary/vmr-0000001.tsv"
+{
+    printf 'task_id\tregion\tpopulation\texit_status\tlog_file\n'
+    printf '2\tcaudate\tAA\t1\ttest.log\n'
+} > "${FAILED_OBSERVED_DIR}/caudate/AA/failures/vmr-0000002.tsv"
+"${RSCRIPT}" "${ANALYSIS_DIR}/_h/07_combine_observed.R" \
+    --input="${FAILED_OBSERVED_DIR}" \
+    --expected="${FAILED_EXPECTED_FILE}" \
+    --output-dir="${SMOKE_DIR}/observed-failure-combined" \
+    --fail-on-qc=FALSE
+"${RSCRIPT}" -e \
+    'x <- read.delim(commandArgs(TRUE)[1]); stopifnot(x$failure_qc_pass, !x$computational_qc_pass, !x$overall_qc_pass, x$qc_failed_tasks == 0, x$computational_failed_tasks == 1)' \
+    "${SMOKE_DIR}/observed-failure-combined/observed-run-qc.tsv"
 echo "End-to-end smoke test passed"

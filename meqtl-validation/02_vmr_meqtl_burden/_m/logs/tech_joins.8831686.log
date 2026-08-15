@@ -1,0 +1,7 @@
+==== caudate ====
+  umap 0.445 -> 0.769 (n=8748/11372)
+==== dlpfc ====
+  umap 0.610 -> 0.914 (n=9115/9975)
+==== hippocampus ====
+  umap 0.530 -> 0.731 (n=7164/9800)
+Join-only mode: Phase 2 burden tables updated; rerun Phase 2 models next

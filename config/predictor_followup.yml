@@ -1,0 +1,44 @@
+# Locked follow-up to calibrated-vs-legacy-AA-v1. The exact-intersection Phase 2
+# result remains primary. These analyses determine whether the calibrated
+# estimator can be promoted beyond a sensitivity result.
+
+schema_version: 1
+population: AA
+regions: [caudate, dlpfc, hippocampus]
+seed: 20260809
+
+base_run_id: calibrated-vs-legacy-AA-v1
+base_run: meqtl-validation/02_vmr_meqtl_burden/_m/predictor-comparison-runs/calibrated-vs-legacy-AA-v1
+predictor_config: config/predictor_comparison.yml
+
+coordinate_aligned:
+  vmr_bed_template: vmr-analysis/all_individuals/{region}/_m/vmr.bed
+  minimum_tested_cpgs: 1
+  note: only locked M3a-tested CpGs enter the denominator
+
+annotation:
+  features: [in_LINE_L1, in_H3K9me3, in_Quies]
+  model_covariates: [length, num_snps, umap_k24_mean, segdup_frac, snp_prox_frac]
+  matching_covariates: [length, num_snps, umap_k24_mean]
+  high_mappability_min: 0.90
+  n_permutations: 10000
+
+external:
+  inferential_resources:
+    jaffe_dlpfc_450k_meqtl: dlpfc
+  descriptive_resources:
+    schulz_hippocampus_array_meqtl: hippocampus
+
+transcription:
+  modalities: [expression, psi, expression_abc]
+  primary_modalities: [expression, psi]
+
+acceptance:
+  fdr: 0.05
+  balance_smd_max: 0.10
+  min_coordinate_aligned_regions: 2
+  min_boundary_excluded_regions: 2
+  min_annotation_regions_per_feature: 2
+  require_all_available_annotation_restriction_directions_positive: true
+  require_external_jaffe_positive: true
+

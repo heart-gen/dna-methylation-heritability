@@ -1,5 +1,5 @@
-model	n_vmrs	covariates	coef_predictability	se_predictability	pval_predictability	converged	region
-unadjusted	4918	local_predictability	1.1416694149743882	0.010355873258273416	0.0	True	dlpfc
-adjusted_minimal	4918	local_predictability,n_tested_cpgs	1.1418777210043398	0.010365595020171363	0.0	True	dlpfc
-adjusted_technical	4918	local_predictability,n_tested_cpgs,mean_cpg_variance	1.134274888393648	0.010435278950921573	0.0	True	dlpfc
-ols_proportion_secondary	4918	local_predictability,log1p(n_tested_cpgs)	1.7693645368799955	0.039117513592060026	0.0		dlpfc
+model	n_vmrs	covariates	coef_predictability	se_predictability	pval_predictability	converged	dispersion_pearson	covariance	region	analysis_schema_version
+unadjusted	8436	local_predictability	0.9352323298468473	0.06775649818233032	2.449953852470647e-43	True	14.304426968794917	HC3_quasibinomial	dlpfc	2
+adjusted_minimal	8436	local_predictability,n_tested_cpgs	0.9771114569770719	0.05035232430881092	6.935602044875157e-84	True	14.882040709277247	HC3_quasibinomial	dlpfc	2
+adjusted_prespecified	8436	local_predictability,n_tested_cpgs,average_cpg_coverage,mean_cpg_variance,vmr_mean_methylation,length,cpg_density,mean_num_tested_snps_per_cpg,annotation_promoter,annotation_cpg_island,annotation_gene_body	1.116916105077169	0.055653697245520155	1.3764594404202653e-89	True	31.757082541426886	HC3_quasibinomial	dlpfc	2
+ols_proportion_secondary	8436	local_predictability,log1p(n_tested_cpgs)	1.2581008442691597	0.027597531487369622	0.0				dlpfc	2

@@ -1,12 +1,22 @@
 # Phase: official caudate TensorQTL downsampling
 
-**Status: Pass / complete** (30/30 replicates; claim snapshot written).
+Biology-first manuscript summary: [`ANALYSIS_SUMMARY.md`](ANALYSIS_SUMMARY.md).
+
+**Repair-v2 status:** code repaired; historical output invalid pending rerun on the
+same post-exclusion CpG universe in all regions. The decision gate now compares
+discovery rates, not absolute discovery counts from unequal tested universes.
+
+A read-only audit of the 30 historical replicate tables on their identical
+54,473-CpG all-region intersection gave median caudate rate ratios of 0.946 versus
+DLPFC and 0.930 versus hippocampus; 0/30 replicates exceeded both. This is not a
+replacement for the post-exclusion/R2-controlled rerun, but it demonstrates that
+the former absolute-count-based “caudate not solely N” conclusion is unsupported.
 
 N-matched caudate cis-meQTL remapping with **TensorQTL permutation / beta-approximated FDR** (same engine as Phase 1), using the Experiment 3 shared-donor-aware sample lists (target N=111, 30 replicates).
 
 This supersedes lead-SNP retention absolute discovery-count comparisons for the formal caudate≠N claim. Lead-SNP retention (`04_cross_region_sharing/_m/caudate_downsample/`) remains a fast sensitivity.
 
-## Result snapshot
+## Historical result snapshot (invalid for the repaired decision gate)
 
 | Metric | Value |
 |---|---:|

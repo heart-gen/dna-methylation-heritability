@@ -1,2 +1,2 @@
 region	n_phenotypes_tested	n_significant_fdr	fdr_threshold	lambda_gc	median_pval	cis_qtl_path
-caudate	197613	67359	0.05	3.841446080139919	0.186177	/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/10_downsampling_caudate/_m/rep010/tensorqtl/cpg_meqtl_caudate_ds_rep010.cis_qtl.txt.gz
+caudate	195830	66809	0.05	3.8337428103338502	0.186619	/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/10_downsampling_caudate/_m/rep010/tensorqtl/cpg_meqtl_caudate_ds_rep010.cis_qtl.txt.gz

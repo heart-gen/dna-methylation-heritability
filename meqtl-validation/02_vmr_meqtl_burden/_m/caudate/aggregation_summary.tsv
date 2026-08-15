@@ -1,2 +1,2 @@
-region	n_vmrs	n_vmrs_with_predictability	n_vmrs_with_tech	mean_proportion_sig	output
-caudate	11527	9479	5171	0.4169228873007709	/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/02_vmr_meqtl_burden/_m/caudate/vmr_meqtl_burden.tsv.gz
+region	analysis_schema_version	n_vmrs	n_vmrs_with_predictability	n_vmrs_with_tech	n_prepared_cpgs	n_tested_cpgs	n_prepared_but_untested_cpgs	mean_proportion_sig	output
+caudate	2	11372	9396	5063	197466	195830	1636	0.4214861505871607	/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/02_vmr_meqtl_burden/_m/caudate/vmr_meqtl_burden.tsv.gz

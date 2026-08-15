@@ -1,7 +1,7 @@
 region	n_samples	n_cpgs_tested	n_cpgs_sig	frac_cpgs_sig	n_cpgs_sig_per_sqrtN	n_vmrs	n_vmrs_meqtl_supported	frac_vmrs_supported	n_vmrs_supported_per_sqrtN	note
-caudate	153	197613	81007	0.4099274845278398	6549.027792439409	11527.0	5953.0	0.5164396633989763	481.27152528043007	N-normalized rates are descriptive; formal donor-downsample remapping not run
-dlpfc	111	155546	51273	0.32963239170406183	4866.6177916217885	10213.0	3983.0	0.3899931459904044	378.0496297082204	N-normalized rates are descriptive; formal donor-downsample remapping not run
-hippocampus	116	157925	55957	0.35432642076935256	5195.4770191866455	10042.0	4226.0	0.4208325034853615	392.3742495681106	N-normalized rates are descriptive; formal donor-downsample remapping not run
-shared_cpgs_caudate_vs_dlpfc	153;111	69030	31942;29346	0.462726;0.425120						Equal CpG set; residual sample-size power differences remain
-shared_cpgs_caudate_vs_hippocampus	153;116	71892	34468;31976	0.479441;0.444778						Equal CpG set; residual sample-size power differences remain
-shared_cpgs_dlpfc_vs_hippocampus	111;116	106366	39591;40813	0.372215;0.383703						Equal CpG set; residual sample-size power differences remain
+caudate	153	195830	80281	0.40995250982995457	6490.334171180616	11372.0	5904.0	0.5191698909602532	477.31011007150335	N-normalized rates are descriptive; formal donor-downsample remapping not run
+dlpfc	111	152276	50288	0.33024245449053036	4773.125729040167	9975.0	3928.0	0.3937844611528822	372.8292607315816	N-normalized rates are descriptive; formal donor-downsample remapping not run
+hippocampus	116	154600	54898	0.35509702457956016	5097.151337621897	9800.0	4161.0	0.42459183673469386	386.3391510773564	N-normalized rates are descriptive; formal donor-downsample remapping not run
+shared_cpgs_caudate_vs_dlpfc	153;111	68261	31585;29044	0.462709;0.425485						Equal CpG set; residual sample-size power differences remain
+shared_cpgs_caudate_vs_hippocampus	153;116	71072	34082;31628	0.479542;0.445014						Equal CpG set; residual sample-size power differences remain
+shared_cpgs_dlpfc_vs_hippocampus	111;116	103655	38755;39888	0.373885;0.384815						Equal CpG set; residual sample-size power differences remain

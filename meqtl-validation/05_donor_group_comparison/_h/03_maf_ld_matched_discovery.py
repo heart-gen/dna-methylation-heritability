@@ -46,6 +46,10 @@ def load_joined(region: str) -> pd.DataFrame:
             f"Missing {path}; run 02_aa_ea_effect_concordance.py first"
         )
     df = pd.read_csv(path, sep="\t")
+    if "same_lead_snp" not in df.columns:
+        raise SystemExit(f"{path} lacks same_lead_snp; rerun effect concordance first")
+    # MAF and effect comparisons are meaningful only for the identical variant.
+    df = df[df["same_lead_snp"].astype(bool)].copy()
     for c in [
         "maf_AA", "maf_EA", "num_var_AA", "num_var_EA",
         "tss_distance_AA", "tss_distance_EA", "ma_count_AA", "ma_count_EA",
@@ -132,7 +136,12 @@ def stratified_bins(df: pd.DataFrame, col: str, n_bins: int) -> list[dict]:
 
 
 def nearest_neighbor_match(df: pd.DataFrame, caliper_maf: float, seed: int) -> tuple[pd.DataFrame, dict]:
-    """Match shared CpGs on MAF + cis-SNP density (num_var LD/opportunity proxy)."""
+    """Build a balanced identical-variant subset for paired AA–EA discovery rates.
+
+    This is not between-group nearest-neighbor matching: each row is already a
+    paired CpG and identical variant. Retain pairs with comparable MAF and cis
+    testing opportunity, then use paired McNemar inference downstream.
+    """
     need = ["mean_num_var"]
     maf_col = "min_maf" if df["min_maf"].notna().sum() >= 100 else (
         "mean_maf" if "mean_maf" in df.columns and df["mean_maf"].notna().sum() >= 100 else None
@@ -143,39 +152,25 @@ def nearest_neighbor_match(df: pd.DataFrame, caliper_maf: float, seed: int) -> t
     if len(use) < 100:
         return use, {"matched": False, "reason": f"insufficient_rows_after_dropna n={len(use)} need={need}"}
 
-    for c in need:
-        x = use[c].to_numpy(dtype=float)
-        sd = np.nanstd(x)
-        use[f"z_{c}"] = (x - np.nanmean(x)) / sd if sd > 0 else 0.0
-    if "abs_tss" in use.columns and use["abs_tss"].notna().any():
-        x = use["abs_tss"].to_numpy(dtype=float)
-        sd = np.nanstd(x)
-        use["z_abs_tss"] = (x - np.nanmean(x)) / sd if sd > 0 else 0.0
-
     if maf_col and "maf_AA" in use.columns and "maf_EA" in use.columns:
         close = use[np.abs(use["maf_AA"] - use["maf_EA"]) <= caliper_maf].copy()
-        caliper_used = caliper_maf if len(close) >= 50 else np.nan
-        if len(close) < 50:
-            close = use.copy()
+        caliper_used = caliper_maf
     else:
         close = use.copy()
         caliper_used = np.nan
-
-    close = close.sample(frac=1.0, random_state=seed).reset_index(drop=True)
-    score = close[f"z_{need[0]}"].abs()
-    for c in need[1:]:
-        score = score + close[f"z_{c}"].abs()
-    if "z_abs_tss" in close.columns:
-        score = score + 0.25 * close["z_abs_tss"].abs()
-    close["match_score"] = score
-    n_keep = max(len(close) // 2, min(5000, len(close)))
-    matched = close.nsmallest(n_keep, "match_score")
+    if {"num_var_AA", "num_var_EA"}.issubset(close.columns):
+        ratio = np.maximum(close["num_var_AA"], close["num_var_EA"]) / np.maximum(
+            np.minimum(close["num_var_AA"], close["num_var_EA"]), 1
+        )
+        close = close[ratio <= 1.25].copy()
+    matched = close.reset_index(drop=True)
     meta = {
-        "matched": True,
+        "matched": bool(len(matched)),
+        "design": "paired_identical_variant_balanced_subset",
         "caliper_maf": caliper_used,
         "maf_col": maf_col or "none",
         "n_input": int(len(use)),
-        "n_within_caliper": int(len(close)),
+        "n_within_caliper": int(len(matched)),
         "n_matched": int(len(matched)),
         "median_abs_maf_diff": (
             float(np.abs(matched["maf_AA"] - matched["maf_EA"]).median())
@@ -236,7 +231,7 @@ def analyze_region(region: str, n_bins: int, caliper_maf: float, seed: int) -> t
     matched, meta = nearest_neighbor_match(df, caliper_maf, seed)
     matched_row = {
         "region": region,
-        "analysis": "maf_numvar_matched_subset",
+        "analysis": "maf_numvar_balanced_identical_variant_subset",
         **rate_gap(matched),
         **fisher_aa_vs_ea(matched),
         **{f"match_{k}": v for k, v in meta.items()},

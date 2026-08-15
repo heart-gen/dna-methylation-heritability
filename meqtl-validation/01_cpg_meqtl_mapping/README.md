@@ -92,7 +92,12 @@ sbatch --partition=short --export=ALL,DEVICE=cpu ../_h/step_4.sh
 
 - Conda env: `/projects/p32505/opt/envs/genomics` (tensorqtl + plink2 + bgzip/tabix)
 - Source `TOPMed_LIBD.AA.psam` lacks a plink2 header; step_3 stages a headered copy under `_m/genotype_source/`
-- Imputation INFO/R2 is absent from the AA pvar, so `imputation_r2_min` is not applied (recorded in genotype QC summary)
+- Imputation INFO/R2 is absent from the staged pvar because the distributed panels
+  were already filtered upstream. Step 3 verifies the resource-construction logs:
+  AA was built from `LIBD_postmortem.AA.info_0.8...`; AA+EA was built from
+  `Merged_Info0.8/...`. An optional `IMPUTATION_R2_IDS` list can impose an
+  additional filter, but it is not required. The unverified escape hatch remains
+  debugging-only and is recorded in the QC summary.
 - TensorQTL loads genotypes in chromosome chunks; variant contigs are chr-prefixed to match phenotype BEDs
 - Submit scripts from `_m/` so relative `../_h/` paths resolve (SLURM spool copies break `$0`-based paths)
 - Phen matrices are already depth-filtered in Alexis prep (`cov>=5` in ≥80% samples); `step_6` attaches per-CpG `mean_coverage` for Phase 2 matching

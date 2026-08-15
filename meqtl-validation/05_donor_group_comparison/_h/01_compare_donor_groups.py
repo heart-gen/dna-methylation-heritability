@@ -27,7 +27,7 @@ import pandas as pd
 from scipy.stats import pearsonr, spearmanr
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
-from _lib.io_utils import write_tsv  # noqa: E402
+from _lib.io_utils import ANALYSIS_SCHEMA_VERSION, canonical_vmr_id, parse_vmr_coordinate, write_tsv  # noqa: E402
 
 PROJECT = Path("/projects/b1213/users/kynon/projects/dna-methylation-heritability")
 ENET = PROJECT / "heritability" / "elastic_net_model" / "all_individuals"
@@ -175,13 +175,25 @@ def annotate_concordant(region: str, m: pd.DataFrame) -> pd.DataFrame:
     if not burden_path.exists() or m.empty:
         return m
     b = pd.read_csv(burden_path, sep="\t")
-    b["coord_id"] = b["vmr_id"].astype(str)
+    if "analysis_schema_version" not in b or not b["analysis_schema_version"].eq(ANALYSIS_SCHEMA_VERSION).all():
+        raise SystemExit(f"{region}: stale AA burden table; rerun Phase 2 schema v2")
+    b["vmr_id"] = b["vmr_id"].astype(str)
+    pred = load_predictability(region, "AA").copy()
+    pred["task_id"] = pred["task_id"].astype(str)
+    task_to_coord = pred.drop_duplicates("task_id").set_index("task_id")["coord_id"]
+    b["coord_id"] = b["vmr_id"].map(task_to_coord)
+    unresolved = b["coord_id"].isna()
+    b.loc[unresolved, "coord_id"] = b.loc[unresolved, "vmr_id"].map(
+        lambda value: (
+            canonical_vmr_id(*parsed) if (parsed := parse_vmr_coordinate(value)) else np.nan
+        )
+    )
     if "meqtl_supported" not in b.columns and "n_cpgs_with_sig_meqtl" in b.columns:
         b["meqtl_supported"] = pd.to_numeric(b["n_cpgs_with_sig_meqtl"], errors="coerce").fillna(0).gt(0)
     keep = [
         c for c in [
             "coord_id", "meqtl_supported", "n_cpgs_with_sig_meqtl",
-            "proportion_cpgs_with_sig_meqtl", "annot.type", "line_l1_frac",
+            "proportion_cpgs_with_sig_meqtl", "annot.type", "genomic_annotation", "line_l1_frac",
             "umap_k24_mean", "length", "h2_category",
         ] if c in b.columns
     ]
@@ -193,17 +205,25 @@ def genomic_enrichment_concordant(region: str, m: pd.DataFrame) -> list[dict]:
     rows = []
     if m.empty or "concordant_high" not in m.columns:
         return rows
-    if "annot.type" not in m.columns:
+    annotation_col = "annot.type" if "annot.type" in m.columns else (
+        "genomic_annotation" if "genomic_annotation" in m.columns else None
+    )
+    if annotation_col is None:
         return [{
             "region": region,
             "comparison": "concordant_high_vs_other",
             "note": "annot.type unavailable on joined table",
         }]
-    use = m.dropna(subset=["annot.type"]).copy()
+    use = m.dropna(subset=[annotation_col]).copy()
     hi = use["concordant_high"].astype(bool)
-    for ann, grp in use.groupby("annot.type"):
-        in_hi = int(grp["concordant_high"].sum())
-        in_lo = int((~grp["concordant_high"]).sum())
+    annotation_sets = use[annotation_col].astype(str).map(
+        lambda value: {x for x in value.split(";") if x}
+    )
+    annotations = sorted(set().union(*annotation_sets.tolist())) if len(annotation_sets) else []
+    for ann in annotations:
+        has_annotation = annotation_sets.map(lambda values: ann in values)
+        in_hi = int((hi & has_annotation).sum())
+        in_lo = int((~hi & has_annotation).sum())
         rows.append({
             "region": region,
             "annot_type": ann,
@@ -239,6 +259,8 @@ def aa_burden_coefficients() -> list[dict]:
         if not p.exists():
             continue
         df = pd.read_csv(p, sep="\t")
+        if "analysis_schema_version" not in df or not df["analysis_schema_version"].eq(ANALYSIS_SCHEMA_VERSION).all():
+            raise SystemExit(f"{region}: stale AA burden model results; rerun Phase 2 schema v2")
         for _, r in df.iterrows():
             rows.append({
                 "region": region,
@@ -252,6 +274,8 @@ def aa_burden_coefficients() -> list[dict]:
         ea_p = PHASE2 / "EA" / region / "burden_model_results.tsv"
         if ea_p.exists():
             edf = pd.read_csv(ea_p, sep="\t")
+            if "analysis_schema_version" not in edf or not edf["analysis_schema_version"].eq(ANALYSIS_SCHEMA_VERSION).all():
+                raise SystemExit(f"{region}: stale EA burden model results; rerun Phase 2 schema v2")
             for _, r in edf.iterrows():
                 rows.append({
                     "region": region,
