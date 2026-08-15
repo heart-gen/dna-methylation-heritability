@@ -12,4 +12,6 @@ mkdir -p logs
 ROOT="/projects/b1213/users/kynon/projects/dna-methylation-heritability"
 source /projects/p32505/opt/miniforge3/etc/profile.d/conda.sh
 conda activate /projects/p32505/opt/envs/genomics
-python3 "${ROOT}/meqtl-validation/07_repeat_mappability_sensitivity/_h/04_complete_tech_joins.py"
+python3 "${ROOT}/meqtl-validation/07_repeat_mappability_sensitivity/_h/04_complete_tech_joins.py" \
+  --join-only \
+  --min-reciprocal-overlap 0.5

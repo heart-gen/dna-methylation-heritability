@@ -15,12 +15,13 @@ from _lib.io_utils import PROJECT_ROOT, write_tsv  # noqa: E402
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--region", required=True, choices=["caudate", "dlpfc", "hippocampus"])
+    p.add_argument("--population", default="AA")
     return p.parse_args()
 
 
 def main() -> None:
     args = parse_args()
-    prep = (
+    prep_root = (
         PROJECT_ROOT
         / "meqtl-validation"
         / "01_cpg_meqtl_mapping"
@@ -28,12 +29,19 @@ def main() -> None:
         / "_m"
         / "prepared"
     )
+    prep = prep_root if args.population == "AA" else prep_root / args.population
     maps = sorted(prep.glob("cpg_vmr_map.chr*.tsv"))
     if not maps:
         raise SystemExit(f"No cpg_vmr_map files under {prep}")
     frames = []
     for path in maps:
-        df = pd.read_csv(path, sep="\t")
+        try:
+            df = pd.read_csv(path, sep="\t")
+        except pd.errors.EmptyDataError:
+            # Empty chromosomes are valid when the retained VMR universe has
+            # no loci on that chromosome. They contribute no denominator rows.
+            print(f"INFO: {path.name} is an empty-chromosome sentinel; skip")
+            continue
         if "mean_coverage" not in df.columns:
             print(f"WARNING: {path.name} lacks mean_coverage; skip")
             continue
@@ -58,6 +66,7 @@ def main() -> None:
         prep / "vmr_mean_coverage_summary.tsv",
         [{
             "region": args.region,
+            "population": args.population,
             "n_vmrs": len(g),
             "n_cpgs": int(d.shape[0]),
             "mean_of_vmr_mean_coverage": float(g["mean_cpg_coverage"].mean()),

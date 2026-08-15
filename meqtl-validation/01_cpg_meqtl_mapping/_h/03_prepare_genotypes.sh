@@ -21,6 +21,7 @@ if [[ "${POPULATION}" == "AA" ]]; then
   SRC_PGEN="${ROOT}/inputs/genotypes/TOPMed_LIBD.AA.pgen"
   SRC_PVAR="${ROOT}/inputs/genotypes/TOPMed_LIBD.AA.pvar"
   SRC_PSAM="${ROOT}/inputs/genotypes/TOPMed_LIBD.AA.psam"
+  SOURCE_QC_LOG="/gpfs/projects/b1213/resources/libd_data/genotypes/combined_data/AAonly/_m/qc.5860779.log"
 else
   PRE="${MAP_ROOT}/${REGION}/_m/preflight/${POPULATION}/sample_inclusion_primary.tsv"
   OUT_NAME="meqtl_${POPULATION}"
@@ -28,6 +29,7 @@ else
   SRC_PGEN="${ROOT}/inputs/genotypes/all_individuals/TOPMed_LIBD.pgen"
   SRC_PVAR="${ROOT}/inputs/genotypes/all_individuals/TOPMed_LIBD.pvar"
   SRC_PSAM="${ROOT}/inputs/genotypes/all_individuals/TOPMed_LIBD.psam"
+  SOURCE_QC_LOG="/gpfs/projects/b1213/resources/libd_data/genotypes/combined_data/AA_EA/_m/qc.5746402.log"
 fi
 OUTDIR="${MAP_ROOT}/${REGION}/_m/genotypes"
 STAGE="${MAP_ROOT}/_m/genotype_source"
@@ -94,10 +96,40 @@ PY
 MAF=0.05
 GENO_MISS=0.05
 HWE=1e-6
+IMPUTATION_R2_MIN=0.8
+IMPUTATION_R2_IDS="${IMPUTATION_R2_IDS:-${ROOT}/inputs/genotypes/imputation_r2_ge_0.8.variant_ids.txt}"
+ALLOW_UNVERIFIED_IMPUTATION_R2="${ALLOW_UNVERIFIED_IMPUTATION_R2:-0}"
 TMP_PREFIX="${OUTDIR}/${OUT_NAME}.tmp"
 OUT_PREFIX="${OUTDIR}/${OUT_NAME}"
 
-# Note: TOPMed pvars may lack INFO/R2; imputation_r2_min from config cannot be applied.
+# The staged pvar lacks INFO/R2. Fail closed unless a variant inclusion list
+# derived from the original imputation-quality metadata is supplied. The escape
+# hatch is for non-primary debugging only and is recorded in the QC summary.
+PLINK_R2_ARGS=()
+R2_APPLIED="false"
+R2_NOTE=""
+R2_FILTER_STAGE=""
+if [[ -s "${IMPUTATION_R2_IDS}" ]]; then
+  PLINK_R2_ARGS=(--extract "${IMPUTATION_R2_IDS}")
+  R2_APPLIED="true"
+  R2_FILTER_STAGE="current_step_variant_list"
+  R2_NOTE="Applied variant list with imputation R2 >= ${IMPUTATION_R2_MIN}: ${IMPUTATION_R2_IDS}"
+elif [[ -s "${SOURCE_QC_LOG}" ]] && grep -Eiq -- 'info[_./-]?0[.]8' "${SOURCE_QC_LOG}"; then
+  # The distributed pfiles are already derived from INFO>=0.8 source panels.
+  # Their pvar files no longer retain INFO, so validate the immutable upstream
+  # PLINK provenance log instead of requiring a redundant per-variant list.
+  R2_APPLIED="true"
+  R2_FILTER_STAGE="upstream_source_panel"
+  R2_NOTE="Source pfile was constructed from an INFO/R2 >= ${IMPUTATION_R2_MIN} panel; verified in ${SOURCE_QC_LOG}"
+elif [[ "${ALLOW_UNVERIFIED_IMPUTATION_R2}" == "1" ]]; then
+  R2_FILTER_STAGE="unverified_debug_bypass"
+  R2_NOTE="UNVERIFIED sensitivity only: INFO/R2 unavailable and filter bypassed"
+else
+  echo "Could not verify imputation R2 from ${SOURCE_QC_LOG} or ${IMPUTATION_R2_IDS}." >&2
+  echo "Primary meQTL mapping will not proceed without verified upstream imputation QC." >&2
+  exit 1
+fi
+
 plink2 \
   --pfile "${GENO_PREFIX}" \
   --update-ids "${IDMAP}" \
@@ -106,6 +138,7 @@ plink2 \
   --maf "${MAF}" \
   --geno "${GENO_MISS}" \
   --hwe "${HWE}" \
+  "${PLINK_R2_ARGS[@]}" \
   --make-pgen \
   --out "${TMP_PREFIX}"
 
@@ -141,7 +174,8 @@ n_variants = sum(
 summary = outdir / f"genotype_qc_summary_{out_name}.tsv"
 header = "\t".join([
     "region", "population", "n_samples", "n_variants", "maf_min", "geno_missing_max",
-    "hwe_p_min", "imputation_r2_min_applied", "imputation_r2_note",
+    "hwe_p_min", "imputation_r2_threshold", "imputation_r2_filter_applied",
+    "imputation_r2_filter_stage", "imputation_r2_provenance_log", "imputation_r2_note",
     "sample_id_scheme", "source_pfile", "pfile_prefix", "generated_at",
 ])
 row = "\t".join([
@@ -152,8 +186,11 @@ row = "\t".join([
     "${MAF}",
     "${GENO_MISS}",
     "${HWE}",
-    "NA",
-    "INFO/R2 may be absent from source pvar; filter not applied",
+    "${IMPUTATION_R2_MIN}",
+    "${R2_APPLIED}",
+    "${R2_FILTER_STAGE}",
+    "${SOURCE_QC_LOG}",
+    "${R2_NOTE}",
     "FID=IID=BrNum",
     "${GENO_PREFIX}",
     str(outdir / out_name),

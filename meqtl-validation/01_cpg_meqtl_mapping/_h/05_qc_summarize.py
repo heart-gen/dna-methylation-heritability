@@ -68,8 +68,8 @@ def main() -> None:
             lead = lead.rename(columns={lead.columns[0]: "phenotype_id"})
         cols = [c for c in [
             "phenotype_id", "num_var", "beta_shape1", "beta_shape2", "true_df",
-            "pval_true_df", "variant_id", "tss_distance", "ma_samples", "ma_count",
-            "maf", "ref_factor", "pval_nominal", "slope", "slope_se", "pval_perm",
+            "pval_true_df", "variant_id", "start_distance", "end_distance", "tss_distance",
+            "ma_samples", "ma_count", "af", "maf", "ref_factor", "pval_nominal", "slope", "slope_se", "pval_perm",
             "pval_beta", "qval", "pval_nominal_threshold",
         ] if c in lead.columns]
         lead[cols].to_csv(outdir / "lead_snp_per_cpg.tsv.gz", sep="\t", index=False)

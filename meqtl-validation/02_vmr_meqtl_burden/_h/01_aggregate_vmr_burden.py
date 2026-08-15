@@ -12,7 +12,7 @@ import numpy as np
 import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
-from _lib.io_utils import load_paths, load_yaml, write_tsv  # noqa: E402
+from _lib.io_utils import ANALYSIS_SCHEMA_VERSION, canonical_vmr_id, load_paths, load_yaml, write_tsv  # noqa: E402
 
 
 def parse_args() -> argparse.Namespace:
@@ -51,6 +51,17 @@ def _aggregate_burden(merged: pd.DataFrame, region: str) -> pd.DataFrame:
     m["_cov"] = pd.to_numeric(m["mean_coverage"], errors="coerce") if "mean_coverage" in m.columns else np.nan
     m["_var"] = pd.to_numeric(m["variance"], errors="coerce") if "variance" in m.columns else np.nan
     m["_frac"] = pd.to_numeric(m["fraction_nonmissing"], errors="coerce") if "fraction_nonmissing" in m.columns else np.nan
+    m["_mean"] = pd.to_numeric(m["mean_methylation"], errors="coerce") if "mean_methylation" in m.columns else np.nan
+    m["_num_var"] = pd.to_numeric(m["num_var"], errors="coerce") if "num_var" in m.columns else np.nan
+    if {"slope", "slope_se", "true_df"}.issubset(m.columns):
+        statistic = pd.to_numeric(m["slope"], errors="coerce") / pd.to_numeric(
+            m["slope_se"], errors="coerce"
+        ).replace(0, np.nan)
+        df = pd.to_numeric(m["true_df"], errors="coerce")
+        m["_lead_r2"] = statistic.pow(2) / (statistic.pow(2) + df)
+    else:
+        m["_lead_r2"] = np.nan
+    m["_sig_variant"] = m["variant_id"].where(m["sig_meqtl"]) if "variant_id" in m.columns else pd.NA
 
     agg_spec: dict = {
         "n_tested_cpgs": ("phenotype_id", "size"),
@@ -61,6 +72,10 @@ def _aggregate_burden(merged: pd.DataFrame, region: str) -> pd.DataFrame:
         "average_cpg_nonmissing_fraction": ("_frac", "mean"),
         "average_cpg_coverage": ("_cov", "mean"),
         "mean_cpg_variance": ("_var", "mean"),
+        "vmr_mean_methylation": ("_mean", "mean"),
+        "mean_num_tested_snps_per_cpg": ("_num_var", "mean"),
+        "strongest_lead_snp_r2": ("_lead_r2", "max"),
+        "n_distinct_significant_lead_snps": ("_sig_variant", "nunique"),
     }
     if "variant_id" in m.columns:
         agg_spec["n_distinct_lead_snps"] = ("variant_id", "nunique")
@@ -115,10 +130,40 @@ def main() -> None:
         maps = sorted(prepared.glob("cpg_vmr_map.chr*.tsv"))
     if not maps:
         raise SystemExit(f"No cpg_vmr_map files found under {prepared}; run Phase 1 preparation first")
-    cpg_map = pd.concat([pd.read_csv(p, sep="\t") for p in maps], ignore_index=True)
+    map_frames = []
+    for path in maps:
+        try:
+            frame = pd.read_csv(path, sep="\t")
+        except pd.errors.EmptyDataError:
+            # A chromosome with no retained VMRs is part of the audited assay
+            # universe but contributes no CpGs to either burden denominator.
+            print(f"INFO: {path.name} is an empty-chromosome sentinel; skip")
+            continue
+        if frame.empty:
+            print(f"INFO: {path.name} has headers but no retained CpGs; skip")
+            continue
+        map_frames.append(frame)
+    if not map_frames:
+        raise SystemExit(f"All cpg_vmr_map files under {prepared} are empty")
+    cpg_map = pd.concat(map_frames, ignore_index=True)
 
-    merged = cpg_map.merge(lead, on="phenotype_id", how="left")
-    burden = _aggregate_burden(merged, region)
+    # Only CpGs returned by TensorQTL had at least one eligible cis variant and
+    # belong in the tested denominator. Keep prepared-but-untested counts only as
+    # an audit field; never treat them as nonsignificant observations.
+    prepared_counts = (
+        cpg_map.groupby("vmr_id", as_index=False)
+        .agg(n_prepared_cpgs=("phenotype_id", "size"))
+    )
+    merged = cpg_map.merge(lead, on="phenotype_id", how="inner", validate="one_to_one")
+    tested_burden = _aggregate_burden(merged, region)
+    burden = prepared_counts.merge(tested_burden, on="vmr_id", how="left", validate="one_to_one")
+    for count_col in [
+        "n_tested_cpgs", "n_cpgs_with_sig_meqtl", "n_distinct_significant_lead_snps",
+        "n_distinct_lead_snps",
+    ]:
+        burden[count_col] = burden[count_col].fillna(0).astype(int)
+    burden["region"] = burden["region"].fillna(region)
+    burden["n_prepared_but_untested_cpgs"] = burden["n_prepared_cpgs"] - burden["n_tested_cpgs"]
 
     pred_path = project / paths[pred_key].format(region=region)
     pred = pd.read_csv(pred_path, sep="\t")
@@ -126,17 +171,17 @@ def main() -> None:
     if score_col not in pred.columns:
         raise SystemExit(f"Missing {score_col} in {pred_path}")
     pred = pred.copy()
-    pred["vmr_coord_id"] = (
-        pred["chrom"].astype(str).str.replace("chr", "", regex=False)
-        + ":"
-        + pred["start"].astype(str)
-        + "-"
-        + pred["end"].astype(str)
-    )
+    pred["vmr_coord_id"] = [
+        canonical_vmr_id(c, s, e)
+        for c, s, e in zip(pred["chrom"], pred["start"], pred["end"])
+    ]
     pred["task_id"] = pred["task_id"].astype(str)
+    pred["vmr_length"] = pd.to_numeric(pred["end"], errors="coerce") - pd.to_numeric(
+        pred["start"], errors="coerce"
+    )
 
     burden = burden.merge(
-        pred[["task_id", score_col]].rename(
+        pred[["task_id", score_col, "vmr_coord_id", "vmr_length"]].rename(
             columns={"task_id": "vmr_id", score_col: "local_predictability"}
         ),
         on="vmr_id",
@@ -145,13 +190,19 @@ def main() -> None:
     missing = burden["local_predictability"].isna()
     if missing.any():
         extra = burden.loc[missing, ["vmr_id"]].merge(
-            pred[["vmr_coord_id", score_col]].rename(
+            pred[["vmr_coord_id", score_col, "vmr_length"]].rename(
                 columns={"vmr_coord_id": "vmr_id", score_col: "local_predictability"}
             ),
             on="vmr_id",
             how="left",
         )
         burden.loc[missing, "local_predictability"] = extra["local_predictability"].to_numpy()
+        burden.loc[missing, "vmr_coord_id"] = burden.loc[missing, "vmr_id"].to_numpy()
+        burden.loc[missing, "vmr_length"] = extra["vmr_length"].to_numpy()
+    burden["length"] = burden["vmr_length"]
+    burden["cpg_density"] = burden["n_tested_cpgs"] / burden["length"].replace(0, np.nan)
+    burden["local_common_snp_density"] = burden["mean_num_tested_snps_per_cpg"] / 1_000_001.0
+    burden["analysis_schema_version"] = ANALYSIS_SCHEMA_VERSION
 
     cov_path = prepared / "vmr_mean_coverage.tsv"
     if cov_path.exists():
@@ -172,29 +223,18 @@ def main() -> None:
         t = pd.read_csv(tech_path, sep="\t")
         feat = [
             c for c in [
-                "length", "blacklist_frac", "segdup_frac", "line_l1_frac",
+                "blacklist_frac", "segdup_frac", "line_l1_frac",
                 "umap_k24_mean", "high_mappability", "overlaps_blacklist", "overlaps_segdup",
             ] if c in t.columns
         ]
-        if feat and "task_id" in t.columns:
-            by_task = t.dropna(subset=["task_id"]).copy()
-            by_task["vmr_id"] = by_task["task_id"].astype(float).astype(int).astype(str)
-            by_task = by_task.drop_duplicates("vmr_id", keep="first")
-            burden = burden.merge(by_task[["vmr_id"] + feat], on="vmr_id", how="left")
-        if feat and "interval_id" in t.columns:
-            by_int = t.copy()
-            by_int["vmr_id"] = by_int["interval_id"].astype(str)
-            by_int = by_int.drop_duplicates("vmr_id", keep="first")
-            for c in feat:
-                if c not in burden.columns:
-                    burden[c] = np.nan
-            miss = burden[feat[0]].isna()
-            if miss.any():
-                extra = burden.loc[miss, ["vmr_id"]].merge(
-                    by_int[["vmr_id"] + feat], on="vmr_id", how="left"
-                )
-                for c in feat:
-                    burden.loc[miss, c] = extra[c].to_numpy()
+        coord_col = "coord_id" if "coord_id" in t.columns else "interval_id"
+        if feat and coord_col in t.columns:
+            by_int = t.rename(columns={coord_col: "vmr_coord_id"}).copy()
+            by_int["vmr_coord_id"] = by_int["vmr_coord_id"].astype(str).str.replace("^chr", "", regex=True)
+            by_int = by_int.drop_duplicates("vmr_coord_id", keep="first")
+            burden = burden.merge(
+                by_int[["vmr_coord_id"] + feat], on="vmr_coord_id", how="left", validate="one_to_one"
+            )
 
     ann_path = project / paths["vmr_annotation_template"].format(region=region)
     if Path(ann_path).exists():
@@ -226,8 +266,16 @@ def main() -> None:
             for c in ["annot.type", "h2_category", "annot.symbol"]:
                 if c in ann.columns:
                     keep.append(c)
-            to_merge = ann[keep].drop_duplicates("vmr_id", keep="first")
-            burden = burden.merge(to_merge, on="vmr_id", how="left", suffixes=("", "_ann"))
+            ann["vmr_coord_id"] = ann["vmr_id"].astype(str).str.replace("^chr", "", regex=True)
+            annotation = (
+                ann.groupby("vmr_coord_id", as_index=False)
+                .agg(
+                    genomic_annotation=("annot.type", lambda x: ";".join(sorted(set(x.dropna().astype(str))))),
+                    h2_category=("h2_category", "first"),
+                    annot_symbol=("annot.symbol", lambda x: ";".join(sorted(set(x.dropna().astype(str)))))
+                )
+            )
+            burden = burden.merge(annotation, on="vmr_coord_id", how="left", validate="one_to_one")
 
     out = outdir / "vmr_meqtl_burden.tsv.gz"
     burden.to_csv(out, sep="\t", index=False, compression="gzip")
@@ -235,9 +283,13 @@ def main() -> None:
         outdir / "aggregation_summary.tsv",
         [{
             "region": region,
+            "analysis_schema_version": ANALYSIS_SCHEMA_VERSION,
             "n_vmrs": len(burden),
             "n_vmrs_with_predictability": int(burden["local_predictability"].notna().sum()),
             "n_vmrs_with_tech": int(burden["umap_k24_mean"].notna().sum()) if "umap_k24_mean" in burden.columns else 0,
+            "n_prepared_cpgs": int(len(cpg_map)),
+            "n_tested_cpgs": int(len(merged)),
+            "n_prepared_but_untested_cpgs": int(len(cpg_map) - len(merged)),
             "mean_proportion_sig": float(burden["proportion_cpgs_with_sig_meqtl"].mean()),
             "output": str(out),
         }],
