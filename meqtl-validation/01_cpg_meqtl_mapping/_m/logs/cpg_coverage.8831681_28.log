@@ -1,0 +1,9 @@
+2026-08-08 12:51:50 - coverage extract dlpfc chr7 (EA)
+Loading /projects/b1213/users/alexis/projects/dna-methylation-heritability/vmr-analysis/all_individuals/dlpfc/_m/cpg/chr_7/stats.rda
+Annotating 9933 prepared VMR CpGs
+matched 9933 / 9933 (unmatched 0)
+  coverage chunk 1-9933
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/dlpfc/_m/prepared/EA/cpg_coverage.chr7.tsv
+Updated /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/dlpfc/_m/prepared/EA/cpg_vmr_map.chr7.tsv
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/dlpfc/_m/prepared/EA/cpg_coverage_summary.chr7.tsv
+2026-08-08 12:52:20 - done dlpfc chr7 (EA)

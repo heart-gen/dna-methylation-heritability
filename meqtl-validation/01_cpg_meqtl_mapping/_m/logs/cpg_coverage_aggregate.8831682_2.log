@@ -1,0 +1,2 @@
+INFO: cpg_vmr_map.chr13.tsv is an empty-chromosome sentinel; skip
+Wrote /gpfs/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/hippocampus/_m/prepared/EA/vmr_mean_coverage.tsv (9,305 VMRs)

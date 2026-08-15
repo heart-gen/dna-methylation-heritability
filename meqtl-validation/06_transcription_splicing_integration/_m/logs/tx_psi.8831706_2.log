@@ -1,0 +1,6 @@
+2026-08-08 16:52:30 - **** Job starts ****
+2026-08-08 16:52:39 - meQTL × PSI enrichment for hippocampus
+hippocampus psi: n=4110 meQTL+=2199 tx+=15 both=7 Fisher OR=0.760 p=7.86e-01 → /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/06_transcription_splicing_integration/_m/hippocampus/meqtl_x_psi_enrichment.tsv
+2026-08-08 16:52:52 - meQTL × ABC expression enrichment for hippocampus
+hippocampus expression_abc: n=26 meQTL+=16 tx+=1 both=1 Fisher OR=inf p=6.15e-01 → /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/06_transcription_splicing_integration/_m/hippocampus/meqtl_x_expression_abc_enrichment.tsv
+2026-08-08 16:52:57 - **** Job ends ****

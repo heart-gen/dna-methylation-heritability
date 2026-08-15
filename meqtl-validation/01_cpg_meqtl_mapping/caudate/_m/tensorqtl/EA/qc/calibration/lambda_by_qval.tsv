@@ -1,0 +1,16 @@
+region	pval_column	stratum	fdr_threshold	significance_rule	n_cpgs	lambda_gc	median_pval	mean_qval
+caudate	pval_beta	all_tested	0.05	qval <= 0.05	196740	4.1043693510044825	0.171793	0.1908757838486716
+caudate	pval_beta	nonsignificant_qval_gt_fdr	0.05	qval <= 0.05	126062	1.3799308469539442	0.4281705	0.2949995698124732
+caudate	pval_beta	significant_qval_le_fdr	0.05	qval <= 0.05	70678	63.54662049784071	7.583329999999999e-08	0.005159539668463205
+caudate	pval_beta	near_null_qval_gt_0.5	0.05	qval <= 0.05	0	nan	nan	nan
+caudate	pval_beta	weak_0.05_lt_qval_le_0.5	0.05	qval <= 0.05	126062	1.3799308469539442	0.4281705	0.2949995698124732
+caudate	pval_perm	all_tested	0.05	qval <= 0.05	196740	4.091185284882709	0.172483	0.1908757838486716
+caudate	pval_perm	nonsignificant_qval_gt_fdr	0.05	qval <= 0.05	126062	1.3486341178645602	0.433457	0.2949995698124732
+caudate	pval_perm	significant_qval_le_fdr	0.05	qval <= 0.05	70678	33.27254813144178	9.999e-05	0.005159539668463205
+caudate	pval_perm	near_null_qval_gt_0.5	0.05	qval <= 0.05	0	nan	nan	nan
+caudate	pval_perm	weak_0.05_lt_qval_le_0.5	0.05	qval <= 0.05	126062	1.3486341178645602	0.433457	0.2949995698124732
+caudate	pval_nominal	all_tested	0.05	qval <= 0.05	196740	25.984192707332145	0.000585615	0.1908757838486716
+caudate	pval_nominal	nonsignificant_qval_gt_fdr	0.05	qval <= 0.05	126062	20.833496999582035	0.0020796	0.2949995698124732
+caudate	pval_nominal	significant_qval_le_fdr	0.05	qval <= 0.05	70678	104.28396331561748	5.663915e-12	0.005159539668463205
+caudate	pval_nominal	near_null_qval_gt_0.5	0.05	qval <= 0.05	0	nan	nan	nan
+caudate	pval_nominal	weak_0.05_lt_qval_le_0.5	0.05	qval <= 0.05	126062	20.833496999582035	0.0020796	0.2949995698124732

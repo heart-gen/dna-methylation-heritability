@@ -1,0 +1,5 @@
+2026-08-08 19:34:38 - **** Job starts ****
+2026-08-08 19:34:40 - Aggregating CpG meQTL burden for hippocampus (EA)
+INFO: cpg_vmr_map.chr13.tsv is an empty-chromosome sentinel; skip
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/02_vmr_meqtl_burden/_m/EA/hippocampus/vmr_meqtl_burden.tsv.gz
+2026-08-08 19:34:53 - **** Job ends ****

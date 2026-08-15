@@ -1,0 +1,14 @@
+2026-08-08 17:12:19 - **** Job starts ****
+Prepared rs8048039: GWAS n=860 meQTL n=280 forest n=8
+Prepared rs2710323: GWAS n=1942 meQTL n=162 forest n=24
+Prepared rs4758662: GWAS n=776 meQTL n=465 forest n=24
+Prepared rs13331198: GWAS n=522 meQTL n=71 forest n=23
+Prepared rs12514660: GWAS n=693 meQTL n=50 forest n=10
+Wrote manifest /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/08_schizophrenia_risk_application/_m/locus_panels/locus_panel_manifest.tsv
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/08_schizophrenia_risk_application/_m/locus_panels/figures/rs8048039_locus_panel.pdf
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/08_schizophrenia_risk_application/_m/locus_panels/figures/rs2710323_locus_panel.pdf
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/08_schizophrenia_risk_application/_m/locus_panels/figures/rs4758662_locus_panel.pdf
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/08_schizophrenia_risk_application/_m/locus_panels/figures/rs13331198_locus_panel.pdf
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/08_schizophrenia_risk_application/_m/locus_panels/figures/rs12514660_locus_panel.pdf
+Done. Figures in /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/08_schizophrenia_risk_application/_m/locus_panels/figures
+2026-08-08 17:14:41 - **** Job ends ****

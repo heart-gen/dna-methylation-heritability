@@ -1,0 +1,14 @@
+2026-08-09 10:27:04 - **** Job starts ****
+2026-08-09 10:27:06 - Summarizing Phase 4 claims
+                                              claim  passes  n_pairwise_pass  n_pairwise                                                                                           detail
+                   cpg_effect_direction_concordance    True                3           3                 caudate_vs_dlpfc:1.000; caudate_vs_hippocampus:1.000; dlpfc_vs_hippocampus:1.000
+                cpg_standardized_effect_correlation    True                3           3           caudate_vs_dlpfc:r=0.965; caudate_vs_hippocampus:r=0.958; dlpfc_vs_hippocampus:r=0.989
+predictability_associates_with_shared_meqtl_support    True                3           3   caudate_vs_dlpfc:OR=91.025; caudate_vs_hippocampus:OR=1237.076; dlpfc_vs_hippocampus:OR=22.114
+     aa_burden_gradient_reproducible_across_regions    True                3           3                                                    caudate:3.117; dlpfc:1.871; hippocampus:2.151
+                   aa_ea_predictability_portability    True                3           3                                        caudate:rho=0.506; dlpfc:rho=0.123; hippocampus:rho=0.304
+                         ea_stratified_meqtl_burden    True                3           3                         mapped=3/3; caudate:coef=3.427; dlpfc:coef=1.117; hippocampus:coef=1.380
+                       caudate_n_matched_downsample    True                1           1                          not_solely_N=True; median_n_sig=121985.0; ratio_dlpfc=2.425727807826917
+                              shared_donor_gxregion    True                1           1                                          fitted=3000; joint_FDR_sig=721; frac=0.2403333333333333
+                       aa_ea_cpg_effect_concordance    True                3           3 caudate:dir=0.836,n_both=45473; dlpfc:dir=0.824,n_both=10094; hippocampus:dir=0.816,n_both=22572
+                     aa_ea_maf_ld_matched_discovery    True                2           3                            caudate:Δ 0.012→0.000; dlpfc:Δ 0.140→0.000; hippocampus:Δ 0.079→0.314
+2026-08-09 10:27:07 - **** Job ends ****

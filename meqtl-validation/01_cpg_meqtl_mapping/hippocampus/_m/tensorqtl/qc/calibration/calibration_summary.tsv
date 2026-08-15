@@ -1,2 +1,2 @@
 region	significance_rule	n_tested	n_significant	n_nonsignificant	primary_pval_column	lambda_gc_all	lambda_gc_nonsignificant	lambda_gc_significant	lambda_gc_near_null_qval_gt_0.5	outdir
-hippocampus	qval <= 0.05	157925	55957	101968	pval_beta	3.9203842467948977	1.418516849574596	51.389020757570016	nan	/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/hippocampus/_m/covariate_sensitivity/tensorqtl/M3a/qc/calibration
+hippocampus	qval <= 0.05	154600	54898	99702	pval_beta	3.9070966844661195	1.4080973734445035	52.07994589902101	nan	/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/hippocampus/_m/tensorqtl/qc/calibration

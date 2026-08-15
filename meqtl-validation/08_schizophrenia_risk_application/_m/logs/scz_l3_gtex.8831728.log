@@ -1,0 +1,10 @@
+2026-08-08 17:06:40 - **** Job starts ****
+/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/08_schizophrenia_risk_application/_h/12_build_level3_gene_targets.py:158: FutureWarning: The behavior of DataFrame concatenation with empty or all-NA entries is deprecated. In a future version, this will no longer exclude empty or all-NA columns when determining the result dtypes. To retain the old behavior, exclude the relevant entries before the concat operation.
+  linked = pd.concat([linked, pd.DataFrame(fine_rows)], ignore_index=True)
+ n_prioritized_loci  n_vmr_links  n_expression_assoc_rows  n_psi_assoc_rows  n_finemap_symbol_rows  n_unique_ensg  n_sig_expression  n_sig_psi
+                  5            9                        9              1491                     19             59                 2          2
+Wrote targets under /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/08_schizophrenia_risk_application/_m/level3
+ n_signif_pair_hits  n_gene_and_variant_hits  n_loci_with_caudate_eqtl_gene_variant  n_genes_with_any_brain_eqtl
+              12764                       19                                      3                           47
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/08_schizophrenia_risk_application/_m/level3/gtex
+2026-08-08 17:07:31 - **** Job ends ****

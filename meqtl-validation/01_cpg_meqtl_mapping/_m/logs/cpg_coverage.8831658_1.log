@@ -1,0 +1,9 @@
+2026-08-08 13:01:45 - coverage extract caudate chr2 (AA)
+Loading /projects/b1213/users/alexis/projects/dna-methylation-heritability/vmr-analysis/caudate/_m/cpg/chr_2/stats.rda
+Annotating 16269 prepared VMR CpGs
+matched 16269 / 16269 (unmatched 0)
+  coverage chunk 1-16269
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/caudate/_m/prepared/cpg_coverage.chr2.tsv
+Updated /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/caudate/_m/prepared/cpg_vmr_map.chr2.tsv
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/caudate/_m/prepared/cpg_coverage_summary.chr2.tsv
+2026-08-08 13:02:24 - done caudate chr2 (AA)
