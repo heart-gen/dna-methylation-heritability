@@ -1,2 +1,2 @@
-region	chrom	n_target_cpgs	n_matched	n_unmatched	n_samples_coverage	min_coverage_threshold	mean_of_mean_coverage	median_of_mean_coverage	mean_frac_samples_cov_ge_min	out_path
-caudate	chr1	17123	17123	0	153	5	12.9307822410632	11.4705882352941	0.941171890119126	/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/caudate/_m/prepared/cpg_coverage.chr1.tsv
+region	population	chrom	n_target_cpgs	n_matched	n_unmatched	n_samples_coverage	min_coverage_threshold	mean_of_mean_coverage	median_of_mean_coverage	mean_frac_samples_cov_ge_min	out_path
+caudate	AA	chr1	17044	17044	0	153	5	12.9237348776638	11.4705882352941	0.941225171911837	/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/caudate/_m/prepared/cpg_coverage.chr1.tsv

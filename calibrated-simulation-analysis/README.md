@@ -214,9 +214,19 @@ bash calibrated-simulation-analysis/_h/submit_observed_calibrated_workflow.sh \
 The submission refuses to create an observed run if any current acceptance
 criterion is missing or failed. It snapshots the accepted calibration model and
 code, submits separate caudate/DLPFC/hippocampus arrays, records expected versus
-analyzed/excluded/failed task counts, and combines results only after every
-region array completes. Expected locus-level failures are recorded and assessed
-by the final QC job instead of breaking the entire array dependency chain.
+analyzed/excluded/QC-failed/computationally-failed task counts, and combines
+results only after every region array completes. Terminal task categories are
+mutually exclusive:
+
+- `summary/`: an estimate was produced;
+- `excluded/`: a prespecified analysis exclusion, such as a sex-chromosome VMR;
+- `qc_failures/`: either no SNP exists in the exact ±500 kb window or fewer
+  than two SNPs remain after MAF and missingness QC;
+- `failures/`: a computational or missing-input failure that requires recovery.
+
+The configured failure-rate tolerance applies only to `qc_failures/`.
+Computational failures have zero tolerance and cannot be accepted by the final
+QC job, even when their numerical rate is small.
 
 The adapter reads the existing region-specific `vmr.bed`, local PLINK files,
 methylation phenotypes, and region-specific covariate files. Even when an
@@ -231,9 +241,26 @@ Per-VMR output is written below the observed run directory:
 ```text
 _m/observed-runs/{OBSERVED_RUN_ID}/results/{region}/AA/summary/
 _m/observed-runs/{OBSERVED_RUN_ID}/results/{region}/AA/excluded/
+_m/observed-runs/{OBSERVED_RUN_ID}/results/{region}/AA/qc_failures/
 _m/observed-runs/{OBSERVED_RUN_ID}/results/{region}/AA/failures/
 _m/observed-runs/{OBSERVED_RUN_ID}/results/combined/
 ```
+
+Recover a failed immutable observed run into a new run directory with:
+
+```bash
+bash calibrated-simulation-analysis/_h/recover_observed_workflow.sh \
+  SOURCE_OBSERVED_RUN_ID RECOVERY_OBSERVED_RUN_ID
+```
+
+Recovery copies successful terminal records, retries only computational
+failures, and re-evaluates legacy zero-variant exclusions under the current QC
+policy. If a per-VMR PLINK input is absent because its upstream extraction did
+not complete, the retry reconstructs only the exact ±500 kb window from the
+recorded cohort PGEN into the new run's `recovered-inputs/` directory. It does
+not alter the source run or the shared genotype inputs. The recovery provenance
+records the PGEN source, phenotype fallback, task manifests, code snapshot,
+software environment, checksums, submitted jobs, and classification policy.
 
 The automatically generated combined table retains raw prediction metrics,
 Haseman–Elston estimates, forward and unbounded hybrid estimates, the

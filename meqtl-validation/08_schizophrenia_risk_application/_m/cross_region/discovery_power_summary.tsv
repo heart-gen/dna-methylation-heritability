@@ -1,6 +1,6 @@
 row_type	region	n_samples	n_tests	n_sig_pairs	n_sig_loci	sig_pairs_per_sqrtN	sig_loci_per_sqrtN	raw_sig_pair_ratio_vs_other	sqrtN_sig_pair_ratio_vs_other	raw_sig_loci_ratio_vs_other	sqrtN_sig_loci_ratio_vs_other	note
-region	caudate	153	40001	361	31	29.185120212705403	2.5062014587087744	nan	nan	nan	nan	sqrtN-normalized discovery rate; not a formal downsample remap
-region	dlpfc	111	28546	217	17	20.59672850782923	1.6135685927792485	nan	nan	nan	nan	sqrtN-normalized discovery rate; not a formal downsample remap
-region	hippocampus	116	29522	196	16	18.198143141351082	1.4855627054164149	nan	nan	nan	nan	sqrtN-normalized discovery rate; not a formal downsample remap
+region	caudate	153	39898	361	31	29.185120212705403	2.5062014587087744	nan	nan	nan	nan	sqrtN-normalized discovery rate; not a formal downsample remap
+region	dlpfc	111	28455	217	17	20.59672850782923	1.6135685927792485	nan	nan	nan	nan	sqrtN-normalized discovery rate; not a formal downsample remap
+region	hippocampus	116	29358	197	16	18.29099081043961	1.4855627054164149	nan	nan	nan	nan	sqrtN-normalized discovery rate; not a formal downsample remap
 contrast	caudate_vs_dlpfc	153	nan	nan	nan	nan	nan	1.663594470046083	1.4169784391541382	1.8235294117647058	1.5532041649323591	ratio near 1 after sqrtN suggests N-driven discovery differences
-contrast	caudate_vs_hippocampus	153	nan	nan	nan	nan	nan	1.8418367346938775	1.603741655729092	1.9375	1.6870384868784563	ratio near 1 after sqrtN suggests N-driven discovery differences
+contrast	caudate_vs_hippocampus	153	nan	nan	nan	nan	nan	1.83248730964467	1.5956008351416344	1.9375	1.6870384868784563	ratio near 1 after sqrtN suggests N-driven discovery differences

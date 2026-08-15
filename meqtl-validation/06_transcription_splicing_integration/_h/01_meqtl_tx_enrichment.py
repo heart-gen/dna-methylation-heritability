@@ -22,7 +22,7 @@ import statsmodels.api as sm
 from scipy.stats import fisher_exact, mannwhitneyu
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
-from _lib.io_utils import write_tsv  # noqa: E402
+from _lib.io_utils import ANALYSIS_SCHEMA_VERSION, write_tsv  # noqa: E402
 
 PROJECT = Path("/projects/b1213/users/kynon/projects/dna-methylation-heritability")
 REGCTX = (
@@ -88,6 +88,8 @@ def load_burden(region: str, burden_tsv: str) -> pd.DataFrame:
     if not path.exists():
         raise SystemExit(f"Missing burden table: {path}")
     b = pd.read_csv(path, sep="\t")
+    if "analysis_schema_version" not in b or not b["analysis_schema_version"].eq(ANALYSIS_SCHEMA_VERSION).all():
+        raise SystemExit("Stale Phase 2 burden table; regenerate repair schema v2 before Phase 5")
     b["vmr_id"] = b["vmr_id"].astype(str)
     # Build coord keys from predictability summary for numeric task_ids
     pred = PROJECT / "heritability/elastic_net_model/all_individuals" / region / "_m" / f"{region}_summary_elastic-net_AA.tsv"

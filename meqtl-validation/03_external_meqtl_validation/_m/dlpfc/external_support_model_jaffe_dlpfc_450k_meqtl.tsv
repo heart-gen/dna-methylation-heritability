@@ -1,6 +1,6 @@
-model	n_vmrs	n_supported_vmrs	mean_external_support	covariates	coef_predictability	se_predictability	pval_predictability	converged	region	resource_id	analysis_role	preferred_region
-unadjusted	4916	1195	0.24308380797396256	local_predictability	0.15006470301939887	0.030484638213254082	8.538725160959288e-07	True	dlpfc	jaffe_dlpfc_450k_meqtl	primary	dlpfc
-adjusted_minimal	4916	1195	0.24308380797396256	local_predictability,n_tested_cpgs	0.1494610897974876	0.032230095854073826	3.5296519513728454e-06	True	dlpfc	jaffe_dlpfc_450k_meqtl	primary	dlpfc
-adjusted_technical	4916	1195	0.24308380797396256	local_predictability,n_tested_cpgs,average_cpg_coverage,mean_cpg_variance	0.1519415043821038	0.0330151675565973	4.181061903233213e-06	True	dlpfc	jaffe_dlpfc_450k_meqtl	primary	dlpfc
-binomial_cpg_proportion_secondary	4916	1195	0.24308380797396256	local_predictability,n_tested_cpgs	0.21261728617735948	0.015341603559338645	1.1243058339674297e-43	True	dlpfc	jaffe_dlpfc_450k_meqtl	primary	dlpfc
-descriptive	4916	1195	0.24308380797396256		nan	nan	nan	True	dlpfc	jaffe_dlpfc_450k_meqtl	primary	dlpfc
+model	n_vmrs	n_supported_vmrs	mean_external_support	covariates	coef_predictability	se_predictability	pval_predictability	converged	region	resource_id	analysis_role	preferred_region	assay_universe_complete
+unadjusted	1874	1185	0.6323372465314835	local_predictability	0.6970493140386667	0.09328201948521213	7.868906643543723e-14	True	dlpfc	jaffe_dlpfc_450k_meqtl	primary	dlpfc	True
+adjusted_minimal	1874	1185	0.6323372465314835	local_predictability,n_cpgs_annotated	0.6764819028580954	0.09408126696079674	6.460197479191939e-13	True	dlpfc	jaffe_dlpfc_450k_meqtl	primary	dlpfc	True
+adjusted_technical	1507	954	0.6330457863304578	local_predictability,n_cpgs_annotated,average_cpg_coverage,mean_cpg_variance,length,umap_k24_mean,line_l1_frac,segdup_frac	0.8139534108367446	0.1021623758061095	1.6224138129992036e-15	True	dlpfc	jaffe_dlpfc_450k_meqtl	primary	dlpfc	True
+binomial_cpg_proportion_secondary	1874	1185	0.6323372465314835	local_predictability,n_cpgs_annotated	0.7548038250300002	0.10940141232999062	5.2223572557412534e-12	True	dlpfc	jaffe_dlpfc_450k_meqtl	primary	dlpfc	True
+descriptive	1874	1185	0.6323372465314835		nan	nan	nan	True	dlpfc	jaffe_dlpfc_450k_meqtl	primary	dlpfc	True

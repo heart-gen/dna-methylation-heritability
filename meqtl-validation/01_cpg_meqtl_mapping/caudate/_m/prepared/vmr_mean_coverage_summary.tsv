@@ -1,2 +1,2 @@
-region	n_vmrs	n_cpgs	mean_of_vmr_mean_coverage	path
-caudate	11527	201353	14.361417779495701	/gpfs/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/caudate/_m/prepared/vmr_mean_coverage.tsv
+region	population	n_vmrs	n_cpgs	mean_of_vmr_mean_coverage	path
+caudate	AA	11372	197466	14.202349211768995	/gpfs/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/caudate/_m/prepared/vmr_mean_coverage.tsv

@@ -1,0 +1,154 @@
+2026-08-08 16:58:05 - **** Job starts ****
+2026-08-08 16:58:23 - Running Phase 3 external enrichment for all resources × regions
+/projects/p32505/opt/envs/genomics/lib/python3.11/site-packages/statsmodels/genmod/generalized_linear_model.py:1342: PerfectSeparationWarning: Perfect separation or prediction detected, parameter may not be identified
+  warnings.warn(msg, category=PerfectSeparationWarning)
+/projects/p32505/opt/envs/genomics/lib/python3.11/site-packages/statsmodels/genmod/generalized_linear_model.py:1342: PerfectSeparationWarning: Perfect separation or prediction detected, parameter may not be identified
+  warnings.warn(msg, category=PerfectSeparationWarning)
+/projects/p32505/opt/envs/genomics/lib/python3.11/site-packages/statsmodels/genmod/generalized_linear_model.py:1342: PerfectSeparationWarning: Perfect separation or prediction detected, parameter may not be identified
+  warnings.warn(msg, category=PerfectSeparationWarning)
+/projects/p32505/opt/envs/genomics/lib/python3.11/site-packages/statsmodels/genmod/generalized_linear_model.py:1342: PerfectSeparationWarning: Perfect separation or prediction detected, parameter may not be identified
+  warnings.warn(msg, category=PerfectSeparationWarning)
+/projects/p32505/opt/envs/genomics/lib/python3.11/site-packages/statsmodels/genmod/generalized_linear_model.py:1342: PerfectSeparationWarning: Perfect separation or prediction detected, parameter may not be identified
+  warnings.warn(msg, category=PerfectSeparationWarning)
+/projects/p32505/opt/envs/genomics/lib/python3.11/site-packages/statsmodels/genmod/generalized_linear_model.py:1342: PerfectSeparationWarning: Perfect separation or prediction detected, parameter may not be identified
+  warnings.warn(msg, category=PerfectSeparationWarning)
+/projects/p32505/opt/envs/genomics/lib/python3.11/site-packages/statsmodels/genmod/generalized_linear_model.py:1342: PerfectSeparationWarning: Perfect separation or prediction detected, parameter may not be identified
+  warnings.warn(msg, category=PerfectSeparationWarning)
+/projects/p32505/opt/envs/genomics/lib/python3.11/site-packages/statsmodels/genmod/generalized_linear_model.py:1342: PerfectSeparationWarning: Perfect separation or prediction detected, parameter may not be identified
+  warnings.warn(msg, category=PerfectSeparationWarning)
+/projects/p32505/opt/envs/genomics/lib/python3.11/site-packages/statsmodels/genmod/generalized_linear_model.py:1342: PerfectSeparationWarning: Perfect separation or prediction detected, parameter may not be identified
+  warnings.warn(msg, category=PerfectSeparationWarning)
+/projects/p32505/opt/envs/genomics/lib/python3.11/site-packages/statsmodels/genmod/generalized_linear_model.py:1342: PerfectSeparationWarning: Perfect separation or prediction detected, parameter may not be identified
+  warnings.warn(msg, category=PerfectSeparationWarning)
+/projects/p32505/opt/envs/genomics/lib/python3.11/site-packages/statsmodels/genmod/generalized_linear_model.py:1342: PerfectSeparationWarning: Perfect separation or prediction detected, parameter may not be identified
+  warnings.warn(msg, category=PerfectSeparationWarning)
+/projects/p32505/opt/envs/genomics/lib/python3.11/site-packages/statsmodels/genmod/generalized_linear_model.py:1342: PerfectSeparationWarning: Perfect separation or prediction detected, parameter may not be identified
+  warnings.warn(msg, category=PerfectSeparationWarning)
+/projects/p32505/opt/envs/genomics/lib/python3.11/site-packages/statsmodels/genmod/generalized_linear_model.py:1342: PerfectSeparationWarning: Perfect separation or prediction detected, parameter may not be identified
+  warnings.warn(msg, category=PerfectSeparationWarning)
+/projects/p32505/opt/envs/genomics/lib/python3.11/site-packages/statsmodels/genmod/generalized_linear_model.py:1342: PerfectSeparationWarning: Perfect separation or prediction detected, parameter may not be identified
+  warnings.warn(msg, category=PerfectSeparationWarning)
+/projects/p32505/opt/envs/genomics/lib/python3.11/site-packages/statsmodels/genmod/generalized_linear_model.py:1342: PerfectSeparationWarning: Perfect separation or prediction detected, parameter may not be identified
+  warnings.warn(msg, category=PerfectSeparationWarning)
+/projects/p32505/opt/envs/genomics/lib/python3.11/site-packages/statsmodels/genmod/generalized_linear_model.py:1342: PerfectSeparationWarning: Perfect separation or prediction detected, parameter may not be identified
+  warnings.warn(msg, category=PerfectSeparationWarning)
+/projects/p32505/opt/envs/genomics/lib/python3.11/site-packages/statsmodels/genmod/generalized_linear_model.py:1342: PerfectSeparationWarning: Perfect separation or prediction detected, parameter may not be identified
+  warnings.warn(msg, category=PerfectSeparationWarning)
+/projects/p32505/opt/envs/genomics/lib/python3.11/site-packages/statsmodels/genmod/generalized_linear_model.py:1342: PerfectSeparationWarning: Perfect separation or prediction detected, parameter may not be identified
+  warnings.warn(msg, category=PerfectSeparationWarning)
+/projects/p32505/opt/envs/genomics/lib/python3.11/site-packages/statsmodels/genmod/generalized_linear_model.py:1342: PerfectSeparationWarning: Perfect separation or prediction detected, parameter may not be identified
+  warnings.warn(msg, category=PerfectSeparationWarning)
+/projects/p32505/opt/envs/genomics/lib/python3.11/site-packages/statsmodels/genmod/generalized_linear_model.py:1342: PerfectSeparationWarning: Perfect separation or prediction detected, parameter may not be identified
+  warnings.warn(msg, category=PerfectSeparationWarning)
+/projects/p32505/opt/envs/genomics/lib/python3.11/site-packages/statsmodels/genmod/generalized_linear_model.py:1342: PerfectSeparationWarning: Perfect separation or prediction detected, parameter may not be identified
+  warnings.warn(msg, category=PerfectSeparationWarning)
+/projects/p32505/opt/envs/genomics/lib/python3.11/site-packages/statsmodels/genmod/generalized_linear_model.py:1342: PerfectSeparationWarning: Perfect separation or prediction detected, parameter may not be identified
+  warnings.warn(msg, category=PerfectSeparationWarning)
+Wrote Phase 3 results for jaffe_dlpfc_450k_meqtl / caudate (role=secondary_cross_region, n_vmrs=2867, support_rate=1.000)
+/projects/p32505/opt/envs/genomics/lib/python3.11/site-packages/statsmodels/genmod/generalized_linear_model.py:1342: PerfectSeparationWarning: Perfect separation or prediction detected, parameter may not be identified
+  warnings.warn(msg, category=PerfectSeparationWarning)
+/projects/p32505/opt/envs/genomics/lib/python3.11/site-packages/statsmodels/genmod/generalized_linear_model.py:1342: PerfectSeparationWarning: Perfect separation or prediction detected, parameter may not be identified
+  warnings.warn(msg, category=PerfectSeparationWarning)
+/projects/p32505/opt/envs/genomics/lib/python3.11/site-packages/statsmodels/genmod/generalized_linear_model.py:1342: PerfectSeparationWarning: Perfect separation or prediction detected, parameter may not be identified
+  warnings.warn(msg, category=PerfectSeparationWarning)
+/projects/p32505/opt/envs/genomics/lib/python3.11/site-packages/statsmodels/genmod/generalized_linear_model.py:1342: PerfectSeparationWarning: Perfect separation or prediction detected, parameter may not be identified
+  warnings.warn(msg, category=PerfectSeparationWarning)
+/projects/p32505/opt/envs/genomics/lib/python3.11/site-packages/statsmodels/genmod/generalized_linear_model.py:1342: PerfectSeparationWarning: Perfect separation or prediction detected, parameter may not be identified
+  warnings.warn(msg, category=PerfectSeparationWarning)
+/projects/p32505/opt/envs/genomics/lib/python3.11/site-packages/statsmodels/genmod/generalized_linear_model.py:1342: PerfectSeparationWarning: Perfect separation or prediction detected, parameter may not be identified
+  warnings.warn(msg, category=PerfectSeparationWarning)
+/projects/p32505/opt/envs/genomics/lib/python3.11/site-packages/statsmodels/genmod/generalized_linear_model.py:1342: PerfectSeparationWarning: Perfect separation or prediction detected, parameter may not be identified
+  warnings.warn(msg, category=PerfectSeparationWarning)
+/projects/p32505/opt/envs/genomics/lib/python3.11/site-packages/statsmodels/genmod/generalized_linear_model.py:1342: PerfectSeparationWarning: Perfect separation or prediction detected, parameter may not be identified
+  warnings.warn(msg, category=PerfectSeparationWarning)
+/projects/p32505/opt/envs/genomics/lib/python3.11/site-packages/statsmodels/genmod/generalized_linear_model.py:1342: PerfectSeparationWarning: Perfect separation or prediction detected, parameter may not be identified
+  warnings.warn(msg, category=PerfectSeparationWarning)
+/projects/p32505/opt/envs/genomics/lib/python3.11/site-packages/statsmodels/genmod/generalized_linear_model.py:1342: PerfectSeparationWarning: Perfect separation or prediction detected, parameter may not be identified
+  warnings.warn(msg, category=PerfectSeparationWarning)
+/projects/p32505/opt/envs/genomics/lib/python3.11/site-packages/statsmodels/genmod/generalized_linear_model.py:1342: PerfectSeparationWarning: Perfect separation or prediction detected, parameter may not be identified
+  warnings.warn(msg, category=PerfectSeparationWarning)
+/projects/p32505/opt/envs/genomics/lib/python3.11/site-packages/statsmodels/genmod/generalized_linear_model.py:1342: PerfectSeparationWarning: Perfect separation or prediction detected, parameter may not be identified
+  warnings.warn(msg, category=PerfectSeparationWarning)
+/projects/p32505/opt/envs/genomics/lib/python3.11/site-packages/statsmodels/genmod/generalized_linear_model.py:1342: PerfectSeparationWarning: Perfect separation or prediction detected, parameter may not be identified
+  warnings.warn(msg, category=PerfectSeparationWarning)
+/projects/p32505/opt/envs/genomics/lib/python3.11/site-packages/statsmodels/genmod/generalized_linear_model.py:1342: PerfectSeparationWarning: Perfect separation or prediction detected, parameter may not be identified
+  warnings.warn(msg, category=PerfectSeparationWarning)
+/projects/p32505/opt/envs/genomics/lib/python3.11/site-packages/statsmodels/genmod/generalized_linear_model.py:1342: PerfectSeparationWarning: Perfect separation or prediction detected, parameter may not be identified
+  warnings.warn(msg, category=PerfectSeparationWarning)
+/projects/p32505/opt/envs/genomics/lib/python3.11/site-packages/statsmodels/genmod/generalized_linear_model.py:1342: PerfectSeparationWarning: Perfect separation or prediction detected, parameter may not be identified
+  warnings.warn(msg, category=PerfectSeparationWarning)
+/projects/p32505/opt/envs/genomics/lib/python3.11/site-packages/statsmodels/genmod/generalized_linear_model.py:1342: PerfectSeparationWarning: Perfect separation or prediction detected, parameter may not be identified
+  warnings.warn(msg, category=PerfectSeparationWarning)
+/projects/p32505/opt/envs/genomics/lib/python3.11/site-packages/statsmodels/genmod/generalized_linear_model.py:1342: PerfectSeparationWarning: Perfect separation or prediction detected, parameter may not be identified
+  warnings.warn(msg, category=PerfectSeparationWarning)
+/projects/p32505/opt/envs/genomics/lib/python3.11/site-packages/statsmodels/genmod/generalized_linear_model.py:1342: PerfectSeparationWarning: Perfect separation or prediction detected, parameter may not be identified
+  warnings.warn(msg, category=PerfectSeparationWarning)
+/projects/p32505/opt/envs/genomics/lib/python3.11/site-packages/statsmodels/genmod/generalized_linear_model.py:1342: PerfectSeparationWarning: Perfect separation or prediction detected, parameter may not be identified
+  warnings.warn(msg, category=PerfectSeparationWarning)
+Wrote Phase 3 results for jaffe_dlpfc_450k_meqtl / dlpfc (role=primary, n_vmrs=1185, support_rate=1.000)
+/projects/p32505/opt/envs/genomics/lib/python3.11/site-packages/statsmodels/genmod/generalized_linear_model.py:1342: PerfectSeparationWarning: Perfect separation or prediction detected, parameter may not be identified
+  warnings.warn(msg, category=PerfectSeparationWarning)
+/projects/p32505/opt/envs/genomics/lib/python3.11/site-packages/statsmodels/genmod/generalized_linear_model.py:1342: PerfectSeparationWarning: Perfect separation or prediction detected, parameter may not be identified
+  warnings.warn(msg, category=PerfectSeparationWarning)
+/projects/p32505/opt/envs/genomics/lib/python3.11/site-packages/statsmodels/genmod/generalized_linear_model.py:1342: PerfectSeparationWarning: Perfect separation or prediction detected, parameter may not be identified
+  warnings.warn(msg, category=PerfectSeparationWarning)
+/projects/p32505/opt/envs/genomics/lib/python3.11/site-packages/statsmodels/genmod/generalized_linear_model.py:1342: PerfectSeparationWarning: Perfect separation or prediction detected, parameter may not be identified
+  warnings.warn(msg, category=PerfectSeparationWarning)
+/projects/p32505/opt/envs/genomics/lib/python3.11/site-packages/statsmodels/genmod/generalized_linear_model.py:1342: PerfectSeparationWarning: Perfect separation or prediction detected, parameter may not be identified
+  warnings.warn(msg, category=PerfectSeparationWarning)
+/projects/p32505/opt/envs/genomics/lib/python3.11/site-packages/statsmodels/genmod/generalized_linear_model.py:1342: PerfectSeparationWarning: Perfect separation or prediction detected, parameter may not be identified
+  warnings.warn(msg, category=PerfectSeparationWarning)
+/projects/p32505/opt/envs/genomics/lib/python3.11/site-packages/statsmodels/genmod/generalized_linear_model.py:1342: PerfectSeparationWarning: Perfect separation or prediction detected, parameter may not be identified
+  warnings.warn(msg, category=PerfectSeparationWarning)
+/projects/p32505/opt/envs/genomics/lib/python3.11/site-packages/statsmodels/genmod/generalized_linear_model.py:1342: PerfectSeparationWarning: Perfect separation or prediction detected, parameter may not be identified
+  warnings.warn(msg, category=PerfectSeparationWarning)
+/projects/p32505/opt/envs/genomics/lib/python3.11/site-packages/statsmodels/genmod/generalized_linear_model.py:1342: PerfectSeparationWarning: Perfect separation or prediction detected, parameter may not be identified
+  warnings.warn(msg, category=PerfectSeparationWarning)
+/projects/p32505/opt/envs/genomics/lib/python3.11/site-packages/statsmodels/genmod/generalized_linear_model.py:1342: PerfectSeparationWarning: Perfect separation or prediction detected, parameter may not be identified
+  warnings.warn(msg, category=PerfectSeparationWarning)
+/projects/p32505/opt/envs/genomics/lib/python3.11/site-packages/statsmodels/genmod/generalized_linear_model.py:1342: PerfectSeparationWarning: Perfect separation or prediction detected, parameter may not be identified
+  warnings.warn(msg, category=PerfectSeparationWarning)
+/projects/p32505/opt/envs/genomics/lib/python3.11/site-packages/statsmodels/genmod/generalized_linear_model.py:1342: PerfectSeparationWarning: Perfect separation or prediction detected, parameter may not be identified
+  warnings.warn(msg, category=PerfectSeparationWarning)
+/projects/p32505/opt/envs/genomics/lib/python3.11/site-packages/statsmodels/genmod/generalized_linear_model.py:1342: PerfectSeparationWarning: Perfect separation or prediction detected, parameter may not be identified
+  warnings.warn(msg, category=PerfectSeparationWarning)
+/projects/p32505/opt/envs/genomics/lib/python3.11/site-packages/statsmodels/genmod/generalized_linear_model.py:1342: PerfectSeparationWarning: Perfect separation or prediction detected, parameter may not be identified
+  warnings.warn(msg, category=PerfectSeparationWarning)
+/projects/p32505/opt/envs/genomics/lib/python3.11/site-packages/statsmodels/genmod/generalized_linear_model.py:1342: PerfectSeparationWarning: Perfect separation or prediction detected, parameter may not be identified
+  warnings.warn(msg, category=PerfectSeparationWarning)
+/projects/p32505/opt/envs/genomics/lib/python3.11/site-packages/statsmodels/genmod/generalized_linear_model.py:1342: PerfectSeparationWarning: Perfect separation or prediction detected, parameter may not be identified
+  warnings.warn(msg, category=PerfectSeparationWarning)
+/projects/p32505/opt/envs/genomics/lib/python3.11/site-packages/statsmodels/genmod/generalized_linear_model.py:1342: PerfectSeparationWarning: Perfect separation or prediction detected, parameter may not be identified
+  warnings.warn(msg, category=PerfectSeparationWarning)
+/projects/p32505/opt/envs/genomics/lib/python3.11/site-packages/statsmodels/genmod/generalized_linear_model.py:1342: PerfectSeparationWarning: Perfect separation or prediction detected, parameter may not be identified
+  warnings.warn(msg, category=PerfectSeparationWarning)
+/projects/p32505/opt/envs/genomics/lib/python3.11/site-packages/statsmodels/genmod/generalized_linear_model.py:1342: PerfectSeparationWarning: Perfect separation or prediction detected, parameter may not be identified
+  warnings.warn(msg, category=PerfectSeparationWarning)
+/projects/p32505/opt/envs/genomics/lib/python3.11/site-packages/statsmodels/genmod/generalized_linear_model.py:1342: PerfectSeparationWarning: Perfect separation or prediction detected, parameter may not be identified
+  warnings.warn(msg, category=PerfectSeparationWarning)
+/projects/p32505/opt/envs/genomics/lib/python3.11/site-packages/statsmodels/genmod/generalized_linear_model.py:1342: PerfectSeparationWarning: Perfect separation or prediction detected, parameter may not be identified
+  warnings.warn(msg, category=PerfectSeparationWarning)
+/projects/p32505/opt/envs/genomics/lib/python3.11/site-packages/statsmodels/genmod/generalized_linear_model.py:1342: PerfectSeparationWarning: Perfect separation or prediction detected, parameter may not be identified
+  warnings.warn(msg, category=PerfectSeparationWarning)
+Wrote Phase 3 results for jaffe_dlpfc_450k_meqtl / hippocampus (role=secondary_cross_region, n_vmrs=1748, support_rate=1.000)
+Wrote Phase 3 results for schulz_hippocampus_array_meqtl / caudate (role=supportive_positive_only, n_vmrs=796, support_rate=1.000)
+Wrote Phase 3 results for schulz_hippocampus_array_meqtl / dlpfc (role=supportive_positive_only, n_vmrs=326, support_rate=1.000)
+Wrote Phase 3 results for schulz_hippocampus_array_meqtl / hippocampus (role=supportive_positive_only, n_vmrs=501, support_rate=1.000)
+Wrote Phase 3 results for brainseq_wgbs_meqtl_scz_subset / caudate (role=exploratory, n_vmrs=45, support_rate=1.000)
+Wrote Phase 3 results for brainseq_wgbs_meqtl_scz_subset / dlpfc (role=exploratory, n_vmrs=10, support_rate=1.000)
+Wrote Phase 3 results for brainseq_wgbs_meqtl_scz_subset / hippocampus (role=exploratory, n_vmrs=23, support_rate=1.000)
+RUN /projects/p32505/opt/envs/genomics/bin/python3 /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/03_external_meqtl_validation/_h/01_test_external_support.py --region caudate --resource-id jaffe_dlpfc_450k_meqtl
+RUN /projects/p32505/opt/envs/genomics/bin/python3 /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/03_external_meqtl_validation/_h/01_test_external_support.py --region dlpfc --resource-id jaffe_dlpfc_450k_meqtl
+RUN /projects/p32505/opt/envs/genomics/bin/python3 /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/03_external_meqtl_validation/_h/01_test_external_support.py --region hippocampus --resource-id jaffe_dlpfc_450k_meqtl
+RUN /projects/p32505/opt/envs/genomics/bin/python3 /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/03_external_meqtl_validation/_h/01_test_external_support.py --region caudate --resource-id schulz_hippocampus_array_meqtl
+RUN /projects/p32505/opt/envs/genomics/bin/python3 /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/03_external_meqtl_validation/_h/01_test_external_support.py --region dlpfc --resource-id schulz_hippocampus_array_meqtl
+RUN /projects/p32505/opt/envs/genomics/bin/python3 /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/03_external_meqtl_validation/_h/01_test_external_support.py --region hippocampus --resource-id schulz_hippocampus_array_meqtl
+RUN /projects/p32505/opt/envs/genomics/bin/python3 /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/03_external_meqtl_validation/_h/01_test_external_support.py --region caudate --resource-id brainseq_wgbs_meqtl_scz_subset
+RUN /projects/p32505/opt/envs/genomics/bin/python3 /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/03_external_meqtl_validation/_h/01_test_external_support.py --region dlpfc --resource-id brainseq_wgbs_meqtl_scz_subset
+RUN /projects/p32505/opt/envs/genomics/bin/python3 /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/03_external_meqtl_validation/_h/01_test_external_support.py --region hippocampus --resource-id brainseq_wgbs_meqtl_scz_subset
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/03_external_meqtl_validation/_m/external_support_models_all.tsv
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/03_external_meqtl_validation/_m/external_support_primary_summary.tsv
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/03_external_meqtl_validation/_m/external_matched_all.tsv
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/03_external_meqtl_validation/_m/phase3_criterion5_verdict.tsv
+Criterion 5: 0/1 primary resource×region tests support gradient
+2026-08-08 16:58:58 - **** Job ends ****

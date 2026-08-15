@@ -1,0 +1,7 @@
+2026-08-08 13:44:00 - coverage extract hippocampus chr13 (EA)
+Loading /projects/b1213/users/alexis/projects/dna-methylation-heritability/vmr-analysis/all_individuals/hippocampus/_m/cpg/chr_13/stats.rda
+Empty cpg_vmr_map sentinel; exporting a header-only coverage table
+matched 0 / 0 (unmatched 0)
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/hippocampus/_m/prepared/EA/cpg_coverage.chr13.tsv
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/hippocampus/_m/prepared/EA/cpg_coverage_summary.chr13.tsv
+2026-08-08 13:44:30 - done hippocampus chr13 (EA)

@@ -29,14 +29,16 @@ REGION_IDX=$((TASK / 22))
 CHROM_IDX=$((TASK % 22))
 REGION="${REGIONS[$REGION_IDX]}"
 CHROM="${CHROMS[$CHROM_IDX]}"
+POPULATION="${POPULATION:-AA}"
 
-echo "$(date '+%Y-%m-%d %H:%M:%S') - coverage extract ${REGION} chr${CHROM}"
+echo "$(date '+%Y-%m-%d %H:%M:%S') - coverage extract ${REGION} chr${CHROM} (${POPULATION})"
 source /projects/p32505/opt/miniforge3/etc/profile.d/conda.sh
 conda activate /projects/p32505/opt/envs/epigenomics
 
 Rscript "${H}/06_extract_cpg_coverage.R" \
   --region "${REGION}" \
   --chrom "${CHROM}" \
+  --population "${POPULATION}" \
   --min-coverage 5
 
-echo "$(date '+%Y-%m-%d %H:%M:%S') - done ${REGION} chr${CHROM}"
+echo "$(date '+%Y-%m-%d %H:%M:%S') - done ${REGION} chr${CHROM} (${POPULATION})"

@@ -1,0 +1,55 @@
+# Locked comparison of legacy VMR predictability with the accepted calibrated
+# elastic-net estimate. Change calibrated_run_id only by creating a new
+# predictor-comparison run; never retarget an existing run directory.
+
+schema_version: 1
+population: AA
+regions: [caudate, dlpfc, hippocampus]
+seed: 20260808
+
+legacy:
+  estimate_column: h2_unscaled
+  prediction_column: r_squared_cv
+  prediction_min: 0.3
+  high_estimate_min: 0.1
+
+calibrated:
+  run_id: observed-AA-v4
+  estimates: calibrated-simulation-analysis/_m/observed-runs/observed-AA-v4/results/combined/calibrated-local-h2-AA-vmrs.tsv
+  qc: calibrated-simulation-analysis/_m/observed-runs/observed-AA-v4/results/combined/observed-run-qc.tsv
+  estimate_column: h2_en_calibrated
+  signal_column: positive_signal
+  required_status: within_domain
+  exclude_upper_boundary_primary: false
+
+model:
+  min_covariate_complete_fraction: 0.90
+  candidate_covariates:
+    - n_tested_cpgs
+    - average_cpg_coverage
+    - mean_cpg_variance
+    - vmr_mean_methylation
+    - length
+    - cpg_density
+    - mean_num_tested_snps_per_cpg
+    - umap_k24_mean
+    - line_l1_frac
+    - segdup_frac
+    - blacklist_frac
+  annotation_indicators:
+    - annotation_promoter
+    - annotation_cpg_island
+    - annotation_gene_body
+
+matching:
+  n_permutations: 10000
+  balance_smd_max: 0.10
+  caliper_sd: 0.25
+
+acceptance:
+  fdr: 0.05
+  min_regions_positive_fdr: 2
+  min_regions_matched_positive: 2
+  require_zero_computational_failures: true
+  require_all_calibrated_region_qc: true
+  annotation_sensitivity_required_for_full_promotion: true

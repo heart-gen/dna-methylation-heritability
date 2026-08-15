@@ -116,6 +116,36 @@ def overlaps_any(pos0: int, intervals: list[tuple[int, int, str]]) -> str | None
     return None
 
 
+def _open_text(path: Path):
+    return gzip.open(path, "rt") if path.suffix == ".gz" else path.open()
+
+
+def load_exclusion_intervals(path: Path, chrom: str) -> list[tuple[int, int]]:
+    """Load one chromosome of a BED exclusion asset."""
+    if not path.exists():
+        raise SystemExit(f"Required exclusion asset is missing: {path}")
+    wanted = f"chr{str(chrom).replace('chr', '')}"
+    rows = []
+    with _open_text(path) as handle:
+        for line in handle:
+            if not line.strip() or line.startswith("#"):
+                continue
+            parts = line.rstrip("\n").split("\t")
+            if len(parts) >= 3 and parts[0] == wanted:
+                rows.append((int(parts[1]), int(parts[2])))
+    rows.sort()
+    return rows
+
+
+def overlaps_interval(start: int, end: int, intervals: list[tuple[int, int]]) -> bool:
+    for left, right in intervals:
+        if left >= end:
+            return False
+        if right > start:
+            return True
+    return False
+
+
 def main() -> None:
     args = parse_args()
     paths = load_paths()
@@ -144,7 +174,8 @@ def main() -> None:
         pred_key = "local_predictability_summary_template"
     else:
         pred_key = "local_predictability_ea_template"
-    vmr_bed = project / paths["vmr_bed_template"].format(region=region)
+    vmr_key = "vmr_bed_aa_template" if args.population == "AA" else "vmr_bed_all_individuals_template"
+    vmr_bed = project / paths.get(vmr_key, paths["vmr_bed_template"]).format(region=region)
     pred_path = project / paths[pred_key].format(region=region)
     intervals = load_vmrs(vmr_bed, chrom, pred_path=pred_path)
     if not intervals:
@@ -174,8 +205,22 @@ def main() -> None:
     if not ordered:
         raise SystemExit("No overlapping samples between inclusion list and CpG matrix")
 
-    # Select CpG columns overlapping VMRs
+    blacklist = []
+    if meqtl["cpg_qc"].get("exclude_blacklist", False):
+        blacklist = load_exclusion_intervals(
+            project / paths["support_files"]["blacklist_hg38"], chrom
+        )
+    ct_snps = []
+    if meqtl["cpg_qc"].get("exclude_common_ct_snp_at_cpg", False):
+        ct_snps = load_exclusion_intervals(
+            project / paths["support_files"]["ct_snps_at_cpg"], chrom
+        )
+
+    # Select CpG columns overlapping VMRs after prespecified exclusions.
     selected = []  # (col_idx, pos1, vmr_id)
+    n_in_vmr_before_exclusion = 0
+    n_excluded_blacklist = 0
+    n_excluded_ct_snp = 0
     for idx, pos_str in enumerate(site_cols):
         try:
             pos1 = int(float(pos_str))
@@ -188,6 +233,13 @@ def main() -> None:
                 vid = v
                 break
         if vid is None:
+            continue
+        n_in_vmr_before_exclusion += 1
+        if blacklist and overlaps_interval(pos0, pos0 + 2, blacklist):
+            n_excluded_blacklist += 1
+            continue
+        if ct_snps and overlaps_interval(pos0, pos0 + 2, ct_snps):
+            n_excluded_ct_snp += 1
             continue
         selected.append((idx, pos1, vid))
 
@@ -206,6 +258,7 @@ def main() -> None:
         n_nonmiss = np.isfinite(col).sum()
         frac = n_nonmiss / len(ordered) if ordered else 0
         var = float(np.nanvar(col)) if n_nonmiss > 1 else 0.0
+        mean_methylation = float(np.nanmean(col)) if n_nonmiss else np.nan
         min_frac = meqtl["cpg_qc"]["min_fraction_samples_passing_coverage"]
         # Phen matrices are prefiltered on depth in Alexis stats.rda pipeline
         # (cov >= min_coverage in >= min_frac samples). Non-missing fraction is
@@ -227,6 +280,7 @@ def main() -> None:
                 "n_nonmissing": int(n_nonmiss),
                 "fraction_nonmissing": round(frac, 4),
                 "variance": var,
+                "mean_methylation": mean_methylation,
                 "coverage_note": "run_06_extract_cpg_coverage_for_depth",
             })
 
@@ -255,7 +309,15 @@ def main() -> None:
         bed_out = bed_path
         print("WARNING: bgzip/tabix unavailable; left uncompressed BED")
 
-    write_tsv(outdir / f"cpg_vmr_map.{chrom_label}.tsv", cpg_map_rows)
+    write_tsv(
+        outdir / f"cpg_vmr_map.{chrom_label}.tsv",
+        cpg_map_rows,
+        [
+            "phenotype_id", "chrom", "pos_1based", "start_0based",
+            "end_0based", "vmr_id", "n_nonmissing", "fraction_nonmissing",
+            "variance", "mean_methylation", "coverage_note",
+        ],
+    )
     write_tsv(
         outdir / f"prep_summary.{chrom_label}.tsv",
         [{
@@ -264,6 +326,9 @@ def main() -> None:
             "n_samples": len(ordered),
             "n_sites_in_phen": len(site_cols),
             "n_sites_in_vmrs": len(selected),
+            "n_sites_in_vmrs_before_exclusion": n_in_vmr_before_exclusion,
+            "n_excluded_blacklist": n_excluded_blacklist,
+            "n_excluded_common_ct_snp": n_excluded_ct_snp,
             "n_sites_retained": len(keep_idx),
             "bed_path": str(bed_out),
         }],

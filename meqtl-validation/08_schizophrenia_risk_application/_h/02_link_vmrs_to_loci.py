@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Analysis 2: link VMRs to SCZ-risk loci via meQTL / overlap / proximity.
 
-Primary evidence: CpG-level meQTL connection (risk variant is genome-wide lead,
-or risk variant lies within cis window of a significant meQTL CpG).
-Proximity-only links are flagged exploratory.
+Primary evidence: the risk variant itself is the CpG's significant lead meQTL.
+A significant meQTL CpG merely lying in the risk variant's cis window is
+exploratory, and VMR overlap is supportive rather than primary evidence.
 """
 
 from __future__ import annotations
@@ -17,7 +17,7 @@ import numpy as np
 import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
-from _lib.io_utils import write_tsv  # noqa: E402
+from _lib.io_utils import ANALYSIS_SCHEMA_VERSION, write_tsv  # noqa: E402
 
 PROJECT = Path("/projects/b1213/users/kynon/projects/dna-methylation-heritability")
 WINDOW = 500_000
@@ -75,6 +75,8 @@ def main() -> None:
         sep="\t",
     )
     burden["vmr_id"] = burden["vmr_id"].astype(str)
+    if "analysis_schema_version" not in burden or not burden["analysis_schema_version"].eq(ANALYSIS_SCHEMA_VERSION).all():
+        raise SystemExit("Stale Phase 2 burden table; regenerate repair schema v2 before Phase 7")
 
     # Parse VMR coordinates when available from interval-style ids
     def parse_vmr(vid: str) -> tuple[str, int, int] | tuple[None, None, None]:
@@ -168,7 +170,7 @@ def main() -> None:
         merged["risk_pos"] = pos
         merged["cpg_to_risk_distance"] = (merged["pos"] - pos).abs()
         merged["link_type"] = "sig_meqtl_cpg_within_cis_window"
-        merged["evidence_tier"] = "primary"
+        merged["evidence_tier"] = "exploratory"
         rows_b.append(merged)
     window_links = pd.concat(rows_b, ignore_index=True) if rows_b else pd.DataFrame()
 
@@ -189,7 +191,7 @@ def main() -> None:
                 "risk_chrom": r["chrom"],
                 "risk_pos": int(r["pos_hg38"]),
                 "link_type": "vmr_overlaps_risk_variant",
-                "evidence_tier": "primary",
+                "evidence_tier": "supportive_overlap",
             })
     overlap = pd.DataFrame(overlap_rows)
 

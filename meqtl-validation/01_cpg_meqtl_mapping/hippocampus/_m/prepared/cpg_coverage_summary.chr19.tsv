@@ -1,2 +1,2 @@
-region	chrom	n_target_cpgs	n_matched	n_unmatched	n_samples_coverage	min_coverage_threshold	mean_of_mean_coverage	median_of_mean_coverage	mean_frac_samples_cov_ge_min	out_path
-hippocampus	chr19	7624	7624	0	116	5	23.3796133806129	21.7327586206897	0.97719429569056	/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/hippocampus/_m/prepared/cpg_coverage.chr19.tsv
+region	population	chrom	n_target_cpgs	n_matched	n_unmatched	n_samples_coverage	min_coverage_threshold	mean_of_mean_coverage	median_of_mean_coverage	mean_frac_samples_cov_ge_min	out_path
+hippocampus	AA	chr19	7474	7474	0	116	5	22.9261012890665	21.6422413793103	0.977246408238214	/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/hippocampus/_m/prepared/cpg_coverage.chr19.tsv

@@ -1,0 +1,6 @@
+region	resource_id	covariate	smd_before	smd_after
+dlpfc	jaffe_dlpfc_450k_meqtl	n_cpgs_annotated	0.29174048047435214	-0.06888417601721447
+dlpfc	jaffe_dlpfc_450k_meqtl	average_cpg_coverage	-0.024596220117690602	-0.03516364020717563
+dlpfc	jaffe_dlpfc_450k_meqtl	mean_cpg_variance	0.5656932396447923	0.024059886504471516
+dlpfc	jaffe_dlpfc_450k_meqtl	length	-0.03510088431760143	0.0849301116360849
+dlpfc	jaffe_dlpfc_450k_meqtl	umap_k24_mean	-0.5514976677423555	-0.10004805166052053

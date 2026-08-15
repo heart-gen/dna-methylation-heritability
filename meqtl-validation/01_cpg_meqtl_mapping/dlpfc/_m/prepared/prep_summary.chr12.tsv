@@ -1,2 +1,2 @@
-region	chrom	n_samples	n_sites_in_phen	n_sites_in_vmrs	n_sites_retained	bed_path
-dlpfc	chr12	111	990975	7401	7401	/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/dlpfc/_m/prepared/cpg_phenotypes.chr12.bed
+region	chrom	n_samples	n_sites_in_phen	n_sites_in_vmrs	n_sites_in_vmrs_before_exclusion	n_excluded_blacklist	n_excluded_common_ct_snp	n_sites_retained	bed_path
+dlpfc	chr12	111	990975	7369	7401	30	2	7369	/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/dlpfc/_m/prepared/cpg_phenotypes.chr12.bed.gz

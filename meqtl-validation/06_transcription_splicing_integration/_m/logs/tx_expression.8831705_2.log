@@ -1,0 +1,4 @@
+2026-08-08 16:52:29 - **** Job starts ****
+2026-08-08 16:52:39 - meQTL × expression enrichment for hippocampus
+hippocampus expression: n=3442 meQTL+=1787 tx+=83 both=75 Fisher OR=9.019 p=3.10e-14 → /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/06_transcription_splicing_integration/_m/hippocampus/meqtl_x_expression_enrichment.tsv
+2026-08-08 16:52:52 - **** Job ends ****

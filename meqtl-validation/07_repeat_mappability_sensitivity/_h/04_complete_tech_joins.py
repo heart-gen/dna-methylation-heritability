@@ -21,11 +21,14 @@ import pandas as pd
 import statsmodels.api as sm
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
-from _lib.io_utils import write_tsv  # noqa: E402
+from _lib.io_utils import ANALYSIS_SCHEMA_VERSION, load_yaml, write_tsv  # noqa: E402
+from _lib.stats_utils import greedy_nearest_neighbor_pairs, paired_randomization_pvalue  # noqa: E402
 
 PROJECT = Path("/projects/b1213/users/kynon/projects/dna-methylation-heritability")
 PHASE2 = PROJECT / "meqtl-validation/02_vmr_meqtl_burden/_m"
 PHASE6 = PROJECT / "meqtl-validation/07_repeat_mappability_sensitivity/_m"
+TECH_ROOT = PHASE6
+JOIN_OUTPUT_ROOT = PHASE6
 EN_ROOT = PROJECT / "heritability/elastic_net_model/all_individuals"
 SEED = 20260807
 BEDTOOLS = Path("/projects/p32505/opt/envs/genomics/bin/bedtools")
@@ -46,6 +49,12 @@ TECH_COLS = [
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--regions", nargs="+", default=["caudate", "dlpfc", "hippocampus"])
+    p.add_argument("--join-only", action="store_true", help="Join annotations but do not update Phase 6 summaries")
+    p.add_argument("--min-reciprocal-overlap", type=float, default=0.5)
+    p.add_argument("--phase2-root", default=str(PHASE2), help="Burden-table root; supports immutable run directories")
+    p.add_argument("--technical-root", default=str(TECH_ROOT), help="Input technical-annotation root")
+    p.add_argument("--join-output-root", default=str(JOIN_OUTPUT_ROOT), help="Output root for join tables and completeness report")
+    p.add_argument("--elastic-net-root", default=str(EN_ROOT), help="Legacy elastic-net summary root")
     return p.parse_args()
 
 
@@ -68,7 +77,10 @@ def fit_burden(df: pd.DataFrame, xcols: list[str]) -> dict:
     use = d.dropna(subset=cols)
     endog = use[["n_cpgs_with_sig_meqtl", "n_ns"]]
     exog = sm.add_constant(use[cols].apply(_z), has_constant="add")
-    res = sm.GLM(endog, exog, family=sm.families.Binomial()).fit()
+    model = sm.GLM(endog, exog, family=sm.families.Binomial())
+    pilot = model.fit(maxiter=250)
+    dispersion = max(1.0, float(pilot.pearson_chi2 / max(pilot.df_resid, 1)))
+    res = model.fit(scale=dispersion, cov_type="HC3", maxiter=250)
     return {
         "estimate": float(res.params["local_predictability"]),
         "pvalue": float(res.pvalues["local_predictability"]),
@@ -81,42 +93,25 @@ def matched_delta(df: pd.DataFrame, ycol: str, match_cols: list[str], seed: int)
     d = df.dropna(subset=need).copy()
     if len(d) < 40:
         return {"estimate": np.nan, "pvalue": np.nan, "n": len(d)}
-    for c in match_cols:
-        d[f"z_{c}"] = _z(d[c]).astype(float)
-    q_hi = d["local_predictability"].quantile(0.8)
-    q_lo = d["local_predictability"].quantile(0.2)
-    hi = d[d["local_predictability"] >= q_hi]
-    lo = d[d["local_predictability"] <= q_lo]
-    zcols = [f"z_{c}" for c in match_cols]
-    hi_z = hi[zcols].to_numpy(dtype=float)
-    lo_z = lo[zcols].to_numpy(dtype=float)
-    lo_y = lo[ycol].to_numpy(dtype=float)
-    used = np.zeros(len(lo), dtype=bool)
-    pairs = []
-    for i in range(len(hi)):
-        avail = ~used
-        if not avail.any():
-            break
-        dist = np.sqrt(((lo_z[avail] - hi_z[i]) ** 2).sum(axis=1))
-        j = int(np.flatnonzero(avail)[int(np.argmin(dist))])
-        used[j] = True
-        pairs.append((float(hi.iloc[i][ycol]), float(lo_y[j])))
-    if not pairs:
+    thresholds = load_yaml("analysis_thresholds.yml")["matching"]
+    pairs, _balance, _meta = greedy_nearest_neighbor_pairs(
+        d,
+        exposure="local_predictability",
+        outcome=ycol,
+        numeric_covariates=match_cols,
+        caliper_sd=float(thresholds["caliper_sd"]),
+        seed=seed,
+    )
+    if pairs.empty:
         return {"estimate": np.nan, "pvalue": np.nan, "n": 0}
-    hi_y, lo_y_p = map(np.asarray, zip(*pairs))
-    diff = hi_y.mean() - lo_y_p.mean()
-    rng = np.random.default_rng(seed)
-    pooled = np.concatenate([hi_y, lo_y_p])
-    n = len(hi_y)
-    null = np.empty(2000)
-    for k in range(2000):
-        rng.shuffle(pooled)
-        null[k] = pooled[:n].mean() - pooled[n : n + n].mean()
-    p = (np.sum(np.abs(null) >= abs(diff)) + 1) / (len(null) + 1)
-    return {"estimate": float(diff), "pvalue": float(p), "n": n}
+    differences = pairs["outcome_high"] - pairs["outcome_low"]
+    p = paired_randomization_pvalue(differences, seed=seed, n_perm=10000)
+    return {"estimate": float(differences.mean()), "pvalue": float(p), "n": int(len(pairs))}
 
 
-def bedtools_best_overlap(query: pd.DataFrame, target: pd.DataFrame) -> pd.DataFrame:
+def bedtools_best_overlap(
+    query: pd.DataFrame, target: pd.DataFrame, min_reciprocal_overlap: float
+) -> pd.DataFrame:
     """Return one best-overlap target name per query name."""
     with tempfile.TemporaryDirectory(prefix="tech_join_") as tmp:
         tmp = Path(tmp)
@@ -143,7 +138,10 @@ def bedtools_best_overlap(query: pd.DataFrame, target: pd.DataFrame) -> pd.DataF
         with out.open("w") as handle:
             subprocess.check_call(cmd, stdout=handle)
         if out.stat().st_size == 0:
-            return pd.DataFrame(columns=["qname", "tname", "overlap_bp", "frac_query"])
+            return pd.DataFrame(columns=[
+                "qname", "tname", "overlap_bp", "frac_query", "frac_target",
+                "min_reciprocal_frac",
+            ])
         ov = pd.read_csv(
             out,
             sep="\t",
@@ -161,17 +159,32 @@ def bedtools_best_overlap(query: pd.DataFrame, target: pd.DataFrame) -> pd.DataF
             ],
         )
         qlen = (ov["q_end"] - ov["q_start"]).clip(lower=1)
+        tlen = (ov["t_end"] - ov["t_start"]).clip(lower=1)
         ov["frac_query"] = ov["overlap_bp"] / qlen
-        ov = ov.sort_values(["qname", "frac_query", "overlap_bp"], ascending=[True, False, False])
-        best = ov.drop_duplicates("qname", keep="first")[["qname", "tname", "overlap_bp", "frac_query"]]
+        ov["frac_target"] = ov["overlap_bp"] / tlen
+        ov = ov[
+            (ov["frac_query"] >= min_reciprocal_overlap)
+            & (ov["frac_target"] >= min_reciprocal_overlap)
+        ]
+        ov["min_reciprocal_frac"] = ov[["frac_query", "frac_target"]].min(axis=1)
+        ov = ov.sort_values(
+            ["qname", "min_reciprocal_frac", "overlap_bp"],
+            ascending=[True, False, False],
+        )
+        best = ov.drop_duplicates("qname", keep="first")[[
+            "qname", "tname", "overlap_bp", "frac_query", "frac_target",
+            "min_reciprocal_frac",
+        ]]
         return best
 
 
-def complete_region(region: str) -> dict:
+def complete_region(region: str, min_reciprocal_overlap: float) -> dict:
     bur_path = PHASE2 / region / "vmr_meqtl_burden.tsv.gz"
-    tech_path = PHASE6 / region / "vmr_technical_annotations.tsv"
+    tech_path = TECH_ROOT / region / "vmr_technical_annotations.tsv"
     en_path = EN_ROOT / region / "_m" / f"{region}_summary_elastic-net_AA.tsv"
     bur = pd.read_csv(bur_path, sep="\t")
+    if "analysis_schema_version" not in bur or not bur["analysis_schema_version"].eq(ANALYSIS_SCHEMA_VERSION).all():
+        raise SystemExit(f"{region}: stale Phase 2 burden; regenerate repair schema v2 before Phase 6")
     tech = pd.read_csv(tech_path, sep="\t")
     en = pd.read_csv(en_path, sep="\t")
     bur["vmr_id"] = bur["vmr_id"].astype(str)
@@ -186,6 +199,12 @@ def complete_region(region: str) -> dict:
 
     # Drop prior incomplete tech columns then rebuild via multi-key coalesce
     for c in TECH_COLS:
+        if c in bur.columns:
+            bur = bur.drop(columns=[c])
+    for c in [
+        "tech_join_source", "tech_join_query_overlap_frac",
+        "tech_join_target_overlap_frac", "tech_join_min_reciprocal_frac",
+    ]:
         if c in bur.columns:
             bur = bur.drop(columns=[c])
 
@@ -253,13 +272,16 @@ def complete_region(region: str) -> dict:
         best = bedtools_best_overlap(
             q_ok[["chrom", "start", "end", "qname"]],
             t[["chrom", "start", "end", "tname"]],
+            min_reciprocal_overlap,
         )
         linked = q_ok[["vmr_id", "qname"]].merge(best, on="qname", how="left")
         t_tech = t.set_index("tname")[t_cols]
         linked = linked.merge(t_tech, left_on="tname", right_index=True, how="left")
         if "frac_query" in linked.columns:
             linked = linked.sort_values("frac_query", ascending=False).drop_duplicates("vmr_id")
-            s3 = linked[["vmr_id"] + t_cols + ["frac_query"]].copy()
+            s3 = linked[[
+                "vmr_id", *t_cols, "frac_query", "frac_target", "min_reciprocal_frac"
+            ]].copy()
         else:
             linked = linked.drop_duplicates("vmr_id")
             s3 = linked[["vmr_id"] + t_cols].copy()
@@ -275,7 +297,8 @@ def complete_region(region: str) -> dict:
         new_rows = add[~add["vmr_id"].isin(set(tech_join["vmr_id"]))]
         tech_join = pd.concat([tech_join, new_rows], ignore_index=True, sort=False)
 
-    out = bur.merge(tech_join.drop(columns=["join_source"], errors="ignore"), on="vmr_id", how="left")
+    tech_join = tech_join.rename(columns={"join_source": "tech_join_source"})
+    out = bur.merge(tech_join, on="vmr_id", how="left")
     # Fill gaps from prior only when prior increases coverage (protect against regressions)
     if "umap_k24_mean" in prior_tech.columns:
         prior_n = int(prior_tech["umap_k24_mean"].notna().sum())
@@ -303,15 +326,24 @@ def complete_region(region: str) -> dict:
     out_path = bur_path
     # drop helper frac from main burden unless useful
     if "frac_query" in out.columns:
-        out = out.rename(columns={"frac_query": "tech_join_overlap_frac"})
+        out = out.rename(columns={
+            "frac_query": "tech_join_query_overlap_frac",
+            "frac_target": "tech_join_target_overlap_frac",
+            "min_reciprocal_frac": "tech_join_min_reciprocal_frac",
+        })
     out.to_csv(out_path, sep="\t", index=False, compression="gzip")
 
     # Also write a dedicated tech-joined annotation for Phase 6
-    join_out = PHASE6 / region / "burden_tech_join.tsv.gz"
+    join_out = JOIN_OUTPUT_ROOT / region / "burden_tech_join.tsv.gz"
+    join_out.parent.mkdir(parents=True, exist_ok=True)
     out[
         ["vmr_id"]
         + [c for c in TECH_COLS if c in out.columns]
-        + (["tech_join_overlap_frac"] if "tech_join_overlap_frac" in out.columns else [])
+        + [c for c in [
+            "tech_join_source",
+            "tech_join_query_overlap_frac", "tech_join_target_overlap_frac",
+            "tech_join_min_reciprocal_frac",
+        ] if c in out.columns]
     ].to_csv(join_out, sep="\t", index=False, compression="gzip")
 
     report = {
@@ -327,6 +359,7 @@ def complete_region(region: str) -> dict:
         "frac_line_l1_after": after.get("line_l1_frac", 0.0),
         "frac_snp_prox_after": after.get("overlaps_snp_prox", 0.0),
         "delta_frac_umap": after.get("umap_k24_mean", 0.0) - before.get("umap_k24_mean", 0.0),
+        "min_reciprocal_overlap_required": min_reciprocal_overlap,
         "burden_path": str(out_path),
         "archive_path": str(archive),
     }
@@ -403,12 +436,18 @@ def analyze_burden_row(region: str, merged: pd.DataFrame) -> dict:
 
 
 def main() -> None:
+    global PHASE2, TECH_ROOT, JOIN_OUTPUT_ROOT, EN_ROOT
     args = parse_args()
+    PHASE2 = Path(args.phase2_root)
+    TECH_ROOT = Path(args.technical_root)
+    JOIN_OUTPUT_ROOT = Path(args.join_output_root)
+    EN_ROOT = Path(args.elastic_net_root)
+    JOIN_OUTPUT_ROOT.mkdir(parents=True, exist_ok=True)
     reports = []
     burden_rows = []
     for region in args.regions:
         print(f"==== {region} ====")
-        report, brow = complete_region(region)
+        report, brow = complete_region(region, args.min_reciprocal_overlap)
         reports.append(report)
         burden_rows.append(brow)
         print(
@@ -416,7 +455,17 @@ def main() -> None:
             f"(n={report['n_burden_with_umap_after']}/{report['n_burden']})"
         )
 
-    write_tsv(PHASE6 / "tech_join_completeness.tsv", reports)
+    write_tsv(JOIN_OUTPUT_ROOT / "tech_join_completeness.tsv", reports)
+
+    if args.join_only:
+        print("Join-only mode: Phase 2 burden tables updated; rerun Phase 2 models next")
+        return
+
+    if JOIN_OUTPUT_ROOT != TECH_ROOT:
+        raise SystemExit(
+            "Updating Phase 6 robustness summaries requires join-output-root == technical-root; "
+            "use --join-only for immutable comparison runs"
+        )
 
     # Update consolidated robustness table burden rows (preserve other analyses / cell columns)
     cons_path = PHASE6 / "consolidated_robustness_table.tsv"

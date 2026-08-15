@@ -1,0 +1,2 @@
+region	population	chrom	n_target_cpgs	n_matched	n_unmatched	n_samples_coverage	min_coverage_threshold	mean_of_mean_coverage	median_of_mean_coverage	mean_frac_samples_cov_ge_min	out_path
+caudate	EA	chr8	9850	9850	0	129	5	13.6239861488215	12.1240310077519	0.941700704363908	/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/caudate/_m/prepared/EA/cpg_coverage.chr8.tsv

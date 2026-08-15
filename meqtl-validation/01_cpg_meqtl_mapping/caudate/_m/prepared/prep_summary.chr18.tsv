@@ -1,2 +1,2 @@
-region	chrom	n_samples	n_sites_in_phen	n_sites_in_vmrs	n_sites_retained	bed_path
-caudate	chr18	153	607772	5409	5409	/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/caudate/_m/prepared/cpg_phenotypes.chr18.bed
+region	chrom	n_samples	n_sites_in_phen	n_sites_in_vmrs	n_sites_in_vmrs_before_exclusion	n_excluded_blacklist	n_excluded_common_ct_snp	n_sites_retained	bed_path
+caudate	chr18	153	607772	5408	5409	0	1	5408	/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/caudate/_m/prepared/cpg_phenotypes.chr18.bed.gz

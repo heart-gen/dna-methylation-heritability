@@ -1,6 +1,6 @@
 model	n_vmrs	n_vmrs_with_sig	covariates	coef_predictability	se_predictability	pval_predictability	converged	region	unit
-unadjusted	694	10	local_predictability	0.6152668337706311	0.15353146199009085	6.138262807209332e-05	True	dlpfc	vmr
-adjusted_n_pairs	694	10	local_predictability,n_tested_pairs	0.5904636043001871	0.15940615571138	0.00021210444362634303	True	dlpfc	vmr
-adjusted_technical	694	10	local_predictability,n_tested_pairs,average_cpg_coverage,mean_cpg_variance	0.5500117886334767	0.1682376478636386	0.0010783103597189925	True	dlpfc	vmr
-pair_unadjusted			local_predictability	0.6618172763514776	0.042399152990835916	6.3012537599001834e-55		dlpfc	pair
-pair_adjusted_distance			local_predictability,cpg_to_variant_distance,maf	0.6981287200672222	0.042190945610747106	1.6860394733392877e-61		dlpfc	pair
+unadjusted	692	10	local_predictability	0.6154783972364192	0.14673734521422524	2.7356786880825527e-05	True	dlpfc	vmr
+adjusted_n_pairs	692	10	local_predictability,n_tested_pairs	0.5904544437472672	0.1764652023663593	0.0008198325134663128	True	dlpfc	vmr
+adjusted_technical	544	7	local_predictability,n_tested_pairs,average_cpg_coverage,mean_cpg_variance,vmr_mean_methylation,length,cpg_density,mean_num_tested_snps_per_cpg,umap_k24_mean,line_l1_frac,segdup_frac	0.5518603678647419	0.21647843402846736	0.010795099141113781	True	dlpfc	vmr
+pair_unadjusted			local_predictability	0.662097802955173	0.19173404834229638	0.0005539589669419197		dlpfc	pair
+pair_adjusted_distance			local_predictability,cpg_to_variant_distance,maf	0.6982937322315367	0.21637815933160778	0.0012501181316524838		dlpfc	pair

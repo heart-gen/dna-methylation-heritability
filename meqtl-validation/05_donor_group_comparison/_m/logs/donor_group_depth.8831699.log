@@ -1,0 +1,18 @@
+2026-08-08 19:51:11 - **** Job starts ****
+2026-08-08 19:51:14 - AA–EA CpG lead-effect concordance
+caudate: shared=168431 both_sig=45473 dir_both=0.8356223796443545
+dlpfc: shared=81905 both_sig=10094 dir_both=0.8235974551764026
+hippocampus: shared=127506 both_sig=22572 dir_both=0.8160770031217481
+     region  n_shared_cpgs  n_sig_both  direction_concordance_both_sig  pearson_z_all  frac_same_lead_snp  aa_ea_discovery_rate_ratio
+    caudate         168431       45473                        0.835622       0.635438            0.044796                    1.221483
+      dlpfc          81905       10094                        0.823597       0.686327            0.027300                    2.457370
+hippocampus         127506       22572                        0.816077       0.606099            0.034006                    1.778387
+2026-08-08 19:51:59 - MAF / cis-SNP-density matched discovery contrasts
+caudate: unmatched Δ=0.012 matched Δ=0.000 shrinks=True
+dlpfc: unmatched Δ=0.140 matched Δ=0.000 shrinks=True
+hippocampus: unmatched Δ=0.079 matched Δ=0.314 shrinks=False
+     region  unmatched_rate_diff  matched_rate_diff  gap_attenuation_frac  unmatched_rate_ratio  matched_rate_ratio  mcnemar_p_unmatched  mcnemar_p_matched  gap_shrinks_after_matching  gap_eliminated                                                                                                                                                                                                                                                                               interpretation_note
+    caudate             0.012061           0.000000               1.00000              1.012799            1.000000         3.588816e-05           1.000000                        True            True Discovery-rate differences that shrink after MAF/cis-SNP-density matching are consistent with allele-frequency / testing-opportunity explanations; residual gaps may reflect power (N), LD, or true effect heterogeneity — do not label as ancestry-specific without formal interaction evidence.
+      dlpfc             0.139535           0.000000               1.00000              1.179517            1.000000         1.077644e-82           1.000000                        True            True Discovery-rate differences that shrink after MAF/cis-SNP-density matching are consistent with allele-frequency / testing-opportunity explanations; residual gaps may reflect power (N), LD, or true effect heterogeneity — do not label as ancestry-specific without formal interaction evidence.
+hippocampus             0.078644           0.313725              -2.98919              1.088205            1.457143         9.891754e-81           0.000031                       False           False Discovery-rate differences that shrink after MAF/cis-SNP-density matching are consistent with allele-frequency / testing-opportunity explanations; residual gaps may reflect power (N), LD, or true effect heterogeneity — do not label as ancestry-specific without formal interaction evidence.
+2026-08-08 19:52:04 - **** Job ends ****

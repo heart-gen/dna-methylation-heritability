@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(wc -l /gpfs/projects/b1213/users/kynon/projects/dna-methylation-heritability/heritability/elastic_net_model/BA_only/*/  _m/*summary_elastic-net.tsv)",
+      "Bash(wc -l /gpfs/projects/b1213/users/kynon/projects/dna-methylation-heritability/heritability/elastic_net_model/BA_only/*/ _m/*summary_elastic-net.tsv)",
+      "Read(//gpfs/projects/b1213/users/kynon/manuscripts/dna-methylation-manuscript/content/**)",
+      "Read(//projects/b1213/users/kynon/manuscripts/dna-methylation-manuscript/content/**)",
+      "Read(//projects/b1213/users/kynon/manuscripts/dna-methylation-manuscript/**)",
+      "Read(//gpfs/projects/b1213/users/kynon/manuscripts/dna-methylation-manuscript/**)",
+      "Read(//gpfs/projects/b1213/users/kynon/projects/dna-methylation-heritability/**)",
+      "Bash(grep -r \"BA\\\\|WA\\\\|African American\\\\|White\" /gpfs/projects/b1213/users/kynon/projects/dna-methylation-heritability/*.md /gpfs/projects/b1213/users/kynon/projects/dna-methylation-heritability/README*)",
+      "Bash(wc -l /gpfs/projects/b1213/users/kynon/projects/dna-methylation-heritability/heritability/elastic_net_model/all_individuals/*/^m/*.tsv)",
+      "Bash(find /gpfs/projects/b1213/users/kynon/projects/dna-methylation-heritability/heritability/elastic_net_model/all_individuals/*/\\\\_m -name \"*.tsv\" -exec wc -l {} +)",
+      "Bash(zcat /gpfs/projects/b1213/users/kynon/projects/dna-methylation-heritability/environmental-analysis/BA_only/caudate/correlation/_m/vmr_env_assoc-AA.tsv.gz)",
+      "Bash(zcat /gpfs/projects/b1213/users/kynon/projects/dna-methylation-heritability/environmental-analysis/BA_only/hippocampus/correlation/_m/vmr_env_assoc-AA.tsv.gz)",
+      "Bash(zcat /gpfs/projects/b1213/users/kynon/projects/dna-methylation-heritability/heritability/elastic_net_model/all_individuals/caudate/_m/caudate_summary_elastic-net.tsv.gz)",
+      "Bash(python3)"
+    ],
+    "additionalDirectories": [
+      "/projects/b1213/users/kynon/manuscripts/dna-methylation-manuscript/content",
+      "/gpfs/projects/b1213/users/kynon/manuscripts/dna-methylation-manuscript/content"
+    ]
+  }
+}

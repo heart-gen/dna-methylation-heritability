@@ -1,0 +1,25 @@
+2026-08-08 16:58:05 - **** Job starts ****
+Wrote summaries under /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/06_transcription_splicing_integration/_m
+     region   modality                                 model  n_both  estimate       pvalue
+    caudate expression             fisher_meqtl_support_x_tx     252  1.955732 3.813636e-09
+    caudate expression  logistic_tx_~_meqtl_support_adjusted     252  1.809945 1.515579e-06
+    caudate expression logistic_tx_~_predictability_adjusted     252  1.086876 1.352615e-01
+    caudate        psi             fisher_meqtl_support_x_tx     230  4.721707 1.575917e-24
+    caudate        psi  logistic_tx_~_meqtl_support_adjusted     230  4.552412 9.483491e-15
+    caudate        psi logistic_tx_~_predictability_adjusted     230  1.671203 6.873654e-19
+      dlpfc expression             fisher_meqtl_support_x_tx      78 12.572100 2.230362e-19
+      dlpfc expression  logistic_tx_~_meqtl_support_adjusted      78 12.214260 3.174711e-11
+      dlpfc expression logistic_tx_~_predictability_adjusted      78  1.511956 1.375574e-07
+      dlpfc        psi             fisher_meqtl_support_x_tx      56  1.883390 2.699657e-03
+      dlpfc        psi  logistic_tx_~_meqtl_support_adjusted      56  1.768785 1.322026e-02
+      dlpfc        psi logistic_tx_~_predictability_adjusted      56  1.328538 1.593380e-03
+hippocampus expression             fisher_meqtl_support_x_tx      75  9.019057 3.099788e-14
+hippocampus expression  logistic_tx_~_meqtl_support_adjusted      75  8.756231 8.918816e-09
+hippocampus expression logistic_tx_~_predictability_adjusted      75  1.356514 4.340602e-04
+hippocampus        psi             fisher_meqtl_support_x_tx       7  0.759637 7.856915e-01
+hippocampus        psi  logistic_tx_~_meqtl_support_adjusted       7  0.721926 5.478917e-01
+hippocampus        psi logistic_tx_~_predictability_adjusted       7  0.185216 3.814589e-02
+  modality  n_regions_significant_positive  n_regions  passes_phase5
+expression                               3          3           True
+       psi                               2          3           True
+2026-08-08 16:58:38 - **** Job ends ****

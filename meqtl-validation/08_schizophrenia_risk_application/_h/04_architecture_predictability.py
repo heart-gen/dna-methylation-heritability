@@ -17,7 +17,8 @@ import pandas as pd
 import statsmodels.api as sm
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
-from _lib.io_utils import write_tsv  # noqa: E402
+from _lib.io_utils import ANALYSIS_SCHEMA_VERSION, load_yaml, write_tsv  # noqa: E402
+from _lib.stats_utils import greedy_nearest_neighbor_pairs, paired_randomization_pvalue  # noqa: E402
 
 PROJECT = Path("/projects/b1213/users/kynon/projects/dna-methylation-heritability")
 SEED = 20260801
@@ -55,6 +56,8 @@ def main() -> None:
         sep="\t",
     )
     burden["vmr_id"] = burden["vmr_id"].astype(str)
+    if "analysis_schema_version" not in burden or not burden["analysis_schema_version"].eq(ANALYSIS_SCHEMA_VERSION).all():
+        raise SystemExit("Stale Phase 2 burden table; regenerate repair schema v2 before Phase 7")
 
     # VMR-level: any significant risk-variant meQTL among tested CpGs in that VMR
     res["vmr_id"] = res["vmr_id"].astype(str)
@@ -73,6 +76,7 @@ def main() -> None:
             c for c in [
                 "vmr_id", "n_tested_cpgs", "proportion_cpgs_with_sig_meqtl",
                 "average_cpg_coverage", "mean_cpg_variance", "length",
+                "vmr_mean_methylation", "cpg_density", "mean_num_tested_snps_per_cpg",
                 "umap_k24_mean", "line_l1_frac", "segdup_frac",
             ] if c in burden.columns
         ]],
@@ -87,7 +91,11 @@ def main() -> None:
         ("unadjusted", ["local_predictability"]),
         ("adjusted_n_pairs", ["local_predictability", "n_tested_pairs"]),
     ]
-    tech = [c for c in ["average_cpg_coverage", "mean_cpg_variance", "length", "umap_k24_mean", "line_l1_frac"]
+    tech = [c for c in [
+        "average_cpg_coverage", "mean_cpg_variance", "vmr_mean_methylation",
+        "length", "cpg_density", "mean_num_tested_snps_per_cpg",
+        "umap_k24_mean", "line_l1_frac", "segdup_frac",
+    ]
             if c in d.columns and d[c].notna().sum() >= max(30, int(0.4 * len(d)))]
     if tech:
         specs.append(("adjusted_technical", ["local_predictability", "n_tested_pairs"] + tech))
@@ -100,7 +108,7 @@ def main() -> None:
         try:
             exog = use[cols].apply(_z)
             exog = sm.add_constant(exog, has_constant="add")
-            fit = sm.GLM(use["any_sig"], exog, family=sm.families.Binomial()).fit()
+            fit = sm.GLM(use["any_sig"], exog, family=sm.families.Binomial()).fit(cov_type="HC3")
             model_rows.append({
                 "model": name,
                 "n_vmrs": len(use),
@@ -130,7 +138,9 @@ def main() -> None:
         try:
             exog = use[use_cols].apply(_z)
             exog = sm.add_constant(exog, has_constant="add")
-            fit = sm.GLM(use["sig"], exog, family=sm.families.Binomial()).fit()
+            fit = sm.GLM(use["sig"], exog, family=sm.families.Binomial()).fit(
+                cov_type="cluster", cov_kwds={"groups": use["vmr_id"]}
+            )
             pair_rows.append({
                 "model": name,
                 "n_pairs": len(use),
@@ -146,52 +156,44 @@ def main() -> None:
     # Matched permutation: high vs low predictability among VMRs tested for SCZ
     perm_rows = []
     match_cols = ["n_tested_pairs"]
-    for c in ["average_cpg_coverage", "mean_cpg_variance", "length", "umap_k24_mean"]:
+    for c in [
+        "average_cpg_coverage", "mean_cpg_variance", "vmr_mean_methylation",
+        "length", "cpg_density", "mean_num_tested_snps_per_cpg", "umap_k24_mean",
+    ]:
         if c in d.columns and d[c].notna().sum() >= 20:
             match_cols.append(c)
     dd = d.dropna(subset=["local_predictability", "any_sig"] + match_cols).copy()
+    balance = pd.DataFrame()
     if len(dd) >= 20 and dd["any_sig"].sum() >= 3:
-        for c in match_cols:
-            dd[f"z_{c}"] = _z(dd[c])
-        q_hi = dd["local_predictability"].quantile(0.8)
-        q_lo = dd["local_predictability"].quantile(0.2)
-        hi = dd[dd["local_predictability"] >= q_hi]
-        lo = dd[dd["local_predictability"] <= q_lo]
-        zcols = [f"z_{c}" for c in match_cols]
-        hi_z = hi[zcols].to_numpy(dtype=float)
-        lo_z = lo[zcols].to_numpy(dtype=float)
-        lo_sig = lo["any_sig"].to_numpy(dtype=float)
-        used = np.zeros(len(lo), dtype=bool)
-        pairs = []
-        for i in range(len(hi)):
-            avail = ~used
-            if not avail.any():
-                break
-            dist = np.sqrt(((lo_z[avail] - hi_z[i]) ** 2).sum(axis=1))
-            j = int(np.flatnonzero(avail)[int(np.argmin(dist))])
-            used[j] = True
-            pairs.append((float(hi.iloc[i]["any_sig"]), float(lo_sig[j])))
-        if pairs:
-            hi_s, lo_s = map(np.asarray, zip(*pairs))
-            obs = float(hi_s.mean() - lo_s.mean())
-            rng = np.random.default_rng(args.seed)
-            pooled = np.concatenate([hi_s, lo_s])
-            n = len(hi_s)
-            null = []
-            for _ in range(args.n_perm):
-                rng.shuffle(pooled)
-                null.append(pooled[:n].mean() - pooled[n:n + n].mean())
-            null = np.asarray(null)
-            p_perm = (np.sum(np.abs(null) >= abs(obs)) + 1) / (len(null) + 1)
+        thresholds = load_yaml("analysis_thresholds.yml")["matching"]
+        pairs, balance, meta = greedy_nearest_neighbor_pairs(
+            dd,
+            exposure="local_predictability",
+            outcome="any_sig",
+            numeric_covariates=match_cols,
+            caliper_sd=float(thresholds["caliper_sd"]),
+            seed=args.seed,
+        )
+        if not pairs.empty:
+            differences = pairs["outcome_high"] - pairs["outcome_low"]
+            obs = float(differences.mean())
+            p_perm = paired_randomization_pvalue(
+                differences, seed=args.seed, n_perm=args.n_perm
+            )
             perm_rows.append({
                 "analysis": "matched_high_vs_low_predictability",
-                "n_pairs": n,
-                "mean_any_sig_high": float(hi_s.mean()),
-                "mean_any_sig_low": float(lo_s.mean()),
+                "n_pairs": int(len(pairs)),
+                "mean_any_sig_high": float(pairs["outcome_high"].mean()),
+                "mean_any_sig_low": float(pairs["outcome_low"].mean()),
                 "mean_difference": obs,
                 "permutation_pvalue": float(p_perm),
                 "matching_variables": ",".join(match_cols),
+                "max_abs_smd_after": meta["max_abs_smd_after"],
+                "balance_pass": bool(meta["max_abs_smd_after"] <= float(thresholds["balance_smd_max"])),
+                "permutation_scheme": "within_pair_label_swap",
             })
+        else:
+            perm_rows.append({"analysis": "matched_high_vs_low_predictability", **meta})
     else:
         perm_rows.append({"analysis": "matched_high_vs_low_predictability", "error": "too_few_vmrs_or_signals"})
 
@@ -206,6 +208,8 @@ def main() -> None:
 
     write_tsv(outdir / "architecture_model_results.tsv", model_rows + pair_rows)
     write_tsv(outdir / "architecture_matched_permutation.tsv", perm_rows)
+    if not balance.empty:
+        balance.to_csv(outdir / "architecture_match_balance.tsv", sep="\t", index=False)
     vmr.to_csv(outdir / "scz_vmr_level_summary.tsv.gz", sep="\t", index=False, compression="gzip")
 
     # Decision sketch for §12.12 criterion 1–2

@@ -87,3 +87,43 @@ __pycache__/
 # Recreated by inputs/cell_proportions/_h/step_3_reference.sh
 inputs/cell_proportions/_m/reference/R_libs/
 inputs/cell_proportions/_m/conda_env/
+
+# Rebuilt manuscript Supplementary Data archives and staging files
+meqtl-validation/12_supplementary_data/_m/
+
+# Immutable, reproducible Phase 2 estimator-comparison run products
+meqtl-validation/02_vmr_meqtl_burden/_m/predictor-comparison-runs/
+meqtl-validation/02_vmr_meqtl_burden/_m/predictor-followup-runs/
+
+# Downloaded reference signal tracks (k24 mappability is ~1.9 GB)
+*.bw
+
+# Per-chunk TensorQTL GPU logs: ~6.7 MB each, regenerated every run.
+# Applies to new runs only; logs already tracked in history are left in place.
+*tensorqtl*.log
+cpg_tensorqtl.*.log
+
+# Deterministic per-chromosome intermediates from
+# 01_cpg_meqtl_mapping step_2 (cpg_vmr_map) and step_6 (cpg_coverage).
+# 528 files / 240 MB, fully regenerable; dropped from tracking 2026-08-15.
+# NOTE: only the chr-split bulk is ignored. The covariate model definitions in
+# the same directory (covariates_M*.txt, incl. the locked M3a_primary, plus
+# latent factors and coverage summaries) stay tracked -- they are the analysis
+# design, not intermediates.
+meqtl-validation/01_cpg_meqtl_mapping/*/_m/prepared/**/cpg_vmr_map.chr*.tsv
+meqtl-validation/01_cpg_meqtl_mapping/*/_m/prepared/**/cpg_coverage.chr*.tsv
+
+# Machine-local Claude settings
+.claude/settings.local.json
+
+# Internal status / planning / results narrative.
+# These live in the manuscript repo, not here. See task #12.
+/AJHG_SUBMISSION_READINESS.md
+/analysis_strategy.md
+meqtl-validation/REPAIR_V2.md
+meqtl-validation/**/PHASE3_DIAGNOSIS.md
+meqtl-validation/**/ANALYSIS_SUMMARY*.md
+
+# Scratch / secondary workspace
+/pilot/
+/.codex

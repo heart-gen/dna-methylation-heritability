@@ -1,2 +1,2 @@
 n_regions	n_regions_gap_shrinks	passes_document_maf_ld_sensitivity	ancestry_specific_claim_allowed	detail	preferred_interpretation
-3	2	True	False	caudate:Δ 0.093→0.100; dlpfc:Δ 0.192→0.162; hippocampus:Δ 0.167→0.113	Aggregate predictability→meQTL-burden gradient is portable across donor groups; locus-level discovery differences are partly associated with MAF/cis-SNP-density opportunity and sample size. Do not claim ancestry-specific biology.
+3	2	True	False	caudate:Δ 0.012→0.000; dlpfc:Δ 0.140→0.000; hippocampus:Δ 0.079→0.314	Aggregate predictability→meQTL-burden gradient is portable across donor groups; locus-level discovery differences are partly associated with MAF/cis-SNP-density opportunity and sample size. Do not claim ancestry-specific biology.

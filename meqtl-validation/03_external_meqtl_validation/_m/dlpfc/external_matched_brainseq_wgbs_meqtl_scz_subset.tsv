@@ -1,2 +1,2 @@
-analysis	n_pairs	mean_support_high	mean_support_low	mean_difference	permutation_pvalue	matching_variables	region	resource_id	analysis_role
-matched_high_vs_low_predictability	193	0.0051813471502590676	0.0	0.0051813471502590676	1.0	n_tested_cpgs,average_cpg_coverage,mean_cpg_variance,length,umap_k24_mean	dlpfc	brainseq_wgbs_meqtl_scz_subset	exploratory
+analysis	error	region	resource_id	analysis_role
+matched	external tested-negative assay universe unavailable; positive-control overlap only	dlpfc	brainseq_wgbs_meqtl_scz_subset	exploratory

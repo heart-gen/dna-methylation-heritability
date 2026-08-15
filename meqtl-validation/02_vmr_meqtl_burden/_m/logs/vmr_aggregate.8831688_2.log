@@ -1,0 +1,28 @@
+2026-08-08 15:49:21 - **** Job starts ****
+2026-08-08 15:49:22 - Aggregating CpG meQTL burden for hippocampus (EA)
+Traceback (most recent call last):
+  File "/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/02_vmr_meqtl_burden/_h/01_aggregate_vmr_burden.py", line 286, in <module>
+    main()
+  File "/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/02_vmr_meqtl_burden/_h/01_aggregate_vmr_burden.py", line 133, in main
+    cpg_map = pd.concat([pd.read_csv(p, sep="\t") for p in maps], ignore_index=True)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/02_vmr_meqtl_burden/_h/01_aggregate_vmr_burden.py", line 133, in <listcomp>
+    cpg_map = pd.concat([pd.read_csv(p, sep="\t") for p in maps], ignore_index=True)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/projects/p32505/opt/envs/genomics/lib/python3.11/site-packages/pandas/io/parsers/readers.py", line 1026, in read_csv
+    return _read(filepath_or_buffer, kwds)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/projects/p32505/opt/envs/genomics/lib/python3.11/site-packages/pandas/io/parsers/readers.py", line 620, in _read
+    parser = TextFileReader(filepath_or_buffer, **kwds)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/projects/p32505/opt/envs/genomics/lib/python3.11/site-packages/pandas/io/parsers/readers.py", line 1620, in __init__
+    self._engine = self._make_engine(f, self.engine)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/projects/p32505/opt/envs/genomics/lib/python3.11/site-packages/pandas/io/parsers/readers.py", line 1898, in _make_engine
+    return mapping[engine](f, **self.options)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/projects/p32505/opt/envs/genomics/lib/python3.11/site-packages/pandas/io/parsers/c_parser_wrapper.py", line 93, in __init__
+    self._reader = parsers.TextReader(src, **kwds)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "pandas/_libs/parsers.pyx", line 581, in pandas._libs.parsers.TextReader.__cinit__
+pandas.errors.EmptyDataError: No columns to parse from file
