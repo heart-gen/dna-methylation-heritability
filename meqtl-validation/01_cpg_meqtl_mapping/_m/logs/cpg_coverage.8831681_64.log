@@ -1,0 +1,9 @@
+2026-08-08 12:52:03 - coverage extract hippocampus chr21 (EA)
+Loading /projects/b1213/users/alexis/projects/dna-methylation-heritability/vmr-analysis/all_individuals/hippocampus/_m/cpg/chr_21/stats.rda
+Annotating 1569 prepared VMR CpGs
+matched 1569 / 1569 (unmatched 0)
+  coverage chunk 1-1569
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/hippocampus/_m/prepared/EA/cpg_coverage.chr21.tsv
+Updated /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/hippocampus/_m/prepared/EA/cpg_vmr_map.chr21.tsv
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/hippocampus/_m/prepared/EA/cpg_coverage_summary.chr21.tsv
+2026-08-08 12:52:25 - done hippocampus chr21 (EA)

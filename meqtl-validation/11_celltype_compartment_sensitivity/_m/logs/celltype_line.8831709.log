@@ -1,0 +1,41 @@
+2026-08-08 17:03:26 - **** Job starts ****
+     region  n_meqtl_aa  n_music_total  n_music_overlap  frac_music_overlap  n_dnam_total  n_dnam_overlap  frac_dnam_overlap  dnam_integration_pass                                                                                                                                                                                     dnam_validation_note  m5_covariates_exist  m6d_covariates_exist                                 music_cell_types                                                                         dnam_cell_types
+    caudate         153            487              153                 1.0           280             151           0.986928                   True {'region': 'caudate', 'n_expected_samples': 282, 'n_estimated_samples': 280, 'estimated_sample_fraction': 0.99290780141844, 'all_fractions_bounded': True, 'all_fractions_sum_to_one': True, 'neuronal_r                 True                  True Astro,D1-SPN,D2-SPN,Immune,Inhib,Micro,OPC,Oligo Astrocyte,Endothelial,Excitatory_neuron,Inhibitory_neuron,Microglia,OPC,Oligodendrocyte
+      dlpfc         111            500              111                 1.0           165             110           0.990991                  False {'region': 'dlpfc', 'n_expected_samples': 166, 'n_estimated_samples': 165, 'estimated_sample_fraction': 0.993975903614458, 'all_fractions_bounded': True, 'all_fractions_sum_to_one': True, 'neuronal_rh                 True                 False   Astro,Excit,Immune,Inhib,Micro,Mural,OPC,Oligo Astrocyte,Endothelial,Excitatory_neuron,Inhibitory_neuron,Microglia,OPC,Oligodendrocyte
+hippocampus         116            452              116                 1.0           176             116           1.000000                  False {'region': 'hippocampus', 'n_expected_samples': 176, 'n_estimated_samples': 176, 'estimated_sample_fraction': 1, 'all_fractions_bounded': True, 'all_fractions_sum_to_one': True, 'neuronal_rho': -0.102                 True                 False   Astro,Excit,Immune,Inhib,Micro,Mural,OPC,Oligo Astrocyte,Endothelial,Excitatory_neuron,Inhibitory_neuron,Microglia,OPC,Oligodendrocyte
+==== caudate ====
+  samples=153 keep_keys=15296
+  cpg mapped=69859
+  meth matrix (153, 5063) -> /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/11_celltype_compartment_sensitivity/_m/caudate/vmr_mean_methylation.tsv.gz
+  dnam pcs: from_M6d
+  wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/11_celltype_compartment_sensitivity/_m/caudate/vmr_cell_metrics.tsv.gz
+==== dlpfc ====
+  samples=111 keep_keys=11360
+  cpg mapped=71324
+  meth matrix (111, 6084) -> /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/11_celltype_compartment_sensitivity/_m/dlpfc/vmr_mean_methylation.tsv.gz
+  dnam pcs: exploratory_clr_pca
+  wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/11_celltype_compartment_sensitivity/_m/dlpfc/vmr_cell_metrics.tsv.gz
+==== hippocampus ====
+  samples=116 keep_keys=13341
+  cpg mapped=67634
+  meth matrix (116, 5192) -> /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/11_celltype_compartment_sensitivity/_m/hippocampus/vmr_mean_methylation.tsv.gz
+  dnam pcs: exploratory_clr_pca
+  wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/11_celltype_compartment_sensitivity/_m/hippocampus/vmr_cell_metrics.tsv.gz
+     region  n_samples  n_vmrs_with_meth  n_metrics_with_coord  median_cellPC_r2  median_oligo_r2  median_abs_oligo_corr  median_dnamCellPC_r2         dnam_status
+    caudate        153              5063                  5063          0.070382         0.039068               0.197657              0.106106            from_M6d
+      dlpfc        111              6084                  6084          0.034666         0.003763               0.061343              0.178633 exploratory_clr_pca
+hippocampus        116              5192                  5192          0.032301         0.006355               0.079718              0.100311 exploratory_clr_pca
+==== caudate ====
+  enrich models=36 burden=5 sample=12
+==== dlpfc ====
+  enrich models=36 burden=5 sample=12
+==== hippocampus ====
+  enrich models=36 burden=5 sample=12
+Decision: keep_main_figure_with_cell_composition_row
+                                        analysis  n_regions_direction_consistent_cellPC  n_regions_cellPC_adj_pvalue_lt_0.05 caudate_cellPC_adj_pass passes_celltype_claim                                                                                                note
+            LINE_L1_enrichment_vs_predictability                                      3                                    2                    True                  True                                                                                                 NaN
+            H3K9me3_enrichment_vs_predictability                                      3                                    3                    True                  True                                                                                                 NaN
+quiescent_chromatin_enrichment_vs_predictability                                      3                                    3                    True                  True                                                                                                 NaN
+         predictability_meqtl_burden_association                                      3                                    3                    True                  True                                                                                                 NaN
+            sample_level_Oligo_vs_LINE_mean_meth                                      1                                    3                                               descriptive confounding check; significant Oligo~LINE-meth does not alone refute genomic enrichment
+2026-08-08 17:04:48 - **** Job ends ****

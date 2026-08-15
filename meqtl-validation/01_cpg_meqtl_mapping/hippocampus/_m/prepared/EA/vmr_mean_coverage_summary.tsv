@@ -1,0 +1,2 @@
+region	population	n_vmrs	n_cpgs	mean_of_vmr_mean_coverage	path
+hippocampus	EA	9305	151063	22.210106725735407	/gpfs/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/hippocampus/_m/prepared/EA/vmr_mean_coverage.tsv

@@ -1,0 +1,9 @@
+2026-08-08 12:52:19 - coverage extract hippocampus chr12 (EA)
+Loading /projects/b1213/users/alexis/projects/dna-methylation-heritability/vmr-analysis/all_individuals/hippocampus/_m/cpg/chr_12/stats.rda
+Annotating 7464 prepared VMR CpGs
+matched 7464 / 7464 (unmatched 0)
+  coverage chunk 1-7464
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/hippocampus/_m/prepared/EA/cpg_coverage.chr12.tsv
+Updated /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/hippocampus/_m/prepared/EA/cpg_vmr_map.chr12.tsv
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/hippocampus/_m/prepared/EA/cpg_coverage_summary.chr12.tsv
+2026-08-08 12:52:45 - done hippocampus chr12 (EA)

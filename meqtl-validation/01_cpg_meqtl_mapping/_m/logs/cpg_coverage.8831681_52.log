@@ -1,0 +1,9 @@
+2026-08-08 12:52:19 - coverage extract hippocampus chr9 (EA)
+Loading /projects/b1213/users/alexis/projects/dna-methylation-heritability/vmr-analysis/all_individuals/hippocampus/_m/cpg/chr_9/stats.rda
+Annotating 6456 prepared VMR CpGs
+matched 6456 / 6456 (unmatched 0)
+  coverage chunk 1-6456
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/hippocampus/_m/prepared/EA/cpg_coverage.chr9.tsv
+Updated /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/hippocampus/_m/prepared/EA/cpg_vmr_map.chr9.tsv
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/hippocampus/_m/prepared/EA/cpg_coverage_summary.chr9.tsv
+2026-08-08 12:52:44 - done hippocampus chr9 (EA)

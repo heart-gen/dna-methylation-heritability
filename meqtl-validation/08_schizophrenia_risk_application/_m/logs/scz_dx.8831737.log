@@ -1,0 +1,6 @@
+2026-08-08 17:10:42 - **** Job starts ****
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/08_schizophrenia_risk_application/_m/diagnosis/diagnosis_association_results.tsv
+VMR FDR sig (best/any, primary): 0/1; transcript FDR sig: 0
+Decision: retain_main_text_proof_of_application
+Wrote /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/08_schizophrenia_risk_application/_m/decision/phase7_retain_decision.tsv and /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/08_schizophrenia_risk_application/_m/decision/PHASE7_DECISION.md
+2026-08-08 17:12:05 - **** Job ends ****

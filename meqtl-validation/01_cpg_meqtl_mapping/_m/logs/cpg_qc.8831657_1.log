@@ -1,0 +1,11 @@
+2026-08-08 16:30:38 - **** Job starts ****
+**** QUEST info ****
+User: owb0346
+Job id: 8852367
+Node name: N/A
+Array task: 1
+No modules loaded
+2026-08-08 16:30:39 - **** Loading conda environment ****
+2026-08-08 16:30:41 - Summarizing meQTL QC for dlpfc (AA)
+QC summary written to /projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/dlpfc/_m/tensorqtl/qc; lambda_gc=3.714; n_sig=50288
+2026-08-08 16:31:01 - **** Job ends ****

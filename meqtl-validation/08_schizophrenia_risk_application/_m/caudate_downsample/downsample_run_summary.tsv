@@ -1,2 +1,2 @@
 n_reps	n_pairs_input	n_pairs_tested	median_n_sig_fdr	mean_n_sig_fdr	median_n_sig_loci	mean_n_sig_loci	n_sig_full_caudate	fdr	maf
-30	40001	40001	334.5	341.0	23.0	23.3	361	0.05	0.05
+30	39898	39898	335.0	341.46666666666664	23.0	23.333333333333332	361	0.05	0.05

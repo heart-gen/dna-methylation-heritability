@@ -1,0 +1,38 @@
+2026-08-08 16:51:07 - **** Job starts ****
+Wrote 31 manifest rows to /gpfs/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/03_external_meqtl_validation/_m/download_manifest.tsv
+Reading liftover chains
+Mapping coordinates
+Reading liftover chains
+Mapping coordinates
+caudate: 197,466 VMR CpGs
+dlpfc: 154,325 VMR CpGs
+hippocampus: 156,665 VMR CpGs
+
+=== Harmonizing jaffe_dlpfc_450k_meqtl ===
+Reading /gpfs/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/03_external_meqtl_validation/_m/raw/jaffe_dlpfc_450k_meqtl/geo/GSE74193_jaffe_onlineTable2_meQTLs_allPairs.csv.gz
+Jaffe assayed CpGs: 140,473; supported at FDR<=0.05: 140,473
+  caudate: 6,441/6,441 CpGs with external support
+  dlpfc: 3,815/3,815 CpGs with external support
+  hippocampus: 4,206/4,206 CpGs with external support
+Wrote /gpfs/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/03_external_meqtl_validation/_m/harmonized/jaffe_dlpfc_450k_meqtl.hg38.tsv.gz (140,473 rows)
+Wrote /gpfs/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/03_external_meqtl_validation/_m/harmonized/jaffe_dlpfc_450k_meqtl.overlap_summary.tsv
+
+=== Harmonizing schulz_hippocampus_array_meqtl ===
+Reading /gpfs/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/03_external_meqtl_validation/_m/raw/schulz_hippocampus_array_meqtl/nature_supplements/41467_2017_1818_MOESM4_ESM.xlsb
+Schulz supported CpGs (tested-negative universe unavailable): 14,118
+  caudate: 1,388/1,388 CpGs with external support
+  dlpfc: 873/873 CpGs with external support
+  hippocampus: 966/966 CpGs with external support
+Wrote /gpfs/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/03_external_meqtl_validation/_m/harmonized/schulz_hippocampus_array_meqtl.hg38.tsv.gz (14,118 rows)
+Wrote /gpfs/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/03_external_meqtl_validation/_m/harmonized/schulz_hippocampus_array_meqtl.overlap_summary.tsv
+
+=== Harmonizing brainseq_wgbs_meqtl_scz_subset ===
+BrainSeq SCZ-subset pairs FDR<=0.05: 73,405; unique CpGs 53,411
+  caudate: 577/577 CpGs with external support
+  dlpfc: 263/263 CpGs with external support
+  hippocampus: 355/355 CpGs with external support
+Wrote /gpfs/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/03_external_meqtl_validation/_m/harmonized/brainseq_wgbs_meqtl_scz_subset.hg38.tsv.gz (71,022 rows)
+Wrote /gpfs/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/03_external_meqtl_validation/_m/harmonized/brainseq_wgbs_meqtl_scz_subset.overlap_summary.tsv
+Wrote /gpfs/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/03_external_meqtl_validation/_m/harmonized/brainseq_wgbs_meqtl.PENDING_SYNAPSE.txt
+Updated /gpfs/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/03_external_meqtl_validation/_m/download_checklist.tsv
+2026-08-08 16:52:51 - **** Job ends ****

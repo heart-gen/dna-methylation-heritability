@@ -1,0 +1,6 @@
+region	resource_id	covariate	smd_before	smd_after
+hippocampus	jaffe_dlpfc_450k_meqtl	n_cpgs_annotated	0.16537070390527941	-0.022506676866581997
+hippocampus	jaffe_dlpfc_450k_meqtl	average_cpg_coverage	0.1146431661765049	0.027445201329836605
+hippocampus	jaffe_dlpfc_450k_meqtl	mean_cpg_variance	0.5640845019520877	0.02855897840449409
+hippocampus	jaffe_dlpfc_450k_meqtl	length	-0.004172912543519663	0.004556770725070607
+hippocampus	jaffe_dlpfc_450k_meqtl	umap_k24_mean	-0.37295337246631266	-0.010800158403974946

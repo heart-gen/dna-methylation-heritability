@@ -1,2 +1,2 @@
 n_shared_donors_input	n_shared_donors_complete	n_candidate_pairs	n_pairs_fitted	n_pairs_skipped	n_sig_joint_gxregion_fdr	n_sig_g_x_dlpfc_fdr	n_sig_g_x_hippocampus_fdr	fdr	model	reference_region	output
-92	92	1748	405	1343	4	1	0	0.05	resid ~ g + C(region) + g:C(region); cluster(donor); within-region M3a residualization	caudate	/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/08_schizophrenia_risk_application/_m/gxregion/gxregion_pair_results.tsv.gz
+92	92	1749	405	1344	4	1	0	0.05	resid ~ g + C(region) + g:C(region); cluster(donor); within-region M3a residualization	caudate	/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/08_schizophrenia_risk_application/_m/gxregion/gxregion_pair_results.tsv.gz

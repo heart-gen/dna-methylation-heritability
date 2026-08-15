@@ -1,0 +1,5 @@
+2026-08-08 12:51:59 - coverage extract hippocampus chr13 (EA)
+Loading /projects/b1213/users/alexis/projects/dna-methylation-heritability/vmr-analysis/all_individuals/hippocampus/_m/cpg/chr_13/stats.rda
+Error in fread(map_path) : 
+  Input is either empty, fully whitespace, or skip has been set after the last non-whitespace.
+Execution halted

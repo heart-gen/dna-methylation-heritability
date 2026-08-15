@@ -1,6 +1,2 @@
-model	n_vmrs	n_supported_vmrs	mean_external_support	covariates	coef_predictability	se_predictability	pval_predictability	converged	region	resource_id	analysis_role	preferred_region
-unadjusted	9479	45	0.004747336216900517	local_predictability	0.2594626621651083	0.11305824007714854	0.021736165248799115	True	caudate	brainseq_wgbs_meqtl_scz_subset	exploratory	dlpfc
-adjusted_minimal	9479	45	0.004747336216900517	local_predictability,n_tested_cpgs	0.25714255120891627	0.11386990304305845	0.02393235260050694	True	caudate	brainseq_wgbs_meqtl_scz_subset	exploratory	dlpfc
-adjusted_technical	9479	45	0.004747336216900517	local_predictability,n_tested_cpgs,average_cpg_coverage,mean_cpg_variance	0.29484491556224995	0.1438573296986414	0.04040692078409842	True	caudate	brainseq_wgbs_meqtl_scz_subset	exploratory	dlpfc
-binomial_cpg_proportion_secondary	9479	45	0.004747336216900517	local_predictability,n_tested_cpgs	0.3528901499397128	0.03269580547403468	3.7092795445767024e-27	True	caudate	brainseq_wgbs_meqtl_scz_subset	exploratory	dlpfc
-descriptive	9479	45	0.004747336216900517		nan	nan	nan	True	caudate	brainseq_wgbs_meqtl_scz_subset	exploratory	dlpfc
+model	n_vmrs	error	region	resource_id	analysis_role	preferred_region	assay_universe_complete
+not_estimable	45	external tested-negative assay universe unavailable; positive-control overlap only	caudate	brainseq_wgbs_meqtl_scz_subset	exploratory	dlpfc	False
