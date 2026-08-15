@@ -1,0 +1,116 @@
+**** Job starts 2026-08-15 14:16:33 ****
+Job id: 9403485  Task: 44
+Region: dlpfc  Chromosome: 22
+region=dlpfc chr=22
+loading repaired HDF5SummarizedExperiment: /projects/b1213/users/alexis/projects/dna-methylation-heritability/inputs/wgbs-data/dlpfc/_m/dlpfc_chr22_BSobj
+dropping 1 donor(s) without genotype PCs: Br1442
+donors=111 sites_pre_cov_filter=577753
+           used  (Mb) gc trigger  (Mb) max used  (Mb)
+Ncells  9963557 532.2   17926207 957.4 11930177 637.2
+Vcells 51615658 393.8   83691659 638.6 83691659 638.6
+            used  (Mb) gc trigger   (Mb)  max used   (Mb)
+Ncells   9969308 532.5   17926207  957.4  11930177  637.2
+Vcells 115766421 883.3  217969732 1663.0 179898437 1372.6
+   region    chr design replicate n_donors n_sites_pre n_sites_pass
+   <char> <char> <char>     <int>    <int>       <int>        <int>
+1:  dlpfc     22 full_n        NA      111      577753       492136
+[1] "Reproducibility information:"
+[1] "2026-08-15 14:17:44 CDT"
+   user  system elapsed 
+ 49.824   2.680  55.526 
+─ Session info ───────────────────────────────────────────────────────────────────────────────────────────────────────
+ setting  value
+ version  R version 4.4.3 (2025-02-28)
+ os       Red Hat Enterprise Linux 8.10 (Ootpa)
+ system   x86_64, linux-gnu
+ ui       X11
+ language (EN)
+ collate  en_US.UTF-8
+ ctype    en_US.UTF-8
+ tz       America/Chicago
+ date     2026-08-15
+ pandoc   3.8 @ /projects/p32505/opt/envs/epigenomics/bin/pandoc
+ quarto   1.9.35 @ /projects/p32505/opt/bin/quarto
+
+─ Packages ───────────────────────────────────────────────────────────────────────────────────────────────────────────
+ package              * version   date (UTC) lib source
+ abind                * 1.4-8     2024-09-12 [2] CRAN (R 4.4.3)
+ Biobase              * 2.66.0    2024-10-29 [2] Bioconductor 3.20 (R 4.4.2)
+ BiocGenerics         * 0.52.0    2024-10-29 [2] Bioconductor 3.20 (R 4.4.2)
+ BiocIO                 1.16.0    2024-10-29 [2] Bioconductor 3.20 (R 4.4.2)
+ BiocParallel           1.40.0    2024-10-29 [2] Bioconductor 3.20 (R 4.4.2)
+ Biostrings             2.74.0    2024-10-29 [2] Bioconductor 3.20 (R 4.4.2)
+ bitops                 1.0-9     2024-10-03 [2] CRAN (R 4.4.3)
+ BSgenome               1.74.0    2024-10-29 [2] Bioconductor 3.20 (R 4.4.2)
+ bsseq                * 1.42.0    2024-10-29 [2] Bioconductor 3.20 (R 4.4.3)
+ cli                    3.6.6     2026-04-09 [1] CRAN (R 4.4.3)
+ codetools              0.2-20    2024-03-31 [2] CRAN (R 4.4.3)
+ crayon                 1.5.3     2024-06-20 [2] CRAN (R 4.4.3)
+ curl                   7.0.0     2025-08-19 [2] CRAN (R 4.4.3)
+ data.table           * 1.17.8    2025-07-10 [2] CRAN (R 4.4.3)
+ DelayedArray         * 0.32.0    2024-10-29 [2] Bioconductor 3.20 (R 4.4.2)
+ DelayedMatrixStats   * 1.28.1    2025-01-09 [2] Bioconductor 3.20 (R 4.4.3)
+ dplyr                * 1.1.4     2023-11-17 [2] CRAN (R 4.4.3)
+ farver                 2.1.2     2024-05-13 [2] CRAN (R 4.4.3)
+ generics               0.1.4     2025-05-09 [2] CRAN (R 4.4.3)
+ GenomeInfoDb         * 1.42.3    2025-01-27 [2] Bioconductor 3.20 (R 4.4.3)
+ GenomeInfoDbData       1.2.13    2025-09-22 [2] Bioconductor
+ GenomicAlignments      1.42.0    2024-10-29 [2] Bioconductor 3.20 (R 4.4.3)
+ GenomicRanges        * 1.58.0    2024-10-29 [2] Bioconductor 3.20 (R 4.4.2)
+ glue                   1.8.0     2024-09-30 [2] CRAN (R 4.4.3)
+ gtools                 3.9.5     2023-11-20 [1] CRAN (R 4.4.3)
+ HDF5Array            * 1.34.0    2024-10-29 [2] Bioconductor 3.20 (R 4.4.3)
+ here                 * 1.0.2     2025-09-15 [2] CRAN (R 4.4.3)
+ httr                   1.4.7     2023-08-15 [2] CRAN (R 4.4.3)
+ IRanges              * 2.40.0    2024-10-29 [2] Bioconductor 3.20 (R 4.4.2)
+ jsonlite               2.0.0     2025-03-27 [2] CRAN (R 4.4.3)
+ lattice                0.22-7    2025-04-02 [2] CRAN (R 4.4.3)
+ lifecycle              1.0.5     2026-01-08 [1] CRAN (R 4.4.3)
+ limma                  3.62.1    2024-11-03 [2] Bioconductor 3.20 (R 4.4.2)
+ locfit                 1.5-9.12  2025-03-05 [2] CRAN (R 4.4.3)
+ magrittr               2.0.4     2025-09-12 [2] CRAN (R 4.4.3)
+ Matrix               * 1.7-4     2025-08-28 [2] CRAN (R 4.4.3)
+ MatrixGenerics       * 1.18.1    2025-01-09 [2] Bioconductor 3.20 (R 4.4.3)
+ matrixStats          * 1.5.0     2025-01-07 [2] CRAN (R 4.4.3)
+ permute                0.9-8     2025-06-25 [2] CRAN (R 4.4.3)
+ pillar                 1.11.1    2025-09-17 [2] CRAN (R 4.4.3)
+ pkgconfig              2.0.3     2019-09-22 [2] CRAN (R 4.4.3)
+ R.methodsS3            1.8.2     2022-06-13 [2] CRAN (R 4.4.3)
+ R.oo                   1.27.1    2025-05-02 [2] CRAN (R 4.4.3)
+ R.utils                2.13.0    2025-02-24 [2] CRAN (R 4.4.3)
+ R6                     2.6.1     2025-02-15 [2] CRAN (R 4.4.3)
+ RColorBrewer           1.1-3     2022-04-03 [2] CRAN (R 4.4.3)
+ Rcpp                   1.1.0     2025-07-02 [2] CRAN (R 4.4.3)
+ RCurl                  1.98-1.17 2025-03-22 [2] CRAN (R 4.4.3)
+ restfulr               0.0.16    2025-06-27 [2] CRAN (R 4.4.3)
+ rhdf5                * 2.50.0    2024-10-29 [2] Bioconductor 3.20 (R 4.4.3)
+ rhdf5filters           1.18.0    2024-10-29 [2] Bioconductor 3.20 (R 4.4.3)
+ Rhdf5lib               1.28.0    2024-10-29 [2] Bioconductor 3.20 (R 4.4.2)
+ rjson                  0.2.23    2024-09-16 [2] CRAN (R 4.4.3)
+ rlang                  1.2.0     2026-04-06 [1] CRAN (R 4.4.3)
+ rprojroot              2.1.1     2025-08-26 [2] CRAN (R 4.4.3)
+ Rsamtools              2.22.0    2024-10-29 [2] Bioconductor 3.20 (R 4.4.3)
+ rtracklayer            1.66.0    2024-10-29 [2] Bioconductor 3.20 (R 4.4.3)
+ S4Arrays             * 1.6.0     2024-10-29 [2] Bioconductor 3.20 (R 4.4.3)
+ S4Vectors            * 0.44.0    2024-10-29 [2] Bioconductor 3.20 (R 4.4.2)
+ scales                 1.4.0     2025-04-24 [2] CRAN (R 4.4.3)
+ sessioninfo            1.2.3     2025-02-05 [2] CRAN (R 4.4.3)
+ SparseArray          * 1.6.0     2024-10-29 [2] Bioconductor 3.20 (R 4.4.3)
+ sparseMatrixStats      1.18.0    2024-10-29 [2] Bioconductor 3.20 (R 4.4.3)
+ statmod                1.5.1     2025-10-09 [2] CRAN (R 4.4.3)
+ SummarizedExperiment * 1.36.0    2024-10-29 [2] Bioconductor 3.20 (R 4.4.2)
+ tibble                 3.3.0     2025-06-08 [2] CRAN (R 4.4.3)
+ tidyselect             1.2.1     2024-03-11 [2] CRAN (R 4.4.3)
+ UCSC.utils             1.2.0     2024-10-29 [2] Bioconductor 3.20 (R 4.4.2)
+ vctrs                  0.6.5     2023-12-01 [2] CRAN (R 4.4.3)
+ XML                    3.99-0.17 2024-06-25 [2] CRAN (R 4.4.3)
+ XVector                0.46.0    2024-10-29 [2] Bioconductor 3.20 (R 4.4.2)
+ yaml                   2.3.10    2024-07-26 [2] CRAN (R 4.4.3)
+ zlibbioc               1.52.0    2024-10-29 [2] Bioconductor 3.20 (R 4.4.2)
+
+ [1] /gpfs/home/owb0346/R/x86_64-conda-linux-gnu-library/4.4
+ [2] /gpfs/projects/p32505/opt/envs/epigenomics/lib/R/library
+ * ── Packages attached to the search path.
+
+──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+**** Job ends 2026-08-15 14:17:45 ****

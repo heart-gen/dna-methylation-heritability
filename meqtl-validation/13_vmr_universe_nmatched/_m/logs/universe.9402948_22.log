@@ -1,0 +1,17 @@
+**** Job starts 2026-08-15 14:02:26 ****
+Job id: 9402949  Task: 22
+Region: caudate  Chromosome: 22
+region=caudate chr=22
+loading local archive: /gpfs/projects/b1213/users/kynon/projects/dna-methylation-heritability/inputs/wgbs-data/caudate/_m/caudate_chr22_BSobj.rda
+donors=154 sites_pre_cov_filter=577753
+           used  (Mb) gc trigger   (Mb)  max used  (Mb)
+Ncells  9886605 528.1   17776570  949.4  11929408 637.1
+Vcells 64763635 494.2  133193722 1016.2 109251622 833.6
+N-matched replicates found: 30
+            used   (Mb) gc trigger   (Mb)  max used   (Mb)
+Ncells   9916116  529.6   17776570  949.4  11929408  637.1
+Vcells 153875339 1174.0  293512478 2239.4 242850632 1852.9
+Error in eval(stub[[3L]], x, enclos) : object '..region' not found
+Calls: [ -> [.data.table -> .prepareFastSubset -> eval -> eval
+Execution halted
+ERROR conda.cli.main_run:execute(148): `conda run Rscript ../_h/01_universe_decomposition.R 22 caudate` failed. (See above for error)

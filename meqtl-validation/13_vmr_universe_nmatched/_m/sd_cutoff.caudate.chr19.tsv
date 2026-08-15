@@ -1,7 +1,7 @@
 region	chr	design	replicate	n_donors	sd_cutoff
-caudate	19	full_n		154	0.0795267422501335
-caudate	19	n_matched	1	111	0.0792876936457796
-caudate	19	n_matched	2	111	0.0794026844443547
-caudate	19	n_matched	3	111	0.0793390432969372
-caudate	19	n_matched	4	111	0.0790509174595344
-caudate	19	n_matched	5	111	0.079274256343348
+caudate	19	full_n		153	0.0784317537186208
+caudate	19	n_matched	1	111	0.0779366581586371
+caudate	19	n_matched	2	111	0.0779059010924203
+caudate	19	n_matched	3	111	0.0778681098909321
+caudate	19	n_matched	4	111	0.0774991468300034
+caudate	19	n_matched	5	111	0.0778267745904732
