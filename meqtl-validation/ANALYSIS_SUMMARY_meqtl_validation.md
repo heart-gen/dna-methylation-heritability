@@ -1,116 +1,402 @@
-## Analysis Summary: CpG cis-meQTL validation of VMR local genetic predictability
-
-**Analysis unit:** `meqtl-validation/` (Phases 0–7 + Exp2/3 architecture depth; official TensorQTL downsample remap in `10_downsampling_caudate/` **complete**)  
-**Role:** Consolidated technical and reproducibility summary for the VMR genetic-validation analyses  
-**Status snapshot:** Phases 0–7 and the cross-region, donor-group, downsampling, and cell-type sensitivity analyses are complete  
+## CpG cis-meQTL evidence supports genetically anchored methylation variability in human brain
 
 ### Purpose
 
-Test whether variably methylated regions (VMRs) with greater local genetic predictability contain a greater burden of conventional CpG-level cis-meQTL evidence, and whether that genetically anchored architecture is reproducible across caudate, dorsolateral prefrontal cortex (DLPFC), and hippocampus and across Black American (AA) and white American (EA) donor groups—without treating BrainSEQ WGBS meQTL calls as independent external replication.
+Variably methylated regions (VMRs) identify genomic intervals where DNA
+methylation differs substantially among individuals. The manuscript uses an
+elastic-net score to rank VMRs by how well nearby common SNPs predict their
+methylation. Biologically, a high score should mark a VMR whose interindividual
+methylation variability is anchored by local genetic regulation. Prediction
+alone, however, does not show that individual CpGs in that VMR have conventional
+cis-meQTLs, and selected elastic-net SNPs are not themselves significant or
+causal meQTLs.
+
+This analysis therefore asked whether VMRs with greater local genetic
+predictability contain a larger proportion of CpGs with independently mapped
+cis-meQTL evidence. It also asked whether this relationship is observed across
+caudate, dorsolateral prefrontal cortex (DLPFC), and hippocampus; whether it is
+present in both Black American and non-Hispanic white American donor groups;
+whether meQTL-supported VMRs are more often coupled to expression or splicing;
+and whether genetically anchored VMRs remain concentrated in repeat-rich and
+repressive genomic compartments after technical and cell-composition
+sensitivity analyses.
+
+The biological interpretation is deliberately focused: a positive association
+between local genetic predictability and CpG cis-meQTL burden would validate the
+VMR ranking as a measure of genetically anchored methylation architecture. It
+would not establish locus-level heritability, causal variants, methylation
+mediation, or ancestry-specific effects.
+
+### Current analysis scope
+
+This summary reports only outputs regenerated from the final CpG and VMR tables
+using analysis schema version 2. The current evidence set includes internal
+CpG-level mapping, VMR-level burden models, donor-group analyses,
+expression/splicing integration, repeat and mappability sensitivity, cell-type
+sensitivity, and the external-resource audit. Cross-region sharing,
+method-matched caudate downsampling, the schizophrenia-risk application, and the
+simulation-calibrated estimator sensitivity have not yet been rerun on the same
+final post-QC inputs and are not interpreted here.
+
+| Analysis component | Current status | Manuscript use |
+|---|---|---|
+| Internal Black American CpG cis-meQTL mapping | Final post-QC outputs available | Primary evidence |
+| VMR predictability–meQTL burden | Final schema-v2 outputs available | Primary evidence |
+| White American stratified mapping and donor-group comparison | Final schema-v2 outputs available | Portability analysis |
+| Expression and splicing integration | Regenerated from final burden tables | Biological interpretation |
+| Repeat, mappability, and cell-type sensitivity | Regenerated from final burden tables | Technical robustness |
+| Independent public brain meQTL gradient | Audited, but not estimable from available tables | Unmet external criterion |
+| Cross-region sharing and caudate downsampling | Final-input rerun required | Do not cite yet |
+| Schizophrenia-risk application | Final-input rerun required | Do not cite yet |
+| Calibrated local SNP-variance sensitivity | Final-input rerun required | Do not cite yet |
 
 ### Inputs
 
-- Predefined VMRs and elastic-net local genetic-predictability summaries (AA discovery; EA portability from all-individuals elastic-net outputs).
-- WGBS CpG methylation matrices and imputed genotypes for AA (primary) and EA (stratified) BrainSEQ donors.
-- Locked Phase 1 covariates: **M3a** = age + sex + schizophrenia diagnosis + ancestry SNP PC1–5 + methylation PC1–5 (`config/covariates.yml`).
-- Public brain meQTL resources catalogued in `inputs/data_dictionary/_m/public_meqtl_resources.tsv` (primary independent: Jaffe DLPFC 450K; Schulz hippocampus array).
-- Existing VMR–expression and VMR–PSI association tables under `heritability/elastic_net_model/.../regulatory_context/`.
-- Schizophrenia risk–locus inputs for Phase 7 application (`08_schizophrenia_risk_application/`).
+- Predefined hg38 VMR intervals and their elastic-net local genetic-predictability
+  scores.
+- Raw, non-residualized WGBS CpG methylation values and imputed genotype dosages
+  from matched BrainSeq donors.
+- Black American discovery samples: caudate N = 153, DLPFC N = 111, and
+  hippocampus N = 116.
+- Non-Hispanic white American stratified samples: caudate N = 129, DLPFC N = 55,
+  and hippocampus N = 60.
+- The locked M3a discovery covariates: age at death, sex, schizophrenia
+  diagnosis, genotype principal components 1–5, and methylation principal
+  components 1–5.
+- Existing VMR–expression and VMR–splicing association results; these analyses
+  were reused rather than initiating a new transcriptome-wide screen.
+- LINE/L1, H3K9me3, quiescent-chromatin, mappability, segmental-duplication,
+  SNP-proximity, CpG, coverage, and broad genomic annotations.
+- RNA MuSiC cell-composition estimates in all three regions and DNAm scMD
+  estimates for the prespecified caudate sensitivity.
+- Jaffe DLPFC 450K [@doi:10.1038/nn.4181], Schulz hippocampal array
+  [@doi:10.1038/s41467-017-01818-4], and BrainSeq WGBS
+  [@doi:10.1038/s41467-021-25517-3] meQTL resources.
 
 ### Methods Text
 
-We mapped cis-meQTLs for CpGs within retained VMRs using TensorQTL cis permutation mapping with a ±500 kb window, MAF ≥ 0.05, and Storey *q*-value FDR controlled separately by brain region (`config/meqtl_parameters.yml`). The primary discovery cohort was Black American donors (caudate N = 153; DLPFC N = 111; hippocampus N = 116). After covariate-model sensitivity (M0–M5), we locked M3a as the primary AA model. For each VMR we aggregated CpG-level results into meQTL-burden metrics (notably the proportion of tested CpGs with FDR-significant cis-meQTL evidence) and modeled continuous local genetic predictability as the primary predictor, with technical/genomic adjustment and matched high- versus low-predictability analyses. Independent external support was tested using non-BrainSEQ public brain meQTL resources. Cross-region concordance, donor-group stratified mapping, transcriptional/splicing enrichment, and repeat/mappability sensitivity analyses were run as secondary architecture tests. For caudate sample-size sensitivity, we (i) retested full-N lead SNP–CpG pairs on 30 shared-donor-aware downsamples to N = 111 with BH-FDR (module `04`) and (ii) remapped the same sample lists with official TensorQTL permutation FDR (module `10`; **30/30 complete**). Shared-donor genotype × region models used within-region M3a residualization and cluster-robust SEs by donor.
+We mapped CpG-level cis-meQTLs separately in caudate, DLPFC, and hippocampus.
+The primary molecular phenotype was the non-residualized methylation level of an
+individual CpG contained within a predefined VMR. CpGs were required to have
+coverage of at least five reads in at least 80% of samples and nonzero variance.
+Blacklisted CpGs and CpGs directly overlapping common C/T SNPs were excluded
+before phenotype construction. Genotypes were restricted to autosomal variants
+with minor-allele frequency at least 0.05, imputation quality at least 0.8,
+missingness at most 0.05, and Hardy–Weinberg P at least 1 × 10^-6.
+
+TensorQTL tested SNPs within ±500 kb of each CpG using the locked M3a covariate
+model. Storey q-values were calculated separately within each brain region, and
+a CpG was classified as meQTL-supported when its lead cis association had
+q ≤ 0.05. The non-Hispanic white American stratified analysis used the available
+baseline demographic, diagnostic, and genotype-PC covariates and was treated as
+a secondary portability analysis rather than a direct power-matched replication
+of M3a.
+
+For each coordinate-resolved VMR, CpG meQTL burden was defined as the number of
+meQTL-supported CpGs divided by the number of CpGs with an actual TensorQTL test
+result. CpGs prepared for mapping but lacking a test result were retained in QC
+counts but were not coded as negative evidence. The primary VMR model was an
+overdispersion-scaled binomial generalized linear model with HC3 robust
+covariance, fitted separately by region. The standardized continuous local
+genetic-predictability score was the primary predictor. The prespecified model
+adjusted, where sufficiently complete, for tested CpG number, mean coverage,
+methylation mean and variance, VMR length, CpG density, local tested-SNP
+opportunity, mappability, LINE/L1 overlap, problematic-region overlap, and broad
+genomic annotation.
+
+As a complementary extreme-group analysis, VMRs in the highest and lowest
+predictability quintiles were propensity-score matched without replacement
+using a 0.25-SD caliper and exact matching on broad genomic annotation.
+Within-pair label randomization with 10,000 permutations tested the difference
+in meQTL burden. A matched result was considered interpretable only when the
+maximum absolute post-match standardized mean difference was no greater than
+0.10.
+
+Donor-group portability was assessed using the correlation of VMR
+predictability scores and by comparing identical lead SNP–CpG pairs across
+stratified analyses. MAF and cis-SNP testing opportunity were matched before
+interpreting discovery-rate differences. Expression and splicing analyses
+modeled whether a VMR with any CpG meQTL support was more likely to have an
+existing significant VMR–transcript association, adjusting for the number of
+tested features, VMR length, VMR-to-feature distance, methylation variance, and
+local SNP number.
+
+Genomic-compartment sensitivity analyses modeled LINE/L1, H3K9me3, and
+quiescent-chromatin overlap as functions of standardized VMR predictability and
+repeated the analyses in high-mappability intervals and after excluding
+SNP-proximal or segmental-duplication intervals. Cell-type sensitivity adjusted
+for the proportion of each VMR's methylation variance associated with RNA MuSiC
+cell-composition PCs. Caudate DNAm scMD PCs were included as a prespecified
+orthogonal sensitivity; DLPFC and hippocampal DNAm estimates remained
+exploratory because they did not pass the DNAm–RNA integration gate.
+
+External enrichment was considered estimable only when a public resource
+provided both supported and unsupported CpGs or VMRs within a documented assayed
+universe. VMRs absent from a published positive list were not treated as
+external negatives. BrainSeq WGBS results were not eligible as independent
+replication because the donor cohort overlaps the present study.
 
 ### Results Text
 
-**Internal CpG cis-meQTL discovery (AA, M3a).** TensorQTL tested 197,613 / 155,546 / 157,925 CpGs in caudate / DLPFC / hippocampus and identified 81,007 / 51,273 / 55,957 FDR-significant CpGs (FDR < 0.05). Genomic inflation λ_GC was high (≈4.98 / 3.72 / 3.92), consistent with abundant true cis signal in this design rather than a claim of well-calibrated null inflation alone.
+**CpG-level mapping identified extensive local genetic regulation of brain
+methylation.** In the Black American discovery samples, 195,830 caudate CpGs,
+152,276 DLPFC CpGs, and 154,600 hippocampal CpGs had a valid cis test. At
+region-specific q ≤ 0.05, 80,281 caudate CpGs (41.0%), 50,288 DLPFC CpGs
+(33.0%), and 54,898 hippocampal CpGs (35.5%) had cis-meQTL support. These counts
+show that nearby common variation contributes to methylation differences at a
+large fraction of variable brain CpGs.
 
-**VMR meQTL burden validates predictability (primary claim).** In adjusted technical models, continuous local predictability associated positively with CpG meQTL burden in all three regions (coef ≈ 3.20 / 1.77 / 2.07; all *P* reported as 0 in model output tables, i.e. below floating-point resolution). Matched high- versus low-predictability contrasts remained positive (mean Δ proportion ≈ 0.82 / 0.61 / 0.69; permutation *P* ≈ 5.0 × 10⁻⁴ in each region).
+Genome-wide lambda values calculated from the lead-cis P values were 4.96,
+3.71, and 3.91 in caudate, DLPFC, and hippocampus. Because this statistic mixes
+true dense cis signal with residual calibration, it should not be interpreted as
+a null-only inflation estimate. Among CpGs not passing the regional FDR
+threshold, lambda was lower but remained above one (1.45, 1.46, and 1.41), so
+the large discovery counts should be presented together with the locked
+covariate-model QC rather than as evidence of perfect null calibration.
 
-**External validation.** Tissue-matched adjusted models supported the predictability gradient for Jaffe DLPFC (coef ≈ 0.149, *P* = 3.5 × 10⁻⁶) and Schulz hippocampus (coef ≈ 0.298, *P* = 2.4 × 10⁻¹⁷). BrainSEQ WGBS meQTL was excluded from independent external credit because of cohort overlap.
+**Greater VMR local genetic predictability was strongly associated with greater
+CpG cis-meQTL burden in every brain region.** The schema-v2 aggregation included
+195,830 tested CpGs across 11,372 caudate VMRs, 152,276 CpGs across 9,975 DLPFC
+VMRs, and 154,600 CpGs across 9,800 hippocampal VMRs. Mean VMR meQTL burden was
+0.42, 0.31, and 0.34, respectively. The complete-case prespecified models
+retained 8,738 caudate, 3,962 DLPFC, and 7,152 hippocampal VMRs. After technical
+and genomic adjustment, each standard-deviation increase in local predictability was
+associated with 22.57-fold greater odds that a tested CpG had meQTL support in
+caudate (95% CI 17.73–28.74; P = 3.3 × 10^-141), 6.50-fold greater odds in DLPFC
+(95% CI 4.85–8.71; P = 5.5 × 10^-36), and 8.60-fold greater odds in hippocampus
+(95% CI 7.19–10.28; P = 1.4 × 10^-123). Thus, the manuscript's VMR ranking is
+strongly aligned with a conventional CpG-level measure of local genetic
+regulation and is not simply detecting VMR size, CpG density, coverage, local
+SNP opportunity, or the measured genomic annotations.
 
-**Cross-region architecture.** Among shared tested CpGs, both-significant direction concordance was 0.912 / 0.905 / 0.924 and Pearson *z*-score correlations (either-significant) were 0.894 / 0.885 / 0.923 for caudate–DLPFC, caudate–hippocampus, and DLPFC–hippocampus. VMR meQTL-support Jaccard was modest (≈0.28–0.30 pairwise; 260 VMRs supported in all three). Higher predictability predicted shared VMR support (logistic OR ≈ 1.81 / 2.02 / 1.95; all *P* ≪ 0.05). Ninety-two donors had AA meQTL inclusion in all three regions.
+The extreme-group contrasts pointed in the same biological direction. Matched
+high-predictability VMRs had mean meQTL-burden differences of 0.73 across 679
+caudate pairs, 0.53 across 251 DLPFC pairs, and 0.63 across 523 hippocampal pairs
+(all permutation P = 1.0 × 10^-4).
+Post-match balance passed in caudate (maximum absolute SMD = 0.087) but not in
+DLPFC (0.179) or hippocampus (0.192). The adjusted continuous models therefore
+provide the primary three-region evidence. The matched result is confirmatory
+in caudate and directionally supportive, but not balance-qualified, in the other
+two regions.
 
-**Caudate ≠ N (method-matched).** Official TensorQTL permutation-FDR remapping of caudate to N = 111 (30 reps; module `10_downsampling_caudate/`) yielded median **67,562.5** FDR-significant CpGs (IQR 67,181–67,922; median λ_GC ≈ 3.89), retaining a median **78.3%** of the 81,007 full-N FDR hits. All 30 replicates exceeded DLPFC (51,273) and hippocampus (55,957) Phase 1 n_sig (median ratios ≈ 1.32 / 1.21). Claim: caudate discovery excess is **not** explained solely by sample size (`tensorqtl_downsample_claim_snapshot.tsv`). Lead-SNP retention BH-FDR (module `04`; median retention 78.9%) remains a secondary sensitivity and must not be mixed with TensorQTL absolute n_sig. Shared-donor G×region screening of 3,000 stratified pairs found joint interaction FDR significance for 737 pairs (24.6%), indicating minority—not majority—regional effect heterogeneity.
+**The aggregate genetic-predictability gradient was also present in the white
+American stratified analyses.** Of 196,740, 172,980, and 148,968 tested CpGs,
+70,678 caudate, 12,738 DLPFC, and 31,171 hippocampal CpGs had meQTL support.
+Adjusted predictability coefficients were positive in all three regions
+(log-odds coefficients = 3.43, 1.12, and 1.38; all P ≤ 1.4 × 10^-89). VMR
+predictability scores were most portable in caudate (Spearman rho = 0.51),
+moderately portable in hippocampus (rho = 0.30), and weakly correlated in DLPFC
+(rho = 0.12). Among comparisons restricted to the identical lead variant–CpG
+pair, direction concordance for pairs significant in both donor groups was
+0.836, 0.824, and 0.816.
 
-**Donor-group (EA) depth.** EA stratified mapping (M0 covariates; N = 129 / 55 / 60) yielded 62,595 / 21,198 / 29,372 FDR CpGs. Predictability→burden remained positive (tech-adj coef ≈ 3.21 / 1.13 / 1.29). AA–EA predictability Spearman ρ ≈ 0.51 / 0.12 / 0.30. Among shared CpGs, both-significant direction concordance was 0.749 / 0.737 / 0.724. AA–EA discovery-rate gaps shrank after MAF/cis-SNP-density matching in DLPFC and hippocampus but not caudate, and were not eliminated; ancestry-specific biology is not claimed.
+Matching on MAF and cis-SNP testing opportunity eliminated the discovery-rate
+difference in caudate and DLPFC but not hippocampus. Together, these results
+support portability of the aggregate genetically anchored architecture while
+showing that locus-level detectability varies with allele frequency, testing
+opportunity, sample size, LD, or effect heterogeneity. They do not support a
+claim of ancestry-specific methylation biology.
 
-**Transcription / splicing.** meQTL-supported VMRs were enriched for expression associations in 3/3 regions (Fisher OR ≈ 1.88 / 12.8 / 8.18) and for PSI associations in 2/3 (OR ≈ 4.80 / 1.89; hippocampus not enriched, OR ≈ 0.61, *P* = 0.89).
+**CpG meQTL-supported VMRs were more likely to be transcriptionally coupled.**
+After adjustment for VMR and feature-testing characteristics, meQTL-supported
+VMRs had greater odds of an existing expression association in caudate
+(OR = 1.81, P = 1.5 × 10^-6), DLPFC (OR = 12.21,
+P = 3.2 × 10^-11), and hippocampus (OR = 8.76, P = 8.9 × 10^-9). Splicing
+associations were enriched in caudate (OR = 4.55, P = 9.5 × 10^-15) and DLPFC
+(OR = 1.77, P = 0.013), but not hippocampus (OR = 0.72, P = 0.55). These results
+place genetically anchored VMRs in a broader regulatory context: VMRs with
+direct CpG cis-meQTL evidence are more likely to show detectable relationships
+with transcription, especially gene expression. The associations do not
+establish that methylation mediates genotype effects on expression or splicing.
 
-**Repeat / repressive chromatin sensitivity.** Consolidated Phase 6 claims passed for H3K9me3 (3/3), quiescent chromatin (3/3), and predictability–burden (3/3); LINE/L1 enrichment was direction-consistent in 2/3 (DLPFC fragile under high-mappability filters).
+**Genetically anchored VMRs were concentrated in repressive chromatin, with a
+regionally qualified LINE/L1 result.** In adjusted models, greater local
+predictability was associated with H3K9me3 overlap in caudate, DLPFC, and
+hippocampus (OR = 1.77, 1.32, and 1.52) and with quiescent chromatin in all three
+regions (OR = 2.47, 1.38, and 1.72; all P ≤ 3.0 × 10^-9). Direction was retained
+after high-mappability, SNP-proximity, and segmental-duplication sensitivity
+analyses. LINE/L1 overlap was also enriched in the adjusted models
+(OR = 1.84, 1.19, and 1.32), but the DLPFC estimate reversed and became
+nonsignificant after the high-mappability restriction. The defensible
+interpretation is therefore that LINE/L1 enrichment is robust in at least two
+regions, not uniformly brain-wide.
 
-**Schizophrenia-risk application (secondary).** In caudate AA M3a, 31 risk loci / 361 FDR risk–CpG pairs / 38 VMRs met targeted FDR; architecture enrichment toward higher predictability was positive (tech-adj coef ≈ 0.53, *P* = 1.6 × 10⁻⁴; matched Δ ≈ 0.096, perm. *P* ≈ 0.003).
+Adjustment for cell-composition–correlated methylation properties preserved the
+predictability–meQTL burden association in all three regions. H3K9me3 and
+quiescent-chromatin associations also remained positive and significant in all
+regions. LINE/L1 enrichment remained significant in caudate (OR = 1.56) and
+hippocampus (OR = 1.19) but not DLPFC (OR = 1.05). The caudate findings were also
+directionally retained with DNAm-derived cell PCs. These results reduce concern
+that the repeat and repressive-compartment patterns are explained entirely by
+bulk cellular mixture, while recognizing that cell-type adjustment cannot
+recover cell-specific meQTL effects from bulk tissue.
+
+**The available public tables document overlap with published brain meQTLs but
+cannot test the required external gradient.** All 3,815 Jaffe DLPFC CpGs
+represented in the current DLPFC VMR overlap table were labeled supported,
+leaving no assayed unsupported comparison group. The Schulz hippocampal table
+was likewise positive-only for all 966 overlapping hippocampal CpGs.
+Consequently, neither table can estimate whether the
+probability of external support increases with VMR predictability. BrainSeq WGBS
+results are biologically relevant but not independent because of cohort
+overlap. The prespecified independent external-validation criterion is therefore
+not met; this is an absence of an estimable external contrast, not evidence that
+the strong internal gradient is false.
+
+**Overall interpretation.** The current analysis provides strong internal
+validation that the VMR local genetic-predictability axis identifies genetically
+anchored brain methylation. The relationship is large, persists after extensive
+technical adjustment in all three regions, is observed in both donor groups,
+and connects to transcriptional and repressive-chromatin architecture. The
+strict full-validation gate is not yet satisfied because the public-resource
+gradient is not estimable and the prespecified matched-balance criterion passed
+only in caudate. The manuscript can state that CpG cis-meQTL burden independently
+supports the VMR predictability gradient, while describing external validation
+and two-region matching as unresolved rather than complete.
 
 ### Figure and Table Notes
 
-- Potential main figure: internal validation of predictability by CpG meQTL burden (Phase 2 adjusted + matched panels; regions as facets).
-  - Rationale: primary genetic-validation claim.
-  - Key message: continuous predictability predicts meQTL burden after technical adjustment and matching.
-  - Required legend details: M3a covariates; FDR family = per region; matching variables.
+- Potential main figure: internal CpG cis-meQTL validation of the VMR
+  predictability gradient.
+  - Panel A: region-specific distributions of VMR meQTL burden across
+    predictability quantiles.
+  - Panel B: adjusted odds ratios per standard-deviation increase in continuous
+    predictability, with 95% confidence intervals.
+  - Panel C: high-versus-low matched burden differences, displaying post-match
+    maximum absolute SMD and marking only caudate as balance-qualified.
+  - Key message: more predictable VMRs contain substantially more CpGs with
+    conventional cis-meQTL support in all three regions.
 
-- Potential main figure: cross-region concordance + donor-group portability (Phase 4/5).
-  - Rationale: multi-region / diversity advance.
-  - Key message: effect directions highly concordant; gradient portable; residual discovery gaps are not ancestry claims.
-  - Include Exp3 method-matched TensorQTL downsample (module `10`: median n_sig 67,562.5; retention ≈0.78; exceeds DLPFC/hip).
+- Potential second main or supplementary figure: biological context of
+  genetically anchored VMRs.
+  - Panel A: adjusted expression and splicing enrichment for meQTL-supported
+    VMRs.
+  - Panel B: LINE/L1, H3K9me3, and quiescent-chromatin estimates across technical
+    restrictions.
+  - Panel C: MuSiC cell-composition sensitivity, with caudate DNAm scMD as an
+    orthogonal sensitivity.
+  - Key message: genetically anchored VMRs are transcriptionally coupled and
+    enriched in repressive compartments; LINE/L1 enrichment is regionally
+    heterogeneous.
 
-- Potential main figure: repeat/repressive robustness (Phase 6 consolidated table).
-  - Rationale: defends distal LINE/L1 / H3K9me3 architecture claim.
-  - Note DLPFC LINE/L1 fragility.
+- Potential supplementary tables:
+  - CpG mapping and calibration QC by region and donor group.
+  - Complete adjusted VMR burden models and matched-balance diagnostics.
+  - Identical-pair donor-group concordance and MAF/testing-opportunity matching.
+  - Expression/splicing enrichment models.
+  - Consolidated repeat, mappability, problematic-region, and cell-type
+    sensitivity estimates.
+  - External-resource assay-universe audit showing why the gradient is not
+    estimable.
 
-- Potential supplementary figure/table: external Jaffe/Schulz models; EA M0 vs EA-M3a caudate sensitivity; lead-SNP retention (module `04`) vs official TensorQTL remap (module `10`); Phase 7 SCZ application if retained as proof-of-application.
-  - Key columns for tables: region, n, coef, SE, *P*/FDR, model name, resource ID.
-
-- Do not elevate BrainSEQ WGBS meQTL as independent external validation in figures.
+A consolidated manuscript figure has not yet been regenerated from the final
+post-QC inputs. Pre-final cross-region, downsampling, calibrated-estimator, and
+schizophrenia locus figures should not be used for manuscript claims.
 
 ### Reproducibility Information
 
-- Analysis directory: `/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/`
-- Primary scripts: `01_cpg_meqtl_mapping/_h/04_tensorqtl_map.py`, `05_qc_summarize.py`; `02_vmr_meqtl_burden/_h/*`; `03_external_meqtl_validation/_h/*`; `04_cross_region_sharing/_h/*`; `05_donor_group_comparison/_h/*`; `06_transcription_splicing_integration/_h/*`; `07_repeat_mappability_sensitivity/_h/*`; `08_schizophrenia_risk_application/_h/*`; `10_downsampling_caudate/_h/*`
-- Config: `config/meqtl_parameters.yml`, `config/covariates.yml`, `config/paths.yml`, `config/analysis_thresholds.yml`
-- Key outputs:
-  - AA M3a QC: `01_cpg_meqtl_mapping/{region}/_m/tensorqtl/qc/meqtl_qc_summary.tsv` (cis maps under `.../covariate_sensitivity/tensorqtl/M3a/`)
-  - EA M0 QC: `01_cpg_meqtl_mapping/{region}/_m/tensorqtl/EA/qc/meqtl_qc_summary.tsv`
-  - Burden: `02_vmr_meqtl_burden/_m/{region}/burden_model_results.tsv`, `matched_analysis_results.tsv`
-  - External: `03_external_meqtl_validation/_m/phase3_criterion5_verdict.tsv`
-  - Cross-region / Exp3: `04_cross_region_sharing/_m/phase4_claim_summary.tsv`, `caudate_downsample/downsample_claim_snapshot.tsv`, `gxregion/gxregion_claim_snapshot.tsv`
-  - Official TensorQTL downsample: `10_downsampling_caudate/_m/tensorqtl_downsample_claim_snapshot.tsv`, `tensorqtl_downsample_replicate_results.tsv`, `tensorqtl_downsample_vs_regions.tsv`
-  - Donor-group / Exp2: `05_donor_group_comparison/_m/aa_ea_effect_concordance_summary.tsv`, `maf_ld_matched_discovery_claim.tsv`, `experiment2_depth_claim_summary.tsv`
-  - TX: `06_transcription_splicing_integration/_m/tx_enrichment_primary.tsv`, `phase5_claim_summary.tsv`
-  - Repeat: `07_repeat_mappability_sensitivity/_m/phase6_claim_summary.tsv`, `consolidated_robustness_table.tsv`
-  - SCZ: `08_schizophrenia_risk_application/_m/caudate/architecture_decision_snapshot.tsv`
-- Log files inspected: Phase 1 TensorQTL SLURM logs under region `_m/logs/`; Exp3 downsample/G×region completion under `04_.../_m/logs/`; module `10` logs under `10_downsampling_caudate/_m/logs/`
-- Execution command (representative): `sbatch` of module `step_*.sh` from each module `_h/` using conda env `/projects/p32505/opt/envs/genomics`
-- Execution date: primary M3a lock and Phase 2–6 refresh 2026-08-01; Exp2/3 depth 2026-08-05; official TensorQTL remap **completed** (claim snapshot present; docs updated 2026-08-07)
-- Git commit (repo HEAD at summary time): `b1c99ed36` (later uncommitted analysis outputs may exist beyond this commit)
-- Workflow manager: SLURM batch scripts (no Snakemake/Nextflow for these modules)
-- Compute environment: Northwestern Quest HPC; TensorQTL on `gengpu` A100; CPU steps on `genomics`
-- Container or environment file: conda env `genomics` at `/projects/p32505/opt/envs/genomics` (no project-local `environment.yml` recorded for this module set)
-- Python version: 3.11.13 (from `genomics` env query 2026-08-05)
-- Key package versions: `tensorqtl` 1.0.10; `pandas` 2.3.3; `numpy` 2.2.6 (env query). Runtime logs did not consistently print package versions.
-- Random seed: TensorQTL default seed 20260722 in Phase 1 map script; Exp3/10 downsample seed **20260805**
-- Missing reproducibility information: per-job package-version dumps not standard in all SLURM logs; TensorQTL import warns that R/`qvalue` via `rfunc` is unavailable—code path uses `py_qvalue` in `04_tensorqtl_map.py` (confirm wording in Methods)
+- Analysis root: `meqtl-validation/`.
+- Primary configuration: `config/meqtl_parameters.yml`,
+  `config/covariates.yml`, `config/analysis_thresholds.yml`, and
+  `config/paths.yml`.
+- Primary CpG-mapping scripts:
+  `01_cpg_meqtl_mapping/_h/02a_prepare_cpg_bed.py`,
+  `02b_merge_cpg_beds.py`,
+  `03_prepare_genotypes.sh`, `04_tensorqtl_map.py`, and
+  `05_qc_summarize.py`.
+- VMR aggregation and inference:
+  `02_vmr_meqtl_burden/_h/01_aggregate_vmr_burden.py` and
+  `02_fit_burden_models.py`.
+- Donor-group, transcription, repeat, and cell-type modules:
+  `05_donor_group_comparison/_h/`,
+  `06_transcription_splicing_integration/_h/`,
+  `07_repeat_mappability_sensitivity/_h/`, and
+  `11_celltype_compartment_sensitivity/_h/`.
+- SLURM execution: TensorQTL mapping uses the `gengpu` partition with one A100
+  GPU; downstream models use the `genomics` partition. Each module has
+  repository-local `step_*.sh` submission scripts. There is not yet a single
+  end-to-end submission wrapper for the complete general meQTL-validation
+  workflow.
+- Compute environment: conda environment
+  `/projects/p32505/opt/envs/genomics`; no container was used.
+- Environment at summary time: Python 3.11.13, TensorQTL 1.0.10, NumPy 2.2.6,
+  and pandas 2.3.3. A run-frozen project-local environment specification is not
+  currently attached to the general workflow.
+- Primary random seed: `20260722`; matched analyses used 10,000 within-pair
+  permutations.
+- Current output refresh date: 2026-08-08.
+- Repository commit at summary time: `e94c103b9` with additional uncommitted
+  analysis outputs and documentation changes.
+- Analysis schema: version 2; downstream consumers reject older burden tables.
+
+Key current outputs are:
+
+- `01_cpg_meqtl_mapping/{region}/_m/tensorqtl/qc/meqtl_qc_summary.tsv`
+- `01_cpg_meqtl_mapping/{region}/_m/tensorqtl/qc/calibration/lambda_by_qval.tsv`
+- `02_vmr_meqtl_burden/_m/{region}/aggregation_summary.tsv`
+- `02_vmr_meqtl_burden/_m/{region}/burden_model_results.tsv`
+- `02_vmr_meqtl_burden/_m/{region}/matched_analysis_results.tsv`
+- `05_donor_group_comparison/_m/aa_ea_predictability_portability.tsv`
+- `05_donor_group_comparison/_m/aa_ea_effect_concordance_summary.tsv`
+- `05_donor_group_comparison/_m/maf_ld_matched_discovery_claim.tsv`
+- `06_transcription_splicing_integration/_m/tx_enrichment_primary.tsv`
+- `07_repeat_mappability_sensitivity/_m/consolidated_robustness_table.tsv`
+- `11_celltype_compartment_sensitivity/_m/celltype_claim_summary.tsv`
+- `03_external_meqtl_validation/_m/phase3_criterion5_verdict.tsv`
 
 ### Limitations and Integration Notes
 
-1. High λ_GC in cis-meQTL maps is expected with dense true signal but should be described carefully; nonsignificant-site λ_NS informed M3a lock rather than raw λ_GC alone (`PHASE1_LOCK_DECISION.md`).
-2. Elastic-net VMR scores are **local genetic predictability**, not calibrated locus heritability.
-3. Lead-SNP retention BH-FDR and TensorQTL permutation FDR are different families—do not compare absolute n_sig across those methods in main text.
-4. BrainSEQ WGBS meQTL must not be counted as independent Phase 3 support [@doi:10.1038/s41467-021-25517-3].
-5. Donor-group differences in discovery rates are not labeled ancestry-specific; no formal genotype × donor-group interaction is claimed.
-6. G×region interactions are significant for a minority of screened pairs; caudate discovery excess should not be framed as widespread region-selective effect heterogeneity from discovery counts alone.
-7. LINE/L1 enrichment is fragile in DLPFC under high-mappability filters; cell-type composition of repeat-rich compartments remains unresolved in bulk WGBS.
-8. Integrate the validated results into the manuscript with claims constrained by the documented sensitivity analyses and limitations.
+The established elastic-net score should continue to be called local genetic
+predictability or aggregate local SNP contribution. Although it is strongly
+validated by CpG-level meQTL burden, it is not a calibrated locus-level
+heritability estimate. Elastic-net-selected SNPs are neither significant meQTLs
+nor fine-mapped causal variants.
 
-### Claim checklist (analysis-side, current)
+The large lead-cis lambda values reflect a mixture of abundant true local signal
+and residual calibration; they should not be used alone to argue that all test
+statistics are well calibrated. The M3a choice and nonsignificant-site lambda
+values should remain visible in supplementary QC.
 
-| Claim | Supported by outputs? |
+The adjusted continuous result is the primary validation because DLPFC and
+hippocampal extreme-group matches did not meet the prespecified balance
+threshold. Technical-covariate completeness also reduced the adjusted DLPFC
+analysis to 3,962 VMRs, so its effect estimate applies to that complete-case
+subset. The donor-group analysis is stratified but not power matched, and the
+white American DLPFC sample is small. Discovery differences must therefore not
+be interpreted as ancestry-specific without adequately powered interaction
+tests and LD-aware comparisons.
+
+Expression and splicing enrichment establishes regulatory coupling, not
+mediation or causality. The hippocampal splicing result is null and should remain
+visible. LINE/L1 enrichment is sensitive to the DLPFC high-mappability
+restriction; H3K9me3 and quiescent-chromatin results are more consistent across
+regions. Bulk cell-composition sensitivity reduces a major confounding concern
+but does not identify the cell type in which a cis-meQTL acts.
+
+Independent external comparative validation remains the principal evidence gap.
+The current public tables cannot supply a valid supported-versus-unsupported
+assayed universe, and overlapping BrainSeq results cannot fill that role. A new
+external dataset must provide genome-wide or array-wide tested CpGs, including
+nonsignificant results, before the external gradient can be estimated.
+
+Before final manuscript packaging, rerun the cross-region sharing,
+rate-based caudate downsampling, schizophrenia-risk application, and calibrated
+estimator sensitivity from the current final CpG and schema-v2 VMR inputs. Then
+regenerate the consolidated figure, supplementary tables, and the Phase 1 lock
+memo without retaining superseded result versions.
+
+### Claim Checklist
+
+| Claim | Current support |
 |---|---|
-| Predictability → CpG meQTL burden (AA, 3 regions) | Yes |
-| Survives adjustment + matching | Yes |
-| ≥1 independent public brain meQTL resource | Yes (Jaffe + Schulz) |
-| Cross-region effect concordance | Yes |
-| Donor-group gradient portability | Yes |
-| Transcriptional coupling of meQTL-supported VMRs | Yes (expression 3/3; PSI 2/3) |
-| Repeat/repressive enrichment with sensitivity | Yes (LINE/L1 2/3) |
-| Caudate ≠ solely N (method-matched TensorQTL) | Yes (module `10`; median n_sig 67,562.5; retention 0.783) |
-| Ancestry-specific biology | No (not claimed) |
+| Higher VMR local predictability is associated with greater CpG cis-meQTL burden | Supported in 3/3 regions after prespecified adjustment |
+| The association is independent of measured technical and genomic features | Supported in 3/3 regions |
+| The extreme-group matched result is fully balanced | Supported in caudate only; DLPFC and hippocampus are directional only |
+| The aggregate gradient is present in both donor groups | Supported in 3/3 regions |
+| Donor-group differences are ancestry-specific | Not supported and not claimed |
+| meQTL-supported VMRs are enriched for expression associations | Supported in 3/3 regions |
+| meQTL-supported VMRs are enriched for splicing associations | Supported in caudate and DLPFC; null in hippocampus |
+| H3K9me3 and quiescent enrichment survive technical and cell-type sensitivity | Supported in 3/3 regions |
+| LINE/L1 enrichment is uniformly robust across regions | Not supported; robust in at least two regions, DLPFC is fragile |
+| An independent public brain dataset validates the predictability gradient | Not currently estimable |
+| Cross-region, caudate-downsampling, schizophrenia, and calibrated-estimator claims are final | No; final-input reruns are required |

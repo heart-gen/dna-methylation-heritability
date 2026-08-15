@@ -12,10 +12,10 @@ See `inputs/data_dictionary/_m/public_meqtl_resources.tsv` and
 
 | Resource | Role | Status |
 |---|---|---|
-| `jaffe_dlpfc_450k_meqtl` | Primary external (DLPFC array) | Harmonized + enrichment done |
-| `schulz_hippocampus_array_meqtl` | Primary external (hippocampus array) | Harmonized + enrichment done |
+| `jaffe_dlpfc_450k_meqtl` | Primary external, DLPFC-matched (450K) | Universe rebuilt from array manifest (2026-08-15) |
+| `schulz_hippocampus_array_meqtl` | Primary external, hippocampus-matched (450K) | Restored to primary; universe from array manifest |
 | `brainseq_wgbs_meqtl` | **Not external** — cohort overlaps this discovery data (BrainSeq/LIBD) | Synapse deferred; even if obtained, do not count as independent Phase 3 validation |
-| `brainseq_wgbs_meqtl_scz_subset` | Exploratory only (Nature SCZ-risk tables) | Harmonized; not genome-wide / not independent |
+| `brainseq_wgbs_meqtl_scz_subset` | Exploratory only (Nature SCZ-risk tables) | WGBS, no genome-wide universe → `not_estimable` |
 
 **Note:** BrainSeq full catalogs are same-/overlapping-cohort with this project's WGBS+genotype donors. Prefer Jaffe and Schulz for independent external support. See `_m/harmonized/brainseq_wgbs_meqtl.PENDING_SYNAPSE.txt`.
 
@@ -26,7 +26,7 @@ See `inputs/data_dictionary/_m/public_meqtl_resources.tsv` and
 cd meqtl-validation/03_external_meqtl_validation/_m
 mkdir -p logs
 sbatch ../_h/step_1.sh          # init / download checklist
-sbatch ../_h/step_harmonize.sh  # hg38 harmonize + VMR overlap
+sbatch ../_h/step_0.sh          # download + hg38 harmonize + VMR overlap
 # After Phase 2 burden tables exist:
 sbatch ../_h/step_2.sh          # enrichment models + summary
 # Or locally:
@@ -37,20 +37,38 @@ sbatch ../_h/step_2.sh          # enrichment models + summary
 Primary model: VMR any-external-support ~ continuous predictability (+ n CpGs / tech covariates).  
 Preferred tissue pairings are `primary`; other region×resource tests are `secondary_cross_region`.
 
-## Primary results (2026-07-30)
+## Assayed universe (repair-v2 + 2026-08-15 fix)
 
-Adjusted-minimal binomial GLM (predictability + n_tested_cpgs):
+Only CpGs documented as assayed by a resource enter its denominator. **The assayed
+universe is the Illumina 450K manifest**, not the published results table.
 
-| Resource | Region | Role | Support rate | Coef | p |
-|---|---|---|---:|---:|---:|
-| Jaffe 450K | DLPFC | primary | 0.24 | +0.15 | 3.5×10⁻⁶ |
-| Schulz array | Hippocampus | primary | 0.06 | +0.30 | 2.4×10⁻¹⁷ |
+This corrects two opposite errors:
 
-Matched high vs low predictability (perm. p): Jaffe/DLPFC Δ=+0.11 (p≈0.004); Schulz/hippocampus Δ=+0.09 (p≈5×10⁻⁴).
+| Version | Denominator | Jaffe/DLPFC VMR support rate | Problem |
+|---|---|---:|---|
+| Pre-repair (≤2026-07-30) | all WGBS VMR CpGs | 0.24 | Counted never-assayed WGBS CpGs as negatives |
+| Repair-v2 (2026-08-08) | results-table rows only | 1.000 | Only positives; outcome constant → perfect separation |
+| **Current (2026-08-15)** | **450K manifest ∩ VMR CpGs** | **0.625** | — |
 
-**§7.5 criterion 5:** pass (≥1 external resource supports the gradient; both primary pairings pass).
+Jaffe and Schulz are both 450K studies (100.0% and 99.9% of their significant probes
+are on the manifest), so both are eligible for the tissue-matched primary test.
+`build_array_resource()` refuses any resource whose significant probes fall below 95%
+manifest coverage, so a non-array catalog cannot be given manufactured negatives.
+The lifted manifest is cached at `_m/support/450k_universe_hg38.tsv.gz`
+(485,441/485,512 probes lift to hg38).
 
-Note: Jaffe × caudate cross-region secondary is negative — interpret tissue-matched primary tests for the claim; do not pool platforms.
+BrainSeq is WGBS with no genome-wide universe and remains `not_estimable` — and is
+same-cohort, so it would be exploratory regardless.
+
+Full root-cause analysis: [`PHASE3_DIAGNOSIS.md`](PHASE3_DIAGNOSIS.md).
+
+**Caveat for Methods:** only ~4% of WGBS VMR CpGs are on the 450K array (DLPFC
+6,658/154,325). The array under-samples distal intergenic sequence, which is where
+the high-predictability VMR class lives. This test is a conservative, array-accessible
+probe of the central axis.
+
+Note: Jaffe × caudate and Schulz × non-hippocampus are `secondary_cross_region` —
+interpret tissue-matched primary tests for the claim; do not pool platforms.
 
 Outputs:
 

@@ -9,6 +9,9 @@ Run from the repository root:
 python3 meqtl-validation/12_supplementary_data/_h/build_supplementary_data.py
 ```
 
+For the SLURM repair rerun, submit `_h/step_1.sh` only after every schema-v2
+analysis dependency succeeds.
+
 By default, generated archives and their release manifest are written beneath
 `meqtl-validation/12_supplementary_data/_m/`, which is intentionally ignored by
 Git. Use `--output PATH` to stage them elsewhere.

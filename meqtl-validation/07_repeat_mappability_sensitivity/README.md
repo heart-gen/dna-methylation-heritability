@@ -1,5 +1,11 @@
 # Phase 6: Repeat / mappability technical validation
 
+> **Repair-v2 order:** run `step_2_tech_joins.sh` after Phase 2 aggregation but
+> before Phase 2 modeling. It runs in join-only mode, requires at least 50%
+> reciprocal overlap for non-exact interval matches, records join provenance, and
+> cannot update historical Phase 6 claim tables. Run `step_1.sh` after repaired
+> Phase 2 models are complete.
+
 Produce **one** consolidated robustness table (not scattered sensitivity figures).
 
 ## Question
@@ -28,9 +34,9 @@ Primary script: `_h/03_run_robustness_analyses.py`. Tech joins: `_h/04_complete_
 | Segdup excluded | `overlaps_segdup == 0` |
 | SNP proximity excluded | no overlap with common SNP ±150 bp windows |
 | Adjusted | length + num_snps (annotation) or coverage/variance (burden) |
-| Matched | NN high vs low predictability on technical z-scores |
+| Matched | propensity-score high vs low predictability, 0.25-SD caliper, no replacement, paired randomization |
 
-## Results (2026-08-01; M3a burden arm)
+## Historical results (invalidated pending repair-v2 rerun; 2026-08-01 M3a burden arm)
 
 Claim summary (`phase6_claim_summary.tsv`): direction-consistent in ≥2 regions.
 
