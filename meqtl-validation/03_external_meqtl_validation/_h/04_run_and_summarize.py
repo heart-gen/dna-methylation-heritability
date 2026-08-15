@@ -76,6 +76,7 @@ def main() -> None:
             (m["analysis_role"] == "primary")
             & (m["model"] == "adjusted_minimal")
             & (~m["resource_id"].isin(["brainseq_wgbs_meqtl_scz_subset"]))
+            & (m["assay_universe_complete"].fillna(False).astype(bool))
         ]
         for _, row in focus.iterrows():
             coef = row.get("coef_predictability")
