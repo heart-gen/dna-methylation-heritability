@@ -13,6 +13,16 @@ args <- commandArgs(trailingOnly = TRUE)
 chr  <- args[1]
 
 ## Function
+read_psam <- function(psam_file) {
+                                        # .psam may or may not carry a leading
+                                        # '#FID IID SEX' header line, so read it
+                                        # headerless and drop the comment row
+    samples <- fread(psam_file, header = FALSE,
+                     col.names = c("FID", "IID", "PAT"))
+    samples <- samples[!startsWith(as.character(FID), "#")]
+    return(samples[, .(FID, IID)])
+}
+
 filter_pheno <- function(meth_levels, brain_id, ances, demo, pc) {
                                         # Filter ancestry and phenotypes
     demo  <- demo[region == "hippocampus" & agedeath >= 17]
@@ -65,8 +75,7 @@ pc        <- fread(pca)
 pos       <- fread(cpg_names, header = FALSE)[-c(1, 2), , drop = FALSE]
 ances     <- fread(f_ances)
 demo      <- fread(pheno_file_path)
-samples   <- fread(psam_file, header = TRUE, 
-                   col.names = c("FID", "IID", "PAT"))[, .(FID, IID)]
+samples   <- read_psam(psam_file)
 
 
 tmp_dir   <- here("heritability", "hippocampus", "_m", "cpg", paste0("chr_", chr),
@@ -109,6 +118,10 @@ for (chunk_path in tmp_files) {
                                         # Regress PCs
     pc_res <- regress_pcs_vectorized(pheno$meth_levels, pheno$pc)
     filtered_samples <- samples[match(pheno$ind, samples$FID), c("FID", "IID")]
+    if (anyNA(filtered_samples$FID) || anyNA(filtered_samples$IID)) {
+        stop("Donor(s) absent from ", basename(psam_file), ": ",
+             paste(pheno$ind[is.na(filtered_samples$FID)], collapse = ", "))
+    }
     res_chunk <- data.table::data.table(FID = filtered_samples$FID,
                                         IID = filtered_samples$IID,
                                         pc_res)
