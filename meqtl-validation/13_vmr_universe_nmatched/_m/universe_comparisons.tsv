@@ -1,0 +1,11 @@
+comparison	controls_for	isolates	value_a	value_b	ratio	n_replicates	replicate_min	replicate_max	full_n_within_replicate_range
+caudate_n_matched_vs_caudate_full_n	everything except donor count	sample size	23476405.8	23451375	1.0011	30	23431833	23530379	True
+caudate_n_matched_vs_dlpfc	donor count	region / library	23476405.8	20507140	1.1448	30	23431833	23530379	
+caudate_n_matched_vs_hippocampus	donor count	region / library	23476405.8	20757353	1.131	30	23431833	23530379	
+per_donor_coverage_caudate	-	library depth and uniformity	17.446	0.9214		154	8.849	21.146	
+per_donor_coverage_dlpfc	-	library depth and uniformity	18.254	0.8582		112	5.708	30.053	
+per_donor_coverage_hippocampus	-	library depth and uniformity	18.233	0.8672		117	10.041	29.206	
+paired_depth_caudate_minus_dlpfc	donor identity	region library depth	-0.665	0.5752	0.9632	92	-14.3155	13.5626	53/92 donors higher in caudate
+paired_depth_caudate_minus_hippocampus	donor identity	region library depth	-0.7095	0.8369	0.9609	92	-16.4765	7.4053	51/92 donors higher in caudate
+paired_adequacy_caudate_minus_dlpfc	donor identity	region library adequacy	0.0641	0.0506	1.0748	92	-0.0901	0.4557	82/92 donors higher in caudate
+paired_adequacy_caudate_minus_hippocampus	donor identity	region library adequacy	0.0544	0.0455	1.0628	92	-0.1911	0.2358	78/92 donors higher in caudate
