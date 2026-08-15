@@ -15,7 +15,16 @@
 ## Edit with your job command
 REGION_LIST="./vmr.bed"
 CHR_FILE="/projects/b1213/resources/genomes/human/gencode-v47/fasta/chromosome_sizes.txt"
-DATA="/projects/b1213/users/alexis/projects/dna-methylation-heritability/inputs/genotypes/all_individuals"
+
+# Repository root, resolved the way here::here() does in the R scripts
+REPO_DIR="${SLURM_SUBMIT_DIR:-$PWD}"
+while [ "$REPO_DIR" != "/" ] && [ ! -d "$REPO_DIR/.git" ]; do
+    REPO_DIR=$(dirname "$REPO_DIR")
+done
+
+PLINK2="/projects/p32505/opt/bin/plink2"
+
+DATA="$REPO_DIR/inputs/genotypes/all_individuals"
 OUTPUT="./plink_format"
 
 # Get the current region name from the region list
@@ -49,11 +58,22 @@ echo "Node name: ${SLURM_NODENAME}"
 echo "Hostname: ${HOSTNAME}"
 echo "Task id: ${SLURM_ARRAY_TASK_ID}"
 
-## List current modules for reproducibility
+## Check inputs and software
+##
+## plink2 comes from the shared opt tree rather than a module: the genomics
+## conda env ships plink 1.9 only, which cannot read .pgen/.pvar input.
 
-module purge
-module load plink/2.0-alpha-3.3
-module list
+if [ ! -d "$REPO_DIR/.git" ]; then
+    echo "ERROR: could not locate repository root from ${SLURM_SUBMIT_DIR:-$PWD}"
+    exit 1
+fi
+
+if [ ! -x "$PLINK2" ]; then
+    echo "ERROR: plink2 not found at $PLINK2"
+    exit 1
+fi
+
+"$PLINK2" --version
 
 # check chromosome size information
 
@@ -76,29 +96,29 @@ fi
 echo "Extracting SNPs from AA subjects on $CHR: $START-$END ($WINDOW bp window)" 
 
 # Subset of SNPs in AA cohort
-plink2 --pfile "$DATA/TOPMed_LIBD" \
-       --chr "$CHR" \
-       --from-bp "$START_POS" \
-       --to-bp "$END_POS" \
-       --make-bed \
-       --keep "samples-AA.txt" \
-       --no-parents \
-       --no-sex \
-       --no-pheno \
-       --out "$CHR_DIR/TOPMed_LIBD-AA.${START}_${END}"
+"$PLINK2" --pfile "$DATA/TOPMed_LIBD" \
+          --chr "$CHR" \
+          --from-bp "$START_POS" \
+          --to-bp "$END_POS" \
+          --make-bed \
+          --keep "samples-AA.txt" \
+          --no-parents \
+          --no-sex \
+          --no-pheno \
+          --out "$CHR_DIR/TOPMed_LIBD-AA.${START}_${END}"
 
 echo "Extracting SNPs from EA subjects on $CHR: $START-$END ($WINDOW bp window)" 
 
 # Subset of SNPs in EA cohort
-plink2 --pfile "$DATA/TOPMed_LIBD" \
-       --chr "$CHR" \
-       --from-bp "$START_POS" \
-       --to-bp "$END_POS" \
-       --make-bed \
-       --keep "samples-EA.txt" \
-       --no-parents \
-       --no-sex \
-       --no-pheno \
-       --out "$CHR_DIR/TOPMed_LIBD-EA.${START}_${END}"
+"$PLINK2" --pfile "$DATA/TOPMed_LIBD" \
+          --chr "$CHR" \
+          --from-bp "$START_POS" \
+          --to-bp "$END_POS" \
+          --make-bed \
+          --keep "samples-EA.txt" \
+          --no-parents \
+          --no-sex \
+          --no-pheno \
+          --out "$CHR_DIR/TOPMed_LIBD-EA.${START}_${END}"
 
 log_message "**** Job ends ****"
