@@ -64,13 +64,36 @@ mkdir -p "$OUT_DIR"
 echo "Working on: Chromosome $CHR"
 echo "Splitting methylation matrix into columns of $SPLIT"
 
-# Get number of columns (based on header)
+# Get number of columns (based on header) and rows
 NUM_COLS=$(head -1 "$METH_FILE" | tr '\t' '\n' | wc -l)
+NUM_ROWS=$(wc -l < "$METH_FILE")
+
+# A previous run may have been killed part-way through the split, which would
+# leave 02b.res_var.R silently residualizing a truncated chromosome. Reuse the
+# existing chunks only when the whole set is present and each has full height.
+EXPECTED_CHUNKS=$(( (NUM_COLS - 2 + SPLIT - 1) / SPLIT ))
+EXISTING_CHUNKS=$(ls "$OUT_DIR"/cpg_meth_*.tsv 2>/dev/null | wc -l)
+SPLIT_OK=0
+
+if [ "$EXISTING_CHUNKS" -eq "$EXPECTED_CHUNKS" ]; then
+    SPLIT_OK=1
+    for chunk in "$OUT_DIR"/cpg_meth_*.tsv; do
+        if [ "$(wc -l < "$chunk")" -ne "$NUM_ROWS" ]; then
+            echo "Truncated split file ($(wc -l < "$chunk") of $NUM_ROWS rows): $chunk"
+            SPLIT_OK=0
+            break
+        fi
+    done
+fi
 
 # Loop over column chunks
-if ls "$OUT_DIR"/cpg_meth_*.tsv 1> /dev/null 2>&1; then
-    echo "Split files already exist, skipping splitting."
+if [ "$SPLIT_OK" -eq 1 ]; then
+    echo "All $EXPECTED_CHUNKS split files already exist, skipping splitting."
 else
+    if [ "$EXISTING_CHUNKS" -gt 0 ]; then
+        echo "Discarding unusable split ($EXISTING_CHUNKS of $EXPECTED_CHUNKS files present); re-splitting."
+        rm -f "$OUT_DIR"/cpg_meth_*.tsv
+    fi
     for ((i=3; i<=NUM_COLS; i+=SPLIT)); do
         start=$i
         end=$((i + SPLIT - 1))
@@ -83,6 +106,12 @@ else
         cols=$(seq -s, $start $end)
         cut -f1,2,$cols "$METH_FILE" > "${OUT_DIR}/cpg_meth_${start}_${end}.tsv"
     done
+
+    WRITTEN_CHUNKS=$(ls "$OUT_DIR"/cpg_meth_*.tsv 2>/dev/null | wc -l)
+    if [ "$WRITTEN_CHUNKS" -ne "$EXPECTED_CHUNKS" ]; then
+        log_message "Error: wrote $WRITTEN_CHUNKS split files, expected $EXPECTED_CHUNKS"
+        exit 1
+    fi
 fi
 
 ## Activate conda environment

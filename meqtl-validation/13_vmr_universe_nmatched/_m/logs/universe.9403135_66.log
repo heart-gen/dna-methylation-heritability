@@ -1,0 +1,15 @@
+**** Job starts 2026-08-15 14:08:57 ****
+Job id: 9403135  Task: 66
+Region: hippocampus  Chromosome: 22
+region=hippocampus chr=22
+loading repaired HDF5SummarizedExperiment: /projects/b1213/users/alexis/projects/dna-methylation-heritability/inputs/wgbs-data/hippocampus/_m/hippocampus_chr22_BSobj
+donors=117 sites_pre_cov_filter=577753
+           used  (Mb) gc trigger  (Mb) max used  (Mb)
+Ncells  9939512 530.9   17926235 957.4 11930177 637.2
+Vcells 53291944 406.6   87094835 664.5 87094835 664.5
+            used  (Mb) gc trigger   (Mb)  max used   (Mb)
+Ncells   9966617 532.3   17926235  957.4  11930177  637.2
+Vcells 120959486 922.9  228361232 1742.3 188558020 1438.6
+Error: missing snpPC1-3 for 1 donors in hippocampus chr22
+Execution halted
+ERROR conda.cli.main_run:execute(148): `conda run Rscript ../_h/01_universe_decomposition.R 22 hippocampus` failed. (See above for error)
