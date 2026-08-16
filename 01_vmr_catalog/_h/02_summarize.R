@@ -148,6 +148,13 @@ write_atomic(rbindlist(cutoff_parts), file.path(vmr_dir, "sd_cutoffs.tsv"))
 
 message("[vmr] ", nrow(vmr), " VMRs total | vmr_set_id = ", vmr_set_id)
 
+## AGENTS.md 9 requires vmr_set_id in the run manifest: that is the file every
+## downstream module reads to confirm which catalog it consumed. 00_new_run.R
+## creates the field empty because the id does not exist until the catalog is
+## called, and nothing was filling it in afterwards.
+append_manifest(list(dir = run_dir),
+                list(vmr_set_id = vmr_set_id, n_vmrs = nrow(vmr)))
+
 ## ------------------------------- part 2: per-VMR mean methylation phenotypes
 
 pheno_dir <- file.path(run_dir, "vmr", "phenotypes")
