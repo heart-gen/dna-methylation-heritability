@@ -49,6 +49,23 @@ cis:
   window_bp: 500000
   maf_min: 0.05
   missingness_max: 0.05
+  # Minimum cis variants for a VMR to enter local heritability estimation.
+  #
+  # Two distinct cases, both real in the AA dlpfc catalog (9,572 VMRs):
+  #   0 variants     176 VMRs (1.8%), in pericentromeric heterochromatin and
+  #                  acrocentric short arms where imputation panels have none.
+  #   1-99 variants  19 VMRs, including six on chr15:22.5-22.9 Mb with exactly
+  #                  one variant each.
+  #
+  # A single-SNP elastic net is not a broken computation, but it is not the
+  # estimator the variance calibration was built against, so h2_en_calibrated
+  # for such a locus is uninterpretable rather than merely imprecise. Excluding
+  # them is more honest than reporting a number the calibration cannot support.
+  #
+  # PI decision 2026-08-16. Excluded loci are RECORDED, never silently dropped:
+  # they track genomic features rather than occurring at random, so the analyzed
+  # set is not a uniform sample of the catalog and the methods say so.
+  min_cis_variants: 100
 
 # -------------------------------------------------------------- acceptance gates
 gates:

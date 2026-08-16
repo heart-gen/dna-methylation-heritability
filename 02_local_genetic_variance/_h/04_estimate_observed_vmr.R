@@ -29,6 +29,10 @@ cli <- parse_cli(list(
     cis_window_bp = "500000",
     maf_min = "0.05",
     snp_missingness_max = "0.05",
+    ## config/thresholds.yml cis.min_cis_variants. Kept as a CLI default rather
+    ## than read here so this script stays runnable standalone; step_5 passes
+    ## the configured value.
+    min_cis_variants = "100",
     write_diagnostics = "FALSE",
     include_sex_chromosomes = "FALSE",
     allow_estimator_mismatch = "FALSE"
@@ -301,6 +305,27 @@ if (ncol(genotype) < 2L) {
     write_qc_failure("fewer_than_two_snps_after_qc", input_snps, ncol(genotype))
     quit(save = "no", status = 0L)
 }
+
+## Minimum cis variants (config/thresholds.yml cis.min_cis_variants).
+##
+## A locus with a handful of cis SNPs still produces a number, which is exactly
+## the problem: the elastic net fits, the calibration maps it, and nothing
+## downstream marks it as resting on almost no predictors. The AA dlpfc catalog
+## has 19 such VMRs, six of them with a single variant. That is not the
+## estimator the calibration was built against, so the estimate is
+## uninterpretable rather than merely imprecise.
+##
+## Applied AFTER MAF/missingness QC, matching the methods text ("fewer than 100
+## after filtering"). Recorded as a QC failure, never a silent drop -- these
+## loci cluster by genomic feature, so the analyzed set is not a uniform sample
+## of the catalog and the exclusion count has to be reportable.
+min_cis_variants <- as_int(cli$min_cis_variants, "min_cis_variants")
+if (ncol(genotype) < min_cis_variants) {
+    message("[qc] ", ncol(genotype), " cis SNPs after QC (< ", min_cis_variants,
+            "); excluding ", chromosome, ":", start, "-", end)
+    write_qc_failure("fewer_than_min_cis_variants", input_snps, ncol(genotype))
+    quit(save = "no", status = 0L)
+}
 fam <- big_snp$fam[, 1:2, drop = FALSE]
 names(fam) <- c("FID", "IID")
 fam$FID <- as.character(fam$FID)
@@ -410,6 +435,7 @@ summary <- cbind(data.frame(
     snps_after_qc = ncol(genotype),
     maf_min = maf_min,
     snp_missingness_max = missingness_max,
+    min_cis_variants = min_cis_variants,
         plink_source = normalizePath(bed),
     phenotype_source = normalizePath(phenotype_file),
     calibration_model = normalizePath(cli$calibration_model),
