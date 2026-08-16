@@ -54,15 +54,25 @@ arm_definitions:
 # is the intersection of (phenotype table) x (BSobj colData$brnum) x (psam), so
 # the observed n will be <= these numbers.
 #
-# design_n is the PI-locked expected analysis-set size. It is null until the
-# first accepted 01_vmr_catalog run reports observed counts and the PI signs off.
-# While null, assert_expected_n() records the observed count and warns; once set,
-# a mismatch is a hard stop (AGENTS.md 14).
+# design_n is null until the first accepted 01_vmr_catalog run reports observed
+# counts and the PI signs off. While null, assert_expected_n() records the
+# observed count and warns; once set, a mismatch is a hard stop.
 #
-# For reference, the audit (writing-notes/PIPELINE_AUDIT.md) reports that the
-# legacy BA_only DLPFC and hippocampus runs used 96 and 101 donors because of the
-# V2 hard-coded `region == "caudate"` filter, against a correct 111 and 116.
-# Recovering those ~15 donors per region is a checkable outcome of the V2 fix.
+# For reference, the legacy BA_only DLPFC and hippocampus runs used 96 and 101
+# donors because of the V2 hard-coded `region == "caudate"` filter.
+#
+# Expected v2 AA analysis-set sizes, reconstructed from the inputs on
+# 2026-08-15 (phenotype -> BSobj -> psam, no blacklist):
+#
+#   caudate      154 -> 154 -> 153
+#   dlpfc        119 -> 119 -> 118
+#   hippocampus  118 -> 118 -> 117
+#
+# Note these are NOT the 111 and 116 in vmr-analysis/{dlpfc,hippocampus}/_m/
+# samples.txt. Those lists are post-blacklist, and the blacklist is retired in
+# v2 (see sample_blacklist below), so v2 should come in 7 and 1 donors higher.
+# Recovering ~20 donors per region relative to the legacy 96 and 101 is the
+# checkable outcome of the V2 fix.
 
 donor_counts:
   AA:
@@ -74,12 +84,29 @@ donor_counts:
     dlpfc:       { phenotype_n: 176, design_n: null }
     hippocampus: { phenotype_n: 180, design_n: null }
 
-# Sample blacklist. Legacy code had only the all_individuals arm reading a
-# blacklist, and the hippocampus copy read the DLPFC file by mistake
-# (all_individuals/hippocampus/_h/02b.res_var.R:81). Paths here are per-region
-# and resolved through resolve_path(); an absent file means "no exclusions",
-# never "fall back to another region".
+# Sample blacklist -- RETIRED IN v2. All three regions are null by design.
+#
+# PI decision (2026-08-15): the legacy blacklists were never a QC exclusion.
+# They existed only to reconcile a stale AA phenotype file that was missing
+# those donors, so that the all_individuals arm could be matched to the Black
+# American-only arm. v2 reads ONE phenotype table
+# (inputs/phenotypes/_m/phenotypes-all.tsv) for both arms, so there is nothing
+# left to reconcile and the exclusions are dropped.
+#
+# The eight donors involved (Br1249 Br1303 Br1371 Br1552 Br1693 Br1700 Br1883
+# from the DLPFC list, Br1927 from the hippocampus list) are all AA, all present
+# in the region BSobjs with usable WGBS data, and all genotyped. They are
+# INCLUDED in v2.
+#
+# Legacy files retained for provenance only, never read by v2:
+#   vmr-analysis/all_individuals/dlpfc/_m/samples_blacklist.txt        (7 donors)
+#   vmr-analysis/all_individuals/hippocampus/_m/samples_blacklist.txt (1 donor)
+#
+# The key is kept, and sample_blacklist() with it, so that the per-region
+# resolution guard survives: the legacy hippocampus copy read the DLPFC file by
+# mistake (all_individuals/hippocampus/_h/02b.res_var.R:81), and nothing here
+# may ever fall back to another region's list.
 sample_blacklist:
   caudate: null
-  dlpfc: vmr-analysis/all_individuals/dlpfc/_m/samples_blacklist.txt
+  dlpfc: null
   hippocampus: null

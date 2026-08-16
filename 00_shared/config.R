@@ -196,9 +196,12 @@ cohort_def <- function(cohort, root = repo_root()) {
 
 #' Per-region sample blacklist, or NULL.
 #'
-#' Never falls back to another region's file. The legacy hippocampus copy read
-#' the DLPFC blacklist (all_individuals/hippocampus/_h/02b.res_var.R:81), which
-#' silently excluded the wrong donors.
+#' Every region is null in v2: the legacy blacklists only reconciled a stale AA
+#' phenotype file and are retired (see config/cohorts.yml). This function is
+#' kept so the guard it enforces survives -- it never falls back to another
+#' region's file. The legacy hippocampus copy read the DLPFC blacklist
+#' (all_individuals/hippocampus/_h/02b.res_var.R:81), silently excluding the
+#' wrong donors.
 sample_blacklist <- function(region, root = repo_root()) {
     cohorts <- load_config("cohorts", root = root)
     p <- cohorts$sample_blacklist[[region]]

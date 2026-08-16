@@ -76,7 +76,20 @@ cd 01_vmr_catalog/_m && mkdir -p logs
 | V10 | chr1's length used as the bound for every chromosome | `chrom_size()` per chromosome | `00_shared/slurm.sh` |
 | V11 | 500 kb vs 1 Mb cis window between arms | One window from `config/thresholds.yml` | `step_4.sh` |
 | V12 | `module load plink` | plink2 from `/projects/p32505/opt/bin/plink2` | `00_shared/slurm.sh` |
-| — | Hippocampus read the **DLPFC** sample blacklist | Per-region resolution, no fallback | `00_shared/config.R` |
+| — | Hippocampus read the **DLPFC** sample blacklist | Blacklists retired; per-region resolution retained, no fallback | `config/cohorts.yml`, `00_shared/config.R` |
+
+### Sample blacklists are retired
+
+The legacy `samples_blacklist.txt` files were not a QC exclusion. They existed
+only to reconcile a stale AA phenotype file that was missing those donors, so
+the all-individual arm could be matched to the Black American-only arm. v2 reads
+one phenotype table for both arms, so nothing needs reconciling and all eight
+donors (7 DLPFC, 1 hippocampus — all AA, all with usable WGBS and genotypes) are
+**included**.
+
+Consequence for the acceptance gate: the AA analysis sets should be **153 /
+118 / 117** for caudate / DLPFC / hippocampus, not the 111 and 116 recorded in
+`vmr-analysis/{dlpfc,hippocampus}/_m/samples.txt`, which are post-blacklist.
 
 ## Outputs
 
@@ -155,9 +168,10 @@ expected consequence of the V1 repair, not a surprise.
 - **Full-scale runs.** Only chr22 caudate AA. No other chromosome, region, or
   arm has been run.
 - **`design_n`.** DLPFC and hippocampus AA must be checked against the expected
-  111 and 116 rather than the legacy 96 and 101 — recovering those ~15 donors
-  per region is the observable signature of the V2 fix, and it has **not** been
-  demonstrated yet.
+  **118** and **117** rather than the legacy 96 and 101 — recovering those ~20
+  donors per region is the observable signature of the V2 fix plus the retired
+  blacklist, and it has **not** been demonstrated by a run yet. The counts are
+  reconstructed from the inputs (phenotype → BSobj → psam), not observed.
 - **Checksum stability across two invocations** (acceptance criterion 3).
 - **`step_4.sh`** genotype extraction has never been executed.
 - **Array-coverage panel.** `inputs/supportfiles/_m/array_cpg_manifest_hg38.bed.gz`
