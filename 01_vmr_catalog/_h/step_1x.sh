@@ -4,6 +4,7 @@
 #SBATCH --time=04:00:00
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
+#SBATCH --cpus-per-task=8
 #SBATCH --mem=32G
 #SBATCH --mail-type=FAIL
 #SBATCH --array=0-1

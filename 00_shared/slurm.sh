@@ -36,6 +36,29 @@ if command -v module >/dev/null 2>&1; then
     module purge >/dev/null 2>&1 || true
 fi
 
+# ------------------------------------------------------------------ threads
+# Every threaded library under R sizes its pool from the NODE's core count, not
+# from the cgroup SLURM gave us. On a Quest compute node that means data.table
+# opened 128 threads inside a 1-CPU allocation (detectCores 256, getDTthreads
+# 128) for the whole first full-scale DLPFC run. It did not cause a failure, but
+# it oversubscribes the allocation and makes runtimes unreproducible.
+#
+# The fix has to be applied on BOTH sides. These variables cover the libraries
+# that read the environment (OpenMP, and the BLAS implementations); data.table
+# ignores them once its pool is built, so 00_shared/threads.R calls
+# setDTthreads() as well. Neither alone is sufficient.
+#
+# V2_CPUS is the allocation. V2_THREADS is the ceiling anything may open: 2x the
+# allocation, which allows modest hyperthread oversubscription without the
+# runaway. Pass V2_THREADS to any tool with its own thread flag (plink2 --threads).
+V2_CPUS="${SLURM_CPUS_PER_TASK:-${V2_CPUS:-1}}"
+V2_THREADS=$(( V2_CPUS * 2 ))
+export V2_CPUS V2_THREADS
+export OMP_NUM_THREADS="$V2_CPUS"
+export OPENBLAS_NUM_THREADS="$V2_CPUS"
+export MKL_NUM_THREADS="$V2_CPUS"
+export R_DATATABLE_NUM_THREADS="$V2_CPUS"
+
 log_message() {
     echo "$(date '+%Y-%m-%d %H:%M:%S') - $1"
 }
@@ -48,6 +71,7 @@ log_job_info() {
     echo "Array task: ${SLURM_ARRAY_TASK_ID:-none}"
     echo "Hostname:   ${HOSTNAME:-unknown}"
     echo "Repo:       ${REPO_DIR}"
+    echo "CPUs:       ${V2_CPUS} (thread ceiling ${V2_THREADS})"
     echo "Commit:     $(git -C "$REPO_DIR" rev-parse --short HEAD 2>/dev/null || echo unknown)"
     echo "********************"
 }
