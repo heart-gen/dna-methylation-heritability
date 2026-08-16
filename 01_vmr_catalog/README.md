@@ -146,6 +146,15 @@ The first full-scale run of this module. Against the acceptance gate:
    V1 misaligned 92 of 96 donors, so it had the most to correct.
 5. Configs locked; `smoke_run FALSE`. `git_dirty true` (untracked `AGENTS.md`).
 
+**`config_cohorts_sha256` in the sealed manifest is stale by design.** The
+manifest records `e4797e0b…`, the hash of `config/cohorts.yml` *before*
+`design_n` was locked; the file now hashes to `7dec8a52…`. The locked values are
+a record of what these runs observed, so writing them necessarily changes the
+file after the runs that produced them. Nothing about the computation differs —
+`design_n: null` makes `assert_expected_n()` warn, a set value makes it stop —
+and re-deriving these catalogs requires the *pre-lock* config, which is what the
+manifest points at. Runs submitted after 2026-08-16 record the locked hash.
+
 **Cis genotype extraction (`step_4`, first execution ever).** 9,396 VMRs
 extracted, median 5,764 variants; 106 windows clamped at a chromosome start and
 133 at an end — V9 and V10 both firing on real data, where the legacy code would
