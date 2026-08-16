@@ -121,9 +121,47 @@ A run is production only when all of these hold, recorded in the table below:
    means a new bug.
 5. `config/*.yml` carry `pi_locked: true` for every key the run consumes.
 
-| Run ID | Arm | Region | n | vmr_set_id | Gate | Notes |
-|---|---|---|---|---|---|---|
-| `vmrcat-AA-caudate-20260815-a` | AA | caudate | 153 | `vmrset-AA-caudate-3968cebd6d9c` | **smoke, not production** | chr22 only, `--allow-unlocked` |
+| Run ID | Arm | Region | n | VMRs | vmr_set_id | Gate | Notes |
+|---|---|---|---|---|---|---|---|
+| `vmrcat-AA-caudate-20260815-a` | AA | caudate | 153 | 260 | `vmrset-AA-caudate-3968cebd6d9c` | **smoke, not production** | chr22 only, `--allow-unlocked` |
+| `vmrcat-AA-dlpfc-20260816` | AA | dlpfc | **118** | 9,572 | `vmrset-AA-dlpfc-856067dfe289` | criteria 2 and 4 pass; 1 pending `design_n` lock; 3 not done | first full-scale run, all 22 autosomes |
+
+### `vmrcat-AA-dlpfc-20260816`
+
+The first full-scale run of this module. Against the acceptance gate:
+
+1. **Donor count — 118, as expected.** Not the legacy 96, and not the 111 in
+   `vmr-analysis/dlpfc/_m/samples.txt`. This is the observable signature of the
+   V2 repair plus the retired blacklist, and it is now *demonstrated* rather than
+   reconstructed from the inputs. `design_n` in `config/cohorts.yml` is still
+   `null` pending the PI lock, so this criterion is not formally met.
+2. **Reconciliation clean.** 22 expected, 22 completed, 0 excluded, 0 qc_failed,
+   0 failed, 0 unaccounted, 0 unexpected. `step_4`: 9,572/9,572 completed.
+3. **Checksum stability across two invocations — NOT DONE.**
+4. **Turnover reported.** 9,572 v2 vs 10,229 legacy autosomal VMRs (plus 143
+   legacy sex-chromosome VMRs dropped by V4); 5,131 overlapping, 4,441 novel,
+   5,066 lost; Jaccard 0.315; **46.4% of v2 VMRs novel**, within the
+   `max_vmr_turnover: 0.95` gate. This is well above the 31% seen in the chr22
+   caudate smoke run, which is the expected direction: DLPFC is the region where
+   V1 misaligned 92 of 96 donors, so it had the most to correct.
+5. Configs locked; `smoke_run FALSE`. `git_dirty true` (untracked `AGENTS.md`).
+
+**Cis genotype extraction (`step_4`, first execution ever).** 9,396 VMRs
+extracted, median 5,764 variants; 106 windows clamped at a chromosome start and
+133 at an end — V9 and V10 both firing on real data, where the legacy code would
+have aborted on those 106.
+
+**176 VMRs (1.8%) have no cis variants** and are recorded as
+`no_cis_variants`: chr9 54, chr1 49, chr21 30, chr20 27, chr15 7, chr22 7,
+chr5 1, chr14 1. These fall in pericentromeric heterochromatin and acrocentric
+short arms, where imputation panels carry no variants. A further 19 VMRs have
+fewer than 100 cis variants and are excluded by
+`config/thresholds.yml: cis.min_cis_variants`.
+
+Both exclusions track genomic features rather than occurring at random, so the
+analyzed set is **not** a uniform sample of the catalog. `02_local_genetic_variance`
+records them as QC failures rather than dropping them silently, and the methods
+report the counts per region.
 
 ## What has been verified
 
@@ -165,15 +203,13 @@ expected consequence of the V1 repair, not a surprise.
 
 ### Verification not yet done
 
-- **Full-scale runs.** Only chr22 caudate AA. No other chromosome, region, or
-  arm has been run.
-- **`design_n`.** DLPFC and hippocampus AA must be checked against the expected
-  **118** and **117** rather than the legacy 96 and 101 — recovering those ~20
-  donors per region is the observable signature of the V2 fix plus the retired
-  blacklist, and it has **not** been demonstrated by a run yet. The counts are
-  reconstructed from the inputs (phenotype → BSobj → psam), not observed.
+- **Full-scale runs.** AA DLPFC is done. Caudate and hippocampus AA, and all
+  three `all_individuals` cells, have not been run. Hippocampus shares DLPFC's
+  HDF5SE BSobj source (V14) and has never been run at any scale.
+- **`design_n`.** AA DLPFC observed **118**, matching the reconstruction — the
+  PI still has to lock it in `config/cohorts.yml`. Caudate (**153**) and
+  hippocampus (**117**) remain reconstructed from the inputs, not observed.
 - **Checksum stability across two invocations** (acceptance criterion 3).
-- **`step_4.sh`** genotype extraction has never been executed.
 - **Array-coverage panel.** `inputs/supportfiles/_m/array_cpg_manifest_hg38.bed.gz`
   does not exist, so `04_turnover.R` skips the off-array comparison and records
   that it did. AGENTS.md §11 Figure 1 needs it before the figure freeze.

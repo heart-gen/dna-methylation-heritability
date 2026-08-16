@@ -33,6 +33,10 @@ RECOVERED_PLINK_ROOT=${CAL_H2_RECOVERED_PLINK_ROOT:-}
 PGEN_ROOT=${CAL_H2_PGEN_ROOT:-/projects/b1213/users/alexis/projects/dna-methylation-heritability/inputs/genotypes/all_individuals}
 PHENOTYPE_ROOT=${CAL_H2_PHENOTYPE_ROOT:-/projects/b1213/users/alexis/projects/dna-methylation-heritability/vmr-analysis/all_individuals}
 WRITE_DIAGNOSTICS=${CAL_H2_WRITE_DIAGNOSTICS:-FALSE}
+# config/thresholds.yml cis.min_cis_variants. Passed explicitly so the value the
+# run used is visible in the job log and recorded in each locus manifest, rather
+# than resting on the script default.
+MIN_CIS_VARIANTS=${CAL_H2_MIN_CIS_VARIANTS:-100}
 : "${REGION:?REGION must be set}"
 : "${POPULATION:?POPULATION must be set}"
 
@@ -134,7 +138,8 @@ set +e
     --phenotype-root="${PHENOTYPE_ROOT}" \
     --calibration-model="${CALIBRATION_MODEL}" \
     --output-root="${OUTPUT_ROOT}" \
-    --write-diagnostics="${WRITE_DIAGNOSTICS}"
+    --write-diagnostics="${WRITE_DIAGNOSTICS}" \
+    --min-cis-variants="${MIN_CIS_VARIANTS}"
 status=$?
 set -e
 if (( status != 0 )); then
