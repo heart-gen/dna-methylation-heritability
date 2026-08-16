@@ -1,10 +1,10 @@
 #!/bin/bash
 #SBATCH --account=p32505
 #SBATCH --partition=short
-#SBATCH --time=01:00:00
+#SBATCH --time=00:15:00
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
-#SBATCH --mem=16G
+#SBATCH --mem=4G
 #SBATCH --mail-type=FAIL
 #SBATCH --job-name=vmr_extract_snp
 #SBATCH --output=logs/vmr_extract_snp.%A_%a.log
@@ -25,9 +25,14 @@
 #       v2 reads it from config/thresholds.yml, so both arms share one value.
 #   V12 plink2 from the shared opt tree, never `module load`.
 #
-# The array size must match the VMR count for this run:
-#   N=$(wc -l < .../vmr/vmr.bed)
-#   sbatch --array=1-${N}%250 ../_h/step_4.sh
+# Submit via the wrapper, which sizes the array from vmr.bed and resolves the
+# config once for the whole array:
+#   cd 01_vmr_catalog/_m && mkdir -p logs
+#   COHORT=AA REGION=dlpfc RUN_ID=<id> ../_h/submit_step_4.sh
+#
+# time/mem are sized from the observed AA dlpfc array (9,572 tasks): elapsed
+# median 54s, max 84s, MaxRSS max 1.1 GB. The old 1h/16G request was ~45x and
+# ~15x the observed peak, which only made the array harder to schedule.
 
 # SLURM copies this script into a spool directory, so BASH_SOURCE does not
 # point at the repository. Resolve the root from the submission directory.
@@ -53,15 +58,25 @@ require_exec "$PLINK2"
 # job's working directory. Stderr is NOT discarded -- with `set -e`, a failing
 # command substitution kills the script at the assignment, before the :? guard
 # below can report anything, so suppressing it produced a completely empty log.
+#
+# Both values are IDENTICAL for every task in the array, so they are resolved
+# once by submit_step_4.sh and inherited through the environment (SLURM exports
+# the submitting environment to every task). The lookup below is the fallback
+# for a task run standalone.
+#
+# This matters at scale. plink2 does the extraction in ~2s; two `conda run
+# Rscript` startups cost ~50s. The first full DLPFC array spent 141 CPU-hours to
+# read the same two config values 19,144 times. Inheriting them makes the step
+# roughly 3s per task.
 config_value() {
     conda run --no-capture-output -p "$V2_ENV_R" Rscript -e \
         "source('$REPO_DIR/00_shared/load.R'); $1" | tail -1
 }
 
-WINDOW=$(config_value 'cat(load_config("thresholds")$cis$window_bp)')
+WINDOW="${V2_CIS_WINDOW_BP:-$(config_value 'cat(load_config("thresholds")$cis$window_bp)')}"
 : "${WINDOW:?could not read cis.window_bp from config/thresholds.yml}"
 
-PFILE=$(config_value "cat(cohort_def('$COHORT')\$pgen_prefix)")
+PFILE="${V2_PGEN_PREFIX:-$(config_value "cat(cohort_def('$COHORT')\$pgen_prefix)")}"
 : "${PFILE:?could not resolve pgen_prefix for cohort $COHORT}"
 # cohort_def() already returns an absolute path; only prefix REPO_DIR if some
 # future config makes it repo-relative, rather than doubling it unconditionally.
@@ -108,13 +123,9 @@ fi
 CHR_DIR="$OUTPUT/${CHR}"
 mkdir -p "$CHR_DIR"
 
-# plink2 defaults to the node's core count, not the allocation, so it needs the
-# ceiling passed explicitly -- same defect as data.table (00_shared/slurm.sh).
 OUT_PREFIX="$CHR_DIR/${COHORT}.${START}_${END}"
 STATUS="extracted"
 
-# plink2 defaults to the node's core count, not the allocation, so it needs the
-# ceiling passed explicitly -- same defect as data.table (00_shared/slurm.sh).
 PLINK_RC=0
 "$PLINK2" --pfile "$PFILE" \
           --chr "${CHR#chr}" \
@@ -128,10 +139,11 @@ PLINK_RC=0
           --out "$OUT_PREFIX" || PLINK_RC=$?
 
 # A VMR whose cis window contains no genotyped variants is an EXPLAINED
-# EXCLUSION, not a task failure. It happens for real: the first genotyped
-# variant on chr1 is at 833,068, so the four DLPFC VMRs below that position have
-# an empty window however wide it is. Such a VMR simply has no local genetic
-# variance to estimate, and 02_local_genetic_variance must skip it.
+# EXCLUSION, not a task failure. It is common enough to matter: 176 of the 9,572
+# AA dlpfc VMRs (1.8%), concentrated in pericentromeric heterochromatin and
+# acrocentric short arms -- chr9 54, chr1 49, chr21 30, chr20 27, chr15 7,
+# chr22 7. Imputation panels have no variants there. Such a VMR has no local
+# genetic variance to estimate, and 02_local_genetic_variance must skip it.
 #
 # Failing the task instead would put a permanent non-zero `failed` count into
 # task_reconciliation.tsv, which AGENTS.md 6 treats as blocking -- an unexplained
