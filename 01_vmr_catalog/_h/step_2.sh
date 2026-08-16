@@ -4,7 +4,10 @@
 #SBATCH --time=08:00:00
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
-#SBATCH --mem=64G
+# chr22 (489,722 CpGs x 153 donors) peaked at 8.3 GB. chr1 carries roughly 5x
+# the CpGs and 01_analyze.R holds the full matrix in memory, so budget ~40 GB
+# there. 96G is what the chr22 smoke run was allocated and verified at.
+#SBATCH --mem=96G
 #SBATCH --mail-type=FAIL
 #SBATCH --array=1-22
 #SBATCH --job-name=vmr_analyze
