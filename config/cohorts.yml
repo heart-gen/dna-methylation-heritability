@@ -77,7 +77,7 @@ arm_definitions:
 donor_counts:
   AA:
     caudate:     { phenotype_n: 154, design_n: null }
-    dlpfc:       { phenotype_n: 119, design_n: null }
+    dlpfc:       { phenotype_n: 119, design_n: 118 }
     hippocampus: { phenotype_n: 118, design_n: null }
   all_individuals:
     caudate:     { phenotype_n: 286, design_n: null }
