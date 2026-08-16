@@ -127,3 +127,4 @@ meqtl-validation/**/ANALYSIS_SUMMARY*.md
 # Scratch / secondary workspace
 /pilot/
 /.codex
+writing-notes/
