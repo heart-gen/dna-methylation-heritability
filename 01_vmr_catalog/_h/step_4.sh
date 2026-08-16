@@ -120,10 +120,20 @@ if [ "$CLAMPED" != "none" ]; then
     log_message "window clamped (${CLAMPED}) to ${START_POS}-${END_POS} of ${CHR} (${CHR_SIZE} bp)"
 fi
 
-CHR_DIR="$OUTPUT/${CHR}"
+# Layout and filenames are dictated by the CONSUMER, 02_local_genetic_variance
+# (_h/04_estimate_observed_vmr.R), which builds its input path as
+#
+#     plink_format/chr_{N}/TOPMed_LIBD-{population}.{start}_{end}.bed
+#
+# This step originally wrote plink_format/chr{N}/{COHORT}.{start}_{end}.bed, so
+# module 02 would have found nothing at all and stopped on its first locus.
+#
+# `population` in module 02 is the arm token -- it is invoked with the same
+# AA / all_individuals value used here, so COHORT is the right substitution.
+CHR_DIR="$OUTPUT/chr_${CHR#chr}"
 mkdir -p "$CHR_DIR"
 
-OUT_PREFIX="$CHR_DIR/${COHORT}.${START}_${END}"
+OUT_PREFIX="$CHR_DIR/TOPMed_LIBD-${COHORT}.${START}_${END}"
 STATUS="extracted"
 
 PLINK_RC=0
@@ -153,6 +163,11 @@ if [ "$PLINK_RC" -ne 0 ]; then
         STATUS="no_cis_variants"
         log_message "no genotyped variants in ${CHR}:${START_POS}-${END_POS}; recording exclusion"
         rm -f "${OUT_PREFIX}.bed" "${OUT_PREFIX}.bim" "${OUT_PREFIX}.fam"
+        ## The marker 02_local_genetic_variance looks for
+        ## (04_estimate_observed_vmr.R: no_snp_marker). Without it, a missing
+        ## .bed is indistinguishable from a lost file and module 02 stops with
+        ## "Required input is missing" instead of recording the QC failure.
+        : > "${OUT_PREFIX}.no-snps"
     else
         echo "ERROR: plink2 failed (exit $PLINK_RC) for ${CHR}:${START}-${END}" >&2
         exit "$PLINK_RC"
