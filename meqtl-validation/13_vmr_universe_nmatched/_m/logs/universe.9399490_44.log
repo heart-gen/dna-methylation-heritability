@@ -1,0 +1,16 @@
+**** Job starts 2026-08-15 13:14:55 ****
+Job id: 9399491  Task: 44
+Region: dlpfc  Chromosome: 22
+region=dlpfc chr=22
+repointing HDF5 backing: /gpfs/projects/b1213/resources/libd_data/wgbs/new-data/dlpfc/_m/combined_hdf5/dlpfc_assays.h5 -> /projects/b1213/resources/libd_data/wgbs/new-data/dlpfc/_m/combined_hdf5/assays.h5
+donors=112 sites_pre_cov_filter=577753
+           used  (Mb) gc trigger  (Mb) max used  (Mb)
+Ncells  9891343 528.3   17785330 949.9 11759958 628.1
+Vcells 52050069 397.2   84408557 644.0 84408557 644.0
+            used  (Mb) gc trigger   (Mb)  max used   (Mb)
+Ncells   9919969 529.8   17785330  949.9  11759958  628.1
+Vcells 116831985 891.4  219941650 1678.1 181541673 1385.1
+Error in svd(x, nu = 0, nv = k) : infinite or missing values in 'x'
+Calls: data.table -> sd_cutoff_for -> prcomp -> prcomp.default -> svd
+Execution halted
+ERROR conda.cli.main_run:execute(148): `conda run Rscript ../_h/01_universe_decomposition.R 22 dlpfc` failed. (See above for error)
