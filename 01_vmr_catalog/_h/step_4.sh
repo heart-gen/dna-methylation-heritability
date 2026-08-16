@@ -1,4 +1,4 @@
-11;rgb:0000/0000/00001#!/bin/bash
+#!/bin/bash
 #SBATCH --account=p32505
 #SBATCH --partition=short
 #SBATCH --time=01:00:00
@@ -47,15 +47,29 @@ require_file "$REGION_LIST"
 require_exec "$PLINK2"
 
 # Window and cohort genotype prefix come from config, not from literals.
-WINDOW=$(conda run --no-capture-output -p "$V2_ENV_R" Rscript -e \
-    'source("00_shared/load.R"); cat(load_config("thresholds")$cis$window_bp)' \
-    2>/dev/null | tail -1)
+#
+# load.R is addressed absolutely: this step is submitted from _m/, which is the
+# module convention, so a relative "00_shared/load.R" does not exist from the
+# job's working directory. Stderr is NOT discarded -- with `set -e`, a failing
+# command substitution kills the script at the assignment, before the :? guard
+# below can report anything, so suppressing it produced a completely empty log.
+config_value() {
+    conda run --no-capture-output -p "$V2_ENV_R" Rscript -e \
+        "source('$REPO_DIR/00_shared/load.R'); $1" | tail -1
+}
+
+WINDOW=$(config_value 'cat(load_config("thresholds")$cis$window_bp)')
 : "${WINDOW:?could not read cis.window_bp from config/thresholds.yml}"
 
-PFILE=$(conda run --no-capture-output -p "$V2_ENV_R" Rscript -e \
-    "source(\"00_shared/load.R\"); cat(cohort_def(\"$COHORT\")\$pgen_prefix)" \
-    2>/dev/null | tail -1)
+PFILE=$(config_value "cat(cohort_def('$COHORT')\$pgen_prefix)")
 : "${PFILE:?could not resolve pgen_prefix for cohort $COHORT}"
+# cohort_def() already returns an absolute path; only prefix REPO_DIR if some
+# future config makes it repo-relative, rather than doubling it unconditionally.
+case "$PFILE" in
+    /*) ;;
+    *) PFILE="$REPO_DIR/$PFILE" ;;
+esac
+require_file "${PFILE}.pgen"
 
 TASK="${SLURM_ARRAY_TASK_ID:?this step must run as a SLURM array}"
 LINE=$(sed -n "${TASK}p" "$REGION_LIST")
@@ -96,7 +110,13 @@ mkdir -p "$CHR_DIR"
 
 # plink2 defaults to the node's core count, not the allocation, so it needs the
 # ceiling passed explicitly -- same defect as data.table (00_shared/slurm.sh).
-"$PLINK2" --pfile "$REPO_DIR/$PFILE" \
+OUT_PREFIX="$CHR_DIR/${COHORT}.${START}_${END}"
+STATUS="extracted"
+
+# plink2 defaults to the node's core count, not the allocation, so it needs the
+# ceiling passed explicitly -- same defect as data.table (00_shared/slurm.sh).
+PLINK_RC=0
+"$PLINK2" --pfile "$PFILE" \
           --chr "${CHR#chr}" \
           --from-bp "$START_POS" \
           --to-bp "$END_POS" \
@@ -105,14 +125,39 @@ mkdir -p "$CHR_DIR"
           --no-parents \
           --no-sex \
           --no-pheno \
-          --out "$CHR_DIR/${COHORT}.${START}_${END}"
+          --out "$OUT_PREFIX" || PLINK_RC=$?
+
+# A VMR whose cis window contains no genotyped variants is an EXPLAINED
+# EXCLUSION, not a task failure. It happens for real: the first genotyped
+# variant on chr1 is at 833,068, so the four DLPFC VMRs below that position have
+# an empty window however wide it is. Such a VMR simply has no local genetic
+# variance to estimate, and 02_local_genetic_variance must skip it.
+#
+# Failing the task instead would put a permanent non-zero `failed` count into
+# task_reconciliation.tsv, which AGENTS.md 6 treats as blocking -- an unexplained
+# failure and a locus with no cis SNPs would become indistinguishable.
+if [ "$PLINK_RC" -ne 0 ]; then
+    if grep -q "No variants remaining after main filters" "${OUT_PREFIX}.log" 2>/dev/null; then
+        STATUS="no_cis_variants"
+        log_message "no genotyped variants in ${CHR}:${START_POS}-${END_POS}; recording exclusion"
+        rm -f "${OUT_PREFIX}.bed" "${OUT_PREFIX}.bim" "${OUT_PREFIX}.fam"
+    else
+        echo "ERROR: plink2 failed (exit $PLINK_RC) for ${CHR}:${START}-${END}" >&2
+        exit "$PLINK_RC"
+    fi
+else
+    require_file "${OUT_PREFIX}.bed"
+    N_VAR=$(wc -l < "${OUT_PREFIX}.bim")
+    log_message "extracted ${N_VAR} variants"
+fi
 
 # Record what was actually extracted, so the combine step can reconcile.
 # One file per task, not one shared append -- concurrent array tasks appending to
 # a single file interleave and lose lines.
 mkdir -p "$OUTPUT/extraction_log"
-printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\n' \
+printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n' \
     "$TASK" "$CHR" "$START" "$END" "$START_POS" "$END_POS" "$CLAMPED" \
+    "$STATUS" "${N_VAR:-0}" \
     > "$OUTPUT/extraction_log/task_${TASK}.tsv"
 
 log_message "**** Job ends ****"
