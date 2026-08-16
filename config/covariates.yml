@@ -119,7 +119,7 @@ diagnosis_coding:
 # BEFORE variable-region discovery, and are separate from the models fit
 # downstream in 02+.
 vmr_calling:
-  pi_locked: false
+  pi_locked: true
 
   # Donor inclusion. V2 defect: all three BA_only 02.pca.R copies hard-coded
   # `region == "caudate"`, so DLPFC and hippocampus discovered VMRs on ~15 fewer
