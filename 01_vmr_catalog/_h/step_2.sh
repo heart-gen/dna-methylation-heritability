@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --account=p32505
-#SBATCH --partition=short
+#SBATCH --partition=normal
 #SBATCH --time=08:00:00
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
