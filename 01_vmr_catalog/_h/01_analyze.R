@@ -170,14 +170,30 @@ res_var_parts <- vector("list", length(starts))
 resid_parts   <- vector("list", length(starts))
 donor_ids_ref <- NULL
 
+## Read the matrix ONCE. It is wide but short -- ~490k CpGs x ~150 donors, a few
+## hundred MB -- so one read plus in-memory chunking is far cheaper than 98
+## fread(select=) passes over a 490k-column file.
+##
+## header = TRUE is not optional here: the ID columns are character in both the
+## header row and the data rows, so fread's auto-detection can conclude there is
+## no header, rename every column to V1..Vn, and silently drop a select() as
+## "not found" -- leaving a chunk with no donors.
+message("[resid] reading methylation matrix")
+meth_all <- fread(meth_file, header = TRUE)
+if (!all(c("FID", "IID") %in% names(meth_all)) || nrow(meth_all) == 0) {
+    stop("cpg_meth.phen did not return FID/IID and rows: ", meth_file)
+}
+meth_ids_file <- as.character(meth_all$FID)
+meth_mat <- as.matrix(meth_all[, -c("FID", "IID"), with = FALSE])
+rm(meth_all); gc()
+stopifnot(identical(colnames(meth_mat), cpg_cols))
+
 for (i in seq_along(starts)) {
     from <- starts[[i]]
     to   <- min(from + chunk_size - 1L, n_cpg)
-    cols <- c("FID", "IID", cpg_cols[from:to])
-    chunk <- fread(meth_file, select = cols)
 
-    meth_chunk <- as.matrix(chunk[, -c("FID", "IID"), with = FALSE])
-    r <- residualize_on_meth_pcs(meth_chunk, as.character(chunk$FID),
+    meth_chunk <- meth_mat[, from:to, drop = FALSE]
+    r <- residualize_on_meth_pcs(meth_chunk, meth_ids_file,
                                  pc_mat, pc_ids, n_meth_pcs)
 
     if (is.null(donor_ids_ref)) {
@@ -197,9 +213,12 @@ for (i in seq_along(starts)) {
     setnames(rp, cpg_cols[from:to])
     resid_parts[[i]] <- rp
 
-    message("[resid] chunk ", i, "/", length(starts), ": CpGs ", from, "-", to)
-    rm(chunk, meth_chunk, r); gc()
+    if (i %% 10 == 0 || i == length(starts)) {
+        message("[resid] chunk ", i, "/", length(starts), ": CpGs ", from, "-", to)
+    }
+    rm(meth_chunk, r)
 }
+rm(meth_mat); gc()
 
 ## V7: parts are assembled in the order they were generated -- which is numeric
 ## by construction here -- and the donor vector was checked identical at every

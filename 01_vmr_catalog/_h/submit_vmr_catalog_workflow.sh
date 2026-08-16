@@ -74,6 +74,12 @@ if [ "${WITH_GENOTYPES:-0}" = "1" ]; then
     log_message "  N=\$(wc -l < $REPO_DIR/01_vmr_catalog/_m/runs/$RUN_ID/vmr/vmr.bed)"
     log_message "  COHORT=$COHORT REGION=$REGION RUN_ID=$RUN_ID \\"
     log_message "    sbatch --array=1-\${N}%250 $HERE/step_4.sh"
+    log_message "Then seal the run (must be last -- it makes the run read-only):"
+    log_message "  COHORT=$COHORT REGION=$REGION RUN_ID=$RUN_ID \\"
+    log_message "    sbatch --dependency=afterok:<step4_jobid> $HERE/step_5.sh"
+else
+    J5=$(submit --dependency="afterok:$J3" --export="$EXPORTS" "$HERE/step_5.sh")
+    log_message "step_5 (seal run): $J5"
 fi
 
 cat <<EOF
