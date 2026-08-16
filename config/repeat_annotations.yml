@@ -1,0 +1,71 @@
+# Repeat and repressive-chromatin annotations (04_repeat_repressive_architecture).
+#
+# STUB. 04 is not implemented; gated on 02 acceptance (AGENTS.md 6).
+#
+# AGENTS.md 7.4: the primary predictor is standardized continuous
+# h2_en_calibrated among interpretable loci; r2_pred_oof is secondary. Overlap
+# alone never implies activity, expression, or retrotransposition.
+
+pi_locked: false
+
+repeatmasker:
+  version: null                    # PI lock
+  # Existing assets carried over from config/paths.yml support_files
+  bed: inputs/supportfiles/_m/repeat-masker-hg38.gz
+  line_l1_bed: inputs/supportfiles/_m/repeat-masker.LINE_L1.hg38.bed.gz
+  # High-value extension (AGENTS.md 7.4), only if technically reliable:
+  # split by class/family/subfamily, young L1HS/L1PA vs old L1M, full-length vs
+  # truncated, 5' promoter-containing vs internal/3' fragments.
+  l1_subfamily_definitions: null   # PI lock
+  retrotransposition_competent_list: null
+
+chromatin:
+  h3k9me3: null                    # PI lock: source track per region
+  quiescent: null                  # PI lock: ChromHMM state definition
+
+genome_build: hg38
+
+# Required adjustment / matching covariates (AGENTS.md 7.4)
+covariates:
+  - vmr_length
+  - cpg_count
+  - cpg_density
+  - gc_content
+  - mean_methylation
+  - methylation_variance
+  - wgbs_coverage
+  - tested_snp_count
+  - snp_proximity
+  - mappability
+  - segdup_overlap
+  - problematic_region_overlap
+  - broad_genomic_annotation
+  - cell_composition_pcs
+
+# Locked sensitivities. Enrichment that does not survive these is not reported
+# as a result (AGENTS.md 14: stop if repeat enrichment disappears).
+sensitivities:
+  high_mappability:
+    umap_k24_bw: inputs/supportfiles/_m/k24.Umap.MultiTrackMappability.bw
+    min_mappability: 0.9
+  exclude_segdups:
+    bed: inputs/supportfiles/_m/genomicSuperDups.hg38.bed.gz
+  exclude_snp_proximal_cpgs:
+    bed: inputs/supportfiles/_m/common_snp_windows_pm150bp.hg38.bed.gz
+  cell_composition_rna_music: true
+  cell_composition_dnam_scmd: true    # caudate only, when the integration gate passes
+  matched_high_low_comparison: true   # secondary evidence only
+
+# Interpretation gates (AGENTS.md 7.4)
+interpretation:
+  # H3K9me3 / quiescent may be called "shared across regions" only if direction
+  # AND inference survive locked sensitivities in ALL THREE regions.
+  shared_requires_regions: 3
+  # LINE/L1 may be called multi-region if it survives in at least two. If it
+  # survives only in caudate, it is presented as caudate-specific.
+  line_l1_multiregion_requires: 2
+  # A DLPFC reversal or null after the high-mappability restriction is never
+  # hidden.
+  report_dlpfc_reversal: true
+
+primary_model: null                # PI lock

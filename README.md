@@ -37,14 +37,46 @@ gene-proximal, accessible chromatin).
 
 ## Repository Structure
 
+### Active revision (v2)
+
+The AJHG revision is organized as numbered modules that run in dependency order.
+See `AGENTS.md` for the governing rules and `MIGRATION_MANIFEST.tsv` for how each
+legacy directory maps onto them.
+
 | Directory | Description |
 |---|---|
-| `heritability/` | Elastic-net SNP heritability pipeline (VMR identification, GENBoostGPU estimation) |
-| `vmr-analysis/` | Variably methylated region characterization and annotation |
-| `environmental-analysis/` | Environmental proxy association analyses |
+| `00_shared/` | Shared library: config, donor identity/alignment, chromosome ordering, run provenance |
+| `01_vmr_catalog/` | Corrected VMR discovery and per-VMR methylation phenotypes |
+| `02_local_genetic_variance/` | `h2_en_calibrated` — primary quantitative endpoint |
+| `03_local_snp_prediction/` | Held-out local SNP prediction (secondary endpoint) |
+| `04_repeat_repressive_architecture/` | Repeat-rich and repressive compartments (primary biology) |
+| `05_cpg_meqtl_burden/` | CpG cis-meQTL burden gradient |
+| `06_transcription_splicing_coupling/` | Expression and splicing coupling |
+| `07_region_donor_generalization/` | Cross-region and donor-group generalization |
+| `08_schizophrenia_risk_application/` | Schizophrenia-risk application |
+| `09_integrated_manuscript_outputs/` | Manuscript tables, figures, and number registry |
+| `config/` | Shared configuration for the above |
+
+Modules 03–09 are scaffolded but not yet implemented; each is gated on its
+upstream module recording a passing acceptance gate.
+
+### Legacy directories
+
+Retained for old-versus-new comparison during the revision, and retired only once
+`MIGRATION_MANIFEST.tsv` records a validated v2 replacement. **Results in these
+trees are not valid for scientific use** — see `writing-notes/PIPELINE_AUDIT.md`,
+in particular defect V1 (donor row misalignment invalidating every VMR set) and
+E1 (`r_squared_cv` is an in-sample fit, not prediction accuracy).
+
+| Directory | Description |
+|---|---|
+| `vmr-analysis/` | Legacy VMR identification → `01_vmr_catalog/` |
+| `calibrated-simulation-analysis/` | Calibrated variance estimator → `02_local_genetic_variance/` |
+| `local-snp-prediction/` | Legacy elastic-net prediction → `03_local_snp_prediction/` |
+| `meqtl-validation/` | CpG meQTL mapping, burden, repeat/cell sensitivities, Phase 7 → modules 04–08 |
+| `environmental-analysis/` | Environmental proxy associations (supplemental at most) |
 | `simulation-analysis/` | Validation simulations and method comparisons |
-| `sensitivity-analysis/` | Sensitivity analyses (all individuals and Black American subgroup) |
-| `covar-analysis/` | Covariate selection and testing |
+| `sensitivity-analysis/` | Stacked/Venn/Sankey figures (withdrawn; depend on `r_squared_cv > 0.75`) |
 | `qc_analysis/` | Quality control and replication cohort analysis |
 | `inputs/` | Reference files and input data (not distributed; see Data Availability) |
 
