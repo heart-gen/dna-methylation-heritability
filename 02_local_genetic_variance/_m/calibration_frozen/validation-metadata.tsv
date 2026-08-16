@@ -1,0 +1,7 @@
+field	value
+model_run_id	ajhg-calibration-v4-upper-domain-development
+validation_run_id	ajhg-calibration-v4-independent-validation
+seed_offset	200000000
+evaluation_tasks	2430
+created_utc	2026-08-07T22:26:54Z
+model_sha256	bbe9f9f3e897b19c536078c20e6bd50a2f5ea385ab1c1258039974ced855e389

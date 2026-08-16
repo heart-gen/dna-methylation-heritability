@@ -111,3 +111,37 @@ donor_group_labels:
 diagnosis_coding:
   control: Control
   schizophrenia: Schizo
+
+# ---------------------------------------------------------------------------
+# v2 VMR calling (01_vmr_catalog)
+# ---------------------------------------------------------------------------
+# Covariate handling inside the VMR catalog. These are the variables removed
+# BEFORE variable-region discovery, and are separate from the models fit
+# downstream in 02+.
+vmr_calling:
+  pi_locked: false
+
+  # Donor inclusion. V2 defect: all three BA_only 02.pca.R copies hard-coded
+  # `region == "caudate"`, so DLPFC and hippocampus discovered VMRs on ~15 fewer
+  # donors than they were later modeled on. In v2 the region filter comes from
+  # the --region argument and is never a literal.
+  filters:
+    min_age: 17
+    region: from_argument
+    race: from_cohort_arm
+
+  # Removed before PCA, to keep population structure out of the methylation PCs.
+  genotype_pcs: [snpPC1, snpPC2, snpPC3]
+
+  # Removed to form residual methylation, whose SD defines VMRs.
+  methylation_pcs: [PC1, PC2, PC3, PC4, PC5]
+
+  # NOT regressed out during VMR discovery. Age/sex/diagnosis enter downstream
+  # models; removing them here would define the biological units conditional on
+  # phenotype and is not what the legacy pipeline did.
+  not_regressed: [agedeath, sex, primarydx]
+
+  # Cell composition is NOT adjusted during VMR discovery. It enters as a locked
+  # sensitivity in 04_repeat_repressive_architecture (RNA MuSiC cellPCs, and DNAm
+  # scMD dnamCellPCs for caudate when the integration gate passes).
+  cell_composition_strategy: sensitivity_only_in_04

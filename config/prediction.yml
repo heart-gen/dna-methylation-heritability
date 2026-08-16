@@ -1,0 +1,59 @@
+# v2 local SNP prediction settings (03_local_snp_prediction).
+#
+# STUB. 03 is not implemented; it is gated on 02_local_genetic_variance
+# acceptance (AGENTS.md 6). Keys are listed so the PI decisions in AGENTS.md 12
+# have a home before any code consumes them.
+#
+# Context (AGENTS.md 7.3, defect E1): the legacy endpoint `r_squared_cv` in
+# local-snp-prediction/*/01.elastic-net.R is an IN-SAMPLE fit (~0.85). Its honest
+# held-out value is ~0.01, and it correlates NEGATIVELY with r2_oof
+# (rho ~ -0.05 to -0.07). It must never appear as an input to a v2 model, table
+# or figure. Prediction is the SECONDARY translational endpoint; the primary
+# quantitative endpoint is h2_en_calibrated from 02_local_genetic_variance.
+
+pi_locked: false
+
+# The primary estimate must be end-to-end out-of-fold: within each outer split,
+# held-out donors must not influence residualization, genotype QC/imputation/
+# scaling, phenotype-informed SNP selection, cis screening, or any tuning.
+evaluation_standard: end_to_end_oof
+
+folds:
+  outer: null          # PI lock
+  inner: null          # PI lock
+  repeats: null        # PI lock
+
+elastic_net:
+  alpha_grid: null     # PI lock
+  lambda_rule: null    # PI lock (e.g. lambda.min vs lambda.1se)
+
+screen:
+  # AGENTS.md 7.3: do NOT use the current ordinary-OLS Haseman-Elston p-value as
+  # the production screen without donor-robust or permutation calibration.
+  # The HE implementation lives in 02_local_genetic_variance/_h/00_functions.R.
+  method: null                     # PI lock
+  multiple_testing: null           # PI lock
+  # A VMR failing its fold-internal screen receives the prespecified null
+  # prediction for held-out donors. Failed folds are NOT dropped.
+  null_prediction: training_mean
+
+metrics:
+  # All computed from POOLED out-of-fold predictions. Negative r2_pred_oof is
+  # retained; cor2_oof is never substituted when r2_pred_oof is unfavorable.
+  - r2_pred_oof        # 1 - SSE/SST
+  - cor2_oof
+  - rmse
+  - mae
+  - calibration_intercept
+  - calibration_slope
+  - screening_pass_frequency
+  - n_predictions_per_donor
+
+sensitivity:
+  # Literature-comparable arm: full-data screen followed by nested OOF model
+  # evaluation. Allowed, but must be labeled explicitly and never presented as
+  # the primary estimate.
+  full_data_screen_arm: true
+
+model_release:
+  inclusion_rule: null   # PI lock

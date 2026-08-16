@@ -1,0 +1,85 @@
+# v2 cohort definitions for the AJHG revision.
+#
+# Two analysis arms, run through ONE parameterized codepath (AGENTS.md 5.3:
+# "Do not duplicate region- or cohort-specific copies of the same code").
+#
+#   AA              Black American donors only          -> PRIMARY
+#   all_individuals Black + white American donors       -> SENSITIVITY
+#
+# Prose labels: AA = "Black American", EA = "non-Hispanic white American".
+# Never write "African American". Legacy code uses BA==AA and WA==EA.
+
+pi_locked: false
+
+primary: AA
+
+arms:
+  - AA
+  - all_individuals
+
+regions:
+  - caudate
+  - dlpfc
+  - hippocampus
+
+arm_definitions:
+
+  AA:
+    label: Black American
+    # The AA-only phenotype table is a pre-filtered convenience file. We read the
+    # full table and apply the race filter ourselves so both arms share one
+    # codepath and the filter is auditable.
+    phenotype_table: inputs/phenotypes/_m/phenotypes-all.tsv
+    race_filter: [AA]
+    psam: inputs/genotypes/TOPMed_LIBD.AA.psam
+    # V8: this .psam is HEADERLESS. read_psam() in 00_shared/identity.R handles
+    # both forms; do not pass header=TRUE.
+    psam_has_header: false
+    pgen_prefix: inputs/genotypes/TOPMed_LIBD.AA
+    covar_prefix: TOPMed_LIBD.AA
+
+  all_individuals:
+    label: Black and white American
+    phenotype_table: inputs/phenotypes/_m/phenotypes-all.tsv
+    race_filter: [AA, EA]
+    psam: inputs/genotypes/all_individuals/TOPMed_LIBD.psam
+    psam_has_header: true
+    pgen_prefix: inputs/genotypes/all_individuals/TOPMed_LIBD
+    covar_prefix: TOPMed_LIBD
+
+# Donor counts.
+#
+# phenotype_n is what the phenotype table yields after agedeath >= 17 and the
+# region + race filters. It is a CEILING, not the design count: the analysis set
+# is the intersection of (phenotype table) x (BSobj colData$brnum) x (psam), so
+# the observed n will be <= these numbers.
+#
+# design_n is the PI-locked expected analysis-set size. It is null until the
+# first accepted 01_vmr_catalog run reports observed counts and the PI signs off.
+# While null, assert_expected_n() records the observed count and warns; once set,
+# a mismatch is a hard stop (AGENTS.md 14).
+#
+# For reference, the audit (writing-notes/PIPELINE_AUDIT.md) reports that the
+# legacy BA_only DLPFC and hippocampus runs used 96 and 101 donors because of the
+# V2 hard-coded `region == "caudate"` filter, against a correct 111 and 116.
+# Recovering those ~15 donors per region is a checkable outcome of the V2 fix.
+
+donor_counts:
+  AA:
+    caudate:     { phenotype_n: 154, design_n: null }
+    dlpfc:       { phenotype_n: 119, design_n: null }
+    hippocampus: { phenotype_n: 118, design_n: null }
+  all_individuals:
+    caudate:     { phenotype_n: 286, design_n: null }
+    dlpfc:       { phenotype_n: 176, design_n: null }
+    hippocampus: { phenotype_n: 180, design_n: null }
+
+# Sample blacklist. Legacy code had only the all_individuals arm reading a
+# blacklist, and the hippocampus copy read the DLPFC file by mistake
+# (all_individuals/hippocampus/_h/02b.res_var.R:81). Paths here are per-region
+# and resolved through resolve_path(); an absent file means "no exclusions",
+# never "fall back to another region".
+sample_blacklist:
+  caudate: null
+  dlpfc: vmr-analysis/all_individuals/dlpfc/_m/samples_blacklist.txt
+  hippocampus: null
