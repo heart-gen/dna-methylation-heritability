@@ -71,9 +71,9 @@ if [ "${WITH_GENOTYPES:-0}" = "1" ]; then
     # step_3 finishes. Submit a small job that sizes and submits the array.
     log_message "step_4 (genotype extraction) is gated on the VMR count."
     log_message "After $J3 completes, run:"
-    log_message "  N=\$(wc -l < $REPO_DIR/01_vmr_catalog/_m/runs/$RUN_ID/vmr/vmr.bed)"
+    log_message "  cd $REPO_DIR/01_vmr_catalog/_m"
     log_message "  COHORT=$COHORT REGION=$REGION RUN_ID=$RUN_ID \\"
-    log_message "    sbatch --array=1-\${N}%250 $HERE/step_4.sh"
+    log_message "    $HERE/submit_step_4.sh"
     log_message "Then seal the run (must be last -- it makes the run read-only):"
     log_message "  COHORT=$COHORT REGION=$REGION RUN_ID=$RUN_ID \\"
     log_message "    sbatch --dependency=afterok:<step4_jobid> $HERE/step_5.sh"

@@ -77,6 +77,10 @@ arm_definitions:
 donor_counts:
   AA:
     caudate:     { phenotype_n: 154, design_n: null }
+    # Locked from vmrcat-AA-dlpfc-20260816 (2026-08-16), the first full-scale
+    # run: 119 phenotype -> 119 BSobj -> 118 after intersecting the .psam. The
+    # V2 repair plus the retired blacklist, showing as 22 donors more than the
+    # legacy 96. A mismatch is now a hard stop rather than a warning.
     dlpfc:       { phenotype_n: 119, design_n: 118 }
     hippocampus: { phenotype_n: 118, design_n: null }
   all_individuals:
