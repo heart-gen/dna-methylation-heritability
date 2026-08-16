@@ -97,14 +97,19 @@ v2_variance_root: 02_local_genetic_variance
 # Raw WGBS. One BSobj per region per chromosome.
 wgbs_bsobj_template: inputs/wgbs-data/{region}/_m/{region}_chr{chrom}_BSobj.rda
 
-# Genome-wide HDF5 backing store for the per-chromosome BSobj views above.
-# V14: the DLPFC BSobj files have a stale absolute path baked in
-# (dlpfc_assays.h5; the file on disk is assays.h5). 00_shared/wgbs.R repoints
-# every BSobj at these paths, so this key -- not the .rda -- is authoritative.
-wgbs_hdf5_assays:
-  caudate: /gpfs/projects/b1213/resources/libd_data/wgbs/caudate/raw/CpGassays.h5
-  dlpfc: /gpfs/projects/b1213/resources/libd_data/wgbs/new-data/dlpfc/_m/combined_hdf5/assays.h5
-  hippocampus: /gpfs/projects/b1213/resources/libd_data/wgbs/new-data/hippocampus/_m/combined_hdf5/assays.h5
+# Preferred BSobj source per region (V14). Where non-null, this is a
+# self-contained saveHDF5SummarizedExperiment() directory carrying M, Cov and
+# coef with working backing stores, and 00_shared/wgbs.R loads it instead of the
+# .rda above. Null means the .rda is intact and is used directly.
+#
+# The dlpfc/hippocampus .rda files cannot be used: dlpfc names a backing file
+# that was renamed away, and both have a `coef` assay pointing into a deleted
+# /tmp scratch dir, so their smoothed fits are unrecoverable from the .rda.
+# Caudate's .rda resolves completely and has no directory form.
+wgbs_bsobj_hdf5se:
+  caudate: null
+  dlpfc: /gpfs/projects/b1213/resources/libd_data/wgbs/new-data/dlpfc/_m/dlpfc_chr{chrom}_BSobj
+  hippocampus: /gpfs/projects/b1213/resources/libd_data/wgbs/new-data/hippocampus/_m/hippocampus_chr{chrom}_BSobj
 
 # C->T SNP masks. Autosomes only -- there is no chrX/chrY file, which is why
 # thresholds.yml keeps sex chromosomes out of the primary catalog (V4).
