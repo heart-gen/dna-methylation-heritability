@@ -1,10 +1,9 @@
-#!/bin/bash
+11;rgb:0000/0000/00001#!/bin/bash
 #SBATCH --account=p32505
 #SBATCH --partition=short
 #SBATCH --time=01:00:00
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
-#SBATCH --cpus-per-task=8
 #SBATCH --mem=16G
 #SBATCH --mail-type=FAIL
 #SBATCH --job-name=vmr_extract_snp
@@ -98,7 +97,6 @@ mkdir -p "$CHR_DIR"
 # plink2 defaults to the node's core count, not the allocation, so it needs the
 # ceiling passed explicitly -- same defect as data.table (00_shared/slurm.sh).
 "$PLINK2" --pfile "$REPO_DIR/$PFILE" \
-          --threads "$V2_THREADS" \
           --chr "${CHR#chr}" \
           --from-bp "$START_POS" \
           --to-bp "$END_POS" \
