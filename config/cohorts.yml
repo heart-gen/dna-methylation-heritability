@@ -9,7 +9,7 @@
 # Prose labels: AA = "Black American", EA = "non-Hispanic white American".
 # Never write "African American". Legacy code uses BA==AA and WA==EA.
 
-pi_locked: false
+pi_locked: true
 
 primary: AA
 
