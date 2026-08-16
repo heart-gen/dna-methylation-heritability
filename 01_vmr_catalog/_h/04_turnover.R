@@ -44,13 +44,27 @@ to_gr <- function(dt) GRanges(dt$chr, IRanges(dt$start, dt$end))
 ## ------------------------------------------------------------ turnover table
 
 if (file.exists(legacy_path)) {
-    legacy <- fread(legacy_path, header = FALSE,
+    legacy <- fread(legacy_path, header = FALSE, colClasses = list(character = 1),
                     col.names = c("chr", "start", "end"))
+    ## The legacy catalogs write bare chromosome names ("1", "X"); v2 writes
+    ## "chr1". Normalize before comparing, or every region looks novel.
+    legacy[, chr := paste0("chr", sub("^chr", "", chr))]
+
     ## Legacy catalogs include unmasked sex chromosomes (V4). Compare on the
     ## primary autosomes only, or the turnover number is dominated by a policy
     ## change rather than by the V1 repair.
     legacy_auto <- legacy[chr %in% paste0("chr", chrom_order(include_sex = FALSE))]
     n_legacy_sex <- nrow(legacy) - nrow(legacy_auto)
+
+    ## A smoke run covers only some chromosomes. Restrict the legacy side to the
+    ## chromosomes v2 actually produced, so the comparison is like-for-like
+    ## rather than reporting every unbuilt chromosome as "lost".
+    v2_chroms <- unique(new_vmr$chr)
+    legacy_auto <- legacy_auto[chr %in% v2_chroms]
+    if (length(v2_chroms) < length(chrom_order(include_sex = FALSE))) {
+        message("[turnover] v2 catalog covers ", length(v2_chroms),
+                " chromosome(s); comparing on those only.")
+    }
 
     g_new <- to_gr(new_vmr); g_old <- to_gr(legacy_auto)
     ov <- findOverlaps(g_new, g_old)
@@ -60,6 +74,7 @@ if (file.exists(legacy_path)) {
 
     turnover <- data.table(
         cohort = cohort, region = region, vmr_set_id = vmr_set_id,
+        chromosomes_compared = paste(sort(unique(new_vmr$chr)), collapse = ","),
         n_v2 = nrow(new_vmr),
         n_legacy_autosomal = nrow(legacy_auto),
         n_legacy_sex_chrom_dropped = n_legacy_sex,

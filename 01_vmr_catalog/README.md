@@ -46,10 +46,14 @@ Both arms run for `caudate`, `dlpfc`, and `hippocampus`. Definitions live in
 | 3 | `03_plot.R` | per arm × region | Catalog diagnostics |
 | 3 | `04_turnover.R` | per arm × region | Old-vs-new turnover, array coverage, QC/exclusion tables |
 | 4 | `step_4.sh` | per VMR | Cis genotype window extraction |
+| 5 | `05_close_run.R` | per arm × region | Checksums outputs, seals the run read-only |
 
 Launchers: `step_1.sh` (autosomes), `step_1x.sh` (X/Y → `excluded/`),
-`step_2.sh`, `step_3.sh`, `step_4.sh`, and
+`step_2.sh`, `step_3.sh`, `step_4.sh`, `step_5.sh`, and
 `submit_vmr_catalog_workflow.sh` to chain them.
+
+`step_5.sh` must be **last** — it makes the run directory read-only, so anything
+that still needs to write (notably `step_4.sh`) has to finish first.
 
 ```bash
 cd 01_vmr_catalog/_m && mkdir -p logs
@@ -106,18 +110,59 @@ A run is production only when all of these hold, recorded in the table below:
 
 | Run ID | Arm | Region | n | vmr_set_id | Gate | Notes |
 |---|---|---|---|---|---|---|
-| _(none accepted)_ | | | | | | |
+| `vmrcat-AA-caudate-20260815-a` | AA | caudate | 153 | `vmrset-AA-caudate-3968cebd6d9c` | **smoke, not production** | chr22 only, `--allow-unlocked` |
+
+## What has been verified
+
+A chr22-only caudate AA smoke run exercised every step end-to-end:
+
+- **489,722 CpGs × 153 donors** survive C→T masking and coverage QC
+  (154 in the phenotype table → 153 after intersecting BSobj and `.psam`).
+- **260 VMRs** called; 260 phenotype files written; membership table covers
+  4,140 CpGs; reconciliation clean (1 completed, 21 QC-failed for the
+  chromosomes this smoke run did not build, 0 unaccounted, 0 failed).
+- Run sealed: 289 outputs checksummed, directory read-only.
+
+**V1 shuffle invariance, on real data.** Permuting the methylation rows and the
+PC rows independently and re-running the residualization changed the per-CpG
+residual SD by at most `5.6e-17` — floating-point noise. The alignment holds.
+
+**What V1 costs, on real data.** Permuting only the design rows — the legacy
+failure mode — on all 489,722 chr22 CpGs:
+
+| | Correctly aligned | Design misaligned |
+|---|---|---|
+| 99th-pct residual SD cutoff | 0.074733 | 0.083297 (**+11.5%**) |
+| Seed CpGs above cutoff | 4,898 | — |
+| Jaccard of seed-CpG sets | — | 0.575 |
+| Seed CpGs that change | — | **26.9%** |
+
+Direction and magnitude agree with the audit's +9.2% and Jaccard 0.82 measured
+on the legacy files. (The audit's figures come from the *actual* legacy
+permutation, which partially overlaps the correct order; a fully random
+permutation is a worse case, hence the larger numbers here.)
+
+**V4 corroborated.** The legacy caudate catalog carries **431** sex-chromosome
+VMRs, matching the audit's reported 3× excess exactly. v2 holds them out of the
+primary catalog.
+
+**Turnover, chr22 only.** 260 v2 vs 244 legacy VMRs; 180 overlap, 80 novel,
+68 legacy lost; Jaccard 0.51; 31% of v2 VMRs novel. Substantial turnover is the
+expected consequence of the V1 repair, not a surprise.
 
 ### Verification not yet done
 
-- **Full-scale runs.** Only chr22 caudate AA has been exercised end-to-end.
-- **`design_n`.** chr22 caudate AA gives n=153 (phenotype ceiling 154). DLPFC and
-  hippocampus AA must be checked against the audit's expected 111 and 116 rather
-  than the legacy 96 and 101 — that recovery is the observable signature of the
-  V2 fix.
+- **Full-scale runs.** Only chr22 caudate AA. No other chromosome, region, or
+  arm has been run.
+- **`design_n`.** DLPFC and hippocampus AA must be checked against the expected
+  111 and 116 rather than the legacy 96 and 101 — recovering those ~15 donors
+  per region is the observable signature of the V2 fix, and it has **not** been
+  demonstrated yet.
+- **Checksum stability across two invocations** (acceptance criterion 3).
+- **`step_4.sh`** genotype extraction has never been executed.
 - **Array-coverage panel.** `inputs/supportfiles/_m/array_cpg_manifest_hg38.bed.gz`
-  does not exist yet, so `04_turnover.R` skips the off-array comparison and says
-  so. AGENTS.md §11 Figure 1 needs it before the figure freeze.
+  does not exist, so `04_turnover.R` skips the off-array comparison and records
+  that it did. AGENTS.md §11 Figure 1 needs it before the figure freeze.
 
 ## Smoke tests
 
