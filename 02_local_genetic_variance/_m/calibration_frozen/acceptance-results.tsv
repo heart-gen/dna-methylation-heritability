@@ -1,0 +1,8 @@
+metric	observed	comparison	threshold	passed	rationale
+absolute_mean_bias	0.0166865925833531	less_than_or_equal	0.05	TRUE	Absolute mean signed calibration bias must be small
+rmse	0.134123472084611	less_than_or_equal	0.15	TRUE	Numerical error must be useful relative to the 0-0.6 target grid
+calibration_interval_coverage	0.944855967078189	greater_than_or_equal	0.9	TRUE	Empirical 95% calibration intervals must not severely undercover
+null_type1_error	0.0197530864197531	less_than_or_equal	0.06	TRUE	Null positive-signal calls must be approximately calibrated
+spearman_truth_estimate	0.735106197605564	greater_than_or_equal	0.5	TRUE	The estimator must preserve a useful ordering of loci
+null_mean_estimated_h2	0.045223991044778	less_than_or_equal	0.05	TRUE	Null loci must not receive materially positive numerical h2 estimates on average
+max_absolute_h2_level_bias	0.0789293623580126	less_than_or_equal	0.1	TRUE	No simulated h2 level may have excessive mean calibration bias

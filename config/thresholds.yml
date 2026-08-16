@@ -1,0 +1,67 @@
+# v2 analysis thresholds for the AJHG revision.
+#
+# Distinct from analysis_thresholds.yml, which stays as-is for meqtl-validation.
+# Anything with pi_locked: false blocks a production run until the PI signs off
+# (AGENTS.md 12, 14). Smoke runs bypass this with --allow-unlocked.
+
+pi_locked: false
+
+# ---------------------------------------------------------------- VMR calling
+vmr:
+  # CpG QC
+  min_coverage: 5              # per-donor read depth to count a CpG as covered
+  min_covered_fraction: 0.80   # keep CpG if >= 80% of donors meet min_coverage
+  min_age: 17                  # adult donors only
+
+  # PCA / residualization
+  top_variable_cpgs: 1000000   # cap; guarded by min(cap, nrow) -- V6
+  snp_pcs_regressed: 3         # snpPC1-3 removed before PCA
+  meth_pcs_regressed: 5        # PC1-5 removed to form residual methylation
+
+  # Region finding
+  sd_quantile: 0.99            # SD cutoff percentile
+  max_gap: 1000                # bsseq regionFinder3 maxGap, bp
+  min_cpgs: 5                  # keep regions with n > min_cpgs
+
+  # Chunking for the residualization step
+  chunk_cols: 5000
+
+# ------------------------------------------------------------ chromosome policy
+# AGENTS.md 7.1: autosomes primary; sex chromosomes reported separately or
+# excluded with an explicit manifest. V4: legacy runs put unmasked X/Y VMRs into
+# the primary set (caudate carried a 3x excess of X/Y VMRs, 431 vs 143/147).
+chromosomes:
+  primary: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22]
+  # Quoted deliberately: YAML 1.1 parses a bare Y as boolean true, which
+  # silently dropped chrY from this list.
+  sex: ["X", "Y"]
+  include_sex_in_primary: false   # X/Y go to _m/runs/{RUN_ID}/excluded/ with a manifest
+  # C->T SNP masks exist for autosomes only; X/Y CpGs are therefore unmasked and
+  # must never be silently merged into the primary catalog.
+  ct_mask_available: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22]
+
+# ------------------------------------------------------------------- cis window
+# V11: the legacy arms were not comparable -- BA_only used 500 kb and
+# all_individuals used 1 Mb. One window for both arms in v2.
+# 500000 matches the window 02_local_genetic_variance re-filters to in
+# 04_estimate_observed_vmr.R, so the two modules agree by construction.
+cis:
+  window_bp: 500000
+  maf_min: 0.05
+  missingness_max: 0.05
+
+# -------------------------------------------------------------- acceptance gates
+gates:
+  # Fraction of VMRs that may change between the legacy catalog and the v2
+  # catalog before production stops for PI direction (AGENTS.md 14).
+  # The audit measured Jaccard 0.82 at the seed-CpG level for the V1 fix alone,
+  # so substantial turnover is EXPECTED here -- this threshold exists to catch a
+  # catastrophic difference, not the known repair.
+  max_vmr_turnover: null       # PI lock required; null = report only, do not gate
+
+  # Fraction of loci allowed to fall outside the calibration domain in
+  # 02_local_genetic_variance before the run is rejected.
+  max_outside_calibration_domain: 0.10
+
+  # Production runs have zero tolerance for unexplained computational failures.
+  max_unexplained_task_failures: 0

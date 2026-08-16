@@ -128,3 +128,26 @@ meqtl-validation/**/ANALYSIS_SUMMARY*.md
 /pilot/
 /.codex
 writing-notes/
+
+## ---------------------------------------------------------------------------
+## v2 revision modules (root-level numbered directories)
+## ---------------------------------------------------------------------------
+
+# Immutable run directories: large generated matrices, PLINK output, figures,
+# logs. These stay on Quest. Provenance lives in each module README, which cites
+# the run IDs, and in MIGRATION_MANIFEST.tsv.
+0[0-9]_*/_m/runs/
+0[0-9]_*/_m/logs/
+0[0-9]_*/_m/observed/
+
+# Tests are hand-run smoke checks before a SLURM array, not a tracked suite.
+/tests/
+0[0-9]_*/tests/
+
+# Keep the tracked pieces of _m/ explicit. The frozen calibration model itself
+# (4 MB .rds) stays on Quest like every other data artifact; its SHA-256 is
+# asserted in 02_local_genetic_variance/_h/04_estimate_observed_vmr.R, and the
+# small provenance tables beside it are tracked so the expected checksum and the
+# acceptance results are readable from a clone.
+!0[0-9]_*/_m/README.md
+!02_local_genetic_variance/_m/calibration_frozen/*.tsv

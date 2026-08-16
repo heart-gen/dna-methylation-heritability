@@ -1,0 +1,67 @@
+# Schizophrenia-risk application (08_schizophrenia_risk_application).
+#
+# STUB. 08 is not implemented; gated on upstream acceptance (AGENTS.md 6).
+#
+# Phase 7 already exists at meqtl-validation/08_schizophrenia_risk_application/
+# and its decision file records `retain_main_text_proof_of_application`. That run
+# was conditioned on the legacy predictability metric and the pre-repair VMR sets,
+# so per AGENTS.md 8 every number in it is a hypothesis to retest, not a result
+# to carry forward. Hero loci rs8048039 and rs13331198 remain CANDIDATES.
+
+pi_locked: false
+
+# Loci are defined from PGC3 independently of any methylation result. This is a
+# design invariant, not a preference (AGENTS.md 7.8, 10.3).
+locus_definition:
+  source: pgc3
+  independent_of_methylation: true
+  pgc3_loci_hg38: /projects/b1213/resources/gwas/pgc3/fine_mapped_loci/to_hg38/_m/gwas_loci_hg38.tsv
+  pgc3_index_snp_xls: /projects/b1213/resources/gwas/pgc3/fine_mapped_loci/_m/primaryGWAS_indexSNP.xls
+
+testing:
+  # Risk-variant-CpG tests keep their OWN FDR family. FDR families are never
+  # combined after inspection.
+  separate_fdr_family: true
+  fdr_alpha: 0.05
+  # Association is tested against calibrated local variance
+  # (h2_en_calibrated), NOT legacy predictability.
+  architecture_predictor: h2_en_calibrated
+
+primary_region: caudate
+
+retention_criteria:
+  # AGENTS.md 7.8: the main-text application is retained only if the CORRECTED
+  # run meets all of these. Recorded here so they are prespecified rather than
+  # read off the results.
+  min_loci_with_cpg_meqtl_support: 1
+  enrichment_along_local_control_axis_in_primary_region: true
+  min_loci_with_transcriptional_coupling: 1
+  caudate_not_sample_size_artifact: true      # via downsampling to N=111
+  min_loci_with_external_genetic_support: 1   # GTEx eQTL, support not proof
+  # Diagnosis associations are optional supportive evidence. A null best-VMR
+  # diagnosis result does not invalidate genetic regulation; secondary hits are
+  # labeled exploratory.
+  diagnosis_required: false
+
+prioritization:
+  max_loci: 5
+  rule: null                # PI lock
+
+integration:
+  # Are schizophrenia-linked VMRs enriched for the 04 architecture?
+  # Positive -> connect the disease application to the repeat/repressive story.
+  # Null -> present Phase 7 as a separate proof of disease relevance.
+  test_against:
+    - line_l1
+    - h3k9me3
+    - quiescent_chromatin
+    - high_mappability_repeat_intervals
+    - expression_splicing_coupling
+
+# Not generated, therefore not claimable: mediation, causality, colocalization,
+# cell-type specificity, retrotransposition.
+forbidden_claims:
+  - mediation
+  - causal_variant_from_elastic_net
+  - colocalization
+  - ancestry_specific_scz_methylation
