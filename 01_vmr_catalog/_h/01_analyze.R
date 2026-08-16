@@ -150,13 +150,22 @@ dev.off()
 ## --------------------------------- part 2: residual variance, chunk by chunk
 
 meth_file <- file.path(cpg_dir, "cpg_meth.phen")
-## nrows = 0 makes fread fall back to V1..Vn instead of reading the header, so
-## the column names silently become positional and every select() misses.
-header <- names(fread(meth_file, nrows = 1L, header = TRUE))
-if (!all(c("FID", "IID") %in% header)) {
-    stop("cpg_meth.phen is missing FID/IID columns: ", meth_file)
+meth_rds <- file.path(cpg_dir, "cpg_meth.rds")
+## Prefer the binary twin: cpg_meth.phen is donors x CpGs, and fread() segfaults
+## nondeterministically on the >1M-column chromosomes (see 00_prepare.R).
+use_rds <- file.exists(meth_rds)
+if (use_rds) {
+    meth_bin <- readRDS(meth_rds)
+    cpg_cols <- meth_bin$cpg
+} else {
+    ## nrows = 0 makes fread fall back to V1..Vn instead of reading the header, so
+    ## the column names silently become positional and every select() misses.
+    header <- names(fread(meth_file, nrows = 1L, header = TRUE))
+    if (!all(c("FID", "IID") %in% header)) {
+        stop("cpg_meth.phen is missing FID/IID columns: ", meth_file)
+    }
+    cpg_cols <- setdiff(header, c("FID", "IID"))
 }
-cpg_cols <- setdiff(header, c("FID", "IID"))
 n_cpg <- length(cpg_cols)
 chunk_size <- vmr_cfg$chunk_cols
 starts <- seq(1, n_cpg, by = chunk_size)
@@ -178,14 +187,23 @@ donor_ids_ref <- NULL
 ## header row and the data rows, so fread's auto-detection can conclude there is
 ## no header, rename every column to V1..Vn, and silently drop a select() as
 ## "not found" -- leaving a chunk with no donors.
-message("[resid] reading methylation matrix")
-meth_all <- fread(meth_file, header = TRUE)
-if (!all(c("FID", "IID") %in% names(meth_all)) || nrow(meth_all) == 0) {
-    stop("cpg_meth.phen did not return FID/IID and rows: ", meth_file)
+if (use_rds) {
+    message("[resid] reading methylation matrix (cpg_meth.rds)")
+    meth_ids_file <- as.character(meth_bin$FID)
+    meth_mat <- meth_bin$meth
+    colnames(meth_mat) <- meth_bin$cpg
+    rm(meth_bin); gc()
+} else {
+    message("[resid] reading methylation matrix (cpg_meth.phen)")
+    meth_all <- fread(meth_file, header = TRUE)
+    if (!all(c("FID", "IID") %in% names(meth_all)) || nrow(meth_all) == 0) {
+        stop("cpg_meth.phen did not return FID/IID and rows: ", meth_file)
+    }
+    meth_ids_file <- as.character(meth_all$FID)
+    meth_mat <- as.matrix(meth_all[, -c("FID", "IID"), with = FALSE])
+    rm(meth_all); gc()
 }
-meth_ids_file <- as.character(meth_all$FID)
-meth_mat <- as.matrix(meth_all[, -c("FID", "IID"), with = FALSE])
-rm(meth_all); gc()
+if (nrow(meth_mat) == 0) stop("Empty methylation matrix: ", cpg_dir)
 stopifnot(identical(colnames(meth_mat), cpg_cols))
 
 for (i in seq_along(starts)) {
