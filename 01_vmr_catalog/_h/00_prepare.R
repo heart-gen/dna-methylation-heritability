@@ -110,10 +110,7 @@ if (!is_primary) {
 }
 
 ## Load WGBS
-bsobj_file <- resolve_path("wgbs_bsobj_template", region = region, chrom = chrom,
-                           check = TRUE)
-message("[load] ", bsobj_file)
-load(bsobj_file)  # provides BSobj
+BSobj <- load_bsobj(region, chrom)
 
 ## Donors
 blacklist <- sample_blacklist(region)

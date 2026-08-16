@@ -97,6 +97,15 @@ v2_variance_root: 02_local_genetic_variance
 # Raw WGBS. One BSobj per region per chromosome.
 wgbs_bsobj_template: inputs/wgbs-data/{region}/_m/{region}_chr{chrom}_BSobj.rda
 
+# Genome-wide HDF5 backing store for the per-chromosome BSobj views above.
+# V14: the DLPFC BSobj files have a stale absolute path baked in
+# (dlpfc_assays.h5; the file on disk is assays.h5). 00_shared/wgbs.R repoints
+# every BSobj at these paths, so this key -- not the .rda -- is authoritative.
+wgbs_hdf5_assays:
+  caudate: /gpfs/projects/b1213/resources/libd_data/wgbs/caudate/raw/CpGassays.h5
+  dlpfc: /gpfs/projects/b1213/resources/libd_data/wgbs/new-data/dlpfc/_m/combined_hdf5/assays.h5
+  hippocampus: /gpfs/projects/b1213/resources/libd_data/wgbs/new-data/hippocampus/_m/combined_hdf5/assays.h5
+
 # C->T SNP masks. Autosomes only -- there is no chrX/chrY file, which is why
 # thresholds.yml keeps sex chromosomes out of the primary catalog (V4).
 ct_snp_dir: /projects/b1213/resources/libd_data/wgbs/DEM2/snps_CT
