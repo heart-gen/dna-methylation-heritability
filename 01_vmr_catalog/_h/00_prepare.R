@@ -111,6 +111,8 @@ if (!is_primary) {
 
 ## Load WGBS
 BSobj <- load_bsobj(region, chrom)
+bsobj_source <- attr(BSobj, "v2_source")
+bsobj_sha256 <- attr(BSobj, "v2_source_sha256")
 
 ## Donors
 blacklist <- sample_blacklist(region)
@@ -198,11 +200,11 @@ write_atomic(
     data.table(
         field = c("cohort", "region", "chrom", "is_primary_chrom",
                   "n_donors", "n_cpgs", "donor_checksum", "ct_masked",
-                  "blacklist_n", "bsobj_sha256"),
+                  "blacklist_n", "bsobj_source", "bsobj_sha256"),
         value = c(cohort, region, chrom, is_primary,
                   length(analysis_ids), nrow(BSobj), donor_checksum(analysis_ids),
                   has_ct_mask(chrom), length(blacklist %||% character()),
-                  file_sha256(bsobj_file))),
+                  bsobj_source, bsobj_sha256)),
     file.path(out_cpg, "prepare_summary.tsv"))
 
 message("[done] chr", chrom, ": ", nrow(BSobj), " CpGs x ",

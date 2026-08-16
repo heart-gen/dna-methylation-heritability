@@ -58,6 +58,11 @@ load_bsobj <- function(region, chrom, root = repo_root(),
         }
         message("[load] ", d, " (HDF5SummarizedExperiment)")
         bs <- HDF5Array::loadHDF5SummarizedExperiment(d)
+        src <- d
+        ## Checksum se.rds, not assays.h5: the latter is multi-GB and would be
+        ## rehashed by every task in the array. se.rds pins the row/col identity
+        ## and the assay layout, which is the provenance that matters here.
+        src_sha <- file_sha256(file.path(d, "se.rds"))
     } else {
         f <- resolve_path("wgbs_bsobj_template", region = region, chrom = chrom,
                           root = root, check = TRUE)
@@ -69,6 +74,8 @@ load_bsobj <- function(region, chrom, root = repo_root(),
                  paste(loaded, collapse = ", "))
         }
         bs <- get(loaded, envir = e)
+        src <- f
+        src_sha <- file_sha256(f)
     }
 
     ## Fail here, in seconds, rather than deep inside an array job. Every assay
@@ -101,5 +108,7 @@ load_bsobj <- function(region, chrom, root = repo_root(),
                                            paste(stale, collapse = ", ")) else "")
         }
     }
+    attr(bs, "v2_source") <- src
+    attr(bs, "v2_source_sha256") <- src_sha
     bs
 }
