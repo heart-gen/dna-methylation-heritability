@@ -176,6 +176,24 @@ setnames(meth_out, c("FID", "IID", as.character(start(BSobj))))
 write_atomic(meth_out, file.path(out_cpg, "cpg_meth.phen"))
 write_atomic(names(meth_out), file.path(out_cpg, "cpg_pos.txt"))
 
+## Binary twin of cpg_meth.phen for 01_analyze.R.
+##
+## The .phen file is donors x CpGs, so a large chromosome is ~120 rows by 1.8M
+## columns. fread() segfaults nondeterministically above roughly 1M columns
+## (chr1/2/5/6/7/10 died on the first full-scale DLPFC run while chr3 read
+## fine), and the smoke run never saw it because chr22 has only 492k columns.
+## The .phen file is kept for downstream text consumers; analysis reads this.
+meth_rds <- file.path(out_cpg, "cpg_meth.rds")
+tmp_rds <- paste0(meth_rds, ".tmp")
+saveRDS(list(FID = analysis_ids,
+             IID = as.character(aligned$y$IID),
+             cpg = as.character(start(BSobj)),
+             meth = as.matrix(aligned$x)),
+        tmp_rds, compress = FALSE)
+if (!file.rename(tmp_rds, meth_rds)) {
+    stop("Could not finalize ", meth_rds)
+}
+
 ## Covariates, in the same donor order as the methylation matrix.
 covar_src <- pheno[match(analysis_ids, brnum)]
 stopifnot(identical(as.character(covar_src$brnum), analysis_ids))
