@@ -1,14 +1,28 @@
 #### WGBS BSseq object loading (v2 revision) ####
 ##
-## The per-chromosome BSobj .rda files are thin DelayedArray views: the actual
-## methylation counts live in a genome-wide HDF5 file, referenced by an absolute
-## path baked into each object when it was saved. Those baked-in paths have gone
-## stale (V14), so loading a BSobj is not a plain load() and every v2 module goes
-## through load_bsobj().
+## Loading a BSobj is not a plain load(), because the region trees do not agree
+## on what a BSobj is (V14):
 ##
-## AGENTS.md 9: Quest paths belong in configuration. The authoritative HDF5
-## location per region is config/paths.yml:wgbs_hdf5_assays, and this file
-## repoints the object at it -- loudly, never silently.
+##   caudate      inputs/wgbs-data/caudate/_m/*.rda -- a DelayedArray view whose
+##                baked-in HDF5 path is valid. M, Cov and coef all resolve.
+##   dlpfc        the .rda names a backing file (dlpfc_assays.h5) that no longer
+##                exists -- the owner renamed it to assays.h5 -- and its `coef`
+##                assay points into a /tmp scratch dir from the smoothing
+##                session, so the smoothed fits are unrecoverable from the .rda.
+##   hippocampus  the .rda's M/Cov resolve, but `coef` is /tmp-backed and gone.
+##
+## For dlpfc and hippocampus there is a self-contained
+## saveHDF5SummarizedExperiment() directory alongside the .rda that carries all
+## three assays intact. v2 loads that in preference to the .rda. Verified
+## 2026-08-15 for chr22 in both regions: rowRanges, colnames and colData$brnum
+## are identical() to the .rda, and the directory form additionally has usable
+## `coef` (hasBeenSmoothed TRUE).
+##
+## This matters because 00_prepare.R uses getMeth(type = "smooth"), which reads
+## `coef`. An object missing it fails only once the pipeline reaches that call.
+##
+## AGENTS.md 9: Quest paths belong in configuration, so the per-region source
+## lives in config/paths.yml, not in this file.
 
 suppressPackageStartupMessages({
     library(DelayedArray)
@@ -24,86 +38,67 @@ hdf5_seed_paths <- function(x) {
     unique(stats::na.omit(unlist(p)))
 }
 
-#' Repoint every HDF5 seed of a DelayedArray at `new_path`.
-repoint_hdf5 <- function(x, new_path) {
-    DelayedArray::modify_seeds(x, function(s) {
-        if (is(s, "HDF5ArraySeed")) s@filepath <- new_path
-        s
-    })
-}
-
-#' Load a per-chromosome BSseq object with its HDF5 backing repaired.
-#'
-#' V14: the DLPFC BSobj .rda files reference
-#'   .../new-data/dlpfc/_m/combined_hdf5/dlpfc_assays.h5
-#' but the file on disk is `assays.h5` -- the data owner renamed it. Every
-#' 00_prepare.R task for DLPFC died on the missing file. Verified 2026-08-15
-#' that the two are the same data: identical dims (29,401,795 x 176), identical
-#' donor names in identical order, and Cov values bit-identical to the
-#' genome-wide se.rds for the chr22 rows checked. Hippocampus and caudate
-#' already resolve correctly and are left untouched by the repair.
-#'
-#' The `coef` assay (smoothing output) points at a /tmp scratch directory from
-#' the session that produced it and is unrecoverable for every region. v2 never
-#' reads it, so it is dropped rather than left as a landmine that fails deep
-#' inside an array job.
+#' Load a per-chromosome BSseq object, from whichever source is intact.
 #'
 #' @param region caudate | dlpfc | hippocampus
 #' @param chrom chromosome, e.g. 22
-#' @param assays_used assays v2 requires; the rest are dropped
+#' @param require_smoothed stop unless the object carries usable smoothed fits
 load_bsobj <- function(region, chrom, root = repo_root(),
-                       assays_used = c("M", "Cov")) {
-    f <- resolve_path("wgbs_bsobj_template", region = region, chrom = chrom,
-                      root = root, check = TRUE)
-    message("[load] ", f)
-    e <- new.env(parent = emptyenv())
-    loaded <- load(f, envir = e)
-    if (length(loaded) != 1) {
-        stop("Expected exactly one object in ", f, ", found: ",
-             paste(loaded, collapse = ", "))
-    }
-    bs <- get(loaded, envir = e)
+                       require_smoothed = TRUE) {
+    paths <- load_config("paths", root = root)
+    tmpl <- paths$wgbs_bsobj_hdf5se[[region]]
 
-    missing_assays <- setdiff(assays_used, names(bs@assays@data))
+    if (!is.null(tmpl)) {
+        d <- gsub("{chrom}", as.character(chrom), tmpl, fixed = TRUE)
+        if (!dir.exists(d)) {
+            stop("HDF5SummarizedExperiment directory declared for ", region,
+                 " but missing: ", d,
+                 "\n  Set wgbs_bsobj_hdf5se.", region,
+                 " to null in config/paths.yml to fall back to the .rda.")
+        }
+        message("[load] ", d, " (HDF5SummarizedExperiment)")
+        bs <- HDF5Array::loadHDF5SummarizedExperiment(d)
+    } else {
+        f <- resolve_path("wgbs_bsobj_template", region = region, chrom = chrom,
+                          root = root, check = TRUE)
+        message("[load] ", f, " (.rda)")
+        e <- new.env(parent = emptyenv())
+        loaded <- load(f, envir = e)
+        if (length(loaded) != 1) {
+            stop("Expected exactly one object in ", f, ", found: ",
+                 paste(loaded, collapse = ", "))
+        }
+        bs <- get(loaded, envir = e)
+    }
+
+    ## Fail here, in seconds, rather than deep inside an array job. Every assay
+    ## the pipeline can touch must actually be readable -- the /tmp-backed `coef`
+    ## that motivated this function passed every check except being read.
+    need <- c("M", "Cov")
+    if (require_smoothed) {
+        if (!bsseq::hasBeenSmoothed(bs)) {
+            stop("BSobj for ", region, " chr", chrom, " is not smoothed, but ",
+                 "00_prepare.R calls getMeth(type = 'smooth').")
+        }
+        need <- c(need, "coef")
+    }
+    missing_assays <- setdiff(need, names(bs@assays@data))
     if (length(missing_assays) > 0) {
         stop("BSobj for ", region, " chr", chrom, " lacks assay(s): ",
              paste(missing_assays, collapse = ", "))
     }
-    ## Drop everything we do not use, notably the /tmp-backed `coef`.
-    bs@assays@data <- bs@assays@data[assays_used]
-
-    h5 <- resolve_path(paste0("wgbs_hdf5_assays.", region), root = root,
-                       check = TRUE)
-    for (a in assays_used) {
-        cur <- hdf5_seed_paths(bs@assays@data[[a]])
-        if (length(cur) == 0) next            # not HDF5-backed; nothing to repair
-        if (length(cur) > 1) {
-            stop("Assay '", a, "' of ", region, " chr", chrom,
-                 " spans multiple HDF5 files, which v2 cannot repoint safely:\n  ",
-                 paste(cur, collapse = "\n  "))
-        }
-        if (cur == h5) next                   # already correct (caudate, hippocampus)
-        if (file.exists(cur)) {
-            ## Two live files disagreeing is a provenance question, not ours to
-            ## resolve by preferring one.
-            stop("Assay '", a, "' of ", region, " chr", chrom, " points at\n  ",
-                 cur, "\nwhich EXISTS but is not the configured backing store\n  ",
-                 h5, "\nRefusing to guess which is authoritative.")
-        }
-        message("[hdf5] ", region, " chr", chrom, " assay '", a,
-                "': stale reference ", basename(cur), " -> ", h5, " (V14)")
-        bs@assays@data[[a]] <- repoint_hdf5(bs@assays@data[[a]], h5)
-    }
-
-    ## Prove the repair before an array job spends hours on it.
-    for (a in assays_used) {
+    for (a in need) {
         probe <- try(as.matrix(bs@assays@data[[a]][seq_len(min(5L, nrow(bs))),
                                                    seq_len(min(2L, ncol(bs))),
                                                    drop = FALSE]),
                      silent = TRUE)
         if (inherits(probe, "try-error")) {
+            stale <- hdf5_seed_paths(bs@assays@data[[a]])
             stop("Assay '", a, "' of ", region, " chr", chrom,
-                 " is unreadable after HDF5 repair:\n  ", conditionMessage(attr(probe, "condition")))
+                 " is unreadable:\n  ",
+                 conditionMessage(attr(probe, "condition")),
+                 if (length(stale)) paste0("\n  HDF5 backing: ",
+                                           paste(stale, collapse = ", ")) else "")
         }
     }
     bs
