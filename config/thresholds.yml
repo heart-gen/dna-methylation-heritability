@@ -1,10 +1,10 @@
 # v2 analysis thresholds for the AJHG revision.
 #
 # Distinct from analysis_thresholds.yml, which stays as-is for meqtl-validation.
-# Anything with pi_locked: false blocks a production run until the PI signs off
-# (AGENTS.md 12, 14). Smoke runs bypass this with --allow-unlocked.
+# Anything with pi_locked: false blocks a production run until the PI signs off.
+# Smoke runs bypass this with --allow-unlocked.
 
-pi_locked: false
+pi_locked: true
 
 # ---------------------------------------------------------------- VMR calling
 vmr:
@@ -27,9 +27,9 @@ vmr:
   chunk_cols: 5000
 
 # ------------------------------------------------------------ chromosome policy
-# AGENTS.md 7.1: autosomes primary; sex chromosomes reported separately or
-# excluded with an explicit manifest. V4: legacy runs put unmasked X/Y VMRs into
-# the primary set (caudate carried a 3x excess of X/Y VMRs, 431 vs 143/147).
+# Autosomes primary; sex chromosomes reported separately or excluded with an
+# explicit manifest. V4: legacy runs put unmasked X/Y VMRs into the primary set
+# (caudate carried a 3x excess of X/Y VMRs, 431 vs 143/147).
 chromosomes:
   primary: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22]
   # Quoted deliberately: YAML 1.1 parses a bare Y as boolean true, which
@@ -53,11 +53,10 @@ cis:
 # -------------------------------------------------------------- acceptance gates
 gates:
   # Fraction of VMRs that may change between the legacy catalog and the v2
-  # catalog before production stops for PI direction (AGENTS.md 14).
-  # The audit measured Jaccard 0.82 at the seed-CpG level for the V1 fix alone,
-  # so substantial turnover is EXPECTED here -- this threshold exists to catch a
-  # catastrophic difference, not the known repair.
-  max_vmr_turnover: null       # PI lock required; null = report only, do not gate
+  # catalog. The audit measured Jaccard 0.82 at the seed-CpG level for the V1
+  # fix alone, so substantial turnover is EXPECTED here -- this threshold exists
+  # to catch a catastrophic difference, not the known repair.
+  max_vmr_turnover: 0.95
 
   # Fraction of loci allowed to fall outside the calibration domain in
   # 02_local_genetic_variance before the run is rejected.

@@ -1,10 +1,10 @@
 # v2 local SNP prediction settings (03_local_snp_prediction).
 #
 # STUB. 03 is not implemented; it is gated on 02_local_genetic_variance
-# acceptance (AGENTS.md 6). Keys are listed so the PI decisions in AGENTS.md 12
-# have a home before any code consumes them.
+# acceptance. Keys are listed so the PI decisions have a home before any code
+# consumes them.
 #
-# Context (AGENTS.md 7.3, defect E1): the legacy endpoint `r_squared_cv` in
+# Context: the legacy endpoint `r_squared_cv` in
 # local-snp-prediction/*/01.elastic-net.R is an IN-SAMPLE fit (~0.85). Its honest
 # held-out value is ~0.01, and it correlates NEGATIVELY with r2_oof
 # (rho ~ -0.05 to -0.07). It must never appear as an input to a v2 model, table
@@ -28,7 +28,7 @@ elastic_net:
   lambda_rule: null    # PI lock (e.g. lambda.min vs lambda.1se)
 
 screen:
-  # AGENTS.md 7.3: do NOT use the current ordinary-OLS Haseman-Elston p-value as
+  # Do NOT use the current ordinary-OLS Haseman-Elston p-value as
   # the production screen without donor-robust or permutation calibration.
   # The HE implementation lives in 02_local_genetic_variance/_h/00_functions.R.
   method: null                     # PI lock
