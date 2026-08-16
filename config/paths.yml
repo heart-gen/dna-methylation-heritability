@@ -28,6 +28,13 @@ vmr_bed_template: vmr-analysis/{region}/_m/vmr.bed
 vmr_bed_aa_template: vmr-analysis/{region}/_m/vmr.bed
 vmr_bed_all_individuals_template: vmr-analysis/all_individuals/{region}/_m/vmr.bed
 
+# legacy_invalid_for_prediction_accuracy
+# These templates serve existing meqtl-validation consumers only. They carry
+# `r_squared_cv`, which is an IN-SAMPLE fit (defect E1) and is invalid as a
+# prediction-accuracy metric. No v2 module may read these keys; the v2
+# replacement is 03_local_snp_prediction (not yet implemented).
+# The paths are also stale: the on-disk tree is local-snp-prediction/, not
+# heritability/elastic_net_model/.
 local_predictability_summary_template: heritability/elastic_net_model/all_individuals/{region}/_m/{region}_summary_elastic-net_AA.tsv
 local_predictability_ea_template: heritability/elastic_net_model/all_individuals/{region}/_m/{region}_summary_elastic-net_EA.tsv
 
@@ -75,7 +82,40 @@ residualized_cpg_methylation_matrix_all_individuals_template: vmr-analysis/all_i
 cpg_samples_aa_template: vmr-analysis/{region}/_m/samples.txt
 cpg_samples_all_individuals_template: vmr-analysis/all_individuals/{region}/_m/samples.txt
 
+# legacy_invalid_for_prediction_accuracy (see note above; stale path)
 regulatory_context_root: heritability/elastic_net_model/all_individuals/tissue_comparison/regulatory_context/_m
+
+# ---------------------------------------------------------------------------
+# v2 revision keys (AJHG revision, root-level numbered modules)
+# ---------------------------------------------------------------------------
+
+# Module roots
+v2_shared_root: 00_shared
+v2_vmr_root: 01_vmr_catalog
+v2_variance_root: 02_local_genetic_variance
+
+# Raw WGBS. One BSobj per region per chromosome.
+wgbs_bsobj_template: inputs/wgbs-data/{region}/_m/{region}_chr{chrom}_BSobj.rda
+
+# C->T SNP masks. Autosomes only -- there is no chrX/chrY file, which is why
+# thresholds.yml keeps sex chromosomes out of the primary catalog (V4).
+ct_snp_dir: /projects/b1213/resources/libd_data/wgbs/DEM2/snps_CT
+ct_snp_template: /projects/b1213/resources/libd_data/wgbs/DEM2/snps_CT/chr{chrom}
+
+# Per-chromosome lengths. V10: legacy step_5.sh looked up chr1's length once and
+# used it as the bound for every chromosome; v2 looks up each chromosome.
+chrom_sizes: /projects/b1213/resources/genomes/human/gencode-v47/fasta/chromosome_sizes.txt
+
+ancestry_file: inputs/genetic-ancestry/structure.out_ancestry_proportion_raceDemo_compare
+
+# v2 run outputs. Immutable, gitignored.
+v2_run_template: "{module_root}/_m/runs/{run_id}"
+
+# Conda environments (never the module system)
+v2_env_root: /projects/p32505/opt/envs
+v2_env_r: /projects/p32505/opt/envs/epigenomics
+v2_env_calibration: /projects/p32505/opt/envs/calibrated-local-h2
+v2_plink2: /projects/p32505/opt/bin/plink2
 
 data_dictionary:
   script_dir: inputs/data_dictionary/_h

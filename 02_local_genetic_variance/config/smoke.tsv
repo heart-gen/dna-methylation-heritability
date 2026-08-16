@@ -1,0 +1,18 @@
+setting	value	description
+sample_sizes	48	Small smoke-test sample size
+num_snps	24	Small smoke-test SNP count
+ld_rho	0.4	Single smoke-test LD value
+architectures	sparse,polygenic	Smoke-test architectures
+h2_values	0,0.3,0.6	Smoke-test h2 values
+calibration_replicates_per_stratum	12	Smoke-test calibration replicates
+evaluation_replicates_per_stratum	6	Smoke-test evaluation replicates
+outer_folds	3	Smoke-test outer folds
+outer_repeats	1	Smoke-test repeats
+inner_folds	3	Smoke-test inner folds
+alpha_grid	0.5,1	Smoke-test alpha grid
+lambda_rule	lambda.1se	Regularized lambda selection rule
+max_features	24	No feature screening in smoke test
+base_seed	91001	Smoke-test seed
+raw_metric	rho2_oof	Raw calibration metric
+null_alpha	0.05	Target finite-sample false-positive rate
+max_design_distance	1.25	Domain threshold
