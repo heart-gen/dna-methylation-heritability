@@ -33,10 +33,17 @@ local({
 
     ## Order matters: config.R defines repo_root() and load_config(), which the
     ## others call at load time.
-    for (f in c("config.R", "identity.R", "chrom.R", "runid.R", "wgbs.R")) {
+    for (f in c("config.R", "identity.R", "chrom.R", "runid.R", "wgbs.R",
+                "threads.R")) {
         source(file.path(shared, f), local = FALSE)
     }
 
     assign("V2_ROOT", root, envir = globalenv())
     Sys.setenv(V2_REPO_ROOT = root)
+
+    ## Applied here, at the single point every v2 script passes through, rather
+    ## than per script -- a script that forgets the call is exactly how the
+    ## 128-threads-on-1-CPU defect went unnoticed for a whole production run.
+    ## This also forces data.table to load while R_DATATABLE_NUM_THREADS is set.
+    limit_threads()
 })
