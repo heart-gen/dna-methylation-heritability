@@ -1,0 +1,14 @@
+field	value	rationale
+decision_date	2026-08-17	Versioned lock before expanded calibration results are viewed
+primary_covariates	age,sex,diagnosis	The accepted 01 catalog used genotype PCs for VMR discovery; module 02 estimates raw VMR phenotypes adjusted for these downstream covariates
+genotype_pc_role	diagnostic_only	Do not silently change the primary local-variance estimand
+donor_relatedness_primary	locked_catalog_donors	Donors are unique within region; relatedness is assessed as a sensitivity rather than changing the catalog donor set
+related_pair_sensitivity	exclude_Br1105_retain_Br2267	KING kinship 0.145657; retaining Br2267 preserves the donor represented in all three regions
+zero_prediction_rule	prediction_variance_le_1e-12_implies_rho2_oof_zero	Numerically constant predictions must be classified before correlation is evaluated
+sample_sizes	117,118,153,173,177,282	Exact observed AA and all-individual regional sample sizes
+num_snps	100,500,1500,3000,5000,12000	Covers the observed range and activates training-only screening above 1500 SNPs
+h2_values	0,0.05,0.1,0.2,0.4,0.6,0.8,0.95	Extends calibration toward the high observed signal without assuming h2 equals one
+calibration_replicates_per_stratum	240	Ten replicates per architecture-by-h2 cell
+independent_validation_replicates_per_stratum	120	Five untouched replicates per architecture-by-h2 cell
+initial_observed_runs	lgv-AA-caudate-20260816,lgv-AA-dlpfc-20260816,lgv-AA-hippocampus-20260816,lgv-all_individuals-caudate-20260816,lgv-all_individuals-dlpfc-20260816,lgv-all_individuals-hippocampus-20260816	Immutable comparison set until a replacement passes every calibration and observed-run gate
+archive_retirement_rule	remove_only_after_replacement_improves_gate_and_preserves_comparison_manifest	Prevents favorable-result replacement and preserves an auditable comparison

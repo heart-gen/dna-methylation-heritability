@@ -55,6 +55,14 @@ design_cells <- expand.grid(
 )
 
 make_split <- function(split_name, replicates_per_stratum, seed_offset) {
+    if (replicates_per_stratum < nrow(design_cells) ||
+        replicates_per_stratum %% nrow(design_cells) != 0L) {
+        stop(
+            split_name, " replicates_per_stratum must be a positive multiple of ",
+            nrow(design_cells),
+            " so every architecture-by-h2 cell is exactly balanced"
+        )
+    }
     records <- vector("list", nrow(strata))
     for (i in seq_len(nrow(strata))) {
         set.seed(base_seed + seed_offset + i)
