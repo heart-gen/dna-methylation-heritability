@@ -27,6 +27,12 @@ fi
 ENV_PATH=${CAL_H2_ENV:-/projects/p32505/opt/envs/calibrated-local-h2}
 MANIFEST=${SCENARIO_MANIFEST:-${ANALYSIS_DIR}/_m/config/scenarios.tsv}
 OUTPUT_ROOT=${SIMULATION_OUTPUT_ROOT:-${ANALYSIS_DIR}/_m/raw}
+SCENARIO_OFFSET=${CAL_H2_SCENARIO_OFFSET:-0}
+if [[ ! "${SCENARIO_OFFSET}" =~ ^[0-9]+$ ]]; then
+    echo "CAL_H2_SCENARIO_OFFSET must be a non-negative integer" >&2
+    exit 1
+fi
+SCENARIO_TASK_ID=$((SLURM_ARRAY_TASK_ID + SCENARIO_OFFSET))
 
 export OMP_NUM_THREADS=${SLURM_CPUS_PER_TASK:-1}
 export MKL_NUM_THREADS=${SLURM_CPUS_PER_TASK:-1}
@@ -34,5 +40,5 @@ export OPENBLAS_NUM_THREADS=${SLURM_CPUS_PER_TASK:-1}
 
 "${ENV_PATH}/bin/Rscript" "${SCRIPT_DIR}/01_simulate_and_crossfit.R" \
     --manifest="${MANIFEST}" \
-    --task-id="${SLURM_ARRAY_TASK_ID}" \
+    --task-id="${SCENARIO_TASK_ID}" \
     --output-root="${OUTPUT_ROOT}"
