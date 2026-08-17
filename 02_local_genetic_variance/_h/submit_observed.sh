@@ -120,6 +120,7 @@ trap 'rm -f "${GATE_FILE}"' EXIT
 "${ENV_PATH}/bin/Rscript" "${SCRIPT_DIR}/06_check_acceptance.R" \
     --performance="${CALIBRATION_PERFORMANCE}" \
     --criteria="${ANALYSIS_DIR}/config/acceptance-criteria.tsv" \
+    --model="${CALIBRATION_MODEL}" \
     --output="${GATE_FILE}" \
     --fail-on-rejection=TRUE
 

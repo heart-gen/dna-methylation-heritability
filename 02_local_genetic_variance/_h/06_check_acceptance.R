@@ -9,6 +9,7 @@ cli <- parse_cli(list(
     performance = file.path(dirname(script_path), "..", "_m", "evaluation", "calibration-performance-overall.tsv"),
     criteria = file.path(dirname(script_path), "..", "config", "acceptance-criteria.tsv"),
     output = file.path(dirname(script_path), "..", "_m", "evaluation", "acceptance-results.tsv"),
+    model = "",
     fail_on_rejection = "FALSE"
 ))
 performance <- read_tsv(cli$performance)
@@ -38,6 +39,35 @@ results <- lapply(seq_len(nrow(criteria)), function(i) {
     )
 })
 results <- do.call(rbind, results)
+
+# Passing the independent numerical criteria is necessary but not sufficient:
+# the model-fitting stage also requires a weight satisfying every locked
+# internal-development constraint. Production callers pass --model so that a
+# fallback model retained for diagnostics cannot be applied to observed data.
+if (nzchar(cli$model)) {
+    if (!file.exists(cli$model)) stop("Calibration model not found: ", cli$model)
+    model <- readRDS(cli$model)
+    internal_status <- model$internal_selection_status
+    if (is.null(internal_status) || length(internal_status) != 1L) {
+        internal_status <- "missing"
+    }
+    internal_passed <- identical(internal_status, "constraints_satisfied")
+    results <- rbind(
+        results,
+        data.frame(
+            metric = "internal_development_constraints",
+            observed = as.numeric(internal_passed),
+            comparison = "greater_than_or_equal",
+            threshold = 1,
+            passed = internal_passed,
+            rationale = paste0(
+                "The calibration model must record constraints_satisfied; ",
+                "recorded status was ", internal_status
+            ),
+            stringsAsFactors = FALSE
+        )
+    )
+}
 write_tsv(results, cli$output)
 cat("Acceptance criteria passed:", sum(results$passed), "of", nrow(results), "\n")
 if (as_bool(cli$fail_on_rejection, "fail_on_rejection") && !all(results$passed)) {

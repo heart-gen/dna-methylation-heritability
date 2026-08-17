@@ -38,5 +38,6 @@ FAIL_ON_REJECTION=${CAL_H2_FAIL_ON_REJECTION:-FALSE}
 "${ENV_PATH}/bin/Rscript" "${SCRIPT_DIR}/06_check_acceptance.R" \
     --performance="${RUN_ROOT}/evaluation/calibration-performance-overall.tsv" \
     --criteria="${RUN_ROOT}/config/acceptance-criteria.tsv" \
+    --model="${RUN_ROOT}/calibration/elastic-net-calibration.rds" \
     --output="${RUN_ROOT}/evaluation/acceptance-results.tsv" \
     --fail-on-rejection="${FAIL_ON_REJECTION}"
