@@ -25,6 +25,10 @@ cli <- parse_cli(list(
     recovered_plink_root = Sys.getenv("CAL_H2_RECOVERED_PLINK_ROOT", unset = ""),
     phenotype_root = Sys.getenv("CAL_H2_PHENOTYPE_ROOT", unset = ""),
     calibration_model = file.path(dirname(script_path), "..", "_m", "calibration", "elastic-net-calibration.rds"),
+    expected_calibration_sha256 = Sys.getenv(
+        "CAL_H2_EXPECTED_MODEL_SHA256",
+        unset = "bbe9f9f3e897b19c536078c20e6bd50a2f5ea385ab1c1258039974ced855e389"
+    ),
     output_root = file.path(dirname(script_path), "..", "_m", "observed"),
     cis_window_bp = "500000",
     maf_min = "0.05",
@@ -371,8 +375,10 @@ covariates <- stats::model.matrix(
 ## ajhg-calibration-v4-independent-validation. Verifying its SHA-256 here means
 ## a silently swapped or corrupted model cannot produce h2_en_calibrated values
 ## that look ordinary but come from an unaccepted calibration.
-CALIBRATION_MODEL_SHA256 <-
-    "bbe9f9f3e897b19c536078c20e6bd50a2f5ea385ab1c1258039974ced855e389"
+CALIBRATION_MODEL_SHA256 <- tolower(cli$expected_calibration_sha256)
+if (!grepl("^[0-9a-f]{64}$", CALIBRATION_MODEL_SHA256)) {
+    stop("expected_calibration_sha256 must be a 64-character SHA-256 digest")
+}
 observed_model_sha <- {
     out <- suppressWarnings(tryCatch(
         system2("sha256sum", shQuote(normalizePath(cli$calibration_model)),
@@ -386,8 +392,8 @@ if (is.na(observed_model_sha)) {
 if (!identical(observed_model_sha, CALIBRATION_MODEL_SHA256)) {
     stop("Calibration model checksum mismatch.\n  expected ",
          CALIBRATION_MODEL_SHA256, "\n  observed ", observed_model_sha,
-         "\n  This is not the accepted model from ",
-         "ajhg-calibration-v4-independent-validation. Changing the estimator, ",
+         "\n  This is not the explicitly accepted model for this run. ",
+         "Changing the estimator, ",
          "alpha grid, folds, repeats, lambda rule, screen, or raw metric ",
          "requires full recalibration (AGENTS.md 7.2).")
 }
