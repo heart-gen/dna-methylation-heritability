@@ -42,7 +42,8 @@ trap 'rm -f "${EXPECTED}" "${COMPLETED}" "${MISSING}"' EXIT
 awk -F '\t' 'NR > 1 {print $1}' "${MANIFEST}" | sort -n > "${EXPECTED}"
 find "${RUN_ROOT}/raw" -type f -name 'scenario-*.tsv' -printf '%f\n' \
     | sed -E 's/scenario-0*([0-9]+)\.tsv/\1/' | sort -n -u > "${COMPLETED}"
-comm -23 "${EXPECTED}" "${COMPLETED}" > "${MISSING}"
+awk 'NR == FNR {completed[$1] = 1; next} !($1 in completed)' \
+    "${COMPLETED}" "${EXPECTED}" > "${MISSING}"
 
 RECOVERY_MANIFEST=${RECOVERY_DIR}/missing-scenarios.tsv
 {
