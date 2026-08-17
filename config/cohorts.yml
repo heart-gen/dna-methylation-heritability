@@ -91,10 +91,20 @@ donor_counts:
     caudate:     { phenotype_n: 154, design_n: 153 }
     dlpfc:       { phenotype_n: 119, design_n: 118 }
     hippocampus: { phenotype_n: 118, design_n: 117 }
+  # The all_individuals cells are LOCKED as of 2026-08-16, from the full-scale
+  # runs vmrcat-all_individuals-{caudate,dlpfc,hippocampus}-20260816. Each
+  # observed count matched the reconstruction from the inputs exactly and was
+  # identical across all 22 chromosomes within each run.
+  #
+  #   caudate      286 -> 1938 psam -> 282
+  #   dlpfc        176 -> 1938 psam -> 173
+  #   hippocampus  180 -> 1938 psam -> 177
+  #
+  # Each is the AA count plus the EA donors in that region, with no blacklist.
   all_individuals:
-    caudate:     { phenotype_n: 286, design_n: null }
-    dlpfc:       { phenotype_n: 176, design_n: null }
-    hippocampus: { phenotype_n: 180, design_n: null }
+    caudate:     { phenotype_n: 286, design_n: 282 }
+    dlpfc:       { phenotype_n: 176, design_n: 173 }
+    hippocampus: { phenotype_n: 180, design_n: 177 }
 
 # Sample blacklist -- RETIRED IN v2. All three regions are null by design.
 #

@@ -13,6 +13,14 @@
 #   DRY_RUN=1          print the plan without submitting.
 #   WITH_SEX=1         also prepare X/Y into the run's excluded/ directory.
 #   WITH_GENOTYPES=1   also run step_4 genotype extraction after step_3.
+#   VMR_CHROMS=21,22   restrict the per-chromosome arrays (steps 1 and 2) to a
+#                      subset. Default 1-22. This exists for the acceptance
+#                      gate's criterion 3, which asks for two invocations of the
+#                      same SMOKE configuration to produce identical checksums;
+#                      a full 22-chromosome pair is not a smoke test. A run with
+#                      this set is never production -- 02_summarize.R and
+#                      04_turnover.R restrict the legacy comparison to whatever
+#                      chromosomes are present, so the catalog is partial.
 
 set -euo pipefail
 
@@ -50,7 +58,12 @@ export COHORT REGION RUN_ID
 EXPORTS="ALL,COHORT=$COHORT,REGION=$REGION,RUN_ID=$RUN_ID"
 [ "${ALLOW_UNLOCKED:-0}" = "1" ] && EXPORTS="$EXPORTS,ALLOW_UNLOCKED=1"
 
-J1=$(submit --export="$EXPORTS" "$HERE/step_1.sh")
+# Overrides the #SBATCH --array in step_1.sh / step_2.sh when set; the scripts'
+# own directive stands otherwise.
+ARRAY_OPT=()
+[ -n "${VMR_CHROMS:-}" ] && ARRAY_OPT=(--array="$VMR_CHROMS")
+
+J1=$(submit "${ARRAY_OPT[@]}" --export="$EXPORTS" "$HERE/step_1.sh")
 log_message "step_1 (prepare, chr1-22): $J1"
 
 DEPS="afterok:$J1"
@@ -60,7 +73,7 @@ if [ "${WITH_SEX:-0}" = "1" ]; then
     DEPS="$DEPS,afterok:$J1X"
 fi
 
-J2=$(submit --dependency="$DEPS" --export="$EXPORTS" "$HERE/step_2.sh")
+J2=$(submit "${ARRAY_OPT[@]}" --dependency="$DEPS" --export="$EXPORTS" "$HERE/step_2.sh")
 log_message "step_2 (PCs + residual variance): $J2"
 
 J3=$(submit --dependency="afterok:$J2" --export="$EXPORTS" "$HERE/step_3.sh")
