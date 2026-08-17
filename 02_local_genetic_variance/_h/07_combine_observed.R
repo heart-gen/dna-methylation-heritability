@@ -10,7 +10,12 @@ cli <- parse_cli(list(
     expected = "",
     output_dir = file.path(dirname(script_path), "..", "_m", "observed", "combined"),
     max_failure_rate = "0.05",
-    min_within_domain_rate = "0.80",
+    ## config/thresholds.yml gates.max_outside_calibration_domain is 0.10, so
+    ## the within-domain floor is 0.90. This defaulted to 0.80, which would have
+    ## passed a run the v2 gate rejects. Kept as a CLI default rather than read
+    ## from the config so this script stays runnable standalone; step_6 passes
+    ## the configured value.
+    min_within_domain_rate = "0.90",
     fail_on_qc = "TRUE"
 ))
 if (!nzchar(cli$expected)) stop("--expected is required")
@@ -77,6 +82,20 @@ qc <- lapply(seq_len(nrow(expected)), function(i) {
         summaries$region == region & summaries$population == population,
         , drop = FALSE
     ]
+    ## AGENTS.md 9: the QC table is the artifact a reader consults to decide
+    ## whether a cell is usable, so it has to name the VMR catalog the cell was
+    ## built from. Taken from the summary rows rather than a side file so it
+    ## cannot disagree with the estimates it describes.
+    one_of <- function(column) {
+        if (!column %in% names(region_summary) || !nrow(region_summary)) {
+            return(NA_character_)
+        }
+        values <- unique(as.character(region_summary[[column]]))
+        values <- values[!is.na(values)]
+        if (length(values) == 1L) values else paste(values, collapse = "|")
+    }
+    upstream_run <- one_of("upstream_vmr_run_id")
+    upstream_set <- one_of("vmr_set_id")
     failed <- computational_failed + qc_failed
     recorded <- analyzed + failed + excluded_count
     failure_rate <- failed / expected$expected_tasks[[i]]
@@ -90,6 +109,8 @@ qc <- lapply(seq_len(nrow(expected)), function(i) {
     data.frame(
         region = region,
         population = population,
+        upstream_vmr_run_id = upstream_run,
+        vmr_set_id = upstream_set,
         expected_tasks = expected$expected_tasks[[i]],
         recorded_tasks = recorded,
         analyzed_tasks = analyzed,
@@ -116,7 +137,14 @@ qc$overall_qc_pass <- qc$complete & qc$failure_qc_pass &
     qc$computational_qc_pass & qc$domain_qc_pass
 
 dir.create(cli$output_dir, recursive = TRUE, showWarnings = FALSE)
-write_tsv(summaries, file.path(cli$output_dir, "calibrated-local-h2-AA-vmrs.tsv"))
+## The filename carried a literal "AA" while the table it holds is whatever
+## population was analyzed, so an all_individuals run would have written a file
+## claiming to be the primary arm. Derive it from the data.
+arms <- sort(unique(as.character(summaries$population)))
+write_tsv(summaries, file.path(
+    cli$output_dir,
+    sprintf("calibrated-local-h2-%s-vmrs.tsv", paste(arms, collapse = "-"))
+))
 if (!is.null(failures)) write_tsv(failures, file.path(cli$output_dir, "failed-vmrs.tsv"))
 if (!is.null(qc_failures)) {
     write_tsv(qc_failures, file.path(cli$output_dir, "qc-failed-vmrs.tsv"))

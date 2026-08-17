@@ -6,10 +6,15 @@
 # Why this exists: the first full v2 submission put 60,801 array tasks in the
 # queue at once (six cells, one array each). 10,801 completed and the remaining
 # 50,000 were CANCELLED by uid 0 -- an administrative or scheduler action, not a
-# job failure. None of the cancelled tasks started or wrote a log, and every
-# task that did run produced output. The cause was not established; the working
-# assumption is that a 60k-task burst is more than the site tolerates from one
-# user, so this driver keeps the outstanding footprint small and tops it up.
+# job failure. Every task that ran to completion produced output.
+#
+# Reducing the footprint did NOT help. A follow-up round of 2,000 tasks per cell
+# (12,000 outstanding, 1,800 concurrent) was cancelled the same way: 200-390
+# completed per cell and the rest were killed after running for ~2 minutes, on
+# many different nodes, at ~310 MB peak RSS against a 10 GB request. So it is
+# neither burst size, nor one bad node, nor memory. THE CAUSE IS UNRESOLVED and
+# is not something this script can work around -- see the module README before
+# spending more cycles here.
 #
 # It is idempotent. A task counts as done if it wrote a summary, a QC failure,
 # or an exclusion, so rerunning it after a partial round only picks up the gaps
@@ -47,10 +52,19 @@ pending_for() {
     comm -23 <(seq 1 "$n" | sort) <(sort "${root}/config/done-tasks.txt") | sort -n
 }
 
+# A task that records a computational failure is NOT counted as done, so it is
+# retried on the next round. That is right for a transient failure and wrong for
+# a deterministic one, which would loop forever. Stop if a whole round clears
+# fewer than this many tasks -- something is wrong that resubmitting will not
+# fix, and it needs a human before more cycles are spent.
+MIN_PROGRESS=${MIN_PROGRESS:-50}
+
 round=0
+prev_total_pending=-1
 while :; do
     round=$((round + 1))
     submitted=0
+    total_pending=0
     jobs_this_round=()
     for run_id in "$@"; do
         ROOT=${ANALYSIS_DIR}/_m/observed-runs/${run_id}
@@ -63,6 +77,7 @@ while :; do
         RUN_MODEL=${ROOT}/config/elastic-net-calibration.rds
 
         mapfile -t pending < <(pending_for "$ROOT" "$N_TASKS")
+        total_pending=$((total_pending + ${#pending[@]}))
         (( ${#pending[@]} > 0 )) || continue
 
         # The manifest is read by step_5 at row (array index + 1), so it needs a
@@ -87,6 +102,16 @@ while :; do
     done
 
     (( submitted > 0 )) || { echo "All runs complete."; break; }
+
+    if (( prev_total_pending >= 0 )); then
+        cleared=$((prev_total_pending - total_pending))
+        if (( cleared < MIN_PROGRESS )); then
+            echo "Round $((round - 1)) cleared only ${cleared} tasks across all cells." >&2
+            echo "Resubmitting is not making progress; stopping for a human." >&2
+            exit 1
+        fi
+    fi
+    prev_total_pending=$total_pending
 
     ids=$(IFS=,; echo "${jobs_this_round[*]}")
     while [[ -n "$(squeue -u "$USER" -h -j "$ids" 2>/dev/null)" ]]; do sleep "$POLL"; done
