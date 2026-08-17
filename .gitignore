@@ -139,6 +139,9 @@ writing-notes/
 0[0-9]_*/_m/runs/
 0[0-9]_*/_m/logs/
 0[0-9]_*/_m/observed/
+# 02_local_genetic_variance writes its observed runs to observed-runs/, not
+# observed/, so the pattern above never matched them.
+0[0-9]_*/_m/observed-runs/
 
 # Tests are hand-run smoke checks before a SLURM array, not a tracked suite.
 /tests/

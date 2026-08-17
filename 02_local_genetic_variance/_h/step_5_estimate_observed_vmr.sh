@@ -28,10 +28,23 @@ ENV_PATH=${CAL_H2_ENV:-/projects/p32505/opt/envs/calibrated-local-h2}
 REPO_ROOT=${CAL_H2_REPO_ROOT:-$(cd "${ANALYSIS_DIR}/.." && pwd)}
 CALIBRATION_MODEL=${CAL_H2_CALIBRATION_MODEL:?CAL_H2_CALIBRATION_MODEL must be set}
 OUTPUT_ROOT=${CAL_H2_OBSERVED_OUTPUT_ROOT:?CAL_H2_OBSERVED_OUTPUT_ROOT must be set}
-PLINK_ROOT=${CAL_H2_PLINK_ROOT:-/projects/b1213/users/alexis/projects/dna-methylation-heritability/vmr-analysis/all_individuals}
+# The legacy roots are the fallback for a legacy run ONLY. When
+# CAL_H2_VMR_RUN_DIR is set, every input comes from inside that v2 catalog run,
+# and 04_estimate_observed_vmr.R selects the in-run layout by seeing an EMPTY
+# plink_root. `:-` substitutes on empty as well as unset, so an explicitly empty
+# CAL_H2_PLINK_ROOT was silently replaced by the legacy path here and 43 of 50
+# tasks in the first v2 smoke went looking in vmr-analysis/all_individuals for
+# an AA caudate window that only exists in the v2 run. Leave these empty in v2.
+if [[ -n "${CAL_H2_VMR_RUN_DIR:-}" ]]; then
+    PLINK_ROOT=${CAL_H2_PLINK_ROOT:-}
+    PGEN_ROOT=${CAL_H2_PGEN_ROOT:-}
+    PHENOTYPE_ROOT=${CAL_H2_PHENOTYPE_ROOT:-}
+else
+    PLINK_ROOT=${CAL_H2_PLINK_ROOT:-/projects/b1213/users/alexis/projects/dna-methylation-heritability/vmr-analysis/all_individuals}
+    PGEN_ROOT=${CAL_H2_PGEN_ROOT:-/projects/b1213/users/alexis/projects/dna-methylation-heritability/inputs/genotypes/all_individuals}
+    PHENOTYPE_ROOT=${CAL_H2_PHENOTYPE_ROOT:-/projects/b1213/users/alexis/projects/dna-methylation-heritability/vmr-analysis/all_individuals}
+fi
 RECOVERED_PLINK_ROOT=${CAL_H2_RECOVERED_PLINK_ROOT:-}
-PGEN_ROOT=${CAL_H2_PGEN_ROOT:-/projects/b1213/users/alexis/projects/dna-methylation-heritability/inputs/genotypes/all_individuals}
-PHENOTYPE_ROOT=${CAL_H2_PHENOTYPE_ROOT:-/projects/b1213/users/alexis/projects/dna-methylation-heritability/vmr-analysis/all_individuals}
 WRITE_DIAGNOSTICS=${CAL_H2_WRITE_DIAGNOSTICS:-FALSE}
 # config/thresholds.yml cis.min_cis_variants. Passed explicitly so the value the
 # run used is visible in the job log and recorded in each locus manifest, rather

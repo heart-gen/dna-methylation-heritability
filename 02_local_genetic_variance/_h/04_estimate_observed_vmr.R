@@ -429,6 +429,13 @@ summary <- cbind(data.frame(
     start = start,
     end = end,
     vmr_id = paste(chromosome, start, end, sep = ":"),
+    ## AGENTS.md 9: upstream identity travels with every output row, not only
+    ## with the exclusion and QC-failure rows. Without these, a summary row
+    ## cannot be traced to the VMR catalog that produced its locus, and the
+    ## combined table across arms and regions is unattributable.
+    upstream_vmr_run_id = upstream_run_id,
+    vmr_set_id = upstream_vmr_set_id,
+    cohort = if (nzchar(cli$cohort)) cli$cohort else NA_character_,
     samples = nrow(genotype),
     cis_window_bp = cis_window_bp,
     snps_in_window = input_snps,
