@@ -63,7 +63,7 @@ mkdir -p "${RUN_ROOT}/config" "${RUN_ROOT}/logs" \
 cp "${CONFIG}" "${RUN_ROOT}/config/analysis.tsv"
 cp "${ANALYSIS_DIR}/config/acceptance-criteria.tsv" \
     "${RUN_ROOT}/config/acceptance-criteria.tsv"
-cp "${ANALYSIS_DIR}/environment.yml" "${RUN_ROOT}/config/environment.yml"
+cp "${ANALYSIS_DIR}/config/environment.yml" "${RUN_ROOT}/config/environment.yml"
 cp -a "${SCRIPT_DIR}" "${RUN_ROOT}/code/_h"
 RUN_SCRIPT_DIR=${RUN_ROOT}/code/_h
 MANIFEST=${RUN_ROOT}/config/scenarios.tsv
