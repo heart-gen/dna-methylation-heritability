@@ -4,7 +4,7 @@ set -euo pipefail
 
 usage() {
     echo "Usage: $0 [RUN_ID] [CONFIG_TSV]"
-    echo "Environment: CAL_H2_ENV, SBATCH_ACCOUNT, MAX_CONCURRENT, MAX_ARRAY_TASKS"
+    echo "Environment: CAL_H2_ENV, SBATCH_ACCOUNT, MAX_CONCURRENT, SCENARIOS_PER_ARRAY_TASK"
     echo "Set SUBMIT_CAL_H2_DRY_RUN=TRUE to prepare provenance without sbatch."
 }
 
@@ -22,7 +22,7 @@ ANALYSIS_DIR=$(cd "${SCRIPT_DIR}/.." && pwd)
 REPO_ROOT=$(cd "${ANALYSIS_DIR}/.." && pwd)
 ACCOUNT=${SBATCH_ACCOUNT:-p32505}
 MAX_CONCURRENT=${MAX_CONCURRENT:-200}
-MAX_ARRAY_TASKS=${MAX_ARRAY_TASKS:-9000}
+SCENARIOS_PER_ARRAY_TASK=${SCENARIOS_PER_ARRAY_TASK:-10}
 ENV_PATH=${CAL_H2_ENV:-/projects/p32505/opt/envs/calibrated-local-h2}
 RUN_ID=${1:-$(date -u +%Y%m%dT%H%M%SZ)}
 CONFIG=${2:-${ANALYSIS_DIR}/config/analysis.tsv}
@@ -37,8 +37,8 @@ if [[ ! "${MAX_CONCURRENT}" =~ ^[1-9][0-9]*$ ]]; then
     echo "MAX_CONCURRENT must be a positive integer" >&2
     exit 1
 fi
-if [[ ! "${MAX_ARRAY_TASKS}" =~ ^[1-9][0-9]*$ ]]; then
-    echo "MAX_ARRAY_TASKS must be a positive integer" >&2
+if [[ ! "${SCENARIOS_PER_ARRAY_TASK}" =~ ^[1-9][0-9]*$ ]]; then
+    echo "SCENARIOS_PER_ARRAY_TASK must be a positive integer" >&2
     exit 1
 fi
 if [[ ! -f "${CONFIG}" ]]; then
@@ -81,6 +81,13 @@ if (( TASKS < 1 )); then
     echo "Manifest contains no tasks" >&2
     exit 1
 fi
+SIMULATION_CHUNK_MANIFEST=${RUN_ROOT}/config/simulation-chunk-manifest.tsv
+{
+    printf 'chunk_id\tscenario_id\n'
+    awk -F '\t' -v size="${SCENARIOS_PER_ARRAY_TASK}" \
+        'NR > 1 {print int((NR - 2) / size) + 1 "\t" $1}' "${MANIFEST}"
+} > "${SIMULATION_CHUNK_MANIFEST}"
+SIMULATION_JOBS=$(( (TASKS + SCENARIOS_PER_ARRAY_TASK - 1) / SCENARIOS_PER_ARRAY_TASK ))
 
 git -C "${REPO_ROOT}" rev-parse HEAD > "${RUN_ROOT}/provenance/git-commit.txt"
 conda list -p "${ENV_PATH}" --explicit > \
@@ -93,8 +100,9 @@ conda list -p "${ENV_PATH}" --explicit > \
     printf 'environment\t%s\n' "${ENV_PATH}"
     printf 'account\t%s\n' "${ACCOUNT}"
     printf 'max_concurrent\t%s\n' "${MAX_CONCURRENT}"
-    printf 'max_array_tasks\t%s\n' "${MAX_ARRAY_TASKS}"
+    printf 'scenarios_per_array_task\t%s\n' "${SCENARIOS_PER_ARRAY_TASK}"
     printf 'scenario_tasks\t%s\n' "${TASKS}"
+    printf 'simulation_array_tasks\t%s\n' "${SIMULATION_JOBS}"
 } > "${RUN_ROOT}/provenance/run-metadata.tsv"
 for path in \
     "${RUN_SCRIPT_DIR}"/*.R \
@@ -113,26 +121,15 @@ if ! command -v sbatch >/dev/null 2>&1; then
     exit 1
 fi
 
-SIM_JOB_IDS=()
-SIM_BATCH=1
-BATCH_COUNT=$(( (TASKS + MAX_ARRAY_TASKS - 1) / MAX_ARRAY_TASKS ))
-BATCH_CONCURRENT=$(( MAX_CONCURRENT / BATCH_COUNT ))
-if (( BATCH_CONCURRENT < 1 )); then BATCH_CONCURRENT=1; fi
-for (( OFFSET=0; OFFSET<TASKS; OFFSET+=MAX_ARRAY_TASKS )); do
-    REMAINING=$((TASKS - OFFSET))
-    BATCH_TASKS=$((REMAINING < MAX_ARRAY_TASKS ? REMAINING : MAX_ARRAY_TASKS))
-    SIM_JOB=$(sbatch --parsable --account="${ACCOUNT}" \
-        --array="1-${BATCH_TASKS}%${BATCH_CONCURRENT}" \
-        --job-name="cal_h2_sim_b${SIM_BATCH}" \
-        --output="${RUN_ROOT}/logs/%x.%A_%a.log" \
-        --export=ALL,CAL_H2_ANALYSIS_DIR="${ANALYSIS_DIR}",CAL_H2_SCRIPT_DIR="${RUN_SCRIPT_DIR}",CAL_H2_RUN_ROOT="${RUN_ROOT}",SCENARIO_MANIFEST="${MANIFEST}",SIMULATION_OUTPUT_ROOT="${RUN_ROOT}/raw",CAL_H2_SCENARIO_OFFSET="${OFFSET}" \
-        "${RUN_SCRIPT_DIR}/step_2_simulate_and_crossfit.sh")
-    SIM_JOB_IDS+=("${SIM_JOB%%;*}")
-    SIM_BATCH=$((SIM_BATCH + 1))
-done
-SIM_DEPENDENCY=$(IFS=:; echo "${SIM_JOB_IDS[*]}")
+SIM_JOB=$(sbatch --parsable --account="${ACCOUNT}" \
+    --array="1-${SIMULATION_JOBS}%${MAX_CONCURRENT}" \
+    --job-name="cal_h2_sim" \
+    --output="${RUN_ROOT}/logs/%x.%A_%a.log" \
+    --export=ALL,CAL_H2_SCRIPT_DIR="${RUN_SCRIPT_DIR}",SCENARIO_MANIFEST="${MANIFEST}",CAL_H2_RECOVERY_MANIFEST="${SIMULATION_CHUNK_MANIFEST}",SIMULATION_OUTPUT_ROOT="${RUN_ROOT}/raw" \
+    "${RUN_SCRIPT_DIR}/step_2_recover_simulation.sh")
+SIM_JOB_ID=${SIM_JOB%%;*}
 CAL_JOB=$(sbatch --parsable --account="${ACCOUNT}" \
-    --dependency="afterok:${SIM_DEPENDENCY}" \
+    --dependency="afterok:${SIM_JOB_ID}" \
     --output="${RUN_ROOT}/logs/%x.%j.log" \
     --export=ALL,CAL_H2_ANALYSIS_DIR="${ANALYSIS_DIR}",CAL_H2_SCRIPT_DIR="${RUN_SCRIPT_DIR}",CAL_H2_RUN_ROOT="${RUN_ROOT}" \
     "${RUN_SCRIPT_DIR}/step_3_fit_calibration.sh")
@@ -146,14 +143,12 @@ EVAL_JOB_ID=${EVAL_JOB%%;*}
 
 {
     printf 'stage\tjob_id\tdependency\n'
-    for job_id in "${SIM_JOB_IDS[@]}"; do
-        printf 'simulation\t%s\tNA\n' "${job_id}"
-    done
-    printf 'calibration\t%s\tafterok:%s\n' "${CAL_JOB_ID}" "${SIM_DEPENDENCY}"
+    printf 'simulation\t%s\tNA\n' "${SIM_JOB_ID}"
+    printf 'calibration\t%s\tafterok:%s\n' "${CAL_JOB_ID}" "${SIM_JOB_ID}"
     printf 'evaluation\t%s\tafterok:%s\n' "${EVAL_JOB_ID}" "${CAL_JOB_ID}"
 } > "${RUN_ROOT}/provenance/submitted-jobs.tsv"
 
 echo "Run directory: ${RUN_ROOT}"
-echo "Simulation arrays: ${SIM_JOB_IDS[*]}"
+echo "Simulation array: ${SIM_JOB_ID} (${SIMULATION_JOBS} jobs for ${TASKS} scenarios)"
 echo "Calibration: ${CAL_JOB_ID}"
 echo "Evaluation and acceptance gate: ${EVAL_JOB_ID}"
