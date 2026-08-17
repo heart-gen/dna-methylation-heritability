@@ -68,7 +68,10 @@ for (i in seq_len(nrow(selected))) {
                 excluded_fids = if (sensitivity == "exclude_Br1105") {
                     "Br1105"
                 } else {
-                    ""
+                    # A non-empty sentinel is required because Bash treats tab
+                    # as IFS whitespace and collapses an empty field, shifting
+                    # seed_repeat and fold_seed one column to the left.
+                    "NONE"
                 },
                 seed_repeat = seed_repeat,
                 fold_seed = base_seed + population_offset + region_offset +

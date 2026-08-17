@@ -24,6 +24,11 @@ IFS=$'\t' read -r audit_id population region task_id vmr_id upstream_run \
     seed_repeat fold_seed <<< "${record}"
 [[ "${audit_id}" == "${AUDIT_ID}" ]] || {
     echo "Manifest row/audit ID mismatch" >&2; exit 1; }
+[[ -n "${seed_repeat}" && -n "${fold_seed}" ]] || {
+    echo "Manifest fields shifted or missing for audit ID ${AUDIT_ID}" >&2; exit 1; }
+if [[ "${excluded_fids}" == "NONE" ]]; then
+    excluded_fids=""
+fi
 
 VMR_RUN_DIR=${REPO_ROOT}/01_vmr_catalog/_m/runs/${upstream_run}
 TASK_OUTPUT=${OUTPUT_ROOT}/tasks/audit-$(printf '%05d' "${AUDIT_ID}")
