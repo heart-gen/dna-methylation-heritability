@@ -186,6 +186,20 @@ safe_ratio <- function(numerator, denominator) {
     numerator / denominator
 }
 
+squared_prediction_correlation <- function(observed, predicted,
+                                           variance_tolerance = 1e-12) {
+    prediction_variance <- stats::var(predicted)
+    ## Test the null-model condition before computing correlation. A vector of
+    ## floating-point noise can have a finite correlation despite carrying no
+    ## usable predictive variation.
+    if (is.finite(prediction_variance) &&
+        prediction_variance <= variance_tolerance) {
+        return(0)
+    }
+    rho <- suppressWarnings(stats::cor(observed, predicted))
+    if (is.finite(rho)) rho^2 else NA_real_
+}
+
 crossfit_elastic_net <- function(genotype, phenotype, covariates = NULL,
                                  outer_folds = 5L, outer_repeats = 5L,
                                  inner_folds = 5L,
@@ -287,17 +301,7 @@ crossfit_elastic_net <- function(genotype, phenotype, covariates = NULL,
     centered_sst <- sum((adjusted_phenotype - mean(adjusted_phenotype))^2)
     r2_oof <- 1 - safe_ratio(sum((adjusted_phenotype - prediction)^2), centered_sst)
     prediction_variance <- stats::var(prediction)
-    rho <- suppressWarnings(stats::cor(adjusted_phenotype, prediction))
-    ## An all-zero regularized model has no predictive signal. Correlation is
-    ## undefined in that case, but the appropriate squared-prediction signal is
-    ## exactly zero rather than a missing estimator.
-    rho2_oof <- if (is.finite(rho)) {
-        rho^2
-    } else if (is.finite(prediction_variance) && prediction_variance <= 1e-12) {
-        0
-    } else {
-        NA_real_
-    }
+    rho2_oof <- squared_prediction_correlation(adjusted_phenotype, prediction)
     covariance_ratio <- safe_ratio(stats::cov(adjusted_phenotype, prediction), phenotype_variance)
     score_variance_ratio <- safe_ratio(prediction_variance, phenotype_variance)
     calibration_slope <- safe_ratio(stats::cov(adjusted_phenotype, prediction), prediction_variance)

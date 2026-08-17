@@ -1,11 +1,11 @@
 setting	value	description
-sample_sizes	111,116,153	Region-matched discovery-cohort sample sizes
-num_snps	100,500,1500	Local SNP-count calibration grid
+sample_sizes	117,118,153,173,177,282	Exact observed v2 regional sample sizes for AA and all-individual analyses
+num_snps	100,500,1500,3000,5000,12000	Observed local SNP-count support, including regimes where the 1500-feature training-only screen is active
 ld_rho	0.2,0.5,0.8	Latent AR(1) LD grid
 architectures	sparse,oligogenic,polygenic	Causal architectures pooled in primary calibration
-h2_values	0,0.05,0.1,0.2,0.4,0.6	Conditional local SNP-variance grid
-calibration_replicates_per_stratum	180	Balanced replicates across architecture and h2 within each N/SNP/LD stratum
-evaluation_replicates_per_stratum	90	Independent held-out evaluation replicates per stratum
+h2_values	0,0.05,0.1,0.2,0.4,0.6,0.8,0.95	Conditional local SNP-variance grid extending through the observed high-signal regime
+calibration_replicates_per_stratum	240	Balanced calibration replicates: 10 per architecture-by-h2 cell within each N/SNP/LD stratum
+evaluation_replicates_per_stratum	120	Independent validation replicates: 5 per architecture-by-h2 cell within each N/SNP/LD stratum
 outer_folds	5	Held-out outer folds
 outer_repeats	2	Repeated outer cross-fitting; observed data must use the same value
 inner_folds	5	Inner folds for alpha and lambda selection

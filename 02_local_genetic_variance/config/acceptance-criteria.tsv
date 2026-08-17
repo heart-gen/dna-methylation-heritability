@@ -1,6 +1,6 @@
 metric	comparison	threshold	rationale
 absolute_mean_bias	less_than_or_equal	0.05	Absolute mean signed calibration bias must be small
-rmse	less_than_or_equal	0.15	Numerical error must be useful relative to the 0-0.6 target grid
+rmse	less_than_or_equal	0.15	Numerical error must be useful across the prespecified 0-0.95 target grid
 calibration_interval_coverage	greater_than_or_equal	0.90	Empirical 95% calibration intervals must not severely undercover
 null_type1_error	less_than_or_equal	0.06	Null positive-signal calls must be approximately calibrated
 spearman_truth_estimate	greater_than_or_equal	0.50	The estimator must preserve a useful ordering of loci

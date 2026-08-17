@@ -34,6 +34,11 @@ cli <- parse_cli(list(
     ## the configured value.
     min_cis_variants = "100",
     write_diagnostics = "FALSE",
+    ## Diagnostic-only controls. Production leaves both empty. fold_seed
+    ## supports the prespecified fold-stability audit; exclude_fids supports a
+    ## relatedness sensitivity without changing the locked primary donor set.
+    fold_seed = "",
+    exclude_fids = "",
     include_sex_chromosomes = "FALSE",
     allow_estimator_mismatch = "FALSE"
 ))
@@ -349,6 +354,14 @@ keep_sample <- is.finite(as.numeric(metadata$phenotype)) &
     !is.na(metadata$sex) & !is.na(metadata$diagnosis)
 metadata <- metadata[keep_sample, , drop = FALSE]
 genotype <- genotype[keep_sample, , drop = FALSE]
+excluded_fids <- trimws(strsplit(cli$exclude_fids, ",", fixed = TRUE)[[1L]])
+excluded_fids <- excluded_fids[nzchar(excluded_fids)]
+if (length(excluded_fids)) {
+    relatedness_keep <- !metadata$FID %in% excluded_fids
+    if (!any(relatedness_keep)) stop("exclude_fids removed every donor")
+    metadata <- metadata[relatedness_keep, , drop = FALSE]
+    genotype <- genotype[relatedness_keep, , drop = FALSE]
+}
 covariates <- stats::model.matrix(
     ~ age + factor(sex) + factor(diagnosis), data = metadata
 )[, -1L, drop = FALSE]
@@ -403,6 +416,11 @@ if (length(overrides)) {
     if ("max_features" %in% overrides) max_features <- as_int(cli$max_features, "max_features")
 }
 
+fold_seed <- if (nzchar(cli$fold_seed)) {
+    as_int(cli$fold_seed, "fold_seed")
+} else {
+    20250805L + task_id * 1009L
+}
 fit <- crossfit_elastic_net(
     genotype = genotype,
     phenotype = as.numeric(metadata$phenotype),
@@ -413,7 +431,7 @@ fit <- crossfit_elastic_net(
     alpha_grid = alpha_grid,
     lambda_rule = lambda_rule,
     max_features = max_features,
-    seed = 20250805L + task_id * 1009L,
+    seed = fold_seed,
     keep_predictions = write_diagnostics
 )
 fit$metrics$ld_metric <- adjacent_ld_metric(genotype)
@@ -436,6 +454,12 @@ summary <- cbind(data.frame(
     upstream_vmr_run_id = upstream_run_id,
     vmr_set_id = upstream_vmr_set_id,
     cohort = if (nzchar(cli$cohort)) cli$cohort else NA_character_,
+    fold_seed = fold_seed,
+    excluded_fids = if (length(excluded_fids)) {
+        paste(excluded_fids, collapse = ",")
+    } else {
+        NA_character_
+    },
     samples = nrow(genotype),
     cis_window_bp = cis_window_bp,
     snps_in_window = input_snps,
