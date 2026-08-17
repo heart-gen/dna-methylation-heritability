@@ -123,8 +123,68 @@ A run is production only when all of these hold, recorded in the table below:
 
 | Run ID | Arm | Region | n | VMRs | vmr_set_id | Gate | Notes |
 |---|---|---|---|---|---|---|---|
-| `vmrcat-AA-caudate-20260815-a` | AA | caudate | 153 | 260 | `vmrset-AA-caudate-3968cebd6d9c` | **smoke, not production** | chr22 only, `--allow-unlocked` |
-| `vmrcat-AA-dlpfc-20260816` | AA | dlpfc | **118** | 9,572 | `vmrset-AA-dlpfc-856067dfe289` | criteria 2 and 4 pass; 1 pending `design_n` lock; 3 not done | first full-scale run, all 22 autosomes |
+| `vmrcat-AA-caudate-20260815-a` | AA | caudate | 153 | 260 | `vmrset-AA-caudate-3968cebd6d9c` | **smoke, not production** | chr22 only, `--allow-unlocked`; data deleted 2026-08-16, manifest kept in `_m/runs/retired/` |
+| `vmrcat-AA-caudate-20260816` | AA | caudate | **153** | 11,530 | `vmrset-AA-caudate-937a41979978` | 1, 2, 4, 5 pass; 3 pending | all 22 autosomes |
+| `vmrcat-AA-dlpfc-20260816` | AA | dlpfc | **118** | 9,572 | `vmrset-AA-dlpfc-856067dfe289` | 1, 2, 4, 5 pass; 3 pending | first full-scale run, all 22 autosomes |
+| `vmrcat-AA-hippocampus-20260816` | AA | hippocampus | **117** | 9,497 | `vmrset-AA-hippocampus-2d907b892215` | 1, 2, 4, 5 pass; 3 pending | all 22 autosomes |
+| `vmrcat-all_individuals-caudate-20260816` | all_individuals | caudate | **282** | 11,463 | `vmrset-all_individuals-caudate-cb5519d7d2ad` | 1, 2, 4, 5 pass; 3 pending | sensitivity arm |
+| `vmrcat-all_individuals-dlpfc-20260816` | all_individuals | dlpfc | **173** | 9,374 | `vmrset-all_individuals-dlpfc-e88f46904afb` | 1, 2, 4, 5 pass; 3 pending | sensitivity arm; turnover outlier, see forensic audit below |
+| `vmrcat-all_individuals-hippocampus-20260816` | all_individuals | hippocampus | **177** | 9,365 | `vmrset-all_individuals-hippocampus-809f8de0db2d` | 1, 2, 4, 5 pass; 3 pending | sensitivity arm |
+
+All six runs seal with `smoke_run FALSE` and reconcile at 22 expected / 22
+completed / 0 excluded / 0 qc_failed / 0 failed / 0 unaccounted / 0 unexpected,
+which clears criterion 2 for every cell. `design_n` is locked for all six cells
+in `config/cohorts.yml` as of 2026-08-16, so criterion 1 is met: every observed
+count matches. Criterion 4 is met for five cells directly and for
+`all_individuals` dlpfc through the forensic audit below. Criterion 3
+(checksum stability across two invocations) is the only open item, and it is
+open for all six.
+
+The `config_cohorts_sha256` staleness noted below for `vmrcat-AA-dlpfc-20260816`
+applies to all six runs for the same reason, and now to the `all_individuals`
+lock as well.
+
+### Cis-variant density and the legacy 1 Mb window
+
+Per-VMR variant counts in the 500 kb cis window, from each run's
+`plink_format/extraction_log/`:
+
+| Cell | VMRs | 0 variants | 1–99 | <100 total | median variants |
+|---|---|---|---|---|---|
+| AA caudate | 11,530 | 141 (1.22%) | 25 (0.22%) | **1.44%** | 5,858 |
+| AA dlpfc | 9,572 | 176 (1.84%) | 19 (0.20%) | **2.04%** | 5,764 |
+| AA hippocampus | 9,497 | 178 (1.87%) | 15 (0.16%) | **2.03%** | 5,799 |
+| all_individuals caudate | 11,463 | 153 (1.33%) | 57 (0.50%) | **1.83%** | 2,643 |
+| all_individuals dlpfc | 9,374 | 181 (1.93%) | 45 (0.48%) | **2.41%** | 2,607 |
+| all_individuals hippocampus | 9,365 | 178 (1.90%) | 43 (0.46%) | **2.36%** | 2,611 |
+
+**500 kb is not variant-limiting.** The median VMR carries thousands of cis
+variants, and the excluded fraction is 1.4–2.4% in every cell. Widening to 1 Mb
+would not recover most of it: the great majority of excluded loci have *zero*
+variants, not few, and they sit in pericentromeric heterochromatin and
+acrocentric short arms (chr1, chr9, chr20, chr21, chr15 account for ~90% of
+them) where the imputation panel has no coverage at any window size. Doubling
+the window there doubles an empty interval.
+
+**The arm asymmetry is a genotype-file property, not a window problem.** The
+`1–99 variant` count is ~2× higher in `all_individuals` than in the matching AA
+region. The cause is variant density in the source files:
+
+    inputs/genotypes/TOPMed_LIBD.AA                    15,865,072 variants / 526 samples
+    inputs/genotypes/all_individuals/TOPMed_LIBD        7,109,096 variants / 1,938 samples
+
+The combined file carries 3.7× the samples but 2.2× *fewer* variants, and the
+median cis window is correspondingly thinner (2,643 vs 5,858 in caudate). The
+two files were evidently filtered under different MAF/INFO rules. This is the
+most likely reason the legacy all-individuals arm used a 1 Mb window while
+`BA_only` used 500 kb (V11): the wider window compensated for a sparser panel.
+It made the two arms incomparable, which is why v2 fixes the window at 500 kb
+for both and lets the density difference show up honestly as a variant count.
+
+The density gap is worth carrying into `02_local_genetic_variance`: an
+AA-versus-all_individuals difference in local genetic variance is partly a
+difference in how many variants each arm's elastic net can see. It is not a
+module 01 gate.
 
 ### `vmrcat-AA-dlpfc-20260816`
 
@@ -171,6 +231,69 @@ Both exclusions track genomic features rather than occurring at random, so the
 analyzed set is **not** a uniform sample of the catalog. `02_local_genetic_variance`
 records them as QC failures rather than dropping them silently, and the methods
 report the counts per region.
+
+### Forensic audit: `vmrcat-all_individuals-dlpfc-20260816`
+
+Forensic audit performed 2026-08-16. This run produced the largest
+old-versus-new discrepancy of the six full
+arm-by-region catalogs: 9,374 v2 VMRs versus 9,859 legacy autosomal VMRs, with
+2,607 v2 intervals overlapping a legacy interval, 6,767 novel v2 intervals,
+7,229 lost legacy intervals, base-pair Jaccard 0.131, and 72.2% of v2 VMRs
+novel. The result is an unusually severe manifestation of V1 in the legacy
+DLPFC comparator, not evidence that the all-individuals sensitivity arm or the
+v2 DLPFC catalog is biologically unstable.
+
+The legacy all-individuals DLPFC residualization reordered the methylation
+matrix to phenotype-table donor order but retained `pc.csv` row order for the
+methylation-PC design. Only 17 of 166 row positions matched by accident; 149
+donors were paired with another donor's PC values. The AA DLPFC branch carried
+the same defect through a different donor ordering and a separately estimated
+PC matrix, so the two legacy branches did not receive the same permutation even
+though they shared most donors.
+
+Four diagnostics localize the discrepancy to this legacy residualization:
+
+1. **Realignment recovers v2.** In 5,000-CpG blocks from chromosomes 1, 2, 6,
+   11, 16, and 22, reordering the frozen legacy PC rows by donor ID before
+   residualization yielded Pearson correlations of 0.9978--0.9996 with the v2
+   residual SDs. The as-coded legacy SDs correlated only 0.8774--0.9486 with
+   v2. This sensitivity retained the legacy 166-donor set, so the seven donors
+   restored in v2 cannot explain the turnover.
+2. **The effect is chromosome-wide.** Per-chromosome VMR base-pair Jaccard
+   ranged from 0.066 to 0.221 across all 22 autosomes. No single failed or
+   mismatched chromosome drives the aggregate result.
+3. **DLPFC was unusually sensitive to permuting the design.** Across
+   chromosomes, the first five legacy methylation PCs explained a median 33.0%
+   of variance in all-individuals DLPFC, compared with 29.1% in AA DLPFC, 26.8%
+   in all-individuals hippocampus, and 13.4% in all-individuals caudate. The
+   legacy DLPFC 99th-percentile residual-SD cutoff was therefore substantially
+   inflated; for example, it was 0.1068 versus 0.0647 in v2 on chromosome 1 and
+   0.1018 versus 0.0654 on chromosome 22. Because this cutoff selects the seed
+   CpGs passed to `regionFinder3()`, the distortion propagates directly into
+   VMR membership and boundaries.
+4. **Correct alignment restores the expected cross-arm relationship.** The
+   autosomal AA-versus-all-individuals base-pair Jaccard in DLPFC increased from
+   0.312 between the two corrupted legacy catalogs to 0.684 between the two v2
+   catalogs. The corresponding within-version AA-versus-all comparisons were
+   0.691 in legacy and 0.665 in v2 for caudate, and 0.679 in legacy and 0.697 in
+   v2 for hippocampus. DLPFC is therefore the only region with anomalous
+   cross-arm disagreement before the repair and ordinary cross-arm agreement
+   after it.
+
+The turnover calculation itself was independently reproduced using the
+arm-specific legacy path, autosomes only, and the same interval-union
+definition as `04_turnover.R`. The audit also rules out the retired sample
+blacklist, restored donors, sex-chromosome policy, HDF5SE source, and a single
+corrupted chromosome as primary explanations. The full frozen legacy catalog
+was not regenerated under corrected ordering; the six-chromosome-block
+realignment is a forensic sensitivity, not an accepted replacement run.
+
+**Acceptance interpretation.** The 72.2% novel fraction should remain reported
+as the observed legacy-to-v2 turnover, but it must not be interpreted as
+DLPFC-specific biology or as a general property of the all-individuals arm. It
+is explained by branch-specific legacy donor permutation interacting with
+strong DLPFC methylation-PC structure. This explanation clears turnover as
+evidence of a new v2 implementation defect.
 
 ## What has been verified
 
