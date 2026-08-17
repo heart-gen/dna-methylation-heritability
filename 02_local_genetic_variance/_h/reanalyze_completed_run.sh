@@ -104,6 +104,7 @@ done > "${DERIVED_ROOT}/provenance/sha256sums.txt"
 "${ENV_PATH}/bin/Rscript" "${RUN_SCRIPT_DIR}/06_check_acceptance.R" \
     --performance="${DERIVED_ROOT}/evaluation/calibration-performance-overall.tsv" \
     --criteria="${DERIVED_ROOT}/config/acceptance-criteria.tsv" \
+    --model="${DERIVED_ROOT}/calibration/elastic-net-calibration.rds" \
     --output="${DERIVED_ROOT}/evaluation/acceptance-results.tsv" \
     --fail-on-rejection=TRUE \
     > "${DERIVED_ROOT}/logs/check-acceptance.log" 2>&1
