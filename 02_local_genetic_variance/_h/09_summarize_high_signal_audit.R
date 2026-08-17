@@ -25,6 +25,21 @@ observed$audit_id <- audit_ids
 audit <- merge(manifest, observed, by = "audit_id", suffixes = c("_planned", ""),
                all.x = TRUE, sort = FALSE)
 if (anyNA(audit$rho2_oof)) stop("At least one audit task lacks a finite rho2_oof")
+if (any(as.integer(audit$fold_seed_planned) != as.integer(audit$fold_seed))) {
+    stop("At least one audit task did not use its planned fold seed")
+}
+expected_exclusions <- ifelse(
+    audit$excluded_fids_planned == "NONE", NA_character_,
+    audit$excluded_fids_planned
+)
+actual_exclusions <- audit$excluded_fids
+actual_exclusions[is.na(actual_exclusions) | !nzchar(actual_exclusions) |
+                  actual_exclusions == "NA"] <- NA_character_
+if (any(xor(is.na(expected_exclusions), is.na(actual_exclusions))) ||
+        any(expected_exclusions[!is.na(expected_exclusions)] !=
+            actual_exclusions[!is.na(expected_exclusions)])) {
+    stop("At least one audit task did not use its planned donor exclusion")
+}
 
 baseline <- audit[audit$sensitivity == "baseline", , drop = FALSE]
 locus_key <- interaction(baseline$population_planned, baseline$region_planned,
