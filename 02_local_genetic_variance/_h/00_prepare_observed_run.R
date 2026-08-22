@@ -158,7 +158,10 @@ chunk_manifest <- data.frame(
 joint_config <- file.path(module_root, "config", "joint-pve-20260820.tsv")
 relative_config <- file.path(repo_root, "config", "local_genetic_control.yml")
 threshold_config <- file.path(repo_root, "config", "thresholds.yml")
-for (path in c(joint_config, relative_config, threshold_config)) {
+support_config <- file.path(module_root, "config",
+                            "joint-pve-characterized-support.tsv")
+for (path in c(joint_config, relative_config, threshold_config,
+               support_config)) {
     if (!file.exists(path)) stop("Locked configuration is missing: ", path)
 }
 
@@ -169,7 +172,8 @@ for (subdir in c("config", "logs", "work", "results/task_rows",
 }
 write_tsv(tasks, file.path(run_dir, "config", "task-manifest.tsv"))
 write_tsv(chunk_manifest, file.path(run_dir, "config", "chunk-manifest.tsv"))
-invisible(file.copy(c(joint_config, relative_config, threshold_config),
+invisible(file.copy(c(joint_config, relative_config, threshold_config,
+                      support_config),
                     file.path(run_dir, "config"), overwrite = FALSE))
 
 git_commit <- tryCatch(
@@ -184,7 +188,8 @@ manifest <- data.frame(
         "vmrs_per_chunk", "n_expected_chunks", "smoke_selection",
         "joint_model_run_id", "joint_model_path", "joint_model_sha256",
         "development_features_path", "config_joint_sha256",
-        "config_relative_score_sha256", "config_thresholds_sha256"
+        "config_relative_score_sha256", "config_thresholds_sha256",
+        "config_characterized_support_sha256"
     ),
     value = c(
         cli$run_id, "02_local_genetic_variance", cohort, region,
@@ -196,7 +201,8 @@ manifest <- data.frame(
         cli$model_run_id,
         normalizePath(model_path), observed_model_sha,
         normalizePath(development_features), sha256_file(joint_config),
-        sha256_file(relative_config), sha256_file(threshold_config)
+        sha256_file(relative_config), sha256_file(threshold_config),
+        sha256_file(support_config)
     ),
     stringsAsFactors = FALSE
 )

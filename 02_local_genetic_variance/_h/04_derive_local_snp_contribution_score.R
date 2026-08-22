@@ -36,7 +36,7 @@ required <- c(
     "vmr_id", "cohort", "region", "vmr_set_id",
     "chrom", "start", "end", "n_cpgs", "n_variants",
     "mean_methylation", "methylation_variance",
-    "pve_cis_joint_calibrated", "feature_complete",
+    "pve_cis_joint_unbounded", "pve_cis_joint_calibrated", "feature_complete",
     "computational_failure", "joint_pve_domain_status"
 )
 missing <- setdiff(required, names(d))
@@ -56,7 +56,17 @@ as_flag <- function(x, field) {
 }
 feature_complete <- as_flag(d$feature_complete, "feature_complete")
 computational_failure <- as_flag(d$computational_failure, "computational_failure")
-finite_estimate <- is.finite(as.numeric(d$pve_cis_joint_calibrated))
+## The relative score ranks on the pre-clip estimate. Clipping is right for a
+## descriptive PVE -- negative variance explained is not interpretable -- but
+## it destroys ordering across the lower-boundary mass, which the 2026-08-22
+## observed-regime grid showed is not noise: below the boundary the unbounded
+## estimate tracks true PVE at Spearman 0.584 (bootstrap 95% CI 0.563-0.603,
+## AUC 0.741). Clipping costs about 80% of the recoverable low-PVE ordering
+## (Spearman 0.312 unbounded versus 0.059 clipped at true h2 <= 0.1).
+## pve_cis_joint_calibrated is retained unchanged as the bounded descriptive
+## output; neither column authorises absolute-PVE language.
+score_basis <- "pve_cis_joint_unbounded"
+finite_estimate <- is.finite(as.numeric(d[[score_basis]]))
 domain_status <- as.character(d$joint_pve_domain_status)
 within_domain <- !is.na(domain_status) & domain_status == "within_domain"
 eligible <- feature_complete & !computational_failure & finite_estimate & within_domain
@@ -74,12 +84,13 @@ reason[feature_complete & !computational_failure & finite_estimate &
 
 n_eligible <- sum(eligible)
 if (n_eligible < 2L) stop("Fewer than two eligible VMRs; score is undefined")
-raw <- as.numeric(d$pve_cis_joint_calibrated[eligible])
+raw <- as.numeric(d[[score_basis]][eligible])
 midrank <- rank(raw, ties.method = "average")
 score <- (midrank - 0.5) / n_eligible
 score_z <- as.numeric(scale(score))
 if (any(!is.finite(score_z))) stop("Eligible score has zero or nonfinite variance")
 
+d$local_snp_contribution_score_basis <- score_basis
 d$local_genetic_control_eligible <- eligible
 d$local_genetic_control_exclusion_reason <- reason
 d$local_snp_contribution_score <- NA_real_
