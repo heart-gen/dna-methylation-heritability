@@ -245,6 +245,50 @@ Four Stage 01 tasks of `lgv-AA-caudate-20260822` failed with
 `cannot open file '01_estimate_observed_joint_features.R'` because a git
 operation rewrote the script underneath the running array.
 
+### Per-cell characterization (`11..13` + `submit_observed_regime_cell.sh`)
+
+The grid stratifies loci on `num_snps` and `p_eff`, which for caudate AA came
+from its completed production run. The other five cells have no production
+run, and requiring one first would invert the dependency: Stage 03 needs the
+characterized support, which needs the grid, which would need the run.
+
+`p_eff` and `ld_metric` are pure genotype geometry, so `11..13` compute them
+straight from the accepted Module 01 catalog at about 0.5s per locus -- no
+phenotype, no elastic net, no BSLMM. `07` accepts either that scan or a
+production feature table as its locus universe.
+
+Submitted 2026-08-22, one chain per cell (geometry -> combine -> manifest ->
+9,216 scenarios -> summary):
+
+| Cohort | Region | n | Geometry run | Regime run |
+| --- | --- | --- | --- | --- |
+| AA | dlpfc | 118 | `lgv-geometry-AA-dlpfc-20260822` | `lgv-observed-regime-AA-dlpfc-20260822` |
+| AA | hippocampus | 117 | `lgv-geometry-AA-hippocampus-20260822` | `lgv-observed-regime-AA-hippocampus-20260822` |
+| all_individuals | caudate | 282 | `lgv-geometry-all_individuals-caudate-20260822` | `lgv-observed-regime-all_individuals-caudate-20260822` |
+| all_individuals | dlpfc | 173 | `lgv-geometry-all_individuals-dlpfc-20260822` | `lgv-observed-regime-all_individuals-dlpfc-20260822` |
+| all_individuals | hippocampus | 177 | `lgv-geometry-all_individuals-hippocampus-20260822` | `lgv-observed-regime-all_individuals-hippocampus-20260822` |
+
+All five `n` values are already in the AR(1) training grid, so the `n` arm of
+the domain gate does not reject them. `p_eff` is the arm that will move: the
+AA dlpfc geometry smoke returned `p_eff` around 18--20 against an AR(1)
+minimum of 24.9, so the mismatch is not specific to caudate.
+
+### Sequence still to run
+
+1. Read each cell's `results/combined/regime-verdict.tsv` and confirm the
+   reconciliation is clean (9,216 of 9,216, zero unaccounted).
+2. Regenerate `config/joint-pve-characterized-support.tsv` with
+   `_h/10_write_characterized_support.R` extended over all six grids. Its
+   current contents are the union of the AR(1) grid and caudate AA only.
+3. Re-run Stages 03--06 for `lgv-AA-caudate-20260822` against the widened
+   support, because its accepted numbers were produced under the narrower one.
+4. Submit the five production runs with
+   `_h/submit_observed_local_control.sh`.
+
+Until step 2 lands, any run's domain decision must be read against the
+`config_characterized_support_sha256` recorded in its own manifest, not
+against the working-tree file.
+
 ## Scheduler-safe reorganization
 
 Before the 2026-08-21 reorganization, `squeue -u $USER` showed no running or
