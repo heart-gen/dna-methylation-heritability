@@ -186,4 +186,4 @@ manifest <- data.frame(
     stringsAsFactors = FALSE
 )
 write_tsv(manifest, file.path(run_dir, "manifest.tsv"))
-cat(normalizePath(run_dir), "\n")
+cat(normalizePath(run_dir), "\n", sep = "")
