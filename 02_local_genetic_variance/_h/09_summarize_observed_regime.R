@@ -174,11 +174,20 @@ write_tsv(rank_info, file.path(combined_dir, "regime-rank-information.tsv"))
 
 ## ---- verdicts -------------------------------------------------------------
 observed_boundary_rate <- NA_real_
-observed_decision <- file.path(
-    dirname(run_dir), mval("observed_run_id"),
+## Cells with no completed production run have nothing to compare against; the
+## grid still reports its own boundary curve and rank statistics.
+observed_run_id <- if (any(manifest$field == "observed_run_id")) {
+    mval("observed_run_id")
+} else if (identical(mval("source_kind"), "observed_production_run")) {
+    mval("source_run_id")
+} else {
+    NA_character_
+}
+observed_decision <- if (is.na(observed_run_id)) "" else file.path(
+    dirname(run_dir), observed_run_id,
     "results", "combined", "observed-score-decision.tsv"
 )
-if (file.exists(observed_decision)) {
+if (nzchar(observed_decision) && file.exists(observed_decision)) {
     decision <- read_tsv(observed_decision)
     if ("boundary_rate" %in% names(decision)) {
         observed_boundary_rate <- as.numeric(decision$boundary_rate[[1L]])

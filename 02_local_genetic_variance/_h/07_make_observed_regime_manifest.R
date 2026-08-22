@@ -22,6 +22,10 @@ module_root <- file.path(repo_root, "02_local_genetic_variance")
 cli <- parse_cli(list(
     config = file.path(module_root, "config", "observed-regime-20260822.tsv"),
     run_id = "",
+    features = "",
+    cohort = "",
+    region = "",
+    vmr_run_id = "",
     runs_root = ""
 ))
 settings <- read_joint_settings(cli$config)
@@ -33,8 +37,9 @@ sval <- function(field) {
     as.character(value)
 }
 run_id <- if (nzchar(cli$run_id)) cli$run_id else sval("run_id")
-if (!grepl("^lgv-observed-regime-[0-9]{8}[a-z]?$", run_id)) {
-    stop("run_id must match ^lgv-observed-regime-[0-9]{8}[a-z]?$")
+if (!grepl("^lgv-observed-regime-[A-Za-z_]+-[a-z]+-[0-9]{8}[a-z]?$", run_id) &&
+    !grepl("^lgv-observed-regime-[0-9]{8}[a-z]?$", run_id)) {
+    stop("run_id must match ^lgv-observed-regime-(<cohort>-<region>-)?YYYYMMDD")
 }
 if (!identical(sval("model_changed"), "FALSE") ||
     !identical(sval("criteria_changed"), "FALSE")) {
@@ -46,29 +51,55 @@ runs_root <- if (nzchar(cli$runs_root)) cli$runs_root else
 run_dir <- file.path(runs_root, run_id)
 if (file.exists(run_dir)) stop("Run directory already exists: ", run_dir)
 
-observed_run_dir <- file.path(runs_root, sval("observed_run_id"))
-observed_manifest_path <- file.path(observed_run_dir, "manifest.tsv")
-observed_features_path <- file.path(
-    observed_run_dir, "results", "combined", "observed-joint-features.tsv"
-)
-for (path in c(observed_manifest_path, observed_features_path)) {
-    if (!file.exists(path)) stop("Missing observed-run input: ", path)
+## The locus universe comes either from a completed production run (which
+## already carries these columns) or from a locus-geometry scan, which
+## computes the same genotype geometry without fitting any model. The five
+## cohort-by-region cells with no production run use the latter.
+if (nzchar(cli$features)) {
+    features_path <- normalizePath(cli$features)
+    source_kind <- "locus_geometry_scan"
+    source_run_dir <- dirname(dirname(dirname(features_path)))
+    for (field in c("cohort", "region", "vmr_run_id")) {
+        if (!nzchar(cli[[field]])) {
+            stop("--", field, " is required with --features")
+        }
+    }
+} else {
+    source_kind <- "observed_production_run"
+    source_run_dir <- file.path(runs_root, sval("observed_run_id"))
+    features_path <- file.path(source_run_dir, "results", "combined",
+                               "observed-joint-features.tsv")
 }
-observed_manifest <- read_tsv(observed_manifest_path)
-oval <- function(field) {
-    value <- observed_manifest$value[observed_manifest$field == field]
-    if (length(value) != 1L) stop("Observed manifest lacks unique field: ", field)
+source_manifest_path <- file.path(source_run_dir, "manifest.tsv")
+for (path in c(source_manifest_path, features_path)) {
+    if (!file.exists(path)) stop("Missing locus-universe input: ", path)
+}
+source_manifest <- read_tsv(source_manifest_path)
+oval <- function(field, default = NULL) {
+    value <- source_manifest$value[source_manifest$field == field]
+    if (length(value) != 1L) {
+        if (!is.null(default)) return(default)
+        stop("Source manifest lacks unique field: ", field)
+    }
     as.character(value[[1L]])
 }
+source_run_id <- oval("run_id")
 
-features <- read_tsv(observed_features_path)
-eligible <- features[features$terminal_status %in% "completed" &
-                     features$feature_complete %in% TRUE, , drop = FALSE]
-if (!nrow(eligible)) stop("Observed run contributed no complete feature rows")
+features <- read_tsv(features_path)
+complete_flag <- if ("feature_complete" %in% names(features)) {
+    features$feature_complete %in% TRUE
+} else if ("geometry_complete" %in% names(features)) {
+    features$geometry_complete %in% TRUE
+} else {
+    stop("Locus universe lacks a completeness flag")
+}
+eligible <- features[features$terminal_status %in% "completed" & complete_flag, ,
+                     drop = FALSE]
+if (!nrow(eligible)) stop("Locus universe contributed no complete rows")
 for (field in c("task_id", "vmr_id", "chrom", "start", "end", "n_cpgs",
                 "num_snps", "p_eff", "ld_metric", "n")) {
     if (!field %in% names(eligible)) {
-        stop("Observed features lack field: ", field)
+        stop("Locus universe lacks field: ", field)
     }
 }
 
@@ -185,16 +216,24 @@ sha256 <- function(path) {
     tolower(sub(" .*$", "", system2("sha256sum", normalizePath(path),
                                     stdout = TRUE)[[1L]]))
 }
-model_path <- oval("joint_model_path")
+model_run_id <- sval("joint_model_run_id")
+model_path <- file.path(runs_root, model_run_id, "combined",
+                        "joint-pve-calibrator.rds")
+development_features <- file.path(runs_root, model_run_id, "combined",
+                                 "development-features.tsv")
+for (path in c(model_path, development_features)) {
+    if (!file.exists(path)) stop("Missing frozen model input: ", path)
+}
 model_sha <- sha256(model_path)
-if (!identical(model_sha, tolower(oval("joint_model_sha256")))) {
-    stop("Frozen joint-model checksum differs from the observed run")
+if (!identical(model_sha, tolower(sval("joint_model_sha256")))) {
+    stop("Frozen joint-model checksum differs from the locked value")
 }
 manifest <- data.frame(
     field = c(
         "run_id", "analysis", "grid_kind", "cohort", "region", "started_at",
-        "git_commit", "observed_run_id", "upstream_vmr_run_id", "vmr_set_id",
-        "ordered_donor_checksum", "n_donors", "n_loci", "n_scenarios",
+        "git_commit", "source_kind", "source_run_id", "upstream_vmr_run_id",
+        "vmr_set_id",
+        "n_donors", "n_loci", "n_scenarios",
         "scenarios_per_chunk", "n_expected_chunks", "joint_model_run_id",
         "joint_model_path", "joint_model_sha256",
         "development_features_path", "config_observed_regime_sha256",
@@ -205,11 +244,11 @@ manifest <- data.frame(
         oval("cohort"), oval("region"),
         format(Sys.time(), "%Y-%m-%dT%H:%M:%S%z"),
         system2("git", c("-C", repo_root, "rev-parse", "HEAD"), stdout = TRUE),
-        sval("observed_run_id"), oval("upstream_vmr_run_id"),
-        oval("vmr_set_id"), oval("ordered_donor_checksum"), oval("n_donors"),
+        source_kind, source_run_id, oval("upstream_vmr_run_id"),
+        oval("vmr_set_id"), oval("n_donors"),
         nrow(locus_manifest), nrow(scenarios), per_chunk,
-        max(chunk_manifest$chunk_id), oval("joint_model_run_id"),
-        model_path, model_sha, oval("development_features_path"),
+        max(chunk_manifest$chunk_id), model_run_id,
+        model_path, model_sha, development_features,
         sha256(cli$config), sval("base_seed"), sval("regime_seed_offset"),
         "FALSE", "FALSE"
     ),
