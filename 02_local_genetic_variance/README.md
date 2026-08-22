@@ -198,8 +198,15 @@ run appears in this table.
   files, and no retired-path calls from active launchers.
 - Real-data smoke: Stage 01 completed nested EN, HE, BSLMM, effective-rank, and
   LD features for two 2,672--3,009-SNP caudate VMRs.
-- End-to-end smoke: Stages 00--06 completed and correctly returned
-  `PASS_SMOKE_ONLY_NOT_ACCEPTABLE` when run on the two-locus task universe.
+- End-to-end smoke: `lgv-AA-caudate-20260822b`, a 10-locus evenly spaced task
+  universe, ran Stages 00--06 through the scheduler as six chained step jobs.
+  Reconciliation was 10 expected / 9 completed / 1 qc_failed / 0 unaccounted /
+  0 computational failures; Stage 05 returned
+  `PASS_SMOKE_ONLY_NOT_ACCEPTABLE` and Stage 06 sealed the run. Five of the
+  nine scored loci sat at the lower boundary (`max_tie_fraction` and
+  `boundary_rate` both 0.556). At smoke scale that is uninformative, but
+  boundary and tie concentration is the property to watch in production,
+  because heavy zero mass compresses the within-cell rank score.
 - Fail-closed smoke: an intentionally incomplete 507-task universe returned
   `FAIL_OBSERVED_RELATIVE_SCORE_QC` with 505 unaccounted/computational failures.
 - Accepted observed production score runs: none.
