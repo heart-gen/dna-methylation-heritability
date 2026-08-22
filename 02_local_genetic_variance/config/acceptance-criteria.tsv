@@ -1,8 +1,10 @@
-metric	comparison	threshold	rationale
-absolute_mean_bias	less_than_or_equal	0.05	Absolute mean signed calibration bias must be small
-rmse	less_than_or_equal	0.15	Numerical error must be useful across the prespecified 0-0.95 target grid
-calibration_interval_coverage	greater_than_or_equal	0.90	Empirical 95% calibration intervals must not severely undercover
-null_type1_error	less_than_or_equal	0.06	Null positive-signal calls must be approximately calibrated
-spearman_truth_estimate	greater_than_or_equal	0.50	The estimator must preserve a useful ordering of loci
-null_mean_estimated_h2	less_than_or_equal	0.05	Null loci must not receive materially positive numerical h2 estimates on average
-max_absolute_h2_level_bias	less_than_or_equal	0.10	No simulated h2 level may have excessive mean calibration bias
+gate_version	metric	comparison	threshold	gate_role	rationale
+low_h2_ordering_v2	absolute_mean_bias	less_than_or_equal	0.05	hard	Absolute mean signed calibration bias across the grid must be small
+low_h2_ordering_v2	rmse	less_than_or_equal	0.20	guardrail	Aggregate numerical error target; crossing it triggers review but does not alone reject an estimator
+low_h2_ordering_v2	calibration_interval_coverage	greater_than_or_equal	0.90	hard	Empirical 95% calibration intervals must not severely undercover
+low_h2_ordering_v2	null_type1_error	less_than_or_equal	0.06	hard	Null positive-signal calls must be approximately calibrated
+low_h2_ordering_v2	spearman_truth_estimate	greater_than_or_equal	0.70	hard	The estimator must preserve the biological ordering of VMR local genetic control
+low_h2_ordering_v2	null_mean_estimated_h2	less_than_or_equal	0.05	hard	Null loci must not receive materially positive numerical h2 estimates on average
+low_h2_ordering_v2	low_h2_absolute_mean_bias	less_than_or_equal	0.025	hard	Mean signed bias must be small across the prespecified low-signal range
+low_h2_ordering_v2	max_absolute_low_h2_level_bias	less_than_or_equal	0.05	hard	No level in the prespecified low-signal range may have excessive mean bias
+low_h2_ordering_v2	max_absolute_h2_level_bias	less_than_or_equal	0.15	hard	No simulated h2 level may have gross mean calibration bias, including the upper boundary

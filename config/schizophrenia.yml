@@ -23,9 +23,9 @@ testing:
   # combined after inspection.
   separate_fdr_family: true
   fdr_alpha: 0.05
-  # Association is tested against calibrated local variance
-  # (h2_en_calibrated), NOT legacy predictability.
-  architecture_predictor: h2_en_calibrated
+  # Association is tested against the relative local SNP contribution score,
+  # NOT an absolute PVE threshold or legacy predictability.
+  architecture_predictor: local_snp_contribution_score_z
 
 primary_region: caudate
 

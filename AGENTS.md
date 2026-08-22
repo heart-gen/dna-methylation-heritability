@@ -98,7 +98,11 @@ scientific use:
 - `r_squared_cv > 0.75`;
 - high- versus low-prediction groups derived from that threshold;
 - stacked, Venn, Sankey, enrichment, exposure, or disease results whose group
-  definition depends on the withdrawn metric.
+  definition depends on the withdrawn metric;
+- `h2_en_calibrated` and any absolute locus-level PVE percentage or threshold
+  derived from it (retired 2026-08-21; see 7.2). The raw
+  `pve_cis_joint_calibrated` estimate is retained inside Module 02 runs for
+  audit only and must not be reported as a percentage of variance explained.
 
 Use a two-stage retirement process:
 
@@ -115,8 +119,8 @@ tracked. Do not delete a legacy directory until its row in
 `MIGRATION_MANIFEST.tsv` is marked `validated_replacement` and
 all consumers point to accepted v2 run IDs.
 
-Active revision code must fail if `r_squared_cv` or `h2_unscaled` appears as an
-input to a v2 model, table, or figure. If a historical training-set statistic is
+Active revision code must fail if `r_squared_cv`, `h2_unscaled`, or
+`h2_en_calibrated` appears as an input to a v2 model, table, or figure. If a historical training-set statistic is
 temporarily retained, name it `r_squared_insample` and never call it held-out,
 cross-validated, or predictive accuracy.
 
@@ -329,22 +333,37 @@ Required outputs:
 
 ### 7.2 `02_local_genetic_variance`: primary quantitative endpoint
 
-The primary endpoint is `h2_en_calibrated`, described as:
+**Superseded 2026-08-21.** The endpoint was `h2_en_calibrated`, a
+simulation-calibrated elastic-net estimate of local SNP-explained methylation
+variance. Independent zero-overlap validation (12,960/12,960 simulations)
+returned `PASS_RELATIVE_GENETIC_CONTROL / FAIL_ABSOLUTE_LOCUS_PVE`: strong
+ordering (Spearman 0.796) but 6/14 absolute-PVE gates failed (mean bias 0.0869,
+RMSE 0.2127, null mean 0.0767). Estimator development has ended and
+`h2_en_calibrated` is retired as a reported quantity.
 
-> simulation-calibrated elastic-net estimate of local SNP-explained methylation
-> variance
+The primary endpoint is now the within-cell relative score, described as:
+
+> relative rank of local SNP contribution to methylation variance, within
+> cohort by region
+
+emitted by Module 02 as `local_snp_contribution_score` (empirical midrank
+percentile), `local_snp_contribution_score_z` (primary model predictor), and
+`local_snp_contribution_quartile` (secondary contrast).
 
 Requirements:
 
-- preserve the accepted calibration model and checksum;
-- use estimator settings consistent with the simulation grid;
-- numerically interpret only within-domain loci;
-- flag upper-boundary and extrapolated loci;
-- retain unbounded estimates for audit;
-- describe calibration limits as simulation-reference limits, not confidence
-  intervals;
-- stop if aggregate acceptance criteria fail;
+- consume the frozen joint model by its pinned SHA-256 and apply it once;
+- rank within each cohort-by-region cell, never pooled across cells;
+- numerically interpret only within-domain loci, and report the domain coverage;
+- retain the raw `pve_cis_joint_calibrated` estimate for audit only;
+- carry `absolute_pve_interpretation_allowed = FALSE` on every emitted row;
+- stop if the Stage 05 observed-score gate fails;
 - rerun annotation sensitivity on corrected VMRs.
+
+Prohibited: exact locus-level PVE percentages; absolute PVE thresholds
+including 0.10; heritable/nonheritable classes; raw score-level comparison
+across regions. See `02_local_genetic_variance/README.md` and
+`config/local_genetic_control.yml` for the lock.
 
 Changing the estimator, alpha grid, folds, repeats, lambda rule, screen, or raw
 metric requires recalibration.
@@ -404,7 +423,8 @@ Primary outcomes:
 
 Primary predictor:
 
-- standardized continuous `h2_en_calibrated` among interpretable loci.
+- standardized continuous `local_snp_contribution_score_z` among eligible
+  loci.
 
 Secondary predictor:
 
@@ -588,10 +608,10 @@ after the VMR and metric repairs:
 
 | Existing result | v2 test |
 |---|---|
-| H3K9me3 enrichment in all three regions | continuous `h2_en_calibrated` plus locked sensitivities |
-| Quiescent-chromatin enrichment in all three regions | calibrated variance plus cell and mapping sensitivities |
+| H3K9me3 enrichment in all three regions | continuous `local_snp_contribution_score_z` plus locked sensitivities |
+| Quiescent-chromatin enrichment in all three regions | relative local-genetic-control score plus cell and mapping sensitivities |
 | LINE/L1 enrichment in caudate and hippocampus; fragile DLPFC result | repeat-family model with high-mappability and cell-adjusted gates |
-| Strong CpG meQTL-burden gradient | calibrated variance primary; OOF prediction secondary |
+| Strong CpG meQTL-burden gradient | relative local-genetic-control score primary; OOF prediction secondary |
 | Expression coupling in all regions and splicing coupling in caudate/DLPFC | corrected VMR membership and tested-universe model |
 | Aggregate donor-group consistency | matched MAF/SNP opportunity and denominator audit |
 | Phase 7: 31 caudate loci, 361 pairs, 38 VMRs, eight TX-coupled VMRs | complete rerun and reprioritization on corrected VMRs |

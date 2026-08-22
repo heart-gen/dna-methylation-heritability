@@ -1,0 +1,22 @@
+field	value	rationale
+purpose	estimator_screening_only	Does not change production h2_en_calibrated, does not authorize an observed rerun, and does not recalibrate Module 02 (AGENTS.md 7.2)
+question	does_any_setting_change_reduce_raw_statistic_dispersion	lgv-boundary-train-20260818 showed calibration-map failure is dispersion-driven, not boundary attenuation
+pairing	identical_seed_per_design_cell_across_arms	simulate_locus runs before any estimator setting is used, so arms share byte-identical draws
+negative_control	he_h2	Haseman-Elston is settings-invariant and must be identical across arms for matched cells
+sample_sizes	117,282	Smallest and largest observed regional sample sizes
+num_snps	1500,12000	Mid and extreme local SNP counts; dispersion rose monotonically with p
+ld_rho	0.5	Fixed at the central LD level to keep the screen affordable
+architectures	sparse,polygenic	Best and worst observed architectures (RMSE 0.175 vs 0.294)
+h2_values	0,0.2,0.6,0.95	Null, interior, high, and the level with residual attenuation
+replicates_per_cell	12	Enough to estimate within-cell dispersion per arm
+outer_folds	5	Held fixed across arms
+inner_folds	5	Held fixed across arms
+max_features	1500	Held fixed across arms
+raw_metric	rho2_oof	Held fixed across arms
+base_seed	20250805	Same base as production; arm-invariant per design cell
+seed_offset	500000000	Distinct from training (300000000) and reserved validation (400000000)
+primary_endpoint	oracle_calibrated_rmse	Replicate-split forward fit within arm; closest available analogue of production calibrated RMSE
+secondary_endpoint	discriminability	between-level SD of the raw metric divided by mean within-level SD; bounds achievable calibrated RMSE
+stress_stratum	polygenic_p12000_h2_ge_0.6	Where production dispersion was worst
+promising_rule	relative_oracle_rmse_improvement_ge_0.15_in_stress_and_no_null_mean_worsening	Prespecified before results are viewed; only a promising arm justifies a full recalibration grid
+non_promising_consequence	declare_information_limit_and_escalate	If no arm passes, the dispersion is a data-information limit rather than a tuning artifact

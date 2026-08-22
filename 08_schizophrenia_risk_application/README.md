@@ -26,7 +26,8 @@ after the corrected run.
 
 PGC schizophrenia loci are defined independently of methylation results.
 Risk-variant-CpG tests keep their own FDR family. Association is tested against
-calibrated local variance, not legacy predictability. External GTEx eQTL evidence
+the relative local SNP contribution score, not absolute PVE or legacy
+predictability. External GTEx eQTL evidence
 is support, not proof of mediation. At most five illustrative loci are
 prioritized by a prespecified rule.
 

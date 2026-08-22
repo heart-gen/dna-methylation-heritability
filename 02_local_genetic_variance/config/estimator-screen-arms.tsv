@@ -1,0 +1,6 @@
+arm_id	outer_repeats	alpha_grid	lambda_rule	rationale
+A0_baseline	2	0.1,0.5,1	lambda.1se	Production reference settings
+A1_repeats6	6	0.1,0.5,1	lambda.1se	Tests whether outer-fold Monte Carlo noise drives dispersion
+A2_lambdamin	2	0.1,0.5,1	lambda.min	Tests whether lambda.1se over-shrinks at high h2 and high SNP count
+A3_ridgeward	2	0.01,0.05,0.1,0.25,0.5,1	lambda.1se	Tests whether the lasso-heavy alpha grid mismatches polygenic architectures
+A4_combined	6	0.01,0.05,0.1,0.25,0.5,1	lambda.min	All three levers together; upper bound on tuning-only improvement

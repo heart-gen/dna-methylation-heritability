@@ -1,0 +1,14 @@
+field	value	description
+recovery_lock_date	2026-08-21	Locked before replacement manifest generation
+base_config_sha256	e82b558ba72820c1976f821b020b31bba749d11d8650dd23a9ddbd2bf3afdcbc	Frozen joint-pve-20260820.tsv checksum
+criteria_sha256	512dad730c3f9aa2301e4b57046fd98b931e0f03ccb530e89102b6a09df710bb	Frozen acceptance-gate checksum
+frozen_model_sha256	9f26c3273746fda85d9bbf21e224857db9a1ad79a521582a12f241854c03223a	Frozen fitted calibrator checksum
+contaminated_validation_run_id	lgv-joint-pve-validate-20260820	Audit-only validation with prior-screen seed reuse
+contaminated_decision_run_id	lgv-joint-pve-decision-20260821	Audit-only nonterminal decision
+overlap_seed_count	384	Exact overlap with estimator-screen-20260818 screen-scenarios.tsv
+validation_seed_offset	700000000	Replacement seed block selected before generation
+validation_run_id	lgv-joint-pve-validate-20260821a	Immutable independent validation run
+decision_run_id	lgv-joint-pve-decision-20260821a	Immutable derived terminal-decision run
+allowed_base_config_overrides	validation_seed_offset,validation_run_id	No other base configuration field may change
+model_changed	FALSE	Frozen model is read-only
+criteria_changed	FALSE	All 14 prospective gates remain unchanged

@@ -1,0 +1,59 @@
+# Manuscript-facing relative local-genetic-control endpoint.
+# Explicit PI/user interpretation lock after the final absolute-PVE validation.
+
+schema_version: 1
+pi_locked: true
+decision_date: 2026-08-21
+decision: PASS_RELATIVE_GENETIC_CONTROL_FAIL_ABSOLUTE_LOCUS_PVE
+
+validation:
+  decision_run_id: lgv-joint-pve-decision-20260821a
+  validation_run_id: lgv-joint-pve-validate-20260821a
+  training_run_id: lgv-joint-pve-train-20260820
+  frozen_model_sha256: 9f26c3273746fda85d9bbf21e224857db9a1ad79a521582a12f241854c03223a
+  scenarios: 12960
+  prior_seed_manifest_overlap: 0
+  spearman_truth_estimate: 0.796001812008295
+  absolute_pve_gate: fail
+  relative_ordering_gate: pass
+
+endpoint:
+  source_internal_column: pve_cis_joint_calibrated
+  manuscript_label: local SNP contribution score
+  score_column: local_snp_contribution_score
+  score_definition: within_cell_empirical_midrank_percentile
+  rank_scope: cohort_by_region
+  rank_ties_method: average
+  percentile_formula: (midrank - 0.5) / n_eligible
+  primary_model_column: local_snp_contribution_score_z
+  primary_effect_unit: one_within_cell_standard_deviation
+
+eligibility:
+  require_feature_complete: true
+  require_zero_computational_failure: true
+  require_finite_source_estimate: true
+  domain_status_column: joint_pve_domain_status
+  required_domain_status: within_domain
+  retain_excluded_rows_with_reason: true
+
+secondary_quantiles:
+  enabled: true
+  lower_max_percentile: 0.25
+  upper_min_percentile: 0.75
+  labels: [bottom_quartile, middle_50_percent, top_quartile]
+  biological_cutoff: false
+
+allowed_uses:
+  - adjusted_continuous_association
+  - effect_direction_and_rank_gradient
+  - score_deciles_for_visualization
+  - top_vs_bottom_quartile_secondary
+  - descriptive_raw_estimate_distributions_with_calibration_caveat
+
+prohibited_uses:
+  - exact_locus_level_variance_percentage
+  - absolute_pve_threshold_groups
+  - heritable_vs_nonheritable_classification
+  - positive_signal_calls_as_biological_groups
+  - exact_percentage_point_annotation_contrasts
+  - cross_region_raw_score_level_comparisons

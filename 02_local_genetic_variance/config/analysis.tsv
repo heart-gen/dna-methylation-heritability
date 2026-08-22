@@ -4,6 +4,7 @@ num_snps	100,500,1500,3000,5000,12000	Observed local SNP-count support, includin
 ld_rho	0.2,0.5,0.8	Latent AR(1) LD grid
 architectures	sparse,oligogenic,polygenic	Causal architectures pooled in primary calibration
 h2_values	0,0.05,0.1,0.2,0.4,0.6,0.8,0.95	Conditional local SNP-variance grid extending through the observed high-signal regime
+low_h2_max	0.10	Upper true-h2 boundary for the hard low-signal bias gate; includes 0, 0.05, and 0.10
 calibration_replicates_per_stratum	240	Balanced calibration replicates: 10 per architecture-by-h2 cell within each N/SNP/LD stratum
 evaluation_replicates_per_stratum	120	Independent validation replicates: 5 per architecture-by-h2 cell within each N/SNP/LD stratum
 outer_folds	5	Held-out outer folds

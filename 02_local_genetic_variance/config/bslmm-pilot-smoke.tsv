@@ -1,0 +1,31 @@
+setting	value	description
+sample_sizes	48	Smoke sample size
+num_snps	24,80	Smoke SNP counts
+ld_rho	0.5	Primary AR(1) LD
+architectures	sparse,polygenic	Smoke architectures
+h2_values	0,0.4	Smoke true h2 values
+replicates_per_cell	2	Smoke replicates
+base_seed	91017	Smoke seed
+outer_folds	3	Smoke EN folds
+outer_repeats	1	Smoke EN repeats
+inner_folds	3	Smoke EN inner folds
+alpha_grid	0.5,1	Smoke alpha grid
+lambda_rule	lambda.1se	Lambda rule
+max_features	80	Smoke max features
+raw_metric	rho2_oof	Raw metric
+max_design_distance	1.25	Domain threshold
+calibration_model_relpath	_m/calibration_frozen/elastic-net-calibration.rds	Frozen model
+expected_calibration_sha256	bbe9f9f3e897b19c536078c20e6bd50a2f5ea385ab1c1258039974ced855e389	Frozen SHA-256
+gemma_bin	/projects/p32505/opt/bin/gemma	GEMMA binary
+bslmm_mode	1	BSLMM mode
+bslmm_burn_in	200	Short smoke MCMC burn-in
+bslmm_sampling	500	Short smoke MCMC sampling
+bslmm_rpace	10	Recording pace
+scenarios_per_array_task	4	Chunk size
+max_concurrent	10	Concurrency
+rmse_relative_improvement_min	0.20	Go/no-go RMSE rule
+stress_bias_improvement_min	0.05	Go/no-go stress bias rule
+stress_architecture	polygenic	Stress architecture
+stress_num_snps_min	80	Smoke stress SNP floor
+stress_h2_min	0.4	Stress h2 floor
+max_failure_rate_delta	0.05	Failure-rate delta
