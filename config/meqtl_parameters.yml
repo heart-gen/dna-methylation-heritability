@@ -4,8 +4,8 @@ genome_build: hg38
 cis_window_bp: 500000
 cis_window_sensitivity_bp: 1000000
 
-predictability_score_column: h2_unscaled
-predictability_class_column: null  # derived secondary high/low classes if present
+predictability_score_column: local_snp_contribution_score_z
+predictability_class_column: local_snp_contribution_quartile  # secondary only
 
 genotype_qc:
   chromosomes: autosomal

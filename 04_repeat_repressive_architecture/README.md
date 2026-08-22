@@ -1,6 +1,6 @@
 # 04_repeat_repressive_architecture — primary biological analysis
 
-Tests whether increasing calibrated local genetic control is associated with repeat-rich and repressive genomic compartments. This is the module the manuscript's central claim rests on.
+Tests whether a higher relative local SNP contribution score (`local_snp_contribution_score_z`, Module 02) is associated with repeat-rich and repressive genomic compartments. This is the module the manuscript's central claim rests on.
 
 **Status: not implemented.** Gated on `02_local_genetic_variance` acceptance (and `03_local_snp_prediction` for the secondary predictor) (AGENTS.md §6: "No downstream
 production run may consume an upstream result until the upstream README records
@@ -19,8 +19,10 @@ and retirement status. Legacy directories stay in place until their row reads
 Primary outcomes: H3K9me3 overlap, quiescent-chromatin overlap, LINE/L1 overlap
 or overlap fraction.
 
-Primary predictor: standardized continuous `h2_en_calibrated` among interpretable
-loci. Secondary predictor: honest `r2_pred_oof`, to ask whether the same
+Primary predictor: standardized continuous
+`local_snp_contribution_score_z`, constructed from the within-cell rank of the
+frozen joint estimator among eligible loci. Secondary predictor: honest
+`r2_pred_oof`, to ask whether the same
 compartments are enriched among *imputable* VMRs.
 
 Adjustment/matching variables and locked sensitivities are enumerated in

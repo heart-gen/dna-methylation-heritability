@@ -1,0 +1,15 @@
+gate_version	metric	comparison	threshold	gate_role	rationale
+final_joint_pve_v1	absolute_mean_bias	less_than_or_equal	0.05	hard	Whole-grid signed bias must remain small
+final_joint_pve_v1	rmse	less_than_or_equal	0.20	hard	Absolute PVE requires reasonable whole-grid numerical precision
+final_joint_pve_v1	calibration_interval_coverage	greater_than_or_equal	0.90	hard	Simulation-reference intervals must not severely undercover
+final_joint_pve_v1	null_type1_error	less_than_or_equal	0.06	hard	Finite-sample null calls must remain calibrated
+final_joint_pve_v1	spearman_truth_estimate	greater_than_or_equal	0.70	hard	The estimator must preserve continuous biological ordering
+final_joint_pve_v1	null_mean_estimated_h2	less_than_or_equal	0.05	hard	Null loci must remain close to the zero boundary
+final_joint_pve_v1	low_h2_absolute_mean_bias	less_than_or_equal	0.025	hard	Pooled signed bias at true PVE 0, 0.05, and 0.10 must be small
+final_joint_pve_v1	low_h2_rmse	less_than_or_equal	0.10	hard	Low-PVE estimates must have useful absolute precision
+final_joint_pve_v1	max_absolute_low_h2_level_bias	less_than_or_equal	0.05	hard	No low-PVE level may hide excessive mean bias
+final_joint_pve_v1	minimum_low_h2_adjacent_mean_difference	greater_than	0	hard	Mean estimates must strictly increase from 0 to 0.05 to 0.10
+final_joint_pve_v1	max_absolute_h2_level_bias	less_than_or_equal	0.15	hard	No PVE level may have gross boundary or scale bias
+final_joint_pve_v1	complete_feature_rate	greater_than_or_equal	1	hard	Every validation locus must have all joint diagnostics
+final_joint_pve_v1	computational_failure_rate	less_than_or_equal	0	hard	Unexplained computational failures are not allowed
+final_joint_pve_v1	reconciliation_rate	greater_than_or_equal	1	hard	Every prespecified validation scenario must reconcile exactly once

@@ -1,6 +1,8 @@
 # 03_local_snp_prediction — secondary translational endpoint
 
-Answers whether a VMR can be imputed into a new cohort. This is **not** the primary biological endpoint — that is `h2_en_calibrated` from `02_local_genetic_variance`.
+Answers whether a VMR can be imputed into a new cohort. This is **not** the
+primary biological endpoint—that is the continuous local SNP contribution
+score from `02_local_genetic_variance`.
 
 **Status: not implemented.** Gated on `02_local_genetic_variance` acceptance (AGENTS.md §6: "No downstream
 production run may consume an upstream result until the upstream README records

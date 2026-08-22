@@ -521,7 +521,7 @@ fit_isotonic_curve <- function(raw, truth) {
     )
 }
 
-make_forward_features <- function(data) {
+make_forward_features <- function(data, boundary_aware = FALSE) {
     required <- c(
         "rho2_oof", "r2_oof", "covariance_ratio_oof",
         "score_variance_ratio_oof", "mean_nonzero_snps"
@@ -530,7 +530,7 @@ make_forward_features <- function(data) {
     if (length(missing)) {
         stop("Forward calibration input is missing: ", paste(missing, collapse = ", "))
     }
-    data.frame(
+    features <- data.frame(
         sqrt_rho = sqrt(pmax(as.numeric(data$rho2_oof), 0)),
         r2 = as.numeric(data$r2_oof),
         covariance = as.numeric(data$covariance_ratio_oof),
@@ -538,17 +538,24 @@ make_forward_features <- function(data) {
         log_nonzero_snps = log1p(pmax(as.numeric(data$mean_nonzero_snps), 0)),
         stringsAsFactors = FALSE
     )
+    if (isTRUE(boundary_aware)) {
+        he <- if ("he_h2" %in% names(data)) as.numeric(data$he_h2) else rep(NA_real_, nrow(data))
+        features$near_ceiling <- pmax(0, features$sqrt_rho - 0.5)^2
+        features$he_excess <- pmax(0, he - 0.6)
+        features$high_signal_flag <- as.numeric(features$sqrt_rho >= 0.7)
+    }
+    features
 }
 
 forward_design_id <- function(n, p, ld_rho) {
     paste0("n", n, "_p", p, "_ld", format(ld_rho, trim = TRUE))
 }
 
-fit_forward_scalers <- function(data) {
+fit_forward_scalers <- function(data, boundary_aware = FALSE) {
     required <- c("n", "num_snps", "ld_rho", "ld_metric")
     missing <- setdiff(required, names(data))
     if (length(missing)) stop("Calibration design is missing: ", paste(missing, collapse = ", "))
-    features <- make_forward_features(data)
+    features <- make_forward_features(data, boundary_aware = boundary_aware)
     ids <- forward_design_id(data$n, data$num_snps, data$ld_rho)
     split_index <- split(seq_len(nrow(data)), ids)
     scalers <- lapply(names(split_index), function(id) {
@@ -568,7 +575,8 @@ fit_forward_scalers <- function(data) {
             ld_center = stats::median(data$ld_metric[index], na.rm = TRUE),
             ld_rho_design = unique(data$ld_rho[index])[[1L]],
             feature_center = center,
-            feature_scale = scale_value
+            feature_scale = scale_value,
+            boundary_aware = isTRUE(boundary_aware)
         )
     })
     names(scalers) <- vapply(scalers, `[[`, character(1L), "id")
@@ -579,7 +587,8 @@ transform_forward_features <- function(data, scalers) {
     required <- c("n", "num_snps", "ld_metric")
     missing <- setdiff(required, names(data))
     if (length(missing)) stop("Forward prediction design is missing: ", paste(missing, collapse = ", "))
-    features <- make_forward_features(data)
+    boundary_aware <- isTRUE(scalers[[1L]]$boundary_aware)
+    features <- make_forward_features(data, boundary_aware = boundary_aware)
     selected <- character(nrow(data))
     distance <- numeric(nrow(data))
     for (i in seq_len(nrow(data))) {
@@ -628,28 +637,34 @@ transform_forward_features <- function(data, scalers) {
     features
 }
 
-fit_forward_regression <- function(data) {
+fit_forward_regression <- function(data, boundary_aware = FALSE) {
     if (!"true_h2" %in% names(data)) stop("true_h2 is required to fit forward calibration")
-    scalers <- fit_forward_scalers(data)
+    scalers <- fit_forward_scalers(data, boundary_aware = boundary_aware)
     transformed <- transform_forward_features(data, scalers)
     transformed$true_h2 <- data$true_h2
+    core_terms <- "sqrt_rho + r2 + covariance + sqrt_score_variance + log_nonzero_snps"
+    if (isTRUE(boundary_aware)) {
+        core_terms <- paste(
+            core_terms, "+ near_ceiling + he_excess + high_signal_flag"
+        )
+    }
     if (nrow(data) >= 100L &&
         length(unique(data$n)) > 1L &&
         length(unique(data$num_snps)) > 1L &&
         length(unique(data$ld_rho)) > 1L) {
-        formula <- true_h2 ~
-            (sqrt_rho + r2 + covariance + sqrt_score_variance + log_nonzero_snps) *
-            (n_factor + p_factor + ld_factor)
+        formula <- stats::as.formula(paste(
+            "true_h2 ~ (", core_terms, ") * (n_factor + p_factor + ld_factor)"
+        ))
     } else {
         ## Small deterministic smoke grids cannot support all design interactions.
-        formula <- true_h2 ~ sqrt_rho + r2 + covariance +
-            sqrt_score_variance + log_nonzero_snps
+        formula <- stats::as.formula(paste("true_h2 ~", core_terms))
     }
     fit <- stats::lm(formula, data = transformed)
     list(
         fit = fit,
         scalers = scalers,
-        formula = paste(deparse(formula), collapse = " ")
+        formula = paste(deparse(formula), collapse = " "),
+        boundary_aware = isTRUE(boundary_aware)
     )
 }
 
@@ -680,6 +695,176 @@ fit_affine_level_debiasing <- function(score, truth) {
 
 predict_affine_level_debiasing <- function(model, score) {
     as.numeric(stats::predict(model$fit, newdata = data.frame(forward_score = score)))
+}
+
+fit_two_part_rho_split <- function(data, threshold) {
+    if (!is.finite(threshold) || threshold <= 0 || threshold >= 1) {
+        stop("two-part rho split threshold must be in (0, 1)")
+    }
+    features <- make_forward_features(data)
+    low_index <- features$sqrt_rho <= threshold
+    high_index <- !low_index
+    if (sum(low_index) < 20L || sum(high_index) < 20L) {
+        stop("Insufficient observations on each side of rho split threshold ", threshold)
+    }
+    list(
+        family = "two_part_rho_split",
+        threshold = threshold,
+        low_model = fit_forward_regression(data[low_index, , drop = FALSE]),
+        high_model = fit_forward_regression(data[high_index, , drop = FALSE])
+    )
+}
+
+predict_two_part_rho_split <- function(model, newdata) {
+    features <- make_forward_features(newdata)
+    estimate <- numeric(nrow(newdata))
+    stratum <- character(nrow(newdata))
+    distance <- numeric(nrow(newdata))
+    low_index <- features$sqrt_rho <= model$threshold
+    high_index <- !low_index
+    if (any(low_index)) {
+        low <- predict_forward_regression(model$low_model, newdata[low_index, , drop = FALSE])
+        estimate[low_index] <- low$estimate
+        stratum[low_index] <- low$calibration_stratum
+        distance[low_index] <- low$calibration_distance
+    }
+    if (any(high_index)) {
+        high <- predict_forward_regression(model$high_model, newdata[high_index, , drop = FALSE])
+        estimate[high_index] <- high$estimate
+        stratum[high_index] <- high$calibration_stratum
+        distance[high_index] <- high$calibration_distance
+    }
+    list(
+        estimate = estimate,
+        calibration_stratum = stratum,
+        calibration_distance = distance
+    )
+}
+
+fit_two_part_hurdle_high <- function(data, high_threshold = 0.8) {
+    if (!is.finite(high_threshold) || high_threshold <= 0 || high_threshold >= 1) {
+        stop("hurdle high threshold must be in (0, 1)")
+    }
+    high_index <- data$true_h2 >= high_threshold
+    interior_index <- !high_index
+    if (sum(high_index) < 20L || sum(interior_index) < 20L) {
+        stop("Insufficient observations for hurdle threshold ", high_threshold)
+    }
+    gate_scalers <- fit_forward_scalers(data, boundary_aware = TRUE)
+    gate_features <- transform_forward_features(data, gate_scalers)
+    gate_features$high <- as.integer(high_index)
+    gate <- stats::glm(
+        high ~ sqrt_rho + r2 + covariance + sqrt_score_variance +
+            log_nonzero_snps + near_ceiling + he_excess + high_signal_flag +
+            n_factor + p_factor + ld_factor,
+        data = gate_features,
+        family = stats::binomial()
+    )
+    list(
+        family = "two_part_hurdle_high",
+        high_threshold = high_threshold,
+        gate = gate,
+        gate_scalers = gate_scalers,
+        interior_model = fit_forward_regression(data[interior_index, , drop = FALSE]),
+        high_model = fit_forward_regression(data[high_index, , drop = FALSE])
+    )
+}
+
+predict_two_part_hurdle_high <- function(model, newdata) {
+    gate_features <- transform_forward_features(newdata, model$gate_scalers)
+    p_high <- as.numeric(stats::predict(model$gate, newdata = gate_features, type = "response"))
+    interior <- predict_forward_regression(model$interior_model, newdata)
+    high <- predict_forward_regression(model$high_model, newdata)
+    estimate <- (1 - p_high) * interior$estimate + p_high * high$estimate
+    list(
+        estimate = estimate,
+        calibration_stratum = interior$calibration_stratum,
+        calibration_distance = interior$calibration_distance,
+        p_high = p_high
+    )
+}
+
+resolve_calibration_upper_bound <- function(rule, max_simulated_h2) {
+    if (identical(rule, "one")) return(1)
+    if (identical(rule, "max_simulated_h2")) return(max_simulated_h2)
+    stop("Unknown upper_bound_rule: ", rule)
+}
+
+fit_candidate_forward_score <- function(candidate_id, family, parameter, data) {
+    if (identical(family, "forward_hybrid")) {
+        return(list(
+            candidate_id = candidate_id,
+            family = family,
+            forward_model = fit_forward_regression(data)
+        ))
+    }
+    if (identical(family, "boundary_feature_hybrid")) {
+        return(list(
+            candidate_id = candidate_id,
+            family = family,
+            forward_model = fit_forward_regression(data, boundary_aware = TRUE)
+        ))
+    }
+    if (identical(family, "two_part_rho_split")) {
+        return(c(
+            list(candidate_id = candidate_id),
+            fit_two_part_rho_split(data, as.numeric(parameter))
+        ))
+    }
+    if (identical(family, "two_part_hurdle_high")) {
+        return(c(
+            list(candidate_id = candidate_id),
+            fit_two_part_hurdle_high(data, as.numeric(parameter))
+        ))
+    }
+    stop("Unknown candidate family: ", family)
+}
+
+predict_candidate_forward_score <- function(candidate_model, newdata) {
+    family <- candidate_model$family
+    if (family %in% c("forward_hybrid", "boundary_feature_hybrid")) {
+        return(predict_forward_regression(candidate_model$forward_model, newdata))
+    }
+    if (identical(family, "two_part_rho_split")) {
+        return(predict_two_part_rho_split(candidate_model, newdata))
+    }
+    if (identical(family, "two_part_hurdle_high")) {
+        return(predict_two_part_hurdle_high(candidate_model, newdata))
+    }
+    stop("Unknown candidate family: ", family)
+}
+
+score_hybrid_on_tune <- function(forward_h2, he_h2, truth, upper_bound, weight,
+                                 low_h2_max = 0.10) {
+    estimate <- pmin(upper_bound, (1 - weight) * forward_h2 + weight * he_h2)
+    error <- estimate - truth
+    level <- aggregate(error, by = list(true_h2 = truth), FUN = mean)
+    low <- truth <= low_h2_max
+    low_level <- level[level$true_h2 <= low_h2_max, , drop = FALSE]
+    if (!any(low) || !nrow(low_level)) {
+        stop("No simulations fall in the configured low-h2 range")
+    }
+    null <- estimate[truth == 0]
+    null_se <- if (length(null) > 1L) {
+        stats::sd(null) / sqrt(length(null))
+    } else {
+        NA_real_
+    }
+    data.frame(
+        he_weight = weight,
+        null_mean_estimated_h2 = mean(null),
+        null_mean_standard_error = null_se,
+        null_mean_upper_95 = mean(null) + stats::qnorm(0.95) * null_se,
+        low_h2_absolute_mean_bias = abs(mean(error[low])),
+        max_absolute_low_h2_level_bias = max(abs(low_level$x)),
+        max_absolute_h2_level_bias = max(abs(level$x)),
+        rmse = sqrt(mean(error^2)),
+        absolute_mean_bias = abs(mean(error)),
+        spearman_truth_estimate = suppressWarnings(stats::cor(
+            estimate, truth, method = "spearman"
+        )),
+        stringsAsFactors = FALSE
+    )
 }
 
 finite_sample_upper_threshold <- function(values, alpha = 0.05) {
@@ -718,13 +903,20 @@ calibration_distance <- function(n, p, ld_metric, stratum) {
 predict_calibration <- function(calibration_model, newdata,
                                 raw_metric = calibration_model$raw_metric) {
     required <- c("n", "num_snps", "ld_metric", raw_metric)
-    if (identical(calibration_model$calibration_version, "forward_hybrid_v1")) {
+    hybrid_versions <- c("forward_hybrid_v1", "candidate_hybrid_v1")
+    if (calibration_model$calibration_version %in% hybrid_versions) {
         required <- c(required, "he_h2")
     }
     missing <- setdiff(required, names(newdata))
     if (length(missing)) stop("Calibration input is missing: ", paste(missing, collapse = ", "))
-    if (identical(calibration_model$calibration_version, "forward_hybrid_v1")) {
-        forward <- predict_forward_regression(calibration_model$forward_model, newdata)
+    if (calibration_model$calibration_version %in% hybrid_versions) {
+        if (identical(calibration_model$calibration_version, "candidate_hybrid_v1")) {
+            forward <- predict_candidate_forward_score(
+                calibration_model$candidate_model, newdata
+            )
+        } else {
+            forward <- predict_forward_regression(calibration_model$forward_model, newdata)
+        }
         forward_h2 <- predict_affine_level_debiasing(
             calibration_model$affine_debiasing, forward$estimate
         )

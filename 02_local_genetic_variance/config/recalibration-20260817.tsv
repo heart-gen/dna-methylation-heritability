@@ -8,8 +8,13 @@ zero_prediction_rule	prediction_variance_le_1e-12_implies_rho2_oof_zero	Numerica
 sample_sizes	117,118,153,173,177,282	Exact observed AA and all-individual regional sample sizes
 num_snps	100,500,1500,3000,5000,12000	Covers the observed range and activates training-only screening above 1500 SNPs
 h2_values	0,0.05,0.1,0.2,0.4,0.6,0.8,0.95	Extends calibration toward the high observed signal without assuming h2 equals one
+low_h2_max	0.10	Upper true-h2 boundary for the hard low-signal bias gate
 calibration_replicates_per_stratum	240	Ten replicates per architecture-by-h2 cell
 independent_validation_replicates_per_stratum	120	Five untouched replicates per architecture-by-h2 cell
 simulation_scheduler_unit	10_scenarios_per_array_task	Reduces total Quest jobs; concurrency is only a throttle and is not the launch-footprint correction
 initial_observed_runs	lgv-AA-caudate-20260816,lgv-AA-dlpfc-20260816,lgv-AA-hippocampus-20260816,lgv-all_individuals-caudate-20260816,lgv-all_individuals-dlpfc-20260816,lgv-all_individuals-hippocampus-20260816	Immutable comparison set until a replacement passes every calibration and observed-run gate
 archive_retirement_rule	remove_only_after_replacement_improves_gate_and_preserves_comparison_manifest	Prevents favorable-result replacement and preserves an auditable comparison
+boundary_aware_candidate_menu	config/boundary-aware-candidates.tsv	Prespecified before fresh training; includes baseline, boundary-feature, rho-split two-part, high-h2 hurdle, and clip-at-1 reporting variants
+fresh_training_run_id	lgv-boundary-train-20260818	Calibration-only sims with seed_offset 300000000; never reuses motivating evaluation
+fresh_validation_run_id	lgv-boundary-validate-20260818	Independent evaluation with seed_offset 400000000 against the frozen selected candidate
+protected_motivating_validation	lgv-calibration-all-20260817	Failed expanded-grid validation retained as development evidence only; not used for acceptance

@@ -57,10 +57,11 @@ cis:
   #   1-99 variants  19 VMRs, including six on chr15:22.5-22.9 Mb with exactly
   #                  one variant each.
   #
-  # A single-SNP elastic net is not a broken computation, but it is not the
-  # estimator the variance calibration was built against, so h2_en_calibrated
-  # for such a locus is uninterpretable rather than merely imprecise. Excluding
-  # them is more honest than reporting a number the calibration cannot support.
+  # A single-SNP model is not a broken computation, but it is outside the SNP
+  # opportunity represented by the frozen simulation-calibrated joint model.
+  # Its relative local-control score would therefore be uninterpretable rather
+  # than merely imprecise. Excluding it is more honest than assigning a rank
+  # unsupported by the simulation design.
   #
   # PI decision 2026-08-16. Excluded loci are RECORDED, never silently dropped:
   # they track genomic features rather than occurring at random, so the analyzed
