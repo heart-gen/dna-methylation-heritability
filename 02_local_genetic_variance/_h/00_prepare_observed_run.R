@@ -130,7 +130,21 @@ tasks <- data.frame(
 smoke_n <- as_int(cli$smoke_n, "smoke_n")
 if (smoke_n < 0L) stop("smoke_n cannot be negative")
 smoke_run <- smoke_n > 0L
-if (smoke_run) tasks <- tasks[seq_len(min(smoke_n, nrow(tasks))), , drop = FALSE]
+smoke_selection <- NA_character_
+if (smoke_run) {
+    ## Sample evenly across the catalog rather than taking its head. The catalog
+    ## is sorted by position, so head() always selects the chr1 telomere, where
+    ## cis coverage is at its worst: a two-locus smoke there returned two
+    ## qc_failed rows, zero complete features, and could never reach Stages
+    ## 03-06. Even spacing is deterministic (no RNG, no seed to record),
+    ## reproduces exactly for a given smoke_n, spans chromosomes, and still
+    ## picks up sparse loci at a realistic rate, so both the complete-feature
+    ## and the exclusion paths get exercised.
+    smoke_n <- min(smoke_n, nrow(tasks))
+    idx <- unique(round(seq(1, nrow(tasks), length.out = smoke_n)))
+    tasks <- tasks[idx, , drop = FALSE]
+    smoke_selection <- "evenly_spaced_catalog_positions"
+}
 tasks$task_id <- seq_len(nrow(tasks))
 vmrs_per_chunk <- as_int(cli$vmrs_per_chunk, "vmrs_per_chunk")
 if (vmrs_per_chunk < 1L) stop("vmrs_per_chunk must be positive")
@@ -167,7 +181,7 @@ manifest <- data.frame(
         "run_id", "analysis", "cohort", "region", "started_at",
         "git_commit", "smoke_run", "upstream_vmr_run_id", "vmr_set_id",
         "ordered_donor_checksum", "n_donors", "n_expected_tasks",
-        "vmrs_per_chunk", "n_expected_chunks",
+        "vmrs_per_chunk", "n_expected_chunks", "smoke_selection",
         "joint_model_run_id", "joint_model_path", "joint_model_sha256",
         "development_features_path", "config_joint_sha256",
         "config_relative_score_sha256", "config_thresholds_sha256"
@@ -178,7 +192,8 @@ manifest <- data.frame(
         toupper(as.character(smoke_run)), cli$vmr_run_id,
         manifest_value("vmr_set_id"), manifest_value("donor_checksum"),
         manifest_value("n_donors"), nrow(tasks), vmrs_per_chunk,
-        length(unique(chunk_manifest$chunk_id)), cli$model_run_id,
+        length(unique(chunk_manifest$chunk_id)), smoke_selection,
+        cli$model_run_id,
         normalizePath(model_path), observed_model_sha,
         normalizePath(development_features), sha256_file(joint_config),
         sha256_file(relative_config), sha256_file(threshold_config)
