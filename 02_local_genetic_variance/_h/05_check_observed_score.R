@@ -61,7 +61,17 @@ complete_n <- sum(feature_complete & !computational_failure)
 eligible_n <- sum(eligible)
 eligible_rate <- if (complete_n) eligible_n / complete_n else 0
 eligible_score <- score$local_snp_contribution_score[eligible]
-raw_eligible <- score$pve_cis_joint_calibrated[eligible]
+## Ties are counted on whatever Stage 04 actually ranked, not on the bounded
+## descriptive column.
+score_basis <- if ("local_snp_contribution_score_basis" %in% names(score)) {
+    basis <- unique(as.character(score$local_snp_contribution_score_basis[eligible]))
+    if (length(basis) != 1L) stop("Score input has no unique ranking basis")
+    basis
+} else {
+    stop("Score input lacks local_snp_contribution_score_basis")
+}
+if (!score_basis %in% names(score)) stop("Missing ranking basis column: ", score_basis)
+raw_eligible <- score[[score_basis]][eligible]
 tie_counts <- table(raw_eligible, useNA = "no")
 max_tie_fraction <- if (eligible_n && length(tie_counts)) {
     max(tie_counts) / eligible_n
@@ -106,8 +116,9 @@ checks$detail <- c(
             recon$expected, recon$unique_task_rows, recon$unaccounted),
     sprintf("%d rows flagged", sum(computational_failure)),
     sprintf("%d/%d complete-feature VMRs eligible", eligible_n, complete_n),
-    sprintf("%d unique values; max tie fraction %.4f; boundary rate %.4f",
-            length(unique(eligible_score)), max_tie_fraction, boundary_rate),
+    sprintf("%d unique values on %s; max tie fraction %.4f; boundary rate %.4f",
+            length(unique(eligible_score)), score_basis, max_tie_fraction,
+            boundary_rate),
     "absolute_pve_interpretation_allowed must be FALSE for every row",
     paste(unique(score$local_genetic_control_decision), collapse = ",")
 )
@@ -131,6 +142,7 @@ decision_table <- data.frame(
     absolute_pve_authorized = FALSE,
     expected_vmrs = recon$expected, feature_complete_vmrs = complete_n,
     eligible_vmrs = eligible_n, eligible_rate = eligible_rate,
+    score_basis = score_basis,
     max_tie_fraction = max_tie_fraction, boundary_rate = boundary_rate,
     stringsAsFactors = FALSE
 )
