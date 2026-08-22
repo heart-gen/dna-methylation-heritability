@@ -28,3 +28,5 @@ bslmm_sampling	100000	Locked MCMC sampling steps
 bslmm_rpace	10	Locked MCMC recording pace
 scenarios_per_chunk	5	Quest array chunk size
 max_concurrent	50	Quest concurrency throttle
+joint_model_run_id	lgv-joint-pve-train-20260820	Frozen joint calibrator run; read-only
+joint_model_sha256	9f26c3273746fda85d9bbf21e224857db9a1ad79a521582a12f241854c03223a	Frozen fitted calibrator checksum
