@@ -11,6 +11,7 @@ h_dir <- dirname(script_path)
 source(file.path(h_dir, "00_functions.R"))
 source(file.path(h_dir, "bslmm_pilot_functions.R"))
 source(file.path(h_dir, "joint_pve_functions.R"))
+source(file.path(h_dir, "observed_locus_io.R"))
 
 cli <- parse_cli(list(
     run_dir = "",
@@ -102,117 +103,28 @@ finish <- function(row, status, reason = NA_character_, error = NA_character_,
 
 estimate_task <- function() {
     row <- blank_row()
-    chromosome_label <- sub("^chr", "", task$chrom, ignore.case = TRUE)
-    if (toupper(chromosome_label) %in% c("X", "Y")) {
-        return(finish(row, "excluded", "non_autosomal_vmr"))
-    }
-    chromosome_dir <- paste0("chr_", chromosome_label)
-    stem <- paste0(task$start, "_", task$end)
-    bed <- file.path(
-        vmr_run_dir, "plink_format", chromosome_dir,
-        paste0("TOPMed_LIBD-", mval("cohort"), ".", stem, ".bed")
+    locus <- load_observed_locus(
+        task = task, cohort = mval("cohort"), vmr_run_dir = vmr_run_dir,
+        min_cis_variants = min_cis_variants,
+        expected_n = as_int(mval("n_donors"), "n_donors"),
+        backing_tag = paste0("lgv-", task_id)
     )
-    no_snp <- sub("\\.bed$", ".no-snps", bed)
-    if (!file.exists(bed)) {
-        if (file.exists(no_snp)) {
-            return(finish(row, "qc_failed",
-                          "no_snp_in_prespecified_cis_window"))
+    if (!identical(locus$status, "ok")) {
+        if (!is.null(locus$snps_in_window)) {
+            row$snps_in_window <- as.integer(locus$snps_in_window)
         }
-        stop("Missing PLINK BED: ", bed)
+        return(finish(row, locus$status, locus$reason))
     }
-    prefix <- if (identical(mval("cohort"), "AA")) {
-        "TOPMed_LIBD.AA"
-    } else {
-        "TOPMed_LIBD"
-    }
-    phenotype_path <- file.path(
-        vmr_run_dir, "vmr", "phenotypes",
-        paste0(task$chrom, "_", stem, "_meth.phen")
-    )
-    covar_path <- file.path(vmr_run_dir, "covs", chromosome_dir,
-                            paste0(prefix, ".covar"))
-    qcovar_path <- file.path(vmr_run_dir, "covs", chromosome_dir,
-                             paste0(prefix, ".qcovar"))
-    for (path in c(phenotype_path, covar_path, qcovar_path)) {
-        if (!file.exists(path)) stop("Missing observed input: ", path)
-    }
-
-    if (!requireNamespace("bigsnpr", quietly = TRUE)) {
-        stop("bigsnpr is required")
-    }
-    backing <- tempfile(pattern = paste0("lgv-", task_id, "-"))
-    rds <- bigsnpr::snp_readBed(bed, backingfile = backing)
-    obj <- bigsnpr::snp_attach(rds)
-    on.exit(unlink(c(obj$genotypes$backingfile, obj$genotypes$rds), force = TRUE),
-            add = TRUE)
-    genotype <- as.matrix(obj$genotypes[])
-    map <- obj$map
-    if (!all(c("chromosome", "physical.pos") %in% names(map))) {
-        stop("PLINK map lacks chromosome or physical.pos")
-    }
-    window_bp <- 500000L
-    window_start <- max(1L, as.integer(task$start) - window_bp)
-    window_end <- as.integer(task$end) + window_bp
-    map_chr <- sub("^chr", "", as.character(map$chromosome), ignore.case = TRUE)
-    in_window <- map_chr == chromosome_label &
-        map$physical.pos >= window_start & map$physical.pos <= window_end
-    if (!any(in_window)) {
-        return(finish(row, "qc_failed",
-                      "no_snp_in_prespecified_cis_window"))
-    }
-    genotype <- genotype[, in_window, drop = FALSE]
-    row$snps_in_window <- ncol(genotype)
-    missingness <- colMeans(is.na(genotype))
-    af <- colMeans(genotype, na.rm = TRUE) / 2
-    maf <- pmin(af, 1 - af)
-    keep_snp <- is.finite(maf) & maf >= 0.05 &
-        is.finite(missingness) & missingness <= 0.05
-    genotype <- genotype[, keep_snp, drop = FALSE]
+    genotype <- locus$genotype
+    y <- locus$y
+    covariates <- locus$covariates
+    row$snps_in_window <- as.integer(locus$snps_in_window)
     row$num_snps <- row$n_variants <- ncol(genotype)
-    if (ncol(genotype) < min_cis_variants) {
-        return(finish(row, "qc_failed", "fewer_than_min_cis_variants"))
-    }
-
-    fam <- obj$fam[, 1:2, drop = FALSE]
-    names(fam) <- c("FID", "IID")
-    fam$FID <- as.character(fam$FID)
-    fam$IID <- as.character(fam$IID)
-    phenotype <- read.table(phenotype_path, header = FALSE,
-                            stringsAsFactors = FALSE)
-    names(phenotype) <- c("FID", "IID", "phenotype")
-    covar <- read.table(covar_path, header = FALSE, stringsAsFactors = FALSE)
-    names(covar) <- c("FID", "IID", "sex", "diagnosis")
-    qcovar <- read.table(qcovar_path, header = FALSE, stringsAsFactors = FALSE)
-    names(qcovar) <- c("FID", "IID", "age")
-    metadata <- Reduce(
-        function(x, y) merge(x, y, by = c("FID", "IID"), all = FALSE),
-        list(fam, phenotype, covar, qcovar)
-    )
-    metadata$key <- paste(metadata$FID, metadata$IID, sep = "::")
-    fam$key <- paste(fam$FID, fam$IID, sep = "::")
-    row_index <- match(metadata$key, fam$key)
-    if (anyNA(row_index) || anyDuplicated(metadata$key)) {
-        stop("Donor alignment failed or produced duplicate IDs")
-    }
-    genotype <- genotype[row_index, , drop = FALSE]
-    keep_sample <- is.finite(as.numeric(metadata$phenotype)) &
-        is.finite(as.numeric(metadata$age)) &
-        !is.na(metadata$sex) & !is.na(metadata$diagnosis)
-    metadata <- metadata[keep_sample, , drop = FALSE]
-    genotype <- genotype[keep_sample, , drop = FALSE]
-    if (nrow(genotype) != as_int(mval("n_donors"), "n_donors")) {
-        stop("Observed donor count differs from locked design: ", nrow(genotype),
-             " versus ", mval("n_donors"))
-    }
-    y <- as.numeric(metadata$phenotype)
-    covariates <- stats::model.matrix(
-        ~ age + factor(sex) + factor(diagnosis), data = metadata
-    )[, -1L, drop = FALSE]
+    row$plink_source <- locus$plink_source
+    row$phenotype_source <- locus$phenotype_source
     row$n <- row$samples <- nrow(genotype)
     row$mean_methylation <- mean(y)
     row$methylation_variance <- stats::var(y)
-    row$plink_source <- normalizePath(bed)
-    row$phenotype_source <- normalizePath(phenotype_path)
 
     en <- crossfit_elastic_net(
         genotype = genotype, phenotype = y, covariates = covariates,
