@@ -142,6 +142,57 @@ Do not submit production until the intended run IDs and available Quest
 allocation are reviewed. A completed SLURM job is not acceptance; Stage 05 must
 pass and the accepted run must be entered below.
 
+## Observed-regime diagnostic grid (`07..09`)
+
+The frozen joint model was calibrated on AR(1)-simulated genotypes. Their
+effective dimension is far higher than any real cis-window at n = 153:
+simulated `p_eff` runs 24.3--274.4 (median 116.4) while observed `p_eff` runs
+3.5--81.2 (median 37.2). The AR(1) grid therefore never covered the regime the
+production run actually occupies, and `joint_pve_domain_status` does not test
+`p_eff`, so it reported `within_domain` for all 11,239 eligible loci while
+56.4% of them produced an unbounded estimate below the global minimum
+(-0.0584) of all 12,960 validation simulations.
+
+`07..09` close that gap without touching the estimator. Each scenario keeps a
+real VMR's genotype, covariates and donor alignment and replaces only the
+methylation phenotype with one simulated at a known true PVE, so `n`,
+`num_snps`, LD and `p_eff` are the observed values by construction.
+`_h/observed_locus_io.R` is the single locus reader shared with Stage 01, so
+the two paths cannot drift.
+
+| Script | Role |
+| --- | --- |
+| `07_make_observed_regime_manifest.R` | Opens the run; samples 192 real loci across 4 x 4 `num_snps` x `p_eff` quartile strata; crosses them with the frozen 8-PVE x 3-architecture grid x 2 replicates (9,216 scenarios) |
+| `08_run_observed_regime_scenario.R` | Computes the four raw joint features per scenario chunk, caching the locus genotype |
+| `09_summarize_observed_regime.R` | Reconciles, applies the frozen model unmodified, and writes the boundary-rate, rank-information and verdict tables |
+
+Launch with `_h/submit_observed_regime_grid.sh`; config is
+`config/observed-regime-20260822.tsv` (locked 2026-08-22,
+`model_changed=FALSE`, `criteria_changed=FALSE`, fresh seed block 900000000).
+
+The grid answers two questions the AR(1) grid could not:
+
+1. Is the observed 62.7% lower-boundary rate reproduced on real cis-window
+   genotypes at the observed sample size? In simulation it is not: the maximum
+   over any n x PVE x architecture cell is 8.9%.
+2. Below the boundary, does `pve_cis_joint_unbounded` still order loci by true
+   PVE? On the AR(1) grid it does not (Spearman -0.0025, bootstrap 95% CI
+   [-0.133, 0.131], AUC 0.487).
+
+This grid is diagnostic. It authorises no scoring change on its own; Stage 04
+still ranks on `pve_cis_joint_calibrated` and must not be changed before
+`results/combined/regime-verdict.tsv` is read.
+
+Stage 01 was refactored onto the shared reader on 2026-08-22. Rerunning task 3
+of `lgv-AA-caudate-20260822` reproduced its stored row on every scientific
+field; only `bslmm_elapsed_sec` (wall clock) differed.
+
+### Do not edit `_h/` while an array is in flight
+
+Four Stage 01 tasks of `lgv-AA-caudate-20260822` failed with
+`cannot open file '01_estimate_observed_joint_features.R'` because a git
+operation rewrote the script underneath the running array.
+
 ## Scheduler-safe reorganization
 
 Before the 2026-08-21 reorganization, `squeue -u $USER` showed no running or
