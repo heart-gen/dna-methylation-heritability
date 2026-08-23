@@ -273,21 +273,83 @@ the domain gate does not reject them. `p_eff` is the arm that will move: the
 AA dlpfc geometry smoke returned `p_eff` around 18--20 against an AR(1)
 minimum of 24.9, so the mismatch is not specific to caudate.
 
-### Sequence still to run
+### Characterized support widened over all six grids (2026-08-23)
 
-1. Read each cell's `results/combined/regime-verdict.tsv` and confirm the
-   reconciliation is clean (9,216 of 9,216, zero unaccounted).
-2. Regenerate `config/joint-pve-characterized-support.tsv` with
-   `_h/10_write_characterized_support.R` extended over all six grids. Its
-   current contents are the union of the AR(1) grid and caudate AA only.
-3. Re-run Stages 03--06 for `lgv-AA-caudate-20260822` against the widened
-   support, because its accepted numbers were produced under the narrower one.
-4. Submit the five production runs with
-   `_h/submit_observed_local_control.sh`.
+All six observed-regime grids completed at 9,216/9,216 scenarios with zero
+unaccounted scenarios and zero computational failures, and
+`sub_boundary_rank_informative` is TRUE in every cell. The clipping cost
+reproduces cohort-wide -- Spearman at true h2 <= 0.1, unbounded versus clipped:
 
-Until step 2 lands, any run's domain decision must be read against the
+| cell | overall (unbnd/clip) | low h2 (unbnd/clip) |
+| --- | --- | --- |
+| AA caudate | 0.939 / 0.922 | 0.312 / 0.059 |
+| AA dlpfc | 0.924 / 0.910 | 0.248 / 0.077 |
+| AA hippocampus | 0.923 / 0.908 | 0.241 / 0.030 |
+| all_individuals caudate | 0.962 / 0.942 | 0.442 / 0.044 |
+| all_individuals dlpfc | 0.946 / 0.933 | 0.328 / 0.050 |
+| all_individuals hippocampus | 0.949 / 0.933 | 0.350 / 0.070 |
+
+`boundary_rate_reproduced` is FALSE for the five new cells only because
+`observed_boundary_rate` is NA there -- those cells had no production run when
+the grid was summarized, so the comparison had no left-hand side. It becomes
+evaluable once the 2026-08-23 production runs land. AA caudate, the only cell
+with a production run at the time, reports TRUE.
+
+`_h/10_write_characterized_support.R` now takes a comma-separated
+`--regime-run-id` list and unions the AR(1) training grid with all six
+observed-regime grids. The support widened to:
+
+| feature | before | after |
+| --- | --- | --- |
+| num_snps | [100, 12000] | [100, 12000] |
+| p_eff | [7.578, 274.458] | [2.058, 274.458] |
+| ld_metric | [0.01183, 0.41251] | [0.01183, 1.0] |
+
+`allowed_n` is now `117,118,153,173,177,282`.
+
+Both new extremes come from one pair of loci at chr17:45.58-45.59 Mb -- the
+17q21.31 MAPT inversion, where recombination suppression makes the cis-window
+effectively two haplotypes (p_eff ~ 2, adjacent LD 1.0). These are real
+genotype geometry, not a QC artifact: both loci converged on every estimator
+and the frozen model ranks them against true PVE at Spearman 0.984 and 0.973.
+The support is therefore the raw union, untrimmed.
+
+## Production runs 2026-08-23
+
+Because run directories are permission-locked immutable, the caudate run was
+not re-scored in place. All six cells were submitted fresh as
+`lgv-<cohort>-<region>-20260823`, so every cell carries identical provenance
+and pins the same widened support
+(`config_characterized_support_sha256 = f52026944b0346fa928a5e5cb9293dc742d2d4f5c8bacfea9913ec8854d2d9f7`).
+
+Under the widened support, AA caudate's domain exclusions fall from 111 to 2
+and its within-domain rate rises from 0.9902 to 0.99982; the other five cells'
+locus geometry covers the low-`p_eff` and high-LD tail that the caudate-only
+support had excluded.
+
+`lgv-AA-caudate-20260822` is superseded and must not be entered in the
+accepted-runs table.
+
+## Sequence still to run
+
+Steps 1--4 of the previous sequence are complete: all six grids reconciled
+clean, the support was regenerated over all six, and all six production runs
+were submitted as `lgv-<cohort>-<region>-20260823` (which supersedes re-scoring
+the 2026-08-22 caudate run in place). What remains:
+
+1. When the six production chains finish, confirm Stage 05 returns
+   `PASS_RELATIVE_SCORE_OBSERVED_QC` for each cell and that reconciliation
+   reports zero unaccounted tasks.
+2. Check `boundary_rate_reproduced` for the five cells that could not evaluate
+   it: re-read each observed boundary rate against its cell's regime curve now
+   that a production run exists.
+3. Hand-enter the accepted runs in the accepted-runs table below. AGENTS.md
+   section 6 makes this a human step, and no downstream module may read
+   Module 02 until it is done.
+
+Any run's domain decision must be read against the
 `config_characterized_support_sha256` recorded in its own manifest, not
-against the working-tree file.
+against the working-tree file, which widens as cells are added.
 
 ## Scheduler-safe reorganization
 
