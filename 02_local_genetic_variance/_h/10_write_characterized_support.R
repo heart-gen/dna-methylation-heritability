@@ -10,9 +10,11 @@
 ## produced an unbounded estimate below the global minimum of every training
 ## simulation.
 ##
-## The 2026-08-22 observed-regime grid characterises the same frozen model on
-## real cis-window genotypes, so the defensible support is the union of the two
-## grids. This script writes that union; it changes no estimator.
+## The 2026-08-22 observed-regime grids characterise the same frozen model on
+## real cis-window genotypes, one grid per cohort x region cell, so the
+## defensible support is the union of the AR(1) training grid and every
+## observed-regime grid. This script writes that union; it changes no
+## estimator.  --regime-run-id takes a comma-separated list of run IDs.
 
 args <- commandArgs(trailingOnly = FALSE)
 file_arg <- grep("^--file=", args, value = TRUE)
@@ -24,22 +26,38 @@ repo_root <- normalizePath(file.path(h_dir, "..", ".."))
 module_root <- file.path(repo_root, "02_local_genetic_variance")
 cli <- parse_cli(list(
     development_run_id = "lgv-joint-pve-train-20260820",
-    regime_run_id = "lgv-observed-regime-20260822",
+    regime_run_id = paste(c(
+        "lgv-observed-regime-20260822",
+        "lgv-observed-regime-AA-dlpfc-20260822",
+        "lgv-observed-regime-AA-hippocampus-20260822",
+        "lgv-observed-regime-all_individuals-caudate-20260822",
+        "lgv-observed-regime-all_individuals-dlpfc-20260822",
+        "lgv-observed-regime-all_individuals-hippocampus-20260822"
+    ), collapse = ","),
     output = file.path(module_root, "config",
                        "joint-pve-characterized-support.tsv")
 ))
 runs_root <- file.path(module_root, "_m", "runs")
 development_path <- file.path(runs_root, cli$development_run_id, "combined",
                               "development-features.tsv")
-regime_path <- file.path(runs_root, cli$regime_run_id, "results", "combined",
-                         "observed-regime-estimates.tsv")
-for (path in c(development_path, regime_path)) {
+regime_run_ids <- trimws(strsplit(cli$regime_run_id, ",", fixed = TRUE)[[1L]])
+regime_run_ids <- regime_run_ids[nzchar(regime_run_ids)]
+if (!length(regime_run_ids)) stop("No observed-regime run IDs supplied")
+regime_paths <- file.path(runs_root, regime_run_ids, "results", "combined",
+                          "observed-regime-estimates.tsv")
+names(regime_paths) <- regime_run_ids
+for (path in c(development_path, regime_paths)) {
     if (!file.exists(path)) stop("Missing characterization input: ", path)
 }
 development <- read_tsv(development_path)
 development <- development[development$feature_complete %in% TRUE, , drop = FALSE]
-regime <- read_tsv(regime_path)
-regime <- regime[regime$feature_complete %in% TRUE, , drop = FALSE]
+regime_parts <- lapply(regime_run_ids, function(run_id) {
+    part <- read_tsv(regime_paths[[run_id]])
+    part <- part[part$feature_complete %in% TRUE, , drop = FALSE]
+    if (!nrow(part)) stop("Observed-regime grid is empty: ", run_id)
+    part[, c("num_snps", "p_eff", "ld_metric", "n"), drop = FALSE]
+})
+regime <- do.call(rbind, regime_parts)
 if (!nrow(development) || !nrow(regime)) stop("A characterization grid is empty")
 
 sha256 <- function(path) {
@@ -63,9 +81,10 @@ records <- lapply(fields, function(field) {
 })
 support <- do.call(rbind, records)
 support$development_run_id <- cli$development_run_id
-support$regime_run_id <- cli$regime_run_id
+support$regime_run_id <- paste(regime_run_ids, collapse = ",")
 support$development_sha256 <- sha256(development_path)
-support$regime_sha256 <- sha256(regime_path)
+support$regime_sha256 <- paste(vapply(regime_paths, sha256, character(1L)),
+                               collapse = ",")
 support$allowed_n <- paste(sort(unique(c(as.integer(development$n),
                                          as.integer(regime$n)))),
                            collapse = ",")
