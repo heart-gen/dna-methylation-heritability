@@ -28,3 +28,4 @@ inputs/brainscope/_m/OPC.PeakCalls.bed filter=lfs diff=lfs merge=lfs -text
 inputs/brainscope/_m/High_ABC_results_CPM1only_Concise_RK_7_8_21.csv filter=lfs diff=lfs merge=lfs -text
 inputs/brainscope/_m/PeakInfoDetailed_210832_OCRs.csv filter=lfs diff=lfs merge=lfs -text
 inputs/supportfiles/_m/repeat-masker-hg38.gz filter=lfs diff=lfs merge=lfs -text
+02_local_genetic_variance/_m/combined/calibrated-local-h2-all-cells.tsv filter=lfs diff=lfs merge=lfs -text
