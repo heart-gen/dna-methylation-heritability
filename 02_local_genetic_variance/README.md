@@ -330,26 +330,55 @@ support had excluded.
 `lgv-AA-caudate-20260822` is superseded and must not be entered in the
 accepted-runs table.
 
+## Production runs 2026-08-23: all six cells pass
+
+All six cells return `PASS_RELATIVE_SCORE_OBSERVED_QC` on all six criteria,
+with zero unaccounted tasks and zero computational failures, and all six run
+directories are finalized and permission-locked.
+
+| cell | expected | eligible | within-domain | boundary rate | max tie |
+| --- | --- | --- | --- | --- | --- |
+| AA caudate | 11,530 | 11,341 | 0.99982 | 0.6263 | 0.0001 |
+| AA dlpfc | 9,572 | 9,341 | 0.99936 | 0.6225 | 0.0001 |
+| AA hippocampus | 9,497 | 9,265 | 0.99925 | 0.5907 | 0.0001 |
+| all_individuals caudate | 11,463 | 11,238 | 0.99956 | 0.5707 | 0.0001 |
+| all_individuals dlpfc | 9,374 | 9,125 | 0.99912 | 0.5613 | 0.0001 |
+| all_individuals hippocampus | 9,365 | 9,120 | 0.99923 | 0.5512 | 0.0001 |
+
+`score_basis` is `pve_cis_joint_unbounded` in every cell.
+
+`boundary_rate_reproduced` now evaluates TRUE in all six: each observed
+boundary rate falls inside its own cell's simulated curve, between the
+regime-wide overall rate and the maximum cell rate. The observed rates
+(0.551--0.626) sit well below the low-h2 plateau (~0.99), which is what an
+expected resolution limit looks like rather than a simulation-to-data mismatch.
+
+### Seed-overflow defect found and fixed
+
+The first submission failed two cells on `zero_computational_failures` only.
+`stable_seed()` reduces modulo 2147483629, only 18 below
+`.Machine$integer.max`, and `00_functions.R` derived per-repeat and per-fold
+seeds by addition (`seed + repeat_id * 1009L`, `+ fold * 9173L`). A base seed
+in the top band overflowed to NA and `set.seed(NA)` threw. Three loci died this
+way: chr3:131957079-131957863 and chr9:136552488-136552675 in AA caudate,
+chr11:59101497-59102234 in all_individuals dlpfc. The failure is deterministic,
+so a plain resubmission would have reproduced it.
+
+`offset_seed()` now does the arithmetic in double precision and takes one
+modulo. Verified across all 60,801 loci and every repeat/fold offset in use:
+363 previously-NA derived seeds become valid and zero previously-working seeds
+change, so the four already-passing cells are bit-identical under the fix.
+
 ## Sequence still to run
 
-Steps 1--4 of the previous sequence are complete: all six grids reconciled
-clean, the support was regenerated over all six, and all six production runs
-were submitted as `lgv-<cohort>-<region>-20260823` (which supersedes re-scoring
-the 2026-08-22 caudate run in place). What remains:
-
-1. When the six production chains finish, confirm Stage 05 returns
-   `PASS_RELATIVE_SCORE_OBSERVED_QC` for each cell and that reconciliation
-   reports zero unaccounted tasks.
-2. Check `boundary_rate_reproduced` for the five cells that could not evaluate
-   it: re-read each observed boundary rate against its cell's regime curve now
-   that a production run exists.
-3. Hand-enter the accepted runs in the accepted-runs table below. AGENTS.md
-   section 6 makes this a human step, and no downstream module may read
-   Module 02 until it is done.
+1. Hand-enter the six 2026-08-23 runs in the accepted-runs table below.
+   AGENTS.md section 6 makes this a human step, and no downstream module may
+   read Module 02 until it is done. `lgv-AA-caudate-20260822` is superseded and
+   must not be entered.
 
 Any run's domain decision must be read against the
-`config_characterized_support_sha256` recorded in its own manifest, not
-against the working-tree file, which widens as cells are added.
+`config_characterized_support_sha256` recorded in its own manifest, not against
+the working-tree file, which widens as cells are added.
 
 ## Scheduler-safe reorganization
 
