@@ -2,8 +2,8 @@
 #
 # STUB. 04 is not implemented; gated on 02 acceptance (AGENTS.md 6).
 #
-# AGENTS.md 7.4: the primary predictor is standardized continuous
-# h2_en_calibrated among interpretable loci; r2_pred_oof is secondary. Overlap
+# The primary predictor is the standardized continuous within-cell local SNP
+# contribution score among eligible loci; r2_pred_oof is secondary. Overlap
 # alone never implies activity, expression, or retrotransposition.
 
 pi_locked: false

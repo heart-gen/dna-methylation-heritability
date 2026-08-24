@@ -1,0 +1,22 @@
+setting	value	description
+sample_sizes	117,118,153,173,177,282	Locked Module 02 observed regional sample sizes
+num_snps	100,500,1500,3000,5000,12000	Locked Module 02 local SNP-count grid
+ld_rho	0.2,0.5,0.8	Locked Module 02 AR(1) LD grid
+architectures	sparse,oligogenic,polygenic	Locked causal architectures
+h2_values	0,0.05,0.1,0.2,0.4,0.6,0.8,0.95	Locked conditional local SNP-variance grid
+evaluation_replicates_per_stratum	120	Independent validation: 5 per architecture-by-h2 cell within each N/SNP/LD stratum
+base_seed	20250805	Same base seed family as Module 02 analysis.tsv
+seed_offset	300000000	BSLMM validation-only offset (does not collide with EN calibration/evaluation)
+gemma_bin	/projects/p32505/opt/bin/gemma	Pinned GEMMA binary
+bslmm_mode	1	GEMMA -bslmm 1
+bslmm_burn_in	10000	Validation MCMC burn-in
+bslmm_sampling	100000	Validation MCMC sampling steps
+bslmm_rpace	10	MCMC recording pace
+scenarios_per_array_task	5	Chunk size for SLURM array tasks
+max_concurrent	50	Array concurrency throttle
+acceptance_criteria_relpath	config/acceptance-criteria.tsv	Absolute Module 02 acceptance criteria
+min_within_domain_rate	0.90	Analog of gates.max_outside_calibration_domain (1-0.10)
+max_computational_failure_rate	0	Zero unexplained computational failures
+positive_signal_rule	mcmc_lower_gt_0	Null type-I: bslmm_pve_q025 > 0
+high_dim_num_snps_min	5000	High-dimensional audit floor
+low_pve_max	0.1	Null/low-PVE audit ceiling for stratified bias

@@ -1,0 +1,31 @@
+setting	value	description
+sample_sizes	117,153,282	Min/mid/max observed regional sample sizes
+num_snps	100,500,1500,5000,12000	Representative local SNP counts spanning the screen and high-p regimes
+ld_rho	0.5	Primary AR(1) LD for the paired screen
+architectures	sparse,oligogenic,polygenic	Causal architectures
+h2_values	0,0.1,0.2,0.4,0.6,0.8,0.95	True conditional local SNP variance
+replicates_per_cell	15	Replicates per fully crossed design cell
+base_seed	20260817	Deterministic seed base for the pilot
+outer_folds	5	Must match frozen EN estimator settings
+outer_repeats	2	Must match frozen EN estimator settings
+inner_folds	5	Must match frozen EN estimator settings
+alpha_grid	0.1,0.5,1	Must match frozen EN estimator settings
+lambda_rule	lambda.1se	Must match frozen EN estimator settings
+max_features	1500	Must match frozen EN estimator settings
+raw_metric	rho2_oof	Must match frozen EN estimator settings
+max_design_distance	1.25	Must match frozen EN estimator settings
+calibration_model_relpath	_m/calibration_frozen/elastic-net-calibration.rds	Frozen accepted EN calibration model
+expected_calibration_sha256	bbe9f9f3e897b19c536078c20e6bd50a2f5ea385ab1c1258039974ced855e389	SHA-256 of the accepted frozen model
+gemma_bin	/projects/p32505/opt/bin/gemma	Pinned GEMMA binary
+bslmm_mode	1	GEMMA -bslmm 1
+bslmm_burn_in	10000	Pilot MCMC burn-in (not a production BSLMM lock)
+bslmm_sampling	100000	Pilot MCMC sampling steps
+bslmm_rpace	10	MCMC recording pace
+scenarios_per_array_task	5	Chunk size for SLURM array tasks
+max_concurrent	50	Array concurrency throttle
+rmse_relative_improvement_min	0.20	Go/no-go: BSLMM RMSE must improve by at least this relative fraction vs paired EN
+stress_bias_improvement_min	0.05	Go/no-go: absolute-mean-bias improvement in the stress stratum
+stress_architecture	polygenic	Stress stratum architecture
+stress_num_snps_min	5000	Stress stratum minimum SNP count
+stress_h2_min	0.4	Stress stratum minimum true h2
+max_failure_rate_delta	0.05	Go/no-go: BSLMM failure rate may not exceed EN by more than this

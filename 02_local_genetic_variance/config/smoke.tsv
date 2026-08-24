@@ -4,6 +4,7 @@ num_snps	24	Small smoke-test SNP count
 ld_rho	0.4	Single smoke-test LD value
 architectures	sparse,polygenic	Smoke-test architectures
 h2_values	0,0.3,0.6	Smoke-test h2 values
+low_h2_max	0.10	Upper true-h2 boundary for the hard low-signal bias gate; smoke runs test execution only
 calibration_replicates_per_stratum	12	Smoke-test calibration replicates
 evaluation_replicates_per_stratum	6	Smoke-test evaluation replicates
 outer_folds	3	Smoke-test outer folds

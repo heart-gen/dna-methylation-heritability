@@ -1,0 +1,8 @@
+candidate_id	family	parameter	upper_bound_rule	rationale
+forward_hybrid_v1	forward_hybrid		max_simulated_h2	Locked baseline: pooled forward interaction, affine level debiasing, HE control variate, clip at max simulated h2
+boundary_feature_hybrid_v1	boundary_feature_hybrid		max_simulated_h2	Adds ceiling-proximity and HE-excess features so attenuation near the upper domain is visible to the forward map
+two_part_rho_split_0.45	two_part_rho_split	0.45	max_simulated_h2	Separate forward maps below/above sqrt(rho2_oof)=0.45; motivated by upper-boundary concentration at high held-out signal
+two_part_rho_split_0.55	two_part_rho_split	0.55	max_simulated_h2	Prespecified alternative split at 0.55
+two_part_rho_split_0.65	two_part_rho_split	0.65	max_simulated_h2	Prespecified alternative split at 0.65
+two_part_hurdle_high_0.8	two_part_hurdle_high	0.8	max_simulated_h2	Logistic gate for true_h2>=0.8 plus separate interior and high-regime forward maps; addresses max level bias at 0.8/0.95
+forward_hybrid_clip1_v1	forward_hybrid		one	Same baseline forward/HE hybrid but reporting clip at 1 rather than max simulated h2

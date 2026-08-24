@@ -1,0 +1,275 @@
+#!/bin/bash
+#SBATCH --account=p32505
+#SBATCH --partition=short
+#SBATCH --job-name=cal_h2_vmr
+#SBATCH --output=calibrated-simulation-analysis/_m/logs/%x.%A_%a.log
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=1
+#SBATCH --mem=4G
+# A chunk is VMRS_PER_ARRAY_TASK sequential VMRs. On lgv-AA-caudate-20260816
+# (25 VMRs/chunk, n=153 donors) chunk runtime was mean 8.0 min, max 11.4 min, so
+# 1 h is ~5x the observed worst case and gets the job into a shorter scheduling
+# tier. The all_individuals arms carry ~1.8x the donors, so watch the first
+# chunks there: raise this or lower VMRS_PER_ARRAY_TASK if they approach 1 h.
+#SBATCH --time=01:00:00
+
+set -euo pipefail
+
+if [[ -n "${CAL_H2_SCRIPT_DIR:-}" ]]; then
+    SCRIPT_DIR=$(readlink -f "${CAL_H2_SCRIPT_DIR}")
+elif [[ -n "${SLURM_SUBMIT_DIR:-}" &&
+        -d "${SLURM_SUBMIT_DIR}/calibrated-simulation-analysis/_h" ]]; then
+    SCRIPT_DIR=$(readlink -f \
+        "${SLURM_SUBMIT_DIR}/calibrated-simulation-analysis/_h")
+else
+    SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+fi
+ANALYSIS_DIR=${CAL_H2_ANALYSIS_DIR:-$(cd "${SCRIPT_DIR}/.." && pwd)}
+if [[ ! -f "${SCRIPT_DIR}/04_estimate_observed_vmr.R" ]]; then
+    echo "Analysis script is missing from SCRIPT_DIR: ${SCRIPT_DIR}" >&2
+    exit 1
+fi
+ENV_PATH=${CAL_H2_ENV:-/projects/p32505/opt/envs/calibrated-local-h2}
+REPO_ROOT=${CAL_H2_REPO_ROOT:-$(cd "${ANALYSIS_DIR}/.." && pwd)}
+CALIBRATION_MODEL=${CAL_H2_CALIBRATION_MODEL:?CAL_H2_CALIBRATION_MODEL must be set}
+OUTPUT_ROOT=${CAL_H2_OBSERVED_OUTPUT_ROOT:?CAL_H2_OBSERVED_OUTPUT_ROOT must be set}
+# The legacy roots are the fallback for a legacy run ONLY. When
+# CAL_H2_VMR_RUN_DIR is set, every input comes from inside that accepted catalog run,
+# and 04_estimate_observed_vmr.R selects the in-run layout by seeing an EMPTY
+# plink_root. `:-` substitutes on empty as well as unset, so an explicitly empty
+# CAL_H2_PLINK_ROOT was silently replaced by the legacy path here and 43 of 50
+# tasks in the first corrected-catalog smoke went looking in
+# vmr-analysis/all_individuals for an AA caudate window that only exists in the
+# accepted run. Leave these empty for current runs.
+if [[ -n "${CAL_H2_VMR_RUN_DIR:-}" ]]; then
+    PLINK_ROOT=${CAL_H2_PLINK_ROOT:-}
+    PGEN_ROOT=${CAL_H2_PGEN_ROOT:-}
+    PHENOTYPE_ROOT=${CAL_H2_PHENOTYPE_ROOT:-}
+else
+    PLINK_ROOT=${CAL_H2_PLINK_ROOT:-/projects/b1213/users/alexis/projects/dna-methylation-heritability/vmr-analysis/all_individuals}
+    PGEN_ROOT=${CAL_H2_PGEN_ROOT:-/projects/b1213/users/alexis/projects/dna-methylation-heritability/inputs/genotypes/all_individuals}
+    PHENOTYPE_ROOT=${CAL_H2_PHENOTYPE_ROOT:-/projects/b1213/users/alexis/projects/dna-methylation-heritability/vmr-analysis/all_individuals}
+fi
+RECOVERED_PLINK_ROOT=${CAL_H2_RECOVERED_PLINK_ROOT:-}
+WRITE_DIAGNOSTICS=${CAL_H2_WRITE_DIAGNOSTICS:-FALSE}
+# config/thresholds.yml cis.min_cis_variants. Passed explicitly so the value the
+# run used is visible in the job log and recorded in each locus manifest, rather
+# than resting on the script default.
+MIN_CIS_VARIANTS=${CAL_H2_MIN_CIS_VARIANTS:-100}
+: "${REGION:?REGION must be set}"
+: "${POPULATION:?POPULATION must be set}"
+
+export OMP_NUM_THREADS=${SLURM_CPUS_PER_TASK:-1}
+export MKL_NUM_THREADS=${SLURM_CPUS_PER_TASK:-1}
+export OPENBLAS_NUM_THREADS=${SLURM_CPUS_PER_TASK:-1}
+
+ARRAY_INDEX=${SLURM_ARRAY_TASK_ID:?SLURM_ARRAY_TASK_ID must be set}
+CHUNK_MANIFEST=${CAL_H2_CHUNK_MANIFEST:?CAL_H2_CHUNK_MANIFEST must be set}
+CHUNK_SET_ID=${CAL_H2_CHUNK_SET_ID:-initial}
+if [[ ! -s "${CHUNK_MANIFEST}" ]]; then
+    echo "Chunk manifest is missing: ${CHUNK_MANIFEST}" >&2
+    exit 1
+fi
+if [[ ! "${CHUNK_SET_ID}" =~ ^[A-Za-z0-9._-]+$ ]]; then
+    echo "CAL_H2_CHUNK_SET_ID contains unsupported characters: ${CHUNK_SET_ID}" >&2
+    exit 1
+fi
+mapfile -t TASK_IDS < <(awk -F '\t' -v chunk="${ARRAY_INDEX}" \
+    'NR > 1 && $1 == chunk {print $2}' "${CHUNK_MANIFEST}")
+if (( ${#TASK_IDS[@]} == 0 )); then
+    echo "Chunk ${ARRAY_INDEX} has no VMRs in ${CHUNK_MANIFEST}" >&2
+    exit 1
+fi
+declare -A SEEN_TASKS=()
+for task_id in "${TASK_IDS[@]}"; do
+    if [[ ! "${task_id}" =~ ^[1-9][0-9]*$ ]]; then
+        echo "Invalid task ID in chunk ${ARRAY_INDEX}: ${task_id}" >&2
+        exit 1
+    fi
+    if [[ -n "${SEEN_TASKS[${task_id}]:-}" ]]; then
+        echo "Duplicate task ID in chunk ${ARRAY_INDEX}: ${task_id}" >&2
+        exit 1
+    fi
+    SEEN_TASKS[${task_id}]=1
+done
+
+CELL_ROOT=${OUTPUT_ROOT}/${REGION,,}/${POPULATION}
+CHUNK_STATUS_DIR=${OUTPUT_ROOT}/chunk_status
+mkdir -p "${CHUNK_STATUS_DIR}"
+RECEIPT=${CHUNK_STATUS_DIR}/${CHUNK_SET_ID}-chunk-$(printf '%05d' "${ARRAY_INDEX}").tsv
+RECEIPT_ROWS=$(mktemp "${TMPDIR:-/tmp}/cal-h2-chunk-rows.XXXXXX.tsv")
+trap 'rm -f "${RECEIPT_ROWS}"' EXIT
+
+write_receipt() {
+    local complete=$1
+    local receipt_tmp=${RECEIPT}.tmp.${SLURM_JOB_ID:-$$}
+    {
+        printf 'chunk_set_id\tchunk_id\tarray_job_id\tarray_task_id\tvmr_task_id\tterminal_category\tskipped_existing\tchunk_complete\trecorded_utc\n'
+        if [[ -s "${RECEIPT_ROWS}" ]]; then
+            awk -F '\t' -v OFS='\t' \
+                -v set_id="${CHUNK_SET_ID}" -v chunk="${ARRAY_INDEX}" \
+                -v job="${SLURM_ARRAY_JOB_ID:-${SLURM_JOB_ID:-NA}}" \
+                -v array_task="${ARRAY_INDEX}" -v complete="${complete}" \
+                -v now="$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+                '{print set_id, chunk, job, array_task, $1, $2, $3, complete, now}' \
+                "${RECEIPT_ROWS}"
+        fi
+    } > "${receipt_tmp}"
+    mv "${receipt_tmp}" "${RECEIPT}"
+}
+write_receipt FALSE
+
+terminal_category() {
+    local task_id=$1
+    local stem
+    local categories=()
+    stem=$(printf 'vmr-%07d.tsv' "${task_id}")
+    for category in summary qc_failures excluded failures; do
+        [[ -s "${CELL_ROOT}/${category}/${stem}" ]] && categories+=("${category}")
+    done
+    if (( ${#categories[@]} > 1 )); then
+        echo "Task ${task_id} has multiple terminal records: ${categories[*]}" >&2
+        return 2
+    fi
+    if (( ${#categories[@]} == 1 )); then
+        printf '%s\n' "${categories[0]}"
+    else
+        printf 'none\n'
+    fi
+}
+
+# A missing per-VMR PLINK file is an upstream computational gap, not a locus-QC
+# outcome. During an explicitly configured recovery run, reconstruct that exact
+# prespecified cis window from the immutable cohort PGEN. A genuine zero-variant
+# extraction is marked for the R adapter to record as a QC failure.
+prepare_recovered_window() {
+    local TASK_ID=$1
+    [[ -n "${RECOVERED_PLINK_ROOT}" ]] || return 0
+    VMR_FILE=${REPO_ROOT}/vmr-analysis/all_individuals/${REGION,,}/_m/vmr.bed
+    VMR_RECORD=$(awk -v row="${TASK_ID}" 'NR == row {print $1, $2, $3}' "${VMR_FILE}")
+    read -r CHROMOSOME START END <<< "${VMR_RECORD}"
+    if [[ -z "${CHROMOSOME:-}" || ! "${START:-}" =~ ^[0-9]+$ ||
+          ! "${END:-}" =~ ^[0-9]+$ ]]; then
+        echo "Could not resolve VMR coordinates for task ${TASK_ID}" >&2
+        return 1
+    fi
+    CHROMOSOME_LABEL=${CHROMOSOME#chr}
+    STEM=${START}_${END}
+    UPSTREAM_PREFIX=${PLINK_ROOT}/${REGION,,}/_m/plink_format/chr_${CHROMOSOME_LABEL}/TOPMed_LIBD-${POPULATION}.${STEM}
+    RECOVERY_DIR=${RECOVERED_PLINK_ROOT}/${REGION,,}/_m/plink_format/chr_${CHROMOSOME_LABEL}
+    RECOVERY_PREFIX=${RECOVERY_DIR}/TOPMed_LIBD-${POPULATION}.${STEM}
+    UPSTREAM_NO_SNPS=FALSE
+    if [[ -s "${UPSTREAM_PREFIX}.log" ]] &&
+        grep -Fq 'No variants remaining after main filters' "${UPSTREAM_PREFIX}.log"; then
+        UPSTREAM_NO_SNPS=TRUE
+    fi
+    if [[ ! -s "${UPSTREAM_PREFIX}.bed" && ! -s "${RECOVERY_PREFIX}.bed" &&
+          ! -e "${RECOVERY_PREFIX}.no-snps" &&
+          "${UPSTREAM_NO_SNPS}" != TRUE ]]; then
+        mkdir -p "${RECOVERY_DIR}"
+        WINDOW_START=$((START - 500000))
+        if (( WINDOW_START < 1 )); then WINDOW_START=1; fi
+        WINDOW_END=$((END + 500000))
+        KEEP_FILE=${PHENOTYPE_ROOT}/${REGION,,}/_m/samples-${POPULATION}.txt
+        if [[ ! -s "${PGEN_ROOT}/TOPMed_LIBD.pgen" ||
+              ! -s "${PGEN_ROOT}/TOPMed_LIBD.pvar" ||
+              ! -s "${PGEN_ROOT}/TOPMed_LIBD.psam" || ! -s "${KEEP_FILE}" ]]; then
+            echo "Cannot reconstruct missing PLINK window: cohort PGEN or keep file is missing" >&2
+            return 1
+        fi
+        # V12: plink2 from the shared opt tree, never the module system. The
+        # genomics conda env ships plink 1.9, which cannot read .pgen/.pvar.
+        PLINK2="${PLINK2:-/projects/p32505/opt/bin/plink2}"
+        if [ ! -x "$PLINK2" ]; then
+            echo "ERROR: plink2 not found at $PLINK2" >&2
+            return 1
+        fi
+        if "$PLINK2" --pfile "${PGEN_ROOT}/TOPMed_LIBD" \
+            --threads "${SLURM_CPUS_PER_TASK:-1}" \
+            --chr "${CHROMOSOME_LABEL}" \
+            --from-bp "${WINDOW_START}" \
+            --to-bp "${WINDOW_END}" \
+            --make-bed \
+            --keep "${KEEP_FILE}" \
+            --no-parents --no-sex --no-pheno \
+            --out "${RECOVERY_PREFIX}"; then
+            plink_status=0
+        else
+            plink_status=$?
+        fi
+        if (( plink_status != 0 )); then
+            if [[ -s "${RECOVERY_PREFIX}.log" ]] &&
+                grep -Fq 'No variants remaining after main filters' "${RECOVERY_PREFIX}.log"; then
+                : > "${RECOVERY_PREFIX}.no-snps"
+            else
+                echo "PLINK recovery extraction failed for task ${TASK_ID}" >&2
+                return "${plink_status}"
+            fi
+        fi
+    fi
+}
+
+record_failure() {
+    local task_id=$1 status=$2
+    local failure_dir=${CELL_ROOT}/failures
+    local failure_file failure_tmp
+    mkdir -p "${failure_dir}"
+    failure_file=${failure_dir}/vmr-$(printf '%07d' "${task_id}").tsv
+    failure_tmp=${failure_file}.tmp.${SLURM_JOB_ID:-$$}
+    printf 'task_id\tregion\tpopulation\texit_status\tlog_file\n%s\t%s\t%s\t%s\t%s\n' \
+        "${task_id}" "${REGION,,}" "${POPULATION}" "${status}" \
+        "${SLURM_JOB_NAME:-cal_h2_vmr}.${SLURM_ARRAY_JOB_ID:-NA}_${ARRAY_INDEX}.log" \
+        > "${failure_tmp}"
+    mv "${failure_tmp}" "${failure_file}"
+}
+
+last_task_index=$(( ${#TASK_IDS[@]} - 1 ))
+echo "Chunk ${CHUNK_SET_ID}/${ARRAY_INDEX}: ${#TASK_IDS[@]} sequential VMRs (${TASK_IDS[0]}..${TASK_IDS[${last_task_index}]})"
+for TASK_ID in "${TASK_IDS[@]}"; do
+    category=$(terminal_category "${TASK_ID}") || exit $?
+    if [[ "${category}" != none && "${category}" != failures ]]; then
+        printf '%s\t%s\tTRUE\n' "${TASK_ID}" "${category}" >> "${RECEIPT_ROWS}"
+        write_receipt FALSE
+        continue
+    fi
+
+    # A failure is retryable. Remove its old marker immediately before the new
+    # attempt so exactly one terminal category can exist for a completed retry.
+    rm -f "${CELL_ROOT}/failures/vmr-$(printf '%07d' "${TASK_ID}").tsv"
+    set +e
+    prepare_recovered_window "${TASK_ID}"
+    status=$?
+    if (( status == 0 )); then
+        "${ENV_PATH}/bin/Rscript" "${SCRIPT_DIR}/04_estimate_observed_vmr.R" \
+            --region="${REGION}" \
+            --population="${POPULATION}" \
+            --task-id="${TASK_ID}" \
+            --repo-root="${REPO_ROOT}" \
+            --plink-root="${PLINK_ROOT}" \
+            --recovered-plink-root="${RECOVERED_PLINK_ROOT}" \
+            --phenotype-root="${PHENOTYPE_ROOT}" \
+            --calibration-model="${CALIBRATION_MODEL}" \
+            --output-root="${OUTPUT_ROOT}" \
+            --write-diagnostics="${WRITE_DIAGNOSTICS}" \
+            --min-cis-variants="${MIN_CIS_VARIANTS}"
+        status=$?
+    fi
+    set -e
+    if (( status != 0 )); then
+        record_failure "${TASK_ID}" "${status}"
+        echo "Recorded failed VMR task ${TASK_ID} with exit status ${status}" >&2
+    fi
+
+    category=$(terminal_category "${TASK_ID}") || exit $?
+    if [[ "${category}" == none ]]; then
+        record_failure "${TASK_ID}" 97
+        category=failures
+        echo "Task ${TASK_ID} exited without a terminal output; recorded wrapper failure" >&2
+    fi
+    printf '%s\t%s\tFALSE\n' "${TASK_ID}" "${category}" >> "${RECEIPT_ROWS}"
+    write_receipt FALSE
+done
+
+write_receipt TRUE
+echo "Chunk ${CHUNK_SET_ID}/${ARRAY_INDEX} completed all ${#TASK_IDS[@]} assigned VMRs"
+exit 0

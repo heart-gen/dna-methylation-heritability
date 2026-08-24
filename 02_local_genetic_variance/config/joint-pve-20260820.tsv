@@ -1,0 +1,46 @@
+setting	value	description
+decision_date	2026-08-20	Prospective lock before joint fitting or independent validation generation
+terminal_experiment	TRUE	No estimator development after this pass/fail experiment
+development_bslmm_run_relpath	_m/runs/bslmm-validation-20260817	Prior full BSLMM validation is development-only for the joint estimator
+training_run_id	lgv-joint-pve-train-20260820	Immutable joint-estimator development run
+validation_run_id	lgv-joint-pve-validate-20260820	Immutable untouched acceptance run
+sample_sizes	117,118,153,173,177,282	Expanded observed sample-size grid
+num_snps	100,500,1500,3000,5000,12000	Expanded local SNP-count grid
+ld_rho	0.2,0.5,0.8	Expanded AR(1) LD grid
+architectures	sparse,oligogenic,polygenic	Balanced genetic architectures
+h2_values	0,0.05,0.1,0.2,0.4,0.6,0.8,0.95	True local cis-PVE grid
+development_fit_replicates	1,2,3	Balanced fitting subset of prior full BSLMM grid
+development_calibration_replicates	4,5	Held-out split-conformal and null-cutoff subset
+validation_replicates_per_stratum	120	Five untouched replicates per architecture-by-PVE cell
+base_seed	20250805	Locked Module 02 seed family
+validation_seed_offset	500000000	Fresh seed block never used by prior estimator work
+outer_folds	5	Nested EN outer folds
+outer_repeats	2	Nested EN outer repeats
+inner_folds	5	Nested EN inner folds
+alpha_grid	0.1,0.5,1	Nested EN alpha grid
+lambda_rule	lambda.1se	Nested EN lambda rule
+max_features	1500	Training-only phenotype screen cap
+gemma_bin	/projects/p32505/opt/bin/gemma	Pinned GEMMA executable
+bslmm_mode	1	GEMMA BSLMM mode
+bslmm_burn_in	10000	Locked MCMC burn-in
+bslmm_sampling	100000	Locked MCMC sampling steps
+bslmm_rpace	10	Locked MCMC recording pace
+estimator_family	monotone_hinge_ridge_v1	Only allowed joint calibration family
+ridge_lambda	0.0001	Fixed penalty; no tuning or candidate search
+low_h2_weights	0:8,0.05:6,0.1:4,other:1	Strong prespecified low-PVE fitting emphasis
+bslmm_clip	0,1	Raw BSLMM input boundary
+he_clip	-1,2	Raw HE input boundary
+rho2_clip	0,1	Raw squared-correlation input boundary
+r2_clip	-1,1	Raw SSE/SST prediction input boundary
+bslmm_knots	0,0.025,0.05,0.1,0.2,0.4,0.6,0.8	Fixed monotone hinge knots
+he_knots	-1,-0.25,0,0.05,0.1,0.2,0.4,0.6,0.8,1	Fixed monotone hinge knots
+rho2_knots	0,0.01,0.025,0.05,0.1,0.2,0.4,0.6,0.8	Fixed monotone hinge knots
+r2_knots	-1,-0.25,-0.1,-0.025,0,0.025,0.05,0.1,0.2,0.4,0.6	Fixed monotone hinge knots
+output_lower	0	PVE lower boundary
+output_upper	1	PVE upper boundary
+conformal_alpha	0.05	Split-conformal simulation-reference interval miscoverage target
+null_alpha	0.05	Finite-sample global null cutoff target
+acceptance_criteria_relpath	config/joint-pve-acceptance-criteria.tsv	Final hard acceptance gates
+scenarios_per_array_task	5	Quest array chunk size
+max_concurrent	50	Quest concurrency throttle
+
