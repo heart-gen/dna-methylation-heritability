@@ -420,10 +420,25 @@ hidden by pooling cells or relaxing the score definition.
 
 | run_id | cohort | region | vmr_set_id | accepted_on | accepted_by | decision | notes |
 |---|---|---|---|---|---|---|---|
-| _(none)_ | | | | | | | |
+| lgv-AA-caudate-20260823 | AA | caudate | vmrset-AA-caudate-937a41979978 | 2026-08-23 | Kynon J.M. Benjamin | PASS_RELATIVE_SCORE_OBSERVED_QC | Relative rank only; absolute PVE prohibited |
+| lgv-AA-dlpfc-20260823 | AA | dlpfc | vmrset-AA-dlpfc-856067dfe289 | 2026-08-23 | Kynon J.M. Benjamin | PASS_RELATIVE_SCORE_OBSERVED_QC | Relative rank only; absolute PVE prohibited |
+| lgv-AA-hippocampus-20260823 | AA | hippocampus | vmrset-AA-hippocampus-2d907b892215 | 2026-08-23 | Kynon J.M. Benjamin | PASS_RELATIVE_SCORE_OBSERVED_QC | Relative rank only; absolute PVE prohibited |
+| lgv-all_individuals-caudate-20260823 | all_individuals | caudate | vmrset-all_individuals-caudate-cb5519d7d2ad | 2026-08-23 | Kynon J.M. Benjamin | PASS_RELATIVE_SCORE_OBSERVED_QC | Relative rank only; absolute PVE prohibited |
+| lgv-all_individuals-dlpfc-20260823 | all_individuals | dlpfc | vmrset-all_individuals-dlpfc-e88f46904afb | 2026-08-23 | Kynon J.M. Benjamin | PASS_RELATIVE_SCORE_OBSERVED_QC | Relative rank only; absolute PVE prohibited |
+| lgv-all_individuals-hippocampus-20260823 | all_individuals | hippocampus | vmrset-all_individuals-hippocampus-809f8de0db2d | 2026-08-23 | Kynon J.M. Benjamin | PASS_RELATIVE_SCORE_OBSERVED_QC | Relative rank only; absolute PVE prohibited |
 
 No downstream production module may consume Module 02 until its cell-specific
 run appears in this table.
+
+`lgv-AA-caudate-20260822` is superseded by `lgv-AA-caudate-20260823` and is
+deliberately absent: it was scored under the caudate-only characterized
+support, which excluded 111 loci where the six-grid support excludes 2.
+
+Every accepted run carries `absolute_pve_interpretation_allowed = FALSE` on
+every row and the terminal decision
+`PASS_RELATIVE_GENETIC_CONTROL_FAIL_ABSOLUTE_LOCUS_PVE`. Downstream modules may
+consume `local_snp_contribution_score` and its percentile rank, never the PVE
+magnitude.
 
 ## Verification status
 
