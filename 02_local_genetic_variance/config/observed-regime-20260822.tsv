@@ -1,0 +1,32 @@
+setting	value	description
+decision_date	2026-08-22	Prospective lock before any observed-regime scenario is generated
+purpose	characterize_frozen_model_in_observed_feature_regime	Diagnostic grid only; the frozen joint model is read-only
+model_changed	FALSE	No estimator development; predict_joint_pve is applied unmodified
+criteria_changed	FALSE	The 14 prospective joint-PVE gates are untouched by this grid
+genotype_source	observed_real_cis_windows	Real per-VMR PLINK genotypes replace AR(1) simulation
+phenotype_source	simulated_at_known_true_h2	Only the phenotype is synthetic; genotype and covariates are observed
+observed_run_id	lgv-AA-caudate-20260822	Source of the locus universe and of the real genotype paths
+run_id	lgv-observed-regime-20260822	Immutable observed-regime grid run
+num_snps_strata	4	Quartiles of observed num_snps
+p_eff_strata	4	Quartiles of observed p_eff
+loci_per_stratum	12	Real VMR loci sampled per num_snps-by-p_eff cell
+h2_values	0,0.05,0.1,0.2,0.4,0.6,0.8,0.95	True local cis-PVE grid, identical to the frozen validation grid
+architectures	sparse,oligogenic,polygenic	Identical to the frozen validation grid
+replicates_per_cell	2	Replicates per locus-by-architecture-by-PVE cell
+base_seed	20250805	Locked Module 02 seed family
+regime_seed_offset	900000000	Fresh seed block never used by any prior Module 02 work
+outer_folds	5	Nested EN outer folds
+outer_repeats	2	Nested EN outer repeats
+inner_folds	5	Nested EN inner folds
+alpha_grid	0.1,0.5,1	Nested EN alpha grid
+lambda_rule	lambda.1se	Nested EN lambda rule
+max_features	1500	Training-only phenotype screen cap
+gemma_bin	/projects/p32505/opt/bin/gemma	Pinned GEMMA executable
+bslmm_mode	1	GEMMA BSLMM mode
+bslmm_burn_in	10000	Locked MCMC burn-in
+bslmm_sampling	100000	Locked MCMC sampling steps
+bslmm_rpace	10	Locked MCMC recording pace
+scenarios_per_chunk	5	Quest array chunk size
+max_concurrent	50	Quest concurrency throttle
+joint_model_run_id	lgv-joint-pve-train-20260820	Frozen joint calibrator run; read-only
+joint_model_sha256	9f26c3273746fda85d9bbf21e224857db9a1ad79a521582a12f241854c03223a	Frozen fitted calibrator checksum

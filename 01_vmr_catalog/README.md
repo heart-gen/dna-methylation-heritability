@@ -4,9 +4,9 @@ Defines the variably methylated regions (VMRs) every downstream v2 module is
 built on, for two cohort arms across three brain regions, from one parameterized
 codepath.
 
-**Status: implemented, no accepted production run yet.** See *Acceptance gate*
-below. Nothing downstream may consume this module until a run ID is recorded
-here with a passing gate (AGENTS.md §6).
+**Status: accepted.** All six arm x region production runs pass all five
+acceptance criteria as of 2026-08-16; see *Acceptance gate* below for the run
+IDs and `vmr_set_id`s downstream modules must cite (AGENTS.md 6).
 
 ## Why this module exists
 
@@ -124,25 +124,49 @@ A run is production only when all of these hold, recorded in the table below:
 | Run ID | Arm | Region | n | VMRs | vmr_set_id | Gate | Notes |
 |---|---|---|---|---|---|---|---|
 | `vmrcat-AA-caudate-20260815-a` | AA | caudate | 153 | 260 | `vmrset-AA-caudate-3968cebd6d9c` | **smoke, not production** | chr22 only, `--allow-unlocked`; data deleted 2026-08-16, manifest kept in `_m/runs/retired/` |
-| `vmrcat-AA-caudate-20260816` | AA | caudate | **153** | 11,530 | `vmrset-AA-caudate-937a41979978` | 1, 2, 4, 5 pass; 3 pending | all 22 autosomes |
-| `vmrcat-AA-dlpfc-20260816` | AA | dlpfc | **118** | 9,572 | `vmrset-AA-dlpfc-856067dfe289` | 1, 2, 4, 5 pass; 3 pending | first full-scale run, all 22 autosomes |
-| `vmrcat-AA-hippocampus-20260816` | AA | hippocampus | **117** | 9,497 | `vmrset-AA-hippocampus-2d907b892215` | 1, 2, 4, 5 pass; 3 pending | all 22 autosomes |
-| `vmrcat-all_individuals-caudate-20260816` | all_individuals | caudate | **282** | 11,463 | `vmrset-all_individuals-caudate-cb5519d7d2ad` | 1, 2, 4, 5 pass; 3 pending | sensitivity arm |
-| `vmrcat-all_individuals-dlpfc-20260816` | all_individuals | dlpfc | **173** | 9,374 | `vmrset-all_individuals-dlpfc-e88f46904afb` | 1, 2, 4, 5 pass; 3 pending | sensitivity arm; turnover outlier, see forensic audit below |
-| `vmrcat-all_individuals-hippocampus-20260816` | all_individuals | hippocampus | **177** | 9,365 | `vmrset-all_individuals-hippocampus-809f8de0db2d` | 1, 2, 4, 5 pass; 3 pending | sensitivity arm |
+| `vmrcat-AA-caudate-20260816` | AA | caudate | **153** | 11,530 | `vmrset-AA-caudate-937a41979978` | **all five pass** | all 22 autosomes |
+| `vmrcat-AA-dlpfc-20260816` | AA | dlpfc | **118** | 9,572 | `vmrset-AA-dlpfc-856067dfe289` | **all five pass** | first full-scale run, all 22 autosomes |
+| `vmrcat-AA-hippocampus-20260816` | AA | hippocampus | **117** | 9,497 | `vmrset-AA-hippocampus-2d907b892215` | **all five pass** | all 22 autosomes |
+| `vmrcat-all_individuals-caudate-20260816` | all_individuals | caudate | **282** | 11,463 | `vmrset-all_individuals-caudate-cb5519d7d2ad` | **all five pass** | sensitivity arm |
+| `vmrcat-all_individuals-dlpfc-20260816` | all_individuals | dlpfc | **173** | 9,374 | `vmrset-all_individuals-dlpfc-e88f46904afb` | **all five pass** | sensitivity arm; turnover outlier, see forensic audit below |
+| `vmrcat-all_individuals-hippocampus-20260816` | all_individuals | hippocampus | **177** | 9,365 | `vmrset-all_individuals-hippocampus-809f8de0db2d` | **all five pass** | sensitivity arm |
 
 All six runs seal with `smoke_run FALSE` and reconcile at 22 expected / 22
 completed / 0 excluded / 0 qc_failed / 0 failed / 0 unaccounted / 0 unexpected,
 which clears criterion 2 for every cell. `design_n` is locked for all six cells
 in `config/cohorts.yml` as of 2026-08-16, so criterion 1 is met: every observed
 count matches. Criterion 4 is met for five cells directly and for
-`all_individuals` dlpfc through the forensic audit below. Criterion 3
-(checksum stability across two invocations) is the only open item, and it is
-open for all six.
+`all_individuals` dlpfc through the forensic audit below. Criterion 3 is met by the paired smoke runs recorded below.
 
 The `config_cohorts_sha256` staleness noted below for `vmrcat-AA-dlpfc-20260816`
 applies to all six runs for the same reason, and now to the `all_individuals`
 lock as well.
+
+### Criterion 3: checksum stability
+
+Two independent invocations of the same smoke configuration, submitted
+separately on 2026-08-16: `vmrcat-AA-caudate-20260816-a` and
+`vmrcat-AA-caudate-20260816-b`, both `VMR_CHROMS=21,22`, `ALLOW_UNLOCKED=1`,
+`smoke_run TRUE`. Neither is production; they exist only to answer this gate.
+
+Both produced the **same `vmr_set_id`, `vmrset-AA-caudate-ae953670d7eb`**, 367
+VMRs, 7,278 CpGs in VMRs, 153 donors, the same `donor_checksum`, and 410 output
+files each.
+
+Of the 410 files, **408 are byte-identical**. The two that differ are
+`pca/chr_21/pca.pdf` and `pca/chr_22/pca.pdf`, which differ only in the
+`/CreationDate` and `/ModDate` strings the PDF device embeds at write time --
+identical file sizes, identical content otherwise. That is a property of the
+graphics device, not of the computation.
+
+The `donor_checksum` also matches the retired chr22-only smoke run from
+2026-08-15 and the production `vmrcat-AA-caudate-20260816`, so donor resolution
+is now reproducible across three independent invocations, two chromosome
+scopes, and two days.
+
+**Criterion 3 passes.** The catalog itself -- VMR boundaries, membership,
+phenotypes, covariates, and the `vmr_set_id` derived from them -- is
+bit-reproducible.
 
 ### Cis-variant density and the legacy 1 Mb window
 

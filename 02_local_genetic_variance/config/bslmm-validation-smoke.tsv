@@ -1,0 +1,22 @@
+setting	value	description
+sample_sizes	117	Smoke sample size from locked grid
+num_snps	100,500	Smoke SNP counts
+ld_rho	0.5	Single LD
+architectures	sparse,polygenic	Smoke architectures
+h2_values	0,0.1,0.6	Includes null and mid h2
+evaluation_replicates_per_stratum	6	2 per architecture-by-h2 cell
+base_seed	20250805	Base seed
+seed_offset	300000001	Smoke offset
+gemma_bin	/projects/p32505/opt/bin/gemma	GEMMA
+bslmm_mode	1	BSLMM
+bslmm_burn_in	200	Short MCMC
+bslmm_sampling	500	Short MCMC
+bslmm_rpace	10	Pace
+scenarios_per_array_task	6	Chunk size
+max_concurrent	10	Concurrency
+acceptance_criteria_relpath	config/acceptance-criteria.tsv	Criteria
+min_within_domain_rate	0.90	Domain floor
+max_computational_failure_rate	0	Failures
+positive_signal_rule	mcmc_lower_gt_0	Type I rule
+high_dim_num_snps_min	500	Smoke high-dim floor
+low_pve_max	0.1	Low-PVE ceiling

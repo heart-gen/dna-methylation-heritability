@@ -1,5 +1,5 @@
-# Locked comparison of legacy VMR predictability with the accepted calibrated
-# elastic-net estimate. Change calibrated_run_id only by creating a new
+# Locked comparison of legacy VMR predictability with the accepted relative
+# local SNP contribution score. Change calibrated_run_id only by creating a new
 # predictor-comparison run; never retarget an existing run directory.
 
 schema_version: 1
@@ -14,12 +14,12 @@ legacy:
   high_estimate_min: 0.1
 
 calibrated:
-  run_id: observed-AA-v4
-  estimates: calibrated-simulation-analysis/_m/observed-runs/observed-AA-v4/results/combined/calibrated-local-h2-AA-vmrs.tsv
-  qc: calibrated-simulation-analysis/_m/observed-runs/observed-AA-v4/results/combined/observed-run-qc.tsv
-  estimate_column: h2_en_calibrated
-  signal_column: positive_signal
-  required_status: within_domain
+  run_id: null                    # lock after the observed relative-score run
+  estimates: null
+  qc: null
+  estimate_column: local_snp_contribution_score
+  signal_column: local_snp_contribution_quartile
+  required_status: local_genetic_control_eligible
   exclude_upper_boundary_primary: false
 
 model:

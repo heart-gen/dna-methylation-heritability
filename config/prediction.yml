@@ -9,7 +9,8 @@
 # held-out value is ~0.01, and it correlates NEGATIVELY with r2_oof
 # (rho ~ -0.05 to -0.07). It must never appear as an input to a v2 model, table
 # or figure. Prediction is the SECONDARY translational endpoint; the primary
-# quantitative endpoint is h2_en_calibrated from 02_local_genetic_variance.
+# biological endpoint is the local SNP contribution score from
+# 02_local_genetic_variance; absolute locus-level PVE is not supported.
 
 pi_locked: false
 
