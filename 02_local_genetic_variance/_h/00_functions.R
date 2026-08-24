@@ -77,6 +77,20 @@ write_tsv <- function(x, path) {
     invisible(path)
 }
 
+## Offset a base seed without integer overflow.
+##
+## stable_seed() reduces modulo 2147483629, only 18 below .Machine$integer.max,
+## so a base seed landing in the top band overflowed on `seed + repeat * 1009L`
+## and `+ fold * 9173L`, yielding NA and a set.seed() error. That took out three
+## loci of the 2026-08-23 production runs (chr3:131957079-131957863 and
+## chr9:136552488-136552675 in AA caudate, chr11:59101497-59102234 in
+## all_individuals dlpfc). Arithmetic in double precision then one modulo keeps
+## every non-overflowing seed bit-identical, so existing results are unchanged.
+offset_seed <- function(seed, offset) {
+    value <- (as.numeric(seed) + as.numeric(offset)) %% 2147483629
+    as.integer(max(1, value))
+}
+
 make_balanced_folds <- function(n, k, seed) {
     if (n < 6L) stop("At least six samples are required")
     k <- max(2L, min(as.integer(k), n))
@@ -231,7 +245,8 @@ crossfit_elastic_net <- function(genotype, phenotype, covariates = NULL,
     record_index <- 1L
 
     for (repeat_id in seq_len(outer_repeats)) {
-        foldid <- make_balanced_folds(n, outer_folds, seed + repeat_id * 1009L)
+        foldid <- make_balanced_folds(n, outer_folds,
+                                      offset_seed(seed, repeat_id * 1009))
         for (fold in seq_len(outer_folds)) {
             test_index <- which(foldid == fold)
             train_index <- which(foldid != fold)
@@ -261,7 +276,7 @@ crossfit_elastic_net <- function(genotype, phenotype, covariates = NULL,
                 adjusted$train,
                 alpha_grid = alpha_grid,
                 inner_folds = inner_folds,
-                seed = seed + repeat_id * 1009L + fold * 9173L,
+                seed = offset_seed(seed, repeat_id * 1009 + fold * 9173),
                 lambda_rule = lambda_rule
             )
             prediction <- drop(stats::predict(
