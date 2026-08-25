@@ -38,12 +38,32 @@ upstream_03 <- if (want_prediction) {
                               allow_unaccepted = allow_unlocked)
 } else NULL
 
+## 04 also needs the Module 01 run directly, for WGBS coverage and the per-VMR
+## phenotypes the cell-composition covariate is built from. Take it from the
+## same accepted-runs table 02 was taken from, so all three modules agree.
+upstream_01 <- require_accepted_upstream(
+    "01_vmr_catalog", opts$cohort, opts$region,
+    allow_unaccepted = allow_unlocked)
+if (!is.na(upstream_01$vmr_set_id) && !is.na(upstream_02$vmr_set_id) &&
+    !identical(upstream_01$vmr_set_id, upstream_02$vmr_set_id)) {
+    stop("Module 01 and Module 02 cite different vmr_set_id for ", opts$cohort,
+         " x ", opts$region, ": ", upstream_01$vmr_set_id, " vs ",
+         upstream_02$vmr_set_id)
+}
+
+if (!is.null(opts$run_id) && !allow_unlocked) {
+    stop("--run-id may only be given for a smoke run (--allow-unlocked); ",
+         "production run IDs are derived, not chosen.")
+}
+
 run <- new_run(
     module = MODULE_TAG, cohort = opts$cohort, region = opts$region,
     module_root = file.path(repo_root(), MODULE),
+    run_id = opts$run_id,
     vmr_set_id = upstream_02$vmr_set_id %||% NA_character_,
     upstream = c(
-        list(local_genetic_variance_run_id = upstream_02$run_id %||% NA_character_),
+        list(local_genetic_variance_run_id = upstream_02$run_id %||% NA_character_,
+             vmr_catalog_run_id = upstream_01$run_id %||% NA_character_),
         if (!is.null(upstream_03))
             list(local_snp_prediction_run_id = upstream_03$run_id %||% NA_character_)
         else list()
@@ -59,4 +79,4 @@ run <- new_run(
 
 dir.create(file.path(run$dir, "results"), showWarnings = FALSE)
 message("[04] run ", run$run_id, " opened")
-cat(run$run_id, "\n")
+cat(run$run_id, "\n", sep = "")   # sep="": cat() otherwise emits "<id> \n" and the shell captures the trailing space

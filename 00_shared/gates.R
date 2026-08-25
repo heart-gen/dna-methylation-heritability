@@ -56,8 +56,15 @@ read_accepted_runs <- function(module_root, root = repo_root()) {
     parsed <- parsed[vapply(parsed, length, integer(1)) == length(header)]
     if (length(parsed) == 0) return(data.table::data.table())
 
-    dt <- data.table::as.data.table(
-        do.call(rbind, lapply(parsed, function(p) as.list(stats::setNames(p, header)))))
+    ## rbind() over as.list() rows yields a matrix of lists, and
+    ## as.data.table() then keeps every column as a list column, so the
+    ## `accepted$cohort == cohort` comparison in require_accepted_upstream()
+    ## fails with "comparison of these types is not implemented". Build plain
+    ## character columns instead -- every cell here is markdown text.
+    dt <- data.table::as.data.table(stats::setNames(
+        lapply(seq_along(header),
+               function(j) vapply(parsed, `[`, character(1), j)),
+        header))
     dt <- dt[!grepl("^_?\\(?none\\)?_?$", dt[[1]], ignore.case = TRUE)]
     dt[]
 }
@@ -78,9 +85,14 @@ require_accepted_upstream <- function(module_root, cohort, region,
                                       root = repo_root()) {
     accepted <- read_accepted_runs(module_root, root = root)
 
+    ## Compute the row selection OUTSIDE the data.table `[`. Inside it, the
+    ## bare names `cohort` and `region` resolve to the COLUMNS rather than to
+    ## these arguments, so `accepted$cohort == cohort` is column == column,
+    ## which is TRUE for every row and matches the whole table.
     hit <- if (nrow(accepted) > 0 &&
                all(c("cohort", "region") %in% names(accepted))) {
-        accepted[accepted$cohort == cohort & accepted$region == region, ]
+        keep <- accepted$cohort == cohort & accepted$region == region
+        accepted[which(keep), ]
     } else {
         accepted[0, ]
     }

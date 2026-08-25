@@ -63,6 +63,27 @@ qc_plots_required:
   - covariate_model_comparison
   - positive_control_public_meqtl_overlap
 
+# Genomic-inflation acceptance band, read by 03_vmr_burden.R (a hard gate on the
+# burden) and 04_check_burden.R (a gate criterion). AGENTS.md 7.5 requires
+# inflation to be resolved before the figure freeze.
+#
+# The statistic is the median chi-square over DISTAL nominal cis pairs only:
+# those with |CpG-to-SNP distance| > distal_min_distance_bp. Lambda over ALL cis
+# pairs is not an inflation estimate, because cis pairs are enriched for true
+# meQTLs and a well-behaved scan therefore has lambda > 1 by construction.
+#
+# Evidence (AA caudate, chr22, 13.0M nominal pairs): lambda falls monotonically
+# with distance -- 1.234 over all pairs, 1.146 beyond 100 kb, 1.113 beyond
+# 250 kb, 1.087 beyond 400 kb. That decay is the signature of real cis signal,
+# not of global inflation, so the far edge of the +/-500 kb window is used as
+# the null proxy. The all-pair figure is still recorded as `lambda_all_pairs`
+# and the full decay profile as qc/genomic-inflation-by-distance.tsv.
+genomic_inflation:
+  statistic: distal_cis_pairs
+  distal_min_distance_bp: 400000
+  min: 0.90
+  max: 1.15
+
 vmr_aggregation_metrics:
   - vmr_id
   - local_predictability

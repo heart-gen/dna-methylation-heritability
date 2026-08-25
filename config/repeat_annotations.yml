@@ -1,31 +1,57 @@
 # Repeat and repressive-chromatin annotations (04_repeat_repressive_architecture).
 #
-# STUB. 04 is not implemented; gated on 02 acceptance (AGENTS.md 6).
+# PI-locked 2026-08-23 by Kynon J.M. Benjamin.
 #
 # The primary predictor is the standardized continuous within-cell local SNP
 # contribution score among eligible loci; r2_pred_oof is secondary. Overlap
 # alone never implies activity, expression, or retrotransposition.
 
-pi_locked: false
-
-repeatmasker:
-  version: null                    # PI lock
-  # Existing assets carried over from config/paths.yml support_files
-  bed: inputs/supportfiles/_m/repeat-masker-hg38.gz
-  line_l1_bed: inputs/supportfiles/_m/repeat-masker.LINE_L1.hg38.bed.gz
-  # High-value extension (AGENTS.md 7.4), only if technically reliable:
-  # split by class/family/subfamily, young L1HS/L1PA vs old L1M, full-length vs
-  # truncated, 5' promoter-containing vs internal/3' fragments.
-  l1_subfamily_definitions: null   # PI lock
-  retrotransposition_competent_list: null
-
-chromatin:
-  h3k9me3: null                    # PI lock: source track per region
-  quiescent: null                  # PI lock: ChromHMM state definition
+pi_locked: true
 
 genome_build: hg38
 
-# Required adjustment / matching covariates (AGENTS.md 7.4)
+repeatmasker:
+  version: hg38_rmsk_ucsc          # UCSC RepeatMasker track, hg38, project asset
+  bed: inputs/supportfiles/_m/repeat-masker-hg38.gz
+  line_l1_bed: inputs/supportfiles/_m/repeat-masker.LINE_L1.hg38.bed.gz
+  # High-value extension (AGENTS.md 7.4) -- DEFERRED, not implemented 2026-08-23.
+  l1_subfamily_definitions: null
+  retrotransposition_competent_list: null
+
+chromatin:
+  # NIH Roadmap consolidated epigenomes, already on Quest. These tracks are
+  # hg19, so 04 lifts hg38 VMRs DOWN to hg19 before overlap (see liftover
+  # below) rather than lifting the tracks up: the hg38ToHg19 chain is the one
+  # asset the project already has, and it is the direction the legacy analysis
+  # used, which keeps the old-vs-new comparison honest.
+  source: roadmap_consolidated
+  build: hg19
+  roadmap_eid:
+    caudate: E068                  # Brain Anterior Caudate
+    dlpfc: E073                    # Brain Dorsolateral Prefrontal Cortex
+    hippocampus: E071              # Brain Hippocampus Middle
+  h3k9me3:
+    dir: /projects/b1213/resources/EpigenomeRoadmap/egg2.wustl.edu/roadmap/data/byFileType/peaks/consolidated/gappedPeak
+    template: "{eid}-H3K9me3.gappedPeak.gz"
+    # gappedPeak is BED12-like and rtracklayer::import() will not parse it as
+    # BED. Read columns 1-3 (the peak span) with fread, as the legacy reader
+    # did; the block structure in columns 10-12 is not used.
+    columns: [1, 2, 3]
+  quiescent:
+    dir: /projects/b1213/resources/EpigenomeRoadmap/hmm/15core
+    template: "{eid}_15_coreMarks_mnemonics.bed.gz"
+    states: ["15_Quies"]
+  liftover:
+    chain: inputs/supportfiles/_m/hg38ToHg19.over.chain
+    direction: hg38_to_hg19
+    # A VMR that fails to lift, or lifts to more than one interval, is dropped
+    # and REPORTED in liftover-report.tsv. Never silently coerced to its first
+    # interval.
+    drop_multi_mapping: true
+
+# Required adjustment / matching covariates (AGENTS.md 7.4). Every one of these
+# is constructed by 01_build_features.R, which FAILS rather than fitting a
+# thinner model if any cannot be built.
 covariates:
   - vmr_length
   - cpg_count
@@ -42,6 +68,15 @@ covariates:
   - broad_genomic_annotation
   - cell_composition_pcs
 
+covariate_sources:
+  gc_content: BSgenome.Hsapiens.UCSC.hg38
+  wgbs_coverage: module_01_cpg_stats_rda      # 00_shared/wgbs.R::load_bsobj
+  snp_proximity: inputs/supportfiles/_m/common_snp_windows_pm150bp.hg38.bed.gz
+  problematic_region_overlap: inputs/supportfiles/_m/hg38-blacklist.v2.bed.gz
+  broad_genomic_annotation: gencode_basic     # genic/exonic/promoter/intergenic
+  cell_composition_pcs: config/cell_deconvolution.yml
+  n_cell_composition_pcs: 3
+
 # Locked sensitivities. Enrichment that does not survive these is not reported
 # as a result (AGENTS.md 14: stop if repeat enrichment disappears).
 sensitivities:
@@ -56,6 +91,20 @@ sensitivities:
   cell_composition_dnam_scmd: true    # caudate only, when the integration gate passes
   matched_high_low_comparison: true   # secondary evidence only
 
+# Primary model. The outcome is the per-VMR annotation overlap FRACTION, so the
+# link is quasibinomial logit with donor-independent sandwich standard errors
+# (each VMR is one observation; the overdispersion is across loci). The binary
+# any-overlap call is retained as the legacy-comparable secondary form.
+primary_model:
+  family: quasibinomial
+  link: logit
+  outcome: overlap_fraction
+  secondary_outcome: overlap_any
+  predictor: local_snp_contribution_score_z
+  secondary_predictor: r2_pred_oof_z
+  vcov: HC3
+  adjust_for: all_declared_covariates
+
 # Interpretation gates (AGENTS.md 7.4)
 interpretation:
   # H3K9me3 / quiescent may be called "shared across regions" only if direction
@@ -67,5 +116,4 @@ interpretation:
   # A DLPFC reversal or null after the high-mappability restriction is never
   # hidden.
   report_dlpfc_reversal: true
-
-primary_model: null                # PI lock
+  alpha: 0.05
