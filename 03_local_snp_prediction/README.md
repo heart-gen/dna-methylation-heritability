@@ -4,9 +4,27 @@ Answers whether a VMR can be imputed into a new cohort. This is **not** the
 primary biological endpoint—that is the continuous local SNP contribution
 score from `02_local_genetic_variance`.
 
-**Status: not implemented.** Gated on `02_local_genetic_variance` acceptance (AGENTS.md §6: "No downstream
-production run may consume an upstream result until the upstream README records
-a passing acceptance gate and immutable run ID").
+**Status: implemented, smoke-verified, not yet run in production.**
+All five stages exist in `_h/` and have been exercised end to end through SLURM
+on a 10-VMR smoke run, `lsp-smoke-sched-AA-caudate-20260823` (AA x caudate),
+which passed all eight criteria in `04_check_prediction.R` and sealed. That run
+establishes only that the code executes, reconciles (10 expected / 9 completed /
+1 `qc_failed` / 0 unaccounted / 0 failed) and does not leak (median
+`r2_pred_oof` = 0.023, `n_negative` = 5, no clipping). It establishes **nothing
+scientific**: 10 loci in one cell is not an estimate of anything, and the run is
+marked `smoke_run = TRUE` and is not eligible for the accepted-runs table.
+
+`config/prediction.yml` is `pi_locked: true`: 5 outer x 5 inner folds, 5
+repeats, alpha grid {0.1, 0.5, 0.9, 1.0}, `lambda.min`, and a fold-internal
+Haseman-Elston screen with a within-fold permutation-calibrated p-value
+(1000 permutations, alpha = 0.05).
+
+The `full_data_screen_arm` literature-comparable sensitivity is **deferred, not
+overlooked**: `sensitivity.full_data_screen_arm: false` in the locked config.
+
+Production sizing: the smoke measured ~21 s/locus at 199 permutations, so
+roughly 30 s/locus at the locked 1000 -- about 96 CPU-hours per cell for 11,530
+loci.
 
 ## Migrating from
 
@@ -52,10 +70,21 @@ multiple-testing rule before viewing final results.
 A full-data-screen-then-nested-OOF arm may be included as a literature-comparable
 sensitivity, explicitly labeled.
 
-Settings live in `config/prediction.yml`, currently `pi_locked: false`.
+Settings live in `config/prediction.yml`, now `pi_locked: true` (see Status above).
 
 ## Contract
 
 This module follows AGENTS.md §5.2: `_h/` holds code, `_m/` holds generated
 output under immutable `runs/{RUN_ID}/` directories, `tests/` holds gitignored
 smoke checks. Configuration lives in `config/` at the repository root.
+
+## Accepted runs
+
+_(none)_
+
+AGENTS.md §6 makes acceptance a human step: no row appears here until a
+production run's gate stage passes and the PI records it. A smoke run is never
+entered in this table.
+
+| run_id | cohort | region | vmr_set_id | accepted_on | accepted_by | decision | notes |
+|---|---|---|---|---|---|---|---|

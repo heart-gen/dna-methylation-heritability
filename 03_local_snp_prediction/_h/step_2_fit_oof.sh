@@ -14,7 +14,14 @@
 # larger. Re-time the first chunks before trusting these numbers at scale.
 #SBATCH --time=04:00:00
 
-source "$(dirname "${BASH_SOURCE[0]}")/../../00_shared/slurm.sh"
+# SLURM copies the batch script to /var/spool, so ${BASH_SOURCE[0]} does NOT
+# resolve to _h/ at run time. V2_REPO_ROOT is exported by the submit driver;
+# fall back to the submit directory for a hand-run sbatch.
+V2_REPO_ROOT="${V2_REPO_ROOT:-${SLURM_SUBMIT_DIR:-$PWD}}"
+while [ "$V2_REPO_ROOT" != "/" ] && [ ! -d "$V2_REPO_ROOT/.git" ]; do
+    V2_REPO_ROOT=$(dirname "$V2_REPO_ROOT")
+done
+source "${V2_REPO_ROOT}/00_shared/slurm.sh"
 
 RUN_ID=${LSP_RUN_ID:?LSP_RUN_ID must be set}
 CHUNK_MANIFEST=${LSP_CHUNK_MANIFEST:?LSP_CHUNK_MANIFEST must be set}

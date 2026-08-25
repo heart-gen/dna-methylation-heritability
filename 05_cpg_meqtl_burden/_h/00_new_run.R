@@ -51,9 +51,15 @@ if (!is.na(upstream_02$vmr_set_id) && !is.na(upstream_01$vmr_set_id) &&
          upstream_02$vmr_set_id, ", 01 cites ", upstream_01$vmr_set_id)
 }
 
+if (!is.null(opts$run_id) && !allow_unlocked) {
+    stop("--run-id may only be given for a smoke run (--allow-unlocked); ",
+         "production run IDs are derived, not chosen.")
+}
+
 run <- new_run(
     module = MODULE_TAG, cohort = opts$cohort, region = opts$region,
     module_root = file.path(repo_root(), MODULE),
+    run_id = opts$run_id,
     vmr_set_id = upstream_01$vmr_set_id %||% NA_character_,
     upstream = list(
         vmr_catalog_run_id = upstream_01$run_id %||% NA_character_,
@@ -70,4 +76,4 @@ run <- new_run(
 
 dir.create(file.path(run$dir, "results"), showWarnings = FALSE)
 message("[05] run ", run$run_id, " opened")
-cat(run$run_id, "\n")
+cat(run$run_id, "\n", sep = "")   # sep="": cat() otherwise emits "<id> \n" and the shell captures the trailing space

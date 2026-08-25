@@ -62,15 +62,21 @@ vmr_run <- mval("upstream_vmr_catalog_run_id")
 if (is.na(vmr_run) || !nzchar(vmr_run)) {
     stop("Run manifest carries no upstream_vmr_catalog_run_id; rerun 00_new_run.R")
 }
-pheno_f <- file.path(repo_root(), "01_vmr_catalog", "_m", "runs", vmr_run,
-                     "results", "vmr_meth.phen")
-if (!file.exists(pheno_f)) {
-    stop("VMR phenotype matrix not found for upstream run ", vmr_run, ": ", pheno_f,
+## Module 01 writes the run-wide donor list as `vmr/donors_plink.txt`, two
+## columns FID/IID. There is no single `results/vmr_meth.phen` -- phenotypes are
+## one file per VMR under `vmr/phenotypes/`. Donors are keyed FID::IID, the same
+## key `load_observed_locus()` aligns genotype rows on, so a fold assignment
+## made here joins to a locus matrix there without any positional assumption.
+donor_f <- file.path(repo_root(), "01_vmr_catalog", "_m", "runs", vmr_run,
+                     "vmr", "donors_plink.txt")
+if (!file.exists(donor_f)) {
+    stop("Donor list not found for upstream run ", vmr_run, ": ", donor_f,
          "\n  Check the accepted 01 run ID recorded in the manifest.")
 }
-pheno <- fread(pheno_f)
-donors <- as.character(pheno[[2]])          # FID IID <values...>; IID is donor
-assert_no_dups(donors, "donors in the VMR phenotype matrix")
+donor_dt <- fread(donor_f, header = FALSE, colClasses = "character")
+if (ncol(donor_dt) < 2L) stop("donors_plink.txt must have FID and IID columns")
+donors <- paste(donor_dt[[1]], donor_dt[[2]], sep = "::")
+assert_no_dups(donors, "donors in the Module 01 donor list")
 assert_expected_n(length(donors), cohort, region)
 
 ## --------------------------------------------------------------- partition
