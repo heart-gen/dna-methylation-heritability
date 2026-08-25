@@ -54,12 +54,35 @@ batch job if that becomes a nuisance.
 
 ### Known gaps
 
-- Two entries of `qc_plots_required` are not implemented and are recorded, per
-  run, in `results/qc/qc-plots-not-produced.tsv`:
-  `covariate_model_comparison` needs a second mapping run under an alternative
-  covariate design, and `positive_control_public_meqtl_overlap` needs a public
-  brain meQTL reference that is not registered in the annotation asset
-  manifest. Both need a PI decision before they can be built.
+- (Resolved 2026-08-25.) `positive_control_public_meqtl_overlap` is implemented
+  in `04_qc_plots.py`. `jaffe_dlpfc_450k_meqtl` and
+  `schulz_hippocampus_array_meqtl`, harmonized to hg38, are registered in
+  `inputs/supportfiles/_m/annotation_asset_manifest.tsv`; the plot discovers
+  them by their notes field, so registering a further catalog needs no code
+  change.
+
+  Independence is deliberately NOT required here. A positive control asks only
+  whether the scan recovers already-known meQTLs, so the Phase 3 exclusions do
+  not apply and cohort overlap would if anything strengthen it. The two Phase 3
+  rules that DO carry over are the assayed universe as denominator (the
+  harmonized tables embed all 485,441 probes with an `external_assayed` flag)
+  and an exact hg38 `(chrom, pos_1based)` join.
+
+  The statistic is the recovery rate among externally supported CpGs against
+  the rate among assayed-but-unsupported ones; the second column is what stops
+  a scan that calls everything significant from scoring a perfect control. On
+  the chr22 smoke (caudate, both references cross-tissue): Jaffe 0.615 vs 0.222
+  (OR 5.58, p = 6.5e-07), Schulz 0.783 vs 0.423 (OR 4.91, p = 0.0015), on 172
+  shared assayed CpGs.
+
+  Caveats: only 4.2% of the scan's CpGs are on 450K, and **caudate has no
+  tissue-matched public resource**, so its control is cross-tissue in both
+  cases. `tissue_match` is recorded per row rather than used as a filter.
+
+- `covariate_model_comparison` is still not implemented: it needs a second
+  mapping run under an alternative covariate design, and which design to use is
+  a PI decision. It remains recorded per run in
+  `results/qc/qc-plots-not-produced.tsv`.
 - (Resolved 2026-08-25.) Neither Bioconductor `qvalue` nor `py_qvalue` is in
   the `epigenomics` environment, but `py_qvalue` 0.1.0 **is** in `genomics`.
   `02b_combine_meqtl.R` now tries Bioconductor `qvalue`, then
