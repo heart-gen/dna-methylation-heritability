@@ -34,7 +34,7 @@ local({
     ## Order matters: config.R defines repo_root() and load_config(), which the
     ## others call at load time.
     for (f in c("config.R", "identity.R", "chrom.R", "runid.R", "wgbs.R",
-                "threads.R", "gates.R")) {
+                "threads.R", "gates.R", "locus_io.R")) {
         source(file.path(shared, f), local = FALSE)
     }
 

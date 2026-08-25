@@ -55,13 +55,26 @@ lcg <- load_local_genetic_control(
 ## AGENTS.md 7.5: resolve genomic inflation BEFORE the figure freeze. A burden
 ## computed on an inflated scan is inflated everywhere, and uniformly enough
 ## that it still produces a clean-looking gradient.
-lambda <- stats::median(stats::qchisq(cpg_res$nominal_p, df = 1, lower.tail = FALSE),
-                        na.rm = TRUE) / stats::qchisq(0.5, df = 1)
-message("[05] genomic inflation lambda = ", round(lambda, 3))
-if (!is.finite(lambda) || lambda > 1.15) {
+## Lambda comes from the NOMINAL pass, computed by 04_qc_plots.py, which runs
+## before this stage. It cannot be recomputed from `cpg_res`: that table holds
+## the single top variant per CpG, selected for extremeness, so its p-value
+## distribution is not the null and its median chi-square is not an inflation
+## estimate.
+infl_f <- file.path(res_dir, "qc", "genomic-inflation.tsv")
+if (!file.exists(infl_f)) {
+    stop("Missing ", infl_f, ". Run 04_qc_plots.py before 03_vmr_burden.R; ",
+         "the inflation gate is computed there from the nominal cis pairs.")
+}
+lambda <- fread(infl_f)$lambda[1]
+lambda_max <- config_get(meqtl, "genomic_inflation.max")
+message("[05] genomic inflation lambda = ", round(lambda, 3),
+        " (distal cis pairs; allowed max ", lambda_max, ")")
+if (!is.finite(lambda) || lambda > lambda_max) {
     stop("Genomic inflation lambda = ", round(lambda, 3),
-         " exceeds 1.15. Resolve the inflation (covariates, relatedness, ",
-         "population structure) before computing burden.")
+         " exceeds the configured maximum of ", lambda_max,
+         ". Resolve the inflation (covariates, relatedness, population ",
+         "structure), or revise config/meqtl_parameters.yml:genomic_inflation ",
+         "-- see the caveat recorded there about lambda over cis pairs.")
 }
 
 ## --------------------------------------------------------------- aggregation
@@ -135,7 +148,14 @@ secondary <- if (nrow(ext) >= 40 && uniqueN(ext$group) == 2) {
 }
 write_atomic(secondary, file.path(res_dir, "burden-extreme-groups.tsv"))
 
-write_atomic(burden, file.path(res_dir, "vmr-burden-table.tsv"))
+## Emit the burden table under the names `config/meqtl_parameters.yml:
+## vmr_aggregation_metrics` declares, which is what 04_check_burden.R reads.
+## The internal short names are kept for the model formulae above and dropped
+## here, so the written table has exactly one name per quantity.
+data.table::setnames(burden,
+                     c("n_sig", "prop_sig"),
+                     c("n_cpgs_with_sig_meqtl", "proportion_cpgs_with_sig_meqtl"))
+write_atomic(burden, file.path(res_dir, "vmr-meqtl-burden.tsv"))
 
 writeLines(c(
     "Interpretation constraints carried by this table:",

@@ -2,9 +2,34 @@
 
 Tests whether a higher relative local SNP contribution score (`local_snp_contribution_score_z`, Module 02) is associated with repeat-rich and repressive genomic compartments. This is the module the manuscript's central claim rests on.
 
-**Status: not implemented.** Gated on `02_local_genetic_variance` acceptance (and `03_local_snp_prediction` for the secondary predictor) (AGENTS.md §6: "No downstream
-production run may consume an upstream result until the upstream README records
-a passing acceptance gate and immutable run ID").
+**Status: implemented, smoke-verified, not yet run in production.**
+Stages 01-03 exist in `_h/` and have been run on a 400-VMR smoke in all three AA
+regions (`rra-smoke-AA-{caudate,dlpfc,hippocampus}-20260823`). All 14 declared
+covariates build at ~0 missingness, the hg38 -> hg19 liftover reports
+11,223/11,341 uniquely mapped VMRs, and `03_apply_gates.R` emits
+`permitted_claim` for all three outcomes. At 400 VMRs every outcome returns
+"not supported: no region survives the locked sensitivities" -- that is the
+expected result of a powerless smoke, **not** a scientific finding.
+
+`config/repeat_annotations.yml` is `pi_locked: true`: Roadmap consolidated
+epigenomes E068 (caudate), E073 (DLPFC), E071 (hippocampus), H3K9me3
+gappedPeak plus the 15-state ChromHMM `15_Quies` state, both hg19, with hg38
+VMRs lifted down using `inputs/supportfiles/_m/hg38ToHg19.over.chain`.
+
+The chain is 01 features (per cell) -> 02 association (per cell) -> 03 gates
+(cross-region) -> 04 figures + 05 seal (cross-region). Stages 03-05 span all
+three regions by construction: the interpretation gates ARE the cross-region
+rule, and no cell is sealed before the table that says what it may claim exists.
+The three smoke cells sealed as
+`GATES_APPLIED_0_OF_3_OUTCOMES_SUPPORTED_SMOKE_ONLY_NOT_ACCEPTABLE`.
+
+This module consumes `03_local_snp_prediction` for its secondary predictor, so
+its production driver is correctly refused by `require_accepted_upstream()`
+until Module 03 records an accepted production run. That refusal was exercised:
+`DRY_RUN=1 bash _h/run_repeat_architecture.sh AA` stops at
+`00_new_run.R` with the AGENTS.md 6 message. The smoke runs above were created
+with `--allow-unlocked`, which is the only path that bypasses it and which also
+stamps `smoke_run = TRUE`.
 
 ## Migrating from
 
@@ -43,3 +68,14 @@ Overlap alone never implies activity, expression, or retrotransposition.
 This module follows AGENTS.md §5.2: `_h/` holds code, `_m/` holds generated
 output under immutable `runs/{RUN_ID}/` directories, `tests/` holds gitignored
 smoke checks. Configuration lives in `config/` at the repository root.
+
+## Accepted runs
+
+_(none)_
+
+AGENTS.md §6 makes acceptance a human step: no row appears here until a
+production run's gate stage passes and the PI records it. A smoke run is never
+entered in this table.
+
+| run_id | cohort | region | vmr_set_id | accepted_on | accepted_by | decision | notes |
+|---|---|---|---|---|---|---|---|

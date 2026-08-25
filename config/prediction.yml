@@ -1,8 +1,6 @@
 # v2 local SNP prediction settings (03_local_snp_prediction).
 #
-# STUB. 03 is not implemented; it is gated on 02_local_genetic_variance
-# acceptance. Keys are listed so the PI decisions have a home before any code
-# consumes them.
+# PI-locked 2026-08-23 by Kynon J.M. Benjamin.
 #
 # Context: the legacy endpoint `r_squared_cv` in
 # local-snp-prediction/*/01.elastic-net.R is an IN-SAMPLE fit (~0.85). Its honest
@@ -12,28 +10,45 @@
 # biological endpoint is the local SNP contribution score from
 # 02_local_genetic_variance; absolute locus-level PVE is not supported.
 
-pi_locked: false
+pi_locked: true
 
 # The primary estimate must be end-to-end out-of-fold: within each outer split,
 # held-out donors must not influence residualization, genotype QC/imputation/
 # scaling, phenotype-informed SNP selection, cis screening, or any tuning.
 evaluation_standard: end_to_end_oof
 
+# Covariate residualization is learned on outer-training donors and APPLIED to
+# the held-out donors. The covariate design is the one 02 used at the same loci
+# (age + sex + diagnosis, from the Module 01 .covar/.qcovar files), so the two
+# endpoints are estimated under the same adjustment.
+residualization:
+  covariates: from_module_01_covar   # age, sex, diagnosis
+  fit_on: outer_training_donors_only
+
 folds:
-  outer: null          # PI lock
-  inner: null          # PI lock
-  repeats: null        # PI lock
+  outer: 5
+  inner: 5
+  repeats: 5
 
 elastic_net:
-  alpha_grid: null     # PI lock
-  lambda_rule: null    # PI lock (e.g. lambda.min vs lambda.1se)
+  alpha_grid: [0.1, 0.5, 0.9, 1.0]
+  lambda_rule: lambda.min
 
 screen:
-  # Do NOT use the current ordinary-OLS Haseman-Elston p-value as
-  # the production screen without donor-robust or permutation calibration.
-  # The HE implementation lives in 02_local_genetic_variance/_h/00_functions.R.
-  method: null                     # PI lock
-  multiple_testing: null           # PI lock
+  # AGENTS.md 7.3 forbids the ordinary-OLS Haseman-Elston p-value as the
+  # production screen without donor-robust or permutation calibration. The lock
+  # is therefore HE calibrated by permutation INSIDE the outer-training donors.
+  method: he_permutation
+  n_permutations: 1000
+  alpha: 0.05
+  # Deliberately no cross-VMR correction inside the fold. A fold-internal screen
+  # decides for ONE locus in isolation; applying BH across VMRs inside the fold
+  # would make a locus's per-fold selectivity depend on which other VMRs happen
+  # to be in the run. The prespecified rule is a fixed permutation-calibrated
+  # alpha = 0.05 within the fold. BH across VMRs is computed only as a REPORTED
+  # DIAGNOSTIC on the aggregated screening_pass_frequency, never as the gate.
+  multiple_testing: none_within_fold_by_design
+  diagnostic_across_vmr: BH
   # A VMR failing its fold-internal screen receives the prespecified null
   # prediction for held-out donors. Failed folds are NOT dropped.
   null_prediction: training_mean
@@ -50,11 +65,16 @@ metrics:
   - screening_pass_frequency
   - n_predictions_per_donor
 
+# Leakage tripwire. Defect E1 reported ~0.85; an honest run is near zero. A
+# median above this is a stop condition in 04_check_prediction.R, not a warning.
+leakage_tripwire:
+  max_median_r2_pred_oof: 0.5
+
 sensitivity:
   # Literature-comparable arm: full-data screen followed by nested OOF model
-  # evaluation. Allowed, but must be labeled explicitly and never presented as
-  # the primary estimate.
-  full_data_screen_arm: true
+  # evaluation. DEFERRED -- not implemented as of 2026-08-23. If implemented it
+  # must be labeled explicitly and never presented as the primary estimate.
+  full_data_screen_arm: false
 
 model_release:
-  inclusion_rule: null   # PI lock
+  inclusion_rule: none   # no predictor is released from this module
