@@ -69,6 +69,167 @@ def genomic_inflation(pvals: np.ndarray) -> float:
     return float(np.median(chi) / chi2.ppf(0.5, df=1))
 
 
+# --------------------------------------------------------- positive control
+# `positive_control_public_meqtl_overlap` asks a QC question, not a validation
+# question: does this scan recover cis-meQTLs that are already known? A
+# positive control does NOT require an independent cohort -- overlap with the
+# discovery donors would if anything make it a better control, because a low
+# recovery rate then indicts the scan rather than the reference. That is why
+# the Phase 3 independence exclusions do not carry over here.
+#
+# Two rules are inherited from the Phase 3 repair (PHASE3_DIAGNOSIS.md) and
+# must not be relaxed:
+#   1. The denominator is the resource's ASSAYED universe, never its results
+#      table. A WGBS CpG absent from a 450K catalog is unobserved, not a
+#      negative. The harmonized tables carry the full 485,441-probe universe
+#      with an `external_assayed` flag, so the inner join below IS the
+#      restriction to assayed CpGs.
+#   2. Matching is an exact (chrom, pos_1based) join in hg38, the same
+#      convention 03_harmonize_external_meqtls.py used, including its
+#      "keep the supported / best-FDR row per position" dedup.
+#
+# The reported statistic is the recovery rate among externally supported CpGs,
+# contrasted against the rate among assayed-but-unsupported ones. The contrast
+# is what makes it interpretable: a scan that calls everything significant
+# would score a perfect recovery rate and is caught by the second column.
+
+
+def _resources_from_manifest(root: Path) -> list[dict]:
+    """Public meQTL references registered for this QC plot.
+
+    Selection is by the manifest's notes field rather than a hard-coded list,
+    so registering a further resource does not require editing this script.
+    """
+    man_path = root / "inputs" / "supportfiles" / "_m" / "annotation_asset_manifest.tsv"
+    if not man_path.is_file():
+        return []
+    man = pd.read_csv(man_path, sep="\t")
+    hits = man[man["notes"].fillna("").str.contains(
+        "positive_control_public_meqtl_overlap", regex=False)]
+    out = []
+    for _, r in hits.iterrows():
+        p = Path(str(r["path"]))
+        if not p.is_file():
+            print(f"WARNING: registered asset missing on disk, skipping: {p}")
+            continue
+        out.append({"filename": str(r["filename"]), "path": p})
+    return out
+
+
+def positive_control(cis: pd.DataFrame, root: Path, qc_dir: Path,
+                     fdr: float, region: str, save) -> bool:
+    """Overlap the scan against registered public brain meQTL catalogs.
+
+    Returns True if at least one resource yielded a usable comparison.
+    """
+    resources = _resources_from_manifest(root)
+    if not resources:
+        print("positive control: no public meQTL resource registered in the "
+              "annotation asset manifest; not produced")
+        return False
+
+    # cpg_id is 'chrN:pos' in hg38, 1-based -- verified against the Jaffe
+    # universe on the chr22 smoke, where offset 0 matches 172 CpGs and offsets
+    # -1/+1 match none.
+    parts = cis["cpg_id"].astype(str).str.rsplit(":", n=1, expand=True)
+    scan = cis.assign(chrom=parts[0], pos_1based=pd.to_numeric(parts[1], errors="coerce"))
+    scan = scan.dropna(subset=["pos_1based"])
+    scan["pos_1based"] = scan["pos_1based"].astype(int)
+    scan["scan_significant"] = (scan["qvalue"] <= fdr).astype(int)
+
+    rows = []
+    for res in resources:
+        ref = pd.read_csv(res["path"], sep="\t")
+        needed = {"chrom", "pos_1based", "external_assayed", "external_meqtl_support"}
+        if not needed.issubset(ref.columns):
+            print(f"WARNING: {res['filename']} lacks {sorted(needed - set(ref.columns))}; "
+                  "skipping")
+            continue
+        resource_id = (str(ref["resource_id"].iloc[0])
+                       if "resource_id" in ref.columns and len(ref) else res["filename"])
+        ref_tissue = (str(ref["tissue_region"].iloc[0])
+                      if "tissue_region" in ref.columns and len(ref) else "unknown")
+
+        assay = ref.loc[ref["external_assayed"] == 1].copy()
+        assay["chrom"] = assay["chrom"].astype(str)
+        assay["pos_1based"] = assay["pos_1based"].astype(int)
+        if "external_fdr" in assay.columns:
+            assay = assay.sort_values(["external_meqtl_support", "external_fdr"],
+                                      ascending=[False, True])
+        assay = assay.drop_duplicates(subset=["chrom", "pos_1based"], keep="first")
+
+        m = scan.merge(assay[["chrom", "pos_1based", "external_meqtl_support"]],
+                       on=["chrom", "pos_1based"], how="inner")
+        if m.empty:
+            print(f"WARNING: {resource_id} shares no assayed CpG with the scan; skipping")
+            continue
+        m["external_meqtl_support"] = m["external_meqtl_support"].astype(int)
+
+        sup = m["external_meqtl_support"] == 1
+        n_sup, n_unsup = int(sup.sum()), int((~sup).sum())
+        rec_sup = float(m.loc[sup, "scan_significant"].mean()) if n_sup else float("nan")
+        rec_unsup = float(m.loc[~sup, "scan_significant"].mean()) if n_unsup else float("nan")
+
+        table = [[int(m.loc[sup, "scan_significant"].sum()), n_sup - int(m.loc[sup, "scan_significant"].sum())],
+                 [int(m.loc[~sup, "scan_significant"].sum()), n_unsup - int(m.loc[~sup, "scan_significant"].sum())]]
+        try:
+            from scipy.stats import fisher_exact
+            odds, pval = fisher_exact(table)
+        except Exception:
+            odds, pval = float("nan"), float("nan")
+
+        # Tissue matching is descriptive, not a filter: a cross-tissue control
+        # is weaker but still informative, and caudate has no matched resource
+        # at all, so dropping unmatched pairs would leave that cell with none.
+        matched = ref_tissue.lower() == str(region).lower()
+        rows.append({
+            "resource_id": resource_id,
+            "resource_tissue": ref_tissue,
+            "run_region": region,
+            "tissue_match": "matched" if matched else "cross_tissue",
+            "n_assayed_shared": len(m),
+            "n_scan_cpgs": len(scan),
+            "frac_scan_cpgs_assayed": len(m) / len(scan) if len(scan) else float("nan"),
+            "n_external_supported": n_sup,
+            "n_external_unsupported": n_unsup,
+            "recovery_rate_supported": rec_sup,
+            "recovery_rate_unsupported": rec_unsup,
+            "odds_ratio": float(odds),
+            "fisher_p": float(pval),
+            "fdr_threshold": fdr,
+        })
+        print(f"positive control {resource_id} ({ref_tissue} vs {region}, "
+              f"{'matched' if matched else 'cross-tissue'}): "
+              f"{len(m)} shared assayed CpGs, recovery {rec_sup:.3f} supported "
+              f"vs {rec_unsup:.3f} unsupported, OR={odds:.2f}, p={pval:.3g}")
+
+    if not rows:
+        return False
+    out = pd.DataFrame(rows)
+    out.to_csv(qc_dir / "positive_control_public_meqtl_overlap.tsv",
+               sep="\t", index=False)
+
+    fig, ax = plt.subplots(figsize=(1.9 * len(out) + 2.6, 3.8))
+    x = np.arange(len(out))
+    w = 0.38
+    ax.bar(x - w / 2, out["recovery_rate_supported"], w, label="external meQTL support")
+    ax.bar(x + w / 2, out["recovery_rate_unsupported"], w, label="assayed, no support")
+    for i, r in out.reset_index(drop=True).iterrows():
+        ax.text(i - w / 2, r["recovery_rate_supported"], f"n={r['n_external_supported']}",
+                ha="center", va="bottom", fontsize=7)
+        ax.text(i + w / 2, r["recovery_rate_unsupported"], f"n={r['n_external_unsupported']}",
+                ha="center", va="bottom", fontsize=7)
+    ax.set_xticks(x)
+    ax.set_xticklabels([f"{r.resource_id}\n({r.resource_tissue}, {r.tissue_match})"
+                        for r in out.itertuples()], fontsize=7)
+    ax.set_ylabel(f"fraction significant in this scan (FDR<{fdr})")
+    ax.set_ylim(0, 1)
+    ax.set_title(f"Positive control: recovery of known brain meQTLs ({region})")
+    ax.legend(fontsize=7)
+    save(fig, "positive_control_public_meqtl_overlap")
+    return True
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--run-id", required=True)
@@ -194,28 +355,34 @@ def main() -> None:
         ax.set_title("Significant CpGs per chromosome")
         save(fig, "chromosome_result_counts")
 
-    # Two entries of `qc_plots_required` are NOT produced here, and the gap is
-    # recorded rather than left to be discovered by counting PNGs:
-    #   * covariate_model_comparison needs a second mapping run under an
-    #     alternative covariate design; the module maps once, under the locked
-    #     design, so there is nothing to compare against.
-    #   * positive_control_public_meqtl_overlap needs a public brain meQTL
-    #     reference, which is not registered in
-    #     inputs/supportfiles/_m/annotation_asset_manifest.tsv.
-    # Both require a PI decision (a second run, or an asset to register) before
-    # they can be implemented.
-    pd.DataFrame([
+    # 7. positive control against registered public brain meQTL catalogs.
+    region = str(cis["region"].iloc[0]) if "region" in cis and len(cis) else "unknown"
+    produced_positive_control = positive_control(cis, root, qc_dir, fdr, region, save)
+
+    # Whatever `qc_plots_required` still cannot be produced is recorded, rather
+    # than left to be discovered by counting PNGs.
+    #
+    # covariate_model_comparison needs a second mapping run under an
+    # alternative covariate design; the module maps once, under the locked
+    # design, so there is nothing to compare against, and which alternative
+    # design to use is a PI decision.
+    not_produced = [
         {"plot": "covariate_model_comparison",
          "reason": "requires a second mapping run under an alternative "
                    "covariate design; not run"},
-        {"plot": "positive_control_public_meqtl_overlap",
-         "reason": "requires a public brain meQTL reference; no such asset is "
-                   "registered in the annotation asset manifest"},
-    ]).to_csv(qc_dir / "qc-plots-not-produced.tsv", sep="\t", index=False)
+    ]
+    if not produced_positive_control:
+        not_produced.append(
+            {"plot": "positive_control_public_meqtl_overlap",
+             "reason": "no usable public brain meQTL reference: none registered "
+                       "in the annotation asset manifest, or none shares an "
+                       "assayed CpG with this scan"})
+    pd.DataFrame(not_produced).to_csv(
+        qc_dir / "qc-plots-not-produced.tsv", sep="\t", index=False)
 
     print(f"QC written to {qc_dir}")
     print("NOT produced (see qc-plots-not-produced.tsv): "
-          "covariate_model_comparison, positive_control_public_meqtl_overlap")
+          + ", ".join(r["plot"] for r in not_produced))
 
 
 if __name__ == "__main__":
