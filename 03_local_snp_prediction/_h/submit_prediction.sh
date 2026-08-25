@@ -60,6 +60,13 @@ log_message "run ${RUN_ID}"
 mkdir -p "${RUN_DIR}/code"
 cp -a "$SCRIPT_DIR" "${RUN_DIR}/code/_h"
 
+# Everything from here on executes the SNAPSHOT, not the live _h/. The copy
+# above is only provenance if the jobs actually run it: previously the drivers
+# snapshotted _h/ and then sbatch'd ${SCRIPT_DIR}, so an edit to _h/ while a run
+# was queued changed what that run executed while its manifest and snapshot
+# attested to the older commit.
+RUN_CODE="${RUN_DIR}/code/_h"
+
 # Folds are assigned by step 1 as a scheduled job, not inline here, so the
 # whole pipeline is reproducible from the recorded job graph rather than partly
 # from whatever the submit host happened to do.
@@ -109,10 +116,10 @@ fi
 # -------------------------------------------------------------------- submit
 JOBS_TSV="${RUN_DIR}/submitted-jobs.tsv"
 printf 'step\tscript\tjob_id\n' > "$JOBS_TSV"
-COMMON_EXPORT="ALL,LSP_RUN_ID=${RUN_ID},LSP_EXTRA_ARGS=${EXTRA_ARGS}"
+COMMON_EXPORT="ALL,LSP_RUN_ID=${RUN_ID},LSP_EXTRA_ARGS=${EXTRA_ARGS},V2_RUN_CODE=${RUN_CODE}"
 
 JOB_FOLDS=$(sbatch --parsable --chdir="${RUN_DIR}/logs" \
-    --export="$COMMON_EXPORT" "${SCRIPT_DIR}/step_1_prepare_folds.sh")
+    --export="$COMMON_EXPORT" "${RUN_CODE}/step_1_prepare_folds.sh")
 printf '1\tstep_1_prepare_folds.sh\t%s\n' "$JOB_FOLDS" >> "$JOBS_TSV"
 
 JOB_FIT=$(sbatch --parsable \
@@ -120,22 +127,22 @@ JOB_FIT=$(sbatch --parsable \
     --dependency="afterok:${JOB_FOLDS}" \
     --chdir="${RUN_DIR}/logs" \
     --export="${COMMON_EXPORT},LSP_CHUNK_MANIFEST=${CHUNK_MANIFEST}" \
-    "${SCRIPT_DIR}/step_2_fit_oof.sh")
+    "${RUN_CODE}/step_2_fit_oof.sh")
 printf '2\tstep_2_fit_oof.sh\t%s\n' "$JOB_FIT" >> "$JOBS_TSV"
 
 JOB_COMB=$(sbatch --parsable --dependency="afterany:${JOB_FIT}" \
     --chdir="${RUN_DIR}/logs" --export="$COMMON_EXPORT" \
-    "${SCRIPT_DIR}/step_3_combine_oof.sh")
+    "${RUN_CODE}/step_3_combine_oof.sh")
 printf '3\tstep_3_combine_oof.sh\t%s\n' "$JOB_COMB" >> "$JOBS_TSV"
 
 JOB_CHECK=$(sbatch --parsable --dependency="afterok:${JOB_COMB}" \
     --chdir="${RUN_DIR}/logs" --export="$COMMON_EXPORT" \
-    "${SCRIPT_DIR}/step_4_check.sh")
+    "${RUN_CODE}/step_4_check.sh")
 printf '4\tstep_4_check.sh\t%s\n' "$JOB_CHECK" >> "$JOBS_TSV"
 
 JOB_FINAL=$(sbatch --parsable --dependency="afterok:${JOB_CHECK}" \
     --chdir="${RUN_DIR}/logs" --export="$COMMON_EXPORT" \
-    "${SCRIPT_DIR}/step_5_finalize.sh")
+    "${RUN_CODE}/step_5_finalize.sh")
 printf '5\tstep_5_finalize.sh\t%s\n' "$JOB_FINAL" >> "$JOBS_TSV"
 
 log_message "submitted array ${JOB_FIT} (1-${N_CHUNKS}%${MAX_CONCURRENT}) and the 1->5 chain"

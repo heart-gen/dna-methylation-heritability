@@ -26,6 +26,13 @@ source "${V2_REPO_ROOT}/00_shared/slurm.sh"
 
 RUN_ID=${CMB_RUN_ID:?CMB_RUN_ID must be set}
 CHROM=${SLURM_ARRAY_TASK_ID:?SLURM_ARRAY_TASK_ID must be set}
+# Analysis code is executed from the run's immutable snapshot under _m, not
+# from the live _h/. V2_RUN_CODE is exported by the submit driver and points at
+# {run_dir}/code/_h. Without this, editing _h/ while a run is queued silently
+# changes what that run executes, and the snapshot and recorded git_commit
+# attest to code that never ran. Falls back to live _h/ for a hand-run sbatch.
+H_DIR="${V2_RUN_CODE:-${REPO_DIR}/05_cpg_meqtl_burden/_h}"
+
 RUN_DIR="${REPO_DIR}/05_cpg_meqtl_burden/_m/runs/${RUN_ID}"
 
 log_job_info
@@ -42,14 +49,14 @@ require_file "$V2_ENV_TENSORQTL"
 # chromosome rebuilds exactly the inputs it maps, with no stale-input window.
 log_message "preparing tensorqtl inputs for chr${CHROM}"
 conda run --no-capture-output -p "$V2_ENV_TENSORQTL" \
-    python "${REPO_DIR}/05_cpg_meqtl_burden/_h/01b_prepare_meqtl_inputs.py" \
+    python "${H_DIR}/01b_prepare_meqtl_inputs.py" \
     --run-id "$RUN_ID" \
     --chrom "$CHROM" \
     --threads "$V2_THREADS"
 
 log_message "mapping cis-meQTL for chr${CHROM}"
 conda run --no-capture-output -p "$V2_ENV_TENSORQTL" \
-    python "${REPO_DIR}/05_cpg_meqtl_burden/_h/02_map_cpg_meqtl.py" \
+    python "${H_DIR}/02_map_cpg_meqtl.py" \
     --run-id "$RUN_ID" \
     --chrom "$CHROM" \
     --threads "$V2_THREADS"

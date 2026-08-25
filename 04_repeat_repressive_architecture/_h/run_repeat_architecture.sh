@@ -51,6 +51,8 @@ for REGION in "${REGIONS[@]}"; do
     RUN_DIR="${REPO_DIR}/04_repeat_repressive_architecture/_m/runs/${RUN_ID}"
     mkdir -p "${RUN_DIR}/code"
     cp -a "$SCRIPT_DIR" "${RUN_DIR}/code/_h"
+    # Jobs execute this snapshot, not the live _h/ -- see the note in the 03
+    # driver. All three cells snapshot the same _h/ in the same loop.
     RUN_IDS+=("$RUN_ID")
 done
 
@@ -72,24 +74,30 @@ for i in "${!RUN_IDS[@]}"; do
     RUN_ID="${RUN_IDS[$i]}"
     REGION="${REGIONS[$i]}"
     RUN_DIR="${REPO_DIR}/04_repeat_repressive_architecture/_m/runs/${RUN_ID}"
-    EXPORT="ALL,RRA_RUN_ID=${RUN_ID},RRA_EXTRA_ARGS=${RRA_EXTRA_ARGS:-}"
+    RUN_CODE="${RUN_DIR}/code/_h"
+    EXPORT="ALL,RRA_RUN_ID=${RUN_ID},RRA_EXTRA_ARGS=${RRA_EXTRA_ARGS:-},V2_RUN_CODE=${RUN_CODE}"
 
     J1=$(sbatch --parsable --chdir="${RUN_DIR}/logs" --export="$EXPORT" \
-        "${SCRIPT_DIR}/step_1_features.sh")
+        "${RUN_CODE}/step_1_features.sh")
     printf '1\t%s\tstep_1_features.sh\t%s\n' "$REGION" "$J1" >> "$JOBS_TSV"
 
     J2=$(sbatch --parsable --dependency="afterok:${J1}" \
         --chdir="${RUN_DIR}/logs" --export="$EXPORT" \
-        "${SCRIPT_DIR}/step_2_associate.sh")
+        "${RUN_CODE}/step_2_associate.sh")
     printf '2\t%s\tstep_2_associate.sh\t%s\n' "$REGION" "$J2" >> "$JOBS_TSV"
     ASSOC_JOBS+=("$J2")
 done
 
+# Stages 3 and 4 span all three cells, so there is no single owning run. They
+# anchor on RUN_IDS[0] -- the run they already chdir into and write the job
+# graph to -- and all three snapshots are byte-identical copies of one _h/.
+ANCHOR_CODE="${REPO_DIR}/04_repeat_repressive_architecture/_m/runs/${RUN_IDS[0]}/code/_h"
+
 IFS=:; DEP="${ASSOC_JOBS[*]}"; unset IFS
 J3=$(sbatch --parsable --dependency="afterok:${DEP}" \
     --chdir="${REPO_DIR}/04_repeat_repressive_architecture/_m/runs/${RUN_IDS[0]}/logs" \
-    --export="ALL,RRA_COHORT=${COHORT},RRA_RUN_IDS=${RUN_LIST}" \
-    "${SCRIPT_DIR}/step_3_gates.sh")
+    --export="ALL,RRA_COHORT=${COHORT},RRA_RUN_IDS=${RUN_LIST},V2_RUN_CODE=${ANCHOR_CODE}" \
+    "${ANCHOR_CODE}/step_3_gates.sh")
 printf '3\tall\tstep_3_gates.sh\t%s\n' "$J3" >> "$JOBS_TSV"
 
 # Figures and sealing also span all three cells, and run only if the gates
@@ -97,8 +105,8 @@ printf '3\tall\tstep_3_gates.sh\t%s\n' "$J3" >> "$JOBS_TSV"
 # finished while carrying no statement of what it may conclude.
 J4=$(sbatch --parsable --dependency="afterok:${J3}" \
     --chdir="${REPO_DIR}/04_repeat_repressive_architecture/_m/runs/${RUN_IDS[0]}/logs" \
-    --export="ALL,RRA_COHORT=${COHORT},RRA_RUN_IDS=${RUN_LIST}" \
-    "${SCRIPT_DIR}/step_4_plot_finalize.sh")
+    --export="ALL,RRA_COHORT=${COHORT},RRA_RUN_IDS=${RUN_LIST},V2_RUN_CODE=${ANCHOR_CODE}" \
+    "${ANCHOR_CODE}/step_4_plot_finalize.sh")
 printf '4\tall\tstep_4_plot_finalize.sh\t%s\n' "$J4" >> "$JOBS_TSV"
 
 log_message "submitted 3 cells in parallel; gates ${J3} waits for all; plot/seal ${J4}"

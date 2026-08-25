@@ -25,7 +25,12 @@ done
 source "${V2_REPO_ROOT}/00_shared/slurm.sh"
 
 RUN_ID=${LSP_RUN_ID:?LSP_RUN_ID must be set}
-H_DIR="${REPO_DIR}/03_local_snp_prediction/_h"
+# Analysis code is executed from the run's immutable snapshot under _m, not
+# from the live _h/. V2_RUN_CODE is exported by the submit driver and points at
+# {run_dir}/code/_h. Without this, editing _h/ while a run is queued silently
+# changes what that run executes, and the snapshot and recorded git_commit
+# attest to code that never ran. Falls back to live _h/ for a hand-run sbatch.
+H_DIR="${V2_RUN_CODE:-${REPO_DIR}/03_local_snp_prediction/_h}"
 EXTRA=${LSP_EXTRA_ARGS:-}
 
 log_job_info
