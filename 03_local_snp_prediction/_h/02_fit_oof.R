@@ -12,12 +12,13 @@
 ## ~0.85; honest held-out ~0.01.
 ##
 ## The rule here is mechanical and absolute: inside an outer fold, the held-out
-## donors contribute NOTHING. Not to phenotype centering or scaling, not to MAF
-## or missingness or zero-variance filtering, not to mean imputation, not to
-## genotype scaling, not to the cis screen, not to lambda or alpha selection.
-## Every quantity derived from data is computed on the training donors and then
-## APPLIED to the held-out ones. Any new preprocessing step added to this file
-## must follow the same fit-on-train/apply-to-test shape.
+## donors contribute NOTHING. Not to covariate residualization, not to phenotype
+## centering or scaling, not to MAF or missingness or zero-variance filtering,
+## not to mean imputation, not to genotype scaling, not to the cis screen, not
+## to lambda or alpha selection. Every quantity derived from data is computed on
+## the training donors and then APPLIED to the held-out ones. Any new
+## preprocessing step added to this file must follow the same
+## fit-on-train/apply-to-test shape.
 ##
 ## A VMR whose fold-internal screen fails does NOT get dropped: its held-out
 ## donors receive the prespecified null prediction (the training mean). Dropping
@@ -32,6 +33,14 @@ suppressPackageStartupMessages({
 })
 
 MODULE <- "03_local_snp_prediction"
+H_DIR <- file.path(repo_root(), MODULE, "_h")
+
+## adjust_phenotype_in_fold() is Module 02's fold-internal residualizer. 03 uses
+## the SAME function so that the phenotype 03 predicts is the phenotype 02
+## estimated variance on, adjusted the same way. haseman_elston() comes along
+## for the screen's equivalence test.
+source(file.path(repo_root(), "02_local_genetic_variance", "_h", "00_functions.R"))
+source(file.path(H_DIR, "he_permutation_screen.R"))
 
 opts <- parse_v2_args(require = c("run_id", "task_ids"))
 allow_unlocked <- isTRUE(opts$allow_unlocked)
@@ -63,13 +72,26 @@ locked_value <- function(cfg, key, smoke_default) {
 
 N_INNER     <- as.integer(locked_value(prediction, "folds.inner", 5L))
 ALPHA_GRID  <- as.numeric(locked_value(prediction, "elastic_net.alpha_grid",
-                                       c(0.1, 0.5, 0.9)))
+                                       c(0.1, 0.5, 0.9, 1.0)))
 LAMBDA_RULE <- as.character(locked_value(prediction, "elastic_net.lambda_rule",
                                          "lambda.min"))
-SCREEN_METHOD <- as.character(locked_value(prediction, "screen.method", "none"))
-SCREEN_ALPHA  <- as.numeric(locked_value(prediction, "screen.multiple_testing", 1))
-MAF_MIN       <- as.numeric(locked_value(thresholds, "prediction.maf_min", 0.01))
-MISS_MAX      <- as.numeric(locked_value(thresholds, "prediction.missingness_max", 0.05))
+SCREEN_METHOD <- as.character(locked_value(prediction, "screen.method",
+                                           "he_permutation"))
+SCREEN_ALPHA  <- as.numeric(locked_value(prediction, "screen.alpha", 0.05))
+N_PERM        <- as.integer(locked_value(prediction, "screen.n_permutations", 1000L))
+## The cis QC constants are the SAME keys Module 02 used (config/thresholds.yml
+## `cis`), not a 03-specific block: if 03 screened a different variant set than
+## 02, the prediction endpoint and the variance endpoint would not be describing
+## the same locus. The difference is only WHEN they are applied -- 02 filters on
+## all donors, 03 refilters inside each outer training fold.
+MAF_MIN       <- as.numeric(locked_value(thresholds, "cis.maf_min", 0.05))
+MISS_MAX      <- as.numeric(locked_value(thresholds, "cis.missingness_max", 0.05))
+MIN_CIS_VARIANTS <- as.integer(locked_value(thresholds, "cis.min_cis_variants", 100L))
+
+## A smoke run may shrink the permutation count; a production run may not.
+if (allow_unlocked) {
+    N_PERM <- as.integer(Sys.getenv("LSP_SMOKE_N_PERM", N_PERM))
+}
 
 task_ids <- as.integer(strsplit(opts$task_ids, ",", fixed = TRUE)[[1]])
 if (any(is.na(task_ids)) || any(task_ids < 1)) {
@@ -85,38 +107,17 @@ fail_dir <- file.path(run_dir, "results", "failures")
 dir.create(fail_dir, recursive = TRUE, showWarnings = FALSE)
 
 ## ------------------------------------------------------------------ inputs
+## Module 01 runs have no `results/` directory: genotypes are per-chromosome
+## PLINK1 sets, phenotypes are one .phen per VMR, covariates are per-chromosome
+## .covar/.qcovar. 00_shared/locus_io.R is the single reader for that layout and
+## is shared verbatim with Module 02 Stage 01, so 02 and 03 provably score the
+## same variants, the same donors, and the same covariate design.
 vmr_run <- mval("upstream_vmr_catalog_run_id")
-pheno <- fread(file.path(repo_root(), "01_vmr_catalog", "_m", "runs", vmr_run,
-                         "results", "vmr_meth.phen"))
-pheno_donors <- as.character(pheno[[2]])
-
-#' Read the cis genotype dosage matrix for one VMR.
-#'
-#' 01_vmr_catalog's genotype-extraction step already wrote a per-VMR plink set
-#' for the locked cis window; 03 reuses it rather than re-extracting, so 02 and
-#' 03 are guaranteed to be scoring the same variants. plink2 comes from the opt
-#' tree, never the module system (defect V12).
-read_cis_dosages <- function(vmr_id) {
-    prefix <- file.path(repo_root(), "01_vmr_catalog", "_m", "runs", vmr_run,
-                        "results", "plink_format", vmr_id)
-    if (!file.exists(paste0(prefix, ".pgen"))) {
-        return(NULL)
-    }
-    raw <- tempfile(fileext = ".raw")
-    on.exit(unlink(c(raw, sub("\\.raw$", ".log", raw))), add = TRUE)
-    plink2 <- Sys.getenv("PLINK2", "/projects/p32505/opt/bin/plink2")
-    status <- system2(plink2, c("--pfile", shQuote(prefix),
-                                "--export", "A",
-                                "--threads", Sys.getenv("V2_THREADS", "1"),
-                                "--out", shQuote(sub("\\.raw$", "", raw))),
-                      stdout = FALSE, stderr = FALSE)
-    if (status != 0 || !file.exists(raw)) return(NULL)
-    g <- fread(raw)
-    ids <- as.character(g$IID)
-    mat <- as.matrix(g[, -(1:6)])
-    rownames(mat) <- ids
-    mat
+if (is.na(vmr_run) || !nzchar(vmr_run)) {
+    stop("Run manifest carries no upstream_vmr_catalog_run_id; rerun 00_new_run.R")
 }
+vmr_run_dir <- file.path(repo_root(), "01_vmr_catalog", "_m", "runs", vmr_run)
+if (!dir.exists(vmr_run_dir)) stop("Upstream 01 run not found: ", vmr_run_dir)
 
 #' Fit-on-train / apply-to-test genotype preprocessing.
 #'
@@ -161,12 +162,19 @@ prep_genotypes <- function(g_train, g_test) {
 
 #' Fold-internal cis screen. Computed on TRAINING donors only.
 #'
-#' NOTE: config/prediction.yml deliberately ships screen.method: null. The
-#' legacy ordinary-OLS Haseman-Elston p-value must not become the production
-#' screen without donor-robust or permutation calibration (README, AGENTS.md
-#' 7.2), so "none" is the only method wired up until the PI locks one.
-screen_locus <- function(y_train, x_train) {
-    if (SCREEN_METHOD %in% c("none", "")) return(list(pass = TRUE, p = NA_real_))
+#' `he_permutation` is the locked production method (config/prediction.yml).
+#' The bare `haseman_elston()` p-value is NOT offered as an option: AGENTS.md
+#' 7.3 forbids it uncalibrated, and an unreachable branch is safer than a
+#' reachable wrong one.
+screen_locus <- function(y_train, x_train, seed) {
+    if (SCREEN_METHOD %in% c("none", "")) {
+        return(list(pass = TRUE, p = NA_real_, statistic = NA_real_))
+    }
+    if (SCREEN_METHOD == "he_permutation") {
+        prep <- he_screen_prepare(x_train)
+        return(he_permutation_screen(prep, y_train, n_perm = N_PERM,
+                                     alpha = SCREEN_ALPHA, seed = seed))
+    }
     if (SCREEN_METHOD == "marginal_min_p") {
         p <- apply(x_train, 2, function(v) {
             fit <- stats::lm(y_train ~ v)
@@ -175,7 +183,7 @@ screen_locus <- function(y_train, x_train) {
         })
         pmin_adj <- min(stats::p.adjust(p, method = "bonferroni"), na.rm = TRUE)
         return(list(pass = is.finite(pmin_adj) && pmin_adj <= SCREEN_ALPHA,
-                    p = pmin_adj))
+                    p = pmin_adj, statistic = NA_real_))
     }
     stop("Unsupported screen.method '", SCREEN_METHOD, "'. Implement it here ",
          "explicitly rather than falling through to an unscreened fit.")
@@ -189,20 +197,36 @@ for (tid in task_ids) {
     out_f <- file.path(out_dir, paste0(vmr_id, ".tsv"))
     if (file.exists(out_f)) next          # idempotent restart
 
-    result <- tryCatch({
-        col <- match(vmr_id, names(pheno))
-        if (is.na(col)) stop("VMR ", vmr_id, " absent from the phenotype matrix")
-        y_all <- stats::setNames(as.numeric(pheno[[col]]), pheno_donors)
+    fit_one <- function() {
+        locus <- load_observed_locus(
+            task = list(chrom = row$chrom[1], start = row$start[1],
+                        end = row$end[1]),
+            cohort = cohort, vmr_run_dir = vmr_run_dir,
+            min_cis_variants = MIN_CIS_VARIANTS, backing_tag = "lsp",
+            ## Every data-dependent genotype filter happens inside the fold.
+            apply_snp_qc = FALSE
+        )
+        if (!identical(locus$status, "ok")) {
+            ## Excluded or QC-failed upstream is a documented outcome, not a
+            ## computational failure. Record it so 03's reconciliation can
+            ## account for the task without counting it as a crash.
+            writeLines(paste0("status=", locus$status, " reason=", locus$reason),
+                       file.path(out_dir, paste0(vmr_id, ".skip")))
+            return(paste0(locus$status, " (", locus$reason, ")"))
+        }
 
-        g_all <- read_cis_dosages(vmr_id)
-        if (is.null(g_all)) stop("no cis genotypes available for ", vmr_id)
+        donor_key <- paste(locus$metadata$FID, locus$metadata$IID, sep = "::")
+        y_all <- stats::setNames(as.numeric(locus$y), donor_key)
+        g_all <- locus$genotype
+        rownames(g_all) <- donor_key
+        covar_all <- as.matrix(locus$covariates)
+        rownames(covar_all) <- donor_key
 
-        ## align_by_id is the V1 fix: never assume two sources share row order.
-        shared <- intersect(names(y_all), rownames(g_all))
-        shared <- intersect(shared, unique(folds$donor))
+        shared <- intersect(donor_key, unique(folds$donor))
         if (length(shared) < 20) stop("only ", length(shared), " usable donors")
         y_all <- y_all[shared]
         g_all <- g_all[shared, , drop = FALSE]
+        covar_all <- covar_all[shared, , drop = FALSE]
 
         preds <- rbindlist(lapply(split(folds, folds$repeat_i), function(fr) {
             rbindlist(lapply(sort(unique(fr$outer_fold)), function(k) {
@@ -210,29 +234,39 @@ for (tid in task_ids) {
                 train_ids <- setdiff(shared, test_ids)
                 if (length(test_ids) == 0 || length(train_ids) < 10) return(NULL)
 
-                ## Phenotype centering/scaling from TRAINING donors only.
-                y_tr_raw <- y_all[train_ids]
-                mu <- mean(y_tr_raw); sdev <- stats::sd(y_tr_raw)
-                if (!is.finite(sdev) || sdev == 0) return(NULL)
-                y_tr <- (y_tr_raw - mu) / sdev
-                y_te <- (y_all[test_ids] - mu) / sdev
+                ## Covariate residualization AND centering/scaling, both learned
+                ## on training donors only and applied to the held-out ones.
+                ## Without this, age, sex and diagnosis are uncontrolled and 03's
+                ## R2 is not comparable to 02's variance estimate.
+                adj <- tryCatch(
+                    adjust_phenotype_in_fold(
+                        y_train = y_all[train_ids], y_test = y_all[test_ids],
+                        covar_train = covar_all[train_ids, , drop = FALSE],
+                        covar_test = covar_all[test_ids, , drop = FALSE]),
+                    error = function(e) NULL)
+                if (is.null(adj)) return(NULL)
+                y_tr <- adj$train; y_te <- adj$test
 
                 gp <- prep_genotypes(g_all[train_ids, , drop = FALSE],
                                      g_all[test_ids, , drop = FALSE])
 
                 ## The prespecified null prediction: the training mean, which is
-                ## 0 on the training-standardized scale.
+                ## 0 on the training-residualized, training-standardized scale.
                 null_row <- data.table(
                     repeat_i = fr$repeat_i[1], outer_fold = k,
                     donor = test_ids, y_obs = y_te, y_pred = 0,
                     screened_in = FALSE, n_variants = 0L,
-                    screen_p = NA_real_, alpha = NA_real_, lambda = NA_real_)
+                    screen_p = NA_real_, screen_stat = NA_real_,
+                    alpha = NA_real_, lambda = NA_real_)
 
                 if (is.null(gp)) return(null_row)
 
-                sc <- screen_locus(y_tr, gp$train)
+                fold_seed <- seed_for(opts$run_id, region = region, task = vmr_id,
+                                      repeat_i = fr$repeat_i[1], fold = k)
+                sc <- screen_locus(y_tr, gp$train, seed = fold_seed)
                 if (!isTRUE(sc$pass)) {
                     null_row[, screen_p := sc$p]
+                    null_row[, screen_stat := sc$statistic]
                     null_row[, n_variants := gp$n_variants]
                     return(null_row)
                 }
@@ -240,8 +274,7 @@ for (tid in task_ids) {
                 ## Inner CV picks alpha and lambda on training donors only. The
                 ## same inner fold ids are reused across the alpha grid so the
                 ## comparison between alphas is paired.
-                set.seed(seed_for(opts$run_id, region = region, task = vmr_id,
-                                  repeat_i = fr$repeat_i[1], fold = k))
+                set.seed(fold_seed)
                 inner_id <- sample(rep(seq_len(N_INNER), length.out = length(train_ids)))
 
                 fits <- lapply(ALPHA_GRID, function(a) {
@@ -265,7 +298,8 @@ for (tid in task_ids) {
                 data.table(repeat_i = fr$repeat_i[1], outer_fold = k,
                            donor = test_ids, y_obs = y_te, y_pred = yhat,
                            screened_in = TRUE, n_variants = gp$n_variants,
-                           screen_p = sc$p, alpha = alphas[best], lambda = lam)
+                           screen_p = sc$p, screen_stat = sc$statistic,
+                           alpha = alphas[best], lambda = lam)
             }))
         }))
 
@@ -273,7 +307,9 @@ for (tid in task_ids) {
         preds[, vmr_id := vmr_id]
         write_atomic(preds, out_f)
         "ok"
-    }, error = function(e) {
+    }
+
+    result <- tryCatch(fit_one(), error = function(e) {
         writeLines(conditionMessage(e), file.path(fail_dir, paste0(vmr_id, ".txt")))
         "failed"
     })

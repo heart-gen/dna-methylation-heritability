@@ -53,9 +53,24 @@ tasks <- data.table(
 )
 assert_no_dups(tasks$vmr_id, "VMR IDs from the upstream 02 table")
 
+## A smoke run must be nameable, so it can never be mistaken for the production
+## run of the same cell, and sizeable, so the chain can be exercised in minutes.
+## Both are refused unless --allow-unlocked marks this a smoke run.
+if (!is.null(opts$smoke_n)) {
+    if (!allow_unlocked) stop("--smoke-n requires --allow-unlocked")
+    keep <- unique(round(seq(1, nrow(tasks), length.out = as.integer(opts$smoke_n))))
+    tasks <- tasks[keep]
+    tasks[, task_id := seq_len(.N)]
+}
+if (!is.null(opts$run_id) && !allow_unlocked) {
+    stop("--run-id may only be given for a smoke run (--allow-unlocked); ",
+         "production run IDs are derived, not chosen.")
+}
+
 run <- new_run(
     module = MODULE_TAG, cohort = opts$cohort, region = opts$region,
     module_root = file.path(repo_root(), MODULE),
+    run_id = opts$run_id,
     vmr_set_id = upstream$vmr_set_id %||% NA_character_,
     upstream = list(
         local_genetic_variance_run_id = upstream$run_id %||% NA_character_,
@@ -74,4 +89,4 @@ dir.create(file.path(run$dir, "results"), showWarnings = FALSE)
 write_atomic(tasks, file.path(run$dir, "task-manifest.tsv"))
 
 message("[03] run ", run$run_id, " opened with ", nrow(tasks), " VMR tasks")
-cat(run$run_id, "\n")
+cat(run$run_id, "\n", sep = "")   # sep="": cat() otherwise emits "<id> \n" and the shell captures the trailing space

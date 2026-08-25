@@ -30,7 +30,9 @@ MODULE <- "04_repeat_repressive_architecture"
 
 opts <- parse_v2_args(require = c("cohort", "run_ids"))
 annot <- load_config("repeat_annotations")
-ALPHA <- 0.05
+## From config, not restated: the interpretation gates in
+## config/repeat_annotations.yml are the locked decision rule.
+ALPHA <- as.numeric(annot$interpretation$alpha %||% 0.05)
 
 run_ids <- trimws(strsplit(opts$run_ids, ",", fixed = TRUE)[[1]])
 res <- rbindlist(lapply(run_ids, function(rid) {
