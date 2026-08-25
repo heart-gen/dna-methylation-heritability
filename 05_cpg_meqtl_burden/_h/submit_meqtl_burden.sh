@@ -47,6 +47,13 @@ log_message "run ${RUN_ID}"
 mkdir -p "${RUN_DIR}/code"
 cp -a "$SCRIPT_DIR" "${RUN_DIR}/code/_h"
 
+# Everything from here on executes the SNAPSHOT, not the live _h/. The copy
+# above is only provenance if the jobs actually run it: previously the drivers
+# snapshotted _h/ and then sbatch'd ${SCRIPT_DIR}, so an edit to _h/ while a run
+# was queued changed what that run executed while its manifest and snapshot
+# attested to the older commit.
+RUN_CODE="${RUN_DIR}/code/_h"
+
 # DRY_RUN inspects the job graph. It stops BEFORE preparing the CpG set,
 # because that stage reads every autosome's methylation matrix and takes many
 # minutes -- work that tells you nothing about whether the graph is right.
@@ -68,7 +75,7 @@ fi
 # The CpG set is prepared on the submit host, not in the array: every mapping
 # task reads it, and 22 tasks racing to build it would be both wasteful and
 # non-deterministic.
-run_r "${SCRIPT_DIR}/01_prepare_cpg_set.R" --run-id "$RUN_ID"
+run_r "${RUN_CODE}/01_prepare_cpg_set.R" --run-id "$RUN_ID"
 
 JOBS_TSV="${RUN_DIR}/submitted-jobs.tsv"
 printf 'step\tscript\tjob_id\n' > "$JOBS_TSV"
@@ -80,7 +87,7 @@ MAP_JOB=$(sbatch --parsable \
     --array="${ARRAY_SPEC}" \
     --chdir="${RUN_DIR}/logs" \
     --export="$EXPORT" \
-    "${SCRIPT_DIR}/step_2_map_meqtl.sh")
+    "${RUN_CODE}/step_2_map_meqtl.sh")
 printf '2\tstep_2_map_meqtl.sh\t%s\n' "$MAP_JOB" >> "$JOBS_TSV"
 log_message "mapping array ${MAP_JOB} (${ARRAY_SPEC})"
 
@@ -97,7 +104,7 @@ R_ENV_SRC="source ${REPO_DIR}/00_shared/slurm.sh"
 PY_TQTL="conda run --no-capture-output -p /projects/p32505/opt/envs/genomics python"
 
 COMB_JOB=$(sbatch_step cmb-combine "afterany:${MAP_JOB}" 2 32G 02:00:00 \
-    "${R_ENV_SRC} && run_r ${SCRIPT_DIR}/02b_combine_meqtl.R --run-id ${RUN_ID}")
+    "${R_ENV_SRC} && run_r ${RUN_CODE}/02b_combine_meqtl.R --run-id ${RUN_ID}")
 printf '2b\t02b_combine_meqtl.R\t%s\n' "$COMB_JOB" >> "$JOBS_TSV"
 
 # QC runs BEFORE burden, not beside it. AGENTS.md 7.5 makes genomic inflation a
@@ -107,21 +114,21 @@ printf '2b\t02b_combine_meqtl.R\t%s\n' "$COMB_JOB" >> "$JOBS_TSV"
 # 04_qc_plots.py computes lambda from the nominal pairs and 03_vmr_burden.R
 # reads it back and refuses to aggregate an inflated scan.
 QC_JOB=$(sbatch_step cmb-qc "afterok:${COMB_JOB}" 2 32G 02:00:00 \
-    "${R_ENV_SRC} && ${PY_TQTL} ${SCRIPT_DIR}/04_qc_plots.py --run-id ${RUN_ID}")
+    "${R_ENV_SRC} && ${PY_TQTL} ${RUN_CODE}/04_qc_plots.py --run-id ${RUN_ID}")
 printf '4\t04_qc_plots.py\t%s\n' "$QC_JOB" >> "$JOBS_TSV"
 
 BURDEN_JOB=$(sbatch_step cmb-burden "afterok:${QC_JOB}" 4 32G 02:00:00 \
-    "${R_ENV_SRC} && run_r ${SCRIPT_DIR}/03_vmr_burden.R --run-id ${RUN_ID}")
+    "${R_ENV_SRC} && run_r ${RUN_CODE}/03_vmr_burden.R --run-id ${RUN_ID}")
 printf '3\t03_vmr_burden.R\t%s\n' "$BURDEN_JOB" >> "$JOBS_TSV"
 
 # The gate reads both the burden table and the genomic-inflation TSV, so it
 # waits for both branches.
 CHECK_JOB=$(sbatch_step cmb-check "afterok:${BURDEN_JOB}:${QC_JOB}" 1 16G 01:00:00 \
-    "${R_ENV_SRC} && run_r ${SCRIPT_DIR}/04_check_burden.R --run-id ${RUN_ID}")
+    "${R_ENV_SRC} && run_r ${RUN_CODE}/04_check_burden.R --run-id ${RUN_ID}")
 printf '5\t04_check_burden.R\t%s\n' "$CHECK_JOB" >> "$JOBS_TSV"
 
 FINAL_JOB=$(sbatch_step cmb-final "afterok:${CHECK_JOB}" 1 8G 01:00:00 \
-    "${R_ENV_SRC} && run_r ${SCRIPT_DIR}/05_finalize_run.R --run-id ${RUN_ID}")
+    "${R_ENV_SRC} && run_r ${RUN_CODE}/05_finalize_run.R --run-id ${RUN_ID}")
 printf '6\t05_finalize_run.R\t%s\n' "$FINAL_JOB" >> "$JOBS_TSV"
 
 log_message "job graph recorded in ${JOBS_TSV}"
