@@ -181,10 +181,10 @@ New v2 work lives in numbered modules at the **repository root**:
 ├── 03_local_snp_prediction/
 ├── 04_repeat_repressive_architecture/
 ├── 05_cpg_meqtl_burden/
-├── 06_transcription_splicing_coupling/
-├── 07_region_donor_generalization/
-├── 08_schizophrenia_risk_application/
-└── 09_integrated_manuscript_outputs/
+├── 07_transcription_splicing_coupling/
+├── 08_region_donor_generalization/
+├── 09_schizophrenia_risk_application/
+└── 10_integrated_manuscript_outputs/
 ```
 
 The numeric prefixes encode scientific dependency, in the same spirit as the
@@ -265,10 +265,11 @@ Recommended mapping:
 | `local-snp-prediction/` | `03_local_snp_prediction/` |
 | repeat and cell-composition modules in `meqtl-validation/` | `04_repeat_repressive_architecture/` |
 | CpG mapping and VMR burden modules in `meqtl-validation/` | `05_cpg_meqtl_burden/` |
-| expression/splicing modules in `meqtl-validation/` | `06_transcription_splicing_coupling/` |
-| donor-group, cross-region, and downsampling modules | `07_region_donor_generalization/` |
-| `meqtl-validation/08_schizophrenia_risk_application/` | `08_schizophrenia_risk_application/` |
-| manuscript figures and consolidated tables | `09_integrated_manuscript_outputs/` |
+| `local-snp-prediction/*/tissue_comparison/clinical_enrichment/s-ldsc/` | `06_partitioned_heritability/` |
+| expression/splicing modules in `meqtl-validation/` | `07_transcription_splicing_coupling/` |
+| donor-group, cross-region, and downsampling modules | `08_region_donor_generalization/` |
+| `meqtl-validation/08_schizophrenia_risk_application/` | `09_schizophrenia_risk_application/` |
+| manuscript figures and consolidated tables | `10_integrated_manuscript_outputs/` |
 | `environmental-analysis/` | remove before submission unless an approved supplemental sensitivity is migrated |
 
 Do not duplicate region- or cohort-specific copies of the same code. Refactor
@@ -284,10 +285,14 @@ Analyses must run in this order:
 3. `03_local_snp_prediction`
 4. `04_repeat_repressive_architecture`
 5. `05_cpg_meqtl_burden`
-6. `06_transcription_splicing_coupling`
-7. `07_region_donor_generalization`
-8. `08_schizophrenia_risk_application`
-9. `09_integrated_manuscript_outputs`
+6. `06_partitioned_heritability`
+7. `07_transcription_splicing_coupling`
+8. `08_region_donor_generalization`
+9. `09_schizophrenia_risk_application`
+10. `10_integrated_manuscript_outputs`
+
+`06_partitioned_heritability` depends only on an accepted `02_local_genetic_variance`
+score; its position in this list is a total order, not a claim that it consumes 03-05.
 
 No downstream production run may consume an upstream result until the upstream
 README records a passing acceptance gate and immutable run ID.
@@ -496,7 +501,7 @@ Internal meQTL mapping is convergent evidence, not independent replication.
 Positive-only public resources cannot provide an external gradient because
 absence from the positive list is not a tested negative.
 
-### 7.6 `06_transcription_splicing_coupling`: regulatory consequences
+### 7.6 `07_transcription_splicing_coupling`: regulatory consequences
 
 Test whether meQTL-supported or locally controlled VMRs are more likely to have
 existing significant associations with:
@@ -519,7 +524,7 @@ Forbidden interpretation:
 
 > Methylation mediates the genetic effect on expression or splicing.
 
-### 7.7 `07_region_donor_generalization`: boundaries of the biology
+### 7.7 `08_region_donor_generalization`: boundaries of the biology
 
 This module should establish what is shared and what is context-dependent
 across:
@@ -536,7 +541,7 @@ Do not attribute differences to ancestry-specific biology without eliminating
 sample size, MAF, LD, SNP availability, assay, covariate, and brain-region
 explanations. Use donor-group or population language approved by the PI.
 
-### 7.8 `08_schizophrenia_risk_application`: required disease application
+### 7.8 `09_schizophrenia_risk_application`: required disease application
 
 Phase 7 is part of the intended main-text biological story, conditional on its
 results surviving corrected VMRs and the new local-genetic-control axis.
@@ -585,7 +590,7 @@ hits must be labeled exploratory.
 Do not claim mediation, causality, or colocalization unless the corresponding
 analysis has been run with adequate ancestry-matched LD and passes its own gate.
 
-### 7.9 `09_integrated_manuscript_outputs`: one source of truth
+### 7.9 `10_integrated_manuscript_outputs`: one source of truth
 
 This module consumes only accepted immutable upstream runs and creates:
 

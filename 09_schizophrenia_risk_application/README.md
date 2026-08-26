@@ -1,8 +1,8 @@
-# 08_schizophrenia_risk_application — required disease application
+# 09_schizophrenia_risk_application — required disease application
 
 Tests whether schizophrenia-risk variants regulate methylation within genetically anchored VMRs. Intended for the main text, conditional on surviving corrected VMRs and the new local-genetic-control axis.
 
-**Status: not implemented.** Gated on `05_cpg_meqtl_burden` and `06_transcription_splicing_coupling` acceptance (AGENTS.md §6: "No downstream
+**Status: not implemented.** Gated on `05_cpg_meqtl_burden` and `07_transcription_splicing_coupling` acceptance (AGENTS.md §6: "No downstream
 production run may consume an upstream result until the upstream README records
 a passing acceptance gate and immutable run ID").
 

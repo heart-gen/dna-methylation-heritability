@@ -1,7 +1,7 @@
-# 06_transcription_splicing_coupling/_m — generated output only
+# 06_partitioned_heritability/_m — generated output only
 
 Nothing in this directory is written by hand. Every file here is produced by a
-script in `06_transcription_splicing_coupling/_h/` from locked configuration and declared inputs
+script in `06_partitioned_heritability/_h/` from locked configuration and declared inputs
 (AGENTS.md §5.2).
 
 ## What is tracked in Git
@@ -29,7 +29,7 @@ software environment, SLURM job IDs), `task_reconciliation.tsv`, and
 
 1. Check out the `git_commit` recorded in its `manifest.tsv`.
 2. Confirm the `config_*_sha256` fields match the current `config/`.
-3. Re-run the module's submission workflow from `06_transcription_splicing_coupling/_m`.
+3. Re-run the module's submission workflow from `06_partitioned_heritability/_m`.
 
 A completed SLURM job is not proof of scientific validity. Check
 `task_reconciliation.tsv` and the module README's acceptance gate.

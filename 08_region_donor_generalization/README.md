@@ -1,4 +1,4 @@
-# 07_region_donor_generalization — boundaries of the biology
+# 08_region_donor_generalization — boundaries of the biology
 
 Establishes what is shared and what is context-dependent across brain regions, donor groups, and matched subsets.
 

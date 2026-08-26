@@ -70,6 +70,14 @@ genotype:
     eigenval: inputs/genotypes/all_individuals/TOPMed_LIBD.eigenval
   all_individuals_dir: inputs/genotypes/all_individuals
 
+# 1000 Genomes reference for the ancestry-confirmation panel (Module 10 QC).
+# Absolute paths: these are shared project resources, not repo inputs.
+# Registered 2026-08-26 for the D3 QC migration; previously read as bare
+# literals in qc_analysis/replication_cohort/_h/04.plot_pc.R.
+reference_1kgp:
+  sample_panel: /projects/b1213/resources/1kGP/data_raw/integrated_call_samples_v3.20130502.ALL.panel
+  eigenvec: /projects/b1213/resources/1kGP/GRCh38_phased_vcf/_m/1kGP-pc.eigenvec
+
 # Non-residualized CpG matrices live in the staff (Alexis) repo.
 # Primary AA discovery uses the AA-only tree; EA / expanded use all_individuals.
 cpg_methylation_root: /projects/b1213/users/alexis/projects/dna-methylation-heritability
