@@ -1,4 +1,4 @@
-# 06_transcription_splicing_coupling — regulatory consequences
+# 07_transcription_splicing_coupling — regulatory consequences
 
 Tests whether meQTL-supported or locally controlled VMRs are more likely to have existing significant associations with gene/transcript abundance or transcript usage/splicing.
 
