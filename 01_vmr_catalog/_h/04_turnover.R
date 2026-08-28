@@ -113,41 +113,80 @@ write_atomic(turnover, file.path(qc_dir, "vmr_turnover.tsv"))
 ##
 ## One of the manuscript's stated contributions is WGBS coverage of methylation
 ## outside array-accessible CpGs (AGENTS.md 2.2). This quantifies it.
+##
+## The array universes are reference annotations describing a platform we did
+## not run -- coordinates only, in the same category as repeat-masker or the
+## ENCODE blacklist. No array intensity, sample, or methylation value enters
+## this computation, and this stage runs after VMR calling and writes only to
+## qc/, so no VMR is defined or filtered using array positions.
+##
+## Two platforms are reported. 450K is the required main-figure comparator;
+## EPIC is the stricter supplemental one (~866k vs ~486k probes), so the
+## off-array fraction against EPIC must be the smaller of the two.
+##
+## Schema of both universes (built by inputs/supportfiles/_h/01_build_array_universe.R):
+##   probe_id  chrom  pos_1based
 
 membership <- fread(file.path(vmr_dir, "cpg_vmr_membership.tsv"))
-array_manifest <- file.path(V2_ROOT, "inputs", "supportfiles", "_m",
-                            "array_cpg_manifest_hg38.bed.gz")
 
-if (file.exists(array_manifest)) {
-    arr <- fread(array_manifest, header = FALSE,
-                 col.names = c("chr", "start", "end"))
-    g_arr <- GRanges(arr$chr, IRanges(arr$start + 1L, arr$end))
-    g_cpg <- GRanges(membership$chr, IRanges(membership$cpg_pos, width = 1))
-    g_vmr <- to_gr(new_vmr)
+support_dir <- file.path(V2_ROOT, "inputs", "supportfiles", "_m")
+ARRAY_UNIVERSES <- list(
+    list(platform = "450K", file = "450k_universe_hg38.tsv.gz", required = TRUE),
+    list(platform = "EPIC", file = "epic_universe_hg38.tsv.gz", required = FALSE)
+)
+
+g_cpg <- GRanges(membership$chr, IRanges(membership$cpg_pos, width = 1))
+g_vmr <- to_gr(new_vmr)
+
+coverage <- rbindlist(lapply(ARRAY_UNIVERSES, function(spec) {
+    path <- file.path(support_dir, spec$file)
+
+    ## A silent skip here is what let this panel go missing across six accepted
+    ## runs: the old code wrote a placeholder note and exited 0. The required
+    ## comparator now fails the stage instead.
+    if (!file.exists(path)) {
+        if (spec$required) {
+            stop("Required array universe not found: ", path,
+                 "\nAGENTS.md 2.2 and 11 (Figure 1) need the off-array ",
+                 "coverage comparison. Build it with:\n",
+                 "  Rscript inputs/supportfiles/_h/01_build_array_universe.R ",
+                 "--platform ", spec$platform)
+        }
+        message("[coverage] optional universe absent, skipping: ", spec$platform)
+        return(NULL)
+    }
+
+    arr <- fread(path)
+    stopifnot(all(c("chrom", "pos_1based") %in% names(arr)))
+    g_arr <- GRanges(arr$chrom, IRanges(arr$pos_1based, width = 1))
 
     cpg_on_array <- countOverlaps(g_cpg, g_arr) > 0
     vmr_any_array <- countOverlaps(g_vmr, g_arr) > 0
 
-    coverage <- data.table(
+    data.table(
         cohort = cohort, region = region, vmr_set_id = vmr_set_id,
+        array_platform = spec$platform,
+        n_array_probes = nrow(arr),
         n_vmr_cpgs = nrow(membership),
         n_vmr_cpgs_on_array = sum(cpg_on_array),
         frac_vmr_cpgs_off_array = mean(!cpg_on_array),
         n_vmrs = nrow(new_vmr),
         n_vmrs_with_no_array_cpg = sum(!vmr_any_array),
         frac_vmrs_invisible_to_array = mean(!vmr_any_array),
-        array_manifest = basename(array_manifest))
-} else {
-    coverage <- data.table(
-        cohort = cohort, region = region, vmr_set_id = vmr_set_id,
-        n_vmr_cpgs = nrow(membership), n_vmrs = nrow(new_vmr),
-        array_manifest = NA_character_,
-        note = paste0("Array manifest not found at ", array_manifest,
-                      "; off-array coverage not computed. Generate the ",
-                      "manifest before the figure freeze -- AGENTS.md 11 ",
-                      "Figure 1 needs this panel."))
-    message("[coverage] array manifest missing; skipping off-array comparison")
+        array_manifest = basename(path))
+}), fill = TRUE)
+
+## Sanity: more probes must not yield more off-array CpGs.
+if (all(c("450K", "EPIC") %in% coverage$array_platform)) {
+    f450 <- coverage[array_platform == "450K", frac_vmr_cpgs_off_array]
+    fepic <- coverage[array_platform == "EPIC", frac_vmr_cpgs_off_array]
+    if (fepic > f450) {
+        stop("EPIC off-array fraction (", signif(fepic, 4), ") exceeds 450K (",
+             signif(f450, 4), "); EPIC is a superset platform, so this ",
+             "indicates a coordinate or build mismatch.")
+    }
 }
+
 write_atomic(coverage, file.path(qc_dir, "array_coverage.tsv"))
 
 ## ------------------------------------------- technical QC and exclusion table
