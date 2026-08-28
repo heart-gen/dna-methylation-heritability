@@ -1,6 +1,7 @@
 #!/bin/bash
-#SBATCH --account=p32505
-#SBATCH --partition=short
+#SBATCH --account=b1042
+#SBATCH --partition=genomics
+#SBATCH --qos=buyin
 #SBATCH --job-name=lsp-oof
 #SBATCH --cpus-per-task=8
 #SBATCH --mem=32G
