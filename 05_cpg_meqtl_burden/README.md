@@ -120,6 +120,43 @@ Internal meQTL mapping is convergent evidence, not independent replication.
 Positive-only public resources cannot provide an external gradient, because
 absence from a positive list is not a tested negative.
 
+## Convergent evidence, not independent replication
+
+The primary model regresses per-VMR meQTL burden on
+`local_snp_contribution_score_z`. Both sides of that regression are derived
+from the genotype-methylation covariance in the **same donors** (AA: n = 153
+caudate, 118 DLPFC, 117 hippocampus) and from the same accepted Module 01 VMR
+catalog. The predictor comes from Module 02's variance estimate on those
+donors; the outcome is a cis-meQTL scan on those same donors' genotypes and
+methylation. The two quantities are therefore not independent measurements of
+local genetic control -- they are two summaries of one covariance structure.
+
+A large, highly significant coefficient is expected by construction and is
+**not** evidence of external validity. The production runs give
+`local_snp_contribution_score_z` beta = 2.42 / 2.45 / 2.49 (caudate / DLPFC /
+hippocampus) at z = 39.4 / 35.0 / 36.6. The defensible reading of that result
+is internal consistency: three regions, mapped independently of one another,
+agree on the effect size to within 3%. The magnitude of z is a property of the
+design, not a finding, and must not be reported as one.
+
+What this module therefore does and does not license:
+
+- **Does**: confirm that the Module 02 score tracks a directly observable
+  molecular quantity (the fraction of a VMR's CpGs carrying a significant cis
+  meQTL) in the expected direction, consistently across regions.
+- **Does**: support the relative, rank-based use of the score, which is the
+  prespecified endpoint.
+- **Does not**: replicate Module 02 in an independent sample.
+- **Does not**: calibrate or validate any absolute PVE, effect size, or
+  threshold.
+
+Independent support comes only from the public-resource positive control
+(`results/qc/positive_control_public_meqtl_overlap.tsv`), which is external to
+these donors. That control is directional evidence with a known ceiling:
+positive-only resources cannot supply a tested negative, so a CpG's absence
+from a public list is not evidence against an meQTL there, and the recovery
+contrast it reports is a floor rather than an estimate.
+
 ## Contract
 
 This module follows AGENTS.md §5.2: `_h/` holds code, `_m/` holds generated
@@ -128,11 +165,8 @@ smoke checks. Configuration lives in `config/` at the repository root.
 
 ## Accepted runs
 
-_(none)_
-
-AGENTS.md §6 makes acceptance a human step: no row appears here until a
-production run's gate stage passes and the PI records it. A smoke run is never
-entered in this table.
-
-| run_id | cohort | region | vmr_set_id | accepted_on | accepted_by | decision | notes |
-|---|---|---|---|---|---|---|---|
+| run_id                      | cohort | region      | vmr_set_id                         | accepted_on | accepted_by         | decision                 | notes                                                                      |
+|-----------------------------|--------|-------------|------------------------------------|-------------|---------------------|--------------------------|----------------------------------------------------------------------------|
+| cmb-AA-caudate-20260825     | AA     | caudate     | vmrset-AA-caudate-937a41979978     | 2026-08-28  | Kynon J.M. Benjamin | PASS_CPG_MEQTL_BURDEN_QC | Convergent evidence, not independent replication; distal-null lambda 1.139 |
+| cmb-AA-dlpfc-20260825       | AA     | dlpfc       | vmrset-AA-dlpfc-856067dfe289       | 2026-08-28  | Kynon J.M. Benjamin | PASS_CPG_MEQTL_BURDEN_QC | Convergent evidence, not independent replication                           |
+| cmb-AA-hippocampus-20260825 | AA     | hippocampus | vmrset-AA-hippocampus-2d907b892215 | 2026-08-28  | Kynon J.M. Benjamin | PASS_CPG_MEQTL_BURDEN_QC | Convergent evidence, not independent replication                           |
