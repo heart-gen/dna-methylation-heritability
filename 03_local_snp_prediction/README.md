@@ -80,8 +80,8 @@ smoke checks. Configuration lives in `config/` at the repository root.
 
 ## Accepted runs
 
-| run_id                      | cohort | region      | vmr_set_id                         | accepted_on | accepted_by         | decision               | notes                                                            |
-|-----------------------------|--------|-------------|------------------------------------|-------------|---------------------|------------------------|------------------------------------------------------------------|
-| lsp-AA-caudate-20260825     | AA     | caudate     | vmrset-AA-caudate-937a41979978     | 2026-08-28  | Kynon J.M. Benjamin | PASS_OOF_PREDICTION_QC | End-to-end OOF; median r2 ~0, mean 0.204; relative rank use only |
-| lsp-AA-dlpfc-20260825       | AA     | dlpfc       | vmrset-AA-dlpfc-856067dfe289       | 2026-08-28  | Kynon J.M. Benjamin | PASS_OOF_PREDICTION_QC | End-to-end OOF; median r2 ~0, mean 0.174; relative rank use only |
-| lsp-AA-hippocampus-20260825 | AA     | hippocampus | vmrset-AA-hippocampus-2d907b892215 | 2026-08-28  | Kynon J.M. Benjamin | PASS_OOF_PREDICTION_QC | End-to-end OOF; median r2 ~0, mean 0.188; relative rank use only |
+| run_id                      | cohort | region      | vmr_set_id                         | accepted_on | accepted_by         | decision               | notes                                                                                                                               |
+|-----------------------------|--------|-------------|------------------------------------|-------------|---------------------|------------------------|-------------------------------------------------------------------------------------------------------------------------------------|
+| lsp-AA-caudate-20260825     | AA     | caudate     | vmrset-AA-caudate-937a41979978     | 2026-08-28  | Kynon J.M. Benjamin | PASS_OOF_PREDICTION_QC | 11530 expected / 11343 scored / 187 QC-failed / 0 failed; median r2_pred_oof ~0, mean 0.204, 45.1% positive; relative rank use only |
+| lsp-AA-dlpfc-20260825       | AA     | dlpfc       | vmrset-AA-dlpfc-856067dfe289       | 2026-08-28  | Kynon J.M. Benjamin | PASS_OOF_PREDICTION_QC | 9572 expected / 9347 scored / 225 QC-failed / 0 failed; median r2_pred_oof ~0, mean 0.174, 44.4% positive; relative rank use only   |
+| lsp-AA-hippocampus-20260825 | AA     | hippocampus | vmrset-AA-hippocampus-2d907b892215 | 2026-08-28  | Kynon J.M. Benjamin | PASS_OOF_PREDICTION_QC | 9497 expected / 9272 scored / 225 QC-failed / 0 failed; median r2_pred_oof ~0, mean 0.188, 46.5% positive; relative rank use only   |
