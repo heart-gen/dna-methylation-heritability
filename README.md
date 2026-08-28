@@ -51,14 +51,17 @@ legacy directory maps onto them.
 | `03_local_snp_prediction/` | Held-out local SNP prediction (secondary endpoint) |
 | `04_repeat_repressive_architecture/` | Repeat-rich and repressive compartments (primary biology) |
 | `05_cpg_meqtl_burden/` | CpG cis-meQTL burden gradient |
-| `06_transcription_splicing_coupling/` | Expression and splicing coupling |
-| `07_region_donor_generalization/` | Cross-region and donor-group generalization |
-| `08_schizophrenia_risk_application/` | Schizophrenia-risk application |
-| `09_integrated_manuscript_outputs/` | Manuscript tables, figures, and number registry |
+| `06_partitioned_heritability/` | S-LDSC partitioned heritability on the continuous local SNP contribution score |
+| `07_transcription_splicing_coupling/` | Expression and splicing coupling |
+| `08_region_donor_generalization/` | Cross-region and donor-group generalization |
+| `09_schizophrenia_risk_application/` | Schizophrenia-risk application |
+| `10_integrated_manuscript_outputs/` | Manuscript tables, figures, and number registry |
 | `config/` | Shared configuration for the above |
 
-Modules 03–09 are scaffolded but not yet implemented; each is gated on its
-upstream module recording a passing acceptance gate.
+Modules 01 and 02 have accepted runs. Modules 03–05 are implemented and
+smoke-verified but have no accepted run. Modules 06–09 are scaffolded only.
+Module 10 has Figures 1–2 implemented. Each module is gated on its upstream
+module recording a passing acceptance gate.
 
 ### Legacy directories
 
@@ -73,7 +76,7 @@ E1 (`r_squared_cv` is an in-sample fit, not prediction accuracy).
 | `vmr-analysis/` | Legacy VMR identification → `01_vmr_catalog/` |
 | `calibrated-simulation-analysis/` | Calibrated variance estimator → `02_local_genetic_variance/` |
 | `local-snp-prediction/` | Legacy elastic-net prediction → `03_local_snp_prediction/` |
-| `meqtl-validation/` | CpG meQTL mapping, burden, repeat/cell sensitivities, Phase 7 → modules 04–08 |
+| `meqtl-validation/` | CpG meQTL mapping, burden, repeat/cell sensitivities, Phase 7 → modules 04–09 |
 | `environmental-analysis/` | Environmental proxy associations (supplemental at most) |
 | `simulation-analysis/` | Validation simulations and method comparisons |
 | `sensitivity-analysis/` | Stacked/Venn/Sankey figures (withdrawn; depend on `r_squared_cv > 0.75`) |
