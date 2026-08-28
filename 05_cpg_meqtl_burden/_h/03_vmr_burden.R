@@ -65,7 +65,18 @@ if (!file.exists(infl_f)) {
     stop("Missing ", infl_f, ". Run 04_qc_plots.py before 03_vmr_burden.R; ",
          "the inflation gate is computed there from the nominal cis pairs.")
 }
-lambda <- fread(infl_f)$lambda[1]
+infl <- fread(infl_f)
+lambda <- infl$lambda[1]
+## The gate statistic is deliberately the DISTAL lambda (see 04_qc_plots.py).
+## Carry the companions so the recorded constraint can state which lambda the
+## headline number is, rather than leaving a bare figure to be misquoted.
+infl_col <- function(nm, default) {
+    if (nm %in% names(infl)) infl[[nm]][1] else default
+}
+lambda_stat <- infl_col("lambda_statistic", "distal_cis_pairs")
+lambda_all  <- infl_col("lambda_all_pairs", NA_real_)
+n_distal    <- infl_col("n_distal_pairs_used", NA_integer_)
+n_nominal   <- infl_col("n_nominal_pairs_used", NA_integer_)
 lambda_max <- config_get(meqtl, "genomic_inflation.max")
 message("[05] genomic inflation lambda = ", round(lambda, 3),
         " (distal cis pairs; allowed max ", lambda_max, ")")
@@ -165,7 +176,20 @@ writeLines(c(
     "    vmrs-without-tested-cpgs.tsv for what is not in them.",
     "  - Public positive-only meQTL resources cannot provide an external",
     "    gradient: absence from a positive list is not a tested negative.",
-    sprintf("  - Genomic inflation lambda = %.3f.", lambda)
+    "  - The reported genomic inflation lambda is a DISTAL-NULL statistic, not",
+    "    an all-pair lambda. It is computed over cis pairs with |CpG-SNP",
+    "    distance| above the configured distal threshold, where true meQTLs are",
+    "    sparse enough for the null to hold. Proximal cis pairs are enriched for",
+    "    real signal, so lambda > 1 there is expected and is not evidence of",
+    "    confounding. Quoting the distal figure as though it described the whole",
+    "    scan overstates how well calibrated the scan is; quote both.",
+    sprintf("  - Genomic inflation lambda = %.3f (%s).", lambda, lambda_stat),
+    sprintf("  - All-pair lambda over the same scan = %.3f, on %s nominal cis",
+            lambda_all, format(n_nominal, big.mark = ",")),
+    sprintf("    pairs; the distal figure uses %s pairs. Lambda decaying",
+            format(n_distal, big.mark = ",")),
+    "    monotonically as the distance floor rises is the signature of signal",
+    "    rather than inflation; see results/qc/genomic-inflation-by-distance.tsv."
 ), file.path(res_dir, "interpretation-constraints.txt"))
 
 print(primary[term == "local_snp_contribution_score_z"])
