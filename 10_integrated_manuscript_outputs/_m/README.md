@@ -1,7 +1,7 @@
-# 07_region_donor_generalization/_m — generated output only
+# 10_integrated_manuscript_outputs/_m — generated output only
 
 Nothing in this directory is written by hand. Every file here is produced by a
-script in `07_region_donor_generalization/_h/` from locked configuration and declared inputs
+script in `10_integrated_manuscript_outputs/_h/` from locked configuration and declared inputs
 (AGENTS.md §5.2).
 
 ## What is tracked in Git
@@ -29,7 +29,7 @@ software environment, SLURM job IDs), `task_reconciliation.tsv`, and
 
 1. Check out the `git_commit` recorded in its `manifest.tsv`.
 2. Confirm the `config_*_sha256` fields match the current `config/`.
-3. Re-run the module's submission workflow from `07_region_donor_generalization/_m`.
+3. Re-run the module's submission workflow from `10_integrated_manuscript_outputs/_m`.
 
 A completed SLURM job is not proof of scientific validity. Check
 `task_reconciliation.tsv` and the module README's acceptance gate.

@@ -70,6 +70,11 @@ if (nrow(skip_reasons)) {
                  file.path(run_dir, "results", "qc-failed-loci.tsv"))
 }
 
+## Minimum spread of the out-of-fold predictions, as a fraction of the observed
+## phenotype's spread, before a calibration slope is considered defined. Loci
+## below it are numerically degenerate rather than badly calibrated.
+CALIBRATION_SD_TOL <- 1e-6
+
 comb_dir <- file.path(run_dir, "results", "combined")
 dir.create(comb_dir, recursive = TRUE, showWarnings = FALSE)
 
@@ -80,20 +85,38 @@ metrics <- preds[, {
     ## Calibration of a predictor: regress observed on predicted. Intercept 0
     ## and slope 1 is perfect calibration; slope < 1 is the usual overfitting
     ## signature (predictions too spread out).
-    cal <- if (stats::sd(y_pred) > 0) {
+    ##
+    ## The slope is only defined when the predictions actually vary. A strict
+    ## sd(y_pred) > 0 test is not enough: a locus screened in for a handful of
+    ## folds and given the prespecified null prediction elsewhere can produce a
+    ## spread of order 1e-16, and dividing by it yields a slope of order 1e16.
+    ## That is a numerically degenerate regression, not a miscalibrated
+    ## predictor, and it poisons any unguarded mean over the column. Require the
+    ## predictor's spread to be non-trivial relative to the outcome's before the
+    ## slope is reported; otherwise emit NA. `calibration_slope_defined` records
+    ## which loci cleared the tolerance -- it is a well-definedness flag, NOT a
+    ## prediction-accuracy label, and must never be used to filter loci out of a
+    ## downstream analysis (see AGENTS.md section 3 on the retired
+    ## `r_squared_cv` classification).
+    sd_pred <- stats::sd(y_pred)
+    sd_obs  <- stats::sd(y_obs)
+    cal_ok  <- is.finite(sd_pred) && is.finite(sd_obs) && sd_obs > 0 &&
+        sd_pred > CALIBRATION_SD_TOL * sd_obs
+    cal <- if (cal_ok) {
         stats::coef(stats::lm(y_obs ~ y_pred))
     } else c(NA_real_, NA_real_)
     .(
         n_donors_predicted = uniqueN(donor),
         n_predictions      = .N,
         r2_pred_oof        = if (sst > 0) 1 - sse / sst else NA_real_,
-        cor2_oof           = if (stats::sd(y_pred) > 0 && stats::sd(y_obs) > 0) {
+        cor2_oof           = if (cal_ok) {
                                  stats::cor(y_obs, y_pred)^2
                              } else NA_real_,
         rmse               = sqrt(mean((y_obs - y_pred)^2)),
         mae                = mean(abs(y_obs - y_pred)),
         calibration_intercept = cal[1],
         calibration_slope     = cal[2],
+        calibration_slope_defined = cal_ok,
         screening_pass_frequency = mean(screened_in),
         median_n_variants  = stats::median(n_variants),
         median_alpha       = stats::median(alpha, na.rm = TRUE)

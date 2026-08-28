@@ -402,3 +402,36 @@ the chr22 smoke run `vmrcat-AA-caudate-20260815-a` is deliberately absent.
 | vmrcat-all_individuals-caudate-20260816 | all_individuals | caudate | vmrset-all_individuals-caudate-cb5519d7d2ad | 2026-08-16 | Kynon J.M. Benjamin | ALL_FIVE_CRITERIA_PASS | 282 donors, 11,463 VMRs; sensitivity arm |
 | vmrcat-all_individuals-dlpfc-20260816 | all_individuals | dlpfc | vmrset-all_individuals-dlpfc-e88f46904afb | 2026-08-16 | Kynon J.M. Benjamin | ALL_FIVE_CRITERIA_PASS | 173 donors, 9,374 VMRs; turnover outlier, see forensic audit |
 | vmrcat-all_individuals-hippocampus-20260816 | all_individuals | hippocampus | vmrset-all_individuals-hippocampus-809f8de0db2d | 2026-08-16 | Kynon J.M. Benjamin | ALL_FIVE_CRITERIA_PASS | 177 donors, 9,365 VMRs; sensitivity arm |
+
+## QC refresh runs (`vmrcatqc-*-20260826-a`)
+
+The accepted `vmrcat-*-20260816` runs were sealed before any array probe
+universe existed on disk, so `04_turnover.R` took its silent skip branch and
+`qc/array_coverage.tsv` held a placeholder note instead of the off-array
+numbers AGENTS.md §2.2 and §11 (Figure 1) require.
+
+Runs are immutable, so `_h/04b_rerun_array_coverage.R` mints a new run that
+copies the accepted catalog verbatim and re-runs QC only. The VMR calls are
+untouched and `vmr_set_id` carries forward unchanged, so no downstream module
+is invalidated.
+
+These runs add:
+
+- `qc/array_coverage.tsv` -- now one row per array platform (450K required,
+  EPIC optional), with `array_platform` and `n_array_probes`. `04_turnover.R`
+  now **fails** rather than skips when the required 450K universe is missing.
+- `qc/genomic_context.tsv` and `qc/distance_to_nearest_gene.tsv` from
+  `_h/04c_genomic_context.R` -- descriptive genic compartment and
+  distance-to-gene for each VMR. Not an enrichment analysis: compartments are
+  assigned by priority so they partition the catalog, and no test is applied.
+  The legacy `local-snp-prediction/.../annotation/` outputs could not be reused
+  because they are keyed to the invalid legacy catalog (AGENTS.md §8).
+
+| Cohort | Region | VMR CpGs off 450K | VMRs invisible to 450K |
+|---|---|---|---|
+| AA | caudate | 94.7% | 58.7% |
+| AA | dlpfc | 95.2% | 65.0% |
+| AA | hippocampus | 95.1% | 65.1% |
+
+EPIC fractions are lower in every cell, as a superset platform requires; the
+stage asserts this and stops if the ordering inverts.

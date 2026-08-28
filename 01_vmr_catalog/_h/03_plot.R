@@ -1,7 +1,7 @@
 #### 01_vmr_catalog / 03_plot: catalog diagnostics ####
 ##
 ## Diagnostic figures only. Manuscript figures are assembled exclusively in
-## 09_integrated_manuscript_outputs from accepted run IDs (AGENTS.md 7.9).
+## 10_integrated_manuscript_outputs from accepted run IDs (AGENTS.md 7.9).
 ##
 ## Usage:
 ##   Rscript 03_plot.R --cohort AA --region caudate --run-id ID
