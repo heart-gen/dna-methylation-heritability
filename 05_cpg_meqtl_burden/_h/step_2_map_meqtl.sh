@@ -1,6 +1,7 @@
 #!/bin/bash
-#SBATCH --account=p32505
-#SBATCH --partition=normal
+#SBATCH --account=b1042
+#SBATCH --partition=genomics
+#SBATCH --qos=buyin
 #SBATCH --job-name=cmb-meqtl
 #SBATCH --cpus-per-task=8
 #SBATCH --mem=64G

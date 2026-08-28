@@ -95,7 +95,7 @@ log_message "mapping array ${MAP_JOB} (${ARRAY_SPEC})"
 # so a cancelled chromosome is reconciled rather than leaving the audit blocked.
 sbatch_step () {  # name deps cpus mem time command
     sbatch --parsable --dependency="$2" --chdir="${RUN_DIR}/logs" \
-        --account=p32505 --partition=short --job-name="$1" \
+        --account=b1042 --partition=genomics --qos=buyin --job-name="$1" \
         --cpus-per-task="$3" --mem="$4" --time="$5" \
         --output=%x-%j.out --error=%x-%j.err --export="$EXPORT" \
         --wrap="$6"
