@@ -6,6 +6,27 @@
 # family, which remains the three primary repressive fraction outcomes, so this
 # amendment does not change any q-value already reported.
 #
+# Amended 2026-09-02: the specificity control was re-specified as SIGN-AWARE and
+# bivalent_frac was demoted to descriptive. Rationale, recorded before any
+# full-n result was seen (only a 2000-VMR smoke had run):
+#   (a) A Polycomb NULL was the wrong prior. H3K9me3 and H3K27me3 occupy broadly
+#       anti-correlated compartments -- constitutive heterochromatin in gene-poor,
+#       repeat-rich, late-replicating sequence; Polycomb at CpG islands and
+#       developmental promoters. Independently, the local SNP contribution score
+#       is depleted at CGI/Polycomb loci, which are hypomethylated, low-variance
+#       and constraint-depleted of common large-effect mQTLs. Both effects push
+#       the Polycomb estimate NEGATIVE under the alternative hypothesis, so a
+#       two-sided null could not be satisfied by data consistent with our claim.
+#   (b) A negative Polycomb estimate opposite a positive primary is evidence FOR
+#       constitutive specificity, not against it. The previous |estimate|
+#       comparison was sign-blind and inverted that inference.
+#   (c) bivalent_frac is drawn from the SAME closed ChromHMM 15-state partition
+#       as quiescent (15_Quies). Fractions in a closed partition sum to one, so
+#       quiescent enrichment mechanically forces bivalent depletion. That is
+#       arithmetic, not evidence, and it cannot be null under the alternative.
+#       h3k27me3 is an independent gappedPeak call and is NOT subject to this.
+# The BH family is untouched, so no reported q changes.
+#
 # The primary predictor is the standardized continuous within-cell local SNP
 # contribution score among eligible loci; r2_pred_oof is secondary. Overlap
 # alone never implies activity, expression, or retrotransposition.
@@ -50,8 +71,12 @@ chromatin:
   # Polycomb repression generally. H3K27me3 marks the Polycomb arm; the
   # bivalent ChromHMM states mark poised promoters/enhancers, which are
   # repressed but developmentally licensed rather than constitutively silent.
-  # If the primary signal is equally strong here, "constitutive heterochromatin"
-  # is not the supported sentence -- "repressed chromatin" is.
+  # Specificity is a CONTRAST, not two marginal fits. What defeats the
+  # constitutive claim is a Polycomb estimate of the SAME SIGN and comparable
+  # magnitude to the primary -- that is repression generally. An opposite-signed
+  # Polycomb estimate supports constitutive specificity (see 2026-09-02 above).
+  # bivalent is retained as DESCRIPTIVE only: it shares the closed ChromHMM
+  # partition with quiescent, so its sign is not independent evidence.
   h3k27me3:
     dir: /projects/b1213/resources/EpigenomeRoadmap/egg2.wustl.edu/roadmap/data/byFileType/peaks/consolidated/gappedPeak
     template: "{eid}-H3K27me3.gappedPeak.gz"
@@ -166,7 +191,9 @@ multiple_testing:
   # the project and adding a control never revises a reported q.
   outside_family:
     h3k27me3_frac:   {role: specificity_control,    expected_direction: null}
-    bivalent_frac:   {role: specificity_control,    expected_direction: null}
+    # Demoted 2026-09-02: closed-partition dependence with quiescent_frac.
+    # Reported, never gated on.
+    bivalent_frac:   {role: descriptive,            expected_direction: null}
     accessible_frac: {role: complementary_contrast, expected_direction: negative}
     h3k27ac_frac:    {role: complementary_contrast, expected_direction: negative}
   # The gate reads q for family members and p for controls. Making this explicit
@@ -197,8 +224,13 @@ interpretation:
     expected_direction: negative
     one_sided: true
     regions_required: 3
-  # If the specificity control is as strong as the primary repressive outcome,
-  # the permitted noun is "repressed chromatin", not "constitutive
-  # heterochromatin". Compared on the standardized estimate, not on p.
+  # The constitutive claim fails only when Polycomb behaves like the primary:
+  # SAME sign AND comparable magnitude. Compared on the standardized estimate,
+  # not on p, so a larger sample on one track cannot decide it. An
+  # opposite-signed Polycomb estimate never blocks the claim.
   specificity_control:
     constitutive_claim_requires_stronger_than_polycomb: true
+    sign_aware: true
+    # Only these outcomes gate the constitutive noun. bivalent_frac is excluded
+    # by the 2026-09-02 amendment.
+    polycomb_outcomes: ["h3k27me3_frac"]
