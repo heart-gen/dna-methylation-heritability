@@ -195,20 +195,49 @@ concentration_supported <- !isTRUE(acc_cfg$required_for_concentration_claim) ||
 
 ## Constitutive vs. Polycomb. Compared on the standardized estimate rather than
 ## on p, because a larger sample on one track would otherwise decide it.
-spec_mean <- function(outs) {
-    v <- controls[outcome %in% outs & !is.na(estimate), abs(estimate)]
+##
+## SIGN-AWARE (config amendment 2026-09-02). Specificity is a contrast, not two
+## marginal fits. What defeats "constitutive heterochromatin" is Polycomb
+## behaving like the primary: SAME sign and comparable magnitude, which is
+## repression generally. An OPPOSITE-signed Polycomb estimate is evidence FOR
+## constitutive specificity -- H3K9me3 and H3K27me3 occupy anti-correlated
+## compartments -- and must never block the claim. The previous abs() comparison
+## was sign-blind and inverted exactly that case.
+spec_cfg <- annot$interpretation$specificity_control
+POLYCOMB <- unlist(spec_cfg$polycomb_outcomes %||% "h3k27me3_frac")
+
+signed_mean <- function(dt) {
+    v <- dt[!is.na(estimate), estimate]
     if (length(v) == 0) NA_real_ else mean(v)
 }
-polycomb_strength <- spec_mean(c("h3k27me3_frac", "bivalent_frac"))
-repressive_strength <- {
-    v <- res[outcome %in% c("h3k9me3_frac", "quiescent_frac") &
-             predictor == primary_pred & analysis_set == "primary", estimate]
-    if (length(v) == 0) NA_real_ else mean(abs(v), na.rm = TRUE)
-}
+polycomb_signed <- signed_mean(controls[outcome %in% POLYCOMB])
+repressive_signed <- signed_mean(
+    res[outcome %in% c("h3k9me3_frac", "quiescent_frac") &
+        predictor == primary_pred & analysis_set == "primary"])
+
+## Same sign is a precondition for the control to bite at all.
+same_sign <- is.finite(polycomb_signed) && is.finite(repressive_signed) &&
+    sign(polycomb_signed) == sign(repressive_signed)
+
 constitutive_supported <- !isTRUE(
-    annot$interpretation$specificity_control$constitutive_claim_requires_stronger_than_polycomb) ||
-    (is.finite(repressive_strength) && is.finite(polycomb_strength) &&
-     repressive_strength > polycomb_strength)
+    spec_cfg$constitutive_claim_requires_stronger_than_polycomb) ||
+    !is.finite(polycomb_signed) || !is.finite(repressive_signed) ||
+    !same_sign ||
+    abs(repressive_signed) > abs(polycomb_signed)
+
+## Reported so the reason is auditable from the log, not inferred from the noun.
+constitutive_basis <- if (!is.finite(polycomb_signed)) {
+    "no Polycomb estimate available"
+} else if (!same_sign) {
+    sprintf(paste("Polycomb %.3f is OPPOSITE in sign to repressive %.3f:",
+                  "consistent with constitutive specificity"),
+            polycomb_signed, repressive_signed)
+} else {
+    sprintf(paste("Polycomb %.3f and repressive %.3f share sign;",
+                  "|repressive| %s |Polycomb|"),
+            polycomb_signed, repressive_signed,
+            if (abs(repressive_signed) > abs(polycomb_signed)) ">" else "<=")
+}
 
 ## Fold both qualifiers into the permitted claim, so a reader of the claims
 ## table alone cannot pick up the strong noun without the evidence for it.
@@ -223,7 +252,7 @@ claims[outcome %in% c("h3k9me3_frac", "quiescent_frac") &
        regions_surviving > 0 & !constitutive_supported,
        permitted_claim := paste0(permitted_claim,
            "; say \"repressed chromatin\", NOT \"constitutive heterochromatin\"",
-           " -- the Polycomb/bivalent control is not weaker")]
+           " -- ", constitutive_basis)]
 
 out_dir <- file.path(repo_root(), MODULE, "_m", "runs", run_ids[1], "results")
 write_atomic(claims, file.path(out_dir, "interpretation-claims.tsv"))
