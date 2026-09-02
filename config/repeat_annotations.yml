@@ -211,6 +211,20 @@ interpretation:
   # LINE/L1 may be called multi-region if it survives in at least two. If it
   # survives only in caudate, it is presented as caudate-specific.
   line_l1_multiregion_requires: 2
+  # Secondary predictor (r2_pred_oof_z): DESCRIPTIVE ONLY, never corroboration.
+  # Amendment 2026-09-02. `line_l1_frac` is a member of the BH family and
+  # `r2_pred_oof` is the Module 03 out-of-fold predictability of the same loci.
+  # Module 03's own step-6 QC established that LINE/L1 content is one of the
+  # strongest correlates of predictability (monotone across r2 bins in all three
+  # regions; adjusted OR 3.29, p=5e-17). Regressing LINE/L1 overlap on
+  # predictability is therefore close to regressing a variable on a function of
+  # itself: a positive coefficient is expected under the null that local genetic
+  # architecture has nothing to do with it. The cell is retained because
+  # suppressing it would be selective reporting, but it may never be written as
+  # a second line of evidence for a family claim.
+  secondary_predictor_role: descriptive
+  secondary_predictor_circular_outcomes:
+    - line_l1_frac
   # A DLPFC reversal or null after the high-mappability restriction is never
   # hidden.
   report_dlpfc_reversal: true

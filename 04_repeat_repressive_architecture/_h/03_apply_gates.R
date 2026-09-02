@@ -184,6 +184,36 @@ controls <- rbindlist(lapply(CONTROLS, function(o) {
     }))
 }))
 
+## ---------------------------------------------- secondary predictor (descriptive)
+##
+## r2_pred_oof_z rows are pulled out and written separately, never merged into
+## the claims table. Config amendment 2026-09-02: the secondary predictor is
+## DESCRIPTIVE ONLY. For the outcomes named in
+## interpretation.secondary_predictor_circular_outcomes the cell is additionally
+## near-tautological -- LINE/L1 content is itself one of the strongest
+## correlates of out-of-fold predictability (Module 03 step-6 QC), so a positive
+## coefficient is expected under the null. It is retained because dropping it
+## would be selective reporting, and flagged so it cannot be read as support.
+secondary_pred <- annot$primary_model$secondary_predictor %||% "r2_pred_oof_z"
+CIRCULAR <- unlist(annot$interpretation$secondary_predictor_circular_outcomes)
+secondary <- res[predictor == secondary_pred & analysis_set == "primary",
+                 .(outcome, region, estimate, se, p, n_fitted)]
+if (nrow(secondary) > 0) {
+    secondary[, descriptive_only := TRUE]
+    secondary[, circularity_flag := outcome %in% CIRCULAR]
+    secondary[, interpretation := fifelse(
+        circularity_flag,
+        paste("NOT evidence: outcome is a known correlate of out-of-fold",
+              "predictability, so this association is near-tautological"),
+        "descriptive only; not a second line of evidence for any claim")]
+} else {
+    secondary <- data.table(outcome = character(), region = character(),
+                            estimate = numeric(), se = numeric(), p = numeric(),
+                            n_fitted = integer(), descriptive_only = logical(),
+                            circularity_flag = logical(),
+                            interpretation = character())
+}
+
 ## Arm two of the concentration claim. Depletion in accessible chromatin must
 ## hold, in the prespecified direction, in the required number of regions.
 acc_cfg <- annot$interpretation$accessible_contrast
@@ -248,6 +278,11 @@ claims[regions_surviving > 0 & !concentration_supported,
            "; ENRICHMENT ONLY -- accessible-chromatin depletion not established (",
            n_acc, "/", acc_required,
            " regions), so \"concentrated in repressive chromatin\" is not supported")]
+claims[outcome %in% CIRCULAR,
+       permitted_claim := paste0(permitted_claim,
+           "; rests on the primary predictor ALONE -- the ", secondary_pred,
+           " association is descriptive and near-circular, and may not be",
+           " cited as corroboration")]
 claims[outcome %in% c("h3k9me3_frac", "quiescent_frac") &
        regions_surviving > 0 & !constitutive_supported,
        permitted_claim := paste0(permitted_claim,
@@ -258,6 +293,7 @@ out_dir <- file.path(repo_root(), MODULE, "_m", "runs", run_ids[1], "results")
 write_atomic(claims, file.path(out_dir, "interpretation-claims.tsv"))
 write_atomic(res, file.path(out_dir, "association-results-all-regions.tsv"))
 write_atomic(controls, file.path(out_dir, "control-outcomes.tsv"))
+write_atomic(secondary, file.path(out_dir, "secondary-predictor-descriptive.tsv"))
 
 print(claims)
 print(controls)
@@ -277,8 +313,13 @@ writeLines(c(
     sprintf("  - Accessible-chromatin depletion: %d/%d regions. Concentration claim %s.",
             n_acc, acc_required,
             if (concentration_supported) "permitted" else "NOT permitted"),
-    sprintf("  - Repressive |estimate| %.3f vs Polycomb/bivalent %.3f. %s.",
-            repressive_strength, polycomb_strength,
+    sprintf(paste("  - Family claims rest on the primary predictor (%s) alone.",
+                  "\n    %s associations are descriptive; for %s they are",
+                  "\n    near-circular and are not corroboration."),
+            primary_pred, secondary_pred,
+            paste(CIRCULAR, collapse = ", ")),
+    sprintf("  - Specificity control: %s. %s.",
+            constitutive_basis,
             if (constitutive_supported) "\"Constitutive heterochromatin\" permitted"
             else "Say \"repressed chromatin\"")
 ), file.path(out_dir, "interpretation-constraints.txt"))
