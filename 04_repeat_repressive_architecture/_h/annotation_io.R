@@ -30,36 +30,54 @@ roadmap_eid <- function(annot, region) {
     eid
 }
 
-#' H3K9me3 gappedPeak track for one epigenome. Returns hg19 GRanges.
+#' A gappedPeak chromatin track for one epigenome. Returns hg19 GRanges.
 #'
 #' gappedPeak is BED12-like: 15 columns, with the peak span in 1-3 and a block
 #' structure in 10-12. rtracklayer::import() will not parse it as BED, so this
 #' reads columns 1-3 with fread, exactly as the legacy analysis did. The block
 #' structure is deliberately unused, so the "overlap" being tested is overlap
 #' with the called peak, not with its sub-blocks.
-load_h3k9me3_hg19 <- function(annot, region) {
+#'
+#' `key` names the block under `chromatin:` in config (h3k9me3, h3k27me3,
+#' h3k27ac). Parameterized rather than one function per mark so that adding a
+#' track is a config edit, not a code edit.
+load_gappedpeak_hg19 <- function(annot, region, key) {
     eid <- roadmap_eid(annot, region)
-    cfg <- annot$chromatin$h3k9me3
+    cfg <- annot$chromatin[[key]]
+    if (is.null(cfg)) stop("No chromatin track configured under key: ", key)
     f <- annot_path(file.path(cfg$dir, gsub("{eid}", eid, cfg$template, fixed = TRUE)))
     dt <- fread(cmd = paste("zcat", shQuote(f)), header = FALSE, select = 1:3,
                 col.names = c("chrom", "start", "end"))
-    if (nrow(dt) == 0) stop("H3K9me3 track is empty: ", f)
+    if (nrow(dt) == 0) stop(key, " track is empty: ", f)
     GRanges(dt$chrom, IRanges(dt$start + 1L, dt$end))   # BED is 0-based half-open
 }
 
-#' Quiescent chromatin from the 15-state ChromHMM mnemonics. Returns hg19 GRanges.
-load_quiescent_hg19 <- function(annot, region) {
+#' A set of 15-state ChromHMM mnemonic states for one epigenome. Returns hg19
+#' GRanges.
+#'
+#' `key` names the block under `chromatin:` in config (quiescent, bivalent,
+#' accessible); the states themselves are listed there, never hardcoded here.
+#' All three read the same mnemonics file and differ only in the state filter.
+load_chromhmm_states_hg19 <- function(annot, region, key) {
     eid <- roadmap_eid(annot, region)
-    cfg <- annot$chromatin$quiescent
+    cfg <- annot$chromatin[[key]]
+    if (is.null(cfg)) stop("No chromatin track configured under key: ", key)
     f <- annot_path(file.path(cfg$dir, gsub("{eid}", eid, cfg$template, fixed = TRUE)))
     dt <- fread(cmd = paste("zcat", shQuote(f)), header = FALSE,
                 col.names = c("chrom", "start", "end", "state"))
     states <- unlist(cfg$states)
     keep <- dt[state %in% states]
+    ## A typo in a state name would otherwise produce an empty annotation and a
+    ## silent null result, which is indistinguishable from a real null.
+    missing <- setdiff(states, unique(dt$state))
+    if (length(missing) > 0) {
+        stop("ChromHMM state(s) not present in ", f, ": ",
+             paste(missing, collapse = ", "), ". Observed states: ",
+             paste(sort(unique(dt$state)), collapse = ", "))
+    }
     if (nrow(keep) == 0) {
         stop("No ChromHMM segment matched state(s) ", paste(states, collapse = ","),
-             " in ", f, ". Observed states: ",
-             paste(sort(unique(dt$state)), collapse = ", "))
+             " in ", f)
     }
     GRanges(keep$chrom, IRanges(keep$start + 1L, keep$end))
 }

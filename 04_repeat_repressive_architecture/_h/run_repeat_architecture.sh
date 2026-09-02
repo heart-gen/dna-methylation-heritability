@@ -93,10 +93,18 @@ done
 # graph to -- and all three snapshots are byte-identical copies of one _h/.
 ANCHOR_CODE="${REPO_DIR}/04_repeat_repressive_architecture/_m/runs/${RUN_IDS[0]}/code/_h"
 
+# RUN_LIST is comma-joined and sbatch --export is comma-DELIMITED, so passing it
+# inline makes SLURM read "id2" and "id3" as names of variables to inherit and
+# sets RRA_RUN_IDS to the first id alone -- the gates then refuse, correctly,
+# for having one region. Export into the submit environment and inherit by ALL.
+export RRA_COHORT="${COHORT}"
+export RRA_RUN_IDS="${RUN_LIST}"
+export V2_RUN_CODE="${ANCHOR_CODE}"
+
 IFS=:; DEP="${ASSOC_JOBS[*]}"; unset IFS
 J3=$(sbatch --parsable --dependency="afterok:${DEP}" \
     --chdir="${REPO_DIR}/04_repeat_repressive_architecture/_m/runs/${RUN_IDS[0]}/logs" \
-    --export="ALL,RRA_COHORT=${COHORT},RRA_RUN_IDS=${RUN_LIST},V2_RUN_CODE=${ANCHOR_CODE}" \
+    --export=ALL \
     "${ANCHOR_CODE}/step_3_gates.sh")
 printf '3\tall\tstep_3_gates.sh\t%s\n' "$J3" >> "$JOBS_TSV"
 
@@ -105,7 +113,7 @@ printf '3\tall\tstep_3_gates.sh\t%s\n' "$J3" >> "$JOBS_TSV"
 # finished while carrying no statement of what it may conclude.
 J4=$(sbatch --parsable --dependency="afterok:${J3}" \
     --chdir="${REPO_DIR}/04_repeat_repressive_architecture/_m/runs/${RUN_IDS[0]}/logs" \
-    --export="ALL,RRA_COHORT=${COHORT},RRA_RUN_IDS=${RUN_LIST},V2_RUN_CODE=${ANCHOR_CODE}" \
+    --export=ALL \
     "${ANCHOR_CODE}/step_4_plot_finalize.sh")
 printf '4\tall\tstep_4_plot_finalize.sh\t%s\n' "$J4" >> "$JOBS_TSV"
 

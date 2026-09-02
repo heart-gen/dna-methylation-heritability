@@ -74,8 +74,21 @@ if (any(constant)) {
     COVARIATES <- COVARIATES[!constant]
 }
 
-OUTCOMES <- c("h3k9me3_frac", "quiescent_frac", "line_l1_frac",
-              "h3k9me3_any", "quiescent_any", "line_l1_any")
+## The BH family is declared in config, not here, so it cannot drift between
+## runs. Everything else fitted below is either a second scale of a family
+## member (`_any`) or a prespecified control, and is reported with raw p.
+BH_FAMILY <- unlist(annot$multiple_testing$family)
+if (length(BH_FAMILY) == 0) stop("multiple_testing.family is empty in config")
+CONTROLS <- names(annot$multiple_testing$outside_family)
+
+OUTCOMES <- c(BH_FAMILY, CONTROLS,
+              sub("_frac$", "_any", c(BH_FAMILY, CONTROLS)))
+missing <- setdiff(OUTCOMES, names(feat))
+if (length(missing) > 0) {
+    stop("Declared outcomes absent from the feature table: ",
+         paste(missing, collapse = ", "),
+         "\n  Re-run 01_build_features.R after a config change.")
+}
 
 PREDICTORS <- c(primary = "local_snp_contribution_score_z",
                 secondary = if ("r2_pred_oof_z" %in% names(feat)) "r2_pred_oof_z")
@@ -150,12 +163,34 @@ results <- rbindlist(lapply(names(analysis_sets), function(set_name) {
     }))
 }))
 
-## Multiple testing is applied within the primary analysis set across the three
-## outcome families, not across the sensitivities -- a sensitivity is a re-fit of
-## the same hypothesis, not a new one.
+## Multiple testing is applied within the primary analysis set, over the
+## declared family only. Three exclusions, each deliberate:
+##   - sensitivities, because a sensitivity is a re-fit of the same hypothesis;
+##   - the `_any` scale, because it is the same hypothesis measured differently
+##     (correcting over both scales would make the family six for three
+##     questions, and the two scales are strongly correlated, so the penalty is
+##     conservative without being principled);
+##   - the prespecified controls, which are directional checks on the
+##     interpretation rather than members of the discovery family. Keeping them
+##     out is what lets a control be added later without revising any q already
+##     reported.
 results[, q := NA_real_]
-results[analysis_set == "primary" & predictor == "local_snp_contribution_score_z",
+results[analysis_set == "primary" &
+        predictor == "local_snp_contribution_score_z" &
+        outcome %in% BH_FAMILY,
         q := stats::p.adjust(p, method = "BH")]
+
+## Carried into the results table so a reader of the TSV alone can tell which
+## rows were corrected and what each control was expected to do.
+results[, `:=`(outcome_role = "secondary_scale", expected_direction = NA_character_)]
+results[outcome %in% BH_FAMILY, outcome_role := "bh_family"]
+for (o in CONTROLS) {
+    spec <- annot$multiple_testing$outside_family[[o]]
+    results[outcome == o, outcome_role := spec$role %||% "control"]
+    if (!is.null(spec$expected_direction)) {
+        results[outcome == o, expected_direction := spec$expected_direction]
+    }
+}
 
 results[, `:=`(region = feat$region[1], population = feat$population[1],
                vmr_set_id = feat$vmr_set_id[1])]

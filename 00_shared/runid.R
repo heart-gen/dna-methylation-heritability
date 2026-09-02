@@ -112,20 +112,43 @@ append_manifest <- function(run, fields) {
     invisible(dt)
 }
 
+## 00_shared/slurm.sh runs `module purge`, which strips Quest's git module from
+## PATH. Compute nodes have no /usr/bin/git fallback, so a bare "git" here is not
+## resolvable in a batch job. slurm.sh exports V2_GIT_BIN (resolved BEFORE the
+## purge); fall back to "git" for interactive use.
+git_bin <- function() {
+    b <- Sys.getenv("V2_GIT_BIN", unset = "")
+    if (nzchar(b) && file.exists(b)) b else "git"
+}
+
+## Returns NA when git could not be run at all, so a missing git is recorded as
+## unknown rather than mistaken for a value.
+git_run <- function(root, cmd) {
+    tryCatch(
+        suppressWarnings(system2(git_bin(), c("-C", shQuote(root), cmd),
+                                 stdout = TRUE, stderr = FALSE)),
+        error = function(e) NULL)
+}
+
 git_commit <- function(root = repo_root()) {
-    out <- tryCatch(
-        system2("git", c("-C", shQuote(root), "rev-parse", "HEAD"),
-                stdout = TRUE, stderr = FALSE),
-        error = function(e) NA_character_)
-    if (length(out) == 0) NA_character_ else out[1]
+    out <- git_run(root, c("rev-parse", "HEAD"))
+    if (is.null(out) || length(out) == 0) NA_character_ else out[1]
 }
 
 git_dirty <- function(root = repo_root()) {
-    out <- tryCatch(
-        system2("git", c("-C", shQuote(root), "status", "--porcelain"),
-                stdout = TRUE, stderr = FALSE),
-        error = function(e) NA_character_)
-    if (length(out) == 0) "false" else "true"
+    ## A FAILED git call previously returned character(0) and was reported as
+    ## "false" -- a broken check claiming a clean tree. Distinguish the three
+    ## states: unknown (git unusable), clean, dirty. `git status` exits 0 with
+    ## empty output on a clean tree, so success is confirmed separately.
+    ok <- tryCatch(
+        suppressWarnings(system2(git_bin(), c("-C", shQuote(root), "rev-parse",
+                                              "--is-inside-work-tree"),
+                                 stdout = TRUE, stderr = FALSE)),
+        error = function(e) NULL)
+    if (is.null(ok) || length(ok) == 0 || !identical(ok[1], "true"))
+        return(NA_character_)
+    out <- git_run(root, c("status", "--porcelain"))
+    if (is.null(out)) NA_character_ else if (length(out) == 0) "false" else "true"
 }
 
 #' Deterministic seed derived from run identity (AGENTS.md 9).

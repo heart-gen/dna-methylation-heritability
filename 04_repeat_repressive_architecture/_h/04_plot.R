@@ -92,9 +92,11 @@ if (uniqueN(sens$analysis_set) > 1) {
 ## The claims table is the module's actual conclusion, so it is rendered as a
 ## panel rather than left as a TSV. Regions that do not survive are drawn, not
 ## omitted -- a blank cell is evidence.
-region_cols <- setdiff(names(claims),
-                       c("outcome", "regions_surviving", "regions_required",
-                         "permitted_claim", "dlpfc_disclosure"))
+## Selected by intersection with the regions actually present, NOT by
+## subtracting a hardcoded list of metadata columns: the subtraction form
+## silently treats any new claims column (e.g. concentration_supported) as a
+## region and plots it as one.
+region_cols <- intersect(names(claims), unique(prim$region))
 if (length(region_cols) > 0) {
     long <- melt(claims, id.vars = "outcome", measure.vars = region_cols,
                  variable.name = "region", value.name = "survives")

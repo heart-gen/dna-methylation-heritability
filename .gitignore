@@ -142,6 +142,9 @@ writing-notes/
 # 02_local_genetic_variance writes its observed runs to observed-runs/, not
 # observed/, so the pattern above never matched them.
 [0-9][0-9]_*/_m/observed-runs/
+# Post-hoc QC on sealed runs (e.g. 03 step 6). Generated, and regenerable from
+# the sealed run plus _h/, so it is not tracked.
+[0-9][0-9]_*/_m/qc/
 
 # Tests are hand-run smoke checks before a SLURM array, not a tracked suite.
 /tests/
