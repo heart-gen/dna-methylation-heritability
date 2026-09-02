@@ -1,23 +1,29 @@
-# 05_cpg_meqtl_burden — orthogonal genetic evidence
+# 05_cpg_meqtl_burden — convergent genetic evidence
 
 Asks whether a higher relative local SNP contribution score (`local_snp_contribution_score_z`, Module 02) is associated with a greater fraction of constituent CpGs having conventional cis-meQTL support.
 
-**Status: implemented, smoke-verified, not yet run in production.**
-The previously missing `_h/02_map_cpg_meqtl.py` (tensorqtl cis mapping) and
-`_h/01b_prepare_meqtl_inputs.py` (BED / covariate / plink triple) are written,
-ported from the validated legacy `meqtl-validation/01_cpg_meqtl_mapping/`
-implementation. Smoke run `cmb-smoke-AA-caudate-20260823` covers chr22 only:
-4,140 member CpGs -> 4,083 tested, 57 excluded by the ENCODE blacklist
-(`cpg_qc.exclude_blacklist`, which the previous draft declared but ignored),
-accounting balanced. 153 donors, 6 covariates (age, snpPC1-3, sex_M,
-diagnosis_Schizo), 109,117 chr22 variants.
+**Status: run in production; all three AA cells accepted 2026-08-28.**
+See the **Accepted runs** table below for `cmb-AA-{caudate,dlpfc,hippocampus}-20260825`,
+each `PASS_CPG_MEQTL_BURDEN_QC`. The caudate run carries a distal-null lambda of
+1.139, recorded in its acceptance note. **Read the "Convergent evidence, not
+independent replication" section below before citing any of it** -- the title of
+this module says *convergent*, not *orthogonal*, and that is a substantive
+claim about what the analysis can support, not a wording preference.
 
-The smoke ran the full chain -- 01, 01b, 02, 02b, 04_qc_plots, 03, 04_check,
-05_finalize -- and sealed with `PASS_CPG_MEQTL_BURDEN_QC` in its smoke form
-(`PASS_SMOKE_ONLY_NOT_ACCEPTABLE`), all seven gate criteria passing: 4,083
-prepared = 4,066 tested + 17 untested, burden fraction inside [0, 1], lambda
-reported and resolved. One chromosome in one cell is not a result, and the run
-is marked `smoke_run = TRUE`.
+`_h/02_map_cpg_meqtl.py` (tensorqtl cis mapping) and `_h/01b_prepare_meqtl_inputs.py`
+(BED / covariate / plink triple) were ported from the validated legacy
+`meqtl-validation/01_cpg_meqtl_mapping/` implementation. The code was first
+exercised on smoke run `cmb-smoke-AA-caudate-20260823`, chr22 only: 4,140 member
+CpGs -> 4,083 tested, 57 excluded by the ENCODE blacklist
+(`cpg_qc.exclude_blacklist`, which the previous draft declared but ignored),
+accounting balanced. That run is marked `smoke_run = TRUE` and is not eligible
+for the accepted-runs table.
+
+Of the nine QC plots `config/meqtl_parameters.yml` requires, eight are built.
+`covariate_model_comparison` is **deliberately skipped, not missed**: it needs a
+second mapping run under an alternative covariate model, which has not been
+commissioned. `_h/04_qc_plots.py` emits an explicit skip record rather than
+quietly producing eight of nine.
 
 Note that `02_map_cpg_meqtl.py` deliberately computes **no** q-values:
 `fdr_family: per_brain_region` means FDR is applied once across all autosomes in
