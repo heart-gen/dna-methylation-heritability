@@ -1,6 +1,10 @@
 # Repeat and repressive-chromatin annotations (04_repeat_repressive_architecture).
 #
 # PI-locked 2026-08-23 by Kynon J.M. Benjamin.
+# Amended 2026-08-28: added the H3K27me3/bivalent specificity control and the
+# accessible-chromatin contrast. Both are PRESPECIFIED CONTROLS OUTSIDE the BH
+# family, which remains the three primary repressive fraction outcomes, so this
+# amendment does not change any q-value already reported.
 #
 # The primary predictor is the standardized continuous within-cell local SNP
 # contribution score among eligible loci; r2_pred_oof is secondary. Overlap
@@ -41,6 +45,44 @@ chromatin:
     dir: /projects/b1213/resources/EpigenomeRoadmap/hmm/15core
     template: "{eid}_15_coreMarks_mnemonics.bed.gz"
     states: ["15_Quies"]
+  # --- Specificity control (outside the BH family) -----------------------
+  # H3K9me3 and 15_Quies cannot separate constitutive heterochromatin from
+  # Polycomb repression generally. H3K27me3 marks the Polycomb arm; the
+  # bivalent ChromHMM states mark poised promoters/enhancers, which are
+  # repressed but developmentally licensed rather than constitutively silent.
+  # If the primary signal is equally strong here, "constitutive heterochromatin"
+  # is not the supported sentence -- "repressed chromatin" is.
+  h3k27me3:
+    dir: /projects/b1213/resources/EpigenomeRoadmap/egg2.wustl.edu/roadmap/data/byFileType/peaks/consolidated/gappedPeak
+    template: "{eid}-H3K27me3.gappedPeak.gz"
+    columns: [1, 2, 3]
+  bivalent:
+    dir: /projects/b1213/resources/EpigenomeRoadmap/hmm/15core
+    template: "{eid}_15_coreMarks_mnemonics.bed.gz"
+    states: ["10_TssBiv", "11_BivFlnk", "12_EnhBiv"]
+
+  # --- Accessible contrast (outside the BH family) -----------------------
+  # AGENTS.md 2.1 claims local-genetic-control loci CONCENTRATE in repressive
+  # chromatin. Enrichment in repressive marks alone is also consistent with VMRs
+  # sitting in gene deserts, where every repressive track is wide. The
+  # complementary arm is what distinguishes the two: concentration requires
+  # DEPLETION in accessible chromatin, and the expectation is therefore
+  # directional and one-sided (see interpretation.accessible_contrast).
+  #
+  # Built from the same Roadmap EIDs, the same build, and the same liftover as
+  # the repressive tracks, so no asset, coordinate system, or peak-calling
+  # difference can drive the contrast. ChromHMM active states are the primary
+  # form; the H3K27ac gappedPeak is the peak-based companion, reported beside
+  # it, not corrected across.
+  accessible:
+    dir: /projects/b1213/resources/EpigenomeRoadmap/hmm/15core
+    template: "{eid}_15_coreMarks_mnemonics.bed.gz"
+    states: ["1_TssA", "2_TssAFlnk", "6_EnhG", "7_Enh"]
+  h3k27ac:
+    dir: /projects/b1213/resources/EpigenomeRoadmap/egg2.wustl.edu/roadmap/data/byFileType/peaks/consolidated/gappedPeak
+    template: "{eid}-H3K27ac.gappedPeak.gz"
+    columns: [1, 2, 3]
+
   liftover:
     chain: inputs/supportfiles/_m/hg38ToHg19.over.chain
     direction: hg38_to_hg19
@@ -105,6 +147,35 @@ primary_model:
   vcov: HC3
   adjust_for: all_declared_covariates
 
+# Multiple testing. Stated here rather than left implicit in the script, because
+# the family is the thing that must not drift between runs.
+multiple_testing:
+  method: BH
+  # THE FAMILY. Three hypotheses, primary analysis set, primary predictor only.
+  # The `_any` forms are the same hypotheses on a second scale (see
+  # primary_model.secondary_outcome) and are NOT separate members; correcting
+  # over both scales inflates the family to six for three questions and, because
+  # the two scales are strongly correlated, is conservative without being
+  # principled. Sensitivities are re-fits of a family member, not new members.
+  family:
+    - h3k9me3_frac
+    - quiescent_frac
+    - line_l1_frac
+  # Prespecified controls. Reported with raw p and an explicit directional
+  # expectation; never added to `family`, so the family is fixed for the life of
+  # the project and adding a control never revises a reported q.
+  outside_family:
+    h3k27me3_frac:   {role: specificity_control,    expected_direction: null}
+    bivalent_frac:   {role: specificity_control,    expected_direction: null}
+    accessible_frac: {role: complementary_contrast, expected_direction: negative}
+    h3k27ac_frac:    {role: complementary_contrast, expected_direction: negative}
+  # The gate reads q for family members and p for controls. Making this explicit
+  # because 03_apply_gates.R previously tested raw p for everything, silently
+  # ignoring the correction it had just computed.
+  gate_statistic:
+    family: q
+    outside_family: p
+
 # Interpretation gates (AGENTS.md 7.4)
 interpretation:
   # H3K9me3 / quiescent may be called "shared across regions" only if direction
@@ -117,3 +188,17 @@ interpretation:
   # hidden.
   report_dlpfc_reversal: true
   alpha: 0.05
+  # The concentration claim (AGENTS.md 2.1) needs both arms. Enrichment in a
+  # repressive outcome without depletion in accessible chromatin may be written
+  # only as "enriched in <track>", never as "concentrated in repressive
+  # chromatin".
+  accessible_contrast:
+    required_for_concentration_claim: true
+    expected_direction: negative
+    one_sided: true
+    regions_required: 3
+  # If the specificity control is as strong as the primary repressive outcome,
+  # the permitted noun is "repressed chromatin", not "constitutive
+  # heterochromatin". Compared on the standardized estimate, not on p.
+  specificity_control:
+    constitutive_claim_requires_stronger_than_polycomb: true

@@ -103,11 +103,33 @@ message("[04] liftover hg38->hg19: ", nrow(lo$report) - n_drop, " unique, ",
         " unmapped, ", sum(lo$report$liftover_status == "multi_mapping"),
         " multi-mapping)")
 
-chrom_feat <- cbind(
-    data.table(vmr_id = mcols(lo$gr)$vmr_id),
-    overlap_features(lo$gr, load_h3k9me3_hg19(annot, region), "h3k9me3"),
-    overlap_features(lo$gr, load_quiescent_hg19(annot, region), "quiescent")
+## Every hg19 chromatin track, in one table. The first two are the primary
+## repressive outcomes (BH family); the remaining four are the prespecified
+## controls -- H3K27me3/bivalent for Polycomb specificity, accessible/H3K27ac
+## for the complementary contrast the concentration claim needs. All six come
+## from the same EIDs and the same liftover, so nothing but the annotation
+## differs between them (config/repeat_annotations.yml, multiple_testing).
+CHROMATIN_TRACKS <- list(
+    list(key = "h3k9me3",    reader = "gappedpeak"),
+    list(key = "quiescent",  reader = "chromhmm"),
+    list(key = "h3k27me3",   reader = "gappedpeak"),
+    list(key = "bivalent",   reader = "chromhmm"),
+    list(key = "accessible", reader = "chromhmm"),
+    list(key = "h3k27ac",    reader = "gappedpeak")
 )
+
+chrom_feat <- do.call(cbind, c(
+    list(data.table(vmr_id = mcols(lo$gr)$vmr_id)),
+    lapply(CHROMATIN_TRACKS, function(tr) {
+        gr <- if (tr$reader == "gappedpeak") {
+            load_gappedpeak_hg19(annot, region, tr$key)
+        } else {
+            load_chromhmm_states_hg19(annot, region, tr$key)
+        }
+        message("[04] ", tr$key, ": ", length(gr), " hg19 intervals")
+        overlap_features(lo$gr, gr, tr$key)
+    })
+))
 feat <- merge(feat, chrom_feat, by = "vmr_id", all.x = TRUE, sort = FALSE)
 ## A VMR that did not lift has NO chromatin outcome. It is kept in the table
 ## with NA and excluded by the model's complete-case rule, so the count of loci
