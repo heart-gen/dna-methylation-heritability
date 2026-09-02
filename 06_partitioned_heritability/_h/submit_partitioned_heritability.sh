@@ -86,7 +86,7 @@ run_py "${RUN_CODE}/02_liftover_annotation.py" --run-id "$RUN_ID"
 
 JOBS_TSV="${RUN_DIR}/submitted-jobs.tsv"
 printf 'step\tscript\tjob_id\n' > "$JOBS_TSV"
-EXPORT="ALL,SLDSC_RUN_ID=${RUN_ID}"
+EXPORT="ALL,SLDSC_RUN_ID=${RUN_ID},V2_REPO_ROOT=${REPO_DIR},V2_RUN_CODE=${RUN_CODE}"
 
 sbatch_step () {  # name deps cpus mem time command
     sbatch --parsable --dependency="$2" --chdir="${RUN_DIR}/logs" \
