@@ -1,0 +1,147 @@
+# Transcription and splicing coupling of VMRs (Module 07). Prespecified; do not
+# tune after seeing results.
+#
+# AGENTS.md 7.6 forbids an unbounded transcriptome-wide fishing analysis: the
+# tested universe is the prespecified set of local VMR-to-feature links declared
+# here, and it is written out with every run so the denominator is auditable.
+
+pi_locked: true
+
+genome_build: hg38
+
+# --------------------------------------------------------------- modalities
+# The three prespecified link types carried over from the legacy regulatory
+# context analysis. Each is a LOCAL link: a VMR is tested only against features
+# within its window, never transcriptome-wide.
+modalities:
+  expression_nearest_gene:
+    assay: gene
+    window_bp: 250000
+    label: Gene expression, 250 kb window
+    enabled: true
+  psi:
+    assay: psi
+    window_bp: 250000
+    label: Transcript usage (PSI), 250 kb window
+    enabled: true
+  expression_abc:
+    assay: gene
+    link_source: inputs/brainscope/_m/High_ABC_results_CPM1only_Concise_RK_7_8_21.csv
+    label: Gene expression, ABC enhancer-gene links
+    enabled: true
+
+assay_files:
+  gene:
+    caudate: inputs/counts/rse-gene.bsp3.caudate-n487.gencode-v47.RData
+    dlpfc: inputs/counts/rse-gene.bsp2.dlpfc-n500.gencode-v47.RData
+    hippocampus: inputs/counts/rse-gene.bsp2.hippocampus-n452.gencode-v47.RData
+  psi:
+    caudate: inputs/counts/rse-psi.bsp3.caudate-n487.gencode-v47.RData
+    dlpfc: inputs/counts/rse-psi.bsp2.dlpfc-n500.gencode-v47.RData
+    hippocampus: inputs/counts/rse-psi.bsp2.hippocampus-n452.gencode-v47.RData
+
+annotation:
+  gene: inputs/counts/gene-annotation.tsv
+  psi: inputs/counts/psi-annotation.tsv
+
+# -------------------------------------------------- pair-level association
+# One linear model per VMR-feature pair: feature ~ VMR methylation + covariates.
+# This is the step that must be RECOMPUTED rather than reused: the legacy link
+# tables are keyed to pre-repair VMRs, and AGENTS.md 6 forbids carrying
+# downstream numbers across VMR turnover.
+# Expression normalisation. Declared here rather than left in the script,
+# because the legacy analysis's CPM-vs-RPKM choice materially changed its
+# results (meqtl-validation/09_libd_eqtl_mapping sensitivity arms).
+normalisation:
+  gene:
+    # Keep genes expressed in a reasonable share of donors, then log-CPM.
+    min_cpm: 1.0
+    min_fraction_samples: 0.25
+    transform: log2_cpm_plus1
+  psi:
+    # PSI is already a proportion in [0,1]; it is modelled untransformed.
+    transform: none
+    min_sd: 0.01
+  # One RNA library per donor. Where a donor has several, the highest-RIN
+  # library is kept and the choice is recorded in excluded/.
+  duplicate_donor_rule: highest_rin
+
+association:
+  min_samples: 50
+  # Features with no variation carry no information and would otherwise emit
+  # degenerate fits that dilute the FDR denominator.
+  drop_constant_features: true
+  min_feature_variance: 1.0e-12
+  covariates:
+    - Age
+    - Sex
+    - RIN
+    - MoD
+    - mito_mapping_rate
+    - percent_assigned
+  cell_proportions: true
+  # Proportions are compositional; asin-sqrt is the transform the legacy
+  # analysis used and is kept for comparability.
+  cell_proportion_transform: asin_sqrt
+  fdr_method: BH
+  fdr_threshold: 0.05
+  # The FDR family is one modality within one cell. Pooling modalities would
+  # mix expression and splicing hypotheses; pooling regions would hide
+  # region-specific coupling.
+  fdr_family: modality_within_cell
+
+# ------------------------------------------------------- coupling tests
+# The three primary tests, ported from the legacy
+# 01_meqtl_tx_enrichment.py, with the predictors swapped: legacy used
+# r_squared_cv / h2_category / h2_unscaled, all banned by AGENTS.md 3.
+coupling:
+  outcome: any_sig_fdr             # VMR has >= 1 significant local feature link
+  secondary_outcome: n_sig_fdr     # count form, reported beside it
+  predictors:
+    any_meqtl_support: n_cpgs_with_sig_meqtl_gt0
+    meqtl_proportion: proportion_cpgs_with_sig_meqtl
+    local_genetic_control: local_snp_contribution_score_z
+  # AGENTS.md 7.6 names these explicitly as required adjustments.
+  covariates:
+    - n_features_tested
+    - vmr_length
+    - min_distance_to_feature
+    - methylation_variance
+    - num_snps
+    - cpg_density
+    - n_tested_cpgs
+  model: quasibinomial_logit
+  vcov: HC3
+
+# ------------------------------------------------------------- guardrails
+# Columns that must never reach the modelling stage. The legacy link tables
+# carry all four; a table that still has them is a pre-repair artifact.
+forbidden_columns:
+  - r_squared_cv
+  - h2_category
+  - h2_scaled
+  - h2_unscaled
+  - h2_en_calibrated
+
+# AGENTS.md 7.6. Allowed: "Genetically regulated VMRs are more frequently
+# transcriptionally coupled." Forbidden: any mediation or causal claim.
+claims:
+  allowed: genetically_regulated_vmrs_more_frequently_transcriptionally_coupled
+  forbidden:
+    - methylation_mediates_genetic_effect_on_expression
+    - methylation_mediates_genetic_effect_on_splicing
+    - causal_or_colocalization_claims
+
+# The internal LIBD eQTL map is NOT part of this module's acceptance gate.
+# meqtl-validation/09_libd_eqtl_mapping/EQTL_DEBUG_TODO.md is open (genome-wide
+# discovery yields ~1-2 eGenes at FDR 0.05), and the coupling analysis does not
+# depend on it: it reuses the prespecified local association screen instead.
+internal_libd_eqtl_support_arm: false
+
+gates:
+  require_all_enabled_modalities: true
+  min_vmrs_tested: 500
+  min_pairs_tested: 1000
+  # A modality where nothing is significant cannot support a coupling claim,
+  # but it is a reportable null, not a run failure.
+  require_any_significant_link: false
