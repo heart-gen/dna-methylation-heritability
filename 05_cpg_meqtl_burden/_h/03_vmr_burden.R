@@ -4,9 +4,11 @@
 ## Usage:
 ##   Rscript _h/03_vmr_burden.R --run-id cmb-AA-caudate-20260817
 ##
-## The orthogonal-evidence test: does a VMR with a higher relative local SNP
+## The convergent-evidence test: does a VMR with a higher relative local SNP
 ## contribution contain a greater FRACTION of CpGs with conventional cis-meQTL
-## support?
+## support? "Convergent", not "orthogonal": predictor and outcome are two
+## summaries of the genotype-methylation covariance in the SAME donors, so this
+## is not independent replication (see README, "Convergent evidence").
 ##
 ## Three design commitments, all from AGENTS.md 7.5:
 ##
