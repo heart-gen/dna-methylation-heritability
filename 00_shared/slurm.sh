@@ -31,6 +31,15 @@ V2_ENV_R="${V2_ENV_R:-$ENV_PATH/epigenomics}"
 V2_ENV_CALIBRATION="${V2_ENV_CALIBRATION:-$ENV_PATH/calibrated-local-h2}"
 PLINK2="${PLINK2:-/projects/p32505/opt/bin/plink2}"
 
+# Provenance depends on git, and `module purge` below removes Quest's git module
+# from PATH. Compute nodes have NO /usr/bin/git fallback, so every later git call
+# fails there and the run manifest records an empty git_commit -- code that ran
+# is then unattributable, which is exactly what AGENTS.md 5.2 provenance exists
+# to prevent. Resolve git to an absolute path FIRST and export it; runid.R reads
+# V2_GIT_BIN. Login nodes happen to fall back to /usr/bin/git and hide this.
+V2_GIT_BIN="${V2_GIT_BIN:-$(command -v git 2>/dev/null || true)}"
+export V2_GIT_BIN
+
 # Never inherit a half-configured module environment.
 if command -v module >/dev/null 2>&1; then
     module purge >/dev/null 2>&1 || true
@@ -72,7 +81,7 @@ log_job_info() {
     echo "Hostname:   ${HOSTNAME:-unknown}"
     echo "Repo:       ${REPO_DIR}"
     echo "CPUs:       ${V2_CPUS} (thread ceiling ${V2_THREADS})"
-    echo "Commit:     $(git -C "$REPO_DIR" rev-parse --short HEAD 2>/dev/null || echo unknown)"
+    echo "Commit:     $("${V2_GIT_BIN:-git}" -C "$REPO_DIR" rev-parse --short HEAD 2>/dev/null || echo unknown)"
     echo "********************"
 }
 
