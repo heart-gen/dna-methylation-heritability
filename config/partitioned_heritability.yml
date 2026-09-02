@@ -1,0 +1,131 @@
+# S-LDSC partitioned heritability on a CONTINUOUS local-genetic-control
+# annotation (Module 06). Prespecified; do not tune after seeing results.
+#
+# AGENTS.md 3 bans the retired v1 form of this analysis, which partitioned VMRs
+# into heritable / non-heritable quintiles at a threshold on r_squared_cv. The
+# annotation here is continuous, threshold-free, and carries no absolute PVE.
+# 01_build_annotation.R fails closed if any of those properties is violated.
+
+pi_locked: true
+
+genome_build_source: hg38          # Module 02 / Module 01 coordinates
+genome_build_ldsc: hg19            # LDSC reference panels are hg19
+liftover_chain: inputs/supportfiles/_m/hg38ToHg19.over.chain
+
+# ---------------------------------------------------------------- annotation
+annotation:
+  # The only admissible predictor. Module 02's terminal decision is
+  # PASS_RELATIVE_GENETIC_CONTROL_FAIL_ABSOLUTE_LOCUS_PVE, so the rank score is
+  # usable and the PVE magnitude is not.
+  score_column: local_snp_contribution_score_z
+  continuous: true
+  # Guardrails asserted in code, not merely documented.
+  forbid_thresholding: true
+  forbid_grouping: true
+  forbidden_columns:
+    - h2_unscaled
+    - h2_scaled
+    - h2_en_calibrated
+    - r_squared_cv
+    - h2_category
+  eligible_only: true              # local_genetic_control_eligible == TRUE
+  # Overlapping VMRs are rare but possible after liftover; mean keeps the
+  # annotation on the z-score scale rather than inflating it by summation.
+  merge_op: mean
+  min_vmrs: 1000                   # a cell with fewer lifted VMRs is not analysable
+
+# ------------------------------------------------------------- LD reference
+# Primary arm. The annotation is treated as a genomic feature rather than a
+# donor property; that position is stated explicitly in Methods (see the module
+# README, "LD reference and ancestry"). The afr_sensitivity arm is built by a
+# separate issue and is not required for the primary result.
+ld_reference_arm: eur_primary
+
+ld_references:
+  eur_primary:
+    label: 1000G Phase 3 EUR
+    bim_dir: /projects/b1213/resources/ldsc/1000G_EUR_Phase3_plink
+    bim_prefix: 1000G.EUR.QC.
+    baseline_dir: /projects/b1213/resources/ldsc/1000G_Phase3_baselineLD_v2.2_ldscores
+    baseline_prefix: baselineLD.
+    weights_dir: /projects/b1213/resources/ldsc/1000G_Phase3_weights_hm3_no_MHC
+    weights_prefix: weights.hm3_noMHC.
+    frq_dir: /projects/b1213/resources/ldsc/1000G_Phase3_frq
+    frq_prefix: 1000G.EUR.QC.
+    hapmap3_snplist: /projects/b1213/resources/ldsc/w_hm3.snplist
+    hapmap3_print_snps: /projects/b1213/resources/ldsc/hm3_no_MHC.list.txt
+  # afr_sensitivity: populated by the AFR LD-score build (separate issue).
+  # 1000G AFR panel is not on disk; it is derived from
+  # /projects/b1213/resources/1kGP and lifted to hg19.
+
+ldsc_dir: /projects/p32505/opt/ldsc
+ld_wind_cm: 1
+autosomes: 1-22                    # LDSC baseline model is autosomal
+
+# ------------------------------------------------------------------- traits
+# FROZEN trait list: it defines the FDR family and must not be extended after
+# results are seen. Brain-relevant traits are the hypothesis; the non-brain
+# traits are prespecified negative controls, without which "brain-relevant
+# enrichment" is not a testable claim.
+fdr_family: traits_within_cell
+fdr_method: fdr_bh
+fdr_threshold: 0.05
+
+traits:
+  - name: scz
+    label: Schizophrenia (PGC3, European)
+    class: brain
+    file: /projects/b1213/resources/gwas/PGC/SCZ/PGC3/PGC3_SCZ_wave3.european.autosome.public.v3.vcf.tsv.gz
+    munge: {snp: ID, a1: A1, a2: A2, signed_sumstats: "BETA,0", p: PVAL, frq: FCAS, n_cas_col: NCAS, n_con_col: NCON, skip_rows: 73}
+  - name: bip
+    label: Bipolar disorder (PGC, 2021)
+    class: brain
+    file: /projects/b1213/resources/gwas/bip/pgc-bip2021-all.vcf.tsv.gz
+    munge: {snp: ID, a1: A1, a2: A2, signed_sumstats: "BETA,0", p: PVAL, frq: FCAS, n_cas_col: NCAS, n_con_col: NCON, skip_rows: 72}
+  - name: mdd
+    label: Major depressive disorder (Giannakopoulou 2021)
+    class: brain
+    file: /projects/b1213/resources/gwas/mdd/jamapsy_Giannakopoulou_2021_exclude_whi_23andMe.txt.gz
+    munge: {snp: MarkerName, a1: Allele1, a2: Allele2, signed_sumstats: "Effect,0", p: P.SE, frq: Freq1, n_cas: 166773, n_con: 507679}
+  - name: alz
+    label: Alzheimer's disease (Bellenguez 2022)
+    class: brain
+    file: /projects/b1213/resources/gwas/alz/bellenguez2022/35379992-GCST90027158-MONDO_0004975.h.tsv
+    drop_duplicate_harmonised_columns: true
+    munge: {snp: hm_rsid, a1: hm_effect_allele, a2: hm_other_allele, signed_sumstats: "hm_beta,0", p: p_value, frq: hm_effect_allele_frequency, n_cas_col: n_cas, n_con_col: n_con}
+  - name: pd
+    label: Parkinson's disease (GCST009325)
+    class: brain
+    file: /projects/b1213/resources/gwas/PD/data/GCST009325.h.tsv.gz
+    drop_duplicate_harmonised_columns: true
+    munge: {snp: rsid, a1: effect_allele, a2: other_allele, signed_sumstats: "beta,0", p: p_value, frq: effect_allele_frequency, n_cas_col: N_cases, n_con_col: N_controls}
+  - name: smoking
+    label: Smoking initiation (GSCAN 2022, EUR)
+    class: brain
+    file: /projects/b1213/resources/gwas/gscan2/hg19/GSCAN_SmkInit_2022_GWAS_SUMMARY_STATS_EUR.txt
+    munge: {snp: MarkerName, a1: A1, a2: A2, signed_sumstats: "Beta,0", p: Pval, frq: EAF_A1, n: 518633}
+  - name: asthma
+    label: Asthma (GABRIEL) -- non-brain negative control
+    class: control
+    file: /projects/b1213/resources/gwas/imputed_gwas_hg38_1.1/imputed_GABRIEL_Asthma.txt.gz
+    munge: {snp: variant_id, a1: effect_allele, a2: non_effect_allele, signed_sumstats: "zscore,0", p: pvalue, frq: frequency, n_col: sample_size}
+  - name: cad
+    label: Coronary artery disease (CARDIoGRAM C4D) -- non-brain negative control
+    class: control
+    file: /projects/b1213/resources/gwas/imputed_gwas_hg38_1.1/imputed_CARDIoGRAM_C4D_CAD_ADDITIVE.txt.gz
+    munge: {snp: variant_id, a1: effect_allele, a2: non_effect_allele, signed_sumstats: "zscore,0", p: pvalue, frq: frequency, n_col: sample_size}
+
+munge_chunksize: 500000
+
+# -------------------------------------------------------------- acceptance
+# Reported metrics are those named in the legacy interpreting_sldsc_results.md:
+# enrichment, enrichment p, and the tau coefficient z-score.
+gates:
+  require_all_traits_completed: true
+  require_finite_tau_se: true
+  # LDSC reports observed-scale h2 with a standard error; a cell whose total h2
+  # is indistinguishable from zero cannot support an enrichment statement.
+  min_total_h2_z: 2.0
+  # A continuous annotation must not have collapsed to a constant.
+  min_annotation_sd: 1.0e-6
+  max_annotation_missing_fraction: 0.05
