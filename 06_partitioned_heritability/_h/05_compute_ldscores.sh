@@ -15,10 +15,21 @@
 # matching .l2.ldscore.gz, so a failed chromosome is retried alone rather than
 # rerunning all 22.
 
-source "$(dirname "${BASH_SOURCE[0]}")/../../00_shared/slurm.sh"
+# SLURM copies the batch script to /var/spool, so ${BASH_SOURCE[0]} does NOT
+# resolve to _h/ at run time. V2_REPO_ROOT is exported by the submit driver;
+# fall back to the submit directory for a hand-run sbatch.
+V2_REPO_ROOT="${V2_REPO_ROOT:-${SLURM_SUBMIT_DIR:-$PWD}}"
+while [ "$V2_REPO_ROOT" != "/" ] && [ ! -d "$V2_REPO_ROOT/.git" ]; do
+    V2_REPO_ROOT=$(dirname "$V2_REPO_ROOT")
+done
+source "${V2_REPO_ROOT}/00_shared/slurm.sh"
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 RUN_ID="${SLDSC_RUN_ID:?SLDSC_RUN_ID must be exported}"
+
+# Analysis code runs from the run's immutable snapshot under _m, not the live
+# _h/. V2_RUN_CODE is exported by the submit driver and points at
+# {run_dir}/code/_h; fall back to live _h/ for a hand-run sbatch.
+SCRIPT_DIR="${V2_RUN_CODE:-${REPO_DIR}/06_partitioned_heritability/_h}"
 CHR="${SLURM_ARRAY_TASK_ID:?this step runs as a SLURM array}"
 RUN_DIR="${REPO_DIR}/06_partitioned_heritability/_m/runs/${RUN_ID}"
 
