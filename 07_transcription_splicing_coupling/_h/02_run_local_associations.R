@@ -202,8 +202,14 @@ covs <- merge(covs, props, by = "sample_id")
 phen_dir <- file.path(repo_root(), "01_vmr_catalog", "_m", "runs", vmr_run,
                       "vmr", "phenotypes")
 wanted <- unique(links$vmr_id)
+## Module 01 writes one phenotype file per VMR under the legacy underscore
+## filename convention (chr1_134100_134201_meth.phen) while the canonical VMR
+## identifier is chr1:134100-134201. Convert rather than renaming either.
+phen_filename <- function(vid) {
+    paste0(gsub("[:-]", "_", vid), "_meth.phen")
+}
 read_phen <- function(vid) {
-    f <- file.path(phen_dir, paste0(vid, "_meth.phen"))
+    f <- file.path(phen_dir, phen_filename(vid))
     if (!file.exists(f)) return(NULL)
     d <- fread(f, header = FALSE, col.names = c("sample_id", "iid", "meth"))
     d[, .(sample_id = as.character(sample_id), meth = as.numeric(meth))]

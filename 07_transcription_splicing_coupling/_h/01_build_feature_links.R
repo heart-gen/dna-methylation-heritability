@@ -58,7 +58,11 @@ vmr_bed <- file.path(repo_root(), "01_vmr_catalog", "_m", "runs", vmr_run,
 if (!file.exists(vmr_bed)) stop("Accepted VMR bed not found: ", vmr_bed)
 vmr <- fread(vmr_bed, header = FALSE, col.names = c("chrom", "start", "end"))
 vmr[, chrom := norm_chr(chrom)]
-vmr[, vmr_id := paste(chrom, start, end, sep = "_")]
+## Canonical v2 VMR identifier, matching 01_vmr_catalog/_h/02_summarize.R and
+## the IDs carried by Modules 02 and 05. The legacy underscore form
+## (chr1_134100_134201) survives only as the .phen FILENAME convention, and
+## 02_run_local_associations.R converts to it when reading those files.
+vmr[, vmr_id := paste0(chrom, ":", start, "-", end)]
 vmr <- unique(vmr, by = "vmr_id")
 message("[07] ", nrow(vmr), " VMRs from ", vmr_run)
 
