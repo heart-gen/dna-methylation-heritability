@@ -59,8 +59,12 @@ COVARIATES <- unlist(REALIZED_TERM[declared])
 ## A term whose column is constant carries no information and makes the design
 ## rank-deficient. Drop it, and RECORD that it was dropped -- silently fitting a
 ## thinner model than the locked one is the failure this guards against.
-term_col <- unlist(lapply(REALIZED_TERM[declared], function(t)
-    gsub("^(log|factor)\\(|\\)$", "", t)))
+## Arms may add terms the primary does not carry (adjust_cell_composition),
+## so the guard runs over the UNION of base and arm terms -- otherwise an
+## arm-only term could be constant and enter the design unchecked.
+ARM_TERMS <- c(cell_composition_r2 = "cell_composition_r2")
+term_col <- c(unlist(lapply(REALIZED_TERM[declared], function(t)
+    gsub("^(log|factor)\\(|\\)$", "", t))), ARM_TERMS)
 constant <- vapply(term_col, function(k) {
     if (!k %in% names(feat)) return(TRUE)
     length(unique(feat[[k]][!is.na(feat[[k]])])) < 2L
@@ -71,7 +75,9 @@ if (any(constant)) {
                  file.path(run_dir, "results", "dropped-covariates.tsv"))
     warning("Dropped constant/absent covariate(s): ",
             paste(names(constant)[constant], collapse = ", "), call. = FALSE)
-    COVARIATES <- COVARIATES[!constant]
+    dropped <- names(constant)[constant]
+    COVARIATES <- COVARIATES[!names(COVARIATES) %in% dropped]
+    ARM_TERMS <- ARM_TERMS[!names(ARM_TERMS) %in% dropped]
 }
 
 ## The BH family is declared in config, not here, so it cannot drift between
@@ -94,28 +100,51 @@ PREDICTORS <- c(primary = "local_snp_contribution_score_z",
                 secondary = if ("r2_pred_oof_z" %in% names(feat)) "r2_pred_oof_z")
 PREDICTORS <- PREDICTORS[!vapply(PREDICTORS, is.null, logical(1))]
 
-#' The locked analysis sets. Each returns a subset of `feat`.
+#' The locked analysis sets. Each is a row subset PLUS, optionally, extra
+#' adjustment terms: an arm can differ from the primary in what it fits as well
+#' as in which loci it fits on.
 analysis_sets <- list(
-    primary = function(d) d,
-    high_mappability = function(d) {
-        d[mappability >= annot$sensitivities$high_mappability$min_mappability]
-    },
-    exclude_segdups = function(d) d[segdup_frac == 0],
-    ## config sensitivities.exclude_snp_proximal_cpgs. At VMR level the
-    ## realizable form is to drop loci whose span is SNP-proximal, since the
-    ## outcome is a per-VMR overlap rather than a per-CpG measurement.
-    exclude_snp_proximal = function(d) d[snp_proximal_frac == 0],
+    primary = list(subset = function(d) d, extra_terms = character(0)),
+    high_mappability = list(
+        subset = function(d) {
+            d[mappability >= annot$sensitivities$high_mappability$min_mappability]
+        },
+        extra_terms = character(0)),
+    exclude_segdups = list(subset = function(d) d[segdup_frac == 0],
+                           extra_terms = character(0)),
     ## config sensitivities.cell_composition_rna_music: restrict to loci whose
-    ## methylation is not dominated by cell composition. The adjustment is
-    ## already in every model; this asks whether the result survives removing
-    ## the composition-driven loci entirely.
-    low_cell_composition = function(d) {
-        thr <- stats::quantile(d$cell_composition_r2, 0.75, na.rm = TRUE)
-        d[is.finite(cell_composition_r2) & cell_composition_r2 <= thr]
-    }
+    ## methylation is not dominated by cell composition. This is the SUBSET
+    ## form of the composition check; adjust_cell_composition below is the
+    ## adjustment form. They are independent and both are gating.
+    low_cell_composition = list(
+        subset = function(d) {
+            thr <- stats::quantile(d$cell_composition_r2, 0.75, na.rm = TRUE)
+            d[is.finite(cell_composition_r2) & cell_composition_r2 <= thr]
+        },
+        extra_terms = character(0)),
+    ## config sensitivities.adjust_cell_composition. cell_composition_pcs left
+    ## the primary adjustment set in the 2026-09-02 amendment because its
+    ## confounder-vs-mediator status is arguable; rather than settle that
+    ## silently inside the primary, this arm refits every model with it added.
+    adjust_cell_composition = list(subset = function(d) d,
+                                   extra_terms = unname(ARM_TERMS))
 )
 
-fit_one <- function(d, outcome, predictor, set_name) {
+## config sensitivities.exclude_snp_proximal_cpgs, RETIRED from the gating
+## conjunction 2026-09-02 as redundant: the identical BED already enters every
+## model as the `snp_proximity` covariate (snp_proximal_frac). It is also not a
+## faithful realization of the key, which names a CpG-level exclusion --
+## snp_proximal_frac is a base-pair overlap fraction of the VMR SPAN, so `== 0`
+## selects short VMRs mechanically while every outcome is a length-dependent
+## overlap fraction. Still fitted, written to its own file so it can never
+## re-enter survives() in 03_apply_gates.R.
+DESCRIPTIVE_SETS <- list(
+    exclude_snp_proximal = list(subset = function(d) d[snp_proximal_frac == 0],
+                                extra_terms = character(0))
+)
+
+fit_one <- function(d, outcome, predictor, set_name,
+                    terms = COVARIATES) {
     if (nrow(d) < 50) {
         return(data.table(analysis_set = set_name, outcome = outcome,
                           predictor = predictor, n = nrow(d), n_fitted = 0L,
@@ -128,7 +157,7 @@ fit_one <- function(d, outcome, predictor, set_name) {
     fam <- if (binary) stats::binomial() else
         stats::quasibinomial(link = annot$primary_model$link %||% "logit")
     form <- stats::as.formula(paste(outcome, "~", predictor, "+",
-                                    paste(COVARIATES, collapse = " + ")))
+                                    paste(terms, collapse = " + ")))
     fit <- tryCatch(stats::glm(form, data = d, family = fam),
                     error = function(e) NULL)
     if (is.null(fit)) {
@@ -156,12 +185,19 @@ fit_one <- function(d, outcome, predictor, set_name) {
                z = ct[predictor, 3], p = ct[predictor, 4], note = NA_character_)
 }
 
-results <- rbindlist(lapply(names(analysis_sets), function(set_name) {
-    d <- analysis_sets[[set_name]](copy(feat))
-    rbindlist(lapply(OUTCOMES, function(o) {
-        rbindlist(lapply(PREDICTORS, function(p) fit_one(d, o, p, set_name)))
+fit_sets <- function(sets) {
+    rbindlist(lapply(names(sets), function(set_name) {
+        arm <- sets[[set_name]]
+        d <- arm$subset(copy(feat))
+        terms <- c(COVARIATES, arm$extra_terms)
+        rbindlist(lapply(OUTCOMES, function(o) {
+            rbindlist(lapply(PREDICTORS, function(p)
+                fit_one(d, o, p, set_name, terms)))
+        }))
     }))
-}))
+}
+
+results <- fit_sets(analysis_sets)
 
 ## Multiple testing is applied within the primary analysis set, over the
 ## declared family only. Three exclusions, each deliberate:
@@ -196,6 +232,15 @@ results[, `:=`(region = feat$region[1], population = feat$population[1],
                vmr_set_id = feat$vmr_set_id[1])]
 
 write_atomic(results, file.path(run_dir, "results", "association-results.tsv"))
+
+## The retired arm, refit and reported but deliberately NOT in
+## association-results.tsv: 03_apply_gates.R reads that file and conjoins every
+## non-primary analysis set, so a separate file is what keeps this non-gating.
+descriptive <- fit_sets(DESCRIPTIVE_SETS)
+descriptive[, `:=`(region = feat$region[1], population = feat$population[1],
+                   vmr_set_id = feat$vmr_set_id[1], gating = FALSE)]
+write_atomic(descriptive,
+             file.path(run_dir, "results", "descriptive-snp-proximal.tsv"))
 print(results[analysis_set == "primary"])
 message("[04] fitted ", nrow(results), " models across ",
         length(analysis_sets), " analysis sets")
