@@ -134,6 +134,20 @@ AGENTS.md §6 makes acceptance a human step: no row appears here until a
 production run's gate stage passes and the PI records it. A smoke run is never
 acceptable, and a completed SLURM job is not acceptance.
 
+### Superseded runs
+
+`sldsc-AA-{caudate,dlpfc,hippocampus}-20260902` failed at Stage 06 for all eight
+traits and must not be used. The LD scores and the S-LDSC regressions themselves
+were sound; the defect was in labelling. This LDSC build writes the LD-score
+column of a single `--thin-annot` file as a bare `L2`, discarding the annotation
+name carried in the `.annot.gz` header, so the annotation reached the `.results`
+file as the positional label `L2_1` and Stage 06 refused to identify it by
+position. Stage 05 now restores the name (`05a_label_ldscore_column.py`), which
+makes each `.results` file self-describing and keeps no stage dependent on row
+order. Because Stage 05 changed, those runs were replaced rather than resumed:
+their code snapshots no longer describe the code that would produce them.
+Superseded by `sldsc-AA-{region}-20260902-a`.
+
 ## Contract
 
 This module follows AGENTS.md §5.2: `_h/` holds code, `_m/` holds generated

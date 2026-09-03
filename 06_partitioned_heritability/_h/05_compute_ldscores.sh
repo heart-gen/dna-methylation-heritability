@@ -81,4 +81,14 @@ conda run --no-capture-output -p "$PY_ENV" python \
     --out "${RUN_DIR}/ldscores/annot.${CHR}"
 
 require_file "${RUN_DIR}/ldscores/annot.${CHR}.l2.ldscore.gz"
+
+# LDSC drops the annotation name from the LD score column; restore it so the
+# downstream .results file names our category instead of labelling it by
+# position. See the module docstring in 05a_label_ldscore_column.py.
+log_message "labelling LD score column for chr${CHR}"
+conda run --no-capture-output -p "$PY_ENV" python \
+    "${SCRIPT_DIR}/05a_label_ldscore_column.py" \
+    --annot "$ANNOT" \
+    --ldscore "${RUN_DIR}/ldscores/annot.${CHR}.l2.ldscore.gz"
+
 log_message "chr${CHR} complete"
