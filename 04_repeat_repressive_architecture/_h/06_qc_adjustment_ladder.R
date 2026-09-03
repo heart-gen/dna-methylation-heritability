@@ -43,6 +43,25 @@ LADDER <- list(
                   "problematic_frac"),
     full_v2   = c("factor(broad_genomic_annotation)", "cell_composition_r2")
 )
+## NOT a rung of the ladder. The adjustment set the 2026-09-02 amendment made
+## the prespecified primary is v1_like + plus_cpg + plus_seq + plus_tech --
+## it SKIPS plus_meth, so it is not reachable by any cumulative prefix and must
+## be fitted absolutely. The cell-composition variant mirrors the new
+## adjust_cell_composition sensitivity arm. Both are fitted here so the sealed
+## rra-AA-*-20260902 feature table can be compared against the new production
+## fits directly.
+ABSOLUTE_SETS <- list(
+    prespecified_primary = c("log(vmr_length)", "tested_snp_count",
+                             "cpg_count", "cpg_density", "gc_content",
+                             "snp_proximal_frac", "mappability", "segdup_frac",
+                             "problematic_frac"),
+    prespecified_plus_cellcomp = c("log(vmr_length)", "tested_snp_count",
+                                   "cpg_count", "cpg_density", "gc_content",
+                                   "snp_proximal_frac", "mappability",
+                                   "segdup_frac", "problematic_frac",
+                                   "cell_composition_r2")
+)
+
 OUTCOMES <- c("h3k9me3_frac", "quiescent_frac", "line_l1_frac")
 
 fit_rung <- function(d, outcome, terms) {
@@ -64,14 +83,23 @@ run_one <- function(run_id) {
     region <- sub("^rra-[A-Za-z]+-([a-z]+)-.*$", "\\1", run_id)
     rbindlist(lapply(OUTCOMES, function(o) {
         cum <- character(0)
-        rbindlist(lapply(names(LADDER), function(nm) {
+        cumulative <- rbindlist(lapply(names(LADDER), function(nm) {
             cum <<- c(cum, LADDER[[nm]])
             r <- fit_rung(d, o, cum)
             if (is.null(r)) return(NULL)
             cbind(data.table(run_id = run_id, region = region, outcome = o,
-                             adjustment = nm,
+                             adjustment = nm, cumulative = TRUE,
                              added = paste(LADDER[[nm]], collapse = ", ")), r)
         }))
+        absolute <- rbindlist(lapply(names(ABSOLUTE_SETS), function(nm) {
+            r <- fit_rung(d, o, ABSOLUTE_SETS[[nm]])
+            if (is.null(r)) return(NULL)
+            cbind(data.table(run_id = run_id, region = region, outcome = o,
+                             adjustment = nm, cumulative = FALSE,
+                             added = paste(ABSOLUTE_SETS[[nm]],
+                                           collapse = ", ")), r)
+        }))
+        rbind(cumulative, absolute, fill = TRUE)
     }))
 }
 
@@ -87,12 +115,13 @@ res <- rbindlist(lapply(run_ids, run_one))
 
 ## Order matters here: the rungs are cumulative, so a table sorted
 ## alphabetically reads as noise rather than as an attenuation sequence.
-res[, adjustment := factor(adjustment, levels = names(LADDER))]
+res[, adjustment := factor(adjustment, levels = c(names(LADDER),
+                                                 names(ABSOLUTE_SETS)))]
 setorder(res, run_id, outcome, adjustment)
 
 ## Attenuation relative to the v1-like rung, which is the comparison the
 ## question is about. Reported as a retained fraction of the v1-like estimate.
-res[, retained_vs_v1 := estimate / estimate[adjustment == "v1_like"],
+res[, retained_vs_v1 := estimate / estimate[adjustment == "v1_like"][1],
     by = .(run_id, outcome)]
 
 qc_dir <- file.path(repo_root(), MODULE, "_m", "qc", run_ids[1])

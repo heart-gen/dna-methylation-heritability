@@ -27,6 +27,92 @@
 #       h3k27me3 is an independent gappedPeak call and is NOT subject to this.
 # The BH family is untouched, so no reported q changes.
 #
+# Amended 2026-09-02 (second amendment of this date): the ADJUSTMENT SET was
+# re-specified, and the exclude_snp_proximal sensitivity was retired from the
+# gating conjunction. This amendment DOES change the primary fits, and the
+# decomposition that motivated it was seen first, so the reasoning is recorded
+# in full rather than summarized.
+#
+# The trigger: run rra-AA-*-20260902 returned H3K9me3 0/3 regions and quiescent
+# 0/3, against v1 (meqtl-validation/02_vmr_meqtl_burden), which reported both.
+# A nested adjustment ladder refit on the sealed feature table shows the v1
+# signal is FULLY REPRODUCIBLE in v2 data at the v1-like rung (caudate H3K9me3
+# 0.434, quiescent 0.714, LINE/L1 0.746 log-odds per SD; DLPFC H3K9me3 0.381,
+# p=1.5e-14). It does not die from re-analysis, better annotation or the
+# liftover. It dies from covariates, and almost all of the attenuation is
+# carried by two rungs. So neither version was right: v1 under-adjusted (it
+# carried NO technical covariates at all), v2 over-adjusted on mediators.
+#
+# The judgement applied to each covariate is: is it a COMMON CAUSE of both
+# local genetic control of methylation and repressive-compartment residence
+# (adjust), or is it on the causal path / partly constitutive of the outcome
+# (do not adjust)?
+#
+#   REMOVED as mediators or as constitutive of the exposure's definition:
+#     methylation_variance -- this is the DEFINING property of a VMR and sits
+#       directly on the path from local genetic variation to methylation.
+#       Conditioning on it removes the exposure's effect by construction.
+#     mean_methylation -- same path, and the quiescent compartment IS the
+#       hypermethylated compartment, so this is near-constitutive of one of
+#       the three family outcomes.
+#     wgbs_coverage -- retained in the same block because coverage enters the
+#       variance estimate that defines the phenotype; adjusting for it is
+#       adjusting for a component of the exposure, not for a common cause.
+#     broad_genomic_annotation -- genic/intergenic is partly constitutive of
+#       "quiescent, gene-poor, late-replicating". Adjusting for it asks
+#       whether, within intergenic sequence, intergenic-ness is associated.
+#
+#   RETAINED as genuine common causes or as technical confounders:
+#     vmr_length, cpg_count, cpg_density, gc_content -- sequence composition
+#       drives both mQTL discoverability and compartment membership.
+#     tested_snp_count -- discovery opportunity for the exposure.
+#     snp_proximity, mappability, segdup_overlap, problematic_region_overlap --
+#       the technical block. v1 had none of these, which is its own defect;
+#       these are protective and stay.
+#
+#   MOVED to a sensitivity (see sensitivities.adjust_cell_composition):
+#     cell_composition_pcs -- defensible as a common cause, but it entered at
+#       the same rung as broad_genomic_annotation and its status is arguable.
+#       Rather than decide it silently in the primary, the primary omits it and
+#       a dedicated arm refits every model WITH cell_composition_r2 added. The
+#       existing low_cell_composition subset arm is unchanged and independent.
+#
+# The four removed covariates are NOT dropped from the feature table. They move
+# to `descriptive_covariates` below and are still constructed and still fail
+# loudly if they cannot be built, so the ladder, the QC tables and the new arm
+# all keep their columns. Only the model formula narrows.
+#
+# RETIRED SENSITIVITY -- exclude_snp_proximal. Two independent reasons, neither
+# of which depends on any result:
+#   (a) REDUNDANT. The identical BED already enters every model as the
+#       covariate `snp_proximity` (realized as snp_proximal_frac). The arm
+#       conditioned on a variable the primary already adjusts for.
+#   (b) BIASING, and not a faithful realization of this key. The key names a
+#       CpG-LEVEL exclusion. snp_proximal_frac is a BASE-PAIR overlap fraction
+#       of the VMR span with the +/-150bp windows, so `== 0` selects short VMRs
+#       mechanically -- and every outcome here is itself a length-dependent
+#       overlap fraction. It kept 17.6-18.6% of loci, biased to shorter, more
+#       accessible, less repeat-rich spans (hippocampus: kept 583bp / 13.5
+#       CpGs / LINE-L1 0.047 vs dropped 768bp / 15.3 CpGs / LINE-L1 0.069).
+#       Common-SNP density is itself elevated in repeat-rich late-replicating
+#       sequence, so the arm partly conditioned on "not heterochromatin" while
+#       testing for heterochromatin.
+# Because survives() is a strict conjunction, this one arm decided verdicts: it
+# blocked accessible-chromatin depletion in all three regions and took LINE/L1
+# from 2/2 to 1/2. It is retired as REDUNDANT -- argument (a), which is
+# independent of the data -- and is still fitted and reported descriptively in
+# results/descriptive-snp-proximal.tsv. This change favours the hypothesis;
+# that is stated here rather than left for a reader to notice.
+#
+# A faithful CpG-level exclusion is NOT realizable in module 04. The predictor
+# descends from the module 02 VMR phenotype, which averages over ALL CpGs in
+# the span (01_vmr_catalog/_h/02_summarize.R). It would require re-running
+# 01 summarize -> 02 -> 04. Scoped and documented in the module README; not
+# executed.
+#
+# The BH family is untouched: same three outcomes, same primary analysis set,
+# same primary predictor.
+
 # The primary predictor is the standardized continuous within-cell local SNP
 # contribution score among eligible loci; r2_pred_oof is secondary. Overlap
 # alone never implies activity, expression, or retrotransposition.
@@ -124,14 +210,20 @@ covariates:
   - cpg_count
   - cpg_density
   - gc_content
-  - mean_methylation
-  - methylation_variance
-  - wgbs_coverage
   - tested_snp_count
   - snp_proximity
   - mappability
   - segdup_overlap
   - problematic_region_overlap
+
+# Built and completeness-checked exactly like `covariates`, but NOT in the
+# primary model formula. See the 2026-09-02 adjustment-set amendment above for
+# why each one is a mediator, constitutive of an outcome, or moved to an arm.
+# They remain available to the sensitivity arms and to post-hoc QC.
+descriptive_covariates:
+  - mean_methylation
+  - methylation_variance
+  - wgbs_coverage
   - broad_genomic_annotation
   - cell_composition_pcs
 
@@ -154,6 +246,13 @@ sensitivities:
     bed: inputs/supportfiles/_m/genomicSuperDups.hg38.bed.gz
   exclude_snp_proximal_cpgs:
     bed: inputs/supportfiles/_m/common_snp_windows_pm150bp.hg38.bed.gz
+    # RETIRED from the gating conjunction 2026-09-02 as redundant with the
+    # `snp_proximity` covariate. Still fitted, reported non-gating in
+    # results/descriptive-snp-proximal.tsv. See the header amendment.
+    descriptive_only: true
+  # Refits every model with cell_composition_r2 ADDED to the adjustment set.
+  # An adjustment-variant arm, not a subset arm.
+  adjust_cell_composition: true
   cell_composition_rna_music: true
   cell_composition_dnam_scmd: true    # caudate only, when the integration gate passes
   matched_high_low_comparison: true   # secondary evidence only
