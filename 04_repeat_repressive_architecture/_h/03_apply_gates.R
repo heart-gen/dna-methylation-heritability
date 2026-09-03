@@ -249,14 +249,27 @@ repressive_signed <- signed_mean(
 same_sign <- is.finite(polycomb_signed) && is.finite(repressive_signed) &&
     sign(polycomb_signed) == sign(repressive_signed)
 
-constitutive_supported <- !isTRUE(
-    spec_cfg$constitutive_claim_requires_stronger_than_polycomb) ||
+## PRECONDITION (fix 2026-09-02). The control is a contrast between a claimed
+## effect and Polycomb. If no repressive family outcome survives its gate there
+## is no effect to be specific ABOUT, and an opposite-signed Polycomb estimate
+## must not be allowed to license "constitutive heterochromatin" over a null.
+## Without this, a repressive mean of +0.037 (p 0.13-0.89, i.e. nothing) against
+## Polycomb -0.064 printed as "constitutive specificity, permitted".
+REPRESSIVE <- c("h3k9me3_frac", "quiescent_frac")
+repressive_survives <- any(claims[outcome %in% REPRESSIVE, regions_surviving] > 0)
+
+constitutive_supported <- repressive_survives && (
+    !isTRUE(spec_cfg$constitutive_claim_requires_stronger_than_polycomb) ||
     !is.finite(polycomb_signed) || !is.finite(repressive_signed) ||
     !same_sign ||
-    abs(repressive_signed) > abs(polycomb_signed)
+    abs(repressive_signed) > abs(polycomb_signed))
 
 ## Reported so the reason is auditable from the log, not inferred from the noun.
-constitutive_basis <- if (!is.finite(polycomb_signed)) {
+constitutive_basis <- if (!repressive_survives) {
+    sprintf(paste("not applicable -- no repressive outcome (%s) survives its",
+                  "gate, so there is no effect for the control to qualify"),
+            paste(REPRESSIVE, collapse = ", "))
+} else if (!is.finite(polycomb_signed)) {
     "no Polycomb estimate available"
 } else if (!same_sign) {
     sprintf(paste("Polycomb %.3f is OPPOSITE in sign to repressive %.3f:",
@@ -321,5 +334,7 @@ writeLines(c(
     sprintf("  - Specificity control: %s. %s.",
             constitutive_basis,
             if (constitutive_supported) "\"Constitutive heterochromatin\" permitted"
+            else if (!repressive_survives)
+                "No repressive claim is permitted at all; the noun does not arise"
             else "Say \"repressed chromatin\"")
 ), file.path(out_dir, "interpretation-constraints.txt"))

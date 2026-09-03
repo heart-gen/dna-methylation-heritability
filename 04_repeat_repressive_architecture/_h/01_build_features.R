@@ -246,7 +246,13 @@ realized <- list(
     broad_genomic_annotation = "broad_genomic_annotation",
     cell_composition_pcs = "cell_composition_r2"
 )
-declared <- unlist(annot$covariates)
+## Both lists are built here. `descriptive_covariates` are the ones the
+## 2026-09-02 amendment removed from the primary FORMULA as mediators or as
+## constitutive of an outcome -- they are still constructed, still checked, and
+## still fail loudly, because the sensitivity arms and the post-hoc QC ladder
+## need the columns. Narrowing the model must not narrow the feature table.
+declared <- unique(c(unlist(annot$covariates),
+                     unlist(annot$descriptive_covariates)))
 undeclared <- setdiff(declared, names(realized))
 if (length(undeclared)) {
     stop("config declares covariate(s) this script does not build: ",
