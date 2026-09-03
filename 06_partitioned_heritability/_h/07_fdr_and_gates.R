@@ -59,8 +59,23 @@ res[, trait_label := trait_label[trait]]
 ## FDR family is built on. Enrichment and its own p are reported alongside, as
 ## the legacy interpreting_sldsc_results.md requires.
 res[, tau_p := 2 * pnorm(-abs(as.numeric(tau_z)))]
-res[, tau_q := p.adjust(tau_p, method = ph$fdr_method)]
-res[, enrichment_q := p.adjust(as.numeric(enrichment_p), method = ph$fdr_method)]
+
+## config names the procedure (`fdr_bh`), p.adjust names an implementation
+## (`BH`). Translate here rather than writing p.adjust's spelling into the
+## locked config: the config should say which multiple-testing procedure was
+## prespecified, not which R function argument realizes it. Unrecognized values
+## abort -- defaulting to BH would let a typo in a pi_locked config silently
+## change the correction that every reported q-value depends on.
+FDR_METHOD <- c(fdr_bh = "BH", fdr_by = "BY", bonferroni = "bonferroni",
+                holm = "holm", none = "none")
+if (!isTRUE(ph$fdr_method %in% names(FDR_METHOD))) {
+    stop("config fdr_method is ", deparse(ph$fdr_method),
+         "; expected one of: ", paste(names(FDR_METHOD), collapse = ", "))
+}
+padjust_method <- unname(FDR_METHOD[[ph$fdr_method]])
+
+res[, tau_q := p.adjust(tau_p, method = padjust_method)]
+res[, enrichment_q := p.adjust(as.numeric(enrichment_p), method = padjust_method)]
 res[, fdr_family := ph$fdr_family]
 res[, fdr_method := ph$fdr_method]
 res[, n_tests_in_family := .N]
