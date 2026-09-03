@@ -57,6 +57,8 @@ assay_kind <- spec$assay
 links_f <- file.path(run_dir, "links", paste0(modality, "-links.tsv.gz"))
 if (!file.exists(links_f)) stop("No link table for ", modality, "; run stage 01")
 links <- fread(links_f)
+n_pairs_declared <- nrow(links)
+n_features_declared <- uniqueN(links$feature_id)
 message("[07] ", modality, ": ", nrow(links), " declared pairs")
 
 ## --------------------------------------------------------------- assay side
@@ -121,6 +123,33 @@ if (assay_kind == "gene") {
     message("[07] psi filter: ", sum(keep), "/", nrow(mat), " events pass")
     mat <- mat[keep, , drop = FALSE]
 }
+
+## Missing data. PSI events are frequently unquantified in a subset of donors
+## (median 62% NA per event in caudate), and an NA anywhere breaks the shared
+## residualisation. A feature is kept only if its missingness is within the
+## configured bound; with max_na_fraction 0 that means quantified in every donor
+## of the analysis set, so every pair is fitted on the same complete design.
+##
+## This is a real restriction of the tested universe, not a technicality: it
+## biases the retained PSI set toward constitutively quantified events. The
+## count is written to excluded/ and carried into the tested universe so the
+## denominator behind any coupling claim stays auditable.
+max_na <- as.numeric(nrm$max_na_fraction %||% 0)
+na_frac <- rowMeans(is.na(mat))
+drop_na <- na_frac > max_na
+if (any(drop_na)) {
+    write_atomic(data.table(feature_id = rownames(mat)[drop_na],
+                            na_fraction = na_frac[drop_na],
+                            max_na_fraction = max_na,
+                            reason = "missingness_above_threshold"),
+                 file.path(run_dir, "excluded",
+                           paste0(modality, "-features-dropped-missingness.tsv")))
+}
+message("[07] missingness filter: ", sum(!drop_na), "/", length(drop_na),
+        " features within max_na_fraction ", max_na)
+mat <- mat[!drop_na, , drop = FALSE]
+if (nrow(mat) == 0) stop("No feature survives the missingness filter")
+n_features_after_missingness <- nrow(mat)
 
 ## ---------------------------------------------------------- covariate side
 pheno_f <- file.path(repo_root(), "inputs", "phenotypes", "_m",
@@ -233,6 +262,19 @@ meth_mat <- do.call(rbind, lapply(names(phen_list), function(v) {
     d[J(donors)]$meth
 }))
 rownames(meth_mat) <- names(phen_list)
+## Same guard on the methylation side: a VMR whose phenotype is missing for any
+## donor in the analysis set cannot enter the shared residualisation.
+meth_na <- rowSums(is.na(meth_mat)) > 0
+if (any(meth_na)) {
+    write_atomic(data.table(vmr_id = rownames(meth_mat)[meth_na],
+                            reason = "missing_methylation_in_analysis_set"),
+                 file.path(run_dir, "excluded",
+                           paste0(modality, "-vmrs-with-missing-methylation.tsv")))
+    message("[07] dropping ", sum(meth_na),
+            " VMRs with incomplete methylation on the donor set")
+    meth_mat <- meth_mat[!meth_na, , drop = FALSE]
+}
+if (nrow(meth_mat) == 0) stop("No VMR has complete methylation on the donor set")
 meth_res <- unitise(resid_of(meth_mat))
 ok_meth <- rownames(meth_res)[is.finite(rowSums(meth_res))]
 
@@ -280,6 +322,28 @@ vmr_summary[, `:=`(modality = modality, cohort = cohort, region = region,
                    run_id = opts$run_id)]
 write_atomic(vmr_summary, file.path(run_dir, "results",
                                     paste0(modality, "-vmr-summary.tsv")))
+
+## The realised tested universe, after expression/missingness filtering. Stage
+## 01 records what was DECLARED; this records what was actually testable, and
+## the gap between them is the part a reader needs in order to interpret a null.
+realised <- data.table(
+    modality = modality, cohort = cohort, region = region,
+    run_id = opts$run_id,
+    n_donors = length(donors),
+    residual_df = df_resid,
+    n_pairs_declared = n_pairs_declared,
+    n_pairs_tested = nrow(links),
+    n_features_declared = n_features_declared,
+    n_features_after_filtering = n_features_after_missingness,
+    n_features_tested = uniqueN(links$feature_id),
+    n_vmrs_tested = uniqueN(links$vmr_id),
+    max_na_fraction = max_na,
+    n_sig_pairs = sum(links$fdr < thr, na.rm = TRUE),
+    n_vmrs_coupled = sum(vmr_summary$any_sig_fdr),
+    fdr_method = ts$association$fdr_method,
+    fdr_threshold = thr)
+write_atomic(realised, file.path(run_dir, "results",
+                                 paste0(modality, "-realised-universe.tsv")))
 
 message("[07] ", modality, ": ", sum(links$fdr < thr, na.rm = TRUE),
         " significant pairs, ", sum(vmr_summary$any_sig_fdr),
