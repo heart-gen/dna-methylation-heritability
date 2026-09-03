@@ -94,6 +94,17 @@ for (mod in enabled) {
     }
     vs <- fread(sum_f)
     d <- merge(vs, burden, by = "vmr_id")
+    ## A zero-row join means the two tables key their VMRs differently, not that
+    ## there is nothing to test. That happened once already (module 07 emitted
+    ## the legacy underscore form while 02/05 use chr:start-end) and surfaced
+    ## only as "insufficient variation" with n = 0 in every test, which reads
+    ## like a null result. Fail loudly instead.
+    if (nrow(d) == 0) {
+        stop(mod, ": joining the VMR summary to the Module 05 burden table on ",
+             "vmr_id produced zero rows. Example summary id '", vs$vmr_id[1],
+             "', example burden id '", burden$vmr_id[1],
+             "'. These are different identifier conventions, not an empty result.")
+    }
     if (nrow(d) < ts$gates$min_vmrs_tested) {
         warning(mod, ": only ", nrow(d), " VMRs after joining predictors")
     }
