@@ -12,6 +12,7 @@
 ## reporting optimistic q-values.
 
 source(file.path(Sys.getenv("V2_REPO_ROOT", "."), "00_shared", "load.R"))
+source(file.path(Sys.getenv("V2_RUN_CODE", file.path(Sys.getenv("V2_REPO_ROOT", "."), "06_partitioned_heritability", "_h")), "run_config.R"))
 
 suppressPackageStartupMessages({
     library(data.table)
@@ -31,7 +32,7 @@ mf <- function(field) {
 }
 smoke <- identical(mf("smoke_run"), "TRUE")
 
-ph <- load_config("partitioned_heritability")
+ph <- load_run_config("partitioned_heritability", run_dir)
 declared <- vapply(ph$traits, `[[`, character(1), "name")
 trait_class <- setNames(vapply(ph$traits, `[[`, character(1), "class"), declared)
 trait_label <- setNames(vapply(ph$traits, `[[`, character(1), "label"), declared)

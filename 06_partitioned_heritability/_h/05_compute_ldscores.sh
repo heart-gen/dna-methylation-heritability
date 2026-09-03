@@ -33,6 +33,12 @@ SCRIPT_DIR="${V2_RUN_CODE:-${REPO_DIR}/06_partitioned_heritability/_h}"
 CHR="${SLURM_ARRAY_TASK_ID:?this step runs as a SLURM array}"
 RUN_DIR="${REPO_DIR}/06_partitioned_heritability/_m/runs/${RUN_ID}"
 
+# Prefer the run's config snapshot over the live working tree, so an edit (or a
+# branch switch) cannot change what a queued run reads.
+CFG="${RUN_DIR}/code/config/partitioned_heritability.yml"
+[ -f "$CFG" ] || CFG="${REPO_DIR}/config/partitioned_heritability.yml"
+require_file "$CFG"
+
 log_job_info
 log_message "chromosome ${CHR}, run ${RUN_ID}"
 
@@ -43,15 +49,15 @@ export TMPDIR="${TMPDIR:-/projects/b1213/tmp}"
 mkdir -p "$TMPDIR"
 
 LDSC_DIR=$(conda run --no-capture-output -p "$PY_ENV" python -c \
-    "import yaml,sys; print(yaml.safe_load(open('${REPO_DIR}/config/partitioned_heritability.yml'))['ldsc_dir'])")
+    "import yaml,sys; print(yaml.safe_load(open('${CFG}'))['ldsc_dir'])")
 require_file "$LDSC_DIR/ldsc.py"
 
 BIM_PREFIX=$(conda run --no-capture-output -p "$PY_ENV" python -c \
-    "import yaml; c=yaml.safe_load(open('${REPO_DIR}/config/partitioned_heritability.yml')); r=c['ld_references'][c['ld_reference_arm']]; print(r['bim_dir']+'/'+r['bim_prefix'])")
+    "import yaml; c=yaml.safe_load(open('${CFG}')); r=c['ld_references'][c['ld_reference_arm']]; print(r['bim_dir']+'/'+r['bim_prefix'])")
 PRINT_SNPS=$(conda run --no-capture-output -p "$PY_ENV" python -c \
-    "import yaml; c=yaml.safe_load(open('${REPO_DIR}/config/partitioned_heritability.yml')); r=c['ld_references'][c['ld_reference_arm']]; print(r['hapmap3_print_snps'])")
+    "import yaml; c=yaml.safe_load(open('${CFG}')); r=c['ld_references'][c['ld_reference_arm']]; print(r['hapmap3_print_snps'])")
 LD_WIND=$(conda run --no-capture-output -p "$PY_ENV" python -c \
-    "import yaml; print(yaml.safe_load(open('${REPO_DIR}/config/partitioned_heritability.yml'))['ld_wind_cm'])")
+    "import yaml; print(yaml.safe_load(open('${CFG}'))['ld_wind_cm'])")
 
 require_file "${BIM_PREFIX}${CHR}.bim"
 require_file "$PRINT_SNPS"

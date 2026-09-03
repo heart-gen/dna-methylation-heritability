@@ -90,7 +90,11 @@ def main() -> None:
     if not run_dir.is_dir():
         raise SystemExit(f"No such run: {run_dir}")
 
-    cfg = yaml.safe_load((root / "config" / "partitioned_heritability.yml").read_text())
+    # Prefer the run's config snapshot over the live working tree; see
+    # run_config.py for why.
+    _snap = run_dir / "code" / "config" / "partitioned_heritability.yml"
+    _src = _snap if _snap.exists() else root / "config" / "partitioned_heritability.yml"
+    cfg = yaml.safe_load(_src.read_text())
     ref = cfg["ld_references"][cfg["ld_reference_arm"]]
 
     sumstats = run_dir / "sumstats" / f"{args.trait}.sumstats.gz"

@@ -56,6 +56,13 @@ log_message "run ${RUN_ID}"
 
 mkdir -p "${RUN_DIR}/code"
 cp -a "$SCRIPT_DIR" "${RUN_DIR}/code/_h"
+# Snapshot config alongside the code. Stages used to re-read config/ from the
+# live working tree, so a config edit -- or a branch switch that removed the
+# file, which broke this module's first production submit on 2026-09-02 --
+# changed or broke a run already in flight while its manifest attested to the
+# original checksum.
+mkdir -p "${RUN_DIR}/code/config"
+cp -a "${REPO_DIR}/config/." "${RUN_DIR}/code/config/"
 
 # Everything below executes the SNAPSHOT, not the live _h/. Snapshotting and
 # then submitting ${SCRIPT_DIR} would let an edit made while jobs are queued
