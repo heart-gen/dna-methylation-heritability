@@ -58,10 +58,20 @@ normalisation:
     min_cpm: 1.0
     min_fraction_samples: 0.25
     transform: log2_cpm_plus1
+    max_na_fraction: 0.0
   psi:
     # PSI is already a proportion in [0,1]; it is modelled untransformed.
     transform: none
     min_sd: 0.01
+    # PSI missingness is severe: measured 2026-09-02 on caudate, the median
+    # event is NA in 62% of donors and only ~17% of events are quantified in
+    # every donor. An event is therefore tested only where it is quantified in
+    # every donor of the analysis set, so every pair is fitted on the same
+    # complete design and the residualisation stays exact. This genuinely
+    # restricts the tested universe and biases it toward constitutively
+    # quantified events; the reduction is reported in
+    # results/tested-universe.tsv and excluded/, and must be stated in Methods.
+    max_na_fraction: 0.0
   # One RNA library per donor. Where a donor has several, the highest-RIN
   # library is kept and the choice is recorded in excluded/.
   duplicate_donor_rule: highest_rin
