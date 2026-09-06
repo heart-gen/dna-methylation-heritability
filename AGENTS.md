@@ -625,6 +625,20 @@ after the VMR and metric repairs:
 Do not preserve a numerical result merely because it is favorable or already
 appears in a manuscript draft.
 
+### 8.1 Known data constraint: batch is confounded with region
+
+**Established 2026-09-06.** Caudate is sequencing batch 3 of the AANRI phase 1
+delivery; batches 1-2 hold only DLPFC and hippocampus. **Brain region and
+sequencing batch are perfectly confounded**, so no analysis in this project can
+attribute a caudate-vs-other-region difference to region rather than batch.
+
+Before writing or gating any cross-region claim, read
+`writing-notes/WGBS_BATCH_REGION_CONFOUNDING.md`. It carries the evidence, the
+per-module exposure assessment, and the rules -- of which the two that bind most
+often are: a **single-region** result is not exposed, and adjusting for
+`gc_content` is **mitigation, not identification**. This is a design constraint
+on §7.7 `08_region_donor_generalization`, not a caveat to be added afterwards.
+
 ## 9. Reproducibility and run identity
 
 Every production output must carry or link to:
