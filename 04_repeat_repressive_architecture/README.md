@@ -302,9 +302,11 @@ Evidence that the inversion is a library property and not an analysis artifact:
   set by PCR amplification and post-bisulfite size selection is not recoverable
   downstream.
 
-This reaches past Module 04. Module 03 found caudate the strongest region for
-predictability, and that finding sits on the same confound. A repo-level
-provenance note is warranted and is **not yet written**.
+This reaches past Module 04, so it is written up repo-level in
+[`writing-notes/WGBS_BATCH_REGION_CONFOUNDING.md`](../writing-notes/WGBS_BATCH_REGION_CONFOUNDING.md),
+which carries the per-module exposure assessment and the rules for what a
+cross-region claim may say. Read it before writing any caudate-vs-other-region
+sentence.
 
 ### Resolved 2026-09-06: what LINE/L1 is allowed to claim
 
