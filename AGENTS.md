@@ -627,10 +627,14 @@ appears in a manuscript draft.
 
 ### 8.1 Known data constraint: batch is confounded with region
 
-**Established 2026-09-06.** Caudate is sequencing batch 3 of the AANRI phase 1
-delivery; batches 1-2 hold only DLPFC and hippocampus. **Brain region and
-sequencing batch are perfectly confounded**, so no analysis in this project can
-attribute a caudate-vs-other-region difference to region rather than batch.
+**Established 2026-09-06, and confirmed by the PI from direct knowledge of the
+AANRI study.** Caudate is sequencing batch 3 of the AANRI phase 1 delivery;
+batches 1-2 hold only DLPFC and hippocampus, and batch 3 holds no DLPFC or
+hippocampus. **Brain region and sequencing batch are perfectly confounded**, so
+no analysis in this project can attribute a caudate-vs-other-region difference
+to region rather than batch. There are no off-diagonal samples anywhere in the
+delivery, so this is permanent: it cannot be loosened by obtaining more of these
+data, only worked around.
 
 Before writing or gating any cross-region claim, read
 `writing-notes/WGBS_BATCH_REGION_CONFOUNDING.md`. It carries the evidence, the
