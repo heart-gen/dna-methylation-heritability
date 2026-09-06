@@ -97,7 +97,28 @@ primary_pred <- "local_snp_contribution_score_z"
 outcomes <- unlist(annot$multiple_testing$family)
 CONTROLS <- names(annot$multiple_testing$outside_family)
 
+## Regions whose estimate for a given outcome is technically uncertain
+## (config interpretation.technically_confounded_regions, 2026-09-06). They are
+## still fitted and still reported -- they are simply not counted as evidence
+## for or against that outcome's claim. Currently: caudate / line_l1_frac,
+## because brain region is perfectly confounded with sequencing batch in the
+## AANRI phase 1 delivery and the resulting GC bias falls hardest on the most
+## AT-rich annotation. Surfaced in its own columns below so that summarizing the
+## table cannot hide which region was set aside or what it said.
+CONFOUNDED <- annot$interpretation$technically_confounded_regions %||% list()
+
 claims <- rbindlist(lapply(outcomes, function(o) {
+    excluded <- unlist(CONFOUNDED[[o]] %||% character(0))
+    unknown_excl <- setdiff(excluded, regions)
+    if (length(unknown_excl)) {
+        stop("technically_confounded_regions names a region not in this run: ",
+             paste(unknown_excl, collapse = ", "))
+    }
+    eligible <- setdiff(regions, excluded)
+    if (length(eligible) == 0) {
+        stop("Every region is excluded for outcome ", o, "; nothing to gate on")
+    }
+
     per_region <- rbindlist(lapply(regions, function(r) {
         d <- res[outcome == o & predictor == primary_pred & region == r]
         prim <- d[analysis_set == "primary"]
@@ -112,9 +133,11 @@ claims <- rbindlist(lapply(outcomes, function(o) {
             survives = survives(d, GATE_FAMILY)
         )
     }))
+    ## The estimate is kept for every region; only ELIGIBLE regions are counted.
+    per_region[, eligible := !region %in% excluded]
 
-    n_surv <- sum(per_region$survives)
-    surv_regions <- per_region$region[per_region$survives]
+    n_surv <- sum(per_region$survives[per_region$eligible])
+    surv_regions <- per_region$region[per_region$survives & per_region$eligible]
 
     required <- if (o == "line_l1_frac") {
         annot$interpretation$line_l1_multiregion_requires
@@ -123,8 +146,16 @@ claims <- rbindlist(lapply(outcomes, function(o) {
     }
     required <- as.integer(required %||% 3L)
 
-    claim <- if (n_surv >= required && n_surv == length(regions)) {
+    claim <- if (n_surv >= required && n_surv == length(eligible) &&
+                 length(excluded) == 0) {
         paste0("shared across all three regions (n=", n_surv, ")")
+    } else if (n_surv >= required && n_surv == length(eligible)) {
+        ## Every region that was allowed to carry evidence did. The count is
+        ## named explicitly so no reader mistakes it for all three.
+        paste0("supported in all ", n_surv, " eligible regions (",
+               paste(surv_regions, collapse = ", "),
+               "); ", paste(excluded, collapse = ", "),
+               " set aside as technically confounded, not counted")
     } else if (n_surv >= required) {
         paste0("multi-region: ", paste(surv_regions, collapse = ", "))
     } else if (n_surv == 1 && identical(surv_regions, "caudate")) {
@@ -148,9 +179,23 @@ claims <- rbindlist(lapply(outcomes, function(o) {
         } else NA_character_
     } else NA_character_
 
+    ## The set-aside estimate travels WITH the claim rather than only in the
+    ## association table, so "we excluded a region" and "here is what it said"
+    ## are never separable.
+    ex <- per_region[!(eligible)]
     cbind(data.table(outcome = o, regions_surviving = n_surv,
+                     regions_eligible = length(eligible),
                      regions_required = required,
-                     permitted_claim = claim, dlpfc_disclosure = dlpfc_note),
+                     permitted_claim = claim, dlpfc_disclosure = dlpfc_note,
+                     regions_excluded = if (nrow(ex))
+                         paste(ex$region, collapse = ",") else NA_character_,
+                     excluded_estimate = if (nrow(ex))
+                         paste(signif(ex$estimate, 3), collapse = ",") else NA_character_,
+                     excluded_p = if (nrow(ex))
+                         paste(signif(ex$p, 3), collapse = ",") else NA_character_,
+                     excluded_reason = if (nrow(ex))
+                         "technically confounded (see config interpretation.technically_confounded_regions)"
+                         else NA_character_),
           data.table(t(stats::setNames(per_region$survives, per_region$region))))
 }))
 
