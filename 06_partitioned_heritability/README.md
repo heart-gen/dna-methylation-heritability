@@ -148,6 +148,18 @@ order. Because Stage 05 changed, those runs were replaced rather than resumed:
 their code snapshots no longer describe the code that would produce them.
 Superseded by `sldsc-AA-{region}-20260902-a`.
 
+`sldsc-AA-{caudate,dlpfc,hippocampus}-20260902-a` confirmed that fix -- all eight
+traits completed Stage 06 in all three cells and the `.results` rows are named
+`LOCAL_SNP_CONTRIBUTION_ZL2_1` -- but then failed at Stage 07. `config` declares
+`fdr_method: fdr_bh`, the name of the procedure, and Stage 07 passed that string
+straight to `p.adjust()`, which knows the correction as `BH` and aborts on any
+other spelling. Stage 07 now translates config's procedure name to `p.adjust()`'s
+argument and aborts on an unrecognized one; the config keeps naming the procedure
+rather than the R argument, and `sldsc-metrics.tsv` still records `fdr_bh`. No
+S-LDSC output was wrong -- Stage 07 never produced any -- but Stage 07 changed,
+so these runs are likewise replaced rather than resumed.
+Superseded by `sldsc-AA-{region}-20260903`.
+
 ## Contract
 
 This module follows AGENTS.md §5.2: `_h/` holds code, `_m/` holds generated
