@@ -113,6 +113,83 @@
 # The BH family is untouched: same three outcomes, same primary analysis set,
 # same primary predictor.
 
+# Amended 2026-09-06: LINE/L1 is estimated REGION-SPECIFICALLY, and caudate is
+# reported as technically uncertain rather than as evidence for or against the
+# LINE/L1 claim. A matched-measurability sensitivity is added. Both changes are
+# recorded in full because the decomposition that motivated them was seen first.
+#
+# The trigger: the caudate LINE/L1 estimate collapses from 0.746 log-odds/SD at
+# the v1-like rung to 0.038 (p=0.41) under the prespecified set, while DLPFC
+# (0.298, p=6.4e-11) and hippocampus (0.330, p=4.7e-14) hold. QC script
+# _h/07_qc_covariate_attribution.R attributes essentially all of it to ONE
+# covariate, gc_content, and locates the problem in the PREDICTOR rather than
+# the annotation: cor(local_snp_contribution_score_z, gc_content) is -0.477 in
+# caudate against -0.035 (DLPFC) and -0.012 (hippocampus). The bias on any
+# outcome scales as cor(score, gc) x cor(gc, outcome), which is why LINE/L1 --
+# the most AT-rich annotation in the panel -- is hit hardest (product 0.224 in
+# caudate, <=0.009 elsewhere). It is not specific to LINE/L1: every caudate
+# outcome moves, LINE/L1 is only where the attenuation crosses zero.
+#
+# ROOT CAUSE, and the reason this is not fixable by covariate choice: caudate is
+# SEQUENCING BATCH 3 of the AANRI phase 1 delivery
+# (https://github.com/LieberInstitute/aanri_phase1). raw-data/batch-1 and
+# batch-2 carry 150 DLPFC + 150 hippocampus libraries and ZERO caudate;
+# batch-3/bs_objs/batch3_combined/CpGassays.h5 is the file the caudate BSobj
+# build reads. Brain region and sequencing batch are PERFECTLY CONFOUNDED in
+# this delivery, so no contrast within these data can separate them. The
+# GC-coverage relationship inverts by batch (caudate cor -0.66 to -0.72 on
+# genome-wide chr22 bins, DLPFC +0.68, hippocampus +0.66), it is uniform across
+# all 308 caudate samples and all seven brain banks, and it is a property of the
+# libraries: BSmooth, blacklisting and batch combination all leave the Cov
+# assay untouched, so no re-export can change it.
+#
+# WHAT WAS CONSIDERED AND REJECTED:
+#   - A caudate-specific coverage filter (min_coverage 8/10/12/15/20). Rejected:
+#     stricter filtering makes cor(score, gc) WORSE (-0.477 -> -0.539 at >=12),
+#     leaves caudate LINE/L1 at ~0 at every threshold, and costs DLPFC and
+#     hippocampus signal monotonically. A region-specific threshold would also
+#     make the three cells non-comparable by construction.
+#   - Dropping gc_content from the adjustment set. Rejected: it is the covariate
+#     that absorbs the batch artifact. Removing it raises caudate LINE/L1 from a
+#     null 0.038 to 0.259 (p=4.1e-08), and caudate H3K9me3 from 0.123 to 0.258 --
+#     manufacturing significance from the confound -- while COSTING DLPFC 36%
+#     (0.298 -> 0.190) and hippocampus 38% (0.330 -> 0.206) of a real effect. In
+#     the two clean regions GC adjustment RAISES the estimate; over-adjustment
+#     would lower it, so the data argue against the over-adjustment reading.
+#     gc_content stays. It is fixed reference sequence, upstream of both the
+#     exposure and the outcome, and is not a mediator.
+#
+# THE DECISION. gc_content is retained, but retaining it is NOT treated as proof
+# that the caudate LINE/L1 bias is solved -- it is a partial proxy for a
+# perfectly confounded batch, not a fix. All three regions remain in every
+# analysis and region-level biology is unchanged. What changes is only what
+# LINE/L1 is allowed to CLAIM:
+#   - LINE/L1 is estimated region-specifically, as before.
+#   - The primary LINE/L1 biological claim rests on the two regions with no
+#     GC-coverage inversion (DLPFC, hippocampus), which is 2 of 2 eligible
+#     regions under the unchanged line_l1_multiregion_requires: 2.
+#   - The caudate LINE/L1 estimate is reported SEPARATELY and labelled
+#     technically uncertain. It is neither corroboration nor refutation.
+#     See interpretation.technically_confounded_regions.
+# This is a RESTRICTION of the evidence base, not a relaxation: it removes a
+# region from a claim rather than adding one. The caudate cell is still fitted,
+# still written, and still shown.
+#
+# ADDED SENSITIVITY -- matched measurability. Regression adjustment for
+# gc_content and coverage assumes a functional form and extrapolates off the
+# common support, which is exactly where a batch artifact lives. The matched arm
+# asks the cleaner question directly: are LINE/L1-overlapping loci different
+# from loci that were EQUALLY MEASURABLE -- matched on GC content, WGBS coverage
+# and VMR length -- rather than different from all other loci after a linear
+# adjustment? This realizes the long-declared but previously unimplemented
+# sensitivities.matched_high_low_comparison key. It is SECONDARY EVIDENCE ONLY
+# and non-gating (see sensitivities.matched_measurability), so it cannot rescue
+# a failed primary and cannot break a surviving one; it is written to its own
+# file so it can never enter survives().
+#
+# The BH family is untouched: same three outcomes, same primary analysis set,
+# same primary predictor. No reported q changes.
+
 # The primary predictor is the standardized continuous within-cell local SNP
 # contribution score among eligible loci; r2_pred_oof is secondary. Overlap
 # alone never implies activity, expression, or retrotransposition.
@@ -256,6 +333,41 @@ sensitivities:
   cell_composition_rna_music: true
   cell_composition_dnam_scmd: true    # caudate only, when the integration gate passes
   matched_high_low_comparison: true   # secondary evidence only
+  # Realizes matched_high_low_comparison, added 2026-09-06. Regression
+  # adjustment for gc_content and coverage assumes a functional form and
+  # extrapolates off the common support -- which is where a batch artifact
+  # lives. This arm instead builds a matched comparison on measurability and
+  # asks whether the contrast survives WITHOUT relying on that functional form.
+  # NON-GATING by construction: written to its own file, never read by
+  # survives() in 03_apply_gates.R. It is secondary evidence, so it can neither
+  # rescue a failed primary nor break a surviving one.
+  matched_measurability:
+    gating: false
+    # Measurability = how well a locus could be assayed at all. GC content and
+    # per-VMR WGBS depth are the two technical axes; vmr_length is matched with
+    # them because a longer VMR is BOTH better measured and mechanically more
+    # likely to overlap any annotation, so an unmatched length contrast would
+    # masquerade as an L1 contrast.
+    match_on: [gc_content, wgbs_coverage, vmr_length]
+    # Greedy 1:1 nearest-neighbour on the Mahalanobis distance of the
+    # standardized match variables, without replacement, inside a caliper of
+    # 0.2 pooled SD on each variable. MatchIt/optmatch are not installed in the
+    # project environment, so this is implemented directly; the caliper and the
+    # ratio are fixed here rather than in the script so they cannot drift.
+    method: greedy_nn_mahalanobis
+    ratio: 1
+    caliper_sd: 0.2
+    seed: 20260906
+    min_pairs: 100
+    # Two transposes of the same question, both reported:
+    #   annotation_vs_matched -- cases are loci overlapping the annotation,
+    #     controls are matched non-overlapping loci; the contrast is on the
+    #     predictor. This is the literal "are LINE/L1 loci different from
+    #     equally measurable genomic loci?" form.
+    #   score_high_vs_low -- cases are top-tertile predictor loci, controls are
+    #     matched bottom-tertile loci; the contrast is on the annotation
+    #     fraction. This is the transpose that lines up with the primary model.
+    contrasts: [annotation_vs_matched, score_high_vs_low]
 
 # Primary model. The outcome is the per-VMR annotation overlap FRACTION, so the
 # link is quasibinomial logit with donor-independent sandwich standard errors
@@ -324,6 +436,25 @@ interpretation:
   secondary_predictor_role: descriptive
   secondary_predictor_circular_outcomes:
     - line_l1_frac
+  # Regions whose estimate for a given outcome is technically uncertain and is
+  # therefore reported SEPARATELY rather than counted as evidence for or
+  # against the claim. Added 2026-09-06; see the header amendment of that date.
+  #
+  # caudate / line_l1_frac: brain region is perfectly confounded with sequencing
+  # batch in the AANRI phase 1 delivery (caudate is batch 3), the GC-coverage
+  # relationship inverts by batch, and the omitted-variable bias this induces
+  # scales as cor(score, gc) x cor(gc, outcome) -- largest by far for LINE/L1,
+  # the most AT-rich annotation in the panel. gc_content adjustment absorbs most
+  # of it, but a proxy for a perfectly confounded variable is not a fix, so the
+  # caudate LINE/L1 cell is not treated as informative in either direction.
+  #
+  # This is a restriction, not a relaxation: it removes a region from the
+  # evidence base rather than adding one. All three regions are still fitted and
+  # still reported; the excluded estimate is surfaced in its own column of
+  # interpretation-claims.tsv so it can never be dropped by summarizing.
+  # Every other outcome keeps all three regions.
+  technically_confounded_regions:
+    line_l1_frac: [caudate]
   # A DLPFC reversal or null after the high-mappability restriction is never
   # hidden.
   report_dlpfc_reversal: true

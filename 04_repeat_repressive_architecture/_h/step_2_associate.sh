@@ -30,3 +30,9 @@ H_DIR="${V2_RUN_CODE:-${REPO_DIR}/04_repeat_repressive_architecture/_h}"
 
 log_job_info
 run_r "${H_DIR}/02_test_association.R" --run-id "$RUN_ID"
+
+# Matched-measurability sensitivity (config sensitivities.matched_measurability).
+# Runs in the same step because it consumes the same feature table and is part
+# of what a completed cell means. It is NON-GATING and writes to its own files,
+# so 03_apply_gates.R never sees it.
+run_r "${H_DIR}/08_matched_measurability.R" --run-id "$RUN_ID"
