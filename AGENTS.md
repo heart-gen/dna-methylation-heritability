@@ -524,14 +524,44 @@ Forbidden interpretation:
 
 > Methylation mediates the genetic effect on expression or splicing.
 
-### 7.7 `08_region_donor_generalization`: boundaries of the biology
+### 7.7 `08_region_donor_generalization`: cross-region robustness and identifiable regional heterogeneity
 
-This module should establish what is shared and what is context-dependent
-across:
+**Scope set by the PI 2026-09-06**, replacing the earlier "what is shared and
+what is context-dependent" framing. That framing was symmetric; the design is
+not, because §8.1 makes region inseparable from sequencing batch. Every Module
+08 output must be placed in exactly one of these tiers, and the tier must travel
+with the result:
 
-- caudate, DLPFC, and hippocampus;
-- Black American and white American donor analyses;
-- matched donor subsets and sample-size-matched analyses.
+| tier | analysis | licenses |
+|---|---|---|
+| **Strongest** | cross-region replication | robustness of genetic-control architecture across technical and regional contexts |
+| **Identified difference** | DLPFC vs hippocampus (both within batches 1-2) | genuine regional heterogeneity |
+| **Mechanistic sensitivity** | caudate downsampled to n=118 | whether donor count explains the caudate excess -- and nothing more |
+| **Descriptive only** | caudate vs other regions | nothing; reported because readers will ask |
+
+Describe tier 1 as **robustness across technical and regional contexts**. Do not
+write that the confounding strengthens a result: a batch boundary makes a
+successful replication more compelling, and does nothing for the
+interpretability of a difference.
+
+Tier 3 cannot promote a surviving caudate excess to biology. Caudate stays
+batch-confounded whatever downsampling shows, so "not donor count" never
+becomes "therefore region". Write that into the module's interpretation
+constraints.
+
+Tier 4 uses the Module 04 mechanism: set the cell aside from the claim while
+keeping the estimate fitted and surfaced, as
+`interpretation.technically_confounded_regions` does in
+`config/repeat_annotations.yml`.
+
+**Donor-group axis (PI, 2026-09-06):** compare AA and EA local genetic-control
+estimates **on the common pooled-discovery VMR set** — the `all_individuals`
+catalog — not on cohort-specific catalogs. Discovery happens once in the pooled
+sample; the two donor groups are then disjoint sets evaluated on one fixed locus
+set. Do **not** contrast `AA` against `all_individuals`: those are nested, and
+a set-versus-superset comparison is not a donor-group contrast. An EA estimation
+cell does not yet exist in Modules 01 and 02 and must be built first. This axis
+is not exposed to §8.1 — donor groups interleave within each region's libraries.
 
 Prioritize biological generalization of local variance, repeat enrichment,
 meQTL burden, and effect direction. Cross-population predictor portability is
@@ -540,6 +570,9 @@ optional and secondary.
 Do not attribute differences to ancestry-specific biology without eliminating
 sample size, MAF, LD, SNP availability, assay, covariate, and brain-region
 explanations. Use donor-group or population language approved by the PI.
+
+Note §7.6 already forbids raw score-level comparison across regions, so the
+Module 02 score cannot be contrasted across cells at all.
 
 ### 7.8 `09_schizophrenia_risk_application`: required disease application
 
@@ -624,6 +657,24 @@ after the VMR and metric repairs:
 
 Do not preserve a numerical result merely because it is favorable or already
 appears in a manuscript draft.
+
+### 8.1 Known data constraint: batch is confounded with region
+
+**Established 2026-09-06, and confirmed by the PI from direct knowledge of the
+AANRI study.** Caudate is sequencing batch 3 of the AANRI phase 1 delivery;
+batches 1-2 hold only DLPFC and hippocampus, and batch 3 holds no DLPFC or
+hippocampus. **Brain region and sequencing batch are perfectly confounded**, so
+no analysis in this project can attribute a caudate-vs-other-region difference
+to region rather than batch. There are no off-diagonal samples anywhere in the
+delivery, so this is permanent: it cannot be loosened by obtaining more of these
+data, only worked around.
+
+Before writing or gating any cross-region claim, read
+`writing-notes/WGBS_BATCH_REGION_CONFOUNDING.md`. It carries the evidence, the
+per-module exposure assessment, and the rules -- of which the two that bind most
+often are: a **single-region** result is not exposed, and adjusting for
+`gc_content` is **mitigation, not identification**. This is a design constraint
+on §7.7 `08_region_donor_generalization`, not a caveat to be added afterwards.
 
 ## 9. Reproducibility and run identity
 
