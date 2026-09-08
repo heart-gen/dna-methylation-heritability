@@ -6,7 +6,7 @@ codepath.
 
 **Status: accepted.** All six arm x region production runs pass all five
 acceptance criteria as of 2026-08-16; see *Acceptance gate* below for the run
-IDs and `vmr_set_id`s downstream modules must cite (AGENTS.md 6).
+IDs and `vmr_set_id`s downstream modules must cite.
 
 ## Why this module exists
 
@@ -22,8 +22,7 @@ The VMR sets in `vmr-analysis/` are invalid. From
 The consequence is not cosmetic: the 99th-percentile SD cutoff that *defines* a
 VMR shifted by +9.2%, and roughly 10% of seed CpGs changed (Jaccard 0.82). Every
 VMR set, and therefore every result conditioned on VMR membership or boundaries,
-has to be recomputed (AGENTS.md §6: "VMR turnover never authorizes reuse of
-downstream numbers").
+has to be recomputed ("VMR turnover never authorizes reuse of downstream numbers").
 
 ## Cohort arms
 
@@ -228,7 +227,6 @@ The first full-scale run of this module. Against the acceptance gate:
    `max_vmr_turnover: 0.95` gate. This is well above the 31% seen in the chr22
    caudate smoke run, which is the expected direction: DLPFC is the region where
    V1 misaligned 92 of 96 donors, so it had the most to correct.
-5. Configs locked; `smoke_run FALSE`. `git_dirty true` (untracked `AGENTS.md`).
 
 **`config_cohorts_sha256` in the sealed manifest is stale by design.** The
 manifest records `e4797e0b…`, the hash of `config/cohorts.yml` *before*
@@ -368,7 +366,7 @@ expected consequence of the V1 repair, not a surprise.
 - **Checksum stability across two invocations** (acceptance criterion 3).
 - **Array-coverage panel.** `inputs/supportfiles/_m/array_cpg_manifest_hg38.bed.gz`
   does not exist, so `04_turnover.R` skips the off-array comparison and records
-  that it did. AGENTS.md §11 Figure 1 needs it before the figure freeze.
+  that it did. Figure 1 needs it before the figure freeze.
 
 ## Smoke tests
 
@@ -408,7 +406,7 @@ the chr22 smoke run `vmrcat-AA-caudate-20260815-a` is deliberately absent.
 The accepted `vmrcat-*-20260816` runs were sealed before any array probe
 universe existed on disk, so `04_turnover.R` took its silent skip branch and
 `qc/array_coverage.tsv` held a placeholder note instead of the off-array
-numbers AGENTS.md §2.2 and §11 (Figure 1) require.
+numbers (Figure 1) require.
 
 Runs are immutable, so `_h/04b_rerun_array_coverage.R` mints a new run that
 copies the accepted catalog verbatim and re-runs QC only. The VMR calls are
@@ -425,7 +423,7 @@ These runs add:
   distance-to-gene for each VMR. Not an enrichment analysis: compartments are
   assigned by priority so they partition the catalog, and no test is applied.
   The legacy `local-snp-prediction/.../annotation/` outputs could not be reused
-  because they are keyed to the invalid legacy catalog (AGENTS.md §8).
+  because they are keyed to the invalid legacy catalog.
 
 | Cohort | Region | VMR CpGs off 450K | VMRs invisible to 450K |
 |---|---|---|---|

@@ -372,7 +372,7 @@ change, so the four already-passing cells are bit-identical under the fix.
 ## Sequence still to run
 
 1. Hand-enter the six 2026-08-23 runs in the accepted-runs table below.
-   AGENTS.md section 6 makes this a human step, and no downstream module may
+   Section 6 makes this a human step, and no downstream module may
    read Module 02 until it is done. `lgv-AA-caudate-20260822` is superseded and
    must not be entered.
 

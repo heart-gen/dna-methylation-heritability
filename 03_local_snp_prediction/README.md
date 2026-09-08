@@ -105,7 +105,7 @@ This is an **in-sample** fit: `cv.glmnet` used folds only to pick lambda, and SN
 clumping was supervised on all donors. Reported values run ~0.85; the honest
 held-out value is ~0.01, and `r_squared_cv` correlates *negatively* with `r2_oof`
 (rho ~ -0.05 to -0.07). It is invalid as an input to any v2 model, table, or
-figure (AGENTS.md §3).
+figure.
 
 ## Required design
 
@@ -133,7 +133,7 @@ Settings live in `config/prediction.yml`, now `pi_locked: true` (see Status abov
 
 ## Contract
 
-This module follows AGENTS.md §5.2: `_h/` holds code, `_m/` holds generated
+This module follows: `_h/` holds code, `_m/` holds generated
 output under immutable `runs/{RUN_ID}/` directories, `tests/` holds gitignored
 smoke checks. Configuration lives in `config/` at the repository root.
 
