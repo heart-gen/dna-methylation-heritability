@@ -5,14 +5,13 @@ in a **continuous** annotation built from the relative local SNP contribution
 score (`local_snp_contribution_score_z`, Module 02), using stratified LD score
 regression.
 
-**Status: implemented, smoke-verified, production submitted 2026-09-02.**
-Gated on `02_local_genetic_variance` acceptance (AGENTS.md §6: "No downstream
+**Status: accepted (AA, 2026-09-08), null enrichment; see Accepted runs.**
+Gated on `02_local_genetic_variance` acceptance ("No downstream
 production run may consume an upstream result until the upstream README records
 a passing acceptance gate and immutable run ID"). Module 02 has accepted runs
-for all six cells (`lgv-*-20260823`), so this module is unblocked. No run is
-accepted yet — see **Accepted runs** below.
+for all six cells (`lgv-*-20260823`). See **Accepted runs** below.
 
-This module depends only on Module 02. Its position in the AGENTS.md §6
+This module depends only on Module 02. Its position in 
 dependency list is a total order, not a claim that it consumes Modules 03–05.
 
 ## Why this module exists
@@ -39,7 +38,7 @@ and retirement status. Legacy directories stay in place until their row reads
 
 The annotation is **continuous**. Do not rebuild the retired v1 form, which
 partitioned VMRs into heritable and non-heritable classes at a threshold on
-`r_squared_cv` — banned by AGENTS.md §3. No threshold, no grouping, and no
+`r_squared_cv` — banned. No threshold, no grouping, and no
 absolute locus PVE enters the annotation.
 
 Report the metrics named in the legacy `interpreting_sldsc_results.md`:
@@ -85,7 +84,7 @@ targeted robustness check rather than a parallel screen.
 | Stage | Script | Purpose |
 |---|---|---|
 | 00 | `_h/00_new_run.R` | Mint the run ID; gate on the accepted Module 02 run; freeze the trait family. |
-| 01 | `_h/01_build_annotation.R` | Build the continuous hg38 annotation BED and enforce AGENTS.md §3. |
+| 01 | `_h/01_build_annotation.R` | Build the continuous hg38 annotation BED. |
 | 02 | `_h/02_liftover_annotation.py` | hg38 → hg19, with every dropped interval recorded. |
 | 03 | `_h/03_make_annot.py` | Map the score onto reference SNPs (thin-annot). |
 | 05 | `_h/05_compute_ldscores.sh` | Array 1–22: annotation + LD scores per chromosome. |
@@ -126,13 +125,16 @@ For each cohort-by-region cell, acceptance requires:
 
 ## Accepted runs
 
+QC passed with a null scientific result: `sldsc_supports_brain_enrichment = FALSE`
+in all three cells (0/8 traits FDR-significant). EUR LD scores; annotation is a
+genomic feature, not a donor-group LD claim. AFR sensitivity is not part of this
+acceptance.
+
 | run_id | cohort | region | vmr_set_id | accepted_on | accepted_by | decision | notes |
 |---|---|---|---|---|---|---|---|
-| _(none)_ | | | | | | | |
-
-AGENTS.md §6 makes acceptance a human step: no row appears here until a
-production run's gate stage passes and the PI records it. A smoke run is never
-acceptable, and a completed SLURM job is not acceptance.
+| sldsc-AA-caudate-20260903 | AA | caudate | vmrset-AA-caudate-937a41979978 | 2026-09-08 | Kynon J.M. Benjamin | PASS_PARTITIONED_H2_QC | Null: 0 brain and 0 control traits FDR-significant; 7/8 traits with interpretable total h2 |
+| sldsc-AA-dlpfc-20260903 | AA | dlpfc | vmrset-AA-dlpfc-856067dfe289 | 2026-09-08 | Kynon J.M. Benjamin | PASS_PARTITIONED_H2_QC | Null enrichment; same frozen 8-trait family |
+| sldsc-AA-hippocampus-20260903 | AA | hippocampus | vmrset-AA-hippocampus-2d907b892215 | 2026-09-08 | Kynon J.M. Benjamin | PASS_PARTITIONED_H2_QC | Null enrichment; same frozen 8-trait family |
 
 ### Superseded runs
 
@@ -162,6 +164,6 @@ Superseded by `sldsc-AA-{region}-20260903`.
 
 ## Contract
 
-This module follows AGENTS.md §5.2: `_h/` holds code, `_m/` holds generated
+This module follows: `_h/` holds code, `_m/` holds generated
 output under immutable `runs/{RUN_ID}/` directories, `tests/` holds gitignored
 smoke checks. Configuration lives in `config/` at the repository root.
