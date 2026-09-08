@@ -2,7 +2,8 @@
 
 Tests whether a higher relative local SNP contribution score (`local_snp_contribution_score_z`, Module 02) is associated with repeat-rich and repressive genomic compartments. This is the module the manuscript's central claim rests on.
 
-**Status: implemented, smoke-verified, not yet run in production.**
+**Status: accepted (AA, 2026-09-08), claims as in the Accepted runs table.**
+
 Stages 01-03 exist in `_h/` and have been run on a 400-VMR smoke in all three AA
 regions (`rra-smoke-AA-{caudate,dlpfc,hippocampus}-20260823`). All 14 declared
 covariates build at ~0 missingness, the hg38 -> hg19 liftover reports
@@ -440,11 +441,13 @@ smoke checks. Configuration lives in `config/` at the repository root.
 
 ## Accepted runs
 
-_(none)_
-
-AGENTS.md §6 makes acceptance a human step: no row appears here until a
-production run's gate stage passes and the PI records it. A smoke run is never
-entered in this table.
+The three cells were gated together; `interpretation-claims.tsv` lives on the caudate run. Claims licensed:
+quiescent shared 3/3; LINE/L1 supported in both eligible regions (DLPFC,
+hippocampus), caudate set aside as technically confounded; H3K9me3 below the
+shared gate (2/3), suggestive in DLPFC and hippocampus only. Caudate is also GC-entangled for H3K9me3.
 
 | run_id | cohort | region | vmr_set_id | accepted_on | accepted_by | decision | notes |
 |---|---|---|---|---|---|---|---|
+| rra-AA-caudate-20260906 | AA | caudate | vmrset-AA-caudate-937a41979978 | 2026-09-08 | Kynon J.M. Benjamin | GC-entangled caudate, DLPFC and hippocampus strong associations | Gate host. Quiescent 3/3; LINE/L1 caudate excluded from claim (est 0.038, p=0.41); H3K9me3 fails (q=0.056, high-map p=0.55) |
+| rra-AA-dlpfc-20260906 | AA | dlpfc | vmrset-AA-dlpfc-856067dfe289 | 2026-09-08 | Kynon J.M. Benjamin | Quiescent outcome across 3 regions only | Survives H3K9me3, quiescent, LINE/L1; high-mappability H3K9me3 remains positive |
+| rra-AA-hippocampus-20260906 | AA | hippocampus | vmrset-AA-hippocampus-2d907b892215 | 2026-09-08 | Kynon J.M. Benjamin | Quiescent outcome across 3 regions only | Survives H3K9me3, quiescent, LINE/L1 |
