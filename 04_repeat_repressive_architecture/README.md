@@ -28,7 +28,7 @@ This module consumes `03_local_snp_prediction` for its secondary predictor, so
 its production driver is correctly refused by `require_accepted_upstream()`
 until Module 03 records an accepted production run. That refusal was exercised:
 `DRY_RUN=1 bash _h/run_repeat_architecture.sh AA` stops at
-`00_new_run.R` with the AGENTS.md 6 message. The smoke runs above were created
+`00_new_run.R` with the message. The smoke runs above were created
 with `--allow-unlocked`, which is the only path that bypasses it and which also
 stamps `smoke_run = TRUE`.
 
@@ -435,7 +435,7 @@ set from.
 
 ## Contract
 
-This module follows AGENTS.md §5.2: `_h/` holds code, `_m/` holds generated
+This module follows: `_h/` holds code, `_m/` holds generated
 output under immutable `runs/{RUN_ID}/` directories, `tests/` holds gitignored
 smoke checks. Configuration lives in `config/` at the repository root.
 

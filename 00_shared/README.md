@@ -32,7 +32,7 @@ cohort arms × three regions — with cohort and region as hard-coded string
 literals. The copies drifted, and the drift *was* the defect register: V2 (region
 filter), V3 (stale paths), V5 (function ignoring its argument), V6 (missing
 bounds guard), V11 (incompatible cis windows), and the hippocampus copy reading
-the DLPFC blacklist. AGENTS.md §5.3: "Do not duplicate region- or
+the DLPFC blacklist. "Do not duplicate region- or
 cohort-specific copies of the same code."
 
 The single most important function here is `align_by_id()`. It exists because of
@@ -46,8 +46,7 @@ reorders both sides and asserts the IDs match afterwards.
 
 - **Identity before arithmetic.** Never subset two things and assume they line
   up. Missing or duplicated donors are errors, not dropped rows.
-- **Paths from config.** No Quest path inside an analysis function
-  (AGENTS.md §9).
+- **Paths from config.** No Quest path inside an analysis function.
 - **Unlocked config blocks production.** `assert_locked()` stops a run that would
   consume a PI decision nobody has made; smoke runs pass `--allow-unlocked` and
   get a loud warning.
@@ -65,6 +64,6 @@ reorders both sides and asserts the IDs match afterwards.
 Rscript -e 'source("00_shared/load.R"); testthat::test_dir("00_shared/tests")'
 ```
 
-Covers AGENTS.md §10.1: row-shuffle invariance, loud failure on missing and
+Covers: row-shuffle invariance, loud failure on missing and
 duplicate donors, numeric chromosome ordering, the headerless-`.psam` case, run
 immutability, and refusal on unlocked config.

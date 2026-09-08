@@ -165,7 +165,7 @@ contrast it reports is a floor rather than an estimate.
 
 ## Contract
 
-This module follows AGENTS.md §5.2: `_h/` holds code, `_m/` holds generated
+This module follows: `_h/` holds code, `_m/` holds generated
 output under immutable `runs/{RUN_ID}/` directories, `tests/` holds gitignored
 smoke checks. Configuration lives in `config/` at the repository root.
 
