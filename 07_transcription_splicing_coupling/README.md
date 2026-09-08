@@ -2,12 +2,12 @@
 
 Tests whether meQTL-supported or locally controlled VMRs are more likely to have existing significant associations with gene/transcript abundance or transcript usage/splicing.
 
-**Status: implemented, production run 2026-09-02, awaiting PI acceptance.**
-Gated on `05_cpg_meqtl_burden` acceptance (AGENTS.md §6: "No downstream
+**Status: accepted (AA, 2026-09-08); expression coupling in all three regions, PSI regionally heterogeneous; see Accepted runs.**
+Gated on `05_cpg_meqtl_burden` acceptance ("No downstream
 production run may consume an upstream result until the upstream README records
 a passing acceptance gate and immutable run ID"), which is met
 (`cmb-AA-*-20260825`). Runs `tsc-AA-{caudate,dlpfc,hippocampus}-20260902` all
-returned `PASS_TX_COUPLING_QC`. No run is accepted yet — see **Accepted runs**.
+returned `PASS_TX_COUPLING_QC`. See **Accepted runs**.
 
 ## Migrating from
 
@@ -49,8 +49,8 @@ Submit one cell with `_h/submit_transcription_splicing.sh <cohort> <region>`;
 The legacy coupling script consumed `architecture_model_input.tsv` from
 `local-snp-prediction/.../regulatory_context/_m/`. Those tables are keyed to
 **pre-repair VMRs** and carry `h2_category`, `r_squared_cv` and `h2_unscaled` as
-columns — the first two banned by AGENTS.md §3, the third by Module 02's
-terminal decision. AGENTS.md §6 also forbids carrying downstream numbers across
+columns — the first two banned, the third by Module 02's
+terminal decision. Also forbid carrying downstream numbers across
 VMR turnover, and a VMR's methylation summary is a function of its boundary. So
 the links are rebuilt and every pair is refitted; only the *method* is reused.
 
@@ -81,7 +81,7 @@ and realised universes are both written out
 `meqtl-validation/09_libd_eqtl_mapping/` is **out** of this module's acceptance
 gate. Its genome-wide QC repair is open (~1–2 eGenes at FDR 0.05; see that
 directory's `EQTL_DEBUG_TODO.md`, tasks A1–D1 unchecked). The coupling analysis
-does not depend on it — per AGENTS.md §7.6 it reuses the prespecified local
+does not depend on it — it reuses the prespecified local
 association screen rather than running a transcriptome-wide discovery. Enabling
 `internal_libd_eqtl_support_arm` while that repair is open fails the gate.
 
@@ -100,16 +100,22 @@ A null coupling result is a reportable finding, not a gate failure.
 
 ## Accepted runs
 
+Permitted claim: genetically regulated VMRs are more frequently transcriptionally
+coupled. Forbidden: methylation mediates the genetic effect on expression or
+splicing. Nearest-gene expression supports that sentence in all three AA cells.
+PSI is strong in caudate, thin in DLPFC (24 coupled VMRs), and null in
+hippocampus. ABC links are underpowered and not a claim. LIBD eQTL arm is off
+and is not part of this acceptance. PSI completeness filtering must be stated
+in Methods.
+
 | run_id | cohort | region | vmr_set_id | accepted_on | accepted_by | decision | notes |
 |---|---|---|---|---|---|---|---|
-| _(none)_ | | | | | | | |
-
-AGENTS.md §6 makes acceptance a human step: no row appears here until a
-production run's gate stage passes and the PI records it. A completed SLURM job
-is not acceptance.
+| tsc-AA-caudate-20260902 | AA | caudate | vmrset-AA-caudate-937a41979978 | 2026-09-08 | Kynon J.M. Benjamin | PASS_TX_COUPLING_QC | 6/9 tests FDR-significant (2 local-control, 4 meQTL); PSI 227 coupled VMRs |
+| tsc-AA-dlpfc-20260902 | AA | dlpfc | vmrset-AA-dlpfc-856067dfe289 | 2026-09-08 | Kynon J.M. Benjamin | PASS_TX_COUPLING_QC | 5/9 tests; nearest-gene expression all three predictors; PSI 24 coupled VMRs |
+| tsc-AA-hippocampus-20260902 | AA | hippocampus | vmrset-AA-hippocampus-2d907b892215 | 2026-09-08 | Kynon J.M. Benjamin | PASS_TX_COUPLING_QC | 5/9 tests; nearest-gene expression all three predictors; PSI null (7 coupled VMRs) |
 
 ## Contract
 
-This module follows AGENTS.md §5.2: `_h/` holds code, `_m/` holds generated
+This module follows: `_h/` holds code, `_m/` holds generated
 output under immutable `runs/{RUN_ID}/` directories, `tests/` holds gitignored
 smoke checks. Configuration lives in `config/` at the repository root.
