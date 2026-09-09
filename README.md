@@ -58,10 +58,11 @@ legacy directory maps onto them.
 | `10_integrated_manuscript_outputs/` | Manuscript tables, figures, and number registry |
 | `config/` | Shared configuration for the above |
 
-Modules 01 and 02 have accepted runs. Modules 03–05 are implemented and
-smoke-verified but have no accepted run. Modules 06–09 are scaffolded only.
-Module 10 has Figures 1–2 implemented. Each module is gated on its upstream
-module recording a passing acceptance gate.
+Modules 01, 02, 04, 05, 06 and 07 have accepted runs. Module 03 is implemented
+and smoke-verified but has no accepted run. Module 09 is implemented with no
+accepted run. Module 08 is scaffolded only. Module 10 has Figures 1–2 and
+Table 1 implemented. Each module is gated on its upstream module recording a
+passing acceptance gate.
 
 ### Legacy directories
 

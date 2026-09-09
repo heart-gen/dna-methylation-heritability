@@ -1,6 +1,6 @@
 # Schizophrenia-risk application (09_schizophrenia_risk_application).
 #
-# STUB. 08 is not implemented; gated on upstream acceptance (AGENTS.md 6).
+# Prespecified; do not tune after seeing results (AGENTS.md 12).
 #
 # Phase 7 already exists at meqtl-validation/08_schizophrenia_risk_application/
 # and its decision file records `retain_main_text_proof_of_application`. That run
@@ -8,7 +8,9 @@
 # so per AGENTS.md 8 every number in it is a hypothesis to retest, not a result
 # to carry forward. Hero loci rs8048039 and rs13331198 remain CANDIDATES.
 
-pi_locked: false
+pi_locked: true
+
+genome_build: hg38
 
 # Loci are defined from PGC3 independently of any methylation result. This is a
 # design invariant, not a preference (AGENTS.md 7.8, 10.3).
@@ -17,15 +19,45 @@ locus_definition:
   independent_of_methylation: true
   pgc3_loci_hg38: /projects/b1213/resources/gwas/pgc3/fine_mapped_loci/to_hg38/_m/gwas_loci_hg38.tsv
   pgc3_index_snp_xls: /projects/b1213/resources/gwas/pgc3/fine_mapped_loci/_m/primaryGWAS_indexSNP.xls
+  # Full PGC3 wave-3 European summary statistics, hg19. Lifted to hg38 by
+  # stage 01 inside the locus windows only; the same file Module 06 uses.
+  pgc3_sumstats_hg19: /projects/b1213/resources/gwas/PGC/SCZ/PGC3/PGC3_SCZ_wave3.european.autosome.public.v3.vcf.tsv.gz
+  liftover_chain_hg19_to_hg38: /projects/b1213/resources/magma/hg19ToHg38.over.chain.gz
+  # Half-width added to each published locus interval when slicing summary
+  # statistics and when deciding which VMRs a locus can reach. 500 kb matches
+  # config/meqtl_parameters.yml:cis_window_bp, so a risk variant can only be
+  # linked to a CpG that Module 05 actually tested it against.
+  locus_flank_bp: 500000
+  # PGC3 case/control counts, needed by coloc for a case-control trait.
+  gwas_type: cc
+  gwas_n_cases: 53386
+  gwas_n_controls: 77258
 
 testing:
   # Risk-variant-CpG tests keep their OWN FDR family. FDR families are never
   # combined after inspection.
   separate_fdr_family: true
+  fdr_family: scz_risk_variant_cpg_pairs_per_region
+  fdr_method: BH
   fdr_alpha: 0.05
   # Association is tested against the relative local SNP contribution score,
   # NOT an absolute PVE threshold or legacy predictability.
   architecture_predictor: local_snp_contribution_score_z
+  # Which variants count as "risk variants" for the CpG meQTL test. The
+  # published index SNPs plus their LD proxies, exactly as
+  # config/analysis_thresholds.yml:phase7_scz prescribes (ld_r2_proxy_min: 0.8).
+  # LD is computed in the analysis cohort's own genotypes, because that is the
+  # LD the meQTL test is actually conducted in.
+  risk_variant_set: pgc3_index_snps_and_ld_proxies
+  ld_r2_proxy_min: 0.8
+  ld_proxy_window_bp: 500000
+  # Covariates for the VMR-level enrichment models. Technical confounders only;
+  # the score itself is already within-cell.
+  architecture_covariates:
+    - vmr_length
+    - cpg_count
+    - gc_content
+    - mappability
 
 primary_region: caudate
 
@@ -36,7 +68,7 @@ retention_criteria:
   min_loci_with_cpg_meqtl_support: 1
   enrichment_along_local_control_axis_in_primary_region: true
   min_loci_with_transcriptional_coupling: 1
-  caudate_not_sample_size_artifact: true      # via downsampling to N=111
+  caudate_not_sample_size_artifact: true      # via downsampling to N=118
   min_loci_with_external_genetic_support: 1   # GTEx eQTL, support not proof
   # Diagnosis associations are optional supportive evidence. A null best-VMR
   # diagnosis result does not invalidate genetic regulation; secondary hits are
@@ -45,7 +77,26 @@ retention_criteria:
 
 prioritization:
   max_loci: 5
-  rule: null                # PI lock
+  # PI lock closed 2026-09-09. Ranked composite, evaluated in this order on the
+  # columns named. Every key is machine-computable from the run's own outputs,
+  # so the ordering can be re-derived and audited without inspecting results.
+  rule:
+    name: ranked_composite_v1
+    # Hard filter first: a locus with no significant risk-variant -> CpG meQTL
+    # link is not an illustrative locus for a methylation application.
+    require:
+      - has_significant_risk_variant_cpg_meqtl
+    rank_by:
+      - column: max_abs_local_snp_contribution_score_z
+        direction: desc
+      - column: has_transcriptional_coupling
+        direction: desc
+      - column: pgc3_index_pvalue
+        direction: asc
+    # Deterministic final tie-break so the output is byte-stable.
+    tie_break:
+      - column: locus_id
+        direction: asc
 
 integration:
   # Are schizophrenia-linked VMRs enriched for the 04 architecture?
@@ -57,11 +108,100 @@ integration:
     - quiescent_chromatin
     - high_mappability_repeat_intervals
     - expression_splicing_coupling
+  # Column in 04's vmr-features.tsv backing each name above.
+  feature_columns:
+    line_l1: line_l1_frac
+    h3k9me3: h3k9me3_frac
+    quiescent_chromatin: quiescent_frac
+    high_mappability_repeat_intervals: mappability
+  # A repeat interval counts as "high mappability" at or above this value.
+  high_mappability_min: 0.9
 
-# Not generated, therefore not claimable: mediation, causality, colocalization,
-# cell-type specificity, retrotransposition.
-forbidden_claims:
-  - mediation
-  - causal_variant_from_elastic_net
-  - colocalization
-  - ancestry_specific_scz_methylation
+colocalization:
+  # AGENTS.md 7.8 forbids a colocalization CLAIM "unless the corresponding
+  # analysis has been run with adequate ancestry-matched LD and passes its own
+  # gate". This block is that analysis. Arm A is EUR GWAS x EUR GTEx and is
+  # gate-bearing. Arm B is EUR GWAS x AA meQTL: the shared-LD assumption is
+  # violated, so it is exploratory and can never license a claim.
+  method: coloc.abf
+  sensitivity: coloc.susie
+  window_bp: 500000
+  # coloc.abf default priors, stated explicitly so a rerun cannot drift.
+  p1: 1.0e-4
+  p2: 1.0e-4
+  p12: 1.0e-5
+  pp4_threshold: 0.8
+  pp4_over_pp3_min: 5
+  # A region with fewer shared, allele-harmonised variants than this is not
+  # colocalised, it is unevaluable. Recorded per region, never silently dropped.
+  min_variants_shared: 100
+  gtex:
+    eqtl_dir: /projects/b1213/resources/public_data/gtex_v11/GTEx_Analysis_v11_eQTL
+    sqtl_dir: /projects/b1213/resources/public_data/gtex_v11/GTEx_Analysis_v11_sQTL
+    eqtl_allpairs_dir: /projects/b1213/resources/public_data/gtex_v11/GTEx_Analysis_v11_eQTL_all_associations
+    sqtl_allpairs_dir: /projects/b1213/resources/public_data/gtex_v11/GTEx_Analysis_v11_sQTL_all_associations
+    # GTEx v11 brain tissues. Caudate is listed first because it is the primary
+    # region; the others are the remaining cortical/striatal panels.
+    tissues:
+      - Brain_Caudate_basal_ganglia
+      - Brain_Cortex
+      - Brain_Frontal_Cortex_BA9
+      - Brain_Hippocampus
+      - Brain_Nucleus_accumbens_basal_ganglia
+      - Brain_Putamen_basal_ganglia
+    # GTEx v11 European-ancestry donor count used as the QTL sample size.
+    n_samples_default: 200
+  arms:
+    gtex_eqtl:
+      enabled: true
+      qtl_ancestry: EUR
+      ld_ancestry_matched: true
+      gate_eligible: true
+    gtex_sqtl:
+      enabled: true
+      qtl_ancestry: EUR
+      ld_ancestry_matched: true
+      gate_eligible: true
+    meqtl:
+      enabled: true
+      # Flip to EUR and gate_eligible: true once the all_individuals cohort
+      # carries EA donors across all three regions; no code change is needed.
+      qtl_ancestry: AA
+      ld_ancestry_matched: false
+      gate_eligible: false
+      arm_status: CROSS_ANCESTRY_LD_UNMATCHED
+
+# Conduct gates, read by _h/12_apply_gates.R. These check that the analysis was
+# performed correctly, NOT that it produced a positive result: a null Phase 7 is
+# a reportable finding, not a failed run.
+gates:
+  min_loci_tested: 50
+  min_vmrs_linked: 20
+  min_pairs_tested: 500
+  min_loci_coloc_tested: 10
+  min_variants_shared: 100
+  # Module 08 owns the caudate downsampling arm and is not implemented. While
+  # this is false, retention_criteria.caudate_not_sample_size_artifact is
+  # recorded as PENDING_MODULE_08 -- neither a pass nor a gate failure -- and
+  # main_text_retention stays open.
+  require_module_08_downsampling: false
+
+# Superseded estimators. Their reappearance in any table this module reads or
+# writes is a hard error (00_shared/gates.R::load_local_genetic_control).
+forbidden_columns:
+  - h2_unscaled
+  - r_squared_cv
+  - h2_en_calibrated
+
+claims:
+  allowed:
+    - schizophrenia_risk_variants_associate_with_cpg_methylation_in_vmrs
+    - scz_linked_vmrs_are_enriched_along_the_relative_local_control_axis
+    - colocalization_of_scz_risk_with_gtex_brain_eqtl   # Arm A only, gate must pass
+  forbidden:
+    # Colocalization is no longer blanket-forbidden: it is run here with
+    # ancestry-matched LD (Arm A) under its own gate. Arm B remains exploratory.
+    - mediation
+    - causal_variant_from_elastic_net
+    - ancestry_specific_scz_methylation
+    - colocalization_from_the_cross_ancestry_meqtl_arm

@@ -29,6 +29,11 @@ export V2_REPO_ROOT="$REPO_DIR"
 ENV_PATH="${ENV_PATH:-/projects/p32505/opt/envs}"
 V2_ENV_R="${V2_ENV_R:-$ENV_PATH/epigenomics}"
 V2_ENV_CALIBRATION="${V2_ENV_CALIBRATION:-$ENV_PATH/calibrated-local-h2}"
+V2_ENV_PY="${V2_ENV_PY:-$ENV_PATH/genomics}"
+# coloc and arrow are not in the epigenomics env; the dedicated coloc env has
+# both, plus susieR, data.table, yaml and digest. Module 09 runs its
+# colocalization stages there and everything else in epigenomics.
+V2_ENV_COLOC="${V2_ENV_COLOC:-$ENV_PATH/coloc}"
 PLINK2="${PLINK2:-/projects/p32505/opt/bin/plink2}"
 
 # Provenance depends on git, and `module purge` below removes Quest's git module
@@ -105,6 +110,27 @@ run_r() {
     local script="$1"; shift
     require_file "$script"
     conda run --no-capture-output -p "$V2_ENV_R" Rscript "$script" "$@"
+}
+
+# Run an R script in the coloc environment (coloc, arrow, susieR).
+run_r_coloc() {
+    local script="$1"; shift
+    require_file "$script"
+    conda run --no-capture-output -p "$V2_ENV_COLOC" Rscript "$script" "$@"
+}
+
+# Run a Python script in the genomics environment.
+#
+# LD_LIBRARY_PATH is set deliberately. pandas' compiled extensions need
+# GLIBCXX_3.4.29, which the system /usr/lib64/libstdc++.so.6 does not provide;
+# without this the interpreter resolves the system library first and `import
+# pandas` dies with an ImportError that has nothing to do with the analysis.
+# The env ships its own libstdc++, so point the loader at it.
+run_py() {
+    local script="$1"; shift
+    require_file "$script"
+    LD_LIBRARY_PATH="$V2_ENV_PY/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}" \
+        "$V2_ENV_PY/bin/python" "$script" "$@"
 }
 
 # Per-chromosome length lookup.
