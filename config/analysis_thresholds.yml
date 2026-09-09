@@ -53,7 +53,14 @@ phase7_scz:
   max_illustrative_loci: 5
   ld_r2_proxy_min: 0.8
   v1_analyses: [1, 2, 3, 4, 6_light]
-  deferred_analyses: [5_regional_specificity, 7_diagnosis_validation, coloc]
+  # Colocalization left `deferred` while no ancestry-matched QTL resource was
+  # wired up. PI decision 2026-09-09: it is authorised and implemented in
+  # 09_schizophrenia_risk_application under its own gate, using PGC3 European
+  # summary statistics against GTEx v11 European brain eQTL/sQTL (AGENTS.md 7.8
+  # permits the claim once the analysis is run with ancestry-matched LD). The
+  # cross-ancestry EUR-GWAS x AA-meQTL arm stays exploratory and gate-ineligible.
+  # See config/schizophrenia.yml:colocalization.
+  deferred_analyses: [5_regional_specificity, 7_diagnosis_validation]
   retain_in_main_if:
     - ge_1_credible_risk_locus_with_cpg_meqtl
     - enrichment_toward_higher_predictability_or_interpretable_contrast
