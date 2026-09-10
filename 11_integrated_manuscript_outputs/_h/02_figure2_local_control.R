@@ -28,7 +28,7 @@
 ##   Rscript 02_figure2_local_control.R --cohort AA --run-id fig-all-20260826
 
 source(file.path(Sys.getenv("V2_REPO_ROOT", "."), "00_shared", "load.R"))
-source(file.path(V2_ROOT, "10_integrated_manuscript_outputs", "_h",
+source(file.path(V2_ROOT, "11_integrated_manuscript_outputs", "_h",
                  "00_figure_theme.R"))
 
 suppressPackageStartupMessages({
@@ -41,7 +41,7 @@ opts <- parse_v2_args(require = c("cohort", "run_id"))
 cohort <- opts$cohort
 regions <- load_config("cohorts")$regions
 
-module_root <- file.path(V2_ROOT, "10_integrated_manuscript_outputs")
+module_root <- file.path(V2_ROOT, "11_integrated_manuscript_outputs")
 run_dir  <- file.path(module_root, "_m", "runs", opts$run_id)
 fig_dir  <- file.path(run_dir, "figures")
 data_dir <- file.path(run_dir, "source_data")
@@ -70,7 +70,7 @@ stopifnot(all(all_rows$local_snp_contribution_score_basis == "pve_cis_joint_unbo
 elig <- all_rows[local_genetic_control_eligible == TRUE]
 elig[, region := as_region(region)]
 
-SCRIPT <- "10_integrated_manuscript_outputs/_h/02_figure2_local_control.R"
+SCRIPT <- "11_integrated_manuscript_outputs/_h/02_figure2_local_control.R"
 runs_used <- vapply(regions, LGV_RUN, "")
 FILTER <- "local_genetic_control_eligible == TRUE"
 

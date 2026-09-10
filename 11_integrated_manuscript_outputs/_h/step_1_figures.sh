@@ -11,7 +11,7 @@
 #SBATCH --job-name=manuscript_figures
 #SBATCH --output=logs/manuscript_figures.%A.log
 #
-# 10_integrated_manuscript_outputs step 1: assemble Figures 1 and 2.
+# 11_integrated_manuscript_outputs step 1: assemble Figures 1 and 2.
 #
 # Consumes only accepted immutable upstream runs (AGENTS.md 7.9). Figure 1
 # needs the Module 01 catalog runs AND the QC refresh runs that carry array
@@ -21,7 +21,7 @@
 # is the output run ID.
 #
 # Usage, from the module's _m directory:
-#   cd 10_integrated_manuscript_outputs/_m && mkdir -p logs
+#   cd 11_integrated_manuscript_outputs/_m && mkdir -p logs
 #   RUN_ID=fig-all-20260826-a sbatch ../_h/step_1_figures.sh
 
 # SLURM copies this script into a spool directory, so BASH_SOURCE does not
@@ -32,8 +32,8 @@ source "$_ROOT/00_shared/slurm.sh"
 
 : "${RUN_ID:?set RUN_ID}"
 
-HERE="$REPO_DIR/10_integrated_manuscript_outputs/_h"
-mkdir -p "$REPO_DIR/10_integrated_manuscript_outputs/_m/runs/$RUN_ID"
+HERE="$REPO_DIR/11_integrated_manuscript_outputs/_h"
+mkdir -p "$REPO_DIR/11_integrated_manuscript_outputs/_m/runs/$RUN_ID"
 
 log_job_info
 log_message "**** Building manuscript figures into ${RUN_ID} ****"

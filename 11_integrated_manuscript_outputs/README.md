@@ -1,4 +1,4 @@
-# 10_integrated_manuscript_outputs — one source of truth
+# 11_integrated_manuscript_outputs — one source of truth
 
 Consumes only accepted immutable upstream runs and produces every manuscript number, table, and figure.
 
@@ -84,7 +84,7 @@ accepted `vmrcat-*-20260816` runs predate. Full reproduction order:
     ../_h/submit_qc_refresh.sh
 
     # 3. Figures. Mints a run ID, builds every figure, seals the run.
-    cd 10_integrated_manuscript_outputs/_m && mkdir -p logs
+    cd 11_integrated_manuscript_outputs/_m && mkdir -p logs
     ../_h/submit_manuscript_figures.sh
 
 Steps 1 and 2 are one-time: once the universes exist and a QC refresh run is

@@ -40,7 +40,7 @@
 ##                                    [--max-cpgs 5000]
 
 source(file.path(Sys.getenv("V2_REPO_ROOT", "."), "00_shared", "load.R"))
-source(file.path(V2_ROOT, "10_integrated_manuscript_outputs", "_h",
+source(file.path(V2_ROOT, "11_integrated_manuscript_outputs", "_h",
                  "00_figure_theme.R"))
 
 opts    <- parse_v2_args(require = c("run_id"))
@@ -50,14 +50,14 @@ cohort  <- if (is.null(opts$cohort)) cohorts$primary else opts$cohort
 chrom   <- if (is.null(opts$chrom)) "22" else as.character(opts$chrom)
 max_cpg <- if (is.null(opts$max_cpgs)) 5000L else as.integer(opts$max_cpgs)
 
-module_root <- file.path(V2_ROOT, "10_integrated_manuscript_outputs")
+module_root <- file.path(V2_ROOT, "11_integrated_manuscript_outputs")
 run_dir   <- file.path(module_root, "_m", "runs", opts$run_id)
 fig_dir   <- file.path(run_dir, "figures")
 data_dir  <- file.path(run_dir, "source_data")
 table_dir <- file.path(run_dir, "tables")
 dir.create(table_dir, recursive = TRUE, showWarnings = FALSE)
 
-SCRIPT <- "10_integrated_manuscript_outputs/_h/05_qc_sample_integrity.R"
+SCRIPT <- "11_integrated_manuscript_outputs/_h/05_qc_sample_integrity.R"
 
 ## --------------------------------------------------------------- locate data
 runs <- vapply(regions, function(r) {

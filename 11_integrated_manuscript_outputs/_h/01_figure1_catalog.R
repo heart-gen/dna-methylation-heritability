@@ -18,7 +18,7 @@
 ##   Rscript 01_figure1_catalog.R --cohort AA --run-id ID --platform EPIC
 
 source(file.path(Sys.getenv("V2_REPO_ROOT", "."), "00_shared", "load.R"))
-source(file.path(V2_ROOT, "10_integrated_manuscript_outputs", "_h",
+source(file.path(V2_ROOT, "11_integrated_manuscript_outputs", "_h",
                  "00_figure_theme.R"))
 
 suppressPackageStartupMessages({
@@ -32,7 +32,7 @@ cohort <- opts$cohort
 platform <- if (is.null(opts$platform)) "450K" else toupper(opts$platform)
 regions <- load_config("cohorts")$regions
 
-module_root <- file.path(V2_ROOT, "10_integrated_manuscript_outputs")
+module_root <- file.path(V2_ROOT, "11_integrated_manuscript_outputs")
 run_dir  <- file.path(module_root, "_m", "runs", opts$run_id)
 fig_dir  <- file.path(run_dir, "figures")
 data_dir <- file.path(run_dir, "source_data")
@@ -62,7 +62,7 @@ gdist    <- read_by_region(function(r) fread(file.path(qc_dir(r), "qc", "distanc
 
 for (d in list(vmr, cutoffs, tqc, coverage, turnover, gctx, gdist)) d[, region := as_region(region)]
 
-SCRIPT <- "10_integrated_manuscript_outputs/_h/01_figure1_catalog.R"
+SCRIPT <- "11_integrated_manuscript_outputs/_h/01_figure1_catalog.R"
 runs_used <- c(vapply(regions, CATALOG_RUN, ""), vapply(regions, QC_RUN, ""))
 
 ## --------------------------------------------- A. donors and CpGs per region
