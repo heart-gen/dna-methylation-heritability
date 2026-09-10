@@ -136,25 +136,29 @@ writing-notes/
 # Immutable run directories: large generated matrices, PLINK output, figures,
 # logs. These stay on Quest. Provenance lives in each module README, which cites
 # the run IDs, and in MIGRATION_MANIFEST.tsv.
-[0-9][0-9]_*/_m/runs/
-[0-9][0-9]_*/_m/logs/
-[0-9][0-9]_*/_m/observed/
+# The `[0-9][0-9]*_` prefix, rather than `[0-9][0-9]_`, so that a lettered
+# module directory is covered too: 01b_estimation_cells has a third character of
+# `b`, so the original pattern did not match it and its 421,166 run files were
+# staged as untracked content on the first commit that touched it.
+[0-9][0-9]*_*/_m/runs/
+[0-9][0-9]*_*/_m/logs/
+[0-9][0-9]*_*/_m/observed/
 # 02_local_genetic_variance writes its observed runs to observed-runs/, not
 # observed/, so the pattern above never matched them.
-[0-9][0-9]_*/_m/observed-runs/
+[0-9][0-9]*_*/_m/observed-runs/
 # Post-hoc QC on sealed runs (e.g. 03 step 6). Generated, and regenerable from
 # the sealed run plus _h/, so it is not tracked.
-[0-9][0-9]_*/_m/qc/
+[0-9][0-9]*_*/_m/qc/
 
 # Tests are hand-run smoke checks before a SLURM array, not a tracked suite.
 /tests/
-0[0-9]_*/tests/
+[0-9][0-9]*_*/tests/
 
 # Keep the tracked pieces of _m/ explicit. The frozen calibration model itself
 # (4 MB .rds) stays on Quest like every other data artifact; its SHA-256 is
 # asserted in 02_local_genetic_variance/_h/04_estimate_observed_vmr.R, and the
 # small provenance tables beside it are tracked so the expected checksum and the
 # acceptance results are readable from a clone.
-!0[0-9]_*/_m/README.md
+![0-9][0-9]*_*/_m/README.md
 !02_local_genetic_variance/_m/calibration_frozen/*.tsv
 local-snp-prediction/oof_diagnostic/
