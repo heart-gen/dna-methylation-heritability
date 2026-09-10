@@ -28,16 +28,37 @@ pi_locked: true
 exposures:
 
   binary:
-    tobacco:
-      source_columns: [smoking, nicotine]
-      window: mixed_lifetime_history_and_toxicology
-      label: Any tobacco exposure
+    # smoking and nicotine are NOT combined. PI, 2026-09-10: nicotine is
+    # toxicology (use at or near death) and smoking is lifetime history. They
+    # are different exposure windows and a union is not biologically meaningful.
+    #
+    # They are also empirically distinct: among AA donors they disagree for 28
+    # of 164 -- 25 with a smoking history but negative toxicology (quit, or not
+    # recent), 3 the reverse. Testing both is two questions, not one signal
+    # counted twice, and each gets its own BH family.
+    smoking:
+      source_columns: [smoking]
+      window: lifetime_history
+      label: Lifetime smoking history
+      caveat: >
+        STRONGLY CONFOUNDED WITH DIAGNOSIS. Clinically expected and confirmed
+        here: 72% of AA schizophrenia donors have a smoking history (50/69)
+        against 28% of controls (27/96). Two consequences.
+        Pooled, adjusting for primarydx cannot be assumed to remove this --
+        residual confounding by diagnosis is the leading explanation for any
+        pooled smoking association, ahead of an effect of smoking.
+        Within the schizophrenia stratum the minor class is the 19 NON-smokers
+        of 65, who are clinically atypical for the diagnosis; a within-case
+        smoking contrast is a comparison against an unusual group, not a clean
+        exposure contrast. Interpret in that direction, never the reverse.
+    nicotine:
+      source_columns: [nicotine]
+      window: toxicology_at_death
+      label: Nicotine positive at death
       rationale: >
-        smoking and nicotine are the same exposure recorded two ways and are
-        strongly overlapping. Testing both as separate exposures reports one
-        signal twice and inflates the number of apparently independent results;
-        the union is one term. smoking and nicotine remain as descriptive rows.
-
+        Recent use rather than lifetime history, and better balanced inside the
+        schizophrenia stratum than smoking (31 vs 37 in caudate). It is the only
+        exposure eligible in the schizophrenia stratum of all three regions.
     any_substance_nontobacco:
       source_columns: [codeine, morphine, cocaine, amphetamines, ethanol]
       window: toxicology_at_death
@@ -89,13 +110,6 @@ exposures:
         limit: the missingness is concentrated in controls (23.6%) and is only
         6.2% inside the schizophrenia stratum, where it clears the gate in
         caudate at 22 exposed of 65. That is the stratum it is testable in.
-
-  # Reported with counts and marginal statistics, OUTSIDE the BH families,
-  # because `tobacco` is their union and correcting all three together would
-  # treat one exposure as three.
-  descriptive:
-    - smoking
-    - nicotine
 
   categorical:
     education:
@@ -180,17 +194,22 @@ eligibility:
   min_minor_class_n: 20
   max_missing_frac: 0.15
 
-  # PI decision 2026-09-10, and recorded plainly because of how it was made:
-  # this threshold was lowered from 20 to 15 AFTER the stratified counts below
-  # were computed. It admits antipsychotics (18 exposed of 65) and tobacco (19)
-  # within schizophrenia caudate, both of which missed 20 narrowly. It does not
-  # admit antipsychotics in dlpfc or hippocampus (11), nor education (12) or
-  # marital_status (7) anywhere.
+  # PI decision 2026-09-10. A count floor means different things at different
+  # sample sizes, and the stratified floor is the PROPORTIONALLY STRICTER of the
+  # two, not a relaxation:
   #
-  # The pooled threshold stays at 20 and was locked before any count was seen.
-  # A stratum halves the sample by construction, so a stratum-specific floor is
-  # defensible on its own terms -- but the sequence is what it is, and a reader
-  # should be able to see it. Do not lower it further without a new PI decision.
+  #   pooled       20 of 153 donors  = 13.1% of the cell
+  #   stratified   15 of  65 (Schizo caudate) = 23.1%
+  #                15 of  48 (Schizo dlpfc/hippocampus) = 31.3%
+  #
+  # So a stratified exposure must clear a HIGHER bar as a fraction of its donors
+  # than a pooled one. That is the justification, and it holds independently of
+  # any count that was observed.
+  #
+  # For the record: the number was set after the stratified counts were seen.
+  # The reasoning above does not depend on them, and the pooled floor of 20 was
+  # locked before any count was seen. Do not lower either without a new PI
+  # decision.
   stratified:
     min_minor_class_n: 15
     max_missing_frac: 0.15
@@ -218,9 +237,17 @@ covariates:
 
 testing:
   architecture_predictor: local_snp_contribution_score_z
-  # AGENTS.md 10.3: "FDR families are not combined after inspection." One BH
-  # family per exposure, over the VMRs tested for that exposure.
+  # AGENTS.md 10.3: "FDR families are not combined after inspection."
+  #
+  # Stage A: one BH family per exposure x STRATUM pair, over the VMRs tested for
+  # that pair. The same exposure tested pooled and within cases is two questions
+  # on two donor sets, not one family split in half.
+  #
+  # Stage B: one test per pair, corrected within stratum and within model type.
+  # Pooling strata would make each stratum's family size depend on how many
+  # exposures happened to clear the gate in the other one.
   separate_fdr_family: true
+  fdr_family_key: [exposure, stratum]
   fdr_alpha: 0.05
   # The headline statement is the threshold-free continuous model, so it does
   # not depend on where the FDR cut lands. The two grouped tests are secondary.

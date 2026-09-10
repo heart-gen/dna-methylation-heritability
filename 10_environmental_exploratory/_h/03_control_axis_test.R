@@ -168,13 +168,21 @@ out <- rbindlist(lapply(seq_len(nrow(pairs)), function(i) {
     test_one(pairs$exposure[i], pairs$stratum[i])
 }), fill = TRUE)
 
-## The secondary models get their own BH correction across exposures; the
-## primary does too, separately. They are different families and are not pooled.
-out[status == "ok", primary_fdr := stats::p.adjust(primary_p, method = "BH")]
+## Correction is WITHIN STRATUM here too, matching Stage A. The pooled and
+## within-case analyses run on different donor sets and answer different
+## questions, so pooling them into one family would mix them exactly the way
+## AGENTS.md 10.3 forbids -- and the family would then depend on how many
+## exposures happened to clear the gate in the *other* stratum.
+##
+## The three model types are also separate families: the primary is
+## threshold-free and the two grouped tests are secondary, so a secondary test
+## must not borrow significance from the primary or vice versa.
+out[status == "ok",
+    primary_fdr := stats::p.adjust(primary_p, method = "BH"), by = stratum]
 out[status == "ok" & !is.na(wilcoxon_p),
-    wilcoxon_fdr := stats::p.adjust(wilcoxon_p, method = "BH")]
+    wilcoxon_fdr := stats::p.adjust(wilcoxon_p, method = "BH"), by = stratum]
 out[status == "ok" & !is.na(logistic_p),
-    logistic_fdr := stats::p.adjust(logistic_p, method = "BH")]
+    logistic_fdr := stats::p.adjust(logistic_p, method = "BH"), by = stratum]
 
 out[, `:=`(
     exploratory_supplement_only = TRUE,

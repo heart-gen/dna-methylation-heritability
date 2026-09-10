@@ -68,7 +68,7 @@ pheno <- fread(pheno_f, na.strings = c("NA", ""))
 
 needed <- unique(c("brnum", "region", "agedeath", "race",
                    unlist(lapply(env$exposures$binary, `[[`, "source_columns")),
-                   as.character(env$exposures$descriptive),
+                   as.character(env$exposures$descriptive %||% character(0)),
                    vapply(env$exposures$categorical, `[[`, character(1),
                           "source_column")))
 missing_cols <- setdiff(needed, names(pheno))
@@ -124,7 +124,10 @@ for (nm in names(env$exposures$binary)) {
     spec <- env$exposures$binary[[nm]]
     out[[nm]] <- or_composite(dt, unlist(spec$source_columns))
 }
-for (nm in as.character(env$exposures$descriptive)) {
+## `descriptive` is empty now that smoking and nicotine are primary exposures in
+## their own right. The loop is kept because the slot is still meaningful: an
+## exposure can be reported without entering a BH family.
+for (nm in as.character(env$exposures$descriptive %||% character(0))) {
     out[[nm]] <- as_logical_col(dt[[nm]])
 }
 for (nm in names(env$exposures$categorical)) {
@@ -225,7 +228,7 @@ assess <- function(nm, kind, stratum) {
 
 elig <- rbindlist(unlist(lapply(names(env$strata), function(st) c(
     lapply(names(env$exposures$binary), assess, kind = "binary", stratum = st),
-    lapply(as.character(env$exposures$descriptive), assess,
+    lapply(as.character(env$exposures$descriptive %||% character(0)), assess,
            kind = "descriptive", stratum = st),
     lapply(names(env$exposures$categorical), assess,
            kind = "categorical", stratum = st))), recursive = FALSE))
