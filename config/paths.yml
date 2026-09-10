@@ -146,12 +146,17 @@ data_dictionary:
 meqtl_validation_root: meqtl-validation
 config_dir: config
 
-# Phase 7 schizophrenia-risk application (prespecified; not methylation-defined)
+# Schizophrenia-risk application (prespecified; not methylation-defined).
+# The v2 module is 09_schizophrenia_risk_application; the legacy Phase 7 tree is
+# retained for reference only (MIGRATION_MANIFEST.tsv). The legacy index-SNP TSV
+# is a generated legacy artifact, so v2 reads the published .xls directly
+# (09_schizophrenia_risk_application/_h/01_define_scz_loci.R, via readxl).
 schizophrenia_gwas:
   pgc3_loci_hg38: /projects/b1213/resources/gwas/pgc3/fine_mapped_loci/to_hg38/_m/gwas_loci_hg38.tsv
   pgc3_index_snp_xls: /projects/b1213/resources/gwas/pgc3/fine_mapped_loci/_m/primaryGWAS_indexSNP.xls
-  pgc3_index_snp_tsv: meqtl-validation/08_schizophrenia_risk_application/_m/raw/pgc3_primary_gwas_index_snps.tsv
-  module_root: meqtl-validation/08_schizophrenia_risk_application
+  pgc3_sumstats_hg19: /projects/b1213/resources/gwas/PGC/SCZ/PGC3/PGC3_SCZ_wave3.european.autosome.public.v3.vcf.tsv.gz
+  module_root: 09_schizophrenia_risk_application
+  legacy_module_root: meqtl-validation/08_schizophrenia_risk_application
 
 support_files:
   repeat_masker: inputs/supportfiles/_m/repeat-masker-hg38.gz

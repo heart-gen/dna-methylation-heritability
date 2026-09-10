@@ -28,14 +28,35 @@ if (length(missing_cli)) {
 }
 cohort <- cli$cohort
 region <- tolower(cli$region)
-if (!cohort %in% c("AA", "all_individuals")) stop("Unsupported cohort: ", cohort)
-if (!region %in% c("caudate", "dlpfc", "hippocampus")) {
-    stop("Unsupported region: ", region)
-}
-if (!grepl(paste0("^lgv-geometry-", cohort, "-", region, "-[0-9]{8}[a-z]?$"),
-           cli$run_id)) {
-    stop("run_id must match ^lgv-geometry-", cohort, "-", region,
-         "-[0-9]{8}[a-z]?$")
+
+## `cohort` is the CELL token -- a discovery arm (AA, all_individuals) or a
+## donor-group estimation cell (all_individuals.AA, all_individuals.EA).
+## config/cohorts.yml is the single source of that list; the two-element literal
+## this replaced is what confined the geometry scan, and therefore the whole
+## observed-regime grid, to the discovery arms.
+##
+## Sourced AFTER `repo_root` is bound to a path and restored afterwards:
+## 00_shared/load.R defines repo_root() as a FUNCTION and sources its members
+## into the global environment, so a bare source() here silently replaces the
+## path with the closure and every file.path() below resolves to garbage.
+.repo_root_path <- repo_root
+source(file.path(.repo_root_path, "00_shared", "load.R"))
+repo_root <- .repo_root_path
+rm(.repo_root_path)
+
+validate_cohort_region(cohort, region, root = repo_root)
+cell <- parse_cell(cohort, root = repo_root)
+catalog_cohort <- cell$catalog_cohort
+estimation_group <- cell$estimation_group
+
+## The cell token may carry a dot, quoted so "all_individuals.AA" cannot also
+## match "all_individualsXAA".
+expected_run_pattern <- paste0(
+    "^lgv-geometry-", gsub(".", "\\.", cohort, fixed = TRUE), "-", region,
+    "-[0-9]{8}[a-z]?$"
+)
+if (!grepl(expected_run_pattern, cli$run_id)) {
+    stop("run_id must match ", expected_run_pattern)
 }
 
 runs_root <- if (nzchar(cli$runs_root)) cli$runs_root else
@@ -43,14 +64,34 @@ runs_root <- if (nzchar(cli$runs_root)) cli$runs_root else
 run_dir <- file.path(runs_root, cli$run_id)
 if (file.exists(run_dir)) stop("Run directory already exists: ", run_dir)
 
-vmr_run_dir <- file.path(repo_root, "01_vmr_catalog", "_m", "runs",
+## A donor-group cell's geometry must be scanned on ITS donors, so the upstream
+## is the 01b_estimation_cells run that materialized the cell, not the pooled
+## Module 01 catalog. Route by the run-ID prefix, and refuse the mismatch
+## outright: scanning pooled genotypes would characterize a regime the cell
+## never occupies, which is the exact failure the 07..09 grid exists to prevent.
+upstream_module <- if (startsWith(cli$vmr_run_id, "estcell-")) {
+    "01b_estimation_cells"
+} else {
+    "01_vmr_catalog"
+}
+if (cell$is_estimation_cell && !identical(upstream_module,
+                                          "01b_estimation_cells")) {
+    stop("Cell '", cohort, "' must scan an 01b_estimation_cells run; a Module ",
+         "01 run holds the POOLED donors. Got: ", cli$vmr_run_id)
+}
+if (!cell$is_estimation_cell && identical(upstream_module,
+                                          "01b_estimation_cells")) {
+    stop("Arm '", cohort, "' must scan a 01_vmr_catalog run, not ",
+         cli$vmr_run_id)
+}
+vmr_run_dir <- file.path(repo_root, upstream_module, "_m", "runs",
                          cli$vmr_run_id)
 vmr_manifest_path <- file.path(vmr_run_dir, "manifest.tsv")
 vmr_catalog_path <- file.path(vmr_run_dir, "vmr", "vmr_catalog.tsv")
 for (path in c(vmr_manifest_path, vmr_catalog_path)) {
     if (!file.exists(path)) stop("Required Module 01 input is missing: ", path)
 }
-vmr_readme <- readLines(file.path(repo_root, "01_vmr_catalog", "README.md"),
+vmr_readme <- readLines(file.path(repo_root, upstream_module, "README.md"),
                         warn = FALSE)
 acceptance_row <- vmr_readme[grepl(paste0("| `", cli$vmr_run_id, "` |"),
                                    vmr_readme, fixed = TRUE)]
@@ -67,7 +108,26 @@ manifest_value <- function(field) {
 }
 if (!identical(manifest_value("cohort"), cohort) ||
     !identical(tolower(manifest_value("region")), region)) {
-    stop("Module 01 run does not match the requested cohort and region")
+    stop("Upstream ", upstream_module, " run does not match the requested ",
+         "cell and region")
+}
+## Separately: the loci must come from the cell's DISCOVERY arm. Identical
+## statements for an arm; different ones for a cell, which is what lets the two
+## donor groups be characterized on one pooled locus set.
+if (cell$is_estimation_cell &&
+    !identical(manifest_value("catalog_cohort"), catalog_cohort)) {
+    stop("Cell '", cohort, "' discovers on '", catalog_cohort,
+         "' but its 01b run was built on '",
+         manifest_value("catalog_cohort"), "'")
+}
+## The covariate files carry the DISCOVERY arm's prefix (that arm's Module 01
+## run wrote them); locus_io.R cannot infer this from the cell token.
+covar_prefix <- if (cell$is_estimation_cell) {
+    manifest_value("covar_prefix")
+} else if (identical(cohort, "AA")) {
+    "TOPMed_LIBD.AA"
+} else {
+    "TOPMed_LIBD"
 }
 
 catalog <- read_tsv(vmr_catalog_path)
@@ -111,11 +171,15 @@ write_tsv(tasks, file.path(run_dir, "config", "task-manifest.tsv"))
 write_tsv(chunk_manifest, file.path(run_dir, "config", "chunk-manifest.tsv"))
 manifest <- data.frame(
     field = c("run_id", "analysis", "run_kind", "cohort", "region",
+              "catalog_cohort", "estimation_group", "covar_prefix",
+              "upstream_module",
               "started_at", "git_commit", "upstream_vmr_run_id", "vmr_set_id",
               "n_donors", "n_expected_tasks", "vmrs_per_chunk",
               "n_expected_chunks"),
     value = c(cli$run_id, "02_local_genetic_variance", "locus_geometry_scan",
-              cohort, region, format(Sys.time(), "%Y-%m-%dT%H:%M:%S%z"),
+              cohort, region,
+              catalog_cohort, estimation_group, covar_prefix, upstream_module,
+              format(Sys.time(), "%Y-%m-%dT%H:%M:%S%z"),
               system2("git", c("-C", repo_root, "rev-parse", "HEAD"),
                       stdout = TRUE),
               cli$vmr_run_id, manifest_value("vmr_set_id"),

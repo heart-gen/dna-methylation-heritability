@@ -28,13 +28,30 @@ mval <- function(field) {
     if (length(value) != 1L) stop("Run manifest lacks unique field: ", field)
     as.character(value[[1L]])
 }
+## Fields added 2026-09-10 for donor-group estimation cells. Runs opened before
+## that date do not carry them, and the defaults ARE the behaviour those runs
+## had, so a sealed run reproduces unchanged.
+mval_or <- function(field, default) {
+    value <- manifest$value[manifest$field == field]
+    if (length(value) != 1L) return(default)
+    value <- as.character(value[[1L]])
+    if (is.na(value) || !nzchar(value)) default else value
+}
 tasks <- read_tsv(file.path(run_dir, "config", "task-manifest.tsv"))
 chunks <- read_tsv(file.path(run_dir, "config", "chunk-manifest.tsv"))
 wanted <- chunks$task_id[chunks$chunk_id == chunk_id]
 if (!length(wanted)) stop("No tasks for chunk ", chunk_id)
 
 repo_root <- normalizePath(file.path(h_dir, "..", ".."))
-vmr_run_dir <- file.path(repo_root, "01_vmr_catalog", "_m", "runs",
+## Stage 11 recorded which module materialized the donor set being scanned:
+## 01_vmr_catalog for a discovery arm, 01b_estimation_cells for a donor-group
+## cell. Runs predating 2026-09-10 carry no such field and are Module 01 by
+## definition, so their path resolves exactly as before. Resolving the cell here
+## via config would need `yaml`, which the estimator env does not have; the
+## manifest is the right carrier anyway, since a run must not re-derive its own
+## inputs after it was opened.
+upstream_module <- mval_or("upstream_module", "01_vmr_catalog")
+vmr_run_dir <- file.path(repo_root, upstream_module, "_m", "runs",
                          mval("upstream_vmr_run_id"))
 threshold_lines <- readLines(file.path(run_dir, "config", "thresholds.yml"),
                              warn = FALSE)
@@ -44,6 +61,8 @@ if (length(minimum_line) != 1L) stop("Cannot resolve min_cis_variants")
 min_cis_variants <- as_int(sub(".*:[[:space:]]*", "", minimum_line),
                            "min_cis_variants")
 cohort <- mval("cohort")
+estimation_group <- mval_or("estimation_group", cohort)
+covar_prefix <- mval_or("covar_prefix", NULL)
 expected_n <- as_int(mval("n_donors"), "n_donors")
 
 blank_row <- function(task) {
@@ -67,7 +86,9 @@ scan_task <- function(task) {
     locus <- load_observed_locus(
         task = task, cohort = cohort, vmr_run_dir = vmr_run_dir,
         min_cis_variants = min_cis_variants, expected_n = expected_n,
-        backing_tag = paste0("lgvgeo-", task$task_id)
+        backing_tag = paste0("lgvgeo-", task$task_id),
+        covar_prefix = covar_prefix,
+        estimation_group = estimation_group
     )
     if (!identical(locus$status, "ok")) {
         if (!is.null(locus$snps_in_window)) {

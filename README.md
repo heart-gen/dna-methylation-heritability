@@ -55,13 +55,15 @@ legacy directory maps onto them.
 | `07_transcription_splicing_coupling/` | Expression and splicing coupling |
 | `08_region_donor_generalization/` | Cross-region and donor-group generalization |
 | `09_schizophrenia_risk_application/` | Schizophrenia-risk application |
+| `10_environmental_exploratory/` | Exploratory exposure associations (supplement only) |
 | `11_integrated_manuscript_outputs/` | Manuscript tables, figures, and number registry |
 | `config/` | Shared configuration for the above |
 
-Modules 01 and 02 have accepted runs. Modules 03–05 are implemented and
-smoke-verified but have no accepted run. Modules 06–09 are scaffolded only.
-Module 10 has Figures 1–2 implemented. Each module is gated on its upstream
-module recording a passing acceptance gate.
+Modules 01, 02, 04, 05, 06 and 07 have accepted runs. Module 03 is implemented
+and smoke-verified but has no accepted run. Module 09 is implemented with no
+accepted run. Module 08 is scaffolded only. Module 10 has Figures 1–2 and
+Table 1 implemented. Each module is gated on its upstream module recording a
+passing acceptance gate.
 
 ### Legacy directories
 
@@ -77,7 +79,7 @@ E1 (`r_squared_cv` is an in-sample fit, not prediction accuracy).
 | `calibrated-simulation-analysis/` | Calibrated variance estimator → `02_local_genetic_variance/` |
 | `local-snp-prediction/` | Legacy elastic-net prediction → `03_local_snp_prediction/` |
 | `meqtl-validation/` | CpG meQTL mapping, burden, repeat/cell sensitivities, Phase 7 → modules 04–09 |
-| `environmental-analysis/` | Environmental proxy associations (supplemental at most) |
+| `environmental-analysis/` | Environmental proxy associations → `10_environmental_exploratory/` (exposure scan only; the `h2_category` grouping is withdrawn, not migrated) |
 | `simulation-analysis/` | Validation simulations and method comparisons |
 | `sensitivity-analysis/` | Stacked/Venn/Sankey figures (withdrawn; depend on `r_squared_cv > 0.75`) |
 | `qc_analysis/` | Quality control and replication cohort analysis |
