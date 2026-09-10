@@ -302,6 +302,24 @@ The grouped tests could not run in any family
 (`fewer_than_10_vmrs_in_a_group`), so no row above has a second line of
 evidence.
 
+## Planned extension, gated on Module 09
+
+Module 10's own scan is null, and the power arithmetic says it was never going
+to be otherwise (within-case caudate detects d ~ 1.16 at family-wise
+correction; brain smoking-DNAm effects are typically d < 0.3). The one
+schizophrenia-relevant question these exposures can answer reframes the
+estimand: not "is exposure associated with methylation" but **"is the
+risk-variant effect on methylation stable to exposure adjustment"** -- the
+stability of an already well-estimated coefficient rather than detection of a
+new one.
+
+That would remove the leading alternative explanation for Module 09 (smoking is
+72% in cases vs 28% in controls; antipsychotics has zero exposed controls). It
+is **not implemented** and cannot be until Module 09 records an accepted run
+(AGENTS.md §6). The design, the mandatory positive control, and the collider
+caution are in
+`writing-notes/exposure_confounding_of_scz_meqtl_strategy.md`.
+
 ## Acceptance gate
 
 `04_apply_gates.R` emits `PASS_EXPLORATORY_COVERAGE` or
