@@ -145,3 +145,39 @@ vmr_calling:
   # sensitivity in 04_repeat_repressive_architecture (RNA MuSiC cellPCs, and DNAm
   # scMD dnamCellPCs for caudate when the integration gate passes).
   cell_composition_strategy: sensitivity_only_in_04
+
+# ---------------------------------------------------------------------------
+# Estimation cells (Modules 02 / 03 on a pooled-discovery locus set)
+# ---------------------------------------------------------------------------
+# Locus-level covariates in 00_shared/locus_io.R have always been
+# age + sex + diagnosis, with NO genotype PCs. That is correct for the AA and
+# all_individuals arms as run to date: population structure was removed upstream
+# by residualizing methylation on pooled snpPC1-3 during VMR discovery
+# (vmr_calling.genotype_pcs above).
+#
+# That upstream adjustment does not control structure WITHIN an AA-only or
+# EA-only estimation set, and the pooled leading PCs largely separate AA from EA,
+# so inside one group they are close to constant and carry little within-group
+# information. PI decision 2026-09-10: estimation cells recompute genotype PCs
+# in their own donors and carry them as locus-level covariates.
+#
+# The PCA is run by 01b_estimation_cells on the pooled pgen restricted to the
+# cell's donors (plink2 --keep ... --pca), so eigenvectors are within-group by
+# construction. The result is written once per run as covs/genotype_pcs.tsv and
+# read by load_observed_locus(); when that file is absent the covariate matrix is
+# byte-identical to the pre-2026-09-10 behaviour, so the sealed accepted runs
+# reproduce exactly.
+estimation_cells:
+  pi_locked: true
+
+  # Number and names of within-group PCs added to the Module 02 / 03 locus
+  # models. Kept at 3 to match vmr_calling.genotype_pcs; changing it changes the
+  # covariate set of both modules and is a PI decision, never a literal in code.
+  genotype_pcs: [snpPC1, snpPC2, snpPC3]
+
+  # Everything else in the locus model is unchanged from the arms.
+  locus_covariates: [agedeath, sex, primarydx]
+
+  # Cell composition is not adjusted here either; it stays the Module 04
+  # sensitivity.
+  cell_composition_strategy: sensitivity_only_in_04

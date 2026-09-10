@@ -37,9 +37,13 @@ sval <- function(field) {
     as.character(value)
 }
 run_id <- if (nzchar(cli$run_id)) cli$run_id else sval("run_id")
-if (!grepl("^lgv-observed-regime-[A-Za-z_]+-[a-z]+-[0-9]{8}[a-z]?$", run_id) &&
+## The cell token may carry a dot (all_individuals.EA), so the cohort segment
+## admits one. The bare form is the original AA caudate grid,
+## lgv-observed-regime-20260822.
+if (!grepl("^lgv-observed-regime-[A-Za-z_]+(\\.[A-Za-z]+)?-[a-z]+-[0-9]{8}[a-z]?$",
+           run_id) &&
     !grepl("^lgv-observed-regime-[0-9]{8}[a-z]?$", run_id)) {
-    stop("run_id must match ^lgv-observed-regime-(<cohort>-<region>-)?YYYYMMDD")
+    stop("run_id must match ^lgv-observed-regime-(<cell>-<region>-)?YYYYMMDD")
 }
 if (!identical(sval("model_changed"), "FALSE") ||
     !identical(sval("criteria_changed"), "FALSE")) {
@@ -232,6 +236,11 @@ manifest <- data.frame(
     field = c(
         "run_id", "analysis", "grid_kind", "cohort", "region", "started_at",
         "git_commit", "source_kind", "source_run_id", "upstream_vmr_run_id",
+        ## Carried through from the source run so Stage 08 can resolve the
+        ## cell's genotype without re-reading config (it runs in the estimator
+        ## env, which has no yaml). Defaults reproduce the pre-2026-09-10
+        ## behaviour for a discovery arm.
+        "upstream_module", "catalog_cohort", "estimation_group", "covar_prefix",
         "vmr_set_id",
         "n_donors", "n_loci", "n_scenarios",
         "scenarios_per_chunk", "n_expected_chunks", "joint_model_run_id",
@@ -245,6 +254,12 @@ manifest <- data.frame(
         format(Sys.time(), "%Y-%m-%dT%H:%M:%S%z"),
         system2("git", c("-C", repo_root, "rev-parse", "HEAD"), stdout = TRUE),
         source_kind, source_run_id, oval("upstream_vmr_run_id"),
+        oval("upstream_module", "01_vmr_catalog"),
+        oval("catalog_cohort", oval("cohort")),
+        oval("estimation_group", oval("cohort")),
+        oval("covar_prefix",
+             if (identical(oval("cohort"), "AA")) "TOPMed_LIBD.AA"
+             else "TOPMed_LIBD"),
         oval("vmr_set_id"), oval("n_donors"),
         nrow(locus_manifest), nrow(scenarios), per_chunk,
         max(chunk_manifest$chunk_id), model_run_id,

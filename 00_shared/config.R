@@ -163,15 +163,49 @@ parse_v2_args <- function(args = commandArgs(trailingOnly = TRUE),
     if (length(missing) > 0) {
         stop("Missing required argument(s): --", paste(missing, collapse = " --"))
     }
+    ## --group is the donor-group axis (AGENTS.md 7.7). It composes the cell
+    ## token rather than travelling as a second argument, so exactly one token
+    ## identifies the cell everywhere downstream. Passing an already-composed
+    ## --cohort all_individuals.EA is equivalent and also accepted.
+    if (!is.null(opts$group) && nzchar(opts$group)) {
+        if (is.null(opts$cohort)) {
+            stop("--group requires --cohort (the discovery arm)")
+        }
+        if (grepl(".", opts$cohort, fixed = TRUE)) {
+            stop("Pass either --cohort <arm> --group <group> or a composed ",
+                 "--cohort <arm>.<group>, not both: ", opts$cohort,
+                 " + ", opts$group)
+        }
+        opts$cohort <- paste0(opts$cohort, ".", opts$group)
+    }
     validate_cohort_region(opts$cohort, opts$region)
+    if (!is.null(opts$cohort)) {
+        parsed <- parse_cell(opts$cohort)
+        opts$cell <- parsed$cell
+        opts$catalog_cohort <- parsed$catalog_cohort
+        opts$estimation_group <- parsed$estimation_group
+    }
     opts
+}
+
+#' Every valid cell token: the discovery arms plus the estimation cells.
+#'
+#' `cohort` in v2 means "the cell this run is identified by". For the arms that
+#' is the discovery population; for an estimation cell it is
+#' "{catalog_cohort}.{estimation_group}". Both live in the same namespace so the
+#' token can go wherever the cohort token went -- run IDs, README acceptance
+#' tables, gates.R, downstream manifest fields -- with no schema change.
+valid_cells <- function(root = repo_root()) {
+    cohorts <- load_config("cohorts", root = root)
+    c(as.character(cohorts$arms), names(cohorts$estimation_cells))
 }
 
 validate_cohort_region <- function(cohort = NULL, region = NULL, root = repo_root()) {
     cohorts <- load_config("cohorts", root = root)
-    if (!is.null(cohort) && !cohort %in% cohorts$arms) {
-        stop("Unknown cohort '", cohort, "'. Valid: ",
-             paste(cohorts$arms, collapse = ", "))
+    cells <- valid_cells(root = root)
+    if (!is.null(cohort) && !cohort %in% cells) {
+        stop("Unknown cohort/cell '", cohort, "'. Valid: ",
+             paste(cells, collapse = ", "))
     }
     if (!is.null(region) && !region %in% cohorts$regions) {
         stop("Unknown region '", region, "'. Valid: ",
@@ -180,10 +214,82 @@ validate_cohort_region <- function(cohort = NULL, region = NULL, root = repo_roo
     invisible(TRUE)
 }
 
+#' Split a cell token into its discovery arm and its estimation group.
+#'
+#' A BARE arm token parses as a cell whose estimation group equals its cohort --
+#' that is what every pre-2026-09-10 run is, and why widening the namespace does
+#' not change any existing behaviour.
+#'
+#' @return list(cell, catalog_cohort, estimation_group, is_estimation_cell)
+parse_cell <- function(cell, root = repo_root()) {
+    cohorts <- load_config("cohorts", root = root)
+    cell <- as.character(cell)
+    if (length(cell) != 1L || is.na(cell) || !nzchar(cell)) {
+        stop("parse_cell() needs one non-empty cell token")
+    }
+    if (cell %in% as.character(cohorts$arms)) {
+        return(list(cell = cell, catalog_cohort = cell, estimation_group = cell,
+                    is_estimation_cell = FALSE))
+    }
+    spec <- cohorts$estimation_cells[[cell]]
+    if (is.null(spec)) {
+        stop("Unknown cohort/cell '", cell, "'. Valid: ",
+             paste(valid_cells(root = root), collapse = ", "))
+    }
+    for (k in c("catalog_cohort", "estimation_group", "race_filter")) {
+        if (is.null(spec[[k]])) {
+            stop("estimation_cells:", cell, " lacks ", k, " in config/cohorts.yml")
+        }
+    }
+    ## The catalog a cell is discovered on must itself be a real arm, or the
+    ## cell would point at a Module 01 run that cannot exist.
+    if (!spec$catalog_cohort %in% as.character(cohorts$arms)) {
+        stop("estimation_cells:", cell, " names catalog_cohort '",
+             spec$catalog_cohort, "', which is not an arm")
+    }
+    ## Guard the token convention itself, so a mislabelled key cannot silently
+    ## send Module 02 at the wrong donors.
+    expected <- paste0(spec$catalog_cohort, ".", spec$estimation_group)
+    if (!identical(cell, expected)) {
+        stop("estimation_cells key '", cell, "' does not match its own ",
+             "definition; expected '", expected, "'")
+    }
+    list(cell = cell, catalog_cohort = spec$catalog_cohort,
+         estimation_group = spec$estimation_group, is_estimation_cell = TRUE)
+}
+
+#' Full definition for one cell: catalog paths from its arm, donors from itself.
+#'
+#' For a bare arm this returns cohort_def() with the cell fields added, so the
+#' two are interchangeable at the call site.
+cell_def <- function(cell, root = repo_root()) {
+    parsed <- parse_cell(cell, root = root)
+    d <- cohort_def(parsed$catalog_cohort, root = root)
+    if (parsed$is_estimation_cell) {
+        cohorts <- load_config("cohorts", root = root)
+        spec <- cohorts$estimation_cells[[cell]]
+        ## The cell narrows the donor set. It inherits the catalog arm's
+        ## genotype and phenotype FILES -- an estimation cell is a subset of a
+        ## pooled run, never a different genotype build.
+        d$race_filter <- as.character(spec$race_filter)
+        d$label <- spec$label
+    }
+    d$cohort <- parsed$catalog_cohort
+    d$cell <- parsed$cell
+    d$catalog_cohort <- parsed$catalog_cohort
+    d$estimation_group <- parsed$estimation_group
+    d$is_estimation_cell <- parsed$is_estimation_cell
+    d
+}
+
 #' Definition block for one cohort arm, with paths already made absolute.
 cohort_def <- function(cohort, root = repo_root()) {
     cohorts <- load_config("cohorts", root = root)
     validate_cohort_region(cohort = cohort, root = root)
+    if (!cohort %in% as.character(cohorts$arms)) {
+        stop("cohort_def() takes a discovery ARM, not the estimation cell '",
+             cohort, "'. Use cell_def(), or parse_cell()$catalog_cohort.")
+    }
     d <- cohorts$arm_definitions[[cohort]]
     for (k in c("phenotype_table", "psam", "pgen_prefix")) {
         if (!is.null(d[[k]]) && !startsWith(d[[k]], "/")) {
