@@ -8,7 +8,7 @@ One stacked regional panel per prioritized locus: GWAS association above, the
 GTEx QTL track that colocalized best in the middle, the CpG meQTL track below,
 with the PP4 of each ancestry-matched arm annotated. These are diagnostic
 figures for reading a locus, not the manuscript figure -- Figure 5 is assembled
-in 10_integrated_manuscript_outputs from this module's accepted tables.
+in 11_integrated_manuscript_outputs from this module's accepted tables.
 
 The cross-ancestry meQTL arm is drawn because seeing the methylation signal is
 the point of the panel, but its PP4 is labelled EXPLORATORY so a panel lifted

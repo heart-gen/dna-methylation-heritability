@@ -1,9 +1,9 @@
 #!/bin/bash
 #
-# 10_integrated_manuscript_outputs: mint a figure run ID and submit the build.
+# 11_integrated_manuscript_outputs: mint a figure run ID and submit the build.
 #
 # Usage, from the module's _m directory:
-#   cd 10_integrated_manuscript_outputs/_m && mkdir -p logs
+#   cd 11_integrated_manuscript_outputs/_m && mkdir -p logs
 #   ../_h/submit_manuscript_figures.sh
 #   RUN_ID=fig-all-20260826-b ../_h/submit_manuscript_figures.sh
 #
@@ -17,8 +17,8 @@ _ROOT="${V2_REPO_ROOT:-${SLURM_SUBMIT_DIR:-$PWD}}"
 while [ "$_ROOT" != "/" ] && [ ! -d "$_ROOT/.git" ]; do _ROOT=$(dirname "$_ROOT"); done
 source "$_ROOT/00_shared/slurm.sh"
 
-HERE="$REPO_DIR/10_integrated_manuscript_outputs/_h"
-RUNS="$REPO_DIR/10_integrated_manuscript_outputs/_m/runs"
+HERE="$REPO_DIR/11_integrated_manuscript_outputs/_h"
+RUNS="$REPO_DIR/11_integrated_manuscript_outputs/_m/runs"
 mkdir -p logs
 
 # Run directories are immutable, so never reuse one. Suffix until free, the
