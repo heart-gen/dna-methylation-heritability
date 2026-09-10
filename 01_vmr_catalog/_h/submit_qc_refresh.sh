@@ -52,5 +52,5 @@ Submitted six QC refresh runs.
 
 Each mints its own run ID (vmrcatqc-{cohort}-{region}-{date}) and seals itself.
 Collect the IDs from the job logs, then point the Figure 1 builder at them:
-  10_integrated_manuscript_outputs/_h/01_figure1_catalog.R  (QC_RUN)
+  11_integrated_manuscript_outputs/_h/01_figure1_catalog.R  (QC_RUN)
 EOF

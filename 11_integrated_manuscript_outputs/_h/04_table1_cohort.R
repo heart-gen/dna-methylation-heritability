@@ -30,7 +30,7 @@
 ##   Rscript 04_table1_cohort.R --run-id fig-all-20260827
 
 source(file.path(Sys.getenv("V2_REPO_ROOT", "."), "00_shared", "load.R"))
-source(file.path(V2_ROOT, "10_integrated_manuscript_outputs", "_h",
+source(file.path(V2_ROOT, "11_integrated_manuscript_outputs", "_h",
                  "00_figure_theme.R"))
 
 suppressPackageStartupMessages(library(scales))
@@ -41,14 +41,14 @@ regions <- cohorts$regions
 arms    <- cohorts$arms
 paths   <- load_config("paths")
 
-module_root <- file.path(V2_ROOT, "10_integrated_manuscript_outputs")
+module_root <- file.path(V2_ROOT, "11_integrated_manuscript_outputs")
 run_dir   <- file.path(module_root, "_m", "runs", opts$run_id)
 fig_dir   <- file.path(run_dir, "figures")
 data_dir  <- file.path(run_dir, "source_data")
 table_dir <- file.path(run_dir, "tables")
 dir.create(table_dir, recursive = TRUE, showWarnings = FALSE)
 
-SCRIPT <- "10_integrated_manuscript_outputs/_h/04_table1_cohort.R"
+SCRIPT <- "11_integrated_manuscript_outputs/_h/04_table1_cohort.R"
 
 ## --------------------------------------------------------- accepted donors
 ##

@@ -15,7 +15,7 @@ source(file.path(Sys.getenv("V2_REPO_ROOT", "."), "00_shared", "load.R"))
 suppressPackageStartupMessages(library(data.table))
 
 opts <- parse_v2_args(require = "run_id")
-module_root <- file.path(V2_ROOT, "10_integrated_manuscript_outputs")
+module_root <- file.path(V2_ROOT, "11_integrated_manuscript_outputs")
 run_dir <- file.path(module_root, "_m", "runs", opts$run_id)
 if (!dir.exists(run_dir)) stop("Run directory not found: ", run_dir)
 
