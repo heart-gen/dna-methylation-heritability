@@ -28,8 +28,24 @@ REGION=$3
 VMR_RUN_ID=$4
 
 H_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+REPO_DIR=$(cd "${H_DIR}/../.." && pwd)
 ENV_PATH=${CAL_H2_ENV:-/projects/p32505/opt/envs/calibrated-local-h2}
 R_BIN=${ENV_PATH}/bin/Rscript
+
+## Stage 00 runs in the SHARED R env, not the estimator env.
+##
+## Stages 01-06 need the calibrated-local-h2 env: it carries the BSLMM and
+## elastic-net stack the frozen model was fitted with, and nothing about that
+## may drift. Stage 00 is pure bookkeeping on the submit host -- it resolves the
+## cell, checks the upstream gate, checksums the model and writes the task
+## universe -- and since 2026-09-10 it reads config/cohorts.yml through
+## 00_shared/load.R to resolve a cell token. calibrated-local-h2 has no `yaml`,
+## so Stage 00 must run where the config loader does.
+##
+## Splitting the env here rather than adding yaml to calibrated-local-h2 keeps
+## the estimator env byte-for-byte what the six accepted runs used.
+PREP_ENV_PATH=${V2_ENV_R:-/projects/p32505/opt/envs/epigenomics}
+PREP_R_BIN=${PREP_ENV_PATH}/bin/Rscript
 ACCOUNT=${SBATCH_ACCOUNT:-p32505}
 PARTITION=${LGV_PARTITION:-short}
 MAX_CONCURRENT=${LGV_MAX_CONCURRENT:-50}
@@ -41,8 +57,13 @@ if [[ ! -x "${R_BIN}" ]]; then
     echo "Rscript is unavailable: ${R_BIN}" >&2
     exit 1
 fi
+if [[ ! -x "${PREP_R_BIN}" ]]; then
+    echo "Rscript is unavailable: ${PREP_R_BIN}" >&2
+    exit 1
+fi
 
-RUN_DIR=$("${R_BIN}" "${H_DIR}/00_prepare_observed_run.R" \
+RUN_DIR=$(V2_REPO_ROOT="${REPO_DIR}" "${PREP_R_BIN}" \
+    "${H_DIR}/00_prepare_observed_run.R" \
     --run-id="${RUN_ID}" --cohort="${COHORT}" --region="${REGION}" \
     --vmr-run-id="${VMR_RUN_ID}" --smoke-n="${SMOKE_N}" \
     --vmrs-per-chunk="${VMRS_PER_CHUNK}")

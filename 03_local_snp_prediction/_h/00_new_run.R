@@ -67,6 +67,27 @@ if (!is.null(opts$run_id) && !allow_unlocked) {
          "production run IDs are derived, not chosen.")
 }
 
+## ------------------------------------------------- cell identity from 02
+## 03 must score the SAME donors and the SAME variants as 02 (that is why both
+## call one load_observed_locus()). The cell identity therefore travels from
+## 02's manifest rather than being re-derived here, where it could drift.
+## Pre-2026-09-10 runs of 02 carry none of these fields; the fallbacks are the
+## behaviour those runs actually had.
+lgv_manifest_path <- file.path(repo_root(), "02_local_genetic_variance",
+                               "_m", "runs", upstream$run_id, "manifest.tsv")
+lgv_field <- function(field, default = NA_character_) {
+    if (!file.exists(lgv_manifest_path)) return(default)
+    m <- fread(lgv_manifest_path, colClasses = "character")
+    v <- m$value[m$field == field]
+    if (length(v) == 1L && !is.na(v) && nzchar(v)) as.character(v[[1L]]) else default
+}
+catalog_cohort   <- lgv_field("catalog_cohort", opts$cohort)
+estimation_group <- lgv_field("estimation_group", opts$cohort)
+covar_prefix     <- lgv_field("covar_prefix",
+                              if (identical(opts$cohort, "AA"))
+                                  "TOPMed_LIBD.AA" else "TOPMed_LIBD")
+upstream_module  <- lgv_field("upstream_module", "01_vmr_catalog")
+
 run <- new_run(
     module = MODULE_TAG, cohort = opts$cohort, region = opts$region,
     module_root = file.path(repo_root(), MODULE),
@@ -79,6 +100,10 @@ run <- new_run(
     ),
     extra = list(
         smoke_run = if (allow_unlocked) "TRUE" else "FALSE",
+        catalog_cohort = catalog_cohort,
+        estimation_group = estimation_group,
+        covar_prefix = covar_prefix,
+        upstream_vmr_module = upstream_module,
         config_prediction_sha256 = attr(prediction, "config_sha256"),
         evaluation_standard = prediction$evaluation_standard,
         n_expected_tasks = nrow(tasks)

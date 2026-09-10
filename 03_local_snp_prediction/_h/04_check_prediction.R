@@ -92,8 +92,14 @@ decision <- if (all(criteria$passed)) {
     "FAIL_OOF_PREDICTION_QC"
 }
 
+## population = estimation group (see 03_combine_oof.R); cohort = the cell.
+estimation_group <- mval("estimation_group")
+if (is.na(estimation_group) || !nzchar(estimation_group)) {
+    estimation_group <- mval("cohort")
+}
 criteria[, `:=`(run_id = opts$run_id, region = mval("region"),
-                population = mval("cohort"), decision = decision)]
+                population = estimation_group, cohort = mval("cohort"),
+                decision = decision)]
 write_atomic(criteria, file.path(comb_dir, "prediction-qc-criteria.tsv"))
 write_atomic(data.table(run_id = opts$run_id, decision = decision,
                         smoke_run = smoke,

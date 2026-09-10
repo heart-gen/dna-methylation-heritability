@@ -430,6 +430,12 @@ hidden by pooling cells or relaxing the score definition.
 No downstream production module may consume Module 02 until its cell-specific
 run appears in this table.
 
+The `cohort` column holds a **cell token**. For the six rows above it is a
+discovery arm; a donor-group estimation cell reads `all_individuals.AA` or
+`all_individuals.EA` and its run ID follows the same shape
+(`lgv-all_individuals.EA-dlpfc-YYYYMMDD`). See "Donor-group estimation cells"
+below.
+
 `lgv-AA-caudate-20260822` is superseded by `lgv-AA-caudate-20260823` and is
 deliberately absent: it was scored under the caudate-only characterized
 support, which excluded 111 loci where the six-grid support excludes 2.
@@ -470,3 +476,77 @@ Generated runs live only under immutable `_m/runs/{RUN_ID}/`. Each active run
 contains its manifest, frozen configuration, task/chunk manifests, per-task
 terminal rows, reconciliation, combined features and score, QC decision,
 session record, and SHA-256 output manifest. See `_m/README.md`.
+
+## Donor-group estimation cells
+
+Added 2026-09-10 for the donor-group axis (AGENTS.md §7.7, PI 2026-09-06).
+
+Module 02 now runs in two kinds of cell:
+
+- a **discovery arm** (`AA`, `all_individuals`), where VMR discovery and SNP
+  estimation happen in the same donors — the six accepted runs above, unchanged;
+- a **donor-group estimation cell** (`all_individuals.AA`,
+  `all_individuals.EA`), where the loci come from the pooled catalog and the SNP
+  model is fit within one donor group.
+
+The cell's donors, cis-genotype BEDs, covariates and within-group genotype PCs
+are materialized by [`01b_estimation_cells`](../01b_estimation_cells/README.md),
+which Stage 00 consumes in place of a Module 01 run (routed by the `estcell-`
+run-ID prefix). Stage 00 checks the two halves separately: the upstream run's
+cell must equal the cell being estimated, **and** its `catalog_cohort` must be
+the cell's discovery arm. Those are the same statement for an arm and different
+statements for a cell, which is what lets AA and EA share one locus set.
+
+### Column changes
+
+- `population` now carries the **estimation group** — the donors the model was
+  fit in — rather than being an alias for `cohort`. This is what the name always
+  implied and what v1 held in its explicit `race` column. For every discovery
+  arm the two are equal, so no accepted run changes meaning.
+- `catalog_cohort` and `estimation_group` are new, so the pair is never
+  ambiguous. `cohort` remains the cell token, which is what
+  `gates.R::load_local_genetic_control()` matches on.
+
+### Covariates
+
+Cells add within-group `snpPC1-3` to the locus model
+(`config/covariates.yml`, `estimation_cells.genotype_pcs`), computed by
+`01b_estimation_cells` on the pooled pgen restricted to the cell's donors.
+Arms are unaffected: with no `covs/genotype_pcs.tsv` in the upstream run,
+`load_observed_locus()` builds the identical `age + sex + diagnosis` matrix it
+always did.
+
+### Recombination — `_h/14_combine_donor_group_cells.R`
+
+Joins the two cells of one region on `vmr_id` into
+`_m/combined/local-genetic-control-donor-group-{region}.tsv`, with `_AA` / `_EA`
+suffixed per-cell columns and every locus column asserted identical between
+cells. It refuses two runs that carry different `vmr_set_id`s, and refuses a
+discovery arm outright — contrasting `AA` against `all_individuals` is the
+nested comparison AGENTS.md §7.7 forbids.
+
+It emits **no pooled rank, no cross-cell score difference and no combined PVE**.
+The score is a within-cell midrank percentile,
+`config/local_genetic_control.yml` locks `rank_scope: cohort_by_region`, and
+§7.6 forbids raw score-level comparison across cells; a difference of two
+percentiles computed in different denominators is not an effect size. Every row
+carries `absolute_pve_interpretation_allowed = FALSE` and
+`pooled_rank_emitted = FALSE`.
+
+What the table supports is **ordering agreement** — Spearman correlation of the
+two cells' scores and quartile concordance, written to
+`donor-group-concordance-{region}.tsv` — with each cell's `n`, `num_snps`,
+`p_eff` and `ld_metric` beside every row, so that sample size, MAF, LD and SNP
+availability can be eliminated before any difference is discussed. Loci eligible
+in only one cell are kept with an explicit `comparability` label rather than
+dropped: dropping them would condition the comparison on joint eligibility,
+which is itself a function of the things the groups differ in.
+
+Usage:
+
+```bash
+Rscript _h/14_combine_donor_group_cells.R --region dlpfc \
+  --run-ids lgv-all_individuals.AA-dlpfc-20260910,lgv-all_individuals.EA-dlpfc-20260910
+```
+
+Both runs must already appear in the Accepted runs table above.

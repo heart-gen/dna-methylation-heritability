@@ -1,7 +1,14 @@
 #!/bin/bash
-# Submit one cohort x region cell of 03_local_snp_prediction.
+# Submit one cell x region of 03_local_snp_prediction.
 #
-#   ./submit_prediction.sh <AA|all_individuals> <caudate|dlpfc|hippocampus>
+#   ./submit_prediction.sh <cell> <caudate|dlpfc|hippocampus>
+#
+# <cell> is a discovery arm (AA, all_individuals) or a donor-group estimation
+# cell (all_individuals.AA, all_individuals.EA) -- whatever config/cohorts.yml
+# declares. A cell consumes the matching 02 run, which in turn consumed an
+# 01b_estimation_cells run; the donor list, the covariate prefix and the
+# estimation group all travel from 02's manifest, so nothing extra is passed
+# here.
 #
 # Environment:
 #   VMRS_PER_ARRAY_TASK   VMRs per array task (default 5; nested CV is heavy)
@@ -25,8 +32,8 @@ source "$(dirname "${BASH_SOURCE[0]}")/../../00_shared/slurm.sh"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 MODULE_ROOT="${REPO_DIR}/03_local_snp_prediction"
 
-COHORT=${1:?usage: submit_prediction.sh <AA|all_individuals> <region>}
-REGION=${2:?usage: submit_prediction.sh <AA|all_individuals> <region>}
+COHORT=${1:?usage: submit_prediction.sh <cell> <region>}
+REGION=${2:?usage: submit_prediction.sh <cell> <region>}
 VMRS_PER_ARRAY_TASK=${VMRS_PER_ARRAY_TASK:-5}
 MAX_CONCURRENT=${MAX_CONCURRENT:-50}
 
