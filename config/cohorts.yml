@@ -22,6 +22,55 @@ regions:
   - dlpfc
   - hippocampus
 
+# ---------------------------------------------------------------------------
+# Estimation cells (donor-group axis, PI 2026-09-06; AGENTS.md 7.7)
+# ---------------------------------------------------------------------------
+# An ARM is a discovery population: it decides which donors VMRs are called in.
+# An ESTIMATION CELL is a donor subset that the SNP-consuming stages (Modules
+# 02 and 03) are fit in, on a locus set discovered somewhere else.
+#
+# The biologically correct donor-group design is: discover VMRs ONCE in the
+# pooled sample, then estimate local genetic control separately within Black
+# American and within non-Hispanic white American donors on that one fixed
+# locus set. Discovery is shared, so the two groups are disjoint sets evaluated
+# on identical loci; MAF, LD and effect estimation are within-group.
+#
+# This mirrors v1 exactly. v1 called VMRs in vmr-analysis/all_individuals/, then
+# wrote samples-AA.txt / samples-EA.txt (01.get_cpg_stats.R:112-133) and ran
+# plink2 twice per VMR window with --keep (step_5.sh:95-122), then modeled each
+# group separately (local-snp-prediction/all_individuals/.../01.elastic-net.R,
+# population-parameterized) and recombined by an inner join on locus
+# coordinates with _AA / _EA suffixes (venn_diagram/_h/02.compare_cohort.R:53-62).
+#
+# EA is deliberately NOT an arm. Making it one would let Module 01 discover VMRs
+# in EA donors only, which is the set-versus-superset design AGENTS.md 7.7
+# forbids: "Do not contrast AA against all_individuals: those are nested, and a
+# set-versus-superset comparison is not a donor-group contrast."
+#
+# Cell token convention: "{catalog_cohort}.{estimation_group}". A BARE arm token
+# (AA, all_individuals) parses as a cell whose estimation group equals its
+# cohort, which is what every pre-2026-09-10 run is. That is what lets run IDs,
+# README acceptance tables, gates.R and every downstream manifest field keep
+# working with no schema change -- the cell token goes where the cohort token
+# went.
+#
+# The donor-group contrast is all_individuals.AA vs all_individuals.EA, and only
+# that pair.
+
+estimation_cells:
+
+  all_individuals.AA:
+    catalog_cohort: all_individuals
+    estimation_group: AA
+    race_filter: [AA]
+    label: Black American donors, pooled-discovery loci
+
+  all_individuals.EA:
+    catalog_cohort: all_individuals
+    estimation_group: EA
+    race_filter: [EA]
+    label: non-Hispanic white American donors, pooled-discovery loci
+
 arm_definitions:
 
   AA:
@@ -105,6 +154,32 @@ donor_counts:
     caudate:     { phenotype_n: 286, design_n: 282 }
     dlpfc:       { phenotype_n: 176, design_n: 173 }
     hippocampus: { phenotype_n: 180, design_n: 177 }
+
+  # Estimation cells on the pooled catalog. design_n is null until the first
+  # accepted 01b_estimation_cells run reports observed counts and the PI signs
+  # off; assert_expected_n() records and warns while null and hard-stops after.
+  #
+  # phenotype_n here is the arithmetic reconstruction from the LOCKED counts
+  # above -- the two cells partition the pooled analysis set exactly, because
+  # race_filter [AA] and [EA] are disjoint and together are the pooled arm's
+  # [AA, EA]. It is the number the first run must reproduce, not a lock.
+  #
+  #   caudate      153 AA + 129 EA = 282
+  #   dlpfc        118 AA +  55 EA = 173
+  #   hippocampus  117 AA +  60 EA = 177
+  #
+  # Note these AA cells are NOT the same as the AA arm above: same donors, but a
+  # different locus set (pooled discovery) and a different genotype file (the
+  # multi-ancestry TOPMed pgen). Their Module 02 scores are ranked in their own
+  # cell and are not comparable to the AA arm's.
+  all_individuals.AA:
+    caudate:     { phenotype_n: 153, design_n: null }
+    dlpfc:       { phenotype_n: 118, design_n: null }
+    hippocampus: { phenotype_n: 117, design_n: null }
+  all_individuals.EA:
+    caudate:     { phenotype_n: 129, design_n: null }
+    dlpfc:       { phenotype_n: 55,  design_n: null }
+    hippocampus: { phenotype_n: 60,  design_n: null }
 
 # Sample blacklist -- RETIRED IN v2. All three regions are null by design.
 #

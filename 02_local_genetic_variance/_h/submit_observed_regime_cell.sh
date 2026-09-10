@@ -1,9 +1,16 @@
 #!/bin/bash
 
-## Submit the observed-regime diagnostic grid for one cohort-by-region cell
-## that has no completed production run.
+## Submit the observed-regime diagnostic grid for one cell-by-region cell that
+## has no completed production run.
 ##
-## Usage: submit_observed_regime_cell.sh COHORT REGION VMR_RUN_ID [DATE]
+## Usage: submit_observed_regime_cell.sh CELL REGION VMR_RUN_ID [DATE]
+##
+## CELL is a discovery arm (AA, all_individuals) or a donor-group estimation
+## cell (all_individuals.AA, all_individuals.EA). A cell's VMR_RUN_ID is its
+## 01b_estimation_cells run, not the pooled Module 01 catalog: the grid must
+## characterise the frozen model at the DONOR SET the cell will be estimated in,
+## which is the whole reason a new n needs a new grid before it may enter
+## allowed_n in config/joint-pve-characterized-support.tsv.
 ##
 ## Chain: locus-geometry array -> combine -> scenario manifest -> scenario
 ## array (fixed 1844 chunks) -> summary. The geometry scan exists because the
@@ -28,6 +35,16 @@ H_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 MODULE_DIR=$(cd "${H_DIR}/.." && pwd)
 ENV_PATH=${CAL_H2_ENV:-/projects/p32505/opt/envs/calibrated-local-h2}
 R_BIN=${ENV_PATH}/bin/Rscript
+REPO_DIR=$(cd "${H_DIR}/../.." && pwd)
+
+## Stage 11 runs in the SHARED R env; every scanning and scenario stage stays in
+## the estimator env. Stage 11 is bookkeeping -- it resolves the cell, checks the
+## upstream gate and writes the task universe -- and since 2026-09-10 it reads
+## config/cohorts.yml through 00_shared/load.R, which needs `yaml`.
+## calibrated-local-h2 does not have it, and adding it there would change the
+## env the frozen model was fitted in. See submit_observed_local_control.sh.
+PREP_ENV_PATH=${V2_ENV_R:-/projects/p32505/opt/envs/epigenomics}
+PREP_R_BIN=${PREP_ENV_PATH}/bin/Rscript
 ACCOUNT=${SBATCH_ACCOUNT:-p32505}
 PARTITION=${LGV_PARTITION:-short}
 MAX_CONCURRENT=${LGV_MAX_CONCURRENT:-100}
@@ -38,7 +55,8 @@ REGIME_RUN_ID="lgv-observed-regime-${COHORT}-${REGION}-${DATE}"
 RUNS_ROOT="${MODULE_DIR}/_m/runs"
 REGIME_DIR="${RUNS_ROOT}/${REGIME_RUN_ID}"
 
-GEOMETRY_DIR=$("${R_BIN}" "${H_DIR}/11_prepare_locus_geometry.R" \
+GEOMETRY_DIR=$(V2_REPO_ROOT="${REPO_DIR}" "${PREP_R_BIN}" \
+    "${H_DIR}/11_prepare_locus_geometry.R" \
     --run-id="${GEOMETRY_RUN_ID}" --cohort="${COHORT}" --region="${REGION}" \
     --vmr-run-id="${VMR_RUN_ID}" --vmrs-per-chunk="${LOCI_PER_CHUNK}")
 GEOMETRY_DIR=$(echo "${GEOMETRY_DIR}" | tail -1 | tr -d '[:space:]')

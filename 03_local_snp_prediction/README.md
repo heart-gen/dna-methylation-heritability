@@ -144,3 +144,61 @@ smoke checks. Configuration lives in `config/` at the repository root.
 | lsp-AA-caudate-20260825     | AA     | caudate     | vmrset-AA-caudate-937a41979978     | 2026-08-28  | Kynon J.M. Benjamin | PASS_OOF_PREDICTION_QC | 11530 expected / 11343 scored / 187 QC-failed / 0 failed; median r2_pred_oof ~0, mean 0.204, 45.1% positive; relative rank use only |
 | lsp-AA-dlpfc-20260825       | AA     | dlpfc       | vmrset-AA-dlpfc-856067dfe289       | 2026-08-28  | Kynon J.M. Benjamin | PASS_OOF_PREDICTION_QC | 9572 expected / 9347 scored / 225 QC-failed / 0 failed; median r2_pred_oof ~0, mean 0.174, 44.4% positive; relative rank use only   |
 | lsp-AA-hippocampus-20260825 | AA     | hippocampus | vmrset-AA-hippocampus-2d907b892215 | 2026-08-28  | Kynon J.M. Benjamin | PASS_OOF_PREDICTION_QC | 9497 expected / 9272 scored / 225 QC-failed / 0 failed; median r2_pred_oof ~0, mean 0.188, 46.5% positive; relative rank use only   |
+
+## Donor-group estimation cells
+
+Added 2026-09-10 alongside Module 02 (AGENTS.md §7.7, PI 2026-09-06).
+
+`--cohort` takes a **cell token**: a discovery arm (`AA`, `all_individuals`) or
+a donor-group estimation cell (`all_individuals.AA`, `all_individuals.EA`).
+`--cohort <arm> --group <group>` composes the token equivalently. Cells are
+materialized by [`01b_estimation_cells`](../01b_estimation_cells/README.md);
+Module 03 reaches them through Module 02, exactly as it always has.
+
+The cell identity — `catalog_cohort`, `estimation_group`, `covar_prefix` and
+which module holds the donor list — travels from **02's manifest** into 03's
+own, rather than being re-derived. 03 must score the same donors and the same
+variants as 02 (that is why both call one `load_observed_locus()`), so
+re-deriving it here would be a place for the two to drift. Stages 01 and 02 then
+route the donor list and the locus files to `01b_estimation_cells` instead of
+`01_vmr_catalog`; reading the pooled catalog's donor list would put every pooled
+donor into the folds and silently make a cell's prediction a pooled one.
+
+Runs predating this change carry none of those fields, and the fallbacks are the
+behaviour those runs actually had.
+
+### Column changes
+
+- `population` now carries the **estimation group** rather than being an alias
+  for `cohort`, matching Module 02's column of the same name and v1's explicit
+  `race` column. Equal to the cohort for every discovery arm.
+- `catalog_cohort` and `estimation_group` are new on the metrics and QC tables.
+- `predictions-per-donor.tsv` gains `donor_group`, `region` and `cohort`, so the
+  two cells' per-donor tables can be stacked without a positional assumption.
+
+### Recombination — `_h/07_stack_donor_group_predictions.R`
+
+Concatenates the two cells' per-donor OOF predictions into
+`_m/combined/oof-predictions-per-donor-donor-group-{region}.tsv` with a
+`donor_group` column. This is the "recombine per-individual estimates" half of
+the design: the two cells hold **disjoint** donors evaluated on **one shared**
+VMR set, so the tables concatenate — the stage asserts both properties and stops
+if a donor appears in both cells or the `vmr_set_id`s differ.
+
+Per-locus accuracy is written side by side in
+`oof-prediction-donor-group-{region}.tsv` (`r2_pred_oof_AA`, `r2_pred_oof_EA`,
+…). **No pooled r² is computed.** `1 - SSE/SST` over the union of two donor
+groups would absorb any mean difference between them and report it as accuracy;
+`pooled_r2_emitted = FALSE` is carried on every row. As in Module 02, compare
+ordering — the summary reports Spearman correlation of the two cells' per-locus
+r² — not levels, and eliminate n, MAF, LD and SNP availability before
+attributing any difference to donor group (AGENTS.md §7.7).
+
+Usage:
+
+```bash
+Rscript _h/07_stack_donor_group_predictions.R --region dlpfc \
+  --run-ids lsp-all_individuals.AA-dlpfc-20260910,lsp-all_individuals.EA-dlpfc-20260910
+```
+
+Both runs must already appear in this module's Accepted runs table.

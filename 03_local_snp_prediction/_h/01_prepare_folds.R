@@ -67,7 +67,14 @@ if (is.na(vmr_run) || !nzchar(vmr_run)) {
 ## one file per VMR under `vmr/phenotypes/`. Donors are keyed FID::IID, the same
 ## key `load_observed_locus()` aligns genotype rows on, so a fold assignment
 ## made here joins to a locus matrix there without any positional assumption.
-donor_f <- file.path(repo_root(), "01_vmr_catalog", "_m", "runs", vmr_run,
+## For a donor-group estimation cell the donor list lives in the
+## 01b_estimation_cells run that materialized the cell, not in the pooled
+## Module 01 catalog -- reading the catalog's list would put EVERY pooled donor
+## into the folds and silently make the cell's prediction a pooled one.
+vmr_module <- tryCatch(mval("upstream_vmr_module"),
+                       error = function(e) "01_vmr_catalog")
+if (is.na(vmr_module) || !nzchar(vmr_module)) vmr_module <- "01_vmr_catalog"
+donor_f <- file.path(repo_root(), vmr_module, "_m", "runs", vmr_run,
                      "vmr", "donors_plink.txt")
 if (!file.exists(donor_f)) {
     stop("Donor list not found for upstream run ", vmr_run, ": ", donor_f,

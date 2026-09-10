@@ -36,9 +36,22 @@ task <- tasks[tasks$task_id == task_id, , drop = FALSE]
 if (nrow(task) != 1L) stop("task_id is absent or duplicated: ", task_id)
 
 repo_root <- normalizePath(file.path(h_dir, "..", ".."))
+## Stage 00 recorded which module materialized the donor set this run estimates
+## in: 01_vmr_catalog for a discovery arm, 01b_estimation_cells for a
+## donor-group cell. Older runs have no such field and are Module 01 by
+## definition, so their path resolves exactly as before.
+upstream_module <- tryCatch(mval("upstream_module"),
+                            error = function(e) "01_vmr_catalog")
 vmr_run_dir <- file.path(
-    repo_root, "01_vmr_catalog", "_m", "runs", mval("upstream_vmr_run_id")
+    repo_root, upstream_module, "_m", "runs", mval("upstream_vmr_run_id")
 )
+## Likewise: absent on pre-2026-09-10 runs, where the estimation group is the
+## cohort and the covariate prefix is locus_io.R's own fallback.
+estimation_group <- tryCatch(mval("estimation_group"),
+                             error = function(e) mval("cohort"))
+covar_prefix <- tryCatch(mval("covar_prefix"), error = function(e) NULL)
+catalog_cohort <- tryCatch(mval("catalog_cohort"),
+                           error = function(e) mval("cohort"))
 settings_path <- file.path(run_dir, "config", "joint-pve-20260820.tsv")
 settings <- read_joint_settings(settings_path)
 threshold_lines <- readLines(file.path(run_dir, "config", "thresholds.yml"),
@@ -64,7 +77,15 @@ blank_row <- function() {
     data.frame(
         task_id = task_id,
         cohort = mval("cohort"), region = mval("region"),
-        population = mval("cohort"),
+        ## `population` used to be an alias for `cohort`. It now carries the
+        ## ESTIMATION GROUP -- the donors the SNP model was fit in -- which is
+        ## what the name always implied and what v1 held in its explicit `race`
+        ## column. For every discovery arm the two are equal, so no accepted run
+        ## changes meaning. `catalog_cohort` carries the other half of the pair,
+        ## so cell provenance is never ambiguous.
+        population = estimation_group,
+        catalog_cohort = catalog_cohort,
+        estimation_group = estimation_group,
         chrom = as.character(task$chrom),
         start = as.integer(task$start), end = as.integer(task$end),
         vmr_id = as.character(task$vmr_id),
@@ -107,7 +128,9 @@ estimate_task <- function() {
         task = task, cohort = mval("cohort"), vmr_run_dir = vmr_run_dir,
         min_cis_variants = min_cis_variants,
         expected_n = as_int(mval("n_donors"), "n_donors"),
-        backing_tag = paste0("lgv-", task_id)
+        backing_tag = paste0("lgv-", task_id),
+        covar_prefix = covar_prefix,
+        estimation_group = estimation_group
     )
     if (!identical(locus$status, "ok")) {
         if (!is.null(locus$snps_in_window)) {
