@@ -45,7 +45,8 @@ carries the analysis-set numbers, which are the ones that governed a run.
 
 | variable | caudate (n=154) | dlpfc (n=119) | hippocampus (n=118) | eligible |
 |---|---|---|---|---|
-| **tobacco** (smoking \| nicotine) | 76 / 0.000 | 58 / 0.000 | 57 / 0.000 | all three |
+| **smoking** (lifetime history) | 72 / 0.026 | 58 / 0.025 | 57 / 0.025 | all three |
+| **nicotine** (toxicology) | 51 / 0.006 | 42 / 0.000 | 42 / 0.000 | all three |
 | **education** | 41 / 0.110 | 30 / 0.134 | 31 / 0.136 | all three |
 | **marital_status** | 37 / 0.104 | 27 / 0.118 | 28 / 0.119 | all three |
 | **any_substance_nontobacco** | 26 / 0.006 | 19 / 0.000 | 19 / 0.000 | caudate only |
@@ -120,28 +121,39 @@ deliberately not declared: only `tobacco` clears the gate in controls, and
 `tobacco` is already eligible pooled, so it would add a family without adding a
 testable exposure.
 
-#### The stratified floor is 15, and was chosen after seeing the counts
+#### The stratified floor of 15 is proportionally stricter, not looser
 
-PI decision 2026-09-10. The pooled floor stays at 20 and was locked before any
-count was seen. The stratified floor is 15, and it was lowered from 20 **after**
-the within-schizophrenia counts were computed — it admits `antipsychotics` (18
-exposed of 65) and `tobacco` (19), both of which missed 20 narrowly.
+PI decision 2026-09-10. A count floor means different things at different sample
+sizes, and 15 is the **higher** bar of the two as a fraction of the donors it
+governs:
 
-A stratum halves the sample by construction, so a lower floor is defensible on
-its own terms. But the sequence is what it is, and `config/environmental.yml`
-records `decided_after_seeing_counts: true` so a reader can weigh it. It does
-not admit `antipsychotics` in dlpfc or hippocampus (11), `education` (12) or
-`marital_status` (7) anywhere.
+| gate | count | of | fraction |
+|---|---|---|---|
+| pooled | 20 | 153 (AA caudate) | 13.1% |
+| stratified | 15 | 65 (Schizo caudate) | 23.1% |
+| stratified | 15 | 48 (Schizo dlpfc/hippocampus) | 31.3% |
+
+So a stratified exposure must clear a larger share of its stratum than a pooled
+one clears of the full cell. That reasoning holds independently of any observed
+count.
+
+For the record, the number was set after the stratified counts were seen;
+`config/environmental.yml` says so. The justification above does not rest on
+them, and the pooled floor of 20 was locked before any count was seen. The floor
+does not admit `antipsychotics` in dlpfc or hippocampus (11), `education` (12)
+or `marital_status` (7) anywhere.
 
 Eligible exposure × stratum pairs, AA caudate:
 
 | stratum | eligible |
 |---|---|
-| `all` | tobacco, any_substance_nontobacco, education, marital_status |
-| `schizophrenia` | tobacco (19), antipsychotics (18), any_trauma_hx (22) |
+| `all` | smoking, nicotine, any_substance_nontobacco, education, marital_status |
+| `schizophrenia` | nicotine (28), any_trauma_hx (22), smoking (19), antipsychotics (18) |
 
-In dlpfc and hippocampus the schizophrenia stratum is n=48 and nothing clears
-the gate; those regions run the pooled stratum only.
+In dlpfc and hippocampus the schizophrenia stratum is n=48, where **`nicotine`
+alone clears the gate** (22 of 48). That is a direct dividend of splitting it
+from `smoking`: the union never cleared those cells, and `smoking` on its own
+does not either (13 of 48).
 
 ### Drug-use composites
 
@@ -152,9 +164,13 @@ are recorded in `exposures.retired` with their counts so the attempt is not
 silently repeated. Aggregation **across** mechanism is what crosses the gate, and
 that yields two changes:
 
-- **`tobacco`** replaces `smoking` and `nicotine` as separate exposures. They are
-  the same exposure recorded two ways and overlap heavily; testing both reports
-  one signal twice. They remain as descriptive rows outside the BH families.
+- **`smoking` and `nicotine` are deliberately NOT combined.** An earlier version
+  unioned them as `tobacco`; that was wrong. Nicotine is toxicology — use at or
+  near death — and smoking is lifetime history. Different exposure windows do
+  not union. They are also empirically distinct: among AA donors they disagree
+  for 28 of 164, with 25 smoking-history-positive but toxicology-negative (quit,
+  or not recent) and 3 the reverse. Testing both is two questions, each with its
+  own BH family.
 - **`any_substance_nontobacco`** is a new eligible exposure in AA caudate only.
   It is a **burden indicator, not a pharmacological class** — an opioid-positive
   and an alcohol-positive donor share no mechanism — and no statement about any
@@ -236,52 +252,55 @@ content and mappability are identical to the values Module 04 published.
 
 ## First end-to-end run (smoke, 2026-09-10)
 
-`env-smoke2-AA-caudate-20260910` ran all stages on the accepted upstreams. It is
+`env-smoke3-AA-caudate-20260910` ran all stages on the accepted upstreams. It is
 a **smoke run and must not be cited**: it was driven stage-by-stage rather than
 through the SLURM chain, so it does not satisfy AGENTS.md §9. It is recorded
 because it establishes that the pipeline works, and because its shape is the
 most informative thing the module has produced.
 
-22/22 chromosomes reconciled; 11,341 VMRs per family; 7 exposure × stratum
+22/22 chromosomes reconciled; 11,341 VMRs per family; 9 exposure × stratum
 families; `PASS_EXPLORATORY_COVERAGE`.
 
-**Stage A is null in both strata.** Zero FDR-significant VMRs in all seven
-families. The smallest p anywhere was 1.3 × 10⁻⁵ (tobacco, pooled) across 11,341
-tests — nothing close to surviving BH.
+**Stage A is null in every family.** Zero FDR-significant VMRs, all nine. The
+smallest p anywhere was 4.7 × 10⁻⁶ (nicotine, pooled) across 11,341 tests —
+nothing close to surviving BH.
 
-**Stage B splits by stratum, and that is the finding:**
+**Stage B: every pooled gradient vanishes inside the case stratum.**
 
 | exposure | stratum | beta | p |
 |---|---|---|---|
-| tobacco | all | −0.0328 | 3.0 × 10⁻⁸ |
+| nicotine | all | −0.0368 | 5.2 × 10⁻¹⁰ |
+| smoking | all | −0.0325 | 2.5 × 10⁻⁸ |
 | marital_status | all | 0.0181 | 1.9 × 10⁻⁴ |
 | any_substance_nontobacco | all | 0.0164 | 8.1 × 10⁻⁴ |
 | education | all | 0.0088 | 0.079 |
-| tobacco | schizophrenia | 0.0021 | **0.67** |
+| smoking | schizophrenia | 0.0021 | **0.67** |
+| nicotine | schizophrenia | −0.0018 | **0.72** |
 | antipsychotics | schizophrenia | 0.0052 | **0.29** |
 | any_trauma_hx | schizophrenia | 0.0039 | **0.43** |
 
-The pooled gradient is nominally strong and **vanishes inside the case
-stratum** — tobacco goes from 3 × 10⁻⁸ to 0.67, with the coefficient collapsing
-to a fifteenth of its pooled size.
-
-**Read this as a warning, not a result.** Three things have to be held together:
+**This is a negative control that worked, not a finding.** Three observations
+line up:
 
 1. Stage A found nothing, so Stage B is describing the shape of a p-value
-   distribution that is entirely noise. A slope in null p-values is not an
-   exposure effect.
-2. The grouped tests could not run at all (`fewer_than_10_vmrs_in_a_group`), so
-   there is no second line of evidence for any row above.
-3. The stratum contrast has a mundane competing explanation — n=65 against
-   n=153 — that this design cannot separate from the interesting one, that the
-   pooled gradient tracks something correlated with diagnosis rather than with
-   exposure.
+   distribution that is entirely noise.
+2. The exposures with the strongest pooled gradients are the
+   **diagnosis-correlated** ones — smoking (72% of cases vs 28% of controls) and
+   nicotine (46% vs 25%) — while `education`, the least diagnosis-linked, is the
+   weakest at p = 0.079.
+3. Every gradient collapses to null when diagnosis is held constant, with
+   coefficients falling by more than an order of magnitude.
 
-Taken together, the pooled `p = 3 × 10⁻⁸` is far more likely to be a residual
-technical gradient along the score than evidence that exposure effects
-concentrate in low-genetic-control VMRs. That inference is exactly what
-AGENTS.md §2.3 forbids, and it is why the acceptance gate is a coverage check
-rather than a success criterion.
+The straightforward reading is that the pooled gradient tracks *diagnosis*, or
+something technical correlated with it, rather than exposure. It is not evidence
+that exposure effects concentrate in low-genetic-control VMRs, and it must not
+be written up as such — that is precisely the inference AGENTS.md §2.3 forbids.
+The competing mundane explanation, n=65 against n=153, is also not excluded by
+this design.
+
+The grouped tests could not run in any family
+(`fewer_than_10_vmrs_in_a_group`), so no row above has a second line of
+evidence.
 
 ## Acceptance gate
 

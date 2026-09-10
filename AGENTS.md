@@ -694,6 +694,15 @@ Requirements:
 - drop `primarydx` from the locus model inside a single-diagnosis stratum: it is
   constant, and the collider path is closed by the restriction rather than by
   adjustment;
+- keep `smoking` (lifetime history) and `nicotine` (toxicology at death) as
+  **separate** exposures. They are different exposure windows and must not be
+  unioned; among AA donors they disagree for 28 of 164. `nicotine` is the only
+  exposure eligible inside cases in all three regions;
+- treat any `smoking` result as confounded with diagnosis by default. 72% of AA
+  schizophrenia donors have a smoking history against 28% of controls, so
+  residual confounding by diagnosis outranks an effect of smoking as the
+  explanation of a pooled association, and the within-case contrast rests on 19
+  non-smokers who are clinically atypical for the diagnosis;
 - reuse `00_shared/locus_io.R::load_locus_phenotype()` for the covariate model,
   so an exposure association conditions on what a local-genetic-control estimate
   conditions on;
