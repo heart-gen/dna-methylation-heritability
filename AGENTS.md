@@ -559,9 +559,36 @@ estimates **on the common pooled-discovery VMR set** — the `all_individuals`
 catalog — not on cohort-specific catalogs. Discovery happens once in the pooled
 sample; the two donor groups are then disjoint sets evaluated on one fixed locus
 set. Do **not** contrast `AA` against `all_individuals`: those are nested, and
-a set-versus-superset comparison is not a donor-group contrast. An EA estimation
-cell does not yet exist in Modules 01 and 02 and must be built first. This axis
-is not exposed to §8.1 — donor groups interleave within each region's libraries.
+a set-versus-superset comparison is not a donor-group contrast. This axis is not
+exposed to §8.1 — donor groups interleave within each region's libraries.
+
+**Implemented 2026-09-10.** The estimation cell is now a first-class object,
+distinct from the discovery arm. `config/cohorts.yml` declares
+`estimation_cells: all_individuals.AA` and `all_individuals.EA`; the cell token
+`{catalog_cohort}.{estimation_group}` goes wherever the cohort token went, and a
+bare arm parses as a cell whose group equals its cohort, so no accepted run
+changes meaning. `01b_estimation_cells` materializes a cell from a sealed
+Module 01 run — group donor list, per-group cis BEDs, subset covariates, and
+within-group genotype PCs — without re-deriving a single VMR. Modules 02 and 03
+then run inside it unchanged in substance.
+
+EA is deliberately not an arm: making it one would let Module 01 discover VMRs
+in EA donors only, which is the design this replaces.
+
+Two consequences to hold onto:
+
+- The `population` column in Modules 02 and 03 now carries the **estimation
+  group**, not the cohort. `catalog_cohort` carries the other half.
+- Recombination is explicit and constrained. `02/_h/14_combine_donor_group_cells.R`
+  and `03/_h/07_stack_donor_group_predictions.R` emit no pooled rank, no
+  cross-cell score difference and no pooled r²; §7.6 already forbids raw
+  score-level comparison across cells, so the reportable quantity is **ordering
+  agreement**, never a level. Loci eligible in only one cell are retained and
+  labelled, not dropped.
+
+The cells differ in sample size (EA is roughly half of AA in each region), MAF
+spectrum, LD, and SNP availability. Those must be eliminated before any
+difference is discussed, per the paragraph below.
 
 Prioritize biological generalization of local variance, repeat enrichment,
 meQTL burden, and effect direction. Cross-population predictor portability is

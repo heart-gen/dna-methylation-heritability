@@ -35,6 +35,15 @@ mval <- function(field) {
     if (length(value) != 1L) stop("Run manifest lacks unique field: ", field)
     as.character(value[[1L]])
 }
+## Fields added 2026-09-10 for donor-group estimation cells. Runs opened before
+## that date do not carry them, and the defaults ARE the behaviour those runs
+## had, so a sealed run reproduces unchanged.
+mval_or <- function(field, default) {
+    value <- manifest$value[manifest$field == field]
+    if (length(value) != 1L) return(default)
+    value <- as.character(value[[1L]])
+    if (is.na(value) || !nzchar(value)) default else value
+}
 scenarios <- read_tsv(file.path(run_dir, "config", "scenario-manifest.tsv"))
 chunks <- read_tsv(file.path(run_dir, "config", "chunk-manifest.tsv"))
 wanted <- chunks$scenario_id[chunks$chunk_id == chunk_id]
@@ -42,7 +51,8 @@ if (!length(wanted)) stop("No scenarios for chunk ", chunk_id)
 
 repo_root <- normalizePath(file.path(h_dir, "..", ".."))
 vmr_run_dir <- file.path(
-    repo_root, "01_vmr_catalog", "_m", "runs", mval("upstream_vmr_run_id")
+    repo_root, mval_or("upstream_module", "01_vmr_catalog"), "_m", "runs",
+    mval("upstream_vmr_run_id")
 )
 threshold_lines <- readLines(file.path(run_dir, "config", "thresholds.yml"),
                              warn = FALSE)

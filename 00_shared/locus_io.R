@@ -18,10 +18,41 @@
 ## not influence). The eligibility gate still uses the QC'd variant count, so
 ## the task universe is identical either way -- only the returned matrix
 ## differs. Module 02 uses the default and is unaffected.
+##
+## `cohort` is the CELL token. Two things are derived from it, and they are not
+## the same thing once discovery and estimation are separated (AGENTS.md 7.7,
+## PI 2026-09-06):
+##
+##   * the per-VMR BED is named by the ESTIMATION GROUP -- the donors the SNP
+##     model is fit in. For a bare arm the group equals the cohort, so every
+##     path resolved for AA / all_individuals is unchanged.
+##   * the shared covariate files are named by the CATALOG COHORT, because they
+##     were written by that arm's Module 01 run. `covar_prefix` overrides this;
+##     when NULL it falls back to exactly the pre-2026-09-10 ternary.
+##
+## MAF and missingness QC below run AFTER the group-restricted BED is loaded, so
+## the >= maf_min filter is computed within the estimation group. That is the
+## whole point of extracting per-group BEDs rather than subsetting donors here.
+##
+## If `covs/genotype_pcs.tsv` exists in `vmr_run_dir`, its snpPC columns are
+## appended to the covariate matrix. 01b_estimation_cells writes that file from
+## a within-group PCA. When it is absent the covariate matrix is byte-identical
+## to the pre-2026-09-10 behaviour, so the sealed accepted runs reproduce.
 load_observed_locus <- function(task, cohort, vmr_run_dir, min_cis_variants,
                                 expected_n = NA_integer_,
                                 backing_tag = "lgv",
-                                apply_snp_qc = TRUE) {
+                                apply_snp_qc = TRUE,
+                                covar_prefix = NULL,
+                                estimation_group = NULL) {
+    ## Resolve the cell without requiring callers to have done it. Config is
+    ## unavailable in some unit-test harnesses, so fall back to the identity
+    ## mapping (group == cohort), which is the pre-2026-09-10 behaviour.
+    if (is.null(estimation_group)) {
+        estimation_group <- tryCatch(
+            parse_cell(cohort)$estimation_group,
+            error = function(e) cohort
+        )
+    }
     chromosome_label <- sub("^chr", "", task$chrom, ignore.case = TRUE)
     if (toupper(chromosome_label) %in% c("X", "Y")) {
         return(list(status = "excluded", reason = "non_autosomal_vmr"))
@@ -30,7 +61,7 @@ load_observed_locus <- function(task, cohort, vmr_run_dir, min_cis_variants,
     stem <- paste0(task$start, "_", task$end)
     bed <- file.path(
         vmr_run_dir, "plink_format", chromosome_dir,
-        paste0("TOPMed_LIBD-", cohort, ".", stem, ".bed")
+        paste0("TOPMed_LIBD-", estimation_group, ".", stem, ".bed")
     )
     no_snp <- sub("\\.bed$", ".no-snps", bed)
     if (!file.exists(bed)) {
@@ -40,7 +71,13 @@ load_observed_locus <- function(task, cohort, vmr_run_dir, min_cis_variants,
         }
         stop("Missing PLINK BED: ", bed)
     }
-    prefix <- if (identical(cohort, "AA")) "TOPMed_LIBD.AA" else "TOPMed_LIBD"
+    prefix <- if (!is.null(covar_prefix)) {
+        covar_prefix
+    } else if (identical(cohort, "AA")) {
+        "TOPMed_LIBD.AA"
+    } else {
+        "TOPMed_LIBD"
+    }
     phenotype_path <- file.path(
         vmr_run_dir, "vmr", "phenotypes",
         paste0(task$chrom, "_", stem, "_meth.phen")
@@ -102,9 +139,51 @@ load_observed_locus <- function(task, cohort, vmr_run_dir, min_cis_variants,
     names(covar) <- c("FID", "IID", "sex", "diagnosis")
     qcovar <- read.table(qcovar_path, header = FALSE, stringsAsFactors = FALSE)
     names(qcovar) <- c("FID", "IID", "age")
+
+    ## Within-group genotype PCs, if the run carries them. Written once per run
+    ## by 01b_estimation_cells from a PCA on this cell's donors only; absent for
+    ## every pre-2026-09-10 run, which is why this is a file-existence branch
+    ## and not a flag -- a sealed run has no file and reproduces exactly.
+    pc_path <- file.path(vmr_run_dir, "covs", "genotype_pcs.tsv")
+    pc_names <- character(0)
+    tables <- list(fam, phenotype, covar, qcovar)
+    if (file.exists(pc_path)) {
+        pcs <- utils::read.delim(pc_path, header = TRUE, colClasses = "character",
+                                 stringsAsFactors = FALSE)
+        if (!all(c("FID", "IID") %in% names(pcs))) {
+            stop("genotype_pcs.tsv lacks FID/IID: ", pc_path)
+        }
+        pc_names <- grep("^snpPC[0-9]+$", names(pcs), value = TRUE)
+        if (!length(pc_names)) {
+            stop("genotype_pcs.tsv carries no snpPC columns: ", pc_path)
+        }
+        ## Order by index, not by the file's column order, so the covariate
+        ## matrix is reproducible whatever wrote the file.
+        pc_names <- pc_names[order(as.integer(sub("^snpPC", "", pc_names)))]
+        pcs <- pcs[, c("FID", "IID", pc_names), drop = FALSE]
+        for (nm in pc_names) pcs[[nm]] <- as.numeric(pcs[[nm]])
+        if (anyNA(pcs[, pc_names, drop = FALSE])) {
+            stop("Non-numeric or missing genotype PC values in ", pc_path)
+        }
+        ## A donor genotyped in this locus but absent from the PC table would be
+        ## dropped by the inner merge below without a word, changing n silently.
+        ## That is the V1 class of defect; make it a stop.
+        fam_key <- paste(fam$FID, fam$IID, sep = "::")
+        pc_key <- paste(pcs$FID, pcs$IID, sep = "::")
+        if (anyDuplicated(pc_key)) stop("Duplicate donors in ", pc_path)
+        missing_pc <- setdiff(fam_key, pc_key)
+        if (length(missing_pc)) {
+            stop("Donors present in the locus BED but absent from ", pc_path,
+                 ": ", paste(head(missing_pc, 10), collapse = ", "),
+                 if (length(missing_pc) > 10)
+                     paste0(" (and ", length(missing_pc) - 10, " more)"))
+        }
+        tables <- c(tables, list(pcs))
+    }
+
     metadata <- Reduce(
         function(x, y) merge(x, y, by = c("FID", "IID"), all = FALSE),
-        list(fam, phenotype, covar, qcovar)
+        tables
     )
     metadata$key <- paste(metadata$FID, metadata$IID, sep = "::")
     fam$key <- paste(fam$FID, fam$IID, sep = "::")
@@ -123,8 +202,12 @@ load_observed_locus <- function(task, cohort, vmr_run_dir, min_cis_variants,
              " versus ", expected_n)
     }
     y <- as.numeric(metadata$phenotype)
+    ## Build the formula rather than branching on two literals: with no PC file
+    ## this is exactly `~ age + factor(sex) + factor(diagnosis)`, the
+    ## pre-2026-09-10 model, term for term and in the same order.
+    terms <- c("age", "factor(sex)", "factor(diagnosis)", pc_names)
     covariates <- stats::model.matrix(
-        ~ age + factor(sex) + factor(diagnosis), data = metadata
+        stats::reformulate(terms), data = metadata
     )[, -1L, drop = FALSE]
 
     list(

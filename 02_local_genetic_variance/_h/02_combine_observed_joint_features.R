@@ -74,7 +74,16 @@ if (length(missing_ids)) {
     template[,] <- NA
     shared <- intersect(names(template), names(missing))
     template[shared] <- missing[shared]
-    template$population <- missing$cohort
+    ## `population` is the estimation group, not the cohort (see Stage 01).
+    ## Read it from the manifest rather than copying the cell token, or a
+    ## missing-task row would disagree with every completed row beside it.
+    mfield <- function(field, default) {
+        v <- manifest$value[manifest$field == field]
+        if (length(v) == 1L) as.character(v[[1L]]) else default
+    }
+    template$population <- mfield("estimation_group", missing$cohort)
+    template$estimation_group <- mfield("estimation_group", missing$cohort)
+    template$catalog_cohort <- mfield("catalog_cohort", missing$cohort)
     template$upstream_vmr_run_id <- upstream_vmr_run_id
     template$feature_complete <- FALSE
     template$computational_failure <- TRUE
