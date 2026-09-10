@@ -55,7 +55,7 @@ legacy directory maps onto them.
 | `07_transcription_splicing_coupling/` | Expression and splicing coupling |
 | `08_region_donor_generalization/` | Cross-region and donor-group generalization |
 | `09_schizophrenia_risk_application/` | Schizophrenia-risk application |
-| `10_integrated_manuscript_outputs/` | Manuscript tables, figures, and number registry |
+| `11_integrated_manuscript_outputs/` | Manuscript tables, figures, and number registry |
 | `config/` | Shared configuration for the above |
 
 Modules 01, 02, 04, 05, 06 and 07 have accepted runs. Module 03 is implemented

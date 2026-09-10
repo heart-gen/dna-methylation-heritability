@@ -184,7 +184,7 @@ New v2 work lives in numbered modules at the **repository root**:
 ├── 07_transcription_splicing_coupling/
 ├── 08_region_donor_generalization/
 ├── 09_schizophrenia_risk_application/
-└── 10_integrated_manuscript_outputs/
+└── 11_integrated_manuscript_outputs/
 ```
 
 The numeric prefixes encode scientific dependency, in the same spirit as the
@@ -269,7 +269,7 @@ Recommended mapping:
 | expression/splicing modules in `meqtl-validation/` | `07_transcription_splicing_coupling/` |
 | donor-group, cross-region, and downsampling modules | `08_region_donor_generalization/` |
 | `meqtl-validation/08_schizophrenia_risk_application/` | `09_schizophrenia_risk_application/` |
-| manuscript figures and consolidated tables | `10_integrated_manuscript_outputs/` |
+| manuscript figures and consolidated tables | `11_integrated_manuscript_outputs/` |
 | `environmental-analysis/` | remove before submission unless an approved supplemental sensitivity is migrated |
 
 Do not duplicate region- or cohort-specific copies of the same code. Refactor
@@ -289,7 +289,7 @@ Analyses must run in this order:
 7. `07_transcription_splicing_coupling`
 8. `08_region_donor_generalization`
 9. `09_schizophrenia_risk_application`
-10. `10_integrated_manuscript_outputs`
+10. `11_integrated_manuscript_outputs`
 
 `06_partitioned_heritability` depends only on an accepted `02_local_genetic_variance`
 score; its position in this list is a total order, not a claim that it consumes 03-05.
@@ -650,7 +650,7 @@ hits must be labeled exploratory.
 Do not claim mediation, causality, or colocalization unless the corresponding
 analysis has been run with adequate ancestry-matched LD and passes its own gate.
 
-### 7.9 `10_integrated_manuscript_outputs`: one source of truth
+### 7.11 `11_integrated_manuscript_outputs`: one source of truth
 
 This module consumes only accepted immutable upstream runs and creates:
 

@@ -1,4 +1,4 @@
-#### 10_integrated_manuscript_outputs / 00_figure_theme: shared figure grammar ####
+#### 11_integrated_manuscript_outputs / 00_figure_theme: shared figure grammar ####
 ##
 ## One source for the manuscript's visual language. The v1 tree carried this
 ## same theme, palette, and save helper copy-pasted into ~40 scripts across
