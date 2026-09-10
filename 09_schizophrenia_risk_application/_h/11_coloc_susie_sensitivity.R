@@ -184,7 +184,12 @@ out[, agrees_with_abf := status == "OK" &
 out[, method := "coloc.susie_credible_set_overlap"]
 out[, role := "sensitivity_only_never_sets_a_claim"]
 setorder(out, locus_id, arm, qtl_context, phenotype_id)
-write_atomic(out, out_f)
+# write_atomic() lives in 00_shared/load.R, which this stage does not source:
+# it runs in the coloc env, whose R has neither here() nor the shared helpers.
+# Same tmp-then-rename, inlined, so a killed job cannot leave a partial table.
+tmp_f <- paste0(out_f, ".tmp")
+fwrite(out, tmp_f, sep = "\t")
+if (!file.rename(tmp_f, out_f)) stop("could not rename ", tmp_f, " -> ", out_f)
 
 message("[09] SuSiE sensitivity: ", sum(out$status == "OK"), "/", nrow(out),
         " regions evaluated; ", sum(out$agrees_with_abf, na.rm = TRUE),
