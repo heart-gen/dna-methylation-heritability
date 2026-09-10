@@ -137,7 +137,21 @@ manifest <- fread(file.path(run_dir, "manifest.tsv"), colClasses = "character")
 mval <- function(f) {
     v <- manifest$value[manifest$field == f]; if (length(v) == 0) NA_character_ else v[1]
 }
-metrics[, `:=`(region = mval("region"), population = mval("cohort"),
+## `population` is the ESTIMATION GROUP -- the donors the model was fit in --
+## matching Module 02's column of the same name and v1's explicit `race` column.
+## For a discovery arm it equals the cohort, so no accepted run changes meaning.
+## `catalog_cohort` carries the other half, so a cell is never ambiguous.
+estimation_group <- mval("estimation_group")
+if (is.na(estimation_group) || !nzchar(estimation_group)) {
+    estimation_group <- mval("cohort")
+}
+catalog_cohort <- mval("catalog_cohort")
+if (is.na(catalog_cohort) || !nzchar(catalog_cohort)) {
+    catalog_cohort <- mval("cohort")
+}
+metrics[, `:=`(region = mval("region"), population = estimation_group,
+               cohort = mval("cohort"), catalog_cohort = catalog_cohort,
+               estimation_group = estimation_group,
                vmr_set_id = mval("vmr_set_id"),
                upstream_lgv_run_id = mval("upstream_local_genetic_variance_run_id"))]
 
@@ -189,11 +203,18 @@ if (nrow(screen_tab)) {
 ## Per-donor prediction counts: config/prediction.yml requires them, and an
 ## uneven count is the symptom of folds that silently dropped donors.
 per_donor <- preds[, .(n_vmrs_predicted = uniqueN(vmr_id)), by = donor]
+## donor_group labels each row with the cell it was predicted in, so the two
+## donor-group cells can be stacked into one table downstream
+## (_h/07_stack_donor_group_predictions.R) without a positional assumption
+## about which file came from which group.
+per_donor[, `:=`(donor_group = estimation_group, region = mval("region"),
+                 cohort = mval("cohort"))]
 write_atomic(per_donor, file.path(comb_dir, "predictions-per-donor.tsv"))
 
 ## --------------------------------------------------------------------- QC
 qc <- data.table(
-    region = mval("region"), population = mval("cohort"),
+    region = mval("region"), population = estimation_group,
+    cohort = mval("cohort"), catalog_cohort = catalog_cohort,
     expected_vmrs = nrow(tasks),
     scored_vmrs = nrow(metrics),
     failed_vmrs = length(failed),

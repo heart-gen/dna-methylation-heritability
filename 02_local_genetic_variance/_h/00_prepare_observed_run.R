@@ -32,12 +32,34 @@ if (length(missing_cli)) {
 }
 cohort <- cli$cohort
 region <- tolower(cli$region)
-if (!cohort %in% c("AA", "all_individuals")) stop("Unsupported cohort: ", cohort)
-if (!region %in% c("caudate", "dlpfc", "hippocampus")) {
-    stop("Unsupported region: ", region)
-}
+
+## `cohort` is the CELL token. It is either a discovery arm (AA,
+## all_individuals) or an estimation cell (all_individuals.AA,
+## all_individuals.EA) -- a donor group modelled on a locus set discovered
+## somewhere else. config/cohorts.yml is the single source of that list; this
+## stage used to carry a two-element literal, which is what made discovery and
+## estimation the same population by construction.
+## 00_shared/load.R defines repo_root() as a FUNCTION, and it sources its
+## members into the global environment. This script bound `repo_root` to a PATH
+## twenty lines above and uses it in every file.path() below, so sourcing here
+## silently replaces the path with the closure. Save it across the source; the
+## two meanings of the name are the hazard, not the source itself.
+.repo_root_path <- repo_root
+source(file.path(.repo_root_path, "00_shared", "load.R"))
+repo_root <- .repo_root_path
+rm(.repo_root_path)
+
+validate_cohort_region(cohort, region, root = repo_root)
+cell <- parse_cell(cohort, root = repo_root)
+catalog_cohort <- cell$catalog_cohort
+estimation_group <- cell$estimation_group
+
+## The cell token may carry a dot, so it is quoted into the pattern rather than
+## interpolated raw -- otherwise "all_individuals.AA" would also match
+## "all_individualsXAA".
 expected_run_pattern <- paste0(
-    "^lgv-", cohort, "-", region, "-[0-9]{8}[a-z]?$"
+    "^lgv-", gsub(".", "\\.", cohort, fixed = TRUE), "-", region,
+    "-[0-9]{8}[a-z]?$"
 )
 if (!grepl(expected_run_pattern, cli$run_id)) {
     stop("run_id must match ", expected_run_pattern)
@@ -49,9 +71,29 @@ dir.create(runs_root, recursive = TRUE, showWarnings = FALSE)
 run_dir <- file.path(runs_root, cli$run_id)
 if (file.exists(run_dir)) stop("Run directory already exists: ", run_dir)
 
+## An estimation cell is materialized by 01b_estimation_cells, which writes a
+## run satisfying the same directory contract as a Module 01 run (vmr/,
+## covs/, plink_format/). Route by the run-ID prefix rather than by the cohort,
+## so a cell can be smoke-tested against either module while the two coexist.
+upstream_module <- if (startsWith(cli$vmr_run_id, "estcell-")) {
+    "01b_estimation_cells"
+} else {
+    "01_vmr_catalog"
+}
 vmr_run_dir <- file.path(
-    repo_root, "01_vmr_catalog", "_m", "runs", cli$vmr_run_id
+    repo_root, upstream_module, "_m", "runs", cli$vmr_run_id
 )
+if (cell$is_estimation_cell && !identical(upstream_module,
+                                          "01b_estimation_cells")) {
+    stop("Cell '", cohort, "' must consume an 01b_estimation_cells run. ",
+         "A Module 01 run holds the POOLED donors, so Module 02 would silently ",
+         "estimate in the wrong donor set. Got: ", cli$vmr_run_id)
+}
+if (!cell$is_estimation_cell && identical(upstream_module,
+                                          "01b_estimation_cells")) {
+    stop("Arm '", cohort, "' must consume a 01_vmr_catalog run, not ",
+         cli$vmr_run_id)
+}
 vmr_manifest_path <- file.path(vmr_run_dir, "manifest.tsv")
 vmr_catalog_path <- file.path(vmr_run_dir, "vmr", "vmr_catalog.tsv")
 for (path in c(vmr_manifest_path, vmr_catalog_path)) {
@@ -60,15 +102,17 @@ for (path in c(vmr_manifest_path, vmr_catalog_path)) {
 
 ## Module 01 predates the shared `Accepted runs` parser. Its README is still
 ## the record of acceptance, so require the exact run row and its locked gate.
-vmr_readme <- readLines(file.path(repo_root, "01_vmr_catalog", "README.md"),
+## 01b_estimation_cells uses the same README convention and the same gate
+## wording, so one check covers both upstreams.
+vmr_readme <- readLines(file.path(repo_root, upstream_module, "README.md"),
                         warn = FALSE)
 acceptance_row <- vmr_readme[grepl(
     paste0("| `", cli$vmr_run_id, "` |"), vmr_readme, fixed = TRUE
 )]
 if (length(acceptance_row) != 1L ||
     !grepl("all five pass", acceptance_row, fixed = TRUE)) {
-    stop("Module 01 run is not recorded as passing all five gates: ",
-         cli$vmr_run_id)
+    stop("Upstream ", upstream_module, " run is not recorded as passing all ",
+         "five gates: ", cli$vmr_run_id)
 }
 
 vmr_manifest <- read_tsv(vmr_manifest_path)
@@ -77,9 +121,40 @@ manifest_value <- function(field) {
     if (length(value) != 1L) stop("Module 01 manifest lacks unique field: ", field)
     as.character(value[[1L]])
 }
+## The upstream run's own cohort field is the CELL it carries donors for: a
+## Module 01 run is its arm, an 01b run is its cell. Either way it must equal
+## the cell being estimated -- this is what pins Module 02 to the right donors.
 if (!identical(manifest_value("cohort"), cohort) ||
     !identical(tolower(manifest_value("region")), region)) {
-    stop("Requested cohort/region does not match Module 01 manifest")
+    stop("Requested cohort/region does not match the ", upstream_module,
+         " manifest")
+}
+## And, separately, the loci must come from the cell's DISCOVERY arm. For an
+## arm these are the same statement; for an estimation cell they are not, and
+## keeping them separate is what lets AA and EA share one pooled locus set
+## (AGENTS.md 7.7).
+if (cell$is_estimation_cell) {
+    if (!identical(manifest_value("catalog_cohort"), catalog_cohort)) {
+        stop("Cell '", cohort, "' discovers on '", catalog_cohort,
+             "' but its 01b run was built on '",
+             manifest_value("catalog_cohort"), "'")
+    }
+    if (!identical(manifest_value("estimation_group"), estimation_group)) {
+        stop("Cell '", cohort, "' estimates in group '", estimation_group,
+             "' but its 01b run carries '",
+             manifest_value("estimation_group"), "'")
+    }
+}
+
+## The covariate files inside the run carry the DISCOVERY arm's prefix, because
+## that arm's Module 01 run wrote them. locus_io.R cannot infer this from the
+## cell token, so it is resolved once here and travels in the manifest.
+covar_prefix <- if (cell$is_estimation_cell) {
+    manifest_value("covar_prefix")
+} else if (identical(cohort, "AA")) {
+    "TOPMed_LIBD.AA"
+} else {
+    "TOPMed_LIBD"
 }
 if (!identical(toupper(manifest_value("smoke_run")), "FALSE")) {
     stop("Observed production must start from a non-smoke Module 01 run")
@@ -183,6 +258,8 @@ git_commit <- tryCatch(
 manifest <- data.frame(
     field = c(
         "run_id", "analysis", "cohort", "region", "started_at",
+        "catalog_cohort", "estimation_group", "covar_prefix",
+        "upstream_module", "upstream_catalog_run_id",
         "git_commit", "smoke_run", "upstream_vmr_run_id", "vmr_set_id",
         "ordered_donor_checksum", "n_donors", "n_expected_tasks",
         "vmrs_per_chunk", "n_expected_chunks", "smoke_selection",
@@ -193,7 +270,14 @@ manifest <- data.frame(
     ),
     value = c(
         cli$run_id, "02_local_genetic_variance", cohort, region,
-        format(Sys.time(), "%Y-%m-%dT%H:%M:%S%z"), git_commit,
+        format(Sys.time(), "%Y-%m-%dT%H:%M:%S%z"),
+        catalog_cohort, estimation_group, covar_prefix,
+        upstream_module,
+        ## For a cell, the Module 01 run its loci actually came from. Provenance
+        ## has to reach past 01b or the locus set is unattributable.
+        if (cell$is_estimation_cell) manifest_value("upstream_vmr_catalog")
+        else cli$vmr_run_id,
+        git_commit,
         toupper(as.character(smoke_run)), cli$vmr_run_id,
         manifest_value("vmr_set_id"), manifest_value("donor_checksum"),
         manifest_value("n_donors"), nrow(tasks), vmrs_per_chunk,

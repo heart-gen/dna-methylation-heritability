@@ -27,6 +27,16 @@ cannot be built.
 AA is the primary arm; `all_individuals` renders from the same builders as the
 sensitivity supplement.
 
+### Not yet built: the environmental supplement
+
+`10_environmental_exploratory` emits `control-axis-test.tsv` and
+`exposure-eligibility.tsv`, which a supplemental `figureS_environmental_axis`
+would render. It is gated on an accepted `env-*` run (AGENTS.md §6) and is not
+implemented. Whatever it becomes, it is a supplemental panel: the module's
+decision row carries `main_text_retention = NEVER_SUPPLEMENT_ONLY`, and AGENTS.md
+§2.3 forbids exposure results from defining the title, abstract, primary groups
+or main causal interpretation.
+
 ### Figure 2 constraint
 
 Module 02's terminal decision is

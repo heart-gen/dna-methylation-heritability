@@ -1,0 +1,303 @@
+# Exploratory environmental-factor analysis (10_environmental_exploratory)
+#
+# PI decision 2026-09-10, closing the AGENTS.md 12 bullet "whether exposure
+# analyses remain supplemental or are removed": RETAINED, as an exploratory
+# supplemental module.
+#
+# The v1 tree at environmental-analysis/ is withdrawn for one specific reason,
+# not because the question was wrong. Every v1 endpoint grouped VMRs by
+# `h2_category`, derived in 00.prepare_data.R from `h2_unscaled` and
+# `r_squared_cv` -- both retired by AGENTS.md 3, and the
+# genetically-anchored-vs-exposure-associated binary itself banned by 2.3. What
+# migrates is the exposure -> methylation scan. What does not is the
+# classification it was read against.
+#
+# AGENTS.md 2.3 sets the ceiling: exposure results "may be retained only as
+# descriptive or sensitivity analyses in the supplement. They must not define
+# the title, abstract, primary groups, or main causal interpretation."
+
+pi_locked: true
+
+# ---------------------------------------------------------------------------
+# Exposures
+# ---------------------------------------------------------------------------
+# Every binary exposure is a composite with one missingness convention: all
+# source columns NA -> NA, otherwise the logical OR. Composites exist because
+# the individual columns are unpowered (see `retired` below), not because
+# aggregation is biologically preferable.
+exposures:
+
+  binary:
+    # smoking and nicotine are NOT combined. PI, 2026-09-10: nicotine is
+    # toxicology (use at or near death) and smoking is lifetime history. They
+    # are different exposure windows and a union is not biologically meaningful.
+    #
+    # They are also empirically distinct: among AA donors they disagree for 28
+    # of 164 -- 25 with a smoking history but negative toxicology (quit, or not
+    # recent), 3 the reverse. Testing both is two questions, not one signal
+    # counted twice, and each gets its own BH family.
+    smoking:
+      source_columns: [smoking]
+      window: lifetime_history
+      label: Lifetime smoking history
+      caveat: >
+        STRONGLY CONFOUNDED WITH DIAGNOSIS. Clinically expected and confirmed
+        here: 72% of AA schizophrenia donors have a smoking history (50/69)
+        against 28% of controls (27/96). Two consequences.
+        Pooled, adjusting for primarydx cannot be assumed to remove this --
+        residual confounding by diagnosis is the leading explanation for any
+        pooled smoking association, ahead of an effect of smoking.
+        Within the schizophrenia stratum the minor class is the 19 NON-smokers
+        of 65, who are clinically atypical for the diagnosis; a within-case
+        smoking contrast is a comparison against an unusual group, not a clean
+        exposure contrast. Interpret in that direction, never the reverse.
+    nicotine:
+      source_columns: [nicotine]
+      window: toxicology_at_death
+      label: Nicotine positive at death
+      rationale: >
+        Recent use rather than lifetime history, and better balanced inside the
+        schizophrenia stratum than smoking (31 vs 37 in caudate). It is the only
+        exposure eligible in the schizophrenia stratum of all three regions.
+    any_substance_nontobacco:
+      source_columns: [codeine, morphine, cocaine, amphetamines, ethanol]
+      window: toxicology_at_death
+      label: Any non-tobacco psychoactive substance
+      rationale: >
+        A substance-exposure BURDEN INDICATOR, not a pharmacological class. An
+        opioid-positive and an alcohol-positive donor share no mechanism; this
+        composite exists only because neither class clears the eligibility gate
+        alone. No statement about opioids, stimulants or alcohol individually is
+        licensed by a result on this variable.
+      caveat: >
+        Eligible in AA caudate only (26 exposed, 0.6% missing). dlpfc and
+        hippocampus return 19 against a gate of 20 -- one donor short of an
+        arbitrary line, and flagged near_gate for that reason. Report the
+        exclusion with the count, never as a clean threshold.
+
+    antipsychotics:
+      source_columns: [antipsychotics]
+      window: clinical_record
+      label: Antipsychotic exposure
+      collider: true
+      rationale: >
+        Downstream of diagnosis, which is in the locus model, so conditioning on
+        diagnosis opens a collider path. Descriptive only; see
+        writing-notes/schizophrenia_vmr_sensitivity_strategy.md.
+      strata: [schizophrenia]
+      caveat: >
+        PI, 2026-09-10: there are ZERO exposed controls (AA: Control 59 FALSE /
+        0 TRUE / 41 NA; Schizo 19 FALSE / 49 TRUE / 1 NA). The entire contrast
+        already lives inside the schizophrenia stratum, so a pooled test would
+        launder a within-case comparison through a collider and report it as a
+        population-level exposure effect. Restricted to the schizophrenia
+        stratum, where primarydx is constant and the collider path is closed by
+        construction rather than by adjustment.
+        Its pooled missingness (23-27%) was never random: annotation is
+        diagnosis-dependent throughout this metadata, and it is the CONTROL
+        stratum that is thinly annotated (61-83% across clinical variables)
+        rather than Schizo (88-100%).
+
+    any_trauma_hx:
+      source_columns:
+        [hx_sexual_abuse, hx_physical_abuse, hx_other_trauma, hx_military_service]
+      window: lifetime_history
+      label: Any trauma history
+      rationale: v1 composite, carried over unchanged.
+      caveat: >
+        Pooled, it fails the missingness ceiling in every AA region (16.2% /
+        16.8% / 16.1%). Stratifying fixes the CAUSE rather than relaxing the
+        limit: the missingness is concentrated in controls (23.6%) and is only
+        6.2% inside the schizophrenia stratum, where it clears the gate in
+        caudate at 22 exposed of 65. That is the stratum it is testable in.
+
+  categorical:
+    education:
+      source_column: education
+      collapse:
+        less_than_hs: ["Less than 7th", "7th", "8th", "9th", "10th", "11th", "12th"]
+        hs: ["H.S. diploma", "GED"]
+        more_than_hs:
+          ["1 yr college", "3 yrs college", "Associate's or 2 yrs college",
+           "Bachelor's", "Master's", "JD", "MD", "PhD"]
+    marital_status:
+      source_column: marital_status
+      collapse:
+        single: [Single]
+        married: [Married]
+        previously_married: [Divorced, Separated, Widowed]
+
+  # Not tested, with the reason and the counts, so the exclusion is auditable
+  # from configuration rather than inferred from an absence. Counts are AA,
+  # positives / non-missing, caudate | dlpfc | hippocampus.
+  retired:
+    fentanyl:
+      reason: zero_variance
+      counts: "0 positives in the entire phenotype table, either cohort"
+    lifetime_antipsych:
+      reason: perfect_proxy_for_diagnosis
+      counts: "Control 76 FALSE / 0 TRUE; Schizo 0 FALSE / 68 TRUE (AA, 2026-09-10)"
+      note: >
+        Not a power problem. This column IS primarydx, recoded. It carries no
+        information about exposure beyond the diagnosis already in the locus
+        model, in any stratum, at any sample size. It appears in
+        config/covariates.yml:sensitivity_covariates.clinical; it must never be
+        used as an exposure here.
+    cocaine:      { reason: below_eligibility_gate, counts: "2/153 | 1/119 | 1/118" }
+    codeine:      { reason: below_eligibility_gate, counts: "4/153 | 4/119 | 4/118" }
+    morphine:     { reason: below_eligibility_gate, counts: "5/153 | 4/119 | 4/118" }
+    amphetamines: { reason: below_eligibility_gate, counts: "7/152 | 5/117 | 5/116" }
+    ethanol:      { reason: below_eligibility_gate, counts: "13/152 | 9/119 | 9/118" }
+    # Mechanistically coherent groupings were tried and do not recover power.
+    # Recorded so the attempt is not silently repeated.
+    opioids:
+      reason: below_eligibility_gate
+      definition: codeine | morphine | fentanyl
+      counts: "7/153 | 6/119 | 6/118"
+    psychostimulants:
+      reason: below_eligibility_gate
+      definition: cocaine | amphetamines
+      counts: "9/153 | 6/119 | 6/118"
+
+# ---------------------------------------------------------------------------
+# Eligibility gate
+# ---------------------------------------------------------------------------
+# This is the concrete statement of the power limitation that demoted the
+# analysis from primary to exploratory. Evaluated per cohort x region; the
+# result is written to results/exposure-eligibility.tsv with the counts.
+# ---------------------------------------------------------------------------
+# Strata
+# ---------------------------------------------------------------------------
+# PI decision 2026-09-10. Annotation in this metadata is diagnosis-dependent for
+# every clinically-derived variable, and it is the control stratum that is thin.
+# Two consequences: some exposures are only measurable inside cases, and one
+# (antipsychotics) has no exposed controls at all, so its pooled "effect" is a
+# within-case contrast wearing a population-level label.
+#
+# A control stratum is deliberately NOT declared: only tobacco clears the gate
+# in controls, and tobacco is already eligible pooled, so it would add a BH
+# family without adding a testable exposure.
+strata:
+  all:
+    label: All donors
+    dx_filter: null
+    # primarydx is a covariate here, as in every other v2 locus model.
+    include_diagnosis_covariate: true
+  schizophrenia:
+    label: Schizophrenia donors only
+    dx_filter: [Schizo]
+    # primarydx is constant inside this stratum; keeping it would make the
+    # design matrix rank-deficient.
+    include_diagnosis_covariate: false
+
+eligibility:
+  min_minor_class_n: 20
+  max_missing_frac: 0.15
+
+  # PI decision 2026-09-10. A count floor means different things at different
+  # sample sizes, and the stratified floor is the PROPORTIONALLY STRICTER of the
+  # two, not a relaxation:
+  #
+  #   pooled       20 of 153 donors  = 13.1% of the cell
+  #   stratified   15 of  65 (Schizo caudate) = 23.1%
+  #                15 of  48 (Schizo dlpfc/hippocampus) = 31.3%
+  #
+  # So a stratified exposure must clear a HIGHER bar as a fraction of its donors
+  # than a pooled one. That is the justification, and it holds independently of
+  # any count that was observed.
+  #
+  # For the record: the number was set after the stratified counts were seen.
+  # The reasoning above does not depend on them, and the pooled floor of 20 was
+  # locked before any count was seen. Do not lower either without a new PI
+  # decision.
+  stratified:
+    min_minor_class_n: 15
+    max_missing_frac: 0.15
+    decided_on: 2026-09-10
+    decided_after_seeing_counts: true
+  # A categorical exposure needs min_minor_class_n in its SMALLEST retained
+  # level, on the same reasoning.
+  applies_to_categorical_levels: true
+
+# ---------------------------------------------------------------------------
+# Models
+# ---------------------------------------------------------------------------
+covariates:
+  # Matches 00_shared/locus_io.R::load_locus_phenotype, which is what actually
+  # builds the design matrix -- this key documents it, it does not define it.
+  #
+  # No genotype PCs for the AA and all_individuals ARMS: population structure
+  # was removed upstream by residualizing methylation on pooled snpPC1-3 during
+  # VMR discovery (config/covariates.yml:vmr_calling.genotype_pcs). An
+  # estimation CELL carries covs/genotype_pcs.tsv from a within-group PCA, and
+  # load_locus_phenotype() picks it up automatically. v1 used a global African
+  # ancestry proportion here instead; that is superseded.
+  locus_model: [agedeath, sex, primarydx]
+  genotype_pcs_from_cell_file: true
+
+testing:
+  architecture_predictor: local_snp_contribution_score_z
+  # AGENTS.md 10.3: "FDR families are not combined after inspection."
+  #
+  # Stage A: one BH family per exposure x STRATUM pair, over the VMRs tested for
+  # that pair. The same exposure tested pooled and within cases is two questions
+  # on two donor sets, not one family split in half.
+  #
+  # Stage B: one test per pair, corrected within stratum and within model type.
+  # Pooling strata would make each stratum's family size depend on how many
+  # exposures happened to clear the gate in the other one.
+  separate_fdr_family: true
+  fdr_family_key: [exposure, stratum]
+  fdr_alpha: 0.05
+  # The headline statement is the threshold-free continuous model, so it does
+  # not depend on where the FDR cut lands. The two grouped tests are secondary.
+  primary_axis_model: continuous_neglog10p_on_score_z
+  secondary_axis_models: [wilcoxon_rank, logistic_on_significant]
+  axis_covariates:
+    [vmr_length, cpg_count, cpg_density, gc_content, mappability,
+     mean_methylation, methylation_variance]
+
+# Any of these appearing in an input is a hard stop (AGENTS.md 3). These are
+# withdrawn quantities: their presence in an upstream table means the upstream
+# regressed, so failing on sight is right.
+forbidden_columns:
+  - r_squared_cv
+  - h2_unscaled
+  - h2_en_calibrated
+  - h2_category
+
+# NOT the same thing. AGENTS.md 7.2 deliberately keeps the raw estimate inside
+# Module 02 runs "for audit only", so it is EXPECTED in the upstream table and
+# stopping on it would be wrong. What must not happen is its reaching a model or
+# a reported number, so every stage drops these columns at read time rather than
+# trusting itself not to name them.
+audit_only_columns:
+  - pve_cis_joint_calibrated
+
+# ---------------------------------------------------------------------------
+# Interpretation
+# ---------------------------------------------------------------------------
+# Carried onto every emitted row by 04_apply_gates.R, so a downstream consumer
+# inherits the constraint from the data rather than from prose it may not read.
+interpretation:
+  exploratory_supplement_only: true
+  causal_interpretation_allowed: false
+  absolute_pve_interpretation_allowed: false
+  cross_region_comparison_allowed: false
+  collider_flagged_exposures: [antipsychotics]
+  burden_indicator_exposures: [any_substance_nontobacco]
+  null_result_meaning: >
+    A null or negative axis result is NOT evidence that a VMR is environmentally
+    determined. AGENTS.md 2.3: "Low local SNP variance or poor SNP prediction is
+    not evidence that a VMR is environmentally determined." This module cannot
+    distinguish an unmeasured exposure from no exposure effect, and it is
+    powered to detect only large effects of common exposures.
+  cross_region_rationale: >
+    Caudate is sequencing batch 3 and region is perfectly confounded with batch
+    (AGENTS.md 8.1). A single-region result is unexposed to that confound; a
+    caudate-vs-other-region exposure difference is uninterpretable. Every result
+    here is region-specific and no cross-region contrast is emitted.
+
+gates:
+  min_eligible_exposures: 1
+  min_tested_vmrs: 500

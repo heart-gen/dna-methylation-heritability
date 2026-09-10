@@ -35,14 +35,29 @@ mval <- function(field) {
     if (length(value) != 1L) stop("Run manifest lacks unique field: ", field)
     as.character(value[[1L]])
 }
+## Fields added 2026-09-10 for donor-group estimation cells. Runs opened before
+## that date do not carry them, and the defaults ARE the behaviour those runs
+## had, so a sealed run reproduces unchanged.
+mval_or <- function(field, default) {
+    value <- manifest$value[manifest$field == field]
+    if (length(value) != 1L) return(default)
+    value <- as.character(value[[1L]])
+    if (is.na(value) || !nzchar(value)) default else value
+}
 scenarios <- read_tsv(file.path(run_dir, "config", "scenario-manifest.tsv"))
 chunks <- read_tsv(file.path(run_dir, "config", "chunk-manifest.tsv"))
 wanted <- chunks$scenario_id[chunks$chunk_id == chunk_id]
 if (!length(wanted)) stop("No scenarios for chunk ", chunk_id)
 
 repo_root <- normalizePath(file.path(h_dir, "..", ".."))
+## Cell identity, carried from the geometry scan through Stage 07's manifest.
+## Resolving it from config here is not possible: this stage runs in the
+## estimator env, which has no yaml. Defaults are the pre-2026-09-10 behaviour.
+upstream_module <- mval_or("upstream_module", "01_vmr_catalog")
+estimation_group <- mval_or("estimation_group", mval("cohort"))
+covar_prefix <- mval_or("covar_prefix", NULL)
 vmr_run_dir <- file.path(
-    repo_root, "01_vmr_catalog", "_m", "runs", mval("upstream_vmr_run_id")
+    repo_root, upstream_module, "_m", "runs", mval("upstream_vmr_run_id")
 )
 threshold_lines <- readLines(file.path(run_dir, "config", "thresholds.yml"),
                              warn = FALSE)
@@ -104,7 +119,9 @@ get_locus <- function(scenario) {
     locus <- load_observed_locus(
         task = scenario, cohort = cohort, vmr_run_dir = vmr_run_dir,
         min_cis_variants = min_cis_variants, expected_n = expected_n,
-        backing_tag = paste0("lgvreg-", scenario$locus_id)
+        backing_tag = paste0("lgvreg-", scenario$locus_id),
+        covar_prefix = covar_prefix,
+        estimation_group = estimation_group
     )
     rm(list = ls(locus_cache), envir = locus_cache)
     locus_cache[[key]] <- locus

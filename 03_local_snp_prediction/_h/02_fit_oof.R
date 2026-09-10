@@ -116,8 +116,24 @@ vmr_run <- mval("upstream_vmr_catalog_run_id")
 if (is.na(vmr_run) || !nzchar(vmr_run)) {
     stop("Run manifest carries no upstream_vmr_catalog_run_id; rerun 00_new_run.R")
 }
-vmr_run_dir <- file.path(repo_root(), "01_vmr_catalog", "_m", "runs", vmr_run)
-if (!dir.exists(vmr_run_dir)) stop("Upstream 01 run not found: ", vmr_run_dir)
+## 01b_estimation_cells for a donor-group cell, 01_vmr_catalog for an arm. Same
+## directory contract either way; only the donors inside it differ.
+vmr_module <- mval("upstream_vmr_module")
+if (is.na(vmr_module) || !nzchar(vmr_module)) vmr_module <- "01_vmr_catalog"
+vmr_run_dir <- file.path(repo_root(), vmr_module, "_m", "runs", vmr_run)
+if (!dir.exists(vmr_run_dir)) {
+    stop("Upstream ", vmr_module, " run not found: ", vmr_run_dir)
+}
+
+## Cell identity, carried from 02 through 03's own manifest so both modules
+## resolve the same files. Absent on pre-2026-09-10 runs, where the estimation
+## group is the cohort and locus_io.R's own prefix fallback is correct.
+estimation_group <- mval("estimation_group")
+if (is.na(estimation_group) || !nzchar(estimation_group)) {
+    estimation_group <- cohort
+}
+covar_prefix <- mval("covar_prefix")
+if (is.na(covar_prefix) || !nzchar(covar_prefix)) covar_prefix <- NULL
 
 #' Fit-on-train / apply-to-test genotype preprocessing.
 #'
@@ -204,7 +220,9 @@ for (tid in task_ids) {
             cohort = cohort, vmr_run_dir = vmr_run_dir,
             min_cis_variants = MIN_CIS_VARIANTS, backing_tag = "lsp",
             ## Every data-dependent genotype filter happens inside the fold.
-            apply_snp_qc = FALSE
+            apply_snp_qc = FALSE,
+            covar_prefix = covar_prefix,
+            estimation_group = estimation_group
         )
         if (!identical(locus$status, "ok")) {
             ## Excluded or QC-failed upstream is a documented outcome, not a
