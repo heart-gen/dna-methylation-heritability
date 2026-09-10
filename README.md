@@ -55,6 +55,7 @@ legacy directory maps onto them.
 | `07_transcription_splicing_coupling/` | Expression and splicing coupling |
 | `08_region_donor_generalization/` | Cross-region and donor-group generalization |
 | `09_schizophrenia_risk_application/` | Schizophrenia-risk application |
+| `10_environmental_exploratory/` | Exploratory exposure associations (supplement only) |
 | `11_integrated_manuscript_outputs/` | Manuscript tables, figures, and number registry |
 | `config/` | Shared configuration for the above |
 
@@ -78,7 +79,7 @@ E1 (`r_squared_cv` is an in-sample fit, not prediction accuracy).
 | `calibrated-simulation-analysis/` | Calibrated variance estimator → `02_local_genetic_variance/` |
 | `local-snp-prediction/` | Legacy elastic-net prediction → `03_local_snp_prediction/` |
 | `meqtl-validation/` | CpG meQTL mapping, burden, repeat/cell sensitivities, Phase 7 → modules 04–09 |
-| `environmental-analysis/` | Environmental proxy associations (supplemental at most) |
+| `environmental-analysis/` | Environmental proxy associations → `10_environmental_exploratory/` (exposure scan only; the `h2_category` grouping is withdrawn, not migrated) |
 | `simulation-analysis/` | Validation simulations and method comparisons |
 | `sensitivity-analysis/` | Stacked/Venn/Sankey figures (withdrawn; depend on `r_squared_cv > 0.75`) |
 | `qc_analysis/` | Quality control and replication cohort analysis |

@@ -184,6 +184,7 @@ New v2 work lives in numbered modules at the **repository root**:
 ├── 07_transcription_splicing_coupling/
 ├── 08_region_donor_generalization/
 ├── 09_schizophrenia_risk_application/
+├── 10_environmental_exploratory/
 └── 11_integrated_manuscript_outputs/
 ```
 
@@ -270,7 +271,7 @@ Recommended mapping:
 | donor-group, cross-region, and downsampling modules | `08_region_donor_generalization/` |
 | `meqtl-validation/08_schizophrenia_risk_application/` | `09_schizophrenia_risk_application/` |
 | manuscript figures and consolidated tables | `11_integrated_manuscript_outputs/` |
-| `environmental-analysis/` | remove before submission unless an approved supplemental sensitivity is migrated |
+| `environmental-analysis/` | `10_environmental_exploratory/` (exposure scan only; the `h2_category` grouping is not migrated) |
 
 Do not duplicate region- or cohort-specific copies of the same code. Refactor
 shared logic into parameterized functions in `00_shared/` or the owning
@@ -289,7 +290,8 @@ Analyses must run in this order:
 7. `07_transcription_splicing_coupling`
 8. `08_region_donor_generalization`
 9. `09_schizophrenia_risk_application`
-10. `11_integrated_manuscript_outputs`
+10. `10_environmental_exploratory`
+11. `11_integrated_manuscript_outputs`
 
 `06_partitioned_heritability` depends only on an accepted `02_local_genetic_variance`
 score; its position in this list is a total order, not a claim that it consumes 03-05.
@@ -650,6 +652,66 @@ hits must be labeled exploratory.
 Do not claim mediation, causality, or colocalization unless the corresponding
 analysis has been run with adequate ancestry-matched LD and passes its own gate.
 
+### 7.10 `10_environmental_exploratory`: exploratory exposure associations
+
+**PI decision 2026-09-10**, closing the §12 bullet "whether exposure analyses
+remain supplemental or are removed": **retained, as an exploratory supplemental
+module.** §2.3 sets the ceiling and does not move -- exposure results "may be
+retained only as descriptive or sensitivity analyses in the supplement. They
+must not define the title, abstract, primary groups, or main causal
+interpretation."
+
+The v1 tree is withdrawn for one reason only: every v1 endpoint read exposure
+associations against `h2_category`, built from `h2_unscaled` and
+`r_squared_cv`. Those metrics are retired (§3) and the binary they encode is
+banned (§2.3). The scan migrates; the classification does not, and
+`environmental-analysis/all_individuals/tissue_compare/non_heritable_subgroup/`
+-- which *is* that classification -- stays withdrawn.
+
+Two stages:
+
+- **A, descriptive:** per-VMR `meth ~ exposure + age + sex + diagnosis`, over
+  Module 02's eligible loci, with **one BH family per exposure x stratum pair**
+  (§10.3).
+- **B, the axis:** whether exposure-association strength varies along the
+  continuous `local_snp_contribution_score_z`. The primary model is
+  threshold-free (`-log10(p) ~ score_z + technical covariates`) so the headline
+  does not depend on an FDR cut; the rank and logistic forms are secondary.
+
+Requirements:
+
+- prespecify an exposure-eligibility gate and write every variable's counts and
+  its pass/fail reason to the run, so exclusions are auditable rather than
+  silent;
+- run two strata, `all` and `schizophrenia`. **Annotation in this metadata is
+  diagnosis-dependent, and the control stratum is the thin one** (61-83%
+  coverage across clinical variables, against 88-100% in cases), so pooled
+  missingness must not be treated as random. `antipsychotics` has zero exposed
+  controls and is restricted to the schizophrenia stratum; a pooled test would
+  present a within-case contrast as a population-level exposure effect.
+  `lifetime_antipsych` is retired outright -- it is `primarydx` recoded
+  (Control 76/0, Schizo 0/68) and can never be an exposure;
+- drop `primarydx` from the locus model inside a single-diagnosis stratum: it is
+  constant, and the collider path is closed by the restriction rather than by
+  adjustment;
+- reuse `00_shared/locus_io.R::load_locus_phenotype()` for the covariate model,
+  so an exposure association conditions on what a local-genetic-control estimate
+  conditions on;
+- carry `exploratory_supplement_only = TRUE` and
+  `environmentally_determined_claim_allowed = FALSE` on every emitted row;
+- report region-specific results only. §8.1 makes region inseparable from
+  sequencing batch, so no cross-region exposure contrast is emitted.
+
+Prohibited: heritable/non-heritable groups; any legacy metric; any claim that a
+VMR is environmentally determined. **A null or negative axis result is not
+evidence of environmental determination** -- §2.3 is explicit that low local SNP
+variance does not imply it, and the converse holds here. This module is powered
+only for large effects of common exposures, and the eligibility gate is where
+that limitation is made concrete rather than asserted.
+
+The acceptance gate is a **coverage** gate, not a success criterion: a null
+result is a legitimate outcome and must not block sealing.
+
 ### 7.11 `11_integrated_manuscript_outputs`: one source of truth
 
 This module consumes only accepted immutable upstream runs and creates:
@@ -826,7 +888,9 @@ Record these in versioned configuration or a GitHub issue before production:
 - RepeatMasker version and L1 subfamily definitions;
 - primary genomic-enrichment model;
 - Phase 7 success criteria and prioritized-locus rule;
-- whether exposure analyses remain supplemental or are removed;
+- whether exposure analyses remain supplemental or are removed
+  (**decided 2026-09-10: supplemental, as `10_environmental_exploratory`; see
+  §7.10 and `config/environmental.yml`**);
 - prespecified interpretation threshold for VMR turnover.
 
 Agents may recommend defaults but must not silently make these scientific
