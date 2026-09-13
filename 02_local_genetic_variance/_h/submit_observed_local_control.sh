@@ -79,7 +79,13 @@ if [[ "${DRY_RUN,,}" == "true" ]]; then
     exit 0
 fi
 
+## V2_REPO_ROOT must reach the compute nodes. observed_locus_io.R resolves
+## 00_shared/locus_io.R as file.path(Sys.getenv("V2_REPO_ROOT", "."), ...),
+## and the step_*.sh wrappers do not source 00_shared/slurm.sh, so without
+## this the fallback is the SUBMIT DIRECTORY: the grid then works only when
+## launched from the repository root and dies on every array task otherwise.
 EXPORTS="ALL,LGV_RUN_DIR=${RUN_DIR},LGV_H_DIR=${H_DIR},CAL_H2_ENV=${ENV_PATH}"
+EXPORTS="${EXPORTS},V2_REPO_ROOT=${REPO_DIR}"
 
 submit_step() {
     local dependency=$1
