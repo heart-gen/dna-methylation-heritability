@@ -41,16 +41,31 @@ if (!all(domain_fields %in% names(development))) {
 }
 
 ## The domain is the support over which the frozen model has actually been
-## characterised, which is the union of the AR(1) training grid and the
-## 2026-08-22 observed-regime grid. Bounding p_eff only by its mathematical
-## range [1, n] made this gate blind: it passed every eligible locus of
-## lgv-AA-caudate-20260822 while 18.75% of them sat below the AR(1) minimum
-## p_eff of 24.34, a regime the training grid never visited.
+## characterised for THIS CELL: the union of the AR(1) training grid and only
+## this cell's own observed-regime grids. Bounding p_eff only by its
+## mathematical range [1, n] made this gate blind: it passed every eligible
+## locus of lgv-AA-caudate-20260822 while 18.75% of them sat below the AR(1)
+## minimum p_eff of 24.34, a regime the training grid never visited.
+##
+## Selecting the cell is not cosmetic. A support table pooled across cells lets
+## one donor group widen another's eligibility domain -- admitting the EA cells
+## dropped the shared p_eff floor from 2.058 to 1.344 -- and LD structure and
+## MAF spectrum differ between donor groups, so that borrowing is not
+## defensible. A table without a `cell` column is a pre-2026-09-13 pooled
+## table; refuse it rather than silently reinstating the union.
 support <- read_tsv(file.path(run_dir, "config",
                               "joint-pve-characterized-support.tsv"))
-required_support <- c("feature", "support_min", "support_max", "allowed_n")
+required_support <- c("cell", "feature", "support_min", "support_max",
+                      "allowed_n")
 if (!all(required_support %in% names(support))) {
-    stop("Characterized-support table lacks required columns")
+    stop("Characterized-support table lacks required columns (needs a per-cell",
+         " table with a `cell` column): ",
+         paste(setdiff(required_support, names(support)), collapse = ", "))
+}
+run_cell <- mval("cohort")
+support <- support[as.character(support$cell) == run_cell, , drop = FALSE]
+if (!nrow(support)) {
+    stop("Characterized-support table has no rows for cell: ", run_cell)
 }
 if (!all(c("num_snps", "p_eff", "ld_metric") %in% support$feature)) {
     stop("Characterized-support table lacks a required feature")

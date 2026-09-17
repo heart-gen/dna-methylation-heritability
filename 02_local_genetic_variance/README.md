@@ -550,3 +550,69 @@ Rscript _h/14_combine_donor_group_cells.R --region dlpfc \
 ```
 
 Both runs must already appear in the Accepted runs table above.
+
+### Reliability ceiling — `_h/16_reliability_ceiling.R`
+
+A cross-cell rank correlation from Stage 14 must not be reported on its own. Two
+different things depress it and they mean opposite things: the donor groups
+genuinely differ, or neither cell can reproduce its own ordering. Spearman 0.55
+is strong evidence of shared architecture against a ceiling of 0.6 and evidence
+of nothing against a ceiling of 0.95.
+
+Stage 16 supplies that ceiling. Per cell it computes the classical
+measurement-error reliability
+
+```
+lambda = (var(estimate) - mean(sampling variance)) / var(estimate)
+```
+
+on the shared eligible locus set, from `bslmm_pve`'s posterior interval
+(`bslmm_pve_q975 - bslmm_pve_q025`, converted to a posterior SD) and
+independently from `he_se`. Under the usual attenuation argument two independent
+estimates of one underlying ordering correlate at `sqrt(lambda_1 * lambda_2)`,
+which is the ceiling the observed cross-cell Spearman is divided by. The output
+carries `concordance_fraction_of_ceiling_*`; that fraction, not the raw
+Spearman, is what a concordance claim rests on.
+
+Usage (one run for a per-cell reliability, two for the ceiling):
+
+```bash
+Rscript _h/16_reliability_ceiling.R --region dlpfc \
+  --run-ids lgv-all_individuals.AA-dlpfc-20260913,lgv-all_individuals.EA-dlpfc-20260911
+```
+
+It refuses two runs from different discovery catalogs or with different
+`vmr_set_id`, so `AA` versus `all_individuals` cannot be passed to it
+(AGENTS.md §7.7).
+
+**These are analytic upper bounds, not measurements**, and the bound must travel
+with the number:
+
+- The available per-locus uncertainty is for the *input features*, not for
+  `pve_cis_joint_unbounded`, which is what Stage 04 ranks. The output reports
+  `cor_bslmm_with_score_basis` and `cor_he_with_score_basis` so the reader can
+  see how far that transfer is being stretched (0.90–0.93 and 0.81–0.83 in the
+  EA cells).
+- BSLMM's posterior SD is a shrunk Bayesian interval rather than a frequentist
+  sampling SE, so `lambda_bslmm` is optimistic. `he_se` is frequentist, but HE's
+  estimate is unbounded and its between-locus variance carries tails the score
+  basis does not, so `lambda_he` is optimistic from the other direction. They
+  are reported separately and must never be averaged.
+
+Per-cell values for the three sealed EA cells, which behave as sample size
+predicts and are the main internal check that the quantity is measuring what it
+claims:
+
+| cell | region | n | eligible loci | lambda_bslmm | lambda_he |
+|---|---|---|---|---|---|
+| all_individuals.EA | caudate | 129 | 11248 | 0.956 | 0.988 |
+| all_individuals.EA | hippocampus | 60 | 9135 | 0.817 | 0.931 |
+| all_individuals.EA | dlpfc | 55 | 9140 | 0.786 | 0.921 |
+
+The confirmatory design is an empirical split-half: re-materialize each cell as
+two disjoint donor halves through `01b_estimation_cells`, re-estimate, and
+correlate the halves' within-half rank scores with a Spearman–Brown adjustment
+back to full `n`. That measures the joint estimator end to end and needs no
+transfer argument, but it costs a full re-estimation per half and at
+`all_individuals.EA × dlpfc` the halves are n=27 and n=28. It has not been run.
+Until it is, the ceiling is a bound and the manuscript must say so.
