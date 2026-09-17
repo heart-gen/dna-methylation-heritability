@@ -40,8 +40,7 @@ gene-proximal, accessible chromatin).
 ### Active revision (v2)
 
 The revision is organized as numbered modules that run in dependency order.
-See `AGENTS.md` for the governing rules and `MIGRATION_MANIFEST.tsv` for how each
-legacy directory maps onto them.
+See `MIGRATION_MANIFEST.tsv` for how each legacy directory maps onto them.
 
 | Directory | Description |
 |---|---|
