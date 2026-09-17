@@ -50,7 +50,8 @@ module_root <- file.path(V2_ROOT, "02_local_genetic_variance")
 CELL_COLS <- c(
     "n", "num_snps", "n_variants", "snps_in_window", "p_eff", "ld_metric",
     "mean_methylation", "methylation_variance",
-    "bslmm_pve", "he_h2", "he_se", "he_pvalue", "rho2_oof", "r2_oof",
+    "bslmm_pve", "bslmm_pve_q025", "bslmm_pve_q975",
+    "he_h2", "he_se", "he_pvalue", "rho2_oof", "r2_oof",
     "feature_complete", "computational_failure", "terminal_status",
     "exclusion_reason", "joint_pve_domain_status",
     "pve_cis_joint_unbounded", "pve_cis_joint_calibrated",

@@ -78,7 +78,13 @@ n <- loci * length(strsplit(v("architectures"), ",")[[1]]) *
 cat(ceiling(n / as.integer(v("scenarios_per_chunk"))))
 ' "${MODULE_DIR}/config/observed-regime-20260822.tsv")
 
+## V2_REPO_ROOT must reach the compute nodes. observed_locus_io.R resolves
+## 00_shared/locus_io.R as file.path(Sys.getenv("V2_REPO_ROOT", "."), ...),
+## and the step_*.sh wrappers do not source 00_shared/slurm.sh, so without
+## this the fallback is the SUBMIT DIRECTORY: the grid then works only when
+## launched from the repository root and dies on every array task otherwise.
 EXPORTS="ALL,LGV_GEOMETRY_DIR=${GEOMETRY_DIR},LGV_RUN_DIR=${REGIME_DIR}"
+EXPORTS="${EXPORTS},V2_REPO_ROOT=${REPO_DIR}"
 EXPORTS="${EXPORTS},LGV_H_DIR=${H_DIR},CAL_H2_ENV=${ENV_PATH}"
 EXPORTS="${EXPORTS},LGV_REGIME_RUN_ID=${REGIME_RUN_ID},LGV_COHORT=${COHORT}"
 EXPORTS="${EXPORTS},LGV_REGION=${REGION},LGV_VMR_RUN_ID=${VMR_RUN_ID}"
