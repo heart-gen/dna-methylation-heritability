@@ -592,6 +592,52 @@ The cells differ in sample size (EA is roughly half of AA in each region), MAF
 spectrum, LD, and SNP availability. Those must be eliminated before any
 difference is discussed, per the paragraph below.
 
+**Inference policy locked 2026-09-18.** `config/analysis_thresholds.yml:donor_group`
+now states the restriction positively and enforceably:
+
+```yaml
+donor_group_inference: concordance_only
+cross_group_raw_score_comparison: false
+ancestry_effect_claim_allowed: false
+```
+
+These replaced `require_interaction_for_ancestry_claim: true`, which named a
+test this design cannot run and must not run — an interaction term needs a
+pooled group × genotype model, and §7.6 forbids comparing the Module 02 score
+across cells at any level. The key was unsatisfiable, so it licensed nothing
+and guarded nothing. `00_shared/gates.R::donor_group_inference_policy()` reads
+and type-checks the three keys and **refuses a widened policy rather than
+defaulting**; both recombination stages and Module 08 call it and carry the
+flags into their output tables. Flipping `ancestry_effect_claim_allowed` is a
+PI act that needs the eliminating analysis in hand, not a config edit.
+
+Concordance is read **against the analytic reliability ceiling** from
+`02/_h/16_reliability_ceiling.R`. Without it an imperfect ρ reads as a
+donor-group difference when most of it is input uncertainty — the single most
+likely misreading of this axis.
+
+**Module 08 implemented 2026-09-18**, with `config/region_donor_generalization.yml`
+(`pi_locked`) holding the four tiers, their licensed interpretations, both axes
+and a nine-criterion gate (`PASS_REGION_DONOR_GENERALIZATION_QC`). The gate
+certifies **tiering and interpretation constraints, not a positive finding**: a
+null replication and a null region difference both pass, as Module 06 passed
+with `sldsc_supports_brain_enrichment = FALSE`.
+
+Tier 3 required new upstream compute rather than assembly. `config/cohorts.yml`
+declares a **second cell kind**, `donor_subsample`, and three cells
+`AA.n118r{1,2,3}` — the AA caudate donors drawn to 118, DLPFC's locked
+`design_n`, so the comparison is matched rather than an arbitrary decimation. A
+`race_partition` cell is defined by a donor label and its siblings must
+partition the pooled set; a `donor_subsample` cell is defined by a **seed**,
+overlaps its own replicates and covers nothing, so `01b_estimation_cells`
+branches on the kind and the partition proof is scoped to race partitions only.
+They are real 01b → 02 → 03 chains, not row subsets of the accepted caudate
+run: the endpoint is a within-cell midrank percentile, which does not survive
+row subsetting, and `00_shared/locus_io.R` computes the MAF and missingness
+filters over every donor in the locus BED before the donor merge, so reusing
+the 153-donor BEDs would select SNPs using 35 donors outside the estimation
+set.
+
 Prioritize biological generalization of local variance, repeat enrichment,
 meQTL burden, and effect direction. Cross-population predictor portability is
 optional and secondary.
