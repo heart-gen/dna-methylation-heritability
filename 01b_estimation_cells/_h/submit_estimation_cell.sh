@@ -33,7 +33,7 @@ source "$_ROOT/00_shared/slurm.sh"
 
 H_DIR="$REPO_DIR/01b_estimation_cells/_h"
 DRY_RUN="${DRY_RUN:-FALSE}"
-THROTTLE="${THROTTLE:-250}"
+THROTTLE="${THROTTLE:-200}"
 OPEN_ARGS=""
 if [ "${ALLOW_UNLOCKED:-FALSE}" = "TRUE" ]; then
     OPEN_ARGS="--allow-unlocked"

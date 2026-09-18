@@ -11,7 +11,7 @@
 ## resolution limit or a simulation-to-data mismatch.
 ##
 ## Environment:
-##   LGV_MAX_CONCURRENT  array throttle (default 50)
+##   LGV_MAX_CONCURRENT  array throttle (default 200)
 ##   DRY_RUN=TRUE        prepare the run, submit nothing
 
 set -euo pipefail
@@ -22,7 +22,7 @@ ENV_PATH=${CAL_H2_ENV:-/projects/p32505/opt/envs/calibrated-local-h2}
 R_BIN=${ENV_PATH}/bin/Rscript
 ACCOUNT=${SBATCH_ACCOUNT:-p32505}
 PARTITION=${LGV_PARTITION:-short}
-MAX_CONCURRENT=${LGV_MAX_CONCURRENT:-50}
+MAX_CONCURRENT=${LGV_MAX_CONCURRENT:-200}
 DRY_RUN=${DRY_RUN:-FALSE}
 
 if [[ ! -x "${R_BIN}" ]]; then
