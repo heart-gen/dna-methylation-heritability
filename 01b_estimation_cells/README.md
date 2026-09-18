@@ -186,6 +186,9 @@ sealed artifacts rather than trusting Stage 04's in-flight assertions.
 | `estcell-all_individuals.EA-caudate-20260910` | all_individuals.EA | caudate | **129** | 11,463 | 3 | `vmrset-all_individuals-caudate-cb5519d7d2ad` | **all five pass** | 153 no cis variant; loci from `vmrcat-all_individuals-caudate-20260816` |
 | `estcell-all_individuals.EA-dlpfc-20260910` | all_individuals.EA | dlpfc | **55** | 9,374 | 3 | `vmrset-all_individuals-dlpfc-e88f46904afb` | **all five pass** | 181 no cis variant; loci from `vmrcat-all_individuals-dlpfc-20260816` |
 | `estcell-all_individuals.EA-hippocampus-20260910` | all_individuals.EA | hippocampus | **60** | 9,365 | 3 | `vmrset-all_individuals-hippocampus-809f8de0db2d` | **all five pass** | 178 no cis variant; loci from `vmrcat-all_individuals-hippocampus-20260816` |
+| `estcell-AA.n118r1-caudate-20260918` | AA.n118r1 | caudate | **118** | 11,530 | 3 | `vmrset-AA-caudate-937a41979978` | **all five pass** | 141 no cis variant; drawn from 153 on seed 20260918, draw 1; SMD age 0.0265 / sex 0.0292 / dx 0.0320; loci from `vmrcat-AA-caudate-20260816` |
+| `estcell-AA.n118r2-caudate-20260918` | AA.n118r2 | caudate | **118** | 11,530 | 3 | `vmrset-AA-caudate-937a41979978` | **all five pass** | 141 no cis variant; drawn from 153 on seed 20260919, draw 1; SMD age 0.0444 / sex 0.0115 / dx 0.0194; loci from `vmrcat-AA-caudate-20260816` |
+| `estcell-AA.n118r3-caudate-20260918` | AA.n118r3 | caudate | **118** | 11,530 | 3 | `vmrset-AA-caudate-937a41979978` | **all five pass** | 141 no cis variant; drawn from 153 on seed 20260920, draw 1; SMD age 0.0361 / sex 0.0417 / dx 0.0365; loci from `vmrcat-AA-caudate-20260816` |
 
 ## Accepted runs
 
@@ -200,6 +203,9 @@ parses. Module 02 additionally requires the row to say "all five pass".
 | estcell-all_individuals.EA-caudate-20260910 | all_individuals.EA | caudate | vmrset-all_individuals-caudate-cb5519d7d2ad | 2026-09-10 | Kynon J.M. Benjamin | ALL_FIVE_CRITERIA_PASS | 129 donors, 11463 VMRs (153 no cis variant), 3 within-group PCs; loci from vmrcat-all_individuals-caudate-20260816 |
 | estcell-all_individuals.EA-dlpfc-20260910 | all_individuals.EA | dlpfc | vmrset-all_individuals-dlpfc-e88f46904afb | 2026-09-10 | Kynon J.M. Benjamin | ALL_FIVE_CRITERIA_PASS | 55 donors, 9374 VMRs (181 no cis variant), 3 within-group PCs; loci from vmrcat-all_individuals-dlpfc-20260816 |
 | estcell-all_individuals.EA-hippocampus-20260910 | all_individuals.EA | hippocampus | vmrset-all_individuals-hippocampus-809f8de0db2d | 2026-09-10 | Kynon J.M. Benjamin | ALL_FIVE_CRITERIA_PASS | 60 donors, 9365 VMRs (178 no cis variant), 3 within-group PCs; loci from vmrcat-all_individuals-hippocampus-20260816 |
+| estcell-AA.n118r1-caudate-20260918 | AA.n118r1 | caudate | vmrset-AA-caudate-937a41979978 | 2026-09-18 | Kynon J.M. Benjamin | ALL_FIVE_CRITERIA_PASS | 118 donors drawn from 153, 11530 VMRs (141 no cis variant), 3 within-group PCs; seed 20260918, draw 1; loci from vmrcat-AA-caudate-20260816 |
+| estcell-AA.n118r2-caudate-20260918 | AA.n118r2 | caudate | vmrset-AA-caudate-937a41979978 | 2026-09-18 | Kynon J.M. Benjamin | ALL_FIVE_CRITERIA_PASS | 118 donors drawn from 153, 11530 VMRs (141 no cis variant), 3 within-group PCs; seed 20260919, draw 1; loci from vmrcat-AA-caudate-20260816 |
+| estcell-AA.n118r3-caudate-20260918 | AA.n118r3 | caudate | vmrset-AA-caudate-937a41979978 | 2026-09-18 | Kynon J.M. Benjamin | ALL_FIVE_CRITERIA_PASS | 118 donors drawn from 153, 11530 VMRs (141 no cis variant), 3 within-group PCs; seed 20260920, draw 1; loci from vmrcat-AA-caudate-20260816 |
 
 All six rows were recorded on 2026-09-10 from the evidence
 `_h/05_report_acceptance.R` produced, which re-checks the five criteria against
