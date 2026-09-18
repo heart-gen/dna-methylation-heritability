@@ -201,7 +201,16 @@ per_test <- tests[, .(
 ), by = .(analysis, analysis_set, outcome_role, outcome, predictor,
              test_id)]
 
-per_test[, complete_across_regions := n_regions == length(regions)]
+## Hoisted OUT of the data.table `[`: per_test carries its own `regions` column
+## (the comma-joined region list), so the bare name inside `[` resolves to that
+## COLUMN and length(regions) is the ROW COUNT, not 3. The test silently became
+## `n_regions == 154`, false for every row, and tier 1 reported zero tests
+## complete and zero replications while every test was in fact present in all
+## three regions. Same defect class as the `cohort`/`region` shadowing in
+## gates.R:require_accepted_upstream() and the `cell` shadowing in stage 04.
+n_regions_expected <- length(regions)
+stopifnot(n_regions_expected >= 1L, !is.na(n_regions_expected))
+per_test[, complete_across_regions := n_regions == n_regions_expected]
 per_test[, direction_consistent := pmax(n_up, n_down) == n_regions]
 ## The replication call. Consistent direction AND nominal support in at least
 ## `min_regions` regions: direction alone would let three null estimates that
