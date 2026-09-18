@@ -64,8 +64,26 @@ run_results <- function(module, region, file) {
 ## Each upstream publishes a long table of tests with estimate/se/p/q. We take
 ## the columns that are common to all of them and nothing else, so a schema
 ## change in one module cannot silently reshape the replication table.
-COMMON <- c("region", "analysis", "outcome", "predictor", "estimate", "se",
-            "p", "q", "n")
+## `analysis_set` is part of the KEY, not decoration. Module 04 publishes its
+## primary fit plus four sensitivities (primary, high_mappability,
+## exclude_segdups, low_cell_composition, adjust_cell_composition) -- 5 sets x
+## 28 outcome/predictor pairs = 140 rows per region. Keying on
+## outcome+predictor alone makes every Module 04 test appear 15 times instead
+## of 3, so the "complete in all three regions" filter drops the entire module
+## -- the primary biological analysis -- without a word. Modules 05 and 07
+## publish a single set and get "primary".
+##
+## `outcome_role` is carried for the same reason. Module 04 publishes five
+## roles, and they are not interchangeable evidence:
+##   bh_family            the prespecified FDR-controlled family -- the claim
+##   specificity_control  SHOULD be null; replicating is a WARNING, not support
+##   secondary_scale      the same outcome on another scale -- double-counting
+##   complementary_contrast / descriptive  context, not claim
+## A headline that pooled all five would count one finding several times and
+## would count a failed negative control as a success. Modules 05 and 07 have
+## no role column and are treated as their own prespecified family.
+COMMON <- c("region", "analysis", "analysis_set", "outcome_role", "outcome",
+            "predictor", "estimate", "se", "p", "q", "n")
 
 harvest <- function(module, region, file, mapping, analysis_label) {
     f <- run_results(module, region, file)
@@ -82,6 +100,20 @@ harvest <- function(module, region, file, mapping, analysis_label) {
     out <- data.table(
         region    = region,
         analysis  = analysis_label,
+        analysis_set = if (!is.null(mapping$analysis_set))
+                           as.character(dt[[mapping$analysis_set]])
+                       else "primary",
+        outcome_role = if (!is.null(mapping$outcome_role)) {
+                           as.character(dt[[mapping$outcome_role]])
+                       } else if (!is.null(mapping$nuisance_terms)) {
+                           ## A model's covariate and intercept rows are not
+                           ## scientific tests. Module 05 publishes its whole
+                           ## design matrix, so without this the tier-1
+                           ## denominator would include (Intercept).
+                           ifelse(grepl(mapping$nuisance_terms,
+                                        as.character(dt[[mapping$predictor]])),
+                                  "nuisance", "prespecified_family")
+                       } else "prespecified_family",
         outcome   = as.character(dt[[mapping$outcome]]),
         predictor = as.character(dt[[mapping$predictor]]),
         estimate  = suppressWarnings(as.numeric(dt[[mapping$estimate]])),
@@ -101,12 +133,19 @@ harvest <- function(module, region, file, mapping, analysis_label) {
 specs <- list(
     list(module = "04_repeat_repressive_architecture",
          file = "association-results.tsv", analysis = "repeat_architecture",
-         mapping = list(outcome = "outcome", predictor = "predictor",
+         mapping = list(analysis_set = "analysis_set",
+                        outcome_role = "outcome_role", outcome = "outcome",
+                        predictor = "predictor",
                         estimate = "estimate", se = "se", p = "p", q = "q",
                         n = "n")),
     list(module = "05_cpg_meqtl_burden",
          file = "burden-primary-model.tsv", analysis = "meqtl_burden",
+         ## The claim is the predictability gradient. The intercept, CpG
+         ## density, VMR length and mean methylation are the covariates it is
+         ## adjusted for, not findings, so they are marked nuisance and stay
+         ## out of the headline denominator while remaining in the table.
          mapping = list(outcome = "model", predictor = "term",
+                        nuisance_terms = "^(\\(Intercept\\)|cpg_density|log\\(vmr_length\\)|mean_methylation)$",
                         estimate = "estimate", se = "se", p = "p",
                         n = "n_vmrs")),
     list(module = "07_transcription_splicing_coupling",
@@ -121,12 +160,22 @@ tests <- rbindlist(lapply(regions, function(re) {
         harvest(s$module, re, s$file, s$mapping, s$analysis)), use.names = TRUE)
 }), use.names = TRUE)
 
-## A test is identified by what it tests, not by where it ran.
-tests[, test_id := paste(analysis, outcome, predictor, sep = "::")]
+## A test is identified by what it tests, not by where it ran. A duplicated key
+## WITHIN one region means the key is incomplete for that source -- the exact
+## defect analysis_set fixes -- so stop rather than let it inflate n_regions.
+tests[, test_id := paste(analysis, analysis_set, outcome, predictor,
+                         sep = "::")]
+dupe <- tests[, .N, by = .(region, test_id)][N > 1L]
+if (nrow(dupe)) {
+    stop("Duplicated test keys within a region (", nrow(dupe), " cases, e.g. ",
+         dupe$test_id[[1]], " x", dupe$N[[1]], "). The harvest key is ",
+         "incomplete for that source; add the distinguishing column to its ",
+         "mapping rather than letting it inflate n_regions.")
+}
 tests[, direction := fifelse(estimate > 0, "up",
                              fifelse(estimate < 0, "down", "flat"))]
 tests[, tier := tier]
-write_atomic(tests[order(analysis, outcome, predictor, region)],
+write_atomic(tests[order(analysis, analysis_set, outcome, predictor, region)],
              file.path(out_dir, "cross-region-tests.tsv"))
 
 ## ------------------------------------------------------------- replication
@@ -144,7 +193,8 @@ per_test <- tests[, .(
     n_fdr          = sum(is.finite(q) & q < 0.05),
     min_p          = if (any(is.finite(p))) min(p, na.rm = TRUE) else NA_real_,
     estimate_range = diff(range(estimate))
-), by = .(analysis, outcome, predictor, test_id)]
+), by = .(analysis, analysis_set, outcome_role, outcome, predictor,
+             test_id)]
 
 per_test[, complete_across_regions := n_regions == length(regions)]
 per_test[, direction_consistent := pmax(n_up, n_down) == n_regions]
@@ -153,9 +203,58 @@ per_test[, direction_consistent := pmax(n_up, n_down) == n_regions]
 ## happen to share a sign count as a replication.
 per_test[, replicated := complete_across_regions & direction_consistent &
              n_nominal >= min_regions]
+
+## -------------------------------------------- primary vs sensitivity sets
+##
+## Module 04's five analysis_sets are the SAME 28 tests refit under four
+## sensitivities, so counting all 140 as replications would report one test
+## five times and inflate the primary deliverable roughly fivefold. The
+## headline count is therefore PRIMARY ONLY, and the sensitivities are used the
+## way Module 04 itself uses them: as a strict conjunction the primary claim
+## must survive, not as extra evidence.
+per_test[, is_primary := analysis_set == "primary"]
+sens <- per_test[is_primary == FALSE,
+                 .(n_sensitivity_sets = .N,
+                   n_sensitivity_replicated = sum(replicated)),
+                 by = .(analysis, outcome_role, outcome, predictor)]
+per_test <- merge(per_test, sens,
+                  by = c("analysis", "outcome_role", "outcome", "predictor"),
+                  all.x = TRUE)
+per_test[is.na(n_sensitivity_sets), `:=`(n_sensitivity_sets = 0L,
+                                         n_sensitivity_replicated = 0L)]
+## A primary test replicates STRICTLY when it replicates and so does every
+## sensitivity refit of it. A test with no sensitivities passes trivially, and
+## the n_sensitivity_sets column is what tells a reader which case they have.
+per_test[, replicated_strict := replicated & is_primary &
+             n_sensitivity_replicated == n_sensitivity_sets]
+## The claim family: the prespecified, FDR-controlled tests only.
+per_test[, in_claim_family := outcome_role %in% c("bh_family",
+                                                  "prespecified_family")]
+per_test[, is_negative_control := outcome_role == "specificity_control"]
+
+## A specificity control is NOT judged by whether it replicates -- it is judged
+## by WHICH WAY. Replicating in the opposite direction to the claim family is
+## the control doing its job: it says the association is specific to the tracks
+## claimed rather than a property of any annotation. Replicating in the SAME
+## direction is the finding that undercuts the tier. Scoring both as "a control
+## replicated" would flag the healthy case and read the two identically.
+claim_sign <- per_test[in_claim_family == TRUE & is_primary == TRUE,
+                       sign(sum(sign(n_up - n_down)))]
+per_test[, claim_family_direction := fifelse(claim_sign > 0, "up",
+                                             fifelse(claim_sign < 0, "down",
+                                                     "mixed"))]
+per_test[, control_direction := fifelse(n_up > n_down, "up",
+                                        fifelse(n_down > n_up, "down", "mixed"))]
+per_test[, control_opposes_claim := is_negative_control &
+             claim_family_direction != "mixed" &
+             control_direction != "mixed" &
+             control_direction != claim_family_direction]
+per_test[, control_tracks_claim := is_negative_control & replicated &
+             control_direction == claim_family_direction]
 per_test[, tier := tier]
 per_test[, licenses := trimws(config_get(cfg, paste0("tiers.", tier, ".licenses")))]
-write_atomic(per_test[order(-replicated, analysis, outcome, predictor)],
+write_atomic(per_test[order(-in_claim_family, -replicated, analysis,
+                              analysis_set, outcome, predictor)],
              file.path(out_dir, "cross-region-replication.tsv"))
 
 ## ------------------------------------------------- rank agreement per region
@@ -193,11 +292,42 @@ summary_dt <- data.table(
     tier = tier,
     cohort = cohort,
     regions = paste(regions, collapse = ","),
-    n_tests_total = nrow(tests),
-    n_tests_complete = per_test[complete_across_regions == TRUE, .N],
-    n_direction_consistent = per_test[complete_across_regions == TRUE &
-                                          direction_consistent == TRUE, .N],
-    n_replicated = per_test[replicated == TRUE, .N],
+    n_rows_harvested = nrow(tests),
+    ## Distinct tests, all analysis_sets. Reported so the denominator of the
+    ## primary counts below is auditable, never as the headline.
+    n_tests_all_sets = nrow(per_test),
+    n_tests_complete_all_sets = per_test[complete_across_regions == TRUE, .N],
+    ## THE HEADLINE. Primary analysis_set, prespecified claim family only, so
+    ## one finding is counted once and a negative control is never counted as
+    ## support.
+    n_claim_tests = per_test[is_primary == TRUE & in_claim_family == TRUE, .N],
+    n_claim_complete = per_test[is_primary == TRUE & in_claim_family == TRUE &
+                                    complete_across_regions == TRUE, .N],
+    n_claim_direction_consistent = per_test[is_primary == TRUE &
+                                                in_claim_family == TRUE &
+                                                complete_across_regions == TRUE &
+                                                direction_consistent == TRUE, .N],
+    n_claim_replicated = per_test[is_primary == TRUE & in_claim_family == TRUE &
+                                      replicated == TRUE, .N],
+    n_claim_replicated_strict = per_test[replicated_strict == TRUE &
+                                             in_claim_family == TRUE, .N],
+    ## Reported alongside, never added in.
+    n_secondary_scale_replicated = per_test[is_primary == TRUE &
+                                                outcome_role == "secondary_scale" &
+                                                replicated == TRUE, .N],
+    ## Controls, split by direction. `tracks_claim` is the red flag;
+    ## `opposes_claim` is the control working as designed.
+    claim_family_direction = per_test$claim_family_direction[[1]],
+    n_negative_controls = per_test[is_primary == TRUE &
+                                       is_negative_control == TRUE, .N],
+    n_controls_opposing_claim = per_test[is_primary == TRUE &
+                                             control_opposes_claim == TRUE, .N],
+    n_controls_tracking_claim = per_test[is_primary == TRUE &
+                                             control_tracks_claim == TRUE, .N],
+    n_nuisance_terms_excluded = per_test[is_primary == TRUE &
+                                             outcome_role == "nuisance", .N],
+    n_tests_primary = per_test[is_primary == TRUE, .N],
+    n_sensitivity_sets_max = max(per_test$n_sensitivity_sets),
     min_regions_for_replication = min_regions,
     ## Carried so no consumer has to know the rule to read the table.
     raw_score_comparison_emitted = FALSE,
@@ -205,9 +335,31 @@ summary_dt <- data.table(
 write_atomic(summary_dt, file.path(out_dir, "cross-region-summary.tsv"))
 
 print(summary_dt)
-message("[tier1] ", summary_dt$n_replicated, " of ",
-        summary_dt$n_tests_complete,
-        " tests complete in all three regions replicate")
+message("[tier1] claim family: ", summary_dt$n_claim_replicated, " of ",
+        summary_dt$n_claim_complete,
+        " prespecified tests complete in all three regions replicate; ",
+        summary_dt$n_claim_replicated_strict,
+        " also survive every sensitivity refit")
+message("  Denominators: ", summary_dt$n_tests_all_sets,
+        " tests across all analysis_sets, ", summary_dt$n_tests_primary,
+        " in the primary set, ", summary_dt$n_claim_tests,
+        " in the prespecified claim family. The headline counts the claim ",
+        "family only: a sensitivity refit is not a second test, a rescaled ",
+        "outcome is not a second finding, and a negative control is not ",
+        "support.")
+if (summary_dt$n_controls_tracking_claim > 0L) {
+    message("  WARNING: ", summary_dt$n_controls_tracking_claim, " of ",
+            summary_dt$n_negative_controls, " specificity controls replicate ",
+            "in the SAME direction as the claim family (",
+            summary_dt$claim_family_direction, "). That undercuts the tier: ",
+            "the association is not specific to the tracks claimed.")
+}
+if (summary_dt$n_controls_opposing_claim > 0L) {
+    message("  ", summary_dt$n_controls_opposing_claim, " of ",
+            summary_dt$n_negative_controls, " specificity controls run ",
+            "OPPOSITE to the claim family. That is the control working as ",
+            "designed -- evidence of specificity, not a failure.")
+}
 message("  Robustness across technical AND regional contexts. Region is ",
         "confounded with sequencing batch (AGENTS.md 8.1): a successful ",
         "replication is more compelling for crossing it, a difference is not ",

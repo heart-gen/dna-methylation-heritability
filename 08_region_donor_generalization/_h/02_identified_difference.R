@@ -77,8 +77,11 @@ if (!nrow(tests)) stop("Stage 01 produced no tests; run it first")
 ## levels is computed, and it is legitimate here precisely because the two
 ## statistics come from the same analysis in the same units -- unlike the
 ## Module 02 score, which is a within-cell rank (AGENTS.md 7.6).
+## Keyed the same way Stage 01 keys: analysis_set distinguishes Module 04's
+## primary fit from its four sensitivities, and omitting it would collapse five
+## distinct tests into one cell of the cast.
 wide <- dcast(tests[region %in% c(contrast, confounded)],
-              analysis + outcome + predictor + test_id ~ region,
+              analysis + analysis_set + outcome + predictor + test_id ~ region,
               value.var = c("estimate", "se", "p", "q", "n"))
 
 a <- contrast[[1]]; b <- contrast[[2]]
@@ -142,7 +145,7 @@ descriptive[, licenses := trimws(
 descriptive[, set_aside_reason :=
                 "region perfectly confounded with sequencing batch (AGENTS.md 8.1)"]
 descriptive[, supports_any_claim := FALSE]
-write_atomic(descriptive[order(analysis, outcome, predictor)],
+write_atomic(descriptive[order(analysis, analysis_set, outcome, predictor)],
              file.path(out_dir, "descriptive-confounded-regions.tsv"))
 
 summary_dt <- data.table(
