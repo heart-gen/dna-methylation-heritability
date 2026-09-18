@@ -172,14 +172,32 @@ donor_counts:
   # different locus set (pooled discovery) and a different genotype file (the
   # multi-ancestry TOPMed pgen). Their Module 02 scores are ranked in their own
   # cell and are not comparable to the AA arm's.
+  # LOCKED 2026-09-18 by Kynon J.M. Benjamin. Each design_n is the donor count
+  # the accepted 01b_estimation_cells runs actually materialized, reproduced
+  # independently by the accepted Module 02 cell runs:
+  #
+  #   all_individuals.AA   estcell-...-20260910  153 / 118 / 117
+  #   all_individuals.EA   estcell-...-20260910  129 /  55 /  60
+  #
+  # Every design_n equals its own phenotype_n ceiling, which is the expected
+  # identity here and not a coincidence: a cell is a race partition of the
+  # pooled arm over a FIXED locus set, so no donor is lost between the
+  # phenotype table and the design. A mismatch is now a hard stop
+  # (00_shared/identity.R::assert_expected_n) rather than a warning.
+  #
+  # all_individuals.EA dlpfc (55) and hippocampus (60) are the smallest design
+  # cells in the project, roughly half their AA counterparts. Locking the count
+  # does not make them adequately powered: per AGENTS.md 7.7 any AA-vs-EA
+  # difference is confounded with n, and the donor-group result is a
+  # CONCORDANCE statement, never a per-cell effect-size comparison.
   all_individuals.AA:
-    caudate:     { phenotype_n: 153, design_n: null }
-    dlpfc:       { phenotype_n: 118, design_n: null }
-    hippocampus: { phenotype_n: 117, design_n: null }
+    caudate:     { phenotype_n: 153, design_n: 153 }
+    dlpfc:       { phenotype_n: 118, design_n: 118 }
+    hippocampus: { phenotype_n: 117, design_n: 117 }
   all_individuals.EA:
-    caudate:     { phenotype_n: 129, design_n: null }
-    dlpfc:       { phenotype_n: 55,  design_n: null }
-    hippocampus: { phenotype_n: 60,  design_n: null }
+    caudate:     { phenotype_n: 129, design_n: 129 }
+    dlpfc:       { phenotype_n: 55,  design_n: 55  }
+    hippocampus: { phenotype_n: 60,  design_n: 60  }
 
 # Sample blacklist -- RETIRED IN v2. All three regions are null by design.
 #
