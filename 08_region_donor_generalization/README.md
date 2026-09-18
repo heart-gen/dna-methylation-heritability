@@ -110,6 +110,24 @@ here. Every output carries exactly one tier:
    `config/region_donor_generalization.yml:caudate_downsampling.primary_endpoint`
    locks it as `within_caudate_paired_delta_r2`.
 
+   **Three locked criteria, PI 2026-09-18.** (i) and (ii) are the primary and
+   are evaluated on the shared caudate loci alone; (iii) is separate:
+
+   | # | criterion | config key | kind |
+   |---|---|---|---|
+   | i | all three replicates attenuate in the same direction | — | direction |
+   | ii | mean relative attenuation `A >= 0.10`, where `A = mean_r (R²_full − R²_n118,r) / R²_full` | `primary_min_relative_attenuation` | **magnitude / effect size** |
+   | iii | `gap_closed >= 0.50` — licenses calling donor count a plausible major contributor *to the caudate–DLPFC difference* | `major_contributor_gap_closed_min` | **interpretive** |
+   | — | replicate spread in `A_r` within 0.10 | `replicate_agreement_max_range` | **agreement tolerance** |
+
+   **None of these is a significance cutoff.** An effect-size criterion was
+   chosen over a paired test deliberately: with ~11k paired loci a trivial
+   attenuation would be "significant" and would still say nothing about whether
+   donor count matters. Uncertainty on `A` is **reported, not gated** — a
+   delete-one-chromosome weighted block jackknife (Busing et al. 1999, the
+   construction `06_partitioned_heritability` uses for block standard errors),
+   because loci within a chromosome are not independent.
+
    **The gap ratio is secondary and descriptive.** Writing it out,
 
    ```
@@ -149,6 +167,13 @@ here. Every output carries exactly one tier:
    numbers ride on the tier-3 output rows, and
    `boundary_shift_is_estimator_resolution_not_biology` is carried beside them so
    the caveat cannot be separated from the number.
+
+   It is reported **alongside** the attenuation and is **never folded into the
+   0.10 threshold**: `A` is computed on prediction r² alone and carries no
+   boundary-rate correction (`boundary_shift_excluded_from_attenuation_threshold`).
+   That is what keeps overall prediction attenuation distinguishable from the
+   accompanying loss of estimator resolution, instead of silently mixing the two
+   into one number.
 4. **Caudate-vs-other differences stay descriptive.** Reuse the Module 04
    mechanism — `interpretation.technically_confounded_regions` sets the cell
    aside from the claim while keeping the estimate fitted, written and surfaced
