@@ -19,8 +19,9 @@
 #   LSP_RUN_ID_OVERRIDE   explicit run ID; smoke runs only
 #
 # This driver refuses to submit unless 02 has an accepted run for the cell.
-# Module 02 records twelve accepted runs (four cells x three regions); the six all_individuals.{AA,EA} cell rows were added 2026-09-13 and 2026-09-17, so the gate is OPEN for
-# every cohort x region cell.
+# Module 02 records fifteen accepted runs: four cells x three regions, plus the
+# three AA.n118r{1,2,3} caudate donor-subsample cells accepted 2026-09-18 for
+# Module 08's tier-3 donor-count sensitivity. The gate is OPEN for every one.
 #
 # Stages chain by SLURM dependency: 1 -> 2 (array) -> 3 -> 4 -> 5. Step 3
 # depends with afterany so a scheduler cancellation is RECONCILED rather than
