@@ -91,6 +91,22 @@ load_cell <- function(run_id) {
     if (!identical(tolower(mval("region")), region)) {
         stop("Run is not for region ", region, ": ", run_id)
     }
+    if (identical(toupper(mval("smoke_run")), "TRUE")) {
+        stop("Run is a smoke run and is not citable: ", run_id)
+    }
+    ## Sealed is not the same as accepted. Sealing says the computation
+    ## finished; acceptance says the PI signed off on its QC gate (AGENTS.md 6).
+    ## A ceiling computed from a sealed-but-unaccepted run is a number that
+    ## looks citable and is not, so require the README row -- the same gate
+    ## every other consumer of a Module 02 run passes through.
+    accepted <- require_accepted_upstream("02_local_genetic_variance",
+                                          mval("cohort"), region)
+    if (!identical(accepted$run_id, run_id)) {
+        stop("Run ", run_id, " is sealed but is not the accepted run for ",
+             mval("cohort"), " x ", region, " (README accepts ",
+             accepted$run_id, "). Refusing to compute a reliability ceiling ",
+             "from a superseded run.")
+    }
     f <- list.files(file.path(run_dir, "results", "combined"),
                     pattern = "^local-genetic-control-.*-vmrs\\.tsv$",
                     full.names = TRUE)

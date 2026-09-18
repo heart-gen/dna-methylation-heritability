@@ -39,8 +39,15 @@ if (!identical(meqtl$predictability_score_column,
 upstream_02 <- require_accepted_upstream(
     "02_local_genetic_variance", opts$cohort, opts$region,
     allow_unaccepted = allow_unlocked)
+## Module 01 accepts DISCOVERY ARMS, never estimation cells: a cell shares its
+## catalog with its arm by construction (01b re-partitions donors over a fixed
+## locus set and carries the same vmr_set_id). Gate on the catalog_cohort, so a
+## cell token resolves to the pooled run its loci actually came from instead of
+## hard-stopping on a row that can never exist. For a bare arm parse_cell()
+## returns the arm itself, so this is a no-op for every accepted run.
+catalog_cohort <- parse_cell(opts$cohort)$catalog_cohort
 upstream_01 <- require_accepted_upstream(
-    "01_vmr_catalog", opts$cohort, opts$region,
+    "01_vmr_catalog", catalog_cohort, opts$region,
     allow_unaccepted = allow_unlocked)
 
 ## The two upstreams must describe the SAME VMR set, or CpG membership and score

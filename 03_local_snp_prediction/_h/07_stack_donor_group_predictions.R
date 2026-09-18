@@ -89,6 +89,12 @@ if (length(unique(vapply(cells, function(x) x$vmr_set_id, character(1)))) != 1L)
          "once in the pooled sample (AGENTS.md 7.7); refusing to stack.")
 }
 
+## ------------------------------------------------- inference policy (config)
+## Same gate Module 02's recombination applies, for the same reason: the policy
+## that says this axis reports concordance and nothing else is read from
+## config/analysis_thresholds.yml:donor_group, not restated here as prose.
+policy <- donor_group_inference_policy()
+
 ## ------------------------------------------------------- stack the donors
 stack_one <- function(x) {
     dt <- copy(as.data.table(x$per_donor))
@@ -135,7 +141,9 @@ side <- Reduce(function(x, y) merge(x, y, by = "vmr_id", all = FALSE),
                    m
                }))
 side[, `:=`(region = region, donor_groups = paste(groups, collapse = ","),
-            pooled_r2_emitted = FALSE)]
+            pooled_r2_emitted = FALSE,
+            donor_group_inference = policy$mode,
+            ancestry_effect_claim_allowed = policy$ancestry_effect_claim_allowed)]
 write_atomic(side, file.path(
     out_dir, paste0("oof-prediction-donor-group-", region, ".tsv")))
 
@@ -154,7 +162,10 @@ summary_dt <- data.table(
         side[[paste0("r2_pred_oof_", groups[[1]])]],
         side[[paste0("r2_pred_oof_", groups[[2]])]],
         method = "spearman", use = "complete.obs") else NA_real_,
-    pooled_r2_emitted = FALSE
+    pooled_r2_emitted = FALSE,
+    donor_group_inference = policy$mode,
+    ancestry_effect_claim_allowed = policy$ancestry_effect_claim_allowed,
+    analysis_thresholds_sha256 = policy$config_sha256
 )
 print(summary_dt)
 write_atomic(summary_dt, file.path(
