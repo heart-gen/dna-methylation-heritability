@@ -198,3 +198,86 @@ donor_checksum <- function(ids) {
     if (length(out) == 0 || is.na(out[1])) return(NA_character_)
     sub(" .*$", "", out[1])
 }
+
+#' Standardized mean difference of one covariate between a subset and its source.
+#'
+#' Numeric covariates use (mean_sub - mean_src) / sd_src. Categorical ones use
+#' the worst level: max |p_sub - p_src| / sqrt(p_src (1 - p_src)). The source is
+#' the reference in both cases, because the subset is drawn FROM it -- the
+#' question is whether the draw is representative, not whether two independent
+#' groups balance.
+covariate_smd <- function(values, in_subset) {
+    if (length(values) != length(in_subset)) {
+        stop("covariate_smd() needs one value per donor")
+    }
+    numericish <- is.numeric(values) ||
+        (!is.factor(values) && !anyNA(suppressWarnings(as.numeric(values))))
+    if (numericish) {
+        v <- as.numeric(values)
+        s <- stats::sd(v, na.rm = TRUE)
+        ## A constant covariate is perfectly balanced by construction; dividing
+        ## by its zero sd would report NaN and fail a threshold it satisfies.
+        if (!is.finite(s) || s == 0) return(0)
+        return(abs(mean(v[in_subset], na.rm = TRUE) -
+                       mean(v, na.rm = TRUE)) / s)
+    }
+    v <- as.character(values)
+    worst <- 0
+    for (lev in unique(v[!is.na(v)])) {
+        p_src <- mean(v == lev, na.rm = TRUE)
+        p_sub <- mean(v[in_subset] == lev, na.rm = TRUE)
+        denom <- sqrt(p_src * (1 - p_src))
+        if (!is.finite(denom) || denom == 0) next
+        worst <- max(worst, abs(p_sub - p_src) / denom)
+    }
+    worst
+}
+
+#' Draw a reproducible, covariate-balanced donor subsample.
+#'
+#' Used by 01b_estimation_cells to build the tier-3 donor-count sensitivity
+#' cells (config/region_donor_generalization.yml:caudate_downsampling). The draw
+#' is a function of the seed alone, so the same cell token always selects the
+#' same donors and the run is reproducible from its manifest.
+#'
+#' Rejection sampling rather than optimization on purpose: an optimizer would
+#' pick the most balanced subset available, which is not a random subsample of
+#' the source and would understate the sampling variability the replicates exist
+#' to show. This takes the FIRST draw that clears the threshold.
+#'
+#' @param covars data.frame of covariates, one row per donor, aligned to the
+#'   donor order the caller will use.
+#' @return list(index, n_draws, smd) -- `index` are positions into `covars`.
+draw_balanced_subsample <- function(covars, target_n, seed, balance_on,
+                                    smd_max = 0.1, max_draws = 10000L) {
+    n_src <- nrow(covars)
+    target_n <- as.integer(target_n)
+    if (!is.finite(target_n) || target_n < 1L || target_n >= n_src) {
+        stop("target_n must be a positive integer strictly below the source ",
+             "size (", n_src, "); got ", target_n)
+    }
+    missing <- setdiff(balance_on, names(covars))
+    if (length(missing)) {
+        stop("Balance covariates absent from the donor table: ",
+             paste(missing, collapse = ", "))
+    }
+
+    ## One seeding, then draw in sequence. Re-seeding per attempt would make
+    ## every attempt identical and the loop would never terminate.
+    set.seed(as.integer(seed))
+    for (draw in seq_len(as.integer(max_draws))) {
+        idx <- sort(sample.int(n_src, target_n))
+        in_subset <- seq_len(n_src) %in% idx
+        smd <- vapply(balance_on,
+                      function(k) covariate_smd(covars[[k]], in_subset),
+                      numeric(1))
+        if (all(smd <= smd_max)) {
+            return(list(index = idx, n_draws = draw, smd = smd))
+        }
+    }
+    stop("No draw of ", target_n, " from ", n_src, " met SMD <= ", smd_max,
+         " on {", paste(balance_on, collapse = ", "), "} in ", max_draws,
+         " attempts. Widen balance_smd_max or reduce balance_on, and record ",
+         "which in config/cohorts.yml -- do not retry with a different seed ",
+         "until a draw passes, which would be selecting on the outcome.")
+}
