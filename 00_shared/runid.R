@@ -97,6 +97,22 @@ write_manifest <- function(run_dir, manifest) {
     write_atomic(dt, file.path(run_dir, "manifest.tsv"))
 }
 
+#' Is a run sealed? TRUE only when the manifest records a non-empty finished_at.
+#'
+#' Absent row, NA and "" all mean the run is still open: seal_run() is the only
+#' writer of finished_at, so a freshly opened run has no such row at all.
+#'
+#' Written as a function because the obvious inline form is wrong in a way that
+#' is invisible on a sealed run and fatal on an open one:
+#' `manifest$value[manifest$field == "finished_at"][1]` on a manifest with no
+#' such row yields NA_character_ (subsetting past the end, not a zero-length
+#' vector), `%||%` replaces NULL but not NA, and nzchar(NA_character_) is TRUE.
+#' Every stage guarded that way refuses to run on the run it just opened.
+run_is_sealed <- function(manifest) {
+    v <- manifest$value[manifest$field == "finished_at"]
+    length(v) >= 1L && !is.na(v[[1L]]) && nzchar(v[[1L]])
+}
+
 #' Append fields to a run manifest that is still open (before the run closes).
 append_manifest <- function(run, fields) {
     f <- file.path(run$dir, "manifest.tsv")

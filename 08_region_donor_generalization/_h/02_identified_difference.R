@@ -39,7 +39,7 @@ mval <- function(f) {
     if (length(v) != 1L) stop("Run manifest lacks unique field: ", f)
     as.character(v[[1L]])
 }
-if (nzchar(manifest$value[manifest$field == "finished_at"][1] %||% "")) {
+if (run_is_sealed(manifest)) {
     stop("Run is sealed and immutable: ", opts$run_id)
 }
 

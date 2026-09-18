@@ -32,7 +32,7 @@ mval <- function(f) {
     v <- manifest$value[manifest$field == f]
     if (length(v) != 1L) NA_character_ else as.character(v[[1L]])
 }
-if (nzchar(mval("finished_at") %||% "")) {
+if (run_is_sealed(manifest)) {
     stop("Run is sealed and immutable: ", opts$run_id)
 }
 

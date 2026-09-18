@@ -23,7 +23,7 @@ opts <- parse_v2_args(require = c("run_id"))
 run_dir <- file.path(V2_ROOT, MODULE, "_m", "runs", opts$run_id)
 if (!dir.exists(run_dir)) stop("No such run: ", run_dir)
 manifest <- fread(file.path(run_dir, "manifest.tsv"), colClasses = "character")
-if (nzchar(manifest$value[manifest$field == "finished_at"][1] %||% "")) {
+if (run_is_sealed(manifest)) {
     stop("Run is already sealed: ", opts$run_id)
 }
 
