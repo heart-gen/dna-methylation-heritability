@@ -56,7 +56,15 @@ cli <- parse_cli(list(
         "lgv-observed-regime-all_individuals.AA-hippocampus-20260911",
         "lgv-observed-regime-all_individuals.EA-caudate-20260910b",
         "lgv-observed-regime-all_individuals.EA-dlpfc-20260910b",
-        "lgv-observed-regime-all_individuals.EA-hippocampus-20260910b"
+        "lgv-observed-regime-all_individuals.EA-hippocampus-20260910b",
+        ## tier-3 donor-count sensitivity cells (Module 08's caudate
+        ## downsampling). A subsample cell needs its OWN grid: its donor count
+        ## differs from the AA arm's, so `allowed_n` and the p_eff floor both
+        ## move, and the arm's support would characterise a regime of 153
+        ## donors that these cells never occupy.
+        "lgv-observed-regime-AA.n118r1-caudate-20260918",
+        "lgv-observed-regime-AA.n118r2-caudate-20260918",
+        "lgv-observed-regime-AA.n118r3-caudate-20260918"
     ), collapse = ","),
     output = file.path(module_root, "config",
                        "joint-pve-characterized-support.tsv")

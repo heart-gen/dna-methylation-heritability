@@ -47,8 +47,21 @@ PREP_ENV_PATH=${V2_ENV_R:-/projects/p32505/opt/envs/epigenomics}
 PREP_R_BIN=${PREP_ENV_PATH}/bin/Rscript
 ACCOUNT=${SBATCH_ACCOUNT:-p32505}
 PARTITION=${LGV_PARTITION:-short}
-MAX_CONCURRENT=${LGV_MAX_CONCURRENT:-100}
+MAX_CONCURRENT=${LGV_MAX_CONCURRENT:-200}
 LOCI_PER_CHUNK=${LGV_LOCI_PER_CHUNK:-25}
+
+## qnode0287 root-cancels array tasks 2-6 seconds after they start, writing no
+## logs and leaving no partial rows, while Slurm keeps the node MIXED with no
+## drain reason. It cost 30 tasks across the 20260917 production runs (see
+## 02_local_genetic_variance/README.md) and another 10 across the 20260918
+## tier-3 regime grids. Excluding it by default is cheaper than reconciling
+## after the fact; clear LGV_EXCLUDE_NODES to disable, or extend it when
+## another node behaves the same way.
+EXCLUDE_NODES=${LGV_EXCLUDE_NODES-qnode0287}
+EXCLUDE_OPT=()
+if [[ -n "${EXCLUDE_NODES}" ]]; then
+    EXCLUDE_OPT=(--exclude="${EXCLUDE_NODES}")
+fi
 
 GEOMETRY_RUN_ID="lgv-geometry-${COHORT}-${REGION}-${DATE}"
 REGIME_RUN_ID="lgv-observed-regime-${COHORT}-${REGION}-${DATE}"
@@ -96,14 +109,15 @@ sub() {
         ${dependency:+--dependency="${dependency}"} \
         --job-name="lgv_${COHORT}_${REGION}_${step%.sh}" \
         --output="${GEOMETRY_DIR}/logs/%x.%j.log" \
-        --export="${EXPORTS}" "$@" "${H_DIR}/${step}" | cut -d';' -f1
+        --export="${EXPORTS}" "${EXCLUDE_OPT[@]}" "$@" "${H_DIR}/${step}" | cut -d';' -f1
 }
 
 GEO_JOB=$(sbatch --parsable --account="${ACCOUNT}" --partition="${PARTITION}" \
     --array="1-${N_GEOMETRY}%${MAX_CONCURRENT}" \
     --job-name="lgv_${COHORT}_${REGION}_geometry" \
     --output="${GEOMETRY_DIR}/logs/%x.%A_%a.log" \
-    --export="${EXPORTS}" "${H_DIR}/step_09_locus_geometry.sh" | cut -d';' -f1)
+    --export="${EXPORTS}" "${EXCLUDE_OPT[@]}" \
+    "${H_DIR}/step_09_locus_geometry.sh" | cut -d';' -f1)
 
 ## afterany: a cancelled or failed geometry array must still be reconciled.
 COMB_JOB=$(sub "afterany:${GEO_JOB}" step_10_combine_geometry.sh)
@@ -113,7 +127,7 @@ SCEN_JOB=$(sbatch --parsable --account="${ACCOUNT}" --partition="${PARTITION}" \
     --array="1-${N_SCENARIO}%${MAX_CONCURRENT}" \
     --job-name="lgv_${COHORT}_${REGION}_regime" \
     --output="${GEOMETRY_DIR}/logs/%x.%A_%a.log" \
-    --export="${EXPORTS}" \
+    --export="${EXPORTS}" "${EXCLUDE_OPT[@]}" \
     "${H_DIR}/step_07_observed_regime_scenarios.sh" | cut -d';' -f1)
 SUM_JOB=$(sub "afterany:${SCEN_JOB}" step_08_summarize_observed_regime.sh)
 

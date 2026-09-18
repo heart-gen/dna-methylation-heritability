@@ -537,10 +537,18 @@ FALSE; the frozen joint model is `9f26c327` in all three; upstream is
 `estcell-all_individuals.EA-{region}-20260910` carrying the pooled
 `vmr_set_id`s. `n_donors` is 129 (caudate), 55 (dlpfc) and 60 (hippocampus).
 
-The three arrays total 6,041 tasks against a 5,000 `MaxSubmit` limit, so
-hippocampus was held until the first two had drained enough to fit it and
-submitted once headroom reached 1,905 tasks. The 20260911 runs stay sealed and
-unaccepted; nothing is deleted.
+The three arrays total 6,041 tasks and hippocampus was held until the first two
+had drained enough to fit it, submitted once headroom reached 1,905 tasks. The
+20260911 runs stay sealed and unaccepted; nothing is deleted.
+
+**Correction, 2026-09-18: the binding limit was misnamed here.** The live limits
+are `MaxJobs = 5000` on the `p32505` association -- a cap on *running* jobs, not
+submitted ones -- and `MaxSubmitJobsPU = 100000` on the `normal` QOS
+(`sacctmgr show assoc user=owb0346 account=p32505`). Holding a run back to stay
+under 5,000 *submitted* tasks was therefore unnecessary. The correct instrument
+is the per-array throttle: every launcher now defaults to `%200`, so up to 25
+arrays can run at once inside the 5,000 running-job cap and several production
+chains can be submitted together instead of serialized.
 
 Original job chains, as recorded in each run's `submitted-jobs.tsv`: caudate
 6534846 (features) through 6534853, dlpfc 6534861 through 6534867, hippocampus

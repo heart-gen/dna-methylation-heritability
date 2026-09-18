@@ -23,7 +23,7 @@ source "$_ROOT/00_shared/slurm.sh"
 : "${REGION:?set REGION}"
 : "${RUN_ID:?set RUN_ID}"
 
-THROTTLE="${THROTTLE:-250}"
+THROTTLE="${THROTTLE:-200}"
 
 RUN_DIR="$REPO_DIR/01_vmr_catalog/_m/runs/$RUN_ID"
 REGION_LIST="$RUN_DIR/vmr/vmr.bed"

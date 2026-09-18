@@ -13,7 +13,7 @@
 ## Environment:
 ##   LGV_SMOKE_N          restrict the task universe (0 = full run)
 ##   LGV_VMRS_PER_CHUNK   VMRs per Stage 01 array task (default 5)
-##   LGV_MAX_CONCURRENT   Stage 01 array throttle (default 50)
+##   LGV_MAX_CONCURRENT   Stage 01 array throttle (default 200)
 ##   DRY_RUN=TRUE         prepare the run, submit nothing
 
 set -euo pipefail
@@ -48,10 +48,23 @@ PREP_ENV_PATH=${V2_ENV_R:-/projects/p32505/opt/envs/epigenomics}
 PREP_R_BIN=${PREP_ENV_PATH}/bin/Rscript
 ACCOUNT=${SBATCH_ACCOUNT:-p32505}
 PARTITION=${LGV_PARTITION:-short}
-MAX_CONCURRENT=${LGV_MAX_CONCURRENT:-50}
+MAX_CONCURRENT=${LGV_MAX_CONCURRENT:-200}
 VMRS_PER_CHUNK=${LGV_VMRS_PER_CHUNK:-5}
 SMOKE_N=${LGV_SMOKE_N:-0}
 DRY_RUN=${DRY_RUN:-FALSE}
+
+## qnode0287 root-cancels array tasks 2-6 seconds after they start, writing no
+## logs and leaving no partial rows, while Slurm keeps the node MIXED with no
+## drain reason. It cost 30 tasks across the 20260917 production runs (see
+## 02_local_genetic_variance/README.md) and another 10 across the 20260918
+## tier-3 regime grids. Excluding it by default is cheaper than reconciling
+## after the fact; clear LGV_EXCLUDE_NODES to disable, or extend it when
+## another node behaves the same way.
+EXCLUDE_NODES=${LGV_EXCLUDE_NODES-qnode0287}
+EXCLUDE_OPT=()
+if [[ -n "${EXCLUDE_NODES}" ]]; then
+    EXCLUDE_OPT=(--exclude="${EXCLUDE_NODES}")
+fi
 
 if [[ ! -x "${R_BIN}" ]]; then
     echo "Rscript is unavailable: ${R_BIN}" >&2
@@ -96,7 +109,7 @@ submit_step() {
         ${dependency:+--dependency="${dependency}"} \
         --job-name="lgv_${COHORT}_${REGION}_${step%.sh}" \
         --output="${RUN_DIR}/logs/%x.%j.log" \
-        --export="${EXPORTS}" "$@" "${H_DIR}/${step}")
+        --export="${EXPORTS}" "${EXCLUDE_OPT[@]}" "$@" "${H_DIR}/${step}")
     printf '%s' "${job%%;*}"
 }
 
