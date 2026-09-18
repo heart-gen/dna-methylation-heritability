@@ -128,6 +128,43 @@ if (anyDuplicated(resolved)) {
          ". A donor-count sensitivity cannot compare a run against itself.")
 }
 
+## ------------------------------------------- estimator resolution at lower n
+##
+## PI 2026-09-18: retain the boundary-rate shift as an explicit sample-size
+## sensitivity, phrased as an ESTIMATOR-RESOLUTION effect and not as biology.
+##
+## Module 02's `boundary_rate` is the fraction of eligible loci whose unbounded
+## joint-PVE estimate sits at or outside the frozen model's output range. In
+## caudate it is entirely the LOWER boundary (zero upper hits in the arm and in
+## all three replicates), so it measures the mass of loci with no detectable
+## local genetic control. It rises from 0.6263 at n=153 to 0.643-0.646 at n=118:
+## removing 35 donors pushes ~1.8% more loci below the estimator's floor.
+##
+## That matters for how this tier is read. Part of any attenuation after
+## downsampling is the estimator losing resolution, not the caudate changing.
+## The numbers are carried on the output rows so the caveat cannot be separated
+## from the result.
+load_boundary_rate <- function(cell, region) {
+    key <- paste0("upstream_02_local_genetic_variance_",
+                  gsub("[.]", "_", cell), "_", region)
+    rid <- mopt(key)
+    if (is.na(rid) && identical(cell, source_cell)) {
+        rid <- mopt(paste0("upstream_02_local_genetic_variance_", region))
+    }
+    if (is.na(rid)) return(list(run_id = NA_character_, rate = NA_real_))
+    f <- file.path(V2_ROOT, "02_local_genetic_variance", "_m", "runs", rid,
+                   "results", "combined", "observed-score-decision.tsv")
+    if (!file.exists(f)) return(list(run_id = rid, rate = NA_real_))
+    d <- as.data.table(fread(f))
+    list(run_id = rid,
+         rate = if ("boundary_rate" %in% names(d)) {
+             suppressWarnings(as.numeric(d$boundary_rate[[1]]))
+         } else NA_real_)
+}
+boundary_full <- load_boundary_rate(source_cell, ds_region)
+boundary_sub <- lapply(sub_cells, load_boundary_rate, region = ds_region)
+names(boundary_sub) <- sub_cells
+
 ## The locus set must be held fixed, or the comparison confounds donor count
 ## with locus turnover. Restrict to loci scored in the full run AND in every
 ## replicate, and report what that costs.
@@ -168,20 +205,48 @@ per_rep <- rbindlist(lapply(sub_cells, function(this_cell) {
         median_r2_subset = stats::median(b$r2),
         pct_positive_full = 100 * mean(a$r2 > 0),
         pct_positive_subset = 100 * mean(b$r2 > 0),
+        ## ---- PRIMARY ENDPOINT (PI 2026-09-18) -------------------------------
+        ## The within-caudate change on the identical shared caudate locus set,
+        ## paired on locus: full n=153 against this n=118 replicate. Both terms
+        ## come from the same region and the same loci, so no cross-region
+        ## reference enters and no locus-set asymmetry applies. This -- not the
+        ## fraction of the DLPFC gap closed -- is what establishes whether donor
+        ## count moves the estimate.
+        primary_endpoint = as.character(ds$primary_endpoint),
         mean_delta_r2 = mean(delta),
-        ## The headline: how much of the full-run mean survives the draw-down.
+        ## Positive = the draw-down lowered r2, the direction donor count
+        ## predicts. Stated explicitly so the sign is not read backwards.
+        attenuation_mean_r2 = mean(a$r2) - mean(b$r2),
         retained_fraction = mean(b$r2) / mean(a$r2),
         spearman_full_vs_subset = stats::cor(a$r2, b$r2, method = "spearman"),
-        paired_wilcoxon_p = wt$p.value)
+        paired_wilcoxon_p = wt$p.value,
+        ## ---- estimator resolution, not biology ------------------------------
+        boundary_rate_full = boundary_full$rate,
+        boundary_rate_subset = boundary_sub[[this_cell]]$rate,
+        boundary_rate_delta = boundary_sub[[this_cell]]$rate - boundary_full$rate,
+        boundary_shift_is_estimator_resolution_not_biology = TRUE)
 }), use.names = TRUE)
 
 write_atomic(per_rep, file.path(out_dir, "caudate-downsampling-replicates.tsv"))
 
-## ------------------------------------------------------------- the reading
+## ------------------------------------- secondary: the region-level gap context
 ##
-## The DLPFC reference is what makes "the excess" a defined quantity: the excess
-## is caudate-minus-DLPFC, so the question is whether drawing caudate down to
-## DLPFC's n closes the gap.
+## PI 2026-09-18. `closed` is SECONDARY and DESCRIPTIVE. Writing it out:
+##
+##   closed = 1 - (m_sub - ref)/(m_full - ref) = (m_full - m_sub)/(m_full - ref)
+##
+## The numerator is the primary within-caudate attenuation -- `ref` cancels, so
+## it is clean and locus-matched. The DENOMINATOR is the caudate-minus-DLPFC
+## gap, and its DLPFC term is a mean over a DIFFERENT VMR population: caudate and
+## DLPFC carry different vmr_set_ids, so no cross-region locus intersection
+## exists and the caudate means are restricted to `shared` while the DLPFC mean
+## is not. Selection into `shared` is not random with respect to r2, so the
+## denominator carries an uncontrolled term.
+##
+## The ratio therefore contextualizes HOW MUCH OF THE REGION-LEVEL GAP the
+## primary attenuation would represent. It does not establish the primary
+## result, and it cannot on its own decide whether donor count "explains" the
+## excess. The asymmetry is written into interpretation-constraints.txt.
 dlpfc_r2 <- tryCatch(load_r2(source_cell, "dlpfc"),
                      error = function(e) NULL)
 excess_full <- NA_real_; excess_sub <- NA_real_; closed <- NA_real_
@@ -189,17 +254,45 @@ if (!is.null(dlpfc_r2)) {
     ref <- mean(dlpfc_r2$r2)
     excess_full <- mean(full[match(shared, vmr_id)]$r2) - ref
     excess_sub <- mean(per_rep$mean_r2_subset) - ref
-    ## Fraction of the original excess removed by matching n. Guarded: a
-    ## near-zero denominator would make this explode and read as a finding.
+    ## Guarded: a near-zero denominator would make this explode and read as a
+    ## finding.
     closed <- if (is.finite(excess_full) && abs(excess_full) > 1e-6) {
         1 - excess_sub / excess_full
     } else NA_real_
 }
 
-agree <- diff(range(per_rep$retained_fraction)) <= 0.10
-reading <- if (!agree) {
+## ------------------------------------------------------------- the reading
+##
+## Both thresholds now come from the pi_locked config (see
+## caudate_downsampling.replicate_agreement_max_range and
+## .major_contributor_gap_closed_min). They were literals here until
+## 2026-09-18, which left the two numbers that select the reading as the only
+## ones in this tier not prespecified -- and editable without touching a locked
+## file. Values are unchanged.
+agreement_max_range <- as.numeric(ds$replicate_agreement_max_range)
+gap_closed_min <- as.numeric(ds$major_contributor_gap_closed_min)
+if (!is.finite(agreement_max_range) || !is.finite(gap_closed_min)) {
+    stop("caudate_downsampling lacks finite replicate_agreement_max_range / ",
+         "major_contributor_gap_closed_min; refusing to fall back to a literal")
+}
+
+## Step 1, the PRIMARY: do the three draws agree on the within-caudate change?
+## The replicate spread is part of the result -- three draws that disagree mean
+## the design cannot resolve this at n=118.
+agree <- diff(range(per_rep$retained_fraction)) <= agreement_max_range
+## Step 2, the primary effect itself, before any cross-region reference: is
+## there a consistent within-caudate attenuation at all? Every replicate must
+## agree in sign, or there is no attenuation for the gap ratio to contextualize.
+attenuation_consistent <- all(per_rep$attenuation_mean_r2 > 0) ||
+    all(per_rep$attenuation_mean_r2 <= 0)
+primary_attenuation <- mean(per_rep$attenuation_mean_r2)
+## Step 3, the SECONDARY ratio, used only to size a primary effect that step 2
+## established. A `closed` above the threshold on the back of an inconsistent
+## primary is not a finding, which is why it cannot reach the reading alone.
+reading <- if (!agree || !attenuation_consistent) {
     "indeterminate_replicates_disagree"
-} else if (is.finite(closed) && closed >= 0.5) {
+} else if (is.finite(closed) && closed >= gap_closed_min &&
+           primary_attenuation > 0) {
     "donor_count_is_a_plausible_major_contributor"
 } else {
     "donor_count_does_not_explain_the_excess"
@@ -231,17 +324,45 @@ summary_dt <- data.table(
     n_loci_held_fixed = length(shared),
     n_loci_full_run = nrow(full),
     target_n = target_n,
+    ## ---- PRIMARY: within-caudate, shared locus set, no cross-region term ----
+    primary_endpoint = as.character(ds$primary_endpoint),
+    n_donors_full = per_rep$n_donors_full[[1]],
     mean_r2_full = per_rep$mean_r2_full[[1]],
     mean_r2_subset_mean = mean(per_rep$mean_r2_subset),
+    primary_attenuation_mean_r2 = primary_attenuation,
+    primary_attenuation_min = min(per_rep$attenuation_mean_r2),
+    primary_attenuation_max = max(per_rep$attenuation_mean_r2),
+    primary_attenuation_consistent_in_sign = attenuation_consistent,
     retained_fraction_mean = mean(per_rep$retained_fraction),
     retained_fraction_min = min(per_rep$retained_fraction),
     retained_fraction_max = max(per_rep$retained_fraction),
+    retained_fraction_range = diff(range(per_rep$retained_fraction)),
+    max_paired_wilcoxon_p = max(per_rep$paired_wilcoxon_p),
     replicates_agree = agree,
+    ## Thresholds recorded beside the values they judged, so a reader never has
+    ## to go find which version of the config produced this reading.
+    replicate_agreement_max_range = agreement_max_range,
+    major_contributor_gap_closed_min = gap_closed_min,
+    ## ---- estimator resolution at lower n, NOT biology ----------------------
+    boundary_rate_full = boundary_full$rate,
+    boundary_rate_subset_mean = mean(per_rep$boundary_rate_subset),
+    boundary_rate_delta_mean = mean(per_rep$boundary_rate_delta),
+    boundary_shift_is_estimator_resolution_not_biology = TRUE,
+    ## ---- SECONDARY / DESCRIPTIVE: the region-level gap context -------------
     dlpfc_reference_mean_r2 = if (!is.null(dlpfc_r2)) mean(dlpfc_r2$r2) else NA_real_,
     excess_over_dlpfc_full = excess_full,
     excess_over_dlpfc_subset = excess_sub,
     fraction_of_excess_closed_by_matching_n = closed,
+    fraction_of_excess_closed_is_descriptive_only = TRUE,
+    ## The denominator's DLPFC term is a mean over a different VMR population,
+    ## and the caudate means are restricted to `shared` while it is not.
+    gap_ratio_locus_set_asymmetry = paste0(
+        "caudate means on ", length(shared), " shared loci (vmr_set_id ",
+        "differs from dlpfc); dlpfc reference on ",
+        if (!is.null(dlpfc_r2)) nrow(dlpfc_r2) else NA_integer_,
+        " dlpfc loci, unrestricted; no cross-region locus intersection exists"),
     reading = reading,
+    reading_established_by = "primary within-caudate paired delta, sized by the secondary gap ratio",
     ## Carried on the row so the constraint cannot be separated from the number.
     permitted_readings = paste(permitted, collapse = "; "),
     forbidden_readings = paste(forbidden, collapse = "; "),
@@ -255,11 +376,27 @@ if (!as_reading_token(reading) %in% permitted_tokens) {
          paste(permitted, collapse = "; "), ")")
 }
 
+message("[tier3] PRIMARY -- within-caudate, ", length(shared),
+        " shared loci, paired on locus:")
 print(per_rep[, .(replicate_cell, mean_r2_full, mean_r2_subset,
-                  retained_fraction, paired_wilcoxon_p)])
-print(summary_dt[, .(retained_fraction_mean, replicates_agree,
-                     fraction_of_excess_closed_by_matching_n, reading)])
+                  attenuation_mean_r2, retained_fraction, paired_wilcoxon_p)])
+message("[tier3] estimator resolution (not biology):")
+print(per_rep[, .(replicate_cell, boundary_rate_full, boundary_rate_subset,
+                  boundary_rate_delta)])
+message("[tier3] SECONDARY / descriptive -- region-level gap context:")
+print(summary_dt[, .(dlpfc_reference_mean_r2, excess_over_dlpfc_full,
+                     fraction_of_excess_closed_by_matching_n,
+                     fraction_of_excess_closed_is_descriptive_only)])
+print(summary_dt[, .(primary_attenuation_mean_r2, replicates_agree,
+                     primary_attenuation_consistent_in_sign, reading)])
 message("[tier3] reading: ", reading)
+message("  Established by the PRIMARY within-caudate paired comparison on one ",
+        "locus set; the DLPFC gap ratio only sizes it and is descriptive.")
+message("  Part of any attenuation is ESTIMATOR RESOLUTION at lower n, not a ",
+        "biological change: the lower-boundary mass rises from ",
+        sprintf("%.4f", boundary_full$rate), " at n=",
+        per_rep$n_donors_full[[1]], " to ",
+        sprintf("%.4f", mean(per_rep$boundary_rate_subset)), " at n=", target_n, ".")
 message("  This tier licenses ONLY whether donor count explains the caudate ",
         "excess. A surviving residual is NOT biological: caudate stays ",
         "confounded with sequencing batch whatever this shows (AGENTS.md 8.1).")
