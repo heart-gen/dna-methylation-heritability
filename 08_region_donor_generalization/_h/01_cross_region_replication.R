@@ -92,7 +92,12 @@ harvest <- function(module, region, file, mapping, analysis_label) {
              "\n  Tier 1 assembles accepted results; it cannot recompute them.")
     }
     dt <- as.data.table(fread(f))
-    missing <- setdiff(unlist(mapping), names(dt))
+    ## Every mapping entry names a COLUMN except `nuisance_terms`, which is a
+    ## regex matched against the predictor column's VALUES. Including it here
+    ## makes the check look for a column literally named
+    ## "^(\\(Intercept\\)|cpg_density|...)$" and refuse the Module 05 table.
+    cols <- mapping[setdiff(names(mapping), "nuisance_terms")]
+    missing <- setdiff(unlist(cols), names(dt))
     if (length(missing)) {
         stop(module, " ", basename(f), " lacks: ",
              paste(missing, collapse = ", "))
