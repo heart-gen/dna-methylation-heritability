@@ -142,8 +142,10 @@ if (anyDuplicated(resolved)) {
 ## joint-PVE estimate sits at or outside the frozen model's output range. In
 ## caudate it is entirely the LOWER boundary (zero upper hits in the arm and in
 ## all three replicates), so it measures the mass of loci with no detectable
-## local genetic control. It rises from 0.6263 at n=153 to 0.643-0.646 at n=118:
-## removing 35 donors pushes ~1.8% more loci below the estimator's floor.
+## local genetic control, and it rises as donors are removed. The magnitudes are
+## NOT quoted here on purpose: they depend on which 02 run the arm resolves to
+## (the caudate rescore moved the arm's rate), so they live on the output rows
+## and in the run's interpretation-constraints.txt, both derived at run time.
 ##
 ## That matters for how this tier is read. Part of any attenuation after
 ## downsampling is the estimator losing resolution, not the caudate changing.

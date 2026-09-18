@@ -57,6 +57,22 @@ if (length(missing)) {
          paste(missing, collapse = ", "))
 }
 
+## The boundary-rate sentences below quote numbers. They are DERIVED from the
+## tier-3 output, never written as literals: a literal drifts the moment the
+## upstream 02 run changes (the caudate arm's rescore moved this rate, and the
+## prose kept quoting the old one while the table beside it was right).
+bshift <- if (tier3) {
+    b <- as.data.table(fread(file.path(run_dir, "results",
+                                       "caudate-downsampling-replicates.tsv")))
+    list(full = sprintf("%.4f", b$boundary_rate_full[[1]]),
+         sub_lo = sprintf("%.3f", min(b$boundary_rate_subset)),
+         sub_hi = sprintf("%.3f", max(b$boundary_rate_subset)),
+         spread = sprintf("%.4f", diff(range(b$boundary_rate_subset))),
+         n_full = b$n_donors_full[[1]], n_sub = b$n_donors_subset[[1]],
+         dropped = b$n_donors_full[[1]] - b$n_donors_subset[[1]],
+         pts = sprintf("%.1f", 100 * mean(b$boundary_rate_delta)))
+} else NULL
+
 ## The interpretation constraints are written into the run directory as prose,
 ## the way 04, 05 and 07 do, so a reader who opens only the run gets them.
 writeLines(c(
@@ -122,10 +138,18 @@ writeLines(c(
     "  ESTIMATOR RESOLUTION, NOT BIOLOGY. Module 02's boundary_rate -- the",
     "  fraction of eligible loci whose unbounded estimate sits at the frozen",
     "  model's output floor, i.e. loci with no detectable local genetic control",
-    "  -- rises with the draw-down: 0.6263 at n=153 to 0.643-0.646 across the",
-    "  three n=118 replicates, spread 0.0025. In caudate it is entirely the",
+    if (tier3) paste0("  -- rises with the draw-down: ", bshift$full, " at n=",
+                      bshift$n_full, " to ", bshift$sub_lo, "-", bshift$sub_hi,
+                      " across the") else
+        "  -- rises with the draw-down across the",
+    if (tier3) paste0("  three n=", bshift$n_sub, " replicates, spread ",
+                      bshift$spread, ". In caudate it is entirely the") else
+        "  replicates. In caudate it is entirely the",
     "  LOWER boundary; there are zero upper-boundary hits in the arm or any",
-    "  replicate. Removing 35 donors therefore pushes about 1.8% more loci below",
+    if (tier3) paste0("  replicate. Removing ", bshift$dropped,
+                      " donors therefore pushes about ", bshift$pts,
+                      "% more loci below") else
+        "  replicate. Removing donors therefore pushes more loci below",
     "  the floor. ANY ATTENUATION AFTER DOWNSAMPLING PARTLY REFLECTS STATISTICAL",
     "  RESOLUTION RATHER THAN A BIOLOGICAL CHANGE, and must be reported that",
     "  way. The per-replicate numbers are on the tier-3 output rows.",
