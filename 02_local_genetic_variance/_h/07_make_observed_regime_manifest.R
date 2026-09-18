@@ -38,9 +38,11 @@ sval <- function(field) {
 }
 run_id <- if (nzchar(cli$run_id)) cli$run_id else sval("run_id")
 ## The cell token may carry a dot (all_individuals.EA), so the cohort segment
-## admits one. The bare form is the original AA caudate grid,
-## lgv-observed-regime-20260822.
-if (!grepl("^lgv-observed-regime-[A-Za-z_]+(\\.[A-Za-z]+)?-[a-z]+-[0-9]{8}[a-z]?$",
+## admits one. Digits belong in the estimation group as well: a donor_subsample
+## cell is named for the size and replicate it draws (AA.n118r1), and a
+## letters-only group segment rejected all three tier-3 grids. The bare form is
+## the original AA caudate grid, lgv-observed-regime-20260822.
+if (!grepl("^lgv-observed-regime-[A-Za-z_]+(\\.[A-Za-z0-9]+)?-[a-z]+-[0-9]{8}[a-z]?$",
            run_id) &&
     !grepl("^lgv-observed-regime-[0-9]{8}[a-z]?$", run_id)) {
     stop("run_id must match ^lgv-observed-regime-(<cell>-<region>-)?YYYYMMDD")
