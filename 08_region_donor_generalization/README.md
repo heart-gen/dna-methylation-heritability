@@ -4,9 +4,63 @@ Establishes what **reproduces** across brain regions, which regional difference
 is actually **identified**, and what the donor-group and matched-subset
 contrasts can support.
 
-**Status: not implemented.** Gated on `04_repeat_repressive_architecture` and `05_cpg_meqtl_burden` acceptance (AGENTS.md §6: "No downstream
-production run may consume an upstream result until the upstream README records
-a passing acceptance gate and immutable run ID").
+**Status: implemented 2026-09-18, no run accepted.** The blocking upstreams are
+satisfied — `04_repeat_repressive_architecture` (`rra-AA-*-20260906`) and
+`05_cpg_meqtl_burden` (`cmb-AA-*-20260825`) both record passing acceptance gates
+(AGENTS.md §6) — and the donor-group axis is unblocked by the six accepted cell
+runs in each of `01b_estimation_cells`, `02_local_genetic_variance` and
+`03_local_snp_prediction`.
+
+Tier 3 is the one axis that needed new upstream compute rather than assembly:
+`config/cohorts.yml` declares `AA.n118r{1,2,3}`, and their 01b → 02 → 03 chains
+must be sealed **and accepted** before this module will open a run.
+
+## Accepted runs
+
+Machine-readable, in the schema `00_shared/gates.R::read_accepted_runs()` parses.
+A run of this module spans all three regions, so `region` is the literal
+`crossregion` and the per-region `vmr_set_id`s are recorded in the manifest as
+`vmr_set_id_{region}` rather than in this table.
+
+| run_id | cohort | region | vmr_set_id | accepted_on | accepted_by | decision | notes |
+|---|---|---|---|---|---|---|---|
+| _(none)_ | | | | | | | |
+
+## Pipeline
+
+| stage | tier | writes |
+|---|---|---|
+| `00_new_run.R` | — | `results/tiers.tsv`; gates all 30 region-axis + 18 cell + 9 tier-3 upstreams and pins their run IDs |
+| `01_cross_region_replication.R` | 1 | `cross-region-{tests,replication,rank-agreement,summary}.tsv` |
+| `02_identified_difference.R` | 2 and 4 | `identified-difference{,-summary}.tsv`, `descriptive-confounded-regions.tsv` |
+| `03_donor_group_concordance.R` | donor group | `donor-group-concordance.tsv` |
+| `04_caudate_downsampling.R` | 3 | `caudate-downsampling-{replicates,summary}.tsv` |
+| `05_apply_gates.R` | — | `region-donor-generalization-{qc,decision}.tsv` |
+| `06_finalize_run.R` | — | `interpretation-constraints.txt`, seals |
+
+Run it with `COHORT=AA _h/submit_region_donor_generalization.sh`. Every stage is
+cheap: the module assembles accepted upstream results and refits nothing.
+
+## Acceptance gate
+
+`config/region_donor_generalization.yml:gate` locks nine criteria and the
+terminal decision `PASS_REGION_DONOR_GENERALIZATION_QC`:
+
+1. `every_output_carries_exactly_one_tier`
+2. `cross_region_replication_computed_for_all_three_regions`
+3. `identified_difference_restricted_to_dlpfc_hippocampus`
+4. `caudate_downsampling_replicates_complete`
+5. `donor_group_policy_is_concordance_only`
+6. `no_pooled_rank_or_pooled_r2_emitted`
+7. `no_cross_region_raw_score_comparison`
+8. `confounded_caudate_reported_separately_not_dropped`
+9. `reliability_ceiling_attached_to_every_concordance_figure`
+
+**These criteria certify tiering and interpretation constraints, not a positive
+finding.** A null cross-region replication and a null region difference both
+pass, exactly as `06_partitioned_heritability` passed with
+`sldsc_supports_brain_enrichment = FALSE`. A gate that required a finding would
+be a gate on the conclusion.
 
 ## Migrating from
 
@@ -74,6 +128,22 @@ calling can advantage it.
   within each region's libraries.
 - Expect unequal n. Report it, and match or downsample as a tier-3 sensitivity
   rather than adjusting for it post hoc.
+
+**Inference policy, PI 2026-09-18.** `config/analysis_thresholds.yml:donor_group`
+sets `donor_group_inference: concordance_only`,
+`cross_group_raw_score_comparison: false` and
+`ancestry_effect_claim_allowed: false`. It replaced
+`require_interaction_for_ancestry_claim: true`, which named a test this design
+cannot run — an interaction term needs a pooled group × genotype model, and §7.6
+forbids comparing the Module 02 score across cells at any level — so the key was
+unsatisfiable and guarded nothing. `00_shared/gates.R::donor_group_inference_policy()`
+reads and enforces the three keys, and refuses a widened policy rather than
+defaulting.
+
+Concordance is read **against the analytic reliability ceiling** from
+`02/_h/16_reliability_ceiling.R`. Without the ceiling an imperfect ρ reads as a
+donor-group difference when most of it is input uncertainty, which is the single
+most likely misreading of this axis.
 
 ## Priorities
 
