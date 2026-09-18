@@ -40,19 +40,8 @@ load_config <- function(name, root = repo_root()) {
     cfg
 }
 
-#' SHA-256 of a file, for the run manifest (AGENTS.md 9).
-file_sha256 <- function(path) {
-    if (!file.exists(path)) return(NA_character_)
-    if (requireNamespace("digest", quietly = TRUE)) {
-        return(digest::digest(path, algo = "sha256", file = TRUE))
-    }
-    ## digest is not in every env; fall back to the system tool rather than
-    ## silently recording NA for a provenance field.
-    out <- tryCatch(system2("sha256sum", shQuote(path), stdout = TRUE),
-                    error = function(e) NA_character_)
-    if (length(out) == 0 || is.na(out[1])) return(NA_character_)
-    sub(" .*$", "", out[1])
-}
+## file_sha256() now lives in 00_shared/sha.R, which has no yaml dependency
+## so the estimator env can source it too. load.R sources sha.R before this file.
 
 #' Fetch a nested config value by dotted key, erroring rather than returning NULL.
 config_get <- function(cfg, key) {

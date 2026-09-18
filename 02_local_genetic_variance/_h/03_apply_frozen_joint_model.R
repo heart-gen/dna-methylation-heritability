@@ -9,6 +9,11 @@ script_path <- normalizePath(sub("^--file=", "", file_arg[[1L]]))
 h_dir <- dirname(script_path)
 source(file.path(h_dir, "00_functions.R"))
 source(file.path(h_dir, "joint_pve_functions.R"))
+## This stage verifies the support table against the sha Stage 00 pinned, so it
+## needs file_sha256(). 00_shared/sha.R is dependency-free by design: the full
+## loader pulls in config.R, which needs yaml, and yaml is deliberately absent
+## from the calibrated-local-h2 env this stage runs in.
+source(file.path(h_dir, "..", "..", "00_shared", "sha.R"))
 
 cli <- parse_cli(list(run_dir = ""))
 if (!nzchar(cli$run_dir)) stop("--run-dir is required")
