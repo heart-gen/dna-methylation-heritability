@@ -182,6 +182,21 @@ reading <- if (!agree) {
 permitted <- as.character(ds$permitted_readings)
 forbidden <- as.character(ds$forbidden_readings)
 
+## The config states the permitted readings as the PI wrote them, in prose
+## ("donor count is a plausible major contributor"); this stage derives a
+## snake_case token. Comparing the two vocabularies directly made the check
+## below unsatisfiable: BOTH substantive readings failed it and only
+## `indeterminate_replicates_disagree` passed, so Stage 04 could complete only
+## when the three draws disagreed -- the one outcome that resolves nothing.
+## `config/region_donor_generalization.yml` is `pi_locked`, so the prose stays
+## exactly as written and is still what lands in the output column; only the
+## comparison is normalised.
+as_reading_token <- function(x) {
+    gsub("_+", "_", gsub("[^a-z0-9]+", "_", tolower(trimws(as.character(x)))))
+}
+permitted_tokens <- c(as_reading_token(permitted),
+                      "indeterminate_replicates_disagree")
+
 summary_dt <- data.table(
     tier = tier,
     region = ds_region,
@@ -208,9 +223,10 @@ summary_dt <- data.table(
     caudate_remains_batch_confounded = TRUE)
 write_atomic(summary_dt, file.path(out_dir, "caudate-downsampling-summary.tsv"))
 
-if (!reading %in% c(permitted, "indeterminate_replicates_disagree")) {
+if (!as_reading_token(reading) %in% permitted_tokens) {
     stop("Stage 04 produced the reading '", reading,
-         "', which is not in caudate_downsampling.permitted_readings")
+         "', which is not in caudate_downsampling.permitted_readings (",
+         paste(permitted, collapse = "; "), ")")
 }
 
 print(per_rep[, .(replicate_cell, mean_r2_full, mean_r2_subset,
