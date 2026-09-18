@@ -42,18 +42,27 @@ reconciliation <- data.frame(
 combined_dir <- file.path(run_dir, "results", "combined")
 write_tsv(reconciliation,
           file.path(combined_dir, "task-reconciliation.tsv"))
-if (length(missing_ids)) {
-    write_tsv(data.frame(task_id = missing_ids),
-              file.path(combined_dir, "missing-task-ids.tsv"))
+## These three files are DIAGNOSTICS OF THE CURRENT PASS, so each must be
+## written when its condition holds and REMOVED when it clears. Stage 02 is
+## re-run after a repair, and previously the clean re-run simply skipped the
+## write, leaving the failing pass's file frozen in the run directory. Two
+## sealed, accepted runs still carry a missing-task-ids.tsv listing loci that
+## were in fact recovered before sealing -- the file outlived the condition and
+## reads as an unresolved defect in an otherwise complete run.
+write_or_clear <- function(ids, filename) {
+    f <- file.path(combined_dir, filename)
+    if (length(ids)) {
+        write_tsv(data.frame(task_id = ids), f)
+    } else if (file.exists(f)) {
+        ## Announce it: a disappearing diagnostic should be in the log, not
+        ## silent, so a reader of two consecutive logs can see it cleared.
+        message("[reconcile] condition cleared; removing stale ", filename)
+        unlink(f)
+    }
 }
-if (length(duplicate_ids)) {
-    write_tsv(data.frame(task_id = duplicate_ids),
-              file.path(combined_dir, "duplicate-task-ids.tsv"))
-}
-if (length(unexpected_ids)) {
-    write_tsv(data.frame(task_id = unexpected_ids),
-              file.path(combined_dir, "unexpected-task-ids.tsv"))
-}
+write_or_clear(missing_ids, "missing-task-ids.tsv")
+write_or_clear(duplicate_ids, "duplicate-task-ids.tsv")
+write_or_clear(unexpected_ids, "unexpected-task-ids.tsv")
 if (length(duplicate_ids) || length(unexpected_ids)) {
     stop("Task reconciliation found duplicate or unexpected task IDs")
 }

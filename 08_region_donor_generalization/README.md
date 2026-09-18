@@ -65,8 +65,11 @@ calling can advantage it.
 - Do **not** contrast `AA` against `all_individuals`. Those are nested —
   `all_individuals` contains the AA donors — and a set-versus-superset
   comparison is not a donor-group contrast.
-- **An EA estimation cell does not yet exist** in Modules 01 or 02. It must be
-  defined and built before this axis can run.
+- **The EA estimation cell now exists.** `01b_estimation_cells` materializes
+  `all_individuals.AA` and `all_individuals.EA` from the sealed pooled Module 01
+  runs (six accepted runs, 2026-09-10), Modules 02 and 03 have six accepted cell
+  runs each (2026-09-17 / 2026-09-18), and both recombination stages have run
+  for all three regions. This axis is unblocked; see AGENTS.md §7.7.
 - This axis is **not** exposed to the batch confounding: donor groups interleave
   within each region's libraries.
 - Expect unequal n. Report it, and match or downsample as a tier-3 sensitivity
