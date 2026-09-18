@@ -85,34 +85,107 @@ check_run <- function(run_id) {
             (!identical(file_sha256(a), file_sha256(b))) note(f, " differs from catalog")
     }
 
-    ## -- 3. strict subset; cells on this catalog disjoint and exhaustive
+    ## -- 3. strict subset, plus the proof that matches THIS CELL KIND
+    ##
+    ## Both kinds must be a strict subset of the discovery set. What else must
+    ## hold differs, and applying the wrong proof fails a correct run:
+    ##
+    ##   race_partition   siblings are disjoint and together cover the pooled
+    ##                    set -- the cells partition it.
+    ##   donor_subsample  siblings deliberately OVERLAP and deliberately do NOT
+    ##                    cover, because each is an independent draw from one
+    ##                    source. The proof is that the draw is the right size,
+    ##                    balanced, and different from every other replicate.
     donors <- fread(file.path(run_dir, "vmr", "donors_plink.txt"),
                     header = FALSE, colClasses = "character")[[1]]
     pooled <- fread(file.path(source_vmr, "donors_plink.txt"),
                     header = FALSE, colClasses = "character")[[1]]
     if (!all(donors %in% pooled)) note("donors are not a subset of the pooled set")
     if (length(donors) >= length(pooled)) note("not a strict subset")
-    siblings <- Filter(function(nm) {
-        identical(cohorts_cfg$estimation_cells[[nm]]$catalog_cohort, catalog)
-    }, names(cohorts_cfg$estimation_cells))
+    if (anyDuplicated(donors)) note("duplicate donors in the cell donor list")
+
+    kind <- cohorts_cfg$estimation_cells[[cell]]$cell_kind %||% "race_partition"
     ## Build the sibling run IDs from parts. sub() does not vectorise over
     ## `replacement`, so swapping the cell token with a vector silently used
     ## only the first sibling.
     stamp <- sub(paste0("^estcell-", cell, "-", region, "-"), "", run_id)
-    sib_dirs <- file.path(runs_root,
-                          paste0("estcell-", siblings, "-", region, "-", stamp))
-    names(sib_dirs) <- siblings
-    sib_donors <- lapply(sib_dirs, function(d) {
-        f <- file.path(d, "vmr", "donors_plink.txt")
-        if (file.exists(f)) fread(f, header = FALSE, colClasses = "character")[[1]]
-        else NULL
-    })
-    if (all(vapply(sib_donors, Negate(is.null), logical(1)))) {
-        flat <- unlist(sib_donors, use.names = FALSE)
-        if (anyDuplicated(flat)) note("donor groups overlap")
-        if (!setequal(flat, pooled)) note("donor groups do not cover the pooled set")
+    sibling_kind <- function(nm) {
+        cohorts_cfg$estimation_cells[[nm]]$cell_kind %||% "race_partition"
+    }
+
+    if (identical(kind, "race_partition")) {
+        siblings <- Filter(function(nm) {
+            identical(cohorts_cfg$estimation_cells[[nm]]$catalog_cohort, catalog) &&
+                identical(sibling_kind(nm), "race_partition")
+        }, names(cohorts_cfg$estimation_cells))
+        sib_dirs <- file.path(runs_root,
+                              paste0("estcell-", siblings, "-", region, "-", stamp))
+        names(sib_dirs) <- siblings
+        sib_donors <- lapply(sib_dirs, function(d) {
+            f <- file.path(d, "vmr", "donors_plink.txt")
+            if (file.exists(f)) fread(f, header = FALSE, colClasses = "character")[[1]]
+            else NULL
+        })
+        if (all(vapply(sib_donors, Negate(is.null), logical(1)))) {
+            flat <- unlist(sib_donors, use.names = FALSE)
+            if (anyDuplicated(flat)) note("donor groups overlap")
+            if (!setequal(flat, pooled)) note("donor groups do not cover the pooled set")
+        } else {
+            note("sibling cell not built; disjointness unverified")
+        }
     } else {
-        note("sibling cell not built; disjointness unverified")
+        ds <- cohorts_cfg$estimation_cells[[cell]]$donor_subsample
+        if (is.null(ds)) note("donor_subsample cell has no donor_subsample block")
+        else {
+            if (!identical(as.character(ds$region), region)) {
+                note("cell is defined for region ", ds$region)
+            }
+            if (length(donors) != as.integer(ds$target_n)) {
+                note("drew ", length(donors), ", target_n is ", ds$target_n)
+            }
+            ## The recorded balance must be within the declared threshold. Read
+            ## from the sealed manifest, not recomputed, because the point of
+            ## this stage is to check what was WRITTEN.
+            obs <- mv("balance_smd_observed")
+            if (is.na(obs) || !nzchar(obs)) note("no balance_smd_observed recorded")
+            else {
+                vals <- suppressWarnings(as.numeric(
+                    sub("^[^=]*=", "", strsplit(obs, ",", fixed = TRUE)[[1]])))
+                if (anyNA(vals)) note("balance_smd_observed is unparseable")
+                else if (any(vals > as.numeric(ds$balance_smd_max))) {
+                    note("balance SMD ", max(vals), " exceeds ",
+                         ds$balance_smd_max)
+                }
+            }
+            if (is.na(mv("subsample_seed"))) note("no subsample_seed recorded")
+            ## Replicates must differ, or three "independent" draws are one
+            ## draw reported three times. Compared against every sibling
+            ## replicate that exists, by donor list, not by seed.
+            reps <- Filter(function(nm) {
+                identical(sibling_kind(nm), "donor_subsample") &&
+                    identical(cohorts_cfg$estimation_cells[[nm]]$catalog_cohort,
+                              catalog) &&
+                    identical(as.character(
+                        cohorts_cfg$estimation_cells[[nm]]$donor_subsample$region),
+                        region) &&
+                    !identical(nm, cell)
+            }, names(cohorts_cfg$estimation_cells))
+            n_compared <- 0L
+            for (nm in reps) {
+                f <- file.path(runs_root,
+                               paste0("estcell-", nm, "-", region, "-", stamp),
+                               "vmr", "donors_plink.txt")
+                if (!file.exists(f)) next
+                other <- fread(f, header = FALSE, colClasses = "character")[[1]]
+                n_compared <- n_compared + 1L
+                if (identical(sort(other), sort(donors))) {
+                    note("drew the same donors as replicate ", nm)
+                }
+            }
+            if (n_compared == 0L && length(reps) > 0L) {
+                note("no sibling replicate built; distinctness unverified")
+            }
+        }
     }
 
     ## -- 4. observed n matches the config reconstruction
