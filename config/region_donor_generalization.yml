@@ -107,6 +107,30 @@ caudate_downsampling:
   balance_on: [age, sex, diagnosis]
   balance_smd_max: 0.1
   replace: false
+  # Decision thresholds for this tier. They were literals in
+  # _h/04_caudate_downsampling.R until 2026-09-18, which meant the two numbers
+  # that SELECT the reading were the only ones in this tier not prespecified
+  # here -- and editable in _h/ without touching a pi_locked file. Moved with
+  # their current values, before any tier-3 result was seen.
+  #
+  # Maximum spread in retained_fraction across replicates before the tier
+  # reports `indeterminate_replicates_disagree` instead of a reading. The
+  # replicate spread IS part of the result: three draws that disagree mean the
+  # design cannot resolve this at n=118.
+  replicate_agreement_max_range: 0.10
+  # Minimum fraction of the caudate-minus-DLPFC gap that the within-caudate
+  # attenuation must represent before donor count is called a plausible major
+  # contributor. This is the SECONDARY, descriptive ratio (see
+  # primary_endpoint below): its denominator is a cross-region gap whose DLPFC
+  # term is a mean over a different VMR population, so it contextualizes the
+  # primary result rather than establishing it.
+  major_contributor_gap_closed_min: 0.50
+  # PI 2026-09-18. The primary tier-3 endpoint is the WITHIN-CAUDATE change on
+  # the identical shared caudate locus set: full n=153 against each n=118
+  # replicate, paired on locus. Caudate and DLPFC carry different vmr_set_ids,
+  # so no cross-region locus intersection exists and the DLPFC mean can only
+  # contextualize -- it cannot define the primary comparison.
+  primary_endpoint: within_caudate_paired_delta_r2
   # Only two readings are permitted, and the third is explicitly excluded.
   permitted_readings:
     - donor count is a plausible major contributor

@@ -102,6 +102,53 @@ here. Every output carries exactly one tier:
    establish that a residual is biological; caudate stays batch-confounded
    whatever it shows. This limit belongs in the module's interpretation
    constraints, not in the reader's head.
+
+   **Primary endpoint, PI 2026-09-18.** The primary tier-3 result is the
+   **within-caudate** change on the *identical shared caudate locus set* — full
+   n=153 against each n=118 replicate, paired on locus. Both terms are the same
+   region and the same loci, so no cross-region reference enters it.
+   `config/region_donor_generalization.yml:caudate_downsampling.primary_endpoint`
+   locks it as `within_caudate_paired_delta_r2`.
+
+   **The gap ratio is secondary and descriptive.** Writing it out,
+
+   ```
+   fraction_of_excess_closed_by_matching_n
+       = (mean_r2_full - mean_r2_subset) / (mean_r2_full - dlpfc_reference)
+   ```
+
+   the numerator is the primary within-caudate attenuation and is clean — the
+   DLPFC reference cancels. The **denominator is not**: caudate and DLPFC carry
+   different `vmr_set_id`s, so no cross-region locus intersection exists. The
+   caudate means are restricted to the loci shared by the full run and all three
+   replicates, while the DLPFC mean is over all DLPFC-scored loci, unrestricted.
+   Selection into the shared set is not random with respect to r², so the
+   denominator carries an uncontrolled term. Use the ratio **only** to say how
+   much of the region-level gap the primary attenuation would represent; it
+   cannot on its own decide whether donor count explains the excess. Stage 04
+   enforces this: the reading requires a replicate-consistent primary
+   attenuation before the ratio is consulted at all.
+
+   **Estimator resolution is retained as an explicit sample-size sensitivity.**
+   Module 02's `boundary_rate` — the fraction of eligible loci whose unbounded
+   estimate sits at the frozen model's output floor, i.e. loci with no
+   detectable local genetic control — rises with the draw-down:
+
+   | cell | n | boundary rate |
+   |---|---|---|
+   | `lgv-AA-caudate-20260823` | 153 | 0.6263 |
+   | `AA.n118r1` | 118 | 0.6431 |
+   | `AA.n118r2` | 118 | 0.6445 |
+   | `AA.n118r3` | 118 | 0.6456 |
+
+   In caudate this is **entirely the lower boundary** — zero upper-boundary hits
+   in the arm or any replicate — so removing 35 donors pushes ~1.8% more loci
+   below the floor, consistently across draws (spread 0.0025). **Any attenuation
+   after downsampling therefore partly reflects statistical resolution rather
+   than a biological change**, and must be reported that way. The per-replicate
+   numbers ride on the tier-3 output rows, and
+   `boundary_shift_is_estimator_resolution_not_biology` is carried beside them so
+   the caveat cannot be separated from the number.
 4. **Caudate-vs-other differences stay descriptive.** Reuse the Module 04
    mechanism — `interpretation.technically_confounded_regions` sets the cell
    aside from the claim while keeping the estimate fitted, written and surfaced
