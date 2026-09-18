@@ -103,9 +103,14 @@ load_r2 <- function(cell, region) {
     col <- if ("r2_pred_oof" %in% names(dt)) "r2_pred_oof" else
         stop("No r2_pred_oof column in ", f[[1L]])
     if (!"vmr_id" %in% names(dt)) stop("No vmr_id column in ", f[[1L]])
+    ## `chrom` travels with the locus so the uncertainty block below can be the
+    ## chromosome: loci within one are not independent. Fall back to the vmr_id
+    ## prefix (chrN:start-end) if the column is ever absent.
+    chrom <- if ("chrom" %in% names(dt)) as.character(dt$chrom) else
+        sub(":.*$", "", as.character(dt$vmr_id))
     out <- dt[, .(vmr_id = as.character(vmr_id),
                   r2 = suppressWarnings(as.numeric(get(col))))]
-    out[, cell := cell][, run_id := rid]
+    out[, chrom := chrom][, cell := cell][, run_id := rid]
     out[is.finite(r2)]
 }
 
@@ -217,9 +222,19 @@ per_rep <- rbindlist(lapply(sub_cells, function(this_cell) {
         ## Positive = the draw-down lowered r2, the direction donor count
         ## predicts. Stated explicitly so the sign is not read backwards.
         attenuation_mean_r2 = mean(a$r2) - mean(b$r2),
+        ## A_r = (R2_full - R2_n118,r) / R2_full, the PI-specified effect size.
+        ## Identical to 1 - retained_fraction; carried under its own name
+        ## because it is the quantity the primary criterion is stated in.
+        relative_attenuation = (mean(a$r2) - mean(b$r2)) / mean(a$r2),
         retained_fraction = mean(b$r2) / mean(a$r2),
         spearman_full_vs_subset = stats::cor(a$r2, b$r2, method = "spearman"),
+        ## DESCRIPTIVE ONLY. It gates nothing: PI 2026-09-18 replaced the
+        ## significance criterion with the effect size A, because with ~11k
+        ## paired loci a trivial attenuation would be "significant" and would
+        ## still say nothing about whether donor count matters. Kept because it
+        ## costs nothing and a reader will look for it.
         paired_wilcoxon_p = wt$p.value,
+        paired_wilcoxon_p_is_not_a_gate = TRUE,
         ## ---- estimator resolution, not biology ------------------------------
         boundary_rate_full = boundary_full$rate,
         boundary_rate_subset = boundary_sub[[this_cell]]$rate,
@@ -276,23 +291,78 @@ if (!is.finite(agreement_max_range) || !is.finite(gap_closed_min)) {
          "major_contributor_gap_closed_min; refusing to fall back to a literal")
 }
 
-## Step 1, the PRIMARY: do the three draws agree on the within-caudate change?
-## The replicate spread is part of the result -- three draws that disagree mean
-## the design cannot resolve this at n=118.
-agree <- diff(range(per_rep$retained_fraction)) <= agreement_max_range
-## Step 2, the primary effect itself, before any cross-region reference: is
-## there a consistent within-caudate attenuation at all? Every replicate must
-## agree in sign, or there is no attenuation for the gap ratio to contextualize.
-attenuation_consistent <- all(per_rep$attenuation_mean_r2 > 0) ||
-    all(per_rep$attenuation_mean_r2 <= 0)
+## ---------------------------------------- uncertainty on A: REPORTED, not gated
+##
+## PI 2026-09-18: report a chromosome-block CI on the attenuation as uncertainty,
+## and do NOT make statistical significance another hard gate. The criteria
+## above are an agreement tolerance and two effect-size/interpretive thresholds;
+## none of them is a significance cutoff.
+##
+## Delete-one-chromosome weighted block jackknife (Busing, Meijer & van der
+## Leeden 1999), the same construction 06_partitioned_heritability uses for
+## block standard errors. Weighted because chromosomes differ several-fold in
+## locus count, and the unweighted formula assumes equal blocks.
+relative_attenuation_of <- function(keep_ids) {
+    a <- full[match(keep_ids, vmr_id)]
+    mean(vapply(sub_cells, function(this_cell) {
+        b <- subs[cell == this_cell][match(keep_ids, vmr_id)]
+        (mean(a$r2) - mean(b$r2)) / mean(a$r2)
+    }, numeric(1)))
+}
+A_hat <- mean(per_rep$relative_attenuation)
+shared_chrom <- full[match(shared, vmr_id)]$chrom
+blocks <- split(shared, shared_chrom)
+blocks <- blocks[lengths(blocks) > 0L]
+A_ci_lower <- A_ci_upper <- A_se <- NA_real_
+n_blocks <- length(blocks)
+if (n_blocks >= 2L) {
+    n_tot <- length(shared)
+    hj <- n_tot / lengths(blocks)
+    theta_j <- vapply(names(blocks), function(b) {
+        relative_attenuation_of(setdiff(shared, blocks[[b]]))
+    }, numeric(1))
+    ## Pseudo-values, then the weighted jackknife variance.
+    pseudo <- hj * A_hat - (hj - 1) * theta_j
+    theta_J <- mean(pseudo)
+    A_se <- sqrt(sum((pseudo - theta_J)^2 / (hj - 1)) / n_blocks)
+    z <- stats::qnorm(1 - (1 - as.numeric(ds$attenuation_ci_level)) / 2)
+    A_ci_lower <- A_hat - z * A_se
+    A_ci_upper <- A_hat + z * A_se
+}
+
+## ------------------------------------------------------------- the reading
+##
+## Three locked criteria, PI 2026-09-18. (i) and (ii) are the PRIMARY and are
+## evaluated on the shared caudate loci alone; (iii) is separate and is the only
+## one that mentions the region-level difference.
+##
+##   (i)   all replicates attenuate in the same direction
+##   (ii)  mean relative attenuation A >= primary_min_relative_attenuation
+##   (iii) gap_closed >= major_contributor_gap_closed_min  -- SEPARATE, and what
+##         licenses calling donor count a plausible major contributor to the
+##         caudate-DLPFC difference specifically
+##
+## Plus the agreement tolerance: replicates whose A_r spread exceeds it leave the
+## tier unable to resolve the question at this n. Note A_r = 1 - retained_r, so
+## the spread is the same number either way.
+min_rel_atten <- as.numeric(ds$primary_min_relative_attenuation)
+if (!is.finite(min_rel_atten)) {
+    stop("caudate_downsampling lacks a finite primary_min_relative_attenuation")
+}
+agree <- diff(range(per_rep$relative_attenuation)) <= agreement_max_range
+## (i) direction
+attenuation_consistent <- all(per_rep$relative_attenuation > 0) ||
+    all(per_rep$relative_attenuation <= 0)
 primary_attenuation <- mean(per_rep$attenuation_mean_r2)
-## Step 3, the SECONDARY ratio, used only to size a primary effect that step 2
-## established. A `closed` above the threshold on the back of an inconsistent
-## primary is not a finding, which is why it cannot reach the reading alone.
+## (ii) magnitude
+primary_meets_magnitude <- is.finite(A_hat) && A_hat >= min_rel_atten
+primary_established <- attenuation_consistent && primary_meets_magnitude
+## (iii) the separate interpretive criterion
+gap_criterion_met <- is.finite(closed) && closed >= gap_closed_min
+
 reading <- if (!agree || !attenuation_consistent) {
     "indeterminate_replicates_disagree"
-} else if (is.finite(closed) && closed >= gap_closed_min &&
-           primary_attenuation > 0) {
+} else if (primary_established && gap_criterion_met) {
     "donor_count_is_a_plausible_major_contributor"
 } else {
     "donor_count_does_not_explain_the_excess"
@@ -330,24 +400,42 @@ summary_dt <- data.table(
     mean_r2_full = per_rep$mean_r2_full[[1]],
     mean_r2_subset_mean = mean(per_rep$mean_r2_subset),
     primary_attenuation_mean_r2 = primary_attenuation,
-    primary_attenuation_min = min(per_rep$attenuation_mean_r2),
-    primary_attenuation_max = max(per_rep$attenuation_mean_r2),
-    primary_attenuation_consistent_in_sign = attenuation_consistent,
+    ## A = mean_r (R2_full - R2_n118,r)/R2_full -- the criterion quantity.
+    relative_attenuation_mean = A_hat,
+    relative_attenuation_min = min(per_rep$relative_attenuation),
+    relative_attenuation_max = max(per_rep$relative_attenuation),
+    relative_attenuation_range = diff(range(per_rep$relative_attenuation)),
+    ## Uncertainty: REPORTED, never gated (PI 2026-09-18).
+    relative_attenuation_se_blockjack = A_se,
+    relative_attenuation_ci_lower = A_ci_lower,
+    relative_attenuation_ci_upper = A_ci_upper,
+    attenuation_uncertainty_method = as.character(ds$attenuation_uncertainty),
+    attenuation_ci_level = as.numeric(ds$attenuation_ci_level),
+    attenuation_n_blocks = n_blocks,
+    attenuation_significance_is_not_a_gate = TRUE,
+    ## The three locked criteria, each with the threshold that judged it.
+    criterion_i_same_direction = attenuation_consistent,
+    criterion_ii_magnitude_met = primary_meets_magnitude,
+    primary_min_relative_attenuation = min_rel_atten,
+    primary_established = primary_established,
+    criterion_iii_gap_closed_met = gap_criterion_met,
+    major_contributor_gap_closed_min = gap_closed_min,
     retained_fraction_mean = mean(per_rep$retained_fraction),
     retained_fraction_min = min(per_rep$retained_fraction),
     retained_fraction_max = max(per_rep$retained_fraction),
-    retained_fraction_range = diff(range(per_rep$retained_fraction)),
-    max_paired_wilcoxon_p = max(per_rep$paired_wilcoxon_p),
     replicates_agree = agree,
-    ## Thresholds recorded beside the values they judged, so a reader never has
-    ## to go find which version of the config produced this reading.
+    ## An agreement TOLERANCE, not a significance cutoff.
     replicate_agreement_max_range = agreement_max_range,
-    major_contributor_gap_closed_min = gap_closed_min,
     ## ---- estimator resolution at lower n, NOT biology ----------------------
     boundary_rate_full = boundary_full$rate,
     boundary_rate_subset_mean = mean(per_rep$boundary_rate_subset),
     boundary_rate_delta_mean = mean(per_rep$boundary_rate_delta),
     boundary_shift_is_estimator_resolution_not_biology = TRUE,
+    ## Reported ALONGSIDE the attenuation, never folded into it: A is computed on
+    ## prediction r2 alone and carries no boundary-rate correction, so overall
+    ## prediction attenuation stays distinguishable from the accompanying loss of
+    ## estimator resolution (PI 2026-09-18).
+    boundary_shift_excluded_from_attenuation_threshold = TRUE,
     ## ---- SECONDARY / DESCRIPTIVE: the region-level gap context -------------
     dlpfc_reference_mean_r2 = if (!is.null(dlpfc_r2)) mean(dlpfc_r2$r2) else NA_real_,
     excess_over_dlpfc_full = excess_full,
@@ -387,8 +475,14 @@ message("[tier3] SECONDARY / descriptive -- region-level gap context:")
 print(summary_dt[, .(dlpfc_reference_mean_r2, excess_over_dlpfc_full,
                      fraction_of_excess_closed_by_matching_n,
                      fraction_of_excess_closed_is_descriptive_only)])
-print(summary_dt[, .(primary_attenuation_mean_r2, replicates_agree,
-                     primary_attenuation_consistent_in_sign, reading)])
+message("[tier3] locked criteria:")
+print(summary_dt[, .(criterion_i_same_direction, relative_attenuation_mean,
+                     criterion_ii_magnitude_met, criterion_iii_gap_closed_met,
+                     replicates_agree, reading)])
+message("[tier3] attenuation A = ", sprintf("%.4f", A_hat),
+        if (is.finite(A_se)) sprintf(" (%.0f%% block-jackknife CI %.4f to %.4f, %d chromosome blocks; reported, not gated)",
+                                     100 * as.numeric(ds$attenuation_ci_level),
+                                     A_ci_lower, A_ci_upper, n_blocks) else "")
 message("[tier3] reading: ", reading)
 message("  Established by the PRIMARY within-caudate paired comparison on one ",
         "locus set; the DLPFC gap ratio only sizes it and is descriptive.")

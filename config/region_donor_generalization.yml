@@ -113,18 +113,41 @@ caudate_downsampling:
   # here -- and editable in _h/ without touching a pi_locked file. Moved with
   # their current values, before any tier-3 result was seen.
   #
-  # Maximum spread in retained_fraction across replicates before the tier
-  # reports `indeterminate_replicates_disagree` instead of a reading. The
-  # replicate spread IS part of the result: three draws that disagree mean the
-  # design cannot resolve this at n=118.
+  # An AGREEMENT TOLERANCE, not a significance cutoff. Maximum spread in
+  # relative attenuation across replicates before the tier reports
+  # `indeterminate_replicates_disagree`. The replicate spread IS part of the
+  # result: three draws that disagree mean the design cannot resolve this at
+  # n=118.
   replicate_agreement_max_range: 0.10
-  # Minimum fraction of the caudate-minus-DLPFC gap that the within-caudate
-  # attenuation must represent before donor count is called a plausible major
-  # contributor. This is the SECONDARY, descriptive ratio (see
-  # primary_endpoint below): its denominator is a cross-region gap whose DLPFC
-  # term is a mean over a different VMR population, so it contextualizes the
+  # A MAGNITUDE (EFFECT-SIZE) REQUIREMENT on the primary endpoint, not a
+  # significance cutoff. Minimum mean relative attenuation
+  #     A = mean_r A_r,   A_r = (R2_full - R2_n118,r) / R2_full
+  # over the shared caudate loci. PI 2026-09-18 chose an effect-size criterion
+  # deliberately in place of a paired test: with ~11k paired loci a trivial
+  # attenuation would be "significant", which would say nothing about whether
+  # donor count matters.
+  #
+  # It is computed on prediction r2 ALONE and is deliberately NOT corrected for
+  # the Module 02 lower-boundary shift (~1.8 points from n=153 to n=118). That
+  # shift is reported beside this number, never folded into it, so overall
+  # prediction attenuation stays distinguishable from the accompanying loss of
+  # estimator resolution.
+  primary_min_relative_attenuation: 0.10
+  # An INTERPRETIVE THRESHOLD, not a significance cutoff, and a SEPARATE
+  # criterion from the primary above. Minimum fraction of the caudate-minus-
+  # DLPFC gap that the within-caudate attenuation must represent before donor
+  # count may be called a plausible major contributor TO THAT REGION-LEVEL
+  # DIFFERENCE. Secondary and descriptive: its denominator is a cross-region gap
+  # whose DLPFC term is a mean over a different VMR population, so it sizes the
   # primary result rather than establishing it.
   major_contributor_gap_closed_min: 0.50
+  # Uncertainty on A is REPORTED, never gated. A delete-one-chromosome weighted
+  # block jackknife (Busing et al. 1999, as used for block standard errors in
+  # 06_partitioned_heritability) gives a CI on the attenuation; loci within a
+  # chromosome are not independent, so the block is the chromosome. Statistical
+  # significance is deliberately not a hard gate for this tier.
+  attenuation_uncertainty: chromosome_block_jackknife
+  attenuation_ci_level: 0.95
   # PI 2026-09-18. The primary tier-3 endpoint is the WITHIN-CAUDATE change on
   # the identical shared caudate locus set: full n=153 against each n=118
   # replicate, paired on locus. Caudate and DLPFC carry different vmr_set_ids,
