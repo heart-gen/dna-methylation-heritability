@@ -98,7 +98,9 @@ caudate_downsampling:
   # Independent subsets, so a conclusion does not ride on one draw. Each is a
   # sealed 01b + 02 + 03 chain under its own cell token.
   n_replicates: 3
-  cell_token_template: "AA.n{target_n}r{replicate}"
+  # The FULL cell token, including the catalog arm. Substituted from the
+  # keys above, so the arm is never written twice or hard-coded.
+  cell_token_template: "{source_cell}.n{target_n}r{replicate}"
   seed_base: 20260918
   # Balance the subset on the covariates already in the model, so a shift in
   # the estimate is attributable to n and not to a redrawn case mix.

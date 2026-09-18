@@ -144,11 +144,15 @@ ds <- config_get(cfg, "caudate_downsampling")
 ds_runs <- list()
 if (isTRUE(ds$enabled)) {
     ds_region <- as.character(ds$region)
-    ds_cells <- sprintf(gsub("{target_n}", ds$target_n,
-                             gsub("{replicate}", "%d", ds$cell_token_template,
-                                  fixed = TRUE), fixed = TRUE),
-                        seq_len(as.integer(ds$n_replicates)))
-    ds_cells <- paste0(ds$source_cell, ".", ds_cells)
+    ## cell_token_template is the FULL token, arm included, so substitute all
+    ## three keys and prepend nothing -- prepending source_cell as well would
+    ## build 'AA.AA.n118r1'.
+    ds_cells <- vapply(seq_len(as.integer(ds$n_replicates)), function(i) {
+        tok <- ds$cell_token_template
+        tok <- gsub("{source_cell}", ds$source_cell, tok, fixed = TRUE)
+        tok <- gsub("{target_n}", ds$target_n, tok, fixed = TRUE)
+        gsub("{replicate}", i, tok, fixed = TRUE)
+    }, character(1))
     for (cell in ds_cells) {
         ## Fail early and legibly if the cell is not even declared, rather than
         ## with an opaque parse error deeper in.
