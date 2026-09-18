@@ -6,6 +6,11 @@
 #     VMR_RUN_ID=vmrcat-all_individuals-dlpfc-20260816 \
 #     ../_h/submit_estimation_cell.sh
 #
+# GROUP is the cell's estimation_group from config/cohorts.yml, so it is a race
+# label for a race_partition cell (AA, EA) and a draw label for a
+# donor_subsample cell (n118r1). The script does not care which; stage 00
+# branches on cell_kind.
+#
 # Stage 00 runs on the SUBMIT HOST, not under sbatch: it is what mints the run
 # ID that every later stage needs, and the VMR count it copies is what sizes the
 # stage-02 array. Stages 01-04 are chained with SLURM dependencies.
@@ -22,7 +27,7 @@ while [ "$_ROOT" != "/" ] && [ ! -d "$_ROOT/.git" ]; do _ROOT=$(dirname "$_ROOT"
 source "$_ROOT/00_shared/slurm.sh"
 
 : "${COHORT:?set COHORT=all_individuals}"
-: "${GROUP:?set GROUP=AA|EA}"
+: "${GROUP:?set GROUP to the cell estimation_group, e.g. EA or n118r1}"
 : "${REGION:?set REGION}"
 : "${VMR_RUN_ID:?set VMR_RUN_ID to an accepted 01_vmr_catalog run}"
 

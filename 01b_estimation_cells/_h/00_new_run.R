@@ -135,44 +135,154 @@ if (anyNA(race_of)) {
          paste(head(missing, 10), collapse = ", "))
 }
 
-cell_donors <- pooled_donors[race_of %in% arm$race_filter]
-if (nrow(cell_donors) == 0) {
-    stop("No pooled donors carry race in {", paste(arm$race_filter, collapse = ", "),
-         "} for ", cell, "/", region)
-}
-
-## Partition proof. Every estimation cell on this catalog is checked, not just
-## the one being built, so a mislabelled race_filter that made two cells overlap
-## or lose a donor is caught here rather than in a downstream contrast.
 cohorts_cfg <- load_config("cohorts")
-sibling_cells <- Filter(
-    function(nm) identical(cohorts_cfg$estimation_cells[[nm]]$catalog_cohort,
-                           catalog_cohort),
-    names(cohorts_cfg$estimation_cells))
-sibling_filters <- lapply(sibling_cells, function(nm) {
-    as.character(cohorts_cfg$estimation_cells[[nm]]$race_filter)
-})
-names(sibling_filters) <- sibling_cells
+cell_kind <- arm$cell_kind
 
-overlap <- unlist(sibling_filters)
-if (anyDuplicated(overlap)) {
-    stop("Estimation cells on '", catalog_cohort, "' share a race label: ",
-         paste(unique(overlap[duplicated(overlap)]), collapse = ", "),
-         ". The donor groups would not be disjoint.")
+## The two cell kinds are defined by different things and therefore carry
+## different proofs. Sharing one codepath here would mean one of the proofs is
+## vacuous for one of the kinds, which is worse than branching.
+subsample_provenance <- list()
+
+if (identical(cell_kind, "race_partition")) {
+
+    cell_donors <- pooled_donors[race_of %in% arm$race_filter]
+    if (nrow(cell_donors) == 0) {
+        stop("No pooled donors carry race in {",
+             paste(arm$race_filter, collapse = ", "),
+             "} for ", cell, "/", region)
+    }
+
+    ## Partition proof. Every race_partition cell on this catalog is checked,
+    ## not just the one being built, so a mislabelled race_filter that made two
+    ## cells overlap or lose a donor is caught here rather than in a downstream
+    ## contrast. donor_subsample siblings are excluded by construction: they
+    ## deliberately overlap and deliberately do not cover, so including them
+    ## would make this proof fail on a correct configuration.
+    sibling_cells <- Filter(
+        function(nm) {
+            spec <- cohorts_cfg$estimation_cells[[nm]]
+            identical(spec$catalog_cohort, catalog_cohort) &&
+                identical(spec$cell_kind %||% "race_partition",
+                          "race_partition")
+        },
+        names(cohorts_cfg$estimation_cells))
+    sibling_filters <- lapply(sibling_cells, function(nm) {
+        as.character(cohorts_cfg$estimation_cells[[nm]]$race_filter)
+    })
+    names(sibling_filters) <- sibling_cells
+
+    overlap <- unlist(sibling_filters)
+    if (anyDuplicated(overlap)) {
+        stop("Estimation cells on '", catalog_cohort, "' share a race label: ",
+             paste(unique(overlap[duplicated(overlap)]), collapse = ", "),
+             ". The donor groups would not be disjoint.")
+    }
+    covered <- pooled_donors$FID[race_of %in% overlap]
+    uncovered <- setdiff(pooled_donors$FID, covered)
+    if (length(uncovered)) {
+        stop("The estimation cells on '", catalog_cohort, "' do not cover ",
+             "every pooled donor. Uncovered: ",
+             paste(head(uncovered, 10), collapse = ", "),
+             if (length(uncovered) > 10)
+                 paste0(" (and ", length(uncovered) - 10, " more)"))
+    }
+
+} else if (identical(cell_kind, "donor_subsample")) {
+
+    ds <- arm$donor_subsample
+
+    ## A subsample cell is region-specific by design: it answers a question
+    ## about one region's donor count, and a run in another region would be
+    ## meaningless rather than merely underpowered.
+    if (!identical(as.character(ds$region), region)) {
+        stop("Cell '", cell, "' is defined for region '", ds$region,
+             "' and cannot be built for '", region, "'")
+    }
+
+    ## Draw from the pooled donor list of the SOURCE arm's own catalog, which is
+    ## this run's upstream by the parse_cell() check that source_cell ==
+    ## catalog_cohort. So the candidate pool is exactly `pooled_donors`.
+    balance_cols <- as.character(ds$balance_on)
+    covars <- as.data.frame(
+        pheno_region[match(pooled_donors$FID, pheno_region$brnum),
+                     ..balance_cols])
+    for (k in balance_cols) {
+        if (anyNA(covars[[k]])) {
+            stop("Balance covariate '", k, "' is missing for ",
+                 sum(is.na(covars[[k]])), " pooled donors; a draw balanced on ",
+                 "an incomplete covariate is not balanced.")
+        }
+    }
+
+    drawn <- draw_balanced_subsample(
+        covars      = covars,
+        target_n    = ds$target_n,
+        seed        = ds$seed,
+        balance_on  = balance_cols,
+        smd_max     = ds$balance_smd_max,
+        max_draws   = ds$max_draws)
+    cell_donors <- pooled_donors[drawn$index]
+
+    ## The draw is a pure function of the seed, so record every input to it.
+    ## Without these the selected donors are unreproducible from the manifest
+    ## and the cell is not a citable run (AGENTS.md 9).
+    subsample_provenance <- list(
+        source_cell        = as.character(ds$source_cell),
+        subsample_target_n = as.integer(ds$target_n),
+        subsample_replicate = as.integer(ds$replicate),
+        subsample_seed     = as.integer(ds$seed),
+        subsample_draws    = drawn$n_draws,
+        balance_on         = paste(balance_cols, collapse = ","),
+        balance_smd_max    = ds$balance_smd_max,
+        balance_smd_observed = paste(
+            sprintf("%s=%.4f", names(drawn$smd), drawn$smd), collapse = ","))
+
+    message("[subsample] ", cell, ": drew ", nrow(cell_donors), " of ",
+            nrow(pooled_donors), " on draw ", drawn$n_draws,
+            "; SMD ", subsample_provenance$balance_smd_observed)
+
+    ## Replicates must differ, or three "independent" subsets are one subset
+    ## reported three times. Check against every sibling replicate that has
+    ## already been materialized rather than trusting the seeds to differ.
+    sibling_subsamples <- Filter(
+        function(nm) {
+            spec <- cohorts_cfg$estimation_cells[[nm]]
+            identical(spec$cell_kind, "donor_subsample") &&
+                identical(spec$catalog_cohort, catalog_cohort) &&
+                identical(as.character(spec$donor_subsample$region), region) &&
+                !identical(nm, cell)
+        },
+        names(cohorts_cfg$estimation_cells))
+    for (nm in sibling_subsamples) {
+        for (prior in Sys.glob(file.path(V2_ROOT, "01b_estimation_cells", "_m",
+                                         "runs",
+                                         paste0("estcell-", nm, "-", region,
+                                                "-*"),
+                                         "vmr", "donors_plink.txt"))) {
+            other <- fread(prior, header = FALSE, colClasses = "character")
+            if (identical(sort(other[[1]]), sort(cell_donors$FID))) {
+                stop("Cell '", cell, "' drew the same donors as the existing ",
+                     "run at ", prior, ". Replicates must differ; check the ",
+                     "seeds in config/cohorts.yml.")
+            }
+        }
+    }
+
+} else {
+    stop("Unhandled cell_kind '", cell_kind, "' for cell ", cell)
 }
-covered <- pooled_donors$FID[race_of %in% overlap]
-uncovered <- setdiff(pooled_donors$FID, covered)
-if (length(uncovered)) {
-    stop("The estimation cells on '", catalog_cohort, "' do not cover every ",
-         "pooled donor. Uncovered: ",
-         paste(head(uncovered, 10), collapse = ", "),
-         if (length(uncovered) > 10)
-             paste0(" (and ", length(uncovered) - 10, " more)"))
-}
+
+## Both kinds must be a STRICT subset of the discovery set. For a subsample the
+## draw guarantees it arithmetically, but assert it anyway: this is the property
+## every downstream consumer relies on and it costs nothing to prove.
 if (nrow(cell_donors) >= nrow(pooled_donors)) {
     stop("Cell '", cell, "' is not a strict subset of the pooled donor set (",
          nrow(cell_donors), " of ", nrow(pooled_donors), ")")
 }
+if (length(setdiff(cell_donors$FID, pooled_donors$FID))) {
+    stop("Cell '", cell, "' contains donors absent from the pooled set")
+}
+assert_no_dups(cell_donors$FID, paste0("FID in cell ", cell))
 
 assert_expected_n(nrow(cell_donors), cell, region)
 
@@ -184,11 +294,13 @@ run <- new_run(
     module_root = file.path(V2_ROOT, "01b_estimation_cells"),
     vmr_set_id = vmr_set_id,
     upstream = list(vmr_catalog = opts$vmr_run_id),
-    extra = list(
+    extra = c(list(
         smoke_run        = opts$allow_unlocked,
         catalog_cohort   = catalog_cohort,
         estimation_group = group,
-        race_filter      = paste(arm$race_filter, collapse = ","),
+        cell_kind        = cell_kind,
+        race_filter      = if (is.null(arm$race_filter)) ""
+                           else paste(arm$race_filter, collapse = ","),
         pgen_prefix      = arm$pgen_prefix,
         ## The covariate files were written by the catalog arm's Module 01 run,
         ## so they carry ITS prefix, not the group's. locus_io.R needs this
@@ -206,7 +318,7 @@ run <- new_run(
         genotype_pcs     = paste(
             load_config("covariates")$estimation_cells$genotype_pcs,
             collapse = ",")
-    ))
+    ), subsample_provenance))
 
 ## Same layout as a Module 01 run, because 02 and 03 read that layout.
 vmr_dir <- file.path(run$dir, "vmr")

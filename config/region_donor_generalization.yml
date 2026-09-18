@@ -1,0 +1,185 @@
+# Cross-region robustness and identifiable regional heterogeneity (Module 08).
+# Prespecified; do not tune after seeing results.
+#
+# This module is NOT a symmetric "shared versus context-dependent" analysis.
+# Brain region is perfectly confounded with sequencing batch (AGENTS.md 8.1;
+# writing-notes/WGBS_BATCH_REGION_CONFOUNDING.md), so replication and difference
+# are not two equal findings here. Every output carries exactly one tier, and
+# the tier travels with the result into every table and figure.
+#
+# Scope set by the PI 2026-09-06; config written 2026-09-18.
+
+pi_locked: true
+
+# ------------------------------------------------------------------- tiers
+# `licenses` is the ONLY interpretation each tier supports, and 08's gate stage
+# refuses to emit a result whose tier is absent from this block. Ordered
+# strongest first; `rank` is what downstream figure code sorts on.
+tiers:
+  cross_region_replication:
+    rank: 1
+    label: Strongest
+    licenses: >-
+      Robustness of the genetic-control architecture across technical and
+      regional contexts.
+    # The batch boundary makes a successful replication more compelling and
+    # does nothing for the interpretability of a difference. Do not write that
+    # the confounding strengthens the result.
+    forbid_phrasings:
+      - confounding strengthens
+      - batch boundary validates
+  identified_difference:
+    rank: 2
+    label: Identified difference
+    licenses: Genuine regional heterogeneity.
+    # The only clean region contrast: both regions sit inside batches 1-2, so
+    # the comparison is not crossing the batch boundary.
+    regions: [dlpfc, hippocampus]
+  mechanistic_sensitivity:
+    rank: 3
+    label: Mechanistic sensitivity
+    licenses: >-
+      Whether donor count explains the caudate excess -- and nothing more.
+    # A surviving excess is never promoted to biology. Caudate stays
+    # batch-confounded whatever the downsampling shows, so "not donor count"
+    # does not become "therefore region".
+    cannot_establish:
+      - residual excess is biological
+      - region effect independent of batch
+  descriptive_only:
+    rank: 4
+    label: Descriptive only
+    licenses: Nothing. Reported because readers will ask.
+    regions: [caudate]
+
+# ------------------------------------------------- tier 1: cross-region axis
+# Replication is the primary deliverable. The inputs are already-accepted
+# per-region results; 08 assembles and tests their agreement, it does not refit
+# anything. Sources are the by-products that currently live in other modules.
+cross_region_replication:
+  regions: [caudate, dlpfc, hippocampus]
+  cohort: AA
+  # AGENTS.md 7.6 forbids raw score-level comparison ACROSS REGIONS, so
+  # agreement is measured on directions and ranks, never on levels.
+  agreement_basis: rank_and_direction
+  min_regions_for_replication: 2
+  sources:
+    local_snp_prediction_check_c: 03_local_snp_prediction
+    meqtl_beta_agreement: 05_cpg_meqtl_burden
+    expression_coupling: 07_transcription_splicing_coupling
+    repeat_architecture: 04_repeat_repressive_architecture
+  shared_donor_analysis: true
+
+# ------------------------------------- tier 2: the one identified difference
+identified_difference:
+  contrast: [dlpfc, hippocampus]
+  cohort: AA
+  batches: [1, 2]
+  # The Module 04 template: primary claim on the identified contrast,
+  # strict-conjunction sensitivity gating, confounded cell reported separately.
+  template_module: 04_repeat_repressive_architecture
+  require_strict_conjunction: true
+  alpha: 0.05
+  fdr_method: BH
+
+# ------------------------- tier 3: caudate donor-count sensitivity (n = 118)
+# Tests Module 03's untested attribution of the caudate excess to donor count.
+# This needs REAL 02/03 runs on a fixed donor subset, not a resampling of the
+# existing per-locus table: the endpoint is a within-cell midrank percentile, so
+# it does not survive row subsetting and must be refit inside the subset.
+caudate_downsampling:
+  enabled: true
+  source_cell: AA
+  region: caudate
+  # 118 is the DLPFC donor count, which is what makes this a matched
+  # comparison rather than an arbitrary decimation.
+  target_n: 118
+  matched_to: {region: dlpfc, cohort: AA, n: 118}
+  # Independent subsets, so a conclusion does not ride on one draw. Each is a
+  # sealed 01b + 02 + 03 chain under its own cell token.
+  n_replicates: 3
+  cell_token_template: "AA.n{target_n}r{replicate}"
+  seed_base: 20260918
+  # Balance the subset on the covariates already in the model, so a shift in
+  # the estimate is attributable to n and not to a redrawn case mix.
+  balance_on: [age, sex, diagnosis]
+  balance_smd_max: 0.1
+  replace: false
+  # Only two readings are permitted, and the third is explicitly excluded.
+  permitted_readings:
+    - donor count is a plausible major contributor
+    - donor count does not explain the excess
+  forbidden_readings:
+    - residual excess is biological
+
+# ----------------------------------------------------- donor-group axis
+# The axis itself is already computed: Modules 02 and 03 have six accepted cell
+# runs and both recombination stages have run for all three regions. 08 reads
+# their _m/combined/ outputs and does not recompute a score.
+#
+# The inference policy is NOT restated here. It lives in
+# config/analysis_thresholds.yml:donor_group and is enforced by
+# 00_shared/gates.R::donor_group_inference_policy(), which 08 calls; duplicating
+# the flags would let the two copies drift.
+donor_group:
+  cells: [all_individuals.AA, all_individuals.EA]
+  catalog_cohort: all_individuals
+  regions: [caudate, dlpfc, hippocampus]
+  policy_source: analysis_thresholds.donor_group
+  inputs:
+    local_genetic_control: 02_local_genetic_variance/_m/combined/local-genetic-control-donor-group-{region}.tsv
+    concordance_summary: 02_local_genetic_variance/_m/combined/donor-group-concordance-{region}.tsv
+    reliability_ceiling: 02_local_genetic_variance/_m/combined/reliability-ceiling-{region}.tsv
+    oof_predictions: 03_local_snp_prediction/_m/combined/oof-prediction-donor-group-{region}.tsv
+  # Reportable quantities. Each is invariant to the fact that the two ranks were
+  # computed in different denominators, which is why it is reportable where a
+  # raw difference is not.
+  report:
+    - spearman_score
+    - quartile_concordance
+    - top_quartile_overlap
+    - concordance_fraction_of_ceiling
+  # Observed agreement is read AGAINST the analytic reliability ceiling from
+  # 02 Stage 16. Without the ceiling, an imperfect rho reads as a donor-group
+  # difference when it is mostly input uncertainty.
+  interpret_against_reliability_ceiling: true
+  # This axis is not exposed to 8.1: donor groups interleave within each
+  # region's libraries.
+  batch_confounded: false
+
+# ------------------------------------------------------------ interpretation
+interpretation:
+  # Same mechanism as config/repeat_annotations.yml: the cell is set aside from
+  # the claim while its estimate stays fitted, written and surfaced.
+  technically_confounded_regions:
+    all_outcomes: [caudate]
+  # Cross-population predictor portability is optional and secondary
+  # (AGENTS.md 7.7); off until the primary axes are accepted.
+  predictor_portability:
+    enabled: false
+  required_eliminations_before_ancestry_language:
+    - sample_size
+    - maf_spectrum
+    - ld_structure
+    - snp_availability
+    - assay
+    - covariates
+    - brain_region
+  # PI-approved donor-group language. Any other wording is a defect.
+  group_labels:
+    AA: Black American
+    EA: non-Hispanic white American
+
+# ------------------------------------------------------------ acceptance gate
+gate:
+  decision_pass: PASS_REGION_DONOR_GENERALIZATION_QC
+  criteria:
+    - every_output_carries_exactly_one_tier
+    - cross_region_replication_computed_for_all_three_regions
+    - identified_difference_restricted_to_dlpfc_hippocampus
+    - caudate_downsampling_replicates_complete
+    - donor_group_policy_is_concordance_only
+    - no_pooled_rank_or_pooled_r2_emitted
+    - no_cross_region_raw_score_comparison
+    - confounded_caudate_reported_separately_not_dropped
+    - reliability_ceiling_attached_to_every_concordance_figure
