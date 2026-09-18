@@ -162,3 +162,5 @@ writing-notes/
 ![0-9][0-9]*_*/_m/README.md
 !02_local_genetic_variance/_m/calibration_frozen/*.tsv
 local-snp-prediction/oof_diagnostic/
+settings.json
+settings.local.json
