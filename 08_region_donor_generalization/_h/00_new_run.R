@@ -170,7 +170,12 @@ if (isTRUE(ds$enabled)) {
                       "03_local_snp_prediction")) {
             row <- require_accepted_upstream(mod, cell, ds_region,
                                              allow_unaccepted = allow_unlocked)
-            ds_runs[[paste(mod, cell, sep = "|")]] <- row
+            ## Key on mod|cell|REGION, exactly like `cell_runs` above. Keying on
+            ## mod|cell alone wrote `upstream_03_local_snp_prediction_AA_n118r1`
+            ## while Stage 04 looks up `..._AA_n118r1_caudate`, so every
+            ## replicate missed and fell through Stage 04's arm fallback to the
+            ## full caudate run -- comparing the arm against itself three times.
+            ds_runs[[paste(mod, cell, ds_region, sep = "|")]] <- row
         }
     }
     ## The subsets must sit on the SAME locus set as the full caudate run, or
@@ -181,7 +186,7 @@ if (isTRUE(ds$enabled)) {
                         sep = "|")]]$vmr_set_id)
     for (cell in ds_cells) {
         sub_id <- as.character(
-            ds_runs[[paste("02_local_genetic_variance", cell,
+            ds_runs[[paste("02_local_genetic_variance", cell, ds_region,
                            sep = "|")]]$vmr_set_id)
         if (!identical(sub_id, full_id)) {
             stop("Tier-3 cell '", cell, "' sits on vmr_set_id ", sub_id,

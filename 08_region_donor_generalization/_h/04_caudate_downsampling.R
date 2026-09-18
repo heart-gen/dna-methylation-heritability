@@ -60,6 +60,7 @@ if (!isTRUE(ds$enabled)) {
     quit(save = "no", status = 0)
 }
 
+
 ds_region <- as.character(ds$region)
 source_cell <- as.character(ds$source_cell)
 target_n <- as.integer(ds$target_n)
@@ -76,11 +77,21 @@ load_r2 <- function(cell, region) {
     key <- paste0("upstream_03_local_snp_prediction_",
                   gsub("[.]", "_", cell), "_", region)
     rid <- mopt(key)
-    if (is.na(rid)) {
-        ## The full-arm run is keyed without a cell suffix.
+    if (is.na(rid) && identical(cell, source_cell)) {
+        ## The full-arm run, and ONLY the full-arm run, is keyed without a cell
+        ## suffix. Letting a subsample cell take this branch is how the tier
+        ## silently compared the arm against itself: the replicate key missed,
+        ## the fallback handed back the full caudate run, and every replicate
+        ## came out at retained_fraction exactly 1.0 with a NA Wilcoxon p --
+        ## which criterion 4 accepts, because 1.0 is finite. A missing
+        ## replicate must stop the run, not borrow the number it is supposed to
+        ## be tested against.
         rid <- mopt(paste0("upstream_03_local_snp_prediction_", region))
     }
-    if (is.na(rid)) stop("Manifest has no Module 03 run for ", cell, " x ", region)
+    if (is.na(rid)) {
+        stop("Manifest has no Module 03 run for ", cell, " x ", region,
+             " (looked for manifest field '", key, "')")
+    }
     d <- file.path(V2_ROOT, "03_local_snp_prediction", "_m", "runs", rid,
                    "results", "combined")
     f <- list.files(d, pattern = "^oof-prediction.*\\.tsv$", full.names = TRUE)
@@ -101,6 +112,21 @@ load_r2 <- function(cell, region) {
 full <- load_r2(source_cell, ds_region)
 subs <- rbindlist(lapply(sub_cells, load_r2, region = ds_region),
                   use.names = TRUE)
+
+## The comparison is only meaningful if each replicate is a DIFFERENT run from
+## the full arm and from every other replicate. This asserts on the resolved run
+## IDs rather than trusting the manifest key shape, so a future key change that
+## re-points a replicate at the arm fails here instead of producing a
+## retained_fraction of exactly 1.0 that the gate would accept.
+resolved <- c(full = full$run_id[[1]],
+              vapply(split(subs$run_id, subs$cell), function(x) x[[1]],
+                     character(1)))
+if (anyDuplicated(resolved)) {
+    dup <- resolved[duplicated(resolved) | duplicated(resolved, fromLast = TRUE)]
+    stop("Tier 3 resolved the same Module 03 run for more than one cell: ",
+         paste(sprintf("%s=%s", names(dup), dup), collapse = ", "),
+         ". A donor-count sensitivity cannot compare a run against itself.")
+}
 
 ## The locus set must be held fixed, or the comparison confounds donor count
 ## with locus turnover. Restrict to loci scored in the full run AND in every
