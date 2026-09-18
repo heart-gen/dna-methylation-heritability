@@ -420,31 +420,214 @@ hidden by pooling cells or relaxing the score definition.
 
 | run_id | cohort | region | vmr_set_id | accepted_on | accepted_by | decision | notes |
 |---|---|---|---|---|---|---|---|
-| lgv-AA-caudate-20260823 | AA | caudate | vmrset-AA-caudate-937a41979978 | 2026-08-23 | Kynon J.M. Benjamin | PASS_RELATIVE_SCORE_OBSERVED_QC | Relative rank only; absolute PVE prohibited |
-| lgv-AA-dlpfc-20260823 | AA | dlpfc | vmrset-AA-dlpfc-856067dfe289 | 2026-08-23 | Kynon J.M. Benjamin | PASS_RELATIVE_SCORE_OBSERVED_QC | Relative rank only; absolute PVE prohibited |
-| lgv-AA-hippocampus-20260823 | AA | hippocampus | vmrset-AA-hippocampus-2d907b892215 | 2026-08-23 | Kynon J.M. Benjamin | PASS_RELATIVE_SCORE_OBSERVED_QC | Relative rank only; absolute PVE prohibited |
+| lgv-AA-caudate-rescore-20260913 | AA | caudate | vmrset-AA-caudate-937a41979978 | 2026-09-17 | Kynon J.M. Benjamin | PASS_RELATIVE_SCORE_OBSERVED_QC | n=153; 11,251/11,343 eligible; rescore of lgv-AA-caudate-20260823 under AA's own p_eff floor 7.079 |
+| lgv-AA-dlpfc-rescore-20260913 | AA | dlpfc | vmrset-AA-dlpfc-856067dfe289 | 2026-09-17 | Kynon J.M. Benjamin | PASS_RELATIVE_SCORE_OBSERVED_QC | n=118; 9,251/9,347 eligible; rescore of lgv-AA-dlpfc-20260823 |
+| lgv-AA-hippocampus-rescore-20260913 | AA | hippocampus | vmrset-AA-hippocampus-2d907b892215 | 2026-09-17 | Kynon J.M. Benjamin | PASS_RELATIVE_SCORE_OBSERVED_QC | n=117; 9,166/9,272 eligible; rescore of lgv-AA-hippocampus-20260823 |
 | lgv-all_individuals-caudate-20260823 | all_individuals | caudate | vmrset-all_individuals-caudate-cb5519d7d2ad | 2026-08-23 | Kynon J.M. Benjamin | PASS_RELATIVE_SCORE_OBSERVED_QC | Relative rank only; absolute PVE prohibited |
 | lgv-all_individuals-dlpfc-20260823 | all_individuals | dlpfc | vmrset-all_individuals-dlpfc-e88f46904afb | 2026-08-23 | Kynon J.M. Benjamin | PASS_RELATIVE_SCORE_OBSERVED_QC | Relative rank only; absolute PVE prohibited |
 | lgv-all_individuals-hippocampus-20260823 | all_individuals | hippocampus | vmrset-all_individuals-hippocampus-809f8de0db2d | 2026-08-23 | Kynon J.M. Benjamin | PASS_RELATIVE_SCORE_OBSERVED_QC | Relative rank only; absolute PVE prohibited |
+| lgv-all_individuals.AA-caudate-20260913 | all_individuals.AA | caudate | vmrset-all_individuals-caudate-cb5519d7d2ad | 2026-09-17 | Kynon J.M. Benjamin | PASS_RELATIVE_SCORE_OBSERVED_QC | n=153; 11,246/11,246 eligible; cell of estcell-all_individuals.AA-caudate-20260910 |
+| lgv-all_individuals.AA-dlpfc-20260913 | all_individuals.AA | dlpfc | vmrset-all_individuals-dlpfc-e88f46904afb | 2026-09-17 | Kynon J.M. Benjamin | PASS_RELATIVE_SCORE_OBSERVED_QC | n=118; 9,134/9,139 eligible; cell of estcell-all_individuals.AA-dlpfc-20260910 |
+| lgv-all_individuals.AA-hippocampus-20260913 | all_individuals.AA | hippocampus | vmrset-all_individuals-hippocampus-809f8de0db2d | 2026-09-17 | Kynon J.M. Benjamin | PASS_RELATIVE_SCORE_OBSERVED_QC | n=117; 9,128/9,133 eligible; cell of estcell-all_individuals.AA-hippocampus-20260910 |
+| lgv-all_individuals.EA-caudate-20260917 | all_individuals.EA | caudate | vmrset-all_individuals-caudate-cb5519d7d2ad | 2026-09-17 | Kynon J.M. Benjamin | PASS_RELATIVE_SCORE_OBSERVED_QC | n=129; 11,248/11,249 eligible; cell of estcell-all_individuals.EA-caudate-20260910; replaces unaccepted lgv-all_individuals.EA-caudate-20260911 |
+| lgv-all_individuals.EA-dlpfc-20260917 | all_individuals.EA | dlpfc | vmrset-all_individuals-dlpfc-e88f46904afb | 2026-09-17 | Kynon J.M. Benjamin | PASS_RELATIVE_SCORE_OBSERVED_QC | n=55; 9,140/9,140 eligible; cell of estcell-all_individuals.EA-dlpfc-20260910; replaces unaccepted lgv-all_individuals.EA-dlpfc-20260911 |
+| lgv-all_individuals.EA-hippocampus-20260917 | all_individuals.EA | hippocampus | vmrset-all_individuals-hippocampus-809f8de0db2d | 2026-09-17 | Kynon J.M. Benjamin | PASS_RELATIVE_SCORE_OBSERVED_QC | n=60; 9,135/9,136 eligible; cell of estcell-all_individuals.EA-hippocampus-20260910; replaces unaccepted lgv-all_individuals.EA-hippocampus-20260911 |
 
 No downstream production module may consume Module 02 until its cell-specific
 run appears in this table.
 
-The `cohort` column holds a **cell token**. For the six rows above it is a
+The `cohort` column holds a **cell token**. For the six arm rows it is a
 discovery arm; a donor-group estimation cell reads `all_individuals.AA` or
 `all_individuals.EA` and its run ID follows the same shape
 (`lgv-all_individuals.EA-dlpfc-YYYYMMDD`). See "Donor-group estimation cells"
 below.
 
-`lgv-AA-caudate-20260822` is superseded by `lgv-AA-caudate-20260823` and is
-deliberately absent: it was scored under the caudate-only characterized
-support, which excluded 111 loci where the six-grid support excludes 2.
+Exactly one run is accepted per cohort-by-region cell, which is what
+`gates.R:require_accepted_upstream()` enforces: twelve rows, four cells, three
+regions each. With the three `all_individuals.EA` cells accepted on 2026-09-17,
+the donor-group contrast of AGENTS.md 7.7 is satisfiable for the first time:
+`_h/14_combine_donor_group_cells.R` pairs `all_individuals.AA` with
+`all_individuals.EA` on a shared `vmr_set_id`, and never `AA` against
+`all_individuals`, which are nested. The result is a statement about
+**concordance**, not about differential loci, and the cells differ in sample
+size (EA is roughly a third to a half of AA per region), MAF, LD and SNP
+availability, all of which must be eliminated before any difference is
+discussed.
 
 Every accepted run carries `absolute_pve_interpretation_allowed = FALSE` on
 every row and the terminal decision
 `PASS_RELATIVE_GENETIC_CONTROL_FAIL_ABSOLUTE_LOCUS_PVE`. Downstream modules may
 consume `local_snp_contribution_score` and its percentile rank, never the PVE
 magnitude.
+
+## Superseded — the three `all_individuals.EA-*-20260911` runs
+
+`lgv-all_individuals.EA-{caudate,dlpfc,hippocampus}-20260911` are sealed and
+each passes its own Stage 05 gate, but they were **never accepted** and are now
+superseded by the 20260917 replacements above, which are. They are recorded in
+"Retired runs" below and must not be consumed. The reason they were not accepted:
+their
+`config_characterized_support_sha256` does not describe the support table they
+actually used. Their scores are correct (verified below); the provenance record
+is not, and a run whose manifest misdescribes its own inputs is not something
+downstream work should rest on.
+
+`lgv-all_individuals.EA-{caudate,hippocampus}-20260911` record the pooled sha
+`c1a35956` while the copy sealed in the run is the per-cell table `0bdcdfc9`.
+The manifest field was written at Stage 00 on 2026-09-11; the per-cell copy was
+placed by hand at 04:41 on 2026-09-13 and the later stages read it, writing
+`observed-joint-estimates.tsv` at 05:14. The sealed copy is therefore the file
+Stage 03 consumed and the manifest field alone is stale.
+
+Those two runs carry a second, independent defect. Their `logs/` hold an array
+named `EAbf_{caudate,hippocampus}_s01` (jobs 6220434 and 6220435) that ran
+05:08-05:12 on 2026-09-13, but their `submitted-jobs.tsv` records only the
+original 2026-09-11 chain (6083577 and 6083591). Part of their Stage 01 feature
+set came from a hand-submitted array their own job record does not mention. That
+is not a scoring error, but it is not a provenance chain either.
+
+`lgv-all_individuals.EA-dlpfc-20260911` is internally consistent at
+`c1a35956`, but that is the pre-2026-09-13 pooled-format table with no `cell`
+column -- the shape Stage 03 now refuses. It ran on 2026-09-11, before that
+guard existed.
+
+Neither defect moves a score. The EA cell is itself the cell whose grid produced
+the low pooled `p_eff` floor, so its own floor (1.344) equals the pooled floor,
+and recomputing the domain gate from the live per-cell table reproduces each
+run's recorded within-domain count exactly: 11,248, 9,140 and 9,135. The
+provenance is inconsistent; the eligibility and the ranks are not.
+
+Stage 03 verifies the frozen joint model's checksum but never compares the
+support copy against the manifest field, and no test covers that drift, which is
+why a stale sha went unnoticed until acceptance was being prepared. Adding that
+comparison is the fix. It was deferred while the replacement arrays were in
+flight, because `_h/` must not be edited then; those arrays have now drained and
+the change is unblocked but not yet applied.
+
+A rescore is the wrong instrument here. `_h/15_prepare_rescore_run.R` requires
+its source to be recorded as accepted -- a rescore inherits the source's
+scientific standing -- and these runs have none. `_h/15` is for repairing an
+accepted run; a never-accepted run is replaced, not rescored.
+
+### Replacement runs (sealed 2026-09-17)
+
+Full production re-runs against the same accepted 01b estimation cells, so
+Stage 00 records the per-cell support table and copies it in the same step and
+the manifest describes the file actually used by construction.
+
+All three are sealed, each returns `PASS_RELATIVE_SCORE_OBSERVED_QC` on all six
+Stage 05 criteria, and each reproduces the pre-registered eligibility count
+exactly:
+
+| run_id | region | expected | reconciled | eligible | pre-registered | decision |
+|---|---|---|---|---|---|---|
+| lgv-all_individuals.EA-caudate-20260917 | caudate | 11,463 | 11,463 | 11,248 | 11,248 | PASS_RELATIVE_SCORE_OBSERVED_QC |
+| lgv-all_individuals.EA-dlpfc-20260917 | dlpfc | 9,374 | 9,374 | 9,140 | 9,140 | PASS_RELATIVE_SCORE_OBSERVED_QC |
+| lgv-all_individuals.EA-hippocampus-20260917 | hippocampus | 9,365 | 9,365 | 9,135 | 9,135 | PASS_RELATIVE_SCORE_OBSERVED_QC |
+
+The counts were predicted before the runs were submitted, by recomputing the
+domain gate from the live per-cell table against the 20260911 features, so
+hitting all three is a reproduction rather than a description.
+
+Provenance, verified on each sealed run: the support copy in `config/` hashes to
+`0bdcdfc9`, the manifest's `config_characterized_support_sha256` records the
+same value, and the copy's first column is `cell`. `catalog_cohort` is
+`all_individuals` and `estimation_group` is `EA` in all three; `smoke_run` is
+FALSE; the frozen joint model is `9f26c327` in all three; upstream is
+`estcell-all_individuals.EA-{region}-20260910` carrying the pooled
+`vmr_set_id`s. `n_donors` is 129 (caudate), 55 (dlpfc) and 60 (hippocampus).
+
+The three arrays total 6,041 tasks against a 5,000 `MaxSubmit` limit, so
+hippocampus was held until the first two had drained enough to fit it and
+submitted once headroom reached 1,905 tasks. The 20260911 runs stay sealed and
+unaccepted; nothing is deleted.
+
+Original job chains, as recorded in each run's `submitted-jobs.tsv`: caudate
+6534846 (features) through 6534853, dlpfc 6534861 through 6534867, hippocampus
+6539048 through 6539056.
+
+**One faulty node cost 30 array tasks and initially failed two of the three
+runs.** Every root cancellation in this submission -- 12 chunks in dlpfc, 18 in
+hippocampus, none in caudate -- ran on `qnode0287` and was killed 3-6 seconds
+after starting, writing no logs and leaving no partial rows. No task on any
+other node was affected. The node was still `MIXED` with no drain reason
+afterwards, so Slurm considered it healthy and would have scheduled onto it
+again.
+
+Chunks 127 and 177 of dlpfc were caught while the array was still running and
+resubmitted as job **6538990**, with Stage 02's dependency extended to
+`afterany:6534861_*,afterany:6538990_*` so it could not combine before those
+rows existed. The remaining 28 chunks were not caught in time. Because Stage 02
+is chained `afterany` it combined what existed, and Stage 05 correctly returned
+`FAIL_OBSERVED_RELATIVE_SCORE_QC` on `task_reconciliation_complete` and
+`zero_computational_failures` for both runs -- dlpfc 9,324 of 9,374, hippocampus
+9,275 of 9,365. Stage 06 is `afterok`, so neither run was sealed and neither
+could be mistaken for a result. The missing task IDs matched the cancelled
+chunks exactly (50 = 10 chunks x 5 loci, 90 = 18 x 5), with nothing unexplained.
+
+The repair resubmitted exactly those chunks with `--exclude=qnode0287` and
+re-chained Stages 02-06, which is legitimate only because neither run was
+sealed: `_h/06_finalize_observed_run.R` refuses a run that already has
+`finished_at`, and it is the only stage that sets it or makes the directory
+read-only. Both then reconciled completely and passed. The repair chains are
+recorded in each run's `submitted-jobs.tsv` as `repair_*` rows -- dlpfc 6566437
+through 6566442, hippocampus 6566443 through 6566448 -- for the same reason job
+6538990 is recorded above.
+
+Two orphaned Stage 06 jobs (6534867, 6539056) remain in the queue permanently
+`DependencyNeverSatisfied`. They hold no resources and can never run; the repair
+chains carry their own finalize jobs.
+
+**Stale `missing-task-ids.tsv` sealed into the dlpfc and hippocampus runs.**
+`_h/02_combine_observed_joint_features.R` writes that file only inside
+`if (length(missing_ids))` and never removes it, so the copy written by the
+failed first pass survived the successful re-run and is now frozen read-only
+inside a sealed, passing run: dlpfc's lists 50 task IDs at mtime 14:47 while
+every other combined file is 21:12-21:16, and hippocampus's lists 90 at 15:30
+against 21:14-21:18. The authoritative `task-reconciliation.tsv` is clean in
+both (9,374 and 9,365 expected, task_files, and unique rows; 0 unaccounted, 0
+computational failures, 0 duplicate or unexpected task IDs), so the runs are
+correct and the files are leftovers. They cannot be removed -- runs are
+immutable and the directories are read-only by design -- so the hazard is that a
+later reader or an automated check reads "50 missing tasks" as contradicting a
+PASS. The fix belongs in Stage 02, which should clear a stale
+missing/duplicate/unexpected file when its condition comes back clean, and is
+not yet applied.
+
+## Retired runs
+
+Retired runs are kept for provenance and must not be consumed.
+`read_accepted_runs()` stops at this heading, so no row below it can satisfy a
+downstream gate.
+
+| run_id | cohort | region | retired_on | superseded_by | reason |
+|---|---|---|---|---|---|
+| lgv-AA-caudate-20260823 | AA | caudate | 2026-09-17 | lgv-AA-caudate-rescore-20260913 | Scored under the pooled `p_eff` floor 2.058 rather than AA's own 7.079; 90 loci were eligible that AA's own support excludes |
+| lgv-AA-dlpfc-20260823 | AA | dlpfc | 2026-09-17 | lgv-AA-dlpfc-rescore-20260913 | Same defect; 90 loci over-admitted |
+| lgv-AA-hippocampus-20260823 | AA | hippocampus | 2026-09-17 | lgv-AA-hippocampus-rescore-20260913 | Same defect; 99 loci over-admitted |
+| lgv-all_individuals.EA-caudate-20260911 | all_individuals.EA | caudate | 2026-09-17 | lgv-all_individuals.EA-caudate-20260917 | Never accepted; manifest support sha `c1a35956` misdescribes the per-cell table `0bdcdfc9` sealed in the run, and part of Stage 01 came from an array absent from `submitted-jobs.tsv` |
+| lgv-all_individuals.EA-dlpfc-20260911 | all_individuals.EA | dlpfc | 2026-09-17 | lgv-all_individuals.EA-dlpfc-20260917 | Never accepted; internally consistent at `c1a35956`, the pooled-format table with no `cell` column that Stage 03 now refuses |
+| lgv-all_individuals.EA-hippocampus-20260911 | all_individuals.EA | hippocampus | 2026-09-17 | lgv-all_individuals.EA-hippocampus-20260917 | Never accepted; same two defects as the caudate run |
+
+Retiring these rows does not invalidate the runs' ordering. On the loci eligible
+in both, the old and rescored within-cell scores correlate at Spearman 1.00000
+with a maximum score shift of 0.0031, and no locus gained eligibility. The
+rescore removes about 1% of loci that the AA cell's own characterized support
+never covered; it does not reorder the remainder.
+
+Fifteen accepted downstream production runs in Modules 03, 04, 05, 06 and 07
+record `lgv-AA-{region}-20260823` as
+`upstream_local_genetic_variance_run_id`. Those runs remain valid and sealed:
+`require_accepted_upstream()` is called only in each module's `00_new_run.R`, so
+acceptance is checked when a run is created and never re-checked afterwards.
+The consequence is forward-looking -- any *new* Module 03-07 production run must
+consume the rescored AA runs -- and the 1% of over-admitted loci is the scale of
+the difference those modules would see on a rerun.
+
+`lgv-AA-caudate-20260822` is superseded by `lgv-AA-caudate-20260823` and is
+deliberately absent from both tables: it was scored under the caudate-only
+characterized support, which excluded 111 loci where the six-grid support
+excludes 2.
 
 ## Verification status
 
