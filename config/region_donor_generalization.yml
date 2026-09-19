@@ -232,3 +232,8 @@ gate:
     - no_cross_region_raw_score_comparison
     - confounded_caudate_reported_separately_not_dropped
     - reliability_ceiling_attached_to_every_concordance_figure
+    # PI 2026-09-19. Criterion 2 checks that every region is PRESENT; it passed
+    # a run whose completeness flag was FALSE for all 154 tests (the
+    # length(regions) column-shadowing defect, 6c2a930e4). A null replication
+    # passes; a replication over zero complete tests is vacuous and does not.
+    - cross_region_completeness_nonvacuous

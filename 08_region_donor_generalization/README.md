@@ -43,7 +43,7 @@ cheap: the module assembles accepted upstream results and refits nothing.
 
 ## Acceptance gate
 
-`config/region_donor_generalization.yml:gate` locks nine criteria and the
+`config/region_donor_generalization.yml:gate` locks ten criteria and the
 terminal decision `PASS_REGION_DONOR_GENERALIZATION_QC`:
 
 1. `every_output_carries_exactly_one_tier`
@@ -55,6 +55,12 @@ terminal decision `PASS_REGION_DONOR_GENERALIZATION_QC`:
 7. `no_cross_region_raw_score_comparison`
 8. `confounded_caudate_reported_separately_not_dropped`
 9. `reliability_ceiling_attached_to_every_concordance_figure`
+10. `cross_region_completeness_nonvacuous` — added 2026-09-19. Fails when no
+    test, or no claim-family test, is observed in every region, and when the
+    completeness flag disagrees with a row-by-row re-derivation. A null
+    replication passes; a replication over zero complete tests does not. The
+    accepted `rdg-AA-crossregion-20260918` was gated under nine criteria and
+    passes this one retrospectively (154 of 154 complete, 16 claim tests).
 
 **These criteria certify tiering and interpretation constraints, not a positive
 finding.** A null cross-region replication and a null region difference both

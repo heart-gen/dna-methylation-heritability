@@ -4,7 +4,7 @@
 ## Usage:
 ##   Rscript _h/05_apply_gates.R --run-id rdg-AA-crossregion-YYYYMMDD
 ##
-## Evaluates the nine criteria in
+## Evaluates the ten criteria in
 ## config/region_donor_generalization.yml:gate.criteria and writes a terminal
 ## decision. Note what the criteria do and do not test: they check that every
 ## result is correctly TIERED and correctly CONSTRAINED, not that any result is
@@ -204,6 +204,33 @@ results[[9]] <- check(
            " regions; observed agreement at ",
            paste(sprintf("%.1f%%", 100 * as.numeric(donor_group$fraction_of_ceiling)),
                  collapse = "/"), " of ceiling"))
+
+## 10 ------------------------------------------------------------------------
+## Criterion 2 only asks that every region is PRESENT. It passed a run whose
+## completeness flag was FALSE for all 154 tests, so tier 1 reported zero
+## replication and the gate still read 9/9 (6c2a930e4). A null replication is
+## a finding and must pass; a replication assessed over zero complete tests is
+## no finding at all. Completeness is re-derived here from each test's own
+## region count rather than trusted from the flag stage 01 wrote, so a defect
+## in that flag is caught even when the counts it feeds agree with it.
+## Hoisted: `replication` carries a `regions` column, so length(regions)
+## inside replication[...] would count ROWS -- the exact defect this
+## criterion exists to catch.
+n_regions_expected <- length(regions)
+n_complete_rederived <- replication[as.integer(n_regions) == n_regions_expected, .N]
+n_complete_flagged <- replication[as.logical(complete_across_regions) %in% TRUE, .N]
+n_complete_summary <- as.integer(cr_summary$n_tests_complete_all_sets[[1]])
+n_claim_complete <- as.integer(cr_summary$n_claim_complete[[1]])
+results[[10]] <- check(
+    "cross_region_completeness_nonvacuous",
+    n_complete_rederived > 0L &&
+        n_complete_flagged == n_complete_rederived &&
+        identical(n_complete_summary, n_complete_rederived) &&
+        isTRUE(n_claim_complete > 0L),
+    paste0(n_complete_rederived, " of ", nrow(replication),
+           " tests observed in all ", n_regions_expected, " regions (flag: ",
+           n_complete_flagged, "; summary: ", n_complete_summary, "); ",
+           n_claim_complete, " claim-family tests complete"))
 
 qc <- rbindlist(results, use.names = TRUE)
 

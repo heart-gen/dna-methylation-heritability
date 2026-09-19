@@ -618,7 +618,8 @@ likely misreading of this axis.
 
 **Module 08 implemented 2026-09-18**, with `config/region_donor_generalization.yml`
 (`pi_locked`) holding the four tiers, their licensed interpretations, both axes
-and a nine-criterion gate (`PASS_REGION_DONOR_GENERALIZATION_QC`). The gate
+and a ten-criterion gate (`PASS_REGION_DONOR_GENERALIZATION_QC`; the tenth,
+`cross_region_completeness_nonvacuous`, added 2026-09-19). The gate
 certifies **tiering and interpretation constraints, not a positive finding**: a
 null replication and a null region difference both pass, as Module 06 passed
 with `sldsc_supports_brain_enrichment = FALSE`.
