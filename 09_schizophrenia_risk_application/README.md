@@ -85,6 +85,46 @@ overturns the primary result.
 | 12 | `12_apply_gates.R` | Conduct gate + coloc gate; retention criteria; interpretation constraints |
 | 13 | `13_plot_locus_panels.py` | Stacked regional panels for the prioritized loci |
 | 14 | `14_finalize_run.R` | Seal: session info, manifest fields, checksums, read-only |
+| 15 | `15_cross_region_axis_concordance.R` | **Module-level, not per-run.** Cross-region axis concordance over the three accepted per-region runs; resolves decision 2; measures donor overlap and upstream freshness. Writes `_m/combined/` |
+| 16 | `16_axis_downsampling_sensitivity.R` | **Module-level.** Repeats the axis contrast in the three `AA.n118r*` caudate cells: does the contrast survive matching n to 118? Writes `_m/combined/` |
+
+## Two independent decisions
+
+PI 2026-09-18. This module's framing question is *does regional variation in
+local genetic control of methylation intersect schizophrenia-relevant regulatory
+biology, and is that relationship shared or region-dependent?* That has two
+separable answers, and Module 08 tier 3 speaks to only one of them. They are
+recorded as separate fields in `scz-decision.tsv` and
+`_m/combined/scz-application-decisions-{cohort}.tsv`:
+
+| decision | question | gated on | scope |
+|---|---|---|---|
+| `caudate_magnitude_claim` | Is caudate's *stronger* signal more than its larger donor count? | Module 08 tier 3 reading, and nothing else | caudate runs only |
+| `scz_application_retention` | Is there a disorder-related pattern across all three regions? | H1 concordance (stage 15) + the per-region criteria, **excluding** `caudate_not_sample_size_artifact` | module-level |
+
+**H1, as locked:** SCZ-linked VMRs show *lower* local genetic-control scores in
+all three regions, with statistical support in at least two, including at least
+one non-caudate region. A negative-but-nonsignificant third region does **not**
+falsify H1.
+
+Three constraints that the code enforces and the manuscript must respect:
+
+- **The three regions are not independent replicates.** 100 donors appear in all
+  three; DLPFC and hippocampus share 115 of 118 (Jaccard 0.96); the union is 168
+  donors. Stage 15 computes this and writes it out. Report *concordance*, never a
+  pooled p-value — the fixed-effect estimate stage 15 emits is labelled
+  descriptive-only and its SE is anticonservative by construction.
+- **Caudate may contribute to concordance but never carry it.** It is perfectly
+  confounded with sequencing batch (AGENTS.md §8.1), hence
+  `axis_requires_support_outside: caudate`.
+- **Attenuation is not bias.** Module 08 tier 3 shows donor count is a plausible
+  major contributor to caudate's larger *magnitude*. It does **not** show the
+  caudate estimate is biased. Write "caudate magnitude attenuates after
+  n-matching", never "n-inflated".
+- **No blanket repressive-chromatin claim.** The direct linked-vs-background
+  annotation test exists (stage 05), but claimability is narrower than
+  significance. Stage 15 reports, per annotation, the regions where the depletion
+  is claimable; cite those, and do not generalize to "repressive chromatin".
 
 Submit one cell:
 
