@@ -217,11 +217,18 @@ gates:
   min_pairs_tested: 500
   min_loci_coloc_tested: 10
   min_variants_shared: 100
-  # Module 08 owns the caudate downsampling arm and is not implemented. While
-  # this is false, retention_criteria.caudate_not_sample_size_artifact is
-  # recorded as PENDING_MODULE_08 -- neither a pass nor a gate failure -- and
-  # main_text_retention stays open.
-  require_module_08_downsampling: false
+  # Module 08 has landed and rdg-AA-crossregion-20260918 is accepted, so the
+  # dependency is now required. PI flipped 2026-09-18.
+  #
+  # This flag says only that the dependency is REQUIRED. It is not evidence:
+  # 12_apply_gates.R reads criterion 4 off the accepted Module 08 run's tier-3
+  # reading, pinned in the run manifest as region_donor_generalization_run_id,
+  # and hard-stops if that pin or the tier-3 table is missing. The flag alone can
+  # never pass the criterion.
+  #
+  # Scope is caudate only, and it gates independent_decisions.
+  # caudate_magnitude_claim alone -- never scz_application_retention.
+  require_module_08_downsampling: true
 
 # Superseded estimators. Their reappearance in any table this module reads or
 # writes is a hard error (00_shared/gates.R::load_local_genetic_control).
