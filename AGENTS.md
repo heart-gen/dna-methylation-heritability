@@ -184,6 +184,7 @@ New v2 work lives in numbered modules at the **repository root**:
 ├── 07_transcription_splicing_coupling/
 ├── 08_region_donor_generalization/
 ├── 09_schizophrenia_risk_application/
+├── 09b_aging_application/
 ├── 10_environmental_exploratory/
 └── 11_integrated_manuscript_outputs/
 ```
@@ -290,6 +291,7 @@ Analyses must run in this order:
 7. `07_transcription_splicing_coupling`
 8. `08_region_donor_generalization`
 9. `09_schizophrenia_risk_application`
+   - `09b_aging_application` (depends on 01, 02 and 04 only; runs beside 09)
 10. `10_environmental_exploratory`
 11. `11_integrated_manuscript_outputs`
 
@@ -698,6 +700,51 @@ hits must be labeled exploratory.
 
 Do not claim mediation, causality, or colocalization unless the corresponding
 analysis has been run with adequate ancestry-matched LD and passes its own gate.
+
+### 7.9 `09b_aging_application`: orthogonal aging application
+
+**Added 2026-09-19.** The module asks whether VMRs with weaker local SNP control
+show larger age-associated methylation differences. This is a non-disease test
+of the pattern Module 09 found for schizophrenia. It is one axis test per region
+plus one cross-region stage, and it must not grow into a second disease module.
+The `09b` prefix follows `01b`: it depends on 01, 02 and 04, not on 09.
+
+Requirements:
+
+- The age model must reuse `00_shared/locus_io.R::load_locus_phenotype()`, so
+  the age effect conditions on what the score conditions on:
+  `age + sex + diagnosis`.
+- Controls-only is a gating sensitivity, because cases are about 7 years older.
+- The outcome is the **debiased squared age slope** `beta_hat^2 - SE^2`, scaled
+  by its region mean. Never use |beta|, its rank, |t| or -log10 p.
+  - The age model carries each VMR's local genetic variance in its residual.
+    Any SE-dependent measure therefore couples to the score mechanically.
+  - A rank(|beta|) design with an age permutation was built and rejected on
+    2026-09-19. It rejected 100% of simulated nulls in which real age effects
+    were unrelated to the score.
+- Inference is donor-bootstrap variance plus delete-one-chromosome
+  block-jackknife variance. Either alone under-covers. Never form a percentile
+  interval from the bootstrap of the debiased outcome.
+- Cell composition is a gating sensitivity under strict conjunction. Use RNA
+  MuSiC PCs in every region, and DNAm scMD PCs only where its integration gate
+  passes (caudate).
+- Cross-region reading follows the §7.7 tiers:
+  - region-general association by Module 09's two-region rule, with no pooled p;
+  - DLPFC vs hippocampus by a paired donor bootstrap, since they share 115 of
+    118 donors;
+  - caudate is descriptive only.
+- Every row carries `cross_sectional_design = TRUE`. Write "age-associated
+  methylation differences", never "change with age".
+
+Prohibited:
+- causal, epigenetic-clock or environmental-determination claims;
+- raw cross-region score comparison;
+- treating the VMR catalog as unselected on age. Methylation PCs removed before
+  VMR calling were not age-adjusted, and in each region one tracks age, with
+  max |rho| from 0.45 (DLPFC) to 0.64 (hippocampus). Results describe age effects within this catalog.
+
+Main-text vs supplement placement is a PI decision after the run. See
+`config/aging.yml` and `09b_aging_application/README.md`.
 
 ### 7.10 `10_environmental_exploratory`: exploratory exposure associations
 
