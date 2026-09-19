@@ -180,7 +180,9 @@ The decision file carries that upstream value.
 
 | run_id | cohort | region | vmr_set_id | accepted_on | accepted_by | decision | notes |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| _(none)_ | | | | | | | |
+| scz-AA-caudate-20260918 | AA | caudate | vmrset-AA-caudate-937a41979978 | 2026-09-19 | Kynon J. Benjamin | PASS_SCZ_APPLICATION_QC | Built at 2b5e0c9ec on lgv-AA-caudate-rescore-20260913 and rdg-AA-crossregion-20260918. 2654 VMRs linked to 612 loci; 84 loci with CpG-meQTL support; axis lower_in_scz_linked (significant); 145 loci with transcriptional coupling; 3 of 5 prioritized loci with GTEx support; 232 claimable ancestry-matched colocalizations. Decision 1 CAUDATE_MAGNITUDE_CLAIM_NOT_SUPPORTED (Module 08 tier 3: donor count is a plausible major contributor). Caudate is batch-confounded. |
+| scz-AA-dlpfc-20260918 | AA | dlpfc | vmrset-AA-dlpfc-856067dfe289 | 2026-09-19 | Kynon J. Benjamin | PASS_SCZ_APPLICATION_QC | Built at 2b5e0c9ec on lgv-AA-dlpfc-rescore-20260913. 2063 VMRs linked to 612 loci; 58 loci with CpG-meQTL support; axis lower_in_scz_linked (significant); 99 loci with transcriptional coupling; 4 of 5 prioritized loci with GTEx support; 175 claimable ancestry-matched colocalizations. Decision 1 not applicable. |
+| scz-AA-hippocampus-20260918 | AA | hippocampus | vmrset-AA-hippocampus-2d907b892215 | 2026-09-19 | Kynon J. Benjamin | PASS_SCZ_APPLICATION_QC | Built at 2b5e0c9ec on lgv-AA-hippocampus-rescore-20260913. 2017 VMRs linked to 612 loci; 64 loci with CpG-meQTL support; axis lower_in_scz_linked (significant); 66 loci with transcriptional coupling; 5 of 5 prioritized loci with GTEx support; 174 claimable ancestry-matched colocalizations. Decision 1 not applicable. |
 
 ## Contract
 
