@@ -178,11 +178,9 @@ that yields two changes:
   against a gate of 20; `exposure-eligibility.tsv` flags that as `near_gate`
   rather than presenting a one-donor miss as a clean exclusion.
 
-An open item before the first production run: confirm against the LIBD donor
-metadata whether each source column is toxicology at death or lifetime history.
-`tobacco` currently unions one of each. If the windows differ,
-`any_substance_nontobacco` stays toxicology-only and the `tobacco` union is
-revisited.
+Resolved (cfc8dc145): `smoking` is lifetime history and `nicotine` is
+toxicology at death. They disagree for 28 of 164 AA donors and are never
+unioned; the earlier `tobacco` union is retired.
 
 ## Pipeline
 
@@ -315,8 +313,9 @@ new one.
 
 That would remove the leading alternative explanation for Module 09 (smoking is
 72% in cases vs 28% in controls; antipsychotics has zero exposed controls). It
-is **not implemented** and cannot be until Module 09 records an accepted run
-(AGENTS.md §6). The design, the mandatory positive control, and the collider
+is **not implemented**. Its precondition is now met — Module 09 recorded
+accepted runs `scz-AA-{caudate,dlpfc,hippocampus}-20260918` on 2026-09-19 — but
+commissioning it remains a PI decision. The design, the mandatory positive control, and the collider
 caution are in
 `writing-notes/exposure_confounding_of_scz_meqtl_strategy.md`.
 
