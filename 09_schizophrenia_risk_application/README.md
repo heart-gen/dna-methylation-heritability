@@ -190,6 +190,38 @@ Note also that Module 06's accepted S-LDSC result is **null**
 `config/analysis_thresholds.yml` lists as an `omit_or_supplement_if` condition.
 The decision file carries that upstream value.
 
+### Negative-control traits (stage 17, post hoc sensitivity)
+
+The axis model adjusts for technical covariates only. Module 04 shows the
+low-control end of the axis is gene-proximal and active, and GWAS loci of most
+traits are gene-dense. So, as it stands, "SCZ-linked VMRs are low-control"
+cannot be told apart from "VMRs near any GWAS locus are gene-proximal, and
+gene-proximal VMRs are low-control". Stage 17 asks that question two ways.
+It was requested by the PI on 2026-09-19, after the runs above were accepted,
+and is recorded as a post hoc sensitivity in `config/gwas_negative_controls.yml`.
+It changes neither decision.
+
+1. **Trait distribution.** `_h/17a_extract_gwas_leads.sh` pulls the
+   genome-wide significant rows from every trait in the harmonized hg38
+   collection (`/projects/b1213/resources/gwas/imputed_gwas_hg38_1.1`, 114
+   traits, one format) and from PGC3 schizophrenia (lifted). `_h/17_negative_control_traits.R`
+   then applies **one locus rule to every trait, schizophrenia included**:
+   p < 5e-8, greedy distance clumping at 500 kb, extended MHC excluded
+   (the PGC3 fine-mapped table carries no MHC locus), then the Module 09
+   linkage window (±500 kb) and the Module 09 logistic model. SCZ's coefficient
+   is read against the other traits' distribution: overall, within category,
+   and within traits with a similar lead count (×/÷ 2). `pgc.scz2` and the UKB
+   self-reported schizophrenia trait are positive controls, excluded from the
+   null distribution. Traits with fewer than 10 leads are fitted and shown but
+   excluded from the distribution.
+2. **Genomic-context adjustment.** Every contrast is fitted twice: model A with
+   the Module 09 covariates, model B adding `broad_genomic_annotation`. The
+   attenuation of the published-interval SCZ estimate under model B is reported.
+
+Two SCZ rows exist per region: `PGC3_SCZ` (uniform rule; the comparable row)
+and `PGC3_SCZ_published` (the accepted linkage; used only for the context arm).
+Outputs: `_m/combined/scz-negative-control-{traits,summary,by-category,leads}-AA.tsv`.
+
 ## Accepted runs
 
 | run_id | cohort | region | vmr_set_id | accepted_on | accepted_by | decision | notes |
