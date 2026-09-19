@@ -24,7 +24,7 @@ A run of this module spans all three regions, so `region` is the literal
 
 | run_id | cohort | region | vmr_set_id | accepted_on | accepted_by | decision | notes |
 |---|---|---|---|---|---|---|---|
-| _(none)_ | | | | | | | |
+| rdg-AA-crossregion-20260918 | AA | crossregion | see manifest vmr_set_id_{caudate,dlpfc,hippocampus} | 2026-09-18 | Kynon J.M. Benjamin | PASS_REGION_DONOR_GENERALIZATION_QC | 9/9 gate criteria; 14 outputs; built at 6c2a930e4. Tier 1: 12 of 16 prespecified claim-family tests replicate in all 3 regions (12 strict, all 154 tests complete), both specificity controls run opposite the claim family. Tier 2: 1 of 154 testable dlpfc-minus-hippocampus differences survives strict conjunction; 154 caudate rows retained descriptive-only. Tier 3: primary within-caudate paired delta on 11335 shared loci, A = 0.1426 (block-jackknife 95% CI 0.131-0.155, reported not gated), all 3 replicates same direction, gap_closed 0.984; reading donor_count_is_a_plausible_major_contributor; lower-boundary mass rises 0.6247 to 0.6444 (+2.0 pts), reported alongside and excluded from the 0.10 threshold. Donor-group axis: concordance only, rho 0.815/0.753/0.759 = 85.3%/88.9%/88.0% of the reliability ceiling; no ancestry effect claim. Caudate remains batch-confounded; residual excess may NOT be called biological. |
 
 ## Pipeline
 
