@@ -296,8 +296,62 @@ interpretation:
     Caudate is sequencing batch 3 and region is perfectly confounded with batch
     (AGENTS.md 8.1). A single-region result is unexposed to that confound; a
     caudate-vs-other-region exposure difference is uninterpretable. Every result
-    here is region-specific and no cross-region contrast is emitted.
+    here is region-specific and no cross-region contrast is emitted. The one
+    exception is scz_meqtl_stability_extension below, which inherits Module 09's
+    cross-region rules rather than defining its own.
 
 gates:
   min_eligible_exposures: 1
   min_tested_vmrs: 500
+
+# ---------------------------------------------------------------------------
+# Planned extension: stability of schizophrenia-risk meQTLs to exposure
+# ---------------------------------------------------------------------------
+# NOT IMPLEMENTED and NOT COMMISSIONED. Recorded so the design, and the
+# 2026-09-18 Module 09 framing it must follow, are prespecified before anything
+# is fitted. Design notes: writing-notes/exposure_confounding_of_scz_meqtl_strategy.md.
+#
+# The estimand is the STABILITY of an already well-estimated genetic effect,
+# not detection of an exposure effect, which this cohort cannot power
+# (within-case caudate detects d ~ 1.16 at family-wise correction).
+scz_meqtl_stability_extension:
+  status: planned_not_commissioned
+  # AGENTS.md 6 precondition. Met 2026-09-19, when the three Module 09 runs were
+  # accepted; commissioning remains a PI decision.
+  requires_accepted_upstream: 09_schizophrenia_risk_application
+  upstream_precondition_met_on: 2026-09-19
+  # What it protects. Module 09's main-text claim is decision 2, the
+  # region-general association (config/schizophrenia.yml:independent_decisions),
+  # so the extension is run in EVERY region with an accepted Module 09 run, on
+  # that run's prioritized risk-variant -> VMR associations. It is not a caudate
+  # analysis and does not bear on caudate_magnitude_claim.
+  protects_decision: scz_application_retention
+  regions: [caudate, dlpfc, hippocampus]
+  loci_source: prioritized_loci_of_each_accepted_module_09_run
+  stratum: schizophrenia            # forced: antipsychotics has 0 exposed controls
+  exposures_primary: [smoking]
+  exposures_sensitivity: [nicotine, antipsychotics, any_trauma_hx]
+  readout: delta_beta_snp_percent_with_bootstrap_ci   # never an exposure p-value
+  stability_threshold_pct: 10
+  # Antipsychotic use is plausibly downstream of severity, itself partly
+  # genetic: conditioning on it can INDUCE bias in beta_SNP. The unadjusted
+  # estimate is primary; a change after adjustment is not by itself evidence of
+  # confounding (the analogue of Module 09's attenuation_is_not_bias).
+  unadjusted_estimate_is_primary: true
+  change_after_collider_adjustment_is_evidence_of_confounding: false
+  # The only like-for-like positive control: the genotype effect in the same
+  # model, loci and donors. AHRR is reportable but a blood finding; gate nothing
+  # on it.
+  positive_control: genotype_effect_same_model
+  # Cross-region rules, inherited from config/schizophrenia.yml:
+  # cross_region_interpretation and independent_decisions.scz_application_retention.
+  # The regions share donors, so agreement across them is CONCORDANCE, not
+  # independent replication, and no pooled p-value is reported. Stability that
+  # holds broadly (region-general) and a region whose estimate moves (a
+  # region-specific departure) are assessed and reported SEPARATELY; uniformity
+  # is not required, and caudate may contribute but never carry.
+  cross_region_basis: concordance_not_replication
+  pooled_p_value_permitted: false
+  biological_uniformity_required: false
+  caudate_may_carry_alone: false
+  supplement_only: true

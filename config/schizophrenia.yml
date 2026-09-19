@@ -7,6 +7,13 @@
 # was conditioned on the legacy predictability metric and the pre-repair VMR sets,
 # so per AGENTS.md 8 every number in it is a hypothesis to retest, not a result
 # to carry forward. Hero loci rs8048039 and rs13331198 remain CANDIDATES.
+#
+# Framing question (PI 2026-09-18): does regional variation in local genetic
+# control of methylation intersect schizophrenia-relevant regulatory biology,
+# and is that relationship shared or region-dependent? It is answered by two
+# INDEPENDENT decisions (independent_decisions below), and neither is a
+# per-region verdict: decision 2 is resolved only across all three regions, by
+# _h/15_cross_region_axis_concordance.R.
 
 pi_locked: true
 
@@ -59,14 +66,32 @@ testing:
     - gc_content
     - mappability
 
+# A LABEL since 2026-09-18, not a gate. It sets the is_primary_region column,
+# the "(primary region)" annotation and GTEx tissue order, and decides nothing:
+# the axis criterion is read in every region, the caudate criterion is scoped by
+# independent_decisions.caudate_magnitude_claim.scope_regions, and the
+# application decision is module-level. Caudate is also the region that can
+# never carry a claim alone (perfectly confounded with sequencing batch,
+# AGENTS.md 8.1), so "primary" must not be read as "most credible".
 primary_region: caudate
 
 retention_criteria:
   # AGENTS.md 7.8: the main-text application is retained only if the CORRECTED
   # run meets all of these. Recorded here so they are prespecified rather than
   # read off the results.
+  #
+  # Routing (PI 2026-09-18). Every criterion below EXCEPT
+  # caudate_not_sample_size_artifact is a per-region precondition of
+  # scz_application_retention (decision 2). caudate_not_sample_size_artifact
+  # feeds caudate_magnitude_claim (decision 1) ONLY and is excluded from
+  # decision 2 by _h/12_apply_gates.R and _h/15_cross_region_axis_concordance.R.
   min_loci_with_cpg_meqtl_support: 1
-  enrichment_along_local_control_axis_in_primary_region: true
+  # Read in EVERY region, not only primary_region (PI 2026-09-18; renamed from
+  # enrichment_along_local_control_axis_in_primary_region, which described the
+  # superseded scope). A significant contrast in either direction satisfies it
+  # ("interpretable contrast"), and the status names the direction: the
+  # accepted runs are a DEPLETION and must never be written as an enrichment.
+  enrichment_along_local_control_axis_in_every_region: true
   min_loci_with_transcriptional_coupling: 1
   # SCOPE: caudate only. This asks whether CAUDATE's larger magnitude survives
   # matching its donor count to DLPFC's; it is meaningless for a DLPFC or
@@ -133,6 +158,32 @@ independent_decisions:
     # it may contribute to concordance but can never be the only support.
     independent_of_caudate_magnitude_claim: true
 
+# How the cross-region result may be stated (PI 2026-09-18). These are
+# interpretation locks, not analysis parameters: the stage named against each
+# emits the matching flag onto its output rows, so a downstream reader inherits
+# the constraint from the data. Changing a value here does not relax the code.
+cross_region_interpretation:
+  # The three regions are tissues from ONE cohort, not replicates: 100 donors
+  # are in all three, and dlpfc/hippocampus share 115 of 118 (Jaccard 0.96).
+  # Stage 15 measures the overlap on every run rather than trusting this line.
+  regions_are_independent_replicates: false
+  # Report concordance only. The fixed-effect estimate stage 15 emits is
+  # descriptive, and its SE assumes independence, so it is anticonservative.
+  pooled_p_value_permitted: false
+  # The independent-SE departure test is CONSERVATIVE for declaring a
+  # region-specific departure under shared donors -- the safe direction.
+  departure_test_is_conservative_under_shared_donors: true
+  # Module 08 tier 3 shows donor count is a plausible major contributor to
+  # caudate's larger MAGNITUDE. That is attenuation, not evidence that the
+  # caudate estimate is biased (stage 16 carries attenuation_is_not_bias).
+  attenuation_is_not_bias: true
+  permitted_caudate_wording: caudate magnitude attenuates after n-matching
+  forbidden_caudate_wording: [n-inflated, inflated by sample size, biased]
+  # Stage 16 repeats the axis contrast in the three caudate n=118 cells. It is
+  # a sensitivity that is REPORTED, never a gate on either decision.
+  axis_downsampling_sensitivity_gates_a_decision: false
+  blanket_repressive_chromatin_claim_permitted: false
+
 prioritization:
   max_loci: 5
   # PI lock closed 2026-09-09. Ranked composite, evaluated in this order on the
@@ -157,9 +208,17 @@ prioritization:
         direction: asc
 
 integration:
-  # Are schizophrenia-linked VMRs enriched for the 04 architecture?
-  # Positive -> connect the disease application to the repeat/repressive story.
-  # Null -> present Phase 7 as a separate proof of disease relevance.
+  # Do schizophrenia-linked VMRs differ from background in the Module 04
+  # annotations, IN EITHER DIRECTION? _h/05_integration_enrichment.R tests
+  # linked vs background VMRs directly for each annotation below.
+  #
+  # PI 2026-09-18: claimability is narrower than significance, and is decided
+  # per annotation AND per region (stage 15 reports claimable_regions). Cite the
+  # annotation and the regions where it is claimable; a blanket "depleted of
+  # repressive chromatin" is not permitted. In the accepted runs: quiescent in
+  # all three regions, H3K9me3 in dlpfc and hippocampus, LINE/L1 in dlpfc only.
+  # A null here does not orphan the application; it is presented as a separate
+  # demonstration of disease relevance.
   test_against:
     - line_l1
     - h3k9me3
