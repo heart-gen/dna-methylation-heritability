@@ -53,6 +53,11 @@ for COHORT in AA all_individuals; do
     run_r "$HERE/02_figure2_local_control.R" --cohort "$COHORT" --run-id "$RUN_ID"
 done
 
+# Module 08 is AA-only and spans all three regions; the builder resolves the
+# accepted crossregion run itself.
+log_message "Region and donor-group generalization (Module 08) -- AA"
+run_r "$HERE/06_figure_region_donor_generalization.R" --cohort AA --run-id "$RUN_ID"
+
 # Writes the provenance manifest, verifies every figure has source data, and
 # seals the run read-only. Must be last.
 log_message "Sealing ${RUN_ID}"

@@ -23,6 +23,8 @@ cannot be built.
 | `table1_cohort` (`.tsv`, `.tex`) | donor demographics, both arms x three regions | `vmrcat-*-20260816` |
 | `figureS_ancestry_pcs` | genotype PC1/2 with 1000 Genomes reference, donor-group confirmation | `vmrcat-*-20260816` |
 | `figureS_sample_integrity` | cross-region donor concordance, sample-swap screen | `vmrcat-*-20260816` |
+| `figure_region_donor_generalization` | Module 08 tiers: A cross-region direction of the claim family and H3K27me3 control; B DLPFC-vs-hippocampus QQ; C caudate held-out R² at n = 153 and n = 118 beside DLPFC; D AA-vs-EA rank agreement against the reliability ceiling. Unnumbered: AGENTS.md §11 leaves main vs supplement to the PI | `rdg-AA-crossregion-20260918` (accepted, resolved at build time) |
+| `figureS_region_donor_generalization_sensitivity` | repeat claim family under the five Module 04 sensitivity sets | same |
 
 AA is the primary arm; `all_individuals` renders from the same builders as the
 sensitivity supplement.
