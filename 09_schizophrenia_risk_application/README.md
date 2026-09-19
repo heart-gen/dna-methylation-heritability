@@ -160,16 +160,30 @@ Decision codes: `PASS_SCZ_APPLICATION_QC`, `PASS_SMOKE_ONLY_NOT_ACCEPTABLE`,
 ### Main-text retention is reported separately
 
 The five prespecified criteria in `config/schizophrenia.yml:retention_criteria`
-are evaluated into `results/retention-criteria.tsv`, each `PASS`, `FAIL`,
-`NOT_APPLICABLE_NON_PRIMARY_REGION`, or `PENDING_MODULE_08`.
+are evaluated into `results/retention-criteria.tsv`, each `PASS*`, `FAIL_*`,
+`NOT_APPLICABLE_NON_CAUDATE_REGION`, or `INDETERMINATE_MODULE_08`.
 
-**`caudate_not_sample_size_artifact` is always `PENDING_MODULE_08`.** The
-caudate downsampling arm belongs to `08_region_donor_generalization`, which is
-not implemented, so the criterion is *unevaluable* — neither satisfied nor
-failed. `main_text_retention` therefore stays `PENDING_MODULE_08` regardless of
-how the other four resolve, so the open dependency cannot be lost in the
-writing. When Module 08 lands, set `gates.require_module_08_downsampling: true`
-and wire its downsampling result into `_h/12_apply_gates.R`.
+`caudate_not_sample_size_artifact` is read off Module 08 tier 3
+(`caudate-downsampling-summary.tsv:reading`) since
+`gates.require_module_08_downsampling: true` (2026-09-18), and is evaluated in
+caudate runs only. It feeds `caudate_magnitude_claim` (decision 1) and is
+**excluded** from `scz_application_retention` (decision 2). A per-region run
+cannot resolve decision 2 — it writes `PENDING_CROSS_REGION` — so the retention
+answer lives only in `_m/combined/scz-application-decisions-{cohort}.tsv`, from
+stage 15.
+
+**Current state (accepted runs `scz-AA-{region}-20260918`, stage 15 re-run
+2026-09-19 without `--allow-unlocked`, `citable = TRUE`):**
+
+- decision 1 `CAUDATE_MAGNITUDE_CLAIM_NOT_SUPPORTED` — tier 3 reads
+  `donor_count_is_a_plausible_major_contributor`.
+- decision 2 `RETAIN_MAIN_TEXT` — `lower_in_scz_linked` in 3/3 regions,
+  FDR-significant in 3/3 (2 outside caudate); one region-specific departure,
+  caudate (log-odds −0.226 vs −0.160 for the other two pooled, p = 0.042,
+  independent-SE test and therefore conservative under shared donors).
+- stage 16: the axis contrast survives n-matching in all three caudate n=118
+  replicates; |log-odds| changes by +5.8% on average (range +1.9% to +8.2%),
+  against tier 3's 14.3% attenuation of the prediction magnitude.
 
 Note also that Module 06's accepted S-LDSC result is **null**
 (`sldsc_supports_brain_enrichment = FALSE`), which
