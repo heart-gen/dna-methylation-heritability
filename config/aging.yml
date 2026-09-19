@@ -1,0 +1,253 @@
+# Aging application (09b_aging_application)
+#
+# Question: do VMRs with WEAKER local SNP control show LARGER age-associated
+# methylation differences? An orthogonal, non-disease test of what Module 09
+# found for schizophrenia (SCZ-linked VMRs sit lower on the local-genetic-control
+# axis in all three regions). It is one axis test per region plus one
+# cross-region stage -- deliberately not a second disease module.
+#
+# Design decisions taken 2026-09-19 (pending PI lock):
+#   * pooled age model conditioning on sex + diagnosis, exactly what Module 02
+#     conditioned the score on; controls-only is a GATING sensitivity;
+#   * cell composition is a GATING sensitivity under strict conjunction;
+#   * PRIMARY OUTCOME: the debiased squared age slope, beta_hat^2 - SE^2, scaled
+#     by its region mean, regressed on local_snp_contribution_score_z plus
+#     technical covariates. SE = sqrt(donor-bootstrap var + delete-one-chromosome
+#     block-jackknife var).
+#
+# WHY THIS OUTCOME. The per-VMR age model has no SNP term, so a VMR with strong
+# local SNP control carries that genetic variance in its residual and gets a
+# LARGER SE. Any age-effect measure whose expectation depends on the SE is then
+# coupled to the score mechanically:
+#   - |beta_hat| and its rank: E|beta_hat| ~ sqrt(beta^2 + SE^2), so the noise
+#     floor rises with the score;
+#   - |t|, -log10 p, partial R^2: pivotal when there is NO age effect, but once
+#     real effects exist, a fixed beta gives a smaller t where the SE is larger.
+# beta_hat^2 - SE^2 has expectation beta^2 whatever the SE, so the coupling is
+# removed by construction rather than modelled.
+#
+# WHAT WAS TRIED AND REJECTED (recorded so it is not retried). The first design
+# (2026-09-19, same day) used rank(|beta_hat|) with a donor-level permutation of
+# age, reading the observed coefficient against the permutation null. That null
+# sets EVERY age effect to zero, where the noise floor dominates every VMR and
+# the coupling is at its strongest; in real data age effects exist, the coupling
+# is weaker, and the observed coefficient sits BELOW the null mean even when
+# effect size is unrelated to the score. In simulation (real DLPFC donors, 1,500
+# VMRs, age effects drawn independently of the score) it rejected 100% of the
+# time, in the hypothesized direction. A permutation of age tests "no age effect
+# anywhere", which is not this module's null.
+#
+# WHY TWO VARIANCE COMPONENTS. The donor bootstrap alone treats the VMR set as
+# fixed and misses that by chance, in a finite set of loci, beta^2 can correlate
+# with the score; it rejected 15-57% of true nulls in simulation. Adding the
+# chromosome-block jackknife variance (the VMR-level half) brought that to 0-3%,
+# with full power for a moderate true gradient. The bootstrap is used for its
+# VARIANCE only: the bootstrap distribution of beta^2 - SE^2 is shifted by ~SE^2,
+# so a percentile interval would reintroduce the coupling.
+
+pi_locked: false
+
+cohort: AA
+regions: [caudate, dlpfc, hippocampus]
+
+upstreams:
+  vmr_catalog: 01_vmr_catalog
+  local_genetic_variance: 02_local_genetic_variance
+  repeat_architecture: 04_repeat_repressive_architecture
+
+# ---------------------------------------------------------------------------
+# Per-VMR age model
+# ---------------------------------------------------------------------------
+age_model:
+  # Covariates come from 00_shared/locus_io.R::load_locus_phenotype(), the same
+  # reader Module 02 used, so the age effect conditions on what the score
+  # conditions on. This key documents the design; it does not define it.
+  base_terms: [age, sex, diagnosis]
+  # Age enters in decades so every beta reads as "methylation fraction per
+  # decade". A pure rescaling: the relative outcome and every p are unchanged.
+  age_unit_years: 10
+  diagnosis_control_label: Control
+
+  # Every spec is a separate fit on its own donor set. `gating` specs enter the
+  # region reading's strict conjunction (see region_reading below).
+  specs:
+    primary:
+      role: primary
+      donors: all
+      extra_terms: []
+    controls_only:
+      role: gating
+      donors: controls
+      # diagnosis is constant inside the stratum; dropping it is not a weaker
+      # adjustment, the restriction closes the path.
+      drop_terms: [diagnosis]
+      extra_terms: []
+    cell_music:
+      role: gating
+      donors: all
+      extra_terms: [music_cellPC1, music_cellPC2, music_cellPC3]
+    cell_scmd:
+      role: gating
+      donors: all
+      extra_terms: [scmd_cellPC1, scmd_cellPC2, scmd_cellPC3]
+      # DNAm scMD passes its integration gate (config/cell_deconvolution.yml
+      # validation) in caudate only: total-neuron rho 0.72 vs -0.03 (dlpfc) and
+      # -0.10 (hippocampus). The gate is re-read from the concordance table on
+      # every run; a region that fails it does not fit this spec.
+      requires_scmd_integration_gate: true
+    age_ge_25:
+      role: non_gating
+      donors: all
+      # The 17-24 tail sits on the late-developmental trajectory, where
+      # methylation-age relations are steeper and nonlinear.
+      min_age: 25
+      extra_terms: []
+
+cell_composition:
+  n_pcs: 3
+  # Same construction as Module 04's cell_composition_r2
+  # (00_shared/cell_composition.R::cell_composition_pcs).
+  rna_music_template: inputs/cell_proportions/_m/music-proportions-{region}.tsv
+  dnam_scmd_template: inputs/cell_proportions/_m/dnam-scmd-proportions-{region}.tsv
+  scmd_gate_table: inputs/cell_proportions/_m/dnam-scmd-rna-concordance.tsv
+  # A donor absent from a proportion table is dropped from THAT spec only, and
+  # the spec's n is recorded; it is never imputed.
+
+# ---------------------------------------------------------------------------
+# Axis test
+# ---------------------------------------------------------------------------
+axis:
+  predictor: local_snp_contribution_score_z
+  # Hypothesis: weaker control -> larger age effect, i.e. a NEGATIVE coefficient
+  # on score_z. Inference is two-sided; the direction is read, not assumed.
+  hypothesized_sign: negative
+  outcome: debiased_sq_beta
+  outcome_scale: relative_to_mean
+
+  # Technical covariates, joined from Module 04's vmr-features.tsv.
+  # methylation_variance is DELIBERATELY ABSENT from the primary: total variance
+  # contains the age variance, so adjusting for it partly adjusts away the
+  # outcome. It returns as a non-gating arm.
+  covariates:
+    [vmr_length, cpg_count, cpg_density, gc_content, mappability,
+     mean_methylation]
+
+  # Arms refit the axis model on the PRIMARY spec's age effects with a changed
+  # covariate set or row subset.
+  arms:
+    cell_composition_r2:
+      role: gating
+      add_covariates: [cell_composition_r2]
+    methylation_variance:
+      role: non_gating
+      add_covariates: [methylation_variance]
+    high_mappability:
+      role: non_gating
+      subset: {column: mappability, min: 0.9}
+    chromatin_decomposition:
+      role: non_gating
+      # Does the gradient ride on PRC2/bivalent age-hypermethylation or on the
+      # H3K9me3/quiescent architecture of Module 04? Attenuation here links the
+      # aging axis to that architecture; it is not a failure.
+      add_covariates: [h3k27me3_frac, bivalent_frac, h3k9me3_frac, quiescent_frac]
+
+  # Prespecified secondary outcome on the primary spec, with the same inference.
+  # beta_hat is unbiased for beta, so the signed slope needs no debiasing.
+  secondary_outcomes:
+    signed_beta_age:
+      scale: raw
+      meaning: >
+        Signed beta_age (methylation fraction per decade per SD of score):
+        whether the axis separates age-related gain from loss.
+  descriptive:
+    quartile_means: local_snp_contribution_quartile
+
+inference:
+  donor_bootstrap_n: 1000
+  # Smoke runs only; recorded in the manifest so a smoke table can never pass
+  # for a production one.
+  smoke_donor_bootstrap_n: 50
+  # Donors are resampled within diagnosis: cases are ~7 years older (AA medians
+  # 53.7/48.6 caudate, 54.3/45.8 hippocampus, 53.2/45.8 dlpfc), and a draw must
+  # keep the design the model adjusts for.
+  bootstrap_stratified_by: diagnosis
+  block: chromosome
+  jackknife: weighted_delete_one_block   # Busing, Meijer & van der Leeden 1999
+  alpha: 0.05
+
+# ---------------------------------------------------------------------------
+# Per-region reading (03_apply_gates.R)
+# ---------------------------------------------------------------------------
+region_reading:
+  # The primary must be significant (combined SE) with the hypothesized sign.
+  primary_alpha: 0.05
+  # Strict conjunction over the gating specs and arms. Rules differ by n:
+  #   same-n specs/arms must keep the sign AND stay significant --
+  #     they have the power, so losing significance is losing the result;
+  #   controls_only keeps ~58% of donors, so it must keep the sign and at least
+  #     this fraction of the primary coefficient, not significance.
+  same_n_rule: sign_and_p
+  same_n_members: [cell_music, cell_scmd, cell_composition_r2]
+  reduced_n_rule: sign_and_min_fraction_of_primary
+  reduced_n_members: [controls_only]
+  reduced_n_min_fraction: 0.5
+
+gates:
+  # A COVERAGE gate, not a success criterion: a null axis result seals.
+  min_modelled_vmrs: 500
+  max_nonfinite_vmr_fraction: 0.01
+  # A bootstrap draw can fail only on a rank-deficient resample; more than this
+  # fraction failing means the variance estimate is not trustworthy.
+  max_failed_bootstrap_fraction: 0.01
+
+# ---------------------------------------------------------------------------
+# Cross-region (05_cross_region_concordance.R)
+# ---------------------------------------------------------------------------
+cross_region:
+  # Q1, region-general: the Module 09 H1 rule.
+  min_regions_supported: 2
+  requires_support_outside: [caudate]
+  # Q2, identified difference: DLPFC vs hippocampus only (Module 08 tier 2).
+  identified_difference_contrast: [dlpfc, hippocampus]
+  # DLPFC and hippocampus share 115 of 118 donors, so the two axis coefficients
+  # are strongly positively correlated and an independent-SE z is wrong. A
+  # PAIRED donor bootstrap resamples the donor UNION (within diagnosis); a
+  # sampled donor contributes to every region it was assayed in. The VMR-level
+  # half is a JOINT delete-one-chromosome jackknife of the difference. The
+  # compared quantity is the relative slope, which is unit-free.
+  bootstrap_n: 1000
+  smoke_bootstrap_n: 50
+  ci_level: 0.95
+  # "Context-dependent" is claimed only if the CI excludes zero in every one of
+  # these specs (strict conjunction).
+  difference_requires_specs: [primary, cell_music]
+  # Caudate is batch 3 (AGENTS.md 8.1). The tier list is READ from
+  # config/region_donor_generalization.yml:
+  # interpretation.technically_confounded_regions.all_outcomes, not re-declared.
+  technically_confounded_regions_source: region_donor_generalization
+
+forbidden_columns: [r_squared_cv, h2_unscaled, h2_en_calibrated, h2_category]
+audit_only_columns: [pve_cis_joint_calibrated, pve_cis_joint_unbounded]
+
+interpretation:
+  cross_sectional_design: true
+  wording: >
+    Cross-sectional postmortem data: write "age-associated methylation
+    differences", never "methylation change with age". Donor age is confounded
+    with birth cohort and survival.
+  causal_interpretation_allowed: false
+  environmentally_determined_claim_allowed: false
+  absolute_pve_interpretation_allowed: false
+  cross_region_raw_score_comparison_allowed: false
+  epigenetic_clock_claim_allowed: false
+  catalog_scope_note: >
+    VMRs were selected on residual SD after regressing methylation PCs 1-5
+    computed WITHOUT age adjustment (01_vmr_catalog/_h/01_analyze.R). If a
+    methylation PC tracks age, the catalog under-samples regions whose
+    variability is mostly age-driven. Stage 00 measures the methPC-age
+    correlation; results describe age effects within this catalog.
+  null_result_meaning: >
+    A null axis result means age-effect magnitude does not track local genetic
+    control within this catalog. It is not evidence that low-control VMRs are
+    environmentally determined (AGENTS.md 2.3), nor the reverse.
+  manuscript_placement: pi_decision_after_run
