@@ -1,8 +1,8 @@
 # 09b_aging_application — age-associated methylation along the local-genetic-control axis
 
 **Status: implemented and smoke-tested 2026-09-19. `config/aging.yml` locked
-by the PI 2026-09-19; production runs `age-AA-{region}-20260919` submitted the
-same day. No run is accepted yet.**
+by the PI 2026-09-19; production runs `age-AA-{region}-20260919` accepted the
+same day (see Accepted runs). Cross-region token: NOT_SUPPORTED.**
 
 ## Question
 
@@ -286,8 +286,20 @@ checks, covering:
 
 | run_id | cohort | region | vmr_set_id | accepted_on | accepted_by | decision | notes |
 |---|---|---|---|---|---|---|---|
+| age-AA-caudate-20260919 | AA | caudate | vmrset-AA-caudate-937a41979978 | 2026-09-19 | Kynon J. Benjamin | PASS_AGING_AXIS_COVERAGE | Built at 0d69f432e on lgv-AA-caudate-rescore-20260913, rra-AA-caudate-20260906, tsc-AA-caudate-20260902; 153 donors, 11,251 VMRs, B = 1000. Primary −0.25 (p 3e-4), hypothesized direction; survives controls-only, MuSiC cell PCs, methylation variance, mappability, chromatin decomposition; fails the cell_composition_r2 arm (−0.07, p 0.19) and cell_scmd (p 0.057). Region reading PRIMARY_ONLY_FAILS_GATING_SENSITIVITY. Caudate is batch-confounded (descriptive tier). methPC–age max rho 0.51. |
+| age-AA-dlpfc-20260919 | AA | dlpfc | vmrset-AA-dlpfc-856067dfe289 | 2026-09-19 | Kynon J. Benjamin | PASS_AGING_AXIS_COVERAGE | Built at 0d69f432e on lgv-AA-dlpfc-rescore-20260913, rra-AA-dlpfc-20260906, tsc-AA-dlpfc-20260902; 118 donors, 9,251 VMRs, B = 1000. Primary −0.33 (p 0.025), hypothesized direction; survives controls-only (72%), MuSiC cell PCs (−0.39, p 0.01), methylation variance, mappability, chromatin decomposition; fails the cell_composition_r2 arm (−0.17, p 0.21). Region reading PRIMARY_ONLY_FAILS_GATING_SENSITIVITY. methPC–age max rho 0.45. |
+| age-AA-hippocampus-20260919 | AA | hippocampus | vmrset-AA-hippocampus-2d907b892215 | 2026-09-19 | Kynon J. Benjamin | PASS_AGING_AXIS_COVERAGE | Built at 0d69f432e on lgv-AA-hippocampus-rescore-20260913, rra-AA-hippocampus-20260906, tsc-AA-hippocampus-20260902; 117 donors, 9,166 VMRs, B = 1000. Primary −0.10 (p 0.28), hypothesized direction, not significant; controls-only −0.24 (p 0.02). Region reading NOT_SUPPORTED. methPC–age max rho 0.64, the largest of the three. |
 
-None. No production run has been submitted.
+Cross-region (stage 05, 2026-09-19): `aging_axis_association = NOT_SUPPORTED`.
+Direction is concordant in all three regions and the top-quartile-control
+VMRs carry 0.19–0.32 of the regional mean squared age effect, but the
+`cell_composition_r2` gating arm removes the gradient everywhere. Reading:
+the age-responsive low-control VMRs are the composition-sensitive ones.
+Donor-level composition PCs in the age model do not remove it; the VMR-level
+composition-sensitivity covariate does. Bulk data cannot separate an
+age-related composition shift from a compartment that is cell-type-variable
+and age-variable for the same reason; the manuscript may report the gradient
+only with that qualifier. DLPFC–hippocampus difference −0.23, CI includes 0.
 
 ## Contract
 
