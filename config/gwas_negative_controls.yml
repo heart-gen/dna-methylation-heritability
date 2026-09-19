@@ -1,0 +1,97 @@
+# Negative-control traits for the Module 09 architecture-axis contrast
+# (09_schizophrenia_risk_application/_h/17_negative_control_traits.R)
+#
+# THE QUESTION. Module 09 finds that SCZ-linked VMRs sit LOWER on the
+# local-genetic-control axis in all three regions. The axis model adjusts for
+# technical covariates only. Module 04 shows that low-control VMRs are
+# gene-proximal and active, and GWAS loci of most traits are gene-dense. So the
+# SCZ depletion is, as it stands, indistinguishable from "VMRs near ANY GWAS
+# locus are gene-proximal, and gene-proximal VMRs are low-control". This stage
+# answers that in two ways, both prespecified here:
+#
+#   1. TRAIT DISTRIBUTION. The identical locus -> VMR -> axis pipeline is run
+#      for every trait in a harmonized GWAS collection, under ONE locus rule
+#      applied to every trait including schizophrenia. SCZ's coefficient is
+#      then read against the distribution of the other traits, overall, within
+#      category, and within traits of similar locus count.
+#   2. GENOMIC-CONTEXT ADJUSTMENT. Every contrast is fitted twice: with the
+#      Module 09 technical covariates, and with broad genomic context added.
+#      The attenuation of the SCZ coefficient under context adjustment is
+#      reported as such.
+#
+# What this stage can and cannot say. If most traits show a depletion of the
+# same size, "SCZ-linked VMRs are low-control" is a property of GWAS loci in
+# general, and the manuscript must say so. If SCZ (and psychiatric traits) sit
+# apart from the rest, the depletion is trait-specific. Neither outcome touches
+# Module 09's decisions, which are locked; this stage QUALIFIES the claim.
+#
+# Added 2026-09-19 (PI request, same day), after the Module 09 runs were
+# accepted. It is therefore a post hoc sensitivity, recorded as one.
+
+pi_locked: false
+
+cohort: AA
+
+collection:
+  # PredictDB/GTEx-GWAS harmonized summary statistics, hg38, one format.
+  dir: /projects/b1213/resources/gwas/imputed_gwas_hg38_1.1
+  metadata: /projects/b1213/resources/gwas/imputed_gwas_hg38_1.1/gwas_metadata.txt
+  file_template: imputed_{tag}.txt.gz
+  # 1-based column indices in every file (asserted identical across all 114 by
+  # header before use).
+  columns: {chrom: 3, pos: 4, pvalue: 11, variant_id: 1}
+  # The collection's own PGC2 schizophrenia GWAS (pgc.scz2). Kept in the run as
+  # a within-collection positive control; it is NOT a negative control and is
+  # excluded from the null distribution.
+  positive_control_tags: [pgc.scz2, UKB_20002_1289_self_reported_schizophrenia]
+  # Traits the metadata flags as duplicates / superseded (Keep != Yes) are still
+  # run and reported, but excluded from the null distribution.
+  exclude_unless_keep_yes: true
+
+# PGC3 schizophrenia, the Module 09 trait, under the SAME uniform locus rule.
+# hg19; genome-wide significant rows are lifted to hg38 by the extraction step.
+scz_pgc3:
+  sumstats_hg19: /projects/b1213/resources/gwas/PGC/SCZ/PGC3/PGC3_SCZ_wave3.european.autosome.public.v3.vcf.tsv.gz
+  columns: {chrom: 1, pos: 3, pvalue: 11, variant_id: 2}
+  liftover_chain_hg19_to_hg38: /projects/b1213/resources/magma/hg19ToHg38.over.chain.gz
+
+# ONE locus rule for every trait. No LD reference is used, so the rule is
+# ancestry-neutral and identical for all traits: genome-wide significant
+# variants are greedily clumped by distance.
+locus_rule:
+  genome_wide_p: 5.0e-8
+  # A lead absorbs every significant variant within this distance of it.
+  clump_distance_bp: 500000
+  # VMR linkage window around each lead. 500 kb, the same flank Module 09
+  # applies to the published PGC3 intervals (config/schizophrenia.yml
+  # locus_definition.locus_flank_bp).
+  link_flank_bp: 500000
+  # The extended MHC is excluded for every trait. The PGC3 fine-mapped locus
+  # table Module 09 uses carries no MHC locus, so this keeps the rules aligned.
+  exclude_regions_hg38:
+    - {chrom: chr6, start: 25000000, end: 34000000}
+  autosomes_only: true
+  # A trait with fewer leads than this is fitted and reported but excluded
+  # from the null distribution: its contrast is too noisy to inform it.
+  min_leads_for_distribution: 10
+
+axis:
+  predictor: local_snp_contribution_score_z
+  # Model A: exactly Module 09 (config/schizophrenia.yml
+  # testing.architecture_covariates).
+  technical_covariates: [vmr_length, cpg_count, gc_content, mappability]
+  # Model B: A plus broad genomic context (Module 04 vmr-features.tsv
+  # broad_genomic_annotation: promoter / exonic / intronic / intergenic).
+  context_covariate: broad_genomic_annotation
+  # Traits whose lead count is within this factor of SCZ's, in either
+  # direction, form the "similar polygenicity" comparison set.
+  similar_lead_count_factor: 2.0
+  fdr_method: BH
+  alpha: 0.05
+
+interpretation:
+  post_hoc_sensitivity: true
+  qualifies_claim: scz_linked_vmrs_lower_on_local_control_axis
+  does_not_alter_module_09_decisions: true
+  regions_are_independent_replicates: false
+  caudate_tier: descriptive_only

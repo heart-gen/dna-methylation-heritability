@@ -701,6 +701,16 @@ hits must be labeled exploratory.
 Do not claim mediation, causality, or colocalization unless the corresponding
 analysis has been run with adequate ancestry-matched LD and passes its own gate.
 
+**Negative-control traits (added 2026-09-19, post hoc).** The axis contrast is
+adjusted for technical covariates only, and low-control VMRs are gene-proximal
+(§7.4), so a depletion near SCZ loci could be a property of GWAS loci in
+general. Stage 17 runs the identical locus → VMR → axis contrast for every
+trait in the harmonized GWAS collection under one lead-SNP rule (applied to
+schizophrenia too) and refits every contrast with genomic context adjusted.
+Read SCZ against that distribution before writing "SCZ-linked" as if it were
+trait-specific. It qualifies the claim and changes no decision; config in
+`config/gwas_negative_controls.yml`.
+
 ### 7.9 `09b_aging_application`: orthogonal aging application
 
 **Added 2026-09-19.** The module asks whether VMRs with weaker local SNP control
