@@ -105,9 +105,30 @@ independent_decisions:
     # the earlier phrasing "fails if any region is null" contradicted the
     # >=2-of-3 rule and is superseded.
     axis_direction_required: lower_in_scz_linked
-    axis_direction_consistent_in_all_regions: true
     axis_min_regions_with_statistical_support: 2
     axis_requires_support_outside: caudate
+    # PI 2026-09-18, superseding axis_direction_consistent_in_all_regions: BIOLOGICAL
+    # UNIFORMITY IS NOT REQUIRED. Requiring the same direction in every region
+    # would make one deviating region falsify a real region-general association,
+    # and would also hide the more interesting result -- a genuine region-specific
+    # departure -- by treating it as failure. The region-general association and
+    # any region-specific departure are therefore assessed SEPARATELY and both are
+    # reported.
+    axis_direction_consistent_in_all_regions: false   # described, never required
+    # A departure is only "genuine" on evidence, not on a magnitude difference or
+    # a nonsignificant region. Either of these qualifies:
+    #   sign_reversal_with_support  the region's effect runs the OTHER way and is
+    #                               FDR-significant doing so;
+    #   magnitude_difference        the region differs from the other regions
+    #                               pooled, tested with independent SEs. Shared
+    #                               donors make the true SE of a difference SMALLER
+    #                               than that, so this test is CONSERVATIVE for
+    #                               declaring a departure -- which is the safe
+    #                               direction for a claim of region-specificity.
+    region_specific_departure_rules: [sign_reversal_with_support, magnitude_difference]
+    region_specific_departure_alpha: 0.05
+    # A departure does not veto the region-general claim; it qualifies its scope.
+    departure_vetoes_region_general_claim: false
     # Caudate is perfectly confounded with sequencing batch (AGENTS.md 8.1), so
     # it may contribute to concordance but can never be the only support.
     independent_of_caudate_magnitude_claim: true

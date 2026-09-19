@@ -12,13 +12,23 @@
 ## answer the "shared or region-dependent" half. This one does, and it is the
 ## only place decision 2 is resolved.
 ##
-## H1, exactly as locked (config independent_decisions.scz_application_retention):
-##   SCZ-linked VMRs show LOWER local genetic-control scores in ALL THREE
-##   regions, with statistical support in AT LEAST TWO, including AT LEAST ONE
-##   non-caudate region.
-## A negative-but-nonsignificant third region therefore does NOT falsify H1. The
-## earlier phrasing "fails if any region is null or positive" contradicted the
-## >=2-of-3 rule; the config is the authority and this stage reads it.
+## H1, as locked (config independent_decisions.scz_application_retention):
+##   SCZ-linked VMRs show LOWER local genetic-control scores, with statistical
+##   support in AT LEAST TWO regions including AT LEAST ONE non-caudate region.
+## A negative-but-nonsignificant region does NOT falsify H1.
+##
+## BIOLOGICAL UNIFORMITY IS NOT REQUIRED (PI 2026-09-18). Two questions are asked
+## separately, and both are answered:
+##
+##   1. REGION-GENERAL ASSOCIATION -- is there a disorder-related association
+##      that holds across regions? Decided by the >=2-regions rule above.
+##   2. REGION-SPECIFIC DEPARTURE -- does any region genuinely depart from it?
+##      Tested, not assumed away. A departure QUALIFIES the scope of claim 1; it
+##      does not veto it (departure_vetoes_region_general_claim: false).
+##
+## Requiring the same direction everywhere would have done two wrong things at
+## once: let one deviating region falsify a real region-general association, and
+## bury a genuine region-specific finding by scoring it as failure.
 ##
 ## WHY CAUDATE CANNOT BE THE ONLY SUPPORT: it is perfectly confounded with
 ## sequencing batch (AGENTS.md 8.1), so a pattern resting on caudate alone is not
@@ -249,8 +259,8 @@ if (nrow(annot_concordance)) {
 ## ----------------------------------------------------------- the H1 evaluation
 dir_ok_each <- axis$adj_direction == dir_required
 n_dir_ok <- sum(dir_ok_each, na.rm = TRUE)
-direction_consistent <- if (need_all_dir) all(dir_ok_each, na.rm = TRUE) else
-    n_dir_ok >= min_support
+## Reported, and only required if the PI re-locks uniformity as a requirement.
+direction_consistent <- all(dir_ok_each, na.rm = TRUE)
 
 supported <- axis$adj_significant & dir_ok_each
 n_supported <- sum(supported, na.rm = TRUE)
@@ -258,9 +268,62 @@ n_supported <- sum(supported, na.rm = TRUE)
 ## caudate can contribute but never carry.
 supported_outside <- sum(supported & axis$region != support_outside, na.rm = TRUE)
 
-h1_met <- direction_consistent &&
-    n_supported >= min_support &&
-    supported_outside >= 1L
+## ------------------------------------------ 1. the region-general association
+region_general_met <- n_supported >= min_support && supported_outside >= 1L
+
+## ------------------------------------------- 2. genuine region-specific departures
+##
+## A departure must be EVIDENCE, not a magnitude gap or a nonsignificant region.
+## Two admissible rules, both from config:
+##
+##   sign_reversal_with_support  the region's effect runs the other way AND is
+##                               FDR-significant doing so. Unambiguous.
+##   magnitude_difference        leave-one-out: this region against the OTHERS
+##                               POOLED, using independent SEs. The regions share
+##                               donors, which makes the true SE of a difference
+##                               SMALLER than the independent calculation, so this
+##                               test UNDERSTATES significance -- conservative for
+##                               declaring region-specificity, which is the safe
+##                               direction. Stated on the output row so the
+##                               conservatism is not mistaken for precision.
+dep_rules <- as.character(rule$region_specific_departure_rules)
+dep_alpha <- as.numeric(rule$region_specific_departure_alpha)
+departure_veto <- isTRUE(rule$departure_vetoes_region_general_claim)
+
+departures <- rbindlist(lapply(seq_len(nrow(axis)), function(i) {
+    others <- setdiff(seq_len(nrow(axis)), i)
+    wo <- 1 / axis$adj_se[others]^2
+    pooled_others <- sum(wo * axis$adj_log_odds_per_sd[others]) / sum(wo)
+    se_others <- sqrt(1 / sum(wo))
+    d <- axis$adj_log_odds_per_sd[i] - pooled_others
+    se_d <- sqrt(axis$adj_se[i]^2 + se_others^2)
+    z <- d / se_d
+    p <- 2 * stats::pnorm(-abs(z))
+    reversal <- !dir_ok_each[i] && isTRUE(axis$adj_significant[i])
+    magdiff <- is.finite(p) && p < dep_alpha
+    hit <- c(sign_reversal_with_support = reversal,
+             magnitude_difference = magdiff)[dep_rules]
+    data.table(
+        region = axis$region[i],
+        log_odds_this_region = axis$adj_log_odds_per_sd[i],
+        log_odds_other_regions_pooled = pooled_others,
+        difference = d, difference_se_independent = se_d,
+        difference_z = z, difference_p = p,
+        direction_matches_general = dir_ok_each[i],
+        significant_in_this_region = isTRUE(axis$adj_significant[i]),
+        rule_sign_reversal_with_support = reversal,
+        rule_magnitude_difference = magdiff,
+        is_region_specific_departure = any(hit, na.rm = TRUE),
+        departure_rule_met = paste(names(hit)[which(hit)], collapse = ","),
+        difference_test_is_conservative_shared_donors = TRUE,
+        alpha = dep_alpha)
+}))
+departure_regions <- departures[is_region_specific_departure == TRUE, region]
+n_departures <- length(departure_regions)
+
+## H1 -- the region-general claim. Uniformity is not part of it, and a departure
+## does not veto it unless the PI locks that.
+h1_met <- region_general_met && !(departure_veto && n_departures > 0L)
 
 ## Reported for completeness and explicitly NOT a gate: the regions share
 ## donors, so this interval is anticonservative. It exists so a reader who looks
@@ -272,16 +335,21 @@ Q <- sum(w * (axis$adj_log_odds_per_sd - pooled)^2)
 Q_df <- nrow(axis) - 1L
 Q_p <- stats::pchisq(Q, Q_df, lower.tail = FALSE)
 
-reading <- if (!direction_consistent) {
-    "axis_direction_not_consistent_across_regions"
-} else if (n_supported < min_support) {
-    "axis_direction_consistent_but_under_supported"
+## The reading names WHICH of the two questions was answered and how, so a
+## region-general association with a departure cannot be read as either a clean
+## uniform result or a failure.
+end <- if (identical(dir_required, "lower_in_scz_linked")) "lower_end" else "higher_end"
+reading <- if (n_supported < min_support) {
+    "no_region_general_association_under_supported"
 } else if (supported_outside < 1L) {
-    "axis_supported_only_in_the_batch_confounded_region"
-} else if (identical(dir_required, "lower_in_scz_linked")) {
-    "scz_linked_vmrs_occupy_the_lower_end_of_the_local_control_axis_in_all_regions"
+    "association_supported_only_in_the_batch_confounded_region"
+} else if (n_departures == 0L) {
+    paste0("region_general_association_scz_linked_vmrs_at_the_", end,
+           "_of_the_local_control_axis_no_region_specific_departure")
 } else {
-    "scz_linked_vmrs_occupy_the_higher_end_of_the_local_control_axis_in_all_regions"
+    paste0("region_general_association_scz_linked_vmrs_at_the_", end,
+           "_of_the_local_control_axis_with_region_specific_departure_in_",
+           paste(departure_regions, collapse = "_"))
 }
 
 concordance <- data.table(
@@ -292,7 +360,15 @@ concordance <- data.table(
     regions = paste(axis$region, collapse = ","),
     direction_required = dir_required,
     n_regions_direction_ok = n_dir_ok,
+    ## Described, not required: biological uniformity is not a gate
+    ## (PI 2026-09-18).
     direction_consistent_in_all_regions = direction_consistent,
+    biological_uniformity_required = FALSE,
+    ## The two answers, kept apart.
+    region_general_association = region_general_met,
+    n_region_specific_departures = n_departures,
+    region_specific_departure_regions = paste(departure_regions, collapse = ","),
+    departure_vetoes_region_general_claim = departure_veto,
     n_regions_with_statistical_support = n_supported,
     min_regions_with_statistical_support = min_support,
     support_required_outside = support_outside,
@@ -328,6 +404,9 @@ concordance <- data.table(
 ## per-region call that 12_apply_gates.R makes from Module 08 tier 3. It is
 ## carried alongside purely so the two decisions can be read together, and the
 ## independence of the two is stated as a field rather than left to the reader.
+## NOT YET COMPUTED is not the same as FAILED. A run whose gate stage has not run
+## leaves no scz-decision.tsv, and treating that absence as a failure would
+## report SUPPLEMENT_OR_OMIT for a run that is simply still in flight.
 per_region_ok <- vapply(regions, function(re) {
     f <- file.path(module_root, "_m", "runs", runs[[re]], "results",
                    "scz-decision.tsv")
@@ -353,7 +432,12 @@ caudate_claim <- {
     } else "NOT_RECORDED_PRE_SPLIT_RUN"
 }
 
-retention <- if (!all(per_region_ok %in% TRUE)) {
+n_pending_gates <- sum(is.na(per_region_ok))
+retention <- if (n_pending_gates > 0L) {
+    ## Distinguish "the per-region gates have not run yet" from "a region failed
+    ## its gates". Only the second is a reason to demote the application.
+    "PENDING_PER_REGION_GATES"
+} else if (any(per_region_ok %in% FALSE)) {
     "SUPPLEMENT_OR_OMIT"
 } else if (h1_met) "RETAIN_MAIN_TEXT" else "SUPPLEMENT_OR_OMIT"
 
@@ -366,11 +450,19 @@ decisions <- data.table(
                                  min_support, " including >=1 outside ",
                                  support_outside),
     decision_2_independent_of_decision_1 = TRUE,
+    n_regions_with_gate_not_yet_run = n_pending_gates,
     h1_met = h1_met,
+    region_general_association = region_general_met,
+    n_region_specific_departures = n_departures,
+    region_specific_departure_regions = paste(departure_regions, collapse = ","),
+    biological_uniformity_required = FALSE,
     h1_statement = paste0(
         "SCZ-linked VMRs show ", dir_required, " local genetic-control scores ",
-        "in all ", nrow(axis), " regions, with statistical support in >= ",
-        min_support, " regions including >= 1 outside ", support_outside),
+        "with statistical support in >= ", min_support,
+        " regions including >= 1 outside ", support_outside,
+        ". Uniformity across regions is NOT required; region-specific departures ",
+        "are tested separately and qualify the scope of the claim rather than ",
+        "vetoing it."),
     regions_are_independent_replicates = FALSE,
     upstreams_current_in_all_regions = n_stale == 0L,
     provisional_pending_module_09_rerun = n_stale > 0L,
@@ -380,6 +472,9 @@ if (nrow(annot_concordance)) {
     write_atomic(annot_concordance, file.path(out_dir,
         paste0("scz-annotation-cross-region-concordance-", opts$cohort, ".tsv")))
 }
+
+write_atomic(departures, file.path(out_dir,
+    paste0("scz-axis-region-specific-departures-", opts$cohort, ".tsv")))
 
 write_atomic(freshness, file.path(out_dir,
     paste0("scz-region-upstream-freshness-", opts$cohort, ".tsv")))
@@ -402,9 +497,21 @@ print(overlap[, .(region_a, region_b, n_a, n_b, n_shared,
                   jaccard = round(jaccard, 2))])
 cat(sprintf("  %d donors in all %d regions; union %d\n",
             n_all_three, nrow(axis), n_union))
-cat(sprintf("\n[15] H1: direction %s in %d/%d regions; support in %d (need >=%d), %d outside %s\n",
+cat(sprintf("\n[15] Q1 region-general: direction %s in %d/%d; support in %d (need >=%d), %d outside %s -> %s\n",
             dir_required, n_dir_ok, nrow(axis), n_supported, min_support,
-            supported_outside, support_outside))
+            supported_outside, support_outside, region_general_met))
+cat(sprintf("[15] Q2 region-specific departures: %d of %d regions%s\n",
+            n_departures, nrow(axis),
+            if (n_departures) paste0(" (", paste(departure_regions, collapse = ", "), ")") else ""))
+print(departures[, .(region, log_odds_this_region,
+                     others_pooled = round(log_odds_other_regions_pooled, 4),
+                     diff = round(difference, 4), p = signif(difference_p, 3),
+                     reversal = rule_sign_reversal_with_support,
+                     magdiff = rule_magnitude_difference,
+                     departure = is_region_specific_departure)])
+cat("  Uniformity is NOT required. A departure qualifies the scope of the\n")
+cat("  region-general claim; it does not veto it. The difference test uses\n")
+cat("  independent SEs and is therefore CONSERVATIVE under shared donors.\n")
 cat(sprintf("[15] H1 met: %s -- %s\n", h1_met, reading))
 if (nrow(annot_concordance)) {
     cat("\n[15] Module 04 connector -- claimable in how many regions:\n")
