@@ -4,10 +4,11 @@
 ## Usage:
 ##   Rscript _h/00_new_run.R --cohort AA --region dlpfc [--allow-unlocked]
 ##
-## Three upstreams, as in Module 10: 01 for the per-VMR methylation phenotypes
-## and donor covariates, 02 for the relative local-control score, and 04 for the
-## technical and chromatin covariates the axis model adjusts on. All three must
-## describe the same vmr_set_id.
+## Four upstreams: 01 for the per-VMR methylation phenotypes and donor
+## covariates, 02 for the relative local-control score, 04 for the technical and
+## chromatin covariates the axis model adjusts on, and 07 for the transcriptional
+## coupling the descriptive annotation stage reads. All four must describe the
+## same vmr_set_id.
 ##
 ## One diagnostic is run here, before anything is fitted, because it bounds what
 ## the module can say rather than being a result: VMRs were selected on residual
@@ -75,7 +76,7 @@ sets <- unlist(lapply(accepted, function(a) a$vmr_set_id))
 sets <- unique(sets[!is.na(sets)])
 if (length(sets) > 1) {
     stop("vmr_set_id mismatch across upstreams: ", paste(sets, collapse = " vs "),
-         "\n  01, 02 and 04 must describe the same VMR set (AGENTS.md 6).")
+         "\n  01, 02, 04 and 07 must describe the same VMR set (AGENTS.md 6).")
 }
 if (any(vapply(accepted, function(a) is.na(a$run_id %||% NA_character_), logical(1)))) {
     stop("An upstream has no accepted run for ", opts$cohort, " x ", opts$region,

@@ -27,6 +27,11 @@
 ##
 ##   Q3 CAUDATE (tier 4): fitted and surfaced, excluded from any contrast.
 ##      Caudate is sequencing batch 3 (AGENTS.md 8.1).
+##
+## It also collates the DESCRIPTIVE annotation associations (stage 02) into one
+## table and states, per annotation, in how many regions it is associated with
+## age at q < alpha and whether those regions agree in sign. The same tier rule
+## applies: consistency is counted outside caudate, caudate is shown beside it.
 
 source(file.path(Sys.getenv("V2_REPO_ROOT", "."), "00_shared", "load.R"))
 H_DIR <- Sys.getenv("V2_RUN_CODE",
@@ -87,6 +92,36 @@ read_run <- function(re) {
     dec
 }
 per_region <- rbindlist(lapply(regions, read_run), fill = TRUE)
+
+## ------------------------------------------------------------- annotation collation
+ann_all <- rbindlist(lapply(regions, function(re) {
+    f <- file.path(run_dir(re), "results", "annotation-age-associations.tsv")
+    if (!file.exists(f)) return(NULL)
+    fread(f)
+}), fill = TRUE)
+ann_summary <- NULL
+if (nrow(ann_all)) {
+    a_alpha <- as.numeric(cfg$inference$alpha)
+    tested <- ann_all[is.finite(estimate)]
+    tested[, tier := fifelse(region %in% confounded, "descriptive_only", "claim_eligible")]
+    ann_summary <- tested[, {
+        hit <- q < a_alpha
+        nc <- tier == "claim_eligible"
+        signs <- unique(sign(estimate[hit & nc]))
+        .(n_regions_tested = .N,
+          regions_q_below_alpha = paste(region[hit], collapse = ","),
+          n_noncaudate_q_below_alpha = sum(hit & nc),
+          noncaudate_signs_agree = if (sum(hit & nc) >= 2L) length(signs) == 1L else NA,
+          caudate_q = if (any(!nc)) q[!nc][1] else NA_real_,
+          caudate_estimate = if (any(!nc)) estimate[!nc][1] else NA_real_,
+          dlpfc_estimate = if (any(region == "dlpfc")) estimate[region == "dlpfc"][1] else NA_real_,
+          dlpfc_q = if (any(region == "dlpfc")) q[region == "dlpfc"][1] else NA_real_,
+          hippocampus_estimate = if (any(region == "hippocampus")) estimate[region == "hippocampus"][1] else NA_real_,
+          hippocampus_q = if (any(region == "hippocampus")) q[region == "hippocampus"][1] else NA_real_)
+    }, by = .(annotation, source_module, adjustment, outcome)]
+    ann_summary[, `:=`(role = "descriptive", regions_are_independent_replicates = FALSE,
+                       pooled_p_emitted = FALSE)]
+}
 
 ## ------------------------------------------------------------- donor overlap
 ck <- lapply(regions, function(re) readRDS(file.path(run_dir(re), "checkpoint",
@@ -251,6 +286,11 @@ write_atomic(diffs, file.path(out_dir, paste0("aging-identified-difference", sfx
 write_atomic(rbindlist(draws), file.path(out_dir,
              paste0("aging-identified-difference-bootstrap", sfx, ".tsv")))
 write_atomic(decision, file.path(out_dir, paste0("aging-cross-region-decision", sfx, ".tsv")))
+if (nrow(ann_all)) {
+    write_atomic(ann_all, file.path(out_dir, paste0("aging-annotation-associations", sfx, ".tsv")))
+    write_atomic(ann_summary, file.path(out_dir,
+                 paste0("aging-annotation-cross-region", sfx, ".tsv")))
+}
 
 print(per_region[, .(region, tier, region_reading, primary_estimate,
                      primary_p, upstream_current)])
