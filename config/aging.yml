@@ -45,7 +45,7 @@
 # VARIANCE only: the bootstrap distribution of beta^2 - SE^2 is shifted by ~SE^2,
 # so a percentile interval would reintroduce the coupling.
 
-pi_locked: false
+pi_locked: true
 
 cohort: AA
 regions: [caudate, dlpfc, hippocampus]
@@ -54,6 +54,8 @@ upstreams:
   vmr_catalog: 01_vmr_catalog
   local_genetic_variance: 02_local_genetic_variance
   repeat_architecture: 04_repeat_repressive_architecture
+  # Read only by the descriptive annotation stage (annotation_associations).
+  transcription_coupling: 07_transcription_splicing_coupling
 
 # ---------------------------------------------------------------------------
 # Per-VMR age model
@@ -161,6 +163,68 @@ axis:
         whether the axis separates age-related gain from loss.
   descriptive:
     quartile_means: local_snp_contribution_quartile
+
+# ---------------------------------------------------------------------------
+# Annotation associations (stage 02, descriptive; results/annotation-age-associations.tsv)
+# ---------------------------------------------------------------------------
+# Which kinds of VMR carry the age-associated differences? The axis test asks
+# whether age-effect size tracks local genetic control; this asks what the
+# age-responsive VMRs ARE, in the Module 04 architecture and Module 07 coupling
+# that define the low- and high-control ends of the axis. It is reported as
+# biology in its own right, not as a nuisance: the axis test's
+# chromatin_decomposition arm conditions on part of it, this block describes it.
+#
+# PROVENANCE, recorded because it matters for reading the p-values: this block
+# was added 2026-09-19 AFTER an exploratory pass over the smoke runs' per-VMR
+# age effects (primary spec, B = 200) against Module 04 and 07 annotations. The
+# score-age relation was not examined. To limit selection, the set below is
+# every biological annotation class Module 04 and 07 emit, not the ones that
+# looked interesting; technical flags are excluded for the reason given.
+#
+# Role: DESCRIPTIVE. Never enters the region reading, the coverage gate or the
+# decision token.
+annotation_associations:
+  role: descriptive
+  # Every test is fitted on the PRIMARY spec's age effects, both outcomes,
+  # sharing stage 02's donor-bootstrap draws, with the same combined SE.
+  spec: primary
+  outcomes:
+    debiased_sq_beta: relative_to_mean   # magnitude: which VMRs differ most with age
+    signed_beta_age: raw                 # direction: gain vs loss with age
+  # Two adjustments per annotation:
+  #   technical        -- the axis covariates (axis.covariates);
+  #   technical_score  -- plus local_snp_contribution_score_z: is the
+  #                       annotation's age association carried by genetic
+  #                       control, or separate from it?
+  adjustments: [technical, technical_score]
+  # One indicator per annotation vs every other modelled VMR. Annotations are
+  # not mutually adjusted: they overlap (promoter/H3K27ac/accessible), and the
+  # question is descriptive.
+  module_04:
+    chromatin_any:
+      [h3k27me3_any, bivalent_any, h3k9me3_any, quiescent_any, accessible_any,
+       h3k27ac_any]
+    repeat_any: [line_l1_any]
+    # Each level of broad_genomic_annotation, one indicator per level.
+    genomic_context_levels: [promoter, exonic, intronic, intergenic]
+    # Continuous, z-scored within region: the per-VMR R^2 of methylation on the
+    # donor scMD cell-composition PCs. scMD fails its integration gate outside
+    # caudate, so there it is a weak composition proxy (README).
+    continuous_z: [cell_composition_r2]
+    # Excluded: segdup_any, problematic_any, snp_proximal_any and mappability
+    # are technical-artefact flags, not biology; mappability is a covariate.
+  module_07:
+    # Per-VMR "coupled" indicator from coupling-model-frame.tsv, adjusted for
+    # n_features_tested (a VMR with more tested features has more chances to
+    # couple). Module 07's pair models adjust for age and cell proportions, so
+    # this is not circular.
+    modalities: [expression_nearest_gene, psi, expression_abc]
+    # Below this many coupled VMRs in a region the modality is recorded as not
+    # tested (PSI: dlpfc 24, hippocampus 7; ABC: 8-19 everywhere).
+    min_coupled_vmrs: 50
+  min_annotated_vmrs: 50
+  # BH within region x outcome x adjustment; descriptive q-values.
+  multiple_testing: BH_within_region_outcome_adjustment
 
 inference:
   donor_bootstrap_n: 1000

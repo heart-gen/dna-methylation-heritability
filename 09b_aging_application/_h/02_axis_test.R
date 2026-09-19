@@ -23,6 +23,12 @@
 ##
 ## Arms change only the axis model (covariates or row subset) on the primary
 ## spec's age effects; the secondary outcome changes only the outcome.
+##
+## DESCRIPTIVE annotation associations (config/aging.yml:
+## annotation_associations) are fitted here too, because they need the same
+## donor-bootstrap draws: the same outcomes regressed on one Module 04 or 07
+## annotation at a time instead of the score. They are written to their own
+## table and never reach the region reading.
 
 source(file.path(Sys.getenv("V2_REPO_ROOT", "."), "00_shared", "load.R"))
 H_DIR <- Sys.getenv("V2_RUN_CODE",
@@ -118,6 +124,92 @@ for (out in names(cfg$axis$secondary_outcomes)) {
 }
 by_spec <- split(names(tests), vapply(tests, `[[`, character(1), "spec"))
 
+## ------------------------------------------------------------- annotation tests
+## One indicator (or z-scored continuous annotation) at a time in place of the
+## score, on the primary spec's age effects. Built here so the bootstrap loop
+## below evaluates them on the very draws the axis tests use.
+ann_cfg <- cfg$annotation_associations
+ann_tests <- list()
+ann_skipped <- list()
+if (!is.null(ann_cfg)) {
+    m04 <- ann_cfg$module_04
+    bin_cols <- as.character(unlist(c(m04$chromatin_any, m04$repeat_any)))
+    cont_cols <- as.character(unlist(m04$continuous_z))
+    miss <- setdiff(c(bin_cols, cont_cols, "broad_genomic_annotation"), names(feat))
+    if (length(miss)) stop("Module 04 feature table lacks: ", paste(miss, collapse = ", "))
+    src <- feat[match(dt$vmr_id, feat$vmr_id)]
+    ann_dt <- copy(dt)
+    ann_src <- list()      # annotation column -> source module
+    ann_extra <- list()    # annotation column -> extra covariates
+    for (a in bin_cols) {
+        ann_dt[[a]] <- as.numeric(as.logical(src[[a]]))
+        ann_src[[a]] <- "04_repeat_repressive_architecture"
+    }
+    for (lv in as.character(unlist(m04$genomic_context_levels))) {
+        if (!lv %in% src$broad_genomic_annotation) {
+            stop("broad_genomic_annotation has no level '", lv, "'")
+        }
+        a <- paste0("genomic_", lv)
+        ann_dt[[a]] <- as.numeric(src$broad_genomic_annotation == lv)
+        ann_src[[a]] <- "04_repeat_repressive_architecture"
+    }
+    for (cc in cont_cols) {
+        a <- paste0(cc, "_z")
+        ann_dt[[a]] <- as.numeric(scale(src[[cc]]))
+        ann_src[[a]] <- "04_repeat_repressive_architecture"
+    }
+    ## Module 07: the per-VMR coupled indicator, adjusted for how many features
+    ## the VMR was tested against.
+    m07 <- ann_cfg$module_07
+    tsc_f <- file.path(repo_root(), "07_transcription_splicing_coupling", "_m", "runs",
+                       mf("upstream_transcription_coupling_run_id"), "results",
+                       "coupling-model-frame.tsv")
+    if (!file.exists(tsc_f)) stop("Missing Module 07 model frame: ", tsc_f)
+    tsc <- fread(tsc_f)
+    for (mod in as.character(unlist(m07$modalities))) {
+        m <- tsc[modality == mod]
+        a <- paste0("coupled_", mod); nf <- paste0("n_features_tested_", mod)
+        idx <- match(dt$vmr_id, m$vmr_id)
+        ann_dt[[a]] <- as.numeric(m$coupled[idx])
+        ann_dt[[nf]] <- as.numeric(m$n_features_tested[idx])
+        ann_src[[a]] <- "07_transcription_splicing_coupling"
+        ann_extra[[a]] <- nf
+    }
+    min_ann <- as.integer(ann_cfg$min_annotated_vmrs)
+    min_cpl <- as.integer(m07$min_coupled_vmrs)
+    for (a in names(ann_src)) {
+        x <- ann_dt[[a]]
+        binary <- all(x[is.finite(x)] %in% c(0, 1))
+        n_ann <- if (binary) sum(x == 1, na.rm = TRUE) else NA_integer_
+        n_oth <- if (binary) sum(x == 0, na.rm = TRUE) else NA_integer_
+        floor_n <- if (identical(ann_src[[a]], "07_transcription_splicing_coupling")) min_cpl else min_ann
+        if (binary && min(n_ann, n_oth) < floor_n) {
+            ann_skipped[[a]] <- data.table(annotation = a, source_module = ann_src[[a]],
+                n_annotated = n_ann, reason = paste0("fewer than ", floor_n,
+                                                     " VMRs in a class"))
+            next
+        }
+        for (adj in as.character(unlist(ann_cfg$adjustments))) {
+            covs <- c(base_covs, if (adj == "technical_score") predictor,
+                      unlist(ann_extra[[a]]))
+            ax <- prepare_axis(ann_dt, a, covs)
+            for (out in names(ann_cfg$outcomes)) {
+                ann_tests[[paste(a, adj, out, sep = "|")]] <- list(
+                    annotation = a, source_module = ann_src[[a]], adjustment = adj,
+                    outcome = out, scale = as.character(ann_cfg$outcomes[[out]]),
+                    binary = binary, ax = ax)
+            }
+        }
+    }
+    if (!identical(as.character(ann_cfg$spec), "primary")) {
+        stop("annotation_associations are prespecified on the primary spec only")
+    }
+}
+estimate_ann <- function(outs) {
+    vapply(ann_tests, function(t) axis_estimate(t$ax, outs[[t$outcome]], t$scale),
+           numeric(1))
+}
+
 estimate_all <- function(outs, keys) {
     vapply(keys, function(k) {
         t <- tests[[k]]
@@ -131,10 +223,13 @@ obs_out <- lapply(ck$designs, function(des) {
     age_outcomes(fit_age_matrix(des$X, Y[des$rows, , drop = FALSE], des$age_col))
 })
 est <- unlist(lapply(names(by_spec), function(sp) estimate_all(obs_out[[sp]], by_spec[[sp]])))
+est_ann <- estimate_ann(obs_out$primary)
 
 ## ------------------------------------------------------------- donor bootstrap
 boot <- matrix(NA_real_, nrow = B, ncol = length(tests),
                dimnames = list(NULL, names(tests)))
+boot_ann <- matrix(NA_real_, nrow = B, ncol = length(ann_tests),
+                   dimnames = list(NULL, names(ann_tests)))
 message("[09b] ", B, " donor bootstrap draws x ", length(ck$designs), " specs x ",
         length(tests), " axis tests")
 for (b in seq_len(B)) {
@@ -147,6 +242,7 @@ for (b in seq_len(B)) {
         outs <- age_outcomes(fit_age_matrix(X, Y[des$rows, , drop = FALSE][i, , drop = FALSE],
                                             des$age_col))
         boot[b, by_spec[[sp]]] <- estimate_all(outs, by_spec[[sp]])
+        if (sp == "primary" && length(ann_tests)) boot_ann[b, ] <- estimate_ann(outs)
     }
     if (b %% 100L == 0L) message("[09b] bootstrap ", b, "/", B)
 }
@@ -191,7 +287,47 @@ quart <- q[, .(n_vmrs = .N,
 quart[, `:=`(region = region, run_id = opts$run_id, spec = "primary",
              descriptive_only = TRUE)]
 
+## ------------------------------------------------------------- annotation table
+ann_res <- rbindlist(lapply(names(ann_tests), function(k) {
+    t <- ann_tests[[k]]
+    y <- obs_out$primary[[t$outcome]]
+    inf <- combined_inference(est_ann[[k]], boot_ann[, k],
+                              block_jackknife_se(t$ax, y, ck$chrom, t$scale), alpha)
+    x <- ann_dt[[t$annotation]][t$ax$ok]
+    yy <- y[t$ax$ok]
+    if (t$scale == "relative_to_mean") yy <- yy / mean(yy)
+    g <- obs_out$primary$signed_beta_age[t$ax$ok]
+    data.table(
+        annotation = t$annotation, source_module = t$source_module,
+        adjustment = t$adjustment, outcome = t$outcome, outcome_scale = t$scale,
+        annotation_type = if (t$binary) "indicator" else "continuous_z",
+        n_vmrs = sum(t$ax$ok),
+        n_annotated = if (t$binary) sum(x == 1) else NA_integer_,
+        estimate = est_ann[[k]], se = inf$se,
+        se_bootstrap = inf$se_bootstrap, se_jackknife = inf$se_jackknife,
+        z = inf$z, p = inf$p, ci_lower = inf$ci_lower, ci_upper = inf$ci_upper,
+        n_bootstrap_failed = B - inf$n_bootstrap_used,
+        ## Unadjusted contrasts, for reading the adjusted estimate against.
+        mean_annotated = if (t$binary) mean(yy[x == 1]) else NA_real_,
+        mean_other = if (t$binary) mean(yy[x == 0]) else NA_real_,
+        frac_gain_with_age_annotated = if (t$binary) mean(g[x == 1] > 0) else NA_real_,
+        frac_gain_with_age_other = if (t$binary) mean(g[x == 0] > 0) else NA_real_,
+        covariates = paste(t$ax$covariates, collapse = ","))
+}))
+if (nrow(ann_res)) {
+    ann_res[, q := stats::p.adjust(p, "BH"), by = .(outcome, adjustment)]
+    ann_res[, estimate_meaning := fifelse(outcome == "debiased_sq_beta",
+        "adjusted difference in debiased squared age slope, in units of the region mean (per SD if continuous)",
+        "adjusted difference in signed age slope, methylation fraction per decade (per SD if continuous)")]
+}
+ann_res <- rbindlist(list(ann_res, rbindlist(ann_skipped)), fill = TRUE)
+ann_res[, `:=`(cohort = cohort, region = region, run_id = opts$run_id, spec = "primary",
+               role = "descriptive", n_bootstrap = B,
+               inference = "donor_bootstrap_var_plus_chromosome_jackknife_var")]
+
 write_atomic(res, file.path(run_dir, "results", "axis-tests.tsv"))
+write_atomic(ann_res, file.path(run_dir, "results", "annotation-age-associations.tsv"))
+saveRDS(boot_ann, file.path(run_dir, "checkpoint", "annotation-bootstrap.rds"))
 write_atomic(quart, file.path(run_dir, "results", "axis-quartile-summary.tsv"))
 saveRDS(boot, file.path(run_dir, "checkpoint", "donor-bootstrap.rds"))
 ## Each spec's base axis design, for stage 05's paired bootstrap.
@@ -203,6 +339,7 @@ saveRDS(stats::setNames(lapply(base_keys, function(k) tests[[k]]$ax),
         file.path(run_dir, "checkpoint", "axis-designs.rds"))
 append_manifest(list(dir = run_dir), list(
     n_axis_tests = as.character(nrow(res)),
+    n_annotation_tests = as.character(length(ann_tests)),
     n_bootstrap_completed = as.character(B),
     max_bootstrap_failed = as.character(max(res$n_bootstrap_failed))
 ))

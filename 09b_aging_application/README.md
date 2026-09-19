@@ -1,7 +1,8 @@
 # 09b_aging_application — age-associated methylation along the local-genetic-control axis
 
-**Status: implemented and smoke-tested 2026-09-19. `config/aging.yml` is
-`pi_locked: false`; no production run has been submitted.**
+**Status: implemented and smoke-tested 2026-09-19. `config/aging.yml` locked
+by the PI 2026-09-19; production runs `age-AA-{region}-20260919` submitted the
+same day. No run is accepted yet.**
 
 ## Question
 
@@ -15,9 +16,10 @@ more to aging, the axis carries biology beyond disease. The module is kept
 lean on purpose: one axis test per region plus one cross-region stage. It is
 not a second disease module.
 
-The `09b` prefix follows the `01b` precedent. The module depends on 01, 02 and
-04 and **not** on 09; it sits beside 09 as the second application of the axis.
-It is not a sub-stage of 09.
+The `09b` prefix follows the `01b` precedent. The module depends on 01, 02, 04
+and 07 and **not** on 09; it sits beside 09 as the second application of the
+axis. It is not a sub-stage of 09. Module 07 is read only by the descriptive
+annotation table.
 
 ## Design
 
@@ -119,6 +121,59 @@ All of these are fitted on the primary spec's age effects.
 | + H3K27me3, bivalent, H3K9me3 and quiescent fractions | non-gating decomposition: does the gradient ride on PRC2/bivalent age-hypermethylation or on Module 04's architecture? Attenuation links the two; it is not a failure. |
 | signed β̂ (gain vs loss) | secondary, same inference; β̂ is unbiased, so no debiasing is needed |
 
+### Annotation associations (stage 02, descriptive)
+
+Which kinds of VMR carry the age-associated differences? This is the other half
+of the question the module asks. The Module 04 architecture and the Module 07
+coupling are what distinguish low-control from high-control VMRs, so how age
+effects distribute over them is biology in its own right. It is not treated as
+a nuisance to adjust away.
+
+For each annotation, one at a time, the same two outcomes are regressed on
+that annotation instead of the score:
+- magnitude: relative β̂² − SE²;
+- direction: signed β̂.
+
+The models use the primary spec's age effects, the same donor-bootstrap draws
+and the same combined SE.
+
+| source | annotations |
+|---|---|
+| Module 04 chromatin (any overlap) | H3K27me3, bivalent, H3K9me3, quiescent, accessible, H3K27ac |
+| Module 04 repeats | LINE/L1 |
+| Module 04 genomic context | promoter, exonic, intronic, intergenic (each vs the rest) |
+| Module 04 continuous | `cell_composition_r2` (z) |
+| Module 07 | coupled to nearest-gene expression, PSI, ABC-linked expression (adjusted for features tested; ≥ 50 coupled VMRs, otherwise recorded as not tested) |
+
+How to read the table:
+- **Two adjustments.** Every annotation is fitted with the technical axis
+  covariates, and again with the score added. The second fit asks whether the
+  annotation's age association is carried by local genetic control or is
+  separate from it.
+- **Multiple testing.** BH q is taken within region × outcome × adjustment.
+- **No mutual adjustment.** Annotations are not adjusted for one another, and
+  promoter, H3K27ac and accessible overlap.
+- **Unadjusted contrasts.** The unadjusted means and the fraction of VMRs that
+  gain methylation are reported beside each estimate.
+- **Cross-region.** Stage 05 counts the regions with q < 0.05 outside caudate
+  and records whether their signs agree. Caudate is shown beside them, not
+  counted.
+
+**Provenance.** This table was prespecified on 2026-09-19, *after* an
+exploratory pass over the smoke runs' per-VMR age effects against these
+annotations. That pass did not look at the score–age relation.
+- To limit selection, the list is every biological annotation class Modules 04
+  and 07 emit, not a subset chosen on the results.
+- Technical flags (segdup, problematic, SNP-proximal) are excluded.
+- The exploratory pass found:
+  - H3K27me3, bivalent, promoter and H3K9me3 VMRs **gain** methylation with
+    age in all three regions;
+  - accessible and H3K27ac VMRs **lose** methylation;
+  - intergenic VMRs have smaller age effects;
+  - Module 07 coupling showed no association.
+
+  Treat these as the reason the table exists, not as its result.
+
 ### Region reading (stage 03)
 
 The primary must be significant (p < 0.05) with a **negative** coefficient.
@@ -200,10 +255,10 @@ These are carried on every decision row.
 |---|---|---|
 | 00 | `_h/00_new_run.R` | run, manifest, `diagnostic-methpc-age.tsv` |
 | 01 | `_h/01_age_effects.R` | `vmr-age-effects.tsv`, `age-spec-summary.tsv`, `checkpoint/age-inputs.rds` |
-| 02 | `_h/02_axis_test.R` | `axis-tests.tsv`, `axis-quartile-summary.tsv`, bootstrap draws |
+| 02 | `_h/02_axis_test.R` | `axis-tests.tsv`, `axis-quartile-summary.tsv`, `annotation-age-associations.tsv`, bootstrap draws |
 | 03 | `_h/03_apply_gates.R` | `gate-checks.tsv`, `gating-sensitivities.tsv`, `aging-decision.tsv` |
 | 04 | `_h/04_finalize_run.R` | sealed run |
-| 05 | `_h/05_cross_region_concordance.R` | `_m/combined/aging-*-AA.tsv` |
+| 05 | `_h/05_cross_region_concordance.R` | `_m/combined/aging-*-AA.tsv`, including `aging-annotation-{associations,cross-region}-AA.tsv` |
 
 To run:
 

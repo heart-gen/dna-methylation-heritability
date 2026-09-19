@@ -707,7 +707,7 @@ analysis has been run with adequate ancestry-matched LD and passes its own gate.
 show larger age-associated methylation differences. This is a non-disease test
 of the pattern Module 09 found for schizophrenia. It is one axis test per region
 plus one cross-region stage, and it must not grow into a second disease module.
-The `09b` prefix follows `01b`: it depends on 01, 02 and 04, not on 09.
+The `09b` prefix follows `01b`: it depends on 01, 02, 04 and 07, not on 09.
 
 Requirements:
 
@@ -735,6 +735,13 @@ Requirements:
   - caudate is descriptive only.
 - Every row carries `cross_sectional_design = TRUE`. Write "age-associated
   methylation differences", never "change with age".
+- Annotation associations are reported as biology, in their own table, with
+  the same outcomes and inference:
+  - one Module 04 or 07 annotation at a time;
+  - each fitted with and without the score as a covariate.
+  They are descriptive and never enter the region reading. They were
+  prespecified after an exploratory look at smoke-run age effects, and that
+  provenance is recorded in `config/aging.yml`.
 
 Prohibited:
 - causal, epigenetic-clock or environmental-determination claims;
