@@ -68,12 +68,49 @@ retention_criteria:
   min_loci_with_cpg_meqtl_support: 1
   enrichment_along_local_control_axis_in_primary_region: true
   min_loci_with_transcriptional_coupling: 1
+  # SCOPE: caudate only. This asks whether CAUDATE's larger magnitude survives
+  # matching its donor count to DLPFC's; it is meaningless for a DLPFC or
+  # hippocampus run and must not gate them. PI 2026-09-18.
   caudate_not_sample_size_artifact: true      # via downsampling to N=118
   min_loci_with_external_genetic_support: 1   # GTEx eQTL, support not proof
   # Diagnosis associations are optional supportive evidence. A null best-VMR
   # diagnosis result does not invalidate genetic regulation; secondary hits are
   # labeled exploratory.
   diagnosis_required: false
+
+# PI 2026-09-18. Module 09 carries TWO INDEPENDENT DECISIONS, because its
+# framing question -- does regional variation in local genetic control of
+# methylation intersect schizophrenia-relevant regulatory biology, and is that
+# relationship shared or region-dependent -- has two separable answers, and the
+# caudate downsampling result speaks to only one of them.
+#
+#   caudate_magnitude_claim    is caudate's STRONGER signal more than its larger
+#                              donor count? Gated on Module 08 tier 3 alone.
+#   scz_application_retention  is there a convincing disorder-related pattern
+#                              ACROSS the three regions? May hold even if the
+#                              caudate magnitude attenuates after n-matching.
+#
+# The second must not be gated on the first. A failure of
+# caudate_not_sample_size_artifact demotes the caudate-specific magnitude claim
+# and nothing else.
+independent_decisions:
+  caudate_magnitude_claim:
+    requires_module_08_tier3_reading: donor_count_does_not_explain_the_excess
+    scope_regions: [caudate]
+  scz_application_retention:
+    # H1, tightened to match the gate exactly (PI 2026-09-18): SCZ-linked VMRs
+    # show LOWER local genetic-control scores in ALL three regions, with
+    # statistical support in at least two, including at least one non-caudate
+    # region. A negative-but-nonsignificant third region does NOT falsify H1 --
+    # the earlier phrasing "fails if any region is null" contradicted the
+    # >=2-of-3 rule and is superseded.
+    axis_direction_required: lower_in_scz_linked
+    axis_direction_consistent_in_all_regions: true
+    axis_min_regions_with_statistical_support: 2
+    axis_requires_support_outside: caudate
+    # Caudate is perfectly confounded with sequencing batch (AGENTS.md 8.1), so
+    # it may contribute to concordance but can never be the only support.
+    independent_of_caudate_magnitude_claim: true
 
 prioritization:
   max_loci: 5

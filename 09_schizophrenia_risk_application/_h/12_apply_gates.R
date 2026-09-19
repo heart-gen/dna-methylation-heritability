@@ -154,8 +154,14 @@ axis_dir <- if (axis_sig) {
     sig <- axis[significant %in% TRUE]
     sig$direction[which.max(abs(sig$estimate))]
 } else NA_character_
-c2 <- if (!is_primary) "NOT_APPLICABLE_NON_PRIMARY_REGION" else
-      if (!axis_sig) "FAIL" else
+## Evaluated in EVERY region, not only the primary one. PI 2026-09-18: the axis
+## contrast is the shared, cross-region finding this module's framing question
+## rests on, and scoring it NOT_APPLICABLE outside caudate meant the strongest
+## consistent result was assessed only in the one region that is perfectly
+## confounded with sequencing batch and so can never carry a claim alone
+## (AGENTS.md 8.1). `is_primary` is still recorded, but it no longer decides
+## whether the criterion is read.
+c2 <- if (!axis_sig) "FAIL" else
       if (identical(axis_dir, "higher_in_scz_linked")) "PASS_ENRICHMENT" else
       "PASS_INTERPRETABLE_CONTRAST_DEPLETION"
 
@@ -176,7 +182,17 @@ c3 <- if (n_loci_coupled >= crit$min_loci_with_transcriptional_coupling) "PASS" 
 ## `caudate_not_sample_size_artifact` FAILS. A third reading is forbidden by
 ## Module 08's own constraints -- a surviving excess never becomes biological,
 ## because caudate stays confounded with sequencing batch (AGENTS.md 8.1).
-c4 <- if (!isTRUE(gates$require_module_08_downsampling)) {
+##
+## SCOPE (PI 2026-09-18): caudate only. The question is about CAUDATE's
+## magnitude, so it is not evaluable for a DLPFC or hippocampus run and must not
+## gate one. Before this it was recorded as PENDING_MODULE_08 in all three
+## regions, so a caudate sub-question held the entire application open in every
+## region.
+c4_scope <- as.character(config_get(
+    scz, "independent_decisions.caudate_magnitude_claim.scope_regions"))
+c4 <- if (!region %in% c4_scope) {
+    "NOT_APPLICABLE_NON_CAUDATE_REGION"
+} else if (!isTRUE(gates$require_module_08_downsampling)) {
     "PENDING_MODULE_08"
 } else {
     m08 <- mf("region_donor_generalization_run_id")
@@ -214,25 +230,53 @@ n_loci_gtex <- if (nrow(gtex) && "has_external_genetic_support" %in% names(gtex)
 c5 <- if (n_loci_gtex >= crit$min_loci_with_external_genetic_support) "PASS" else "FAIL"
 
 criteria <- c(loci_with_cpg_meqtl_support = c1,
-              enrichment_along_local_control_axis_in_primary_region = c2,
+              enrichment_along_local_control_axis = c2,
               loci_with_transcriptional_coupling = c3,
               caudate_not_sample_size_artifact = c4,
               loci_with_external_genetic_support = c5)
-## PENDING is not a pass. Retention stays open while any criterion is pending,
-## regardless of how the others resolved.
-## An indeterminate Module 08 keeps retention OPEN rather than resolving it
-## against the application: "the design could not resolve this at n=118" is not
-## the same finding as "caudate's excess is a sample-size artifact", and only the
-## second is a reason to demote the application.
-main_text_retention <- if (any(criteria == "PENDING_MODULE_08")) {
-    "PENDING_MODULE_08"
-} else if (any(criteria == "INDETERMINATE_MODULE_08")) {
-    "PENDING_MODULE_08_INDETERMINATE"
-} else if (all(criteria %in% c("PASS", "PASS_ENRICHMENT",
-                               "PASS_INTERPRETABLE_CONTRAST_DEPLETION",
-                               "NOT_APPLICABLE_NON_PRIMARY_REGION"))) {
-    "RETAIN_MAIN_TEXT"
-} else "SUPPLEMENT_OR_OMIT"
+
+PASSING <- c("PASS", "PASS_ENRICHMENT", "PASS_INTERPRETABLE_CONTRAST_DEPLETION",
+             "NOT_APPLICABLE_NON_PRIMARY_REGION",
+             "NOT_APPLICABLE_NON_CAUDATE_REGION")
+
+## ------------------------------------------------- TWO INDEPENDENT DECISIONS
+##
+## PI 2026-09-18. The module's framing question -- does regional variation in
+## local genetic control of methylation intersect schizophrenia-relevant
+## regulatory biology, and is that relationship shared or region-dependent --
+## has two separable answers, and Module 08 tier 3 speaks to only one of them.
+## Fusing them into a single main_text_retention let a caudate sub-question
+## decide the fate of the whole application in all three regions.
+##
+## DECISION 1 -- the caudate-specific magnitude claim. Caudate only, gated on
+## Module 08 tier 3 and on nothing else.
+caudate_magnitude_claim <- if (!region %in% c4_scope) {
+    "NOT_APPLICABLE_NON_CAUDATE_REGION"
+} else switch(c4,
+    PASS = "CAUDATE_MAGNITUDE_CLAIM_SUPPORTED",
+    FAIL_SAMPLE_SIZE_ARTIFACT = "CAUDATE_MAGNITUDE_CLAIM_NOT_SUPPORTED",
+    PENDING_MODULE_08 = "PENDING_MODULE_08",
+    INDETERMINATE_MODULE_08 = "PENDING_MODULE_08_INDETERMINATE",
+    stop("Unhandled criterion-4 state for the caudate magnitude claim: ", c4))
+
+## DECISION 2 -- the schizophrenia application. Deliberately EXCLUDES criterion
+## 4: the application may stand on a disorder-related pattern shared across the
+## three regions even if the caudate magnitude attenuates after n-matching.
+## What it cannot be decided on is this run alone -- H1 is a statement about all
+## three regions (direction in 3/3, statistical support in >=2 including >=1
+## non-caudate), so the cross-region part is resolved by
+## _h/15_cross_region_axis_concordance.R over the three sealed runs and recorded
+## here as PENDING_CROSS_REGION. A single region can only fail this decision on
+## its own per-region criteria, never pass it.
+application_criteria <- criteria[names(criteria) != "caudate_not_sample_size_artifact"]
+scz_application_retention <- if (!all(application_criteria %in% PASSING)) {
+    "SUPPLEMENT_OR_OMIT"
+} else "PENDING_CROSS_REGION"
+
+## Retained for continuity with the sealed 2026-09-09 runs and anything that
+## reads this field: it now tracks DECISION 2 only, and the caudate magnitude
+## claim is reported in its own column rather than folded in here.
+main_text_retention <- scz_application_retention
 
 ## Module 06's accepted S-LDSC result is null, and
 ## config/analysis_thresholds.yml:phase7_scz lists
@@ -294,6 +338,10 @@ dec <- data.table(
     criterion_loci_with_transcriptional_coupling = c3,
     criterion_caudate_not_sample_size_artifact = c4,
     criterion_loci_with_external_genetic_support = c5,
+    ## The two independent decisions. main_text_retention is kept as an alias of
+    ## scz_application_retention for continuity; read the two named fields.
+    caudate_magnitude_claim = caudate_magnitude_claim,
+    scz_application_retention = scz_application_retention,
     main_text_retention = main_text_retention,
     module_08_downsampling_available =
         identical(mf("module_08_downsampling_available"), "TRUE"),
@@ -358,11 +406,19 @@ writeLines(c(
     else "  - No region-specific confound recorded for this cell.",
     "",
     "  Open dependencies",
-    paste0("  - caudate_not_sample_size_artifact is ", c4, ". Module 08 owns ",
-           "the downsampling arm and is not implemented, so this criterion is ",
-           "UNEVALUABLE, not satisfied."),
-    paste0("  - main_text_retention = ", main_text_retention,
-           ". Retention is not decided by this run."),
+    paste0("  - caudate_not_sample_size_artifact is ", c4, ". It scopes to ",
+           "caudate ONLY and gates the caudate magnitude claim alone; it does ",
+           "NOT gate the schizophrenia application (PI 2026-09-18)."),
+    paste0("  - caudate_magnitude_claim = ", caudate_magnitude_claim,
+           ". Module 08 tier 3 answers this and nothing else. NOT_SUPPORTED ",
+           "means donor count is a plausible major contributor to caudate's ",
+           "larger magnitude -- it does NOT mean the caudate estimate is ",
+           "biased, and must never be written that way."),
+    paste0("  - scz_application_retention = ", scz_application_retention,
+           ". PENDING_CROSS_REGION means this run's own criteria are met and ",
+           "the decision now rests on cross-region concordance, which a single ",
+           "region cannot settle: see _m/combined/ from ",
+           "_h/15_cross_region_axis_concordance.R."),
     paste0("  - Upstream S-LDSC (Module 06) supports brain enrichment: ",
            sldsc_supports, ". config/analysis_thresholds.yml lists ",
            "adds_nothing_beyond_nonsignificant_sldsc as an ",
@@ -373,6 +429,9 @@ writeLines(c(
 ), file.path(run_dir, "results", "interpretation-constraints.txt"))
 
 print(dec[, .(decision, n_pairs_significant, n_loci_with_cpg_meqtl_support,
-              n_claimable_colocalizations, main_text_retention)])
-message("[09] decision ", decision, "; main-text retention ", main_text_retention)
+              n_claimable_colocalizations, caudate_magnitude_claim,
+              scz_application_retention)])
+message("[09] decision ", decision,
+        "; caudate magnitude claim ", caudate_magnitude_claim,
+        "; application retention ", scz_application_retention)
 if (startsWith(decision, "FAIL")) quit(status = 1)
