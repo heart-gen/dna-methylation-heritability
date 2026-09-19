@@ -18,11 +18,13 @@
 ## 2. MAIN-TEXT RETENTION: should the application appear in the main text? That
 ##    is the five prespecified criteria in config, and it is NOT the gate. One
 ##    of them -- caudate_not_sample_size_artifact -- depends on the downsampling
-##    arm that Module 08 owns, and Module 08 is not implemented. It is therefore
-##    recorded as PENDING_MODULE_08: neither a pass nor a failure, an explicitly
-##    unevaluable criterion. main_text_retention stays PENDING_MODULE_08 no
-##    matter how the other four resolve, so the open dependency cannot be lost
-##    in the writing.
+##    arm that Module 08 owns. While gates.require_module_08_downsampling is
+##    false it is recorded as PENDING_MODULE_08: neither a pass nor a failure, an
+##    explicitly unevaluable criterion, and main_text_retention stays
+##    PENDING_MODULE_08 no matter how the other four resolve, so the open
+##    dependency cannot be lost in the writing. Once the PI flips that flag the
+##    criterion is read off the accepted Module 08 run's tier-3 reading, pinned in
+##    this run's manifest -- never off the flag itself.
 
 source(file.path(Sys.getenv("V2_REPO_ROOT", "."), "00_shared", "load.R"))
 source(file.path(Sys.getenv(
@@ -161,10 +163,48 @@ n_loci_coupled <- if (nrow(coupling) && "has_transcriptional_coupling" %in% name
     sum(coupling$has_transcriptional_coupling %in% TRUE) else 0L
 c3 <- if (n_loci_coupled >= crit$min_loci_with_transcriptional_coupling) "PASS" else "FAIL"
 
-## Module 08 owns the caudate downsampling arm and is not implemented.
-c4 <- if (isTRUE(gates$require_module_08_downsampling)) {
-    "PASS"  # unreachable until Module 08 lands and the gate flag is flipped
-} else "PENDING_MODULE_08"
+## Module 08 owns the caudate downsampling arm. This criterion asks whether
+## caudate's excess survives matching its donor count to DLPFC's -- so it is read
+## OFF Module 08's tier-3 reading, never inferred from the config flag. The flag
+## only says whether the dependency is required yet; it is not evidence, and a
+## flag that passed the criterion by itself would let the whole question be
+## settled by editing a boolean.
+##
+## Tier 3's two permitted readings map directly, and the mapping is INVERTED
+## relative to the criterion's name: if donor count is a plausible major
+## contributor, the caudate excess IS largely a sample-size effect, so
+## `caudate_not_sample_size_artifact` FAILS. A third reading is forbidden by
+## Module 08's own constraints -- a surviving excess never becomes biological,
+## because caudate stays confounded with sequencing batch (AGENTS.md 8.1).
+c4 <- if (!isTRUE(gates$require_module_08_downsampling)) {
+    "PENDING_MODULE_08"
+} else {
+    m08 <- mf("region_donor_generalization_run_id")
+    if (is.na(m08) || !nzchar(m08)) {
+        stop("gates.require_module_08_downsampling is true but this run pins no ",
+             "Module 08 run. Re-open the run so 00_new_run.R records ",
+             "region_donor_generalization_run_id from the accepted 08 run; ",
+             "criterion 4 is not evaluable from the flag alone.")
+    }
+    f08 <- file.path(repo_root(), "08_region_donor_generalization", "_m", "runs",
+                     m08, "results", "caudate-downsampling-summary.tsv")
+    if (!file.exists(f08)) {
+        stop("Module 08 run ", m08, " has no caudate-downsampling-summary.tsv: ",
+             f08, "\n  Criterion 4 cannot be evaluated without the tier-3 result.")
+    }
+    t3 <- fread(f08)
+    if (!"reading" %in% names(t3) || nrow(t3) != 1L) {
+        stop("Module 08 tier-3 summary must be one row with a `reading` column: ",
+             f08)
+    }
+    switch(as.character(t3$reading[[1]]),
+           donor_count_does_not_explain_the_excess = "PASS",
+           donor_count_is_a_plausible_major_contributor = "FAIL_SAMPLE_SIZE_ARTIFACT",
+           indeterminate_replicates_disagree = "INDETERMINATE_MODULE_08",
+           stop("Unrecognized Module 08 tier-3 reading '", t3$reading[[1]],
+                "' in ", f08, ". Refusing to map an unknown reading onto this ",
+                "criterion."))
+}
 
 n_loci_gtex <- if (nrow(gtex) && "has_external_genetic_support" %in% names(gtex)) {
     prio_ids <- if (nrow(prio)) prio[prioritized == TRUE, locus_id] else character()
@@ -180,8 +220,14 @@ criteria <- c(loci_with_cpg_meqtl_support = c1,
               loci_with_external_genetic_support = c5)
 ## PENDING is not a pass. Retention stays open while any criterion is pending,
 ## regardless of how the others resolved.
+## An indeterminate Module 08 keeps retention OPEN rather than resolving it
+## against the application: "the design could not resolve this at n=118" is not
+## the same finding as "caudate's excess is a sample-size artifact", and only the
+## second is a reason to demote the application.
 main_text_retention <- if (any(criteria == "PENDING_MODULE_08")) {
     "PENDING_MODULE_08"
+} else if (any(criteria == "INDETERMINATE_MODULE_08")) {
+    "PENDING_MODULE_08_INDETERMINATE"
 } else if (all(criteria %in% c("PASS", "PASS_ENRICHMENT",
                                "PASS_INTERPRETABLE_CONTRAST_DEPLETION",
                                "NOT_APPLICABLE_NON_PRIMARY_REGION"))) {
