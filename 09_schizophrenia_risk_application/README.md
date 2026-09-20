@@ -2,7 +2,7 @@
 
 Tests whether schizophrenia-risk variants regulate methylation within genetically anchored VMRs. Intended for the main text, conditional on surviving corrected VMRs and the new local-genetic-control axis.
 
-**Status: implemented, not accepted.** Upstream gates are satisfied — `05_cpg_meqtl_burden` (`cmb-AA-*-20260825`) and `07_transcription_splicing_coupling` (`tsc-AA-*-20260902`) both record passing acceptance gates — so the module is unblocked (AGENTS.md §6). No run of this module has been accepted; nothing here may be cited.
+**Status: accepted (AA, 2026-09-19); both decisions resolved.** Upstream gates are satisfied — `05_cpg_meqtl_burden` (`cmb-AA-*-20260825`) and `07_transcription_splicing_coupling` (`tsc-AA-*-20260902`) both record passing acceptance gates (AGENTS.md §6). The three per-region runs `scz-AA-{caudate,dlpfc,hippocampus}-20260918` are accepted; see **Accepted runs**. Decision 1 is `CAUDATE_MAGNITUDE_CLAIM_NOT_SUPPORTED` and decision 2 is `RETAIN_MAIN_TEXT`, resolved by stage 15 in `_m/combined/` with `citable = TRUE`. Stages 17 and 18 are post hoc sensitivities whose config is **not** PI-locked, so their outputs carry `-UNACCEPTED` and may not be cited.
 
 ## Migrating from
 
@@ -218,9 +218,95 @@ It changes neither decision.
    the Module 09 covariates, model B adding `broad_genomic_annotation`. The
    attenuation of the published-interval SCZ estimate under model B is reported.
 
+3. **Ancestry sensitivity** (added 2026-09-19 with the results below). The
+   collection is European or European-dominated and this cohort is admixed
+   African American, so the config's `focal_sumstats` also carries the two
+   multi-ancestry releases that include African-American cohorts: PGC3
+   schizophrenia "primary" and PGC bipolar 2024 multi-ancestry. An
+   ancestry-**matched** test is impossible, not skipped: the African-ancestry
+   PGC3 schizophrenia and PGC bipolar releases each yield zero genome-wide
+   significant variants at this rule.
+
 Two SCZ rows exist per region: `PGC3_SCZ` (uniform rule; the comparable row)
 and `PGC3_SCZ_published` (the accepted linkage; used only for the context arm).
-Outputs: `_m/combined/scz-negative-control-{traits,summary,by-category,leads}-AA.tsv`.
+Outputs: `_m/combined/scz-negative-control-{traits,summary,by-category,ancestry,leads}-AA.tsv`.
+
+#### Result (2026-09-19): the depletion is trait-general
+
+| region | SCZ, uniform rule | null median, 63 traits | SCZ percentile | traits with negative q<0.05 |
+|---|---|---|---|---|
+| caudate | −0.173 (p 8e-6) | −0.085 | 25th | 25 / 63 |
+| dlpfc | −0.139 (p 1e-3) | −0.053 | 17th | 11 / 63 |
+| hippocampus | −0.098 (p 0.02) | −0.049 | 33rd | 12 / 63 |
+
+Schizophrenia sits at the 10th-15th percentile among the 20 traits of similar
+lead count. Psychiatric traits are indistinguishable as a category (Wilcoxon
+p 0.18-0.96). Anthropometric traits are the most depleted category in all three
+regions; immune traits show no depletion and trend positive outside caudate.
+Adding broad genomic context moves the SCZ estimate by 1-3%.
+
+Both multi-ancestry releases give a **stronger** depletion than the European
+schizophrenia file, so the ancestry mismatch is not producing the result:
+
+| release | leads | caudate | dlpfc | hippocampus |
+|---|---|---|---|---|
+| PGC3 schizophrenia, European | 197 | −0.173 | −0.139 | −0.098 |
+| PGC3 schizophrenia, multi-ancestry | 280 | −0.223 | −0.152 | −0.162 |
+| PGC bipolar 2024, multi-ancestry | 91 | −0.191 | −0.111 | −0.127 |
+
+**The three writing rules this imposes on the manuscript** are in AGENTS.md §7.8
+and machine-readably under `interpretation.writing_rules` in the config: write
+the depletion as trait-general with schizophrenia as a typical example; name the
+European ancestry of the locus set wherever the locus set is described, locating
+that limitation on the locus definition and not on the axis; and describe stage
+17 as a qualification of Module 09 rather than a validation of it.
+
+A parsing defect was found and fixed here on 2026-09-19. Some rows of the PGC3
+"primary" release are whitespace-separated with trailing empty tab fields, so a
+plain tab split left the p-value empty and awk's `"" + 0 < 5e-8` admitted every
+such row as a spurious genome-wide hit. `_h/17a_extract_gwas_leads.sh` now
+requires a numeric p-value, re-splits only rows that need it, and reports refused
+rows. The European extraction is byte-identical before and after, so no accepted
+number moved; 16 spurious leads were removed from the multi-ancestry release.
+
+### Locus architecture (stage 18, descriptive)
+
+Stage 17 says schizophrenia is typical. Stage 18 asks the biological question it
+leaves open: what separates the traits that *are* depleted from the ones that are
+not? `_h/18_locus_architecture.R` fits the same logistic model with one Module 04
+annotation at a time as the predictor of trait linkage, each with and without the
+control score, plus a high-mappability arm (≥0.9) for the repeat and
+heterochromatin annotations as AGENTS.md §7.4 requires. Spec:
+`locus_architecture` in the config. Outputs
+`_m/combined/scz-locus-architecture{,-axis-link,-by-category}-AA.tsv`.
+
+The axis contrast is largely reporting whether a trait's loci sit in active or in
+quiescent sequence. Spearman correlation across the 58-62 distribution traits
+between a trait's annotation enrichment and its axis estimate, score-adjusted:
+
+| annotation | caudate | dlpfc | hippocampus | direction |
+|---|---|---|---|---|
+| accessible | −0.60 | −0.54 | −0.52 | marks depleted traits |
+| H3K27ac | −0.48 | −0.59 | −0.44 | marks depleted traits |
+| quiescent | +0.52 | +0.47 | +0.38 | marks non-depleted traits |
+| H3K27me3 | +0.31 | +0.39 | +0.28 | marks non-depleted traits |
+| H3K9me3 | +0.22 | +0.54 | +0.30 | marks non-depleted traits |
+
+All of the above reach q < 0.05 in at least two regions except H3K9me3 in
+caudate. Between 17 and 24 traits per region are individually enriched for
+accessible chromatin at q < 0.05.
+
+**No LINE/L1 statement is licensed.** Not one trait reaches q < 0.05 for LINE/L1
+enrichment in any region or either arm, the axis-link correlation disagrees in
+sign between caudate and the other two regions, and it collapses under the
+high-mappability restriction. The immune category is **not** heterochromatic: its
+loci are significantly *depleted* of quiescent chromatin, H3K9me3 and segmental
+duplications where significant, never enriched. Immune traits are simply the
+least enriched for accessible chromatin among the well-represented categories,
+which is consistent with their lack of axis depletion. Note also that the
+extended MHC is excluded for every trait, which removes the dominant immune
+locus, so immune traits' remaining loci are a non-representative subset of their
+architecture.
 
 ## Accepted runs
 
