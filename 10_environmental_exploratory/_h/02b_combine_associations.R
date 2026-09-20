@@ -63,7 +63,8 @@ if (!nrow(ok)) stop("No VMR x exposure model fitted successfully")
 ## One row per VMR x exposure carries the joint test; the per-level coefficient
 ## rows are retained beside it but are not a second family.
 per_vmr <- unique(ok[, .(cohort, region, run_id, vmr_id, chrom, start, end,
-                         n_cpgs, exposure, stratum, p_joint, df_num, n_used)])
+                         n_cpgs, exposure, stratum, p_joint, df_num, n_used,
+                         ss_exposure, sigma2_full, sigma2_null, omega)])
 if (anyDuplicated(per_vmr[, .(vmr_id, exposure, stratum)])) {
     stop("A VMR x exposure x stratum triple produced more than one joint p-value")
 }
