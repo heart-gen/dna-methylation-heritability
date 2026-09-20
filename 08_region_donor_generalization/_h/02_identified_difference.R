@@ -71,12 +71,21 @@ if (!nrow(tests)) stop("Stage 01 produced no tests; run it first")
 
 ## --------------------------------------------------------------- the contrast
 ##
-## A two-sample z on independent per-region estimates. The regions are disjoint
-## donor sets within one arm, so the estimates are independent and their
-## variances add. This is the only place in the module where a DIFFERENCE of
-## levels is computed, and it is legitimate here precisely because the two
-## statistics come from the same analysis in the same units -- unlike the
-## Module 02 score, which is a within-cell rank (AGENTS.md 7.6).
+## A two-sample z that ADDS the per-region variances. This is the only place in
+## the module where a DIFFERENCE of levels is computed, and it is legitimate here
+## precisely because the two statistics come from the same analysis in the same
+## units -- unlike the Module 02 score, which is a within-cell rank (AGENTS.md
+## 7.6).
+##
+## The two regions are NOT disjoint donor sets: dlpfc and hippocampus share 115
+## of 118 donors (Jaccard 0.96), so the estimates are positively correlated and
+## Var(a - b) = Var(a) + Var(b) - 2Cov(a, b) is SMALLER than what this z uses.
+## The test is therefore conservative -- it under-rejects -- which is the safe
+## direction for a tier whose licence is "genuine regional heterogeneity". A
+## paired donor bootstrap is the estimator that would use the covariance;
+## 09b_aging_application/_h/05_cross_region_concordance.R implements one for the
+## same pair. Replacing this z is a scope change, not a bug fix, and the earlier
+## claim of independence in this comment was simply wrong.
 ## Keyed the same way Stage 01 keys: analysis_set distinguishes Module 04's
 ## primary fit from its four sensitivities, and omitting it would collapse five
 ## distinct tests into one cell of the cast.
