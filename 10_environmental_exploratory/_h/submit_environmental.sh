@@ -92,7 +92,10 @@ POOL_JOB=$(sbatch_step env-pool "afterok:${ASSOC_JOB}" 2 48G 02:00:00 \
     "${ENV_SRC} && run_r ${RUN_CODE}/02b_combine_associations.R --run-id ${RUN_ID}")
 printf '3\t02b_combine_associations.R\t%s\n' "$POOL_JOB" >> "$JOBS_TSV"
 
-AXIS_JOB=$(sbatch_step env-axis "afterok:${POOL_JOB}" 2 32G 01:00:00 \
+# 4h, not 1h: the axis stage gained a 2000-draw donor bootstrap on 2026-09-19,
+# which refits every VMR in every draw. Hippocampus (5 families x 9,166 VMRs)
+# takes about 15 minutes; caudate has 9 families and 11,251 VMRs.
+AXIS_JOB=$(sbatch_step env-axis "afterok:${POOL_JOB}" 2 48G 04:00:00 \
     "${ENV_SRC} && run_r ${RUN_CODE}/03_control_axis_test.R --run-id ${RUN_ID}")
 printf '4\t03_control_axis_test.R\t%s\n' "$AXIS_JOB" >> "$JOBS_TSV"
 

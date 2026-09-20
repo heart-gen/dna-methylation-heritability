@@ -185,14 +185,8 @@ feat[, broad_genomic_annotation := broad_genomic_annotation(vmr, gtf_bed)]
 prop_f <- file.path(repo_root(), "inputs", "cell_proportions", "_m",
                     sprintf("dnam-scmd-proportions-%s.tsv", region))
 if (!file.exists(prop_f)) stop("Cell-proportion estimates not found: ", prop_f)
-props <- fread(prop_f)
-wide <- dcast(props, sample_id ~ cell_type, value.var = "proportion")
-pmat <- as.matrix(wide[, -1]); rownames(pmat) <- wide$sample_id
-pmat <- pmat[, apply(pmat, 2, function(z) is.finite(stats::var(z)) &&
-                                          stats::var(z) > 0), drop = FALSE]
-n_pc <- min(as.integer(annot$covariate_sources$n_cell_composition_pcs %||% 3L),
-            ncol(pmat) - 1L)
-pcs <- stats::prcomp(pmat, center = TRUE, scale. = TRUE)$x[, seq_len(n_pc), drop = FALSE]
+pcs <- cell_composition_pcs(
+    prop_f, n_pcs = as.integer(annot$covariate_sources$n_cell_composition_pcs %||% 3L))
 
 vmr_run_dir <- file.path(repo_root(), "01_vmr_catalog", "_m", "runs",
                          mval("upstream_vmr_catalog_run_id"))

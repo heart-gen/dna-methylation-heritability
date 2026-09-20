@@ -19,7 +19,7 @@ source "$_ROOT/00_shared/slurm.sh"
 
 : "${RUN_ID:?set RUN_ID}"
 
-THROTTLE="${THROTTLE:-250}"
+THROTTLE="${THROTTLE:-200}"
 
 RUN_DIR="$REPO_DIR/01b_estimation_cells/_m/runs/$RUN_ID"
 REGION_LIST="$RUN_DIR/vmr/vmr.bed"

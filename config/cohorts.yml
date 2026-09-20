@@ -62,14 +62,94 @@ estimation_cells:
   all_individuals.AA:
     catalog_cohort: all_individuals
     estimation_group: AA
+    cell_kind: race_partition
     race_filter: [AA]
     label: Black American donors, pooled-discovery loci
 
   all_individuals.EA:
     catalog_cohort: all_individuals
     estimation_group: EA
+    cell_kind: race_partition
     race_filter: [EA]
     label: non-Hispanic white American donors, pooled-discovery loci
+
+  # ------------------------------------------------------------------------
+  # Tier-3 donor-count sensitivity cells (08_region_donor_generalization).
+  # PI-directed 2026-09-18; scope in config/region_donor_generalization.yml.
+  #
+  # These are NOT a donor-group split and carry no ancestry interpretation.
+  # They exist to test one attribution Module 03 made and never verified: that
+  # caudate's prediction excess follows from its donor count (153) rather than
+  # from the region. Each cell is the AA caudate donor set drawn down to 118 --
+  # the DLPFC count, which is what makes the comparison matched rather than an
+  # arbitrary decimation.
+  #
+  # `cell_kind: donor_subsample` is the second cell kind. A race_partition cell
+  # is defined by a label and its siblings must partition the pooled set; a
+  # donor_subsample cell is defined by a SEED and deliberately does neither. It
+  # overlaps its own replicates, and it is a proper subset of exactly one source
+  # cell. 01b_estimation_cells branches on the kind and applies the matching
+  # proof; the partition proof is not applied to these and must not be.
+  #
+  # Three replicates because a single draw would put the conclusion at the mercy
+  # of one partition of 153 donors. Each is its own sealed 01b + 02 + 03 chain
+  # under its own immutable cell token, so a replicate cannot be silently
+  # reinterpreted after the fact.
+  #
+  # Why real cells and not a row subset of the accepted caudate run: the
+  # endpoint is a WITHIN-CELL midrank percentile, so it does not survive row
+  # subsetting, and 00_shared/locus_io.R computes the MAF and missingness
+  # filters over every donor present in the locus BED (lines 185-189, before the
+  # donor merge at 224). Reusing the 153-donor BEDs would select SNPs using 35
+  # donors that are not in the estimation set. The subsets must be extracted.
+  AA.n118r1:
+    catalog_cohort: AA
+    estimation_group: n118r1
+    cell_kind: donor_subsample
+    donor_subsample:
+      source_cell: AA
+      region: caudate
+      target_n: 118
+      replicate: 1
+      seed: 20260918
+      # Balance against the SOURCE cell, not against DLPFC: the question is
+      # whether n alone accounts for the excess, so everything except n should
+      # look like the full caudate set. Column names are the phenotype table's
+      # own (inputs/phenotypes/_m/phenotypes-all.tsv).
+      balance_on: [agedeath, sex, primarydx]
+      balance_smd_max: 0.1
+      max_draws: 10000
+    label: Black American caudate donors drawn to n=118, replicate 1
+
+  AA.n118r2:
+    catalog_cohort: AA
+    estimation_group: n118r2
+    cell_kind: donor_subsample
+    donor_subsample:
+      source_cell: AA
+      region: caudate
+      target_n: 118
+      replicate: 2
+      seed: 20260919
+      balance_on: [agedeath, sex, primarydx]
+      balance_smd_max: 0.1
+      max_draws: 10000
+    label: Black American caudate donors drawn to n=118, replicate 2
+
+  AA.n118r3:
+    catalog_cohort: AA
+    estimation_group: n118r3
+    cell_kind: donor_subsample
+    donor_subsample:
+      source_cell: AA
+      region: caudate
+      target_n: 118
+      replicate: 3
+      seed: 20260920
+      balance_on: [agedeath, sex, primarydx]
+      balance_smd_max: 0.1
+      max_draws: 10000
+    label: Black American caudate donors drawn to n=118, replicate 3
 
 arm_definitions:
 
@@ -172,14 +252,48 @@ donor_counts:
   # different locus set (pooled discovery) and a different genotype file (the
   # multi-ancestry TOPMed pgen). Their Module 02 scores are ranked in their own
   # cell and are not comparable to the AA arm's.
+  # LOCKED 2026-09-18 by Kynon J.M. Benjamin. Each design_n is the donor count
+  # the accepted 01b_estimation_cells runs actually materialized, reproduced
+  # independently by the accepted Module 02 cell runs:
+  #
+  #   all_individuals.AA   estcell-...-20260910  153 / 118 / 117
+  #   all_individuals.EA   estcell-...-20260910  129 /  55 /  60
+  #
+  # Every design_n equals its own phenotype_n ceiling, which is the expected
+  # identity here and not a coincidence: a cell is a race partition of the
+  # pooled arm over a FIXED locus set, so no donor is lost between the
+  # phenotype table and the design. A mismatch is now a hard stop
+  # (00_shared/identity.R::assert_expected_n) rather than a warning.
+  #
+  # all_individuals.EA dlpfc (55) and hippocampus (60) are the smallest design
+  # cells in the project, roughly half their AA counterparts. Locking the count
+  # does not make them adequately powered: per AGENTS.md 7.7 any AA-vs-EA
+  # difference is confounded with n, and the donor-group result is a
+  # CONCORDANCE statement, never a per-cell effect-size comparison.
   all_individuals.AA:
-    caudate:     { phenotype_n: 153, design_n: null }
-    dlpfc:       { phenotype_n: 118, design_n: null }
-    hippocampus: { phenotype_n: 117, design_n: null }
+    caudate:     { phenotype_n: 153, design_n: 153 }
+    dlpfc:       { phenotype_n: 118, design_n: 118 }
+    hippocampus: { phenotype_n: 117, design_n: 117 }
   all_individuals.EA:
-    caudate:     { phenotype_n: 129, design_n: null }
-    dlpfc:       { phenotype_n: 55,  design_n: null }
-    hippocampus: { phenotype_n: 60,  design_n: null }
+    caudate:     { phenotype_n: 129, design_n: 129 }
+    dlpfc:       { phenotype_n: 55,  design_n: 55  }
+    hippocampus: { phenotype_n: 60,  design_n: 60  }
+
+  # Tier-3 donor-count sensitivity cells. design_n is LOCKED AT DESIGN TIME
+  # here, which is the opposite of every other entry above and is correct: 118
+  # is not an observed count to be discovered and then blessed, it is the
+  # DLPFC donor count the draw targets. A subset that comes out at any other
+  # size is a defect in the draw, so assert_expected_n() must hard-stop on it
+  # from the first run rather than record-and-warn.
+  #
+  # Only caudate is defined. These cells answer a caudate-specific question and
+  # a dlpfc or hippocampus entry would invite a run that means nothing.
+  AA.n118r1:
+    caudate:     { phenotype_n: 118, design_n: 118 }
+  AA.n118r2:
+    caudate:     { phenotype_n: 118, design_n: 118 }
+  AA.n118r3:
+    caudate:     { phenotype_n: 118, design_n: 118 }
 
 # Sample blacklist -- RETIRED IN v2. All three regions are null by design.
 #

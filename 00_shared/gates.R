@@ -199,3 +199,81 @@ load_local_genetic_control <- function(upstream_run_id, region, cohort,
     }
     dt[]
 }
+
+#' The donor-group inference policy, read from config rather than hard-coded.
+#'
+#' `config/analysis_thresholds.yml:donor_group` states what the AA-vs-EA axis is
+#' allowed to conclude. It replaced `require_interaction_for_ancestry_claim`,
+#' which named a test the design cannot run -- an interaction term needs a
+#' pooled group x genotype model and AGENTS.md 7.6 forbids comparing the Module
+#' 02 score across cells at any level -- and so guarded nothing.
+#'
+#' Every stage that touches both cells calls this and asserts against it, so the
+#' restriction lives in one place and a config edit cannot quietly widen a claim
+#' without a stage refusing. Returns the three flags plus the stratification
+#' floor.
+donor_group_inference_policy <- function(root = repo_root()) {
+    cfg <- load_config("analysis_thresholds", root = root)
+    dg <- config_get(cfg, "donor_group")
+
+    required <- c("donor_group_inference", "cross_group_raw_score_comparison",
+                  "ancestry_effect_claim_allowed",
+                  "min_n_per_group_for_stratified")
+    missing <- setdiff(required, names(dg))
+    if (length(missing)) {
+        stop("config/analysis_thresholds.yml:donor_group lacks: ",
+             paste(missing, collapse = ", "),
+             ". The donor-group axis will not run against an underspecified ",
+             "policy -- state every key explicitly (AGENTS.md 7.7).")
+    }
+
+    ## `concordance_only` is the only implemented mode. Anything else is a
+    ## scientific decision that needs the eliminating analysis and new code, so
+    ## refuse rather than fall through to a default.
+    mode <- as.character(dg$donor_group_inference)
+    if (!identical(mode, "concordance_only")) {
+        stop("Unsupported donor_group_inference '", mode, "'. Only ",
+             "'concordance_only' is implemented; the reportable quantity is ",
+             "ordering agreement on the shared locus set, never a level ",
+             "(AGENTS.md 7.6, 7.7).")
+    }
+
+    flag <- function(field) {
+        v <- dg[[field]]
+        if (!is.logical(v) || length(v) != 1L || is.na(v)) {
+            stop("config/analysis_thresholds.yml:donor_group$", field,
+                 " must be true or false, got: ", paste(v, collapse = ", "))
+        }
+        v
+    }
+    raw_ok <- flag("cross_group_raw_score_comparison")
+    ancestry_ok <- flag("ancestry_effect_claim_allowed")
+
+    ## These two are consequences of the locked rank scope and of 7.7's
+    ## elimination requirement, not tunables. Catch a well-meaning edit here
+    ## rather than in a figure caption.
+    if (raw_ok) {
+        stop("cross_group_raw_score_comparison is true. The Module 02 score is ",
+             "a within-cell midrank percentile and ",
+             "config/local_genetic_control.yml locks rank_scope: ",
+             "cohort_by_region, so cross-cell levels are not on one scale ",
+             "(AGENTS.md 7.6).")
+    }
+    if (ancestry_ok) {
+        stop("ancestry_effect_claim_allowed is true. Sample size, MAF, LD and ",
+             "SNP availability differ between the cells and must be eliminated ",
+             "before any difference is attributed to ancestry (AGENTS.md 7.7). ",
+             "Flipping this key is not the eliminating analysis.")
+    }
+
+    floor_n <- suppressWarnings(as.integer(dg$min_n_per_group_for_stratified))
+    if (!is.finite(floor_n) || floor_n < 1L) {
+        stop("min_n_per_group_for_stratified must be a positive integer")
+    }
+
+    list(mode = mode,
+         cross_group_raw_score_comparison = raw_ok,
+         ancestry_effect_claim_allowed = ancestry_ok,
+         min_n_per_group_for_stratified = floor_n,
+         config_sha256 = attr(cfg, "config_sha256"))
+}

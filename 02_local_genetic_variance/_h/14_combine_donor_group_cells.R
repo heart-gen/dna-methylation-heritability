@@ -99,6 +99,9 @@ read_cell <- function(run_id) {
     }
     list(run_id = run_id, cell = cell, group = parsed$estimation_group,
          catalog_cohort = parsed$catalog_cohort,
+         ## From the manifest, not from the table: the per-locus `n` column is
+         ## NA on excluded loci, so the first row is not a reliable donor count.
+         n_donors = suppressWarnings(as.integer(mval("n_donors"))),
          vmr_set_id = mval("vmr_set_id"),
          upstream_catalog = mval("upstream_catalog_run_id"),
          tbl = tbl[, c(LOCUS_COLS, CELL_COLS), with = FALSE])
@@ -122,6 +125,29 @@ if (length(unique(vapply(cells, function(x) x$vmr_set_id, character(1)))) != 1L)
 }
 if (length(unique(vapply(cells, function(x) x$upstream_catalog, character(1)))) != 1L) {
     stop("The two cells trace to different Module 01 catalog runs")
+}
+
+## ------------------------------------------------- inference policy (config)
+## What this table is allowed to support is config, not a comment. The stage
+## refuses to write anything if the policy has been widened past what the
+## estimator can carry -- see config/analysis_thresholds.yml:donor_group and
+## 00_shared/gates.R::donor_group_inference_policy().
+policy <- donor_group_inference_policy()
+
+## The stratification floor applies per cell, not to their total. A cell below
+## it cannot be rescued by its partner being large.
+for (nm in names(cells)) {
+    n_cell <- cells[[nm]]$n_donors
+    if (!is.finite(n_cell)) {
+        stop("Cell ", cells[[nm]]$cell, " manifest has no usable n_donors")
+    }
+    if (n_cell < policy$min_n_per_group_for_stratified) {
+        stop("Cell ", cells[[nm]]$cell, " has n=", n_cell, ", below the locked ",
+             "min_n_per_group_for_stratified=",
+             policy$min_n_per_group_for_stratified,
+             " (config/analysis_thresholds.yml:donor_group). A stratified ",
+             "donor-group analysis is not authorized at this size.")
+    }
 }
 
 ## ------------------------------------------------------------------- join
@@ -174,7 +200,12 @@ joined[, `:=`(
     ## unchanged by joining two cells, and neither cell's score became absolute.
     absolute_pve_interpretation_allowed = FALSE,
     rank_scope = "cohort_by_region",
-    pooled_rank_emitted = FALSE
+    pooled_rank_emitted = FALSE,
+    ## The policy travels with the data, so a reader of the TSV alone cannot
+    ## mistake the columns for a licensed difference.
+    donor_group_inference = policy$mode,
+    cross_group_raw_score_comparison = policy$cross_group_raw_score_comparison,
+    ancestry_effect_claim_allowed = policy$ancestry_effect_claim_allowed
 )]
 
 out_dir <- file.path(module_root, "_m", "combined")
@@ -211,7 +242,10 @@ summary_dt <- data.table(
         both[[paste0("local_snp_contribution_quartile_", ga)]] ==
         both[[paste0("local_snp_contribution_quartile_", gb)]], na.rm = TRUE)
         else NA_real_,
-    absolute_pve_interpretation_allowed = FALSE
+    absolute_pve_interpretation_allowed = FALSE,
+    donor_group_inference = policy$mode,
+    ancestry_effect_claim_allowed = policy$ancestry_effect_claim_allowed,
+    analysis_thresholds_sha256 = policy$config_sha256
 )
 write_atomic(summary_dt, file.path(
     out_dir, paste0("donor-group-concordance-", region, ".tsv")))

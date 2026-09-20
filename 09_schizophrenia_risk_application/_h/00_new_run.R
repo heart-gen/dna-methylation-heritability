@@ -85,6 +85,19 @@ accepted <- lapply(upstreams, require_accepted_upstream,
                    cohort = opts$cohort, region = opts$region,
                    allow_unaccepted = allow_unlocked)
 
+## Module 08 is NOT in `upstreams` above: it is keyed on the literal region
+## `crossregion` (one run spans all three regions), so it cannot go through the
+## same per-region lapply, and it carries no vmr_set_id of its own to join on.
+## It is required only when the PI flips gates.require_module_08_downsampling;
+## while that is false the field is NA and 12_apply_gates.R records criterion 4
+## as PENDING_MODULE_08, exactly as before.
+module_08_run_id <- if (isTRUE(scz$gates$require_module_08_downsampling)) {
+    require_accepted_upstream("08_region_donor_generalization", opts$cohort,
+                              "crossregion",
+                              allow_unaccepted = allow_unlocked)$run_id %||%
+        NA_character_
+} else NA_character_
+
 sets <- unlist(lapply(accepted, function(a) a$vmr_set_id))
 sets <- unique(sets[!is.na(sets)])
 if (length(sets) > 1) {
@@ -116,12 +129,15 @@ run <- new_run(
         coloc_gate_arms = paste(gate_arms, collapse = ","),
         coloc_method = scz$colocalization$method,
         prioritization_rule = scz$prioritization$rule$name,
-        ## Module 08 owns the caudate downsampling arm and does not exist. This
-        ## field is what 12_apply_gates.R reads to record
+        ## Module 08 owns the caudate downsampling arm. While the config flag is
+        ## false this is FALSE and 12_apply_gates.R records
         ## caudate_not_sample_size_artifact as PENDING_MODULE_08 rather than
-        ## silently passing or failing it.
+        ## silently passing or failing it. When the PI flips the flag, the
+        ## pinned run ID below is what the criterion is actually read FROM --
+        ## the flag alone must never be enough to pass it.
         module_08_downsampling_available =
-            if (isTRUE(scz$gates$require_module_08_downsampling)) "TRUE" else "FALSE"
+            if (isTRUE(scz$gates$require_module_08_downsampling)) "TRUE" else "FALSE",
+        region_donor_generalization_run_id = module_08_run_id
     )
 )
 

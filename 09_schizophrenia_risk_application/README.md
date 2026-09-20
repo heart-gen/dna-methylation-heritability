@@ -85,6 +85,46 @@ overturns the primary result.
 | 12 | `12_apply_gates.R` | Conduct gate + coloc gate; retention criteria; interpretation constraints |
 | 13 | `13_plot_locus_panels.py` | Stacked regional panels for the prioritized loci |
 | 14 | `14_finalize_run.R` | Seal: session info, manifest fields, checksums, read-only |
+| 15 | `15_cross_region_axis_concordance.R` | **Module-level, not per-run.** Cross-region axis concordance over the three accepted per-region runs; resolves decision 2; measures donor overlap and upstream freshness. Writes `_m/combined/` |
+| 16 | `16_axis_downsampling_sensitivity.R` | **Module-level.** Repeats the axis contrast in the three `AA.n118r*` caudate cells: does the contrast survive matching n to 118? Writes `_m/combined/` |
+
+## Two independent decisions
+
+PI 2026-09-18. This module's framing question is *does regional variation in
+local genetic control of methylation intersect schizophrenia-relevant regulatory
+biology, and is that relationship shared or region-dependent?* That has two
+separable answers, and Module 08 tier 3 speaks to only one of them. They are
+recorded as separate fields in `scz-decision.tsv` and
+`_m/combined/scz-application-decisions-{cohort}.tsv`:
+
+| decision | question | gated on | scope |
+|---|---|---|---|
+| `caudate_magnitude_claim` | Is caudate's *stronger* signal more than its larger donor count? | Module 08 tier 3 reading, and nothing else | caudate runs only |
+| `scz_application_retention` | Is there a disorder-related pattern across all three regions? | H1 concordance (stage 15) + the per-region criteria, **excluding** `caudate_not_sample_size_artifact` | module-level |
+
+**H1, as locked:** SCZ-linked VMRs show *lower* local genetic-control scores in
+all three regions, with statistical support in at least two, including at least
+one non-caudate region. A negative-but-nonsignificant third region does **not**
+falsify H1.
+
+Three constraints that the code enforces and the manuscript must respect:
+
+- **The three regions are not independent replicates.** 100 donors appear in all
+  three; DLPFC and hippocampus share 115 of 118 (Jaccard 0.96); the union is 168
+  donors. Stage 15 computes this and writes it out. Report *concordance*, never a
+  pooled p-value — the fixed-effect estimate stage 15 emits is labelled
+  descriptive-only and its SE is anticonservative by construction.
+- **Caudate may contribute to concordance but never carry it.** It is perfectly
+  confounded with sequencing batch (AGENTS.md §8.1), hence
+  `axis_requires_support_outside: caudate`.
+- **Attenuation is not bias.** Module 08 tier 3 shows donor count is a plausible
+  major contributor to caudate's larger *magnitude*. It does **not** show the
+  caudate estimate is biased. Write "caudate magnitude attenuates after
+  n-matching", never "n-inflated".
+- **No blanket repressive-chromatin claim.** The direct linked-vs-background
+  annotation test exists (stage 05), but claimability is narrower than
+  significance. Stage 15 reports, per annotation, the regions where the depletion
+  is claimable; cite those, and do not generalize to "repressive chromatin".
 
 Submit one cell:
 
@@ -120,27 +160,75 @@ Decision codes: `PASS_SCZ_APPLICATION_QC`, `PASS_SMOKE_ONLY_NOT_ACCEPTABLE`,
 ### Main-text retention is reported separately
 
 The five prespecified criteria in `config/schizophrenia.yml:retention_criteria`
-are evaluated into `results/retention-criteria.tsv`, each `PASS`, `FAIL`,
-`NOT_APPLICABLE_NON_PRIMARY_REGION`, or `PENDING_MODULE_08`.
+are evaluated into `results/retention-criteria.tsv`, each `PASS*`, `FAIL_*`,
+`NOT_APPLICABLE_NON_CAUDATE_REGION`, or `INDETERMINATE_MODULE_08`.
 
-**`caudate_not_sample_size_artifact` is always `PENDING_MODULE_08`.** The
-caudate downsampling arm belongs to `08_region_donor_generalization`, which is
-not implemented, so the criterion is *unevaluable* — neither satisfied nor
-failed. `main_text_retention` therefore stays `PENDING_MODULE_08` regardless of
-how the other four resolve, so the open dependency cannot be lost in the
-writing. When Module 08 lands, set `gates.require_module_08_downsampling: true`
-and wire its downsampling result into `_h/12_apply_gates.R`.
+`caudate_not_sample_size_artifact` is read off Module 08 tier 3
+(`caudate-downsampling-summary.tsv:reading`) since
+`gates.require_module_08_downsampling: true` (2026-09-18), and is evaluated in
+caudate runs only. It feeds `caudate_magnitude_claim` (decision 1) and is
+**excluded** from `scz_application_retention` (decision 2). A per-region run
+cannot resolve decision 2 — it writes `PENDING_CROSS_REGION` — so the retention
+answer lives only in `_m/combined/scz-application-decisions-{cohort}.tsv`, from
+stage 15.
+
+**Current state (accepted runs `scz-AA-{region}-20260918`, stage 15 re-run
+2026-09-19 without `--allow-unlocked`, `citable = TRUE`):**
+
+- decision 1 `CAUDATE_MAGNITUDE_CLAIM_NOT_SUPPORTED` — tier 3 reads
+  `donor_count_is_a_plausible_major_contributor`.
+- decision 2 `RETAIN_MAIN_TEXT` — `lower_in_scz_linked` in 3/3 regions,
+  FDR-significant in 3/3 (2 outside caudate); one region-specific departure,
+  caudate (log-odds −0.226 vs −0.160 for the other two pooled, p = 0.042,
+  independent-SE test and therefore conservative under shared donors).
+- stage 16: the axis contrast survives n-matching in all three caudate n=118
+  replicates; |log-odds| changes by +5.8% on average (range +1.9% to +8.2%),
+  against tier 3's 14.3% attenuation of the prediction magnitude.
 
 Note also that Module 06's accepted S-LDSC result is **null**
 (`sldsc_supports_brain_enrichment = FALSE`), which
 `config/analysis_thresholds.yml` lists as an `omit_or_supplement_if` condition.
 The decision file carries that upstream value.
 
+### Negative-control traits (stage 17, post hoc sensitivity)
+
+The axis model adjusts for technical covariates only. Module 04 shows the
+low-control end of the axis is gene-proximal and active, and GWAS loci of most
+traits are gene-dense. So, as it stands, "SCZ-linked VMRs are low-control"
+cannot be told apart from "VMRs near any GWAS locus are gene-proximal, and
+gene-proximal VMRs are low-control". Stage 17 asks that question two ways.
+It was requested by the PI on 2026-09-19, after the runs above were accepted,
+and is recorded as a post hoc sensitivity in `config/gwas_negative_controls.yml`.
+It changes neither decision.
+
+1. **Trait distribution.** `_h/17a_extract_gwas_leads.sh` pulls the
+   genome-wide significant rows from every trait in the harmonized hg38
+   collection (`/projects/b1213/resources/gwas/imputed_gwas_hg38_1.1`, 114
+   traits, one format) and from PGC3 schizophrenia (lifted). `_h/17_negative_control_traits.R`
+   then applies **one locus rule to every trait, schizophrenia included**:
+   p < 5e-8, greedy distance clumping at 500 kb, extended MHC excluded
+   (the PGC3 fine-mapped table carries no MHC locus), then the Module 09
+   linkage window (±500 kb) and the Module 09 logistic model. SCZ's coefficient
+   is read against the other traits' distribution: overall, within category,
+   and within traits with a similar lead count (×/÷ 2). `pgc.scz2` and the UKB
+   self-reported schizophrenia trait are positive controls, excluded from the
+   null distribution. Traits with fewer than 10 leads are fitted and shown but
+   excluded from the distribution.
+2. **Genomic-context adjustment.** Every contrast is fitted twice: model A with
+   the Module 09 covariates, model B adding `broad_genomic_annotation`. The
+   attenuation of the published-interval SCZ estimate under model B is reported.
+
+Two SCZ rows exist per region: `PGC3_SCZ` (uniform rule; the comparable row)
+and `PGC3_SCZ_published` (the accepted linkage; used only for the context arm).
+Outputs: `_m/combined/scz-negative-control-{traits,summary,by-category,leads}-AA.tsv`.
+
 ## Accepted runs
 
 | run_id | cohort | region | vmr_set_id | accepted_on | accepted_by | decision | notes |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| _(none)_ | | | | | | | |
+| scz-AA-caudate-20260918 | AA | caudate | vmrset-AA-caudate-937a41979978 | 2026-09-19 | Kynon J. Benjamin | PASS_SCZ_APPLICATION_QC | Built at 2b5e0c9ec on lgv-AA-caudate-rescore-20260913 and rdg-AA-crossregion-20260918. 2654 VMRs linked to 612 loci; 84 loci with CpG-meQTL support; axis lower_in_scz_linked (significant); 145 loci with transcriptional coupling; 3 of 5 prioritized loci with GTEx support; 232 claimable ancestry-matched colocalizations. Decision 1 CAUDATE_MAGNITUDE_CLAIM_NOT_SUPPORTED (Module 08 tier 3: donor count is a plausible major contributor). Caudate is batch-confounded. |
+| scz-AA-dlpfc-20260918 | AA | dlpfc | vmrset-AA-dlpfc-856067dfe289 | 2026-09-19 | Kynon J. Benjamin | PASS_SCZ_APPLICATION_QC | Built at 2b5e0c9ec on lgv-AA-dlpfc-rescore-20260913. 2063 VMRs linked to 612 loci; 58 loci with CpG-meQTL support; axis lower_in_scz_linked (significant); 99 loci with transcriptional coupling; 4 of 5 prioritized loci with GTEx support; 175 claimable ancestry-matched colocalizations. Decision 1 not applicable. |
+| scz-AA-hippocampus-20260918 | AA | hippocampus | vmrset-AA-hippocampus-2d907b892215 | 2026-09-19 | Kynon J. Benjamin | PASS_SCZ_APPLICATION_QC | Built at 2b5e0c9ec on lgv-AA-hippocampus-rescore-20260913. 2017 VMRs linked to 612 loci; 64 loci with CpG-meQTL support; axis lower_in_scz_linked (significant); 66 loci with transcriptional coupling; 5 of 5 prioritized loci with GTEx support; 174 claimable ancestry-matched colocalizations. Decision 1 not applicable. |
 
 ## Contract
 

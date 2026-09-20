@@ -12,15 +12,16 @@
 #
 # Environment:
 #   VMRS_PER_ARRAY_TASK   VMRs per array task (default 5; nested CV is heavy)
-#   MAX_CONCURRENT        array throttle (default 50, as 02 settled on)
+#   MAX_CONCURRENT        array throttle (default 200, as 02 settled on)
 #   SMOKE_N               run only the first N VMRs, with --allow-unlocked
 #   DRY_RUN=1             build everything, submit nothing
 #
 #   LSP_RUN_ID_OVERRIDE   explicit run ID; smoke runs only
 #
 # This driver refuses to submit unless 02 has an accepted run for the cell.
-# Module 02 recorded six accepted runs on 2026-08-23, so the gate is OPEN for
-# every cohort x region cell.
+# Module 02 records fifteen accepted runs: four cells x three regions, plus the
+# three AA.n118r{1,2,3} caudate donor-subsample cells accepted 2026-09-18 for
+# Module 08's tier-3 donor-count sensitivity. The gate is OPEN for every one.
 #
 # Stages chain by SLURM dependency: 1 -> 2 (array) -> 3 -> 4 -> 5. Step 3
 # depends with afterany so a scheduler cancellation is RECONCILED rather than
@@ -35,7 +36,20 @@ MODULE_ROOT="${REPO_DIR}/03_local_snp_prediction"
 COHORT=${1:?usage: submit_prediction.sh <cell> <region>}
 REGION=${2:?usage: submit_prediction.sh <cell> <region>}
 VMRS_PER_ARRAY_TASK=${VMRS_PER_ARRAY_TASK:-5}
-MAX_CONCURRENT=${MAX_CONCURRENT:-50}
+MAX_CONCURRENT=${MAX_CONCURRENT:-200}
+
+## qnode0287 root-cancels array tasks 2-6 seconds after they start, writing no
+## logs and leaving no partial rows, while Slurm keeps the node MIXED with no
+## drain reason. It cost 30 tasks across the 20260917 production runs (see
+## 02_local_genetic_variance/README.md) and another 10 across the 20260918
+## tier-3 regime grids. Excluding it by default is cheaper than reconciling
+## after the fact; clear LSP_EXCLUDE_NODES to disable, or extend it when
+## another node behaves the same way.
+EXCLUDE_NODES=${LSP_EXCLUDE_NODES-qnode0287}
+EXCLUDE_OPT=()
+if [[ -n "${EXCLUDE_NODES}" ]]; then
+    EXCLUDE_OPT=(--exclude="${EXCLUDE_NODES}")
+fi
 
 EXTRA_ARGS=""
 if [ -n "${SMOKE_N:-}" ]; then
@@ -126,7 +140,8 @@ printf 'step\tscript\tjob_id\n' > "$JOBS_TSV"
 COMMON_EXPORT="ALL,LSP_RUN_ID=${RUN_ID},LSP_EXTRA_ARGS=${EXTRA_ARGS},V2_RUN_CODE=${RUN_CODE}"
 
 JOB_FOLDS=$(sbatch --parsable --chdir="${RUN_DIR}/logs" \
-    --export="$COMMON_EXPORT" "${RUN_CODE}/step_1_prepare_folds.sh")
+    --export="$COMMON_EXPORT" "${EXCLUDE_OPT[@]}" \
+    "${RUN_CODE}/step_1_prepare_folds.sh")
 printf '1\tstep_1_prepare_folds.sh\t%s\n' "$JOB_FOLDS" >> "$JOBS_TSV"
 
 JOB_FIT=$(sbatch --parsable \
@@ -134,22 +149,22 @@ JOB_FIT=$(sbatch --parsable \
     --dependency="afterok:${JOB_FOLDS}" \
     --chdir="${RUN_DIR}/logs" \
     --export="${COMMON_EXPORT},LSP_CHUNK_MANIFEST=${CHUNK_MANIFEST}" \
-    "${RUN_CODE}/step_2_fit_oof.sh")
+    "${EXCLUDE_OPT[@]}" "${RUN_CODE}/step_2_fit_oof.sh")
 printf '2\tstep_2_fit_oof.sh\t%s\n' "$JOB_FIT" >> "$JOBS_TSV"
 
 JOB_COMB=$(sbatch --parsable --dependency="afterany:${JOB_FIT}" \
     --chdir="${RUN_DIR}/logs" --export="$COMMON_EXPORT" \
-    "${RUN_CODE}/step_3_combine_oof.sh")
+    "${EXCLUDE_OPT[@]}" "${RUN_CODE}/step_3_combine_oof.sh")
 printf '3\tstep_3_combine_oof.sh\t%s\n' "$JOB_COMB" >> "$JOBS_TSV"
 
 JOB_CHECK=$(sbatch --parsable --dependency="afterok:${JOB_COMB}" \
     --chdir="${RUN_DIR}/logs" --export="$COMMON_EXPORT" \
-    "${RUN_CODE}/step_4_check.sh")
+    "${EXCLUDE_OPT[@]}" "${RUN_CODE}/step_4_check.sh")
 printf '4\tstep_4_check.sh\t%s\n' "$JOB_CHECK" >> "$JOBS_TSV"
 
 JOB_FINAL=$(sbatch --parsable --dependency="afterok:${JOB_CHECK}" \
     --chdir="${RUN_DIR}/logs" --export="$COMMON_EXPORT" \
-    "${RUN_CODE}/step_5_finalize.sh")
+    "${EXCLUDE_OPT[@]}" "${RUN_CODE}/step_5_finalize.sh")
 printf '5\tstep_5_finalize.sh\t%s\n' "$JOB_FINAL" >> "$JOBS_TSV"
 
 log_message "submitted array ${JOB_FIT} (1-${N_CHUNKS}%${MAX_CONCURRENT}) and the 1->5 chain"

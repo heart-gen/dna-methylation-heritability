@@ -184,6 +184,7 @@ New v2 work lives in numbered modules at the **repository root**:
 ├── 07_transcription_splicing_coupling/
 ├── 08_region_donor_generalization/
 ├── 09_schizophrenia_risk_application/
+├── 09b_aging_application/
 ├── 10_environmental_exploratory/
 └── 11_integrated_manuscript_outputs/
 ```
@@ -290,6 +291,7 @@ Analyses must run in this order:
 7. `07_transcription_splicing_coupling`
 8. `08_region_donor_generalization`
 9. `09_schizophrenia_risk_application`
+   - `09b_aging_application` (depends on 01, 02 and 04 only; runs beside 09)
 10. `10_environmental_exploratory`
 11. `11_integrated_manuscript_outputs`
 
@@ -592,6 +594,53 @@ The cells differ in sample size (EA is roughly half of AA in each region), MAF
 spectrum, LD, and SNP availability. Those must be eliminated before any
 difference is discussed, per the paragraph below.
 
+**Inference policy locked 2026-09-18.** `config/analysis_thresholds.yml:donor_group`
+now states the restriction positively and enforceably:
+
+```yaml
+donor_group_inference: concordance_only
+cross_group_raw_score_comparison: false
+ancestry_effect_claim_allowed: false
+```
+
+These replaced `require_interaction_for_ancestry_claim: true`, which named a
+test this design cannot run and must not run — an interaction term needs a
+pooled group × genotype model, and §7.6 forbids comparing the Module 02 score
+across cells at any level. The key was unsatisfiable, so it licensed nothing
+and guarded nothing. `00_shared/gates.R::donor_group_inference_policy()` reads
+and type-checks the three keys and **refuses a widened policy rather than
+defaulting**; both recombination stages and Module 08 call it and carry the
+flags into their output tables. Flipping `ancestry_effect_claim_allowed` is a
+PI act that needs the eliminating analysis in hand, not a config edit.
+
+Concordance is read **against the analytic reliability ceiling** from
+`02/_h/16_reliability_ceiling.R`. Without it an imperfect ρ reads as a
+donor-group difference when most of it is input uncertainty — the single most
+likely misreading of this axis.
+
+**Module 08 implemented 2026-09-18**, with `config/region_donor_generalization.yml`
+(`pi_locked`) holding the four tiers, their licensed interpretations, both axes
+and a ten-criterion gate (`PASS_REGION_DONOR_GENERALIZATION_QC`; the tenth,
+`cross_region_completeness_nonvacuous`, added 2026-09-19). The gate
+certifies **tiering and interpretation constraints, not a positive finding**: a
+null replication and a null region difference both pass, as Module 06 passed
+with `sldsc_supports_brain_enrichment = FALSE`.
+
+Tier 3 required new upstream compute rather than assembly. `config/cohorts.yml`
+declares a **second cell kind**, `donor_subsample`, and three cells
+`AA.n118r{1,2,3}` — the AA caudate donors drawn to 118, DLPFC's locked
+`design_n`, so the comparison is matched rather than an arbitrary decimation. A
+`race_partition` cell is defined by a donor label and its siblings must
+partition the pooled set; a `donor_subsample` cell is defined by a **seed**,
+overlaps its own replicates and covers nothing, so `01b_estimation_cells`
+branches on the kind and the partition proof is scoped to race partitions only.
+They are real 01b → 02 → 03 chains, not row subsets of the accepted caudate
+run: the endpoint is a within-cell midrank percentile, which does not survive
+row subsetting, and `00_shared/locus_io.R` computes the MAF and missingness
+filters over every donor in the locus BED before the donor merge, so reusing
+the 153-donor BEDs would select SNPs using 35 donors outside the estimation
+set.
+
 Prioritize biological generalization of local variance, repeat enrichment,
 meQTL burden, and effect direction. Cross-population predictor portability is
 optional and secondary.
@@ -651,6 +700,68 @@ hits must be labeled exploratory.
 
 Do not claim mediation, causality, or colocalization unless the corresponding
 analysis has been run with adequate ancestry-matched LD and passes its own gate.
+
+**Negative-control traits (added 2026-09-19, post hoc).** The axis contrast is
+adjusted for technical covariates only, and low-control VMRs are gene-proximal
+(§7.4), so a depletion near SCZ loci could be a property of GWAS loci in
+general. Stage 17 runs the identical locus → VMR → axis contrast for every
+trait in the harmonized GWAS collection under one lead-SNP rule (applied to
+schizophrenia too) and refits every contrast with genomic context adjusted.
+Read SCZ against that distribution before writing "SCZ-linked" as if it were
+trait-specific. It qualifies the claim and changes no decision; config in
+`config/gwas_negative_controls.yml`.
+
+### 7.9 `09b_aging_application`: orthogonal aging application
+
+**Added 2026-09-19.** The module asks whether VMRs with weaker local SNP control
+show larger age-associated methylation differences. This is a non-disease test
+of the pattern Module 09 found for schizophrenia. It is one axis test per region
+plus one cross-region stage, and it must not grow into a second disease module.
+The `09b` prefix follows `01b`: it depends on 01, 02, 04 and 07, not on 09.
+
+Requirements:
+
+- The age model must reuse `00_shared/locus_io.R::load_locus_phenotype()`, so
+  the age effect conditions on what the score conditions on:
+  `age + sex + diagnosis`.
+- Controls-only is a gating sensitivity, because cases are about 7 years older.
+- The outcome is the **debiased squared age slope** `beta_hat^2 - SE^2`, scaled
+  by its region mean. Never use |beta|, its rank, |t| or -log10 p.
+  - The age model carries each VMR's local genetic variance in its residual.
+    Any SE-dependent measure therefore couples to the score mechanically.
+  - A rank(|beta|) design with an age permutation was built and rejected on
+    2026-09-19. It rejected 100% of simulated nulls in which real age effects
+    were unrelated to the score.
+- Inference is donor-bootstrap variance plus delete-one-chromosome
+  block-jackknife variance. Either alone under-covers. Never form a percentile
+  interval from the bootstrap of the debiased outcome.
+- Cell composition is a gating sensitivity under strict conjunction. Use RNA
+  MuSiC PCs in every region, and DNAm scMD PCs only where its integration gate
+  passes (caudate).
+- Cross-region reading follows the §7.7 tiers:
+  - region-general association by Module 09's two-region rule, with no pooled p;
+  - DLPFC vs hippocampus by a paired donor bootstrap, since they share 115 of
+    118 donors;
+  - caudate is descriptive only.
+- Every row carries `cross_sectional_design = TRUE`. Write "age-associated
+  methylation differences", never "change with age".
+- Annotation associations are reported as biology, in their own table, with
+  the same outcomes and inference:
+  - one Module 04 or 07 annotation at a time;
+  - each fitted with and without the score as a covariate.
+  They are descriptive and never enter the region reading. They were
+  prespecified after an exploratory look at smoke-run age effects, and that
+  provenance is recorded in `config/aging.yml`.
+
+Prohibited:
+- causal, epigenetic-clock or environmental-determination claims;
+- raw cross-region score comparison;
+- treating the VMR catalog as unselected on age. Methylation PCs removed before
+  VMR calling were not age-adjusted, and in each region one tracks age, with
+  max |rho| from 0.45 (DLPFC) to 0.64 (hippocampus). Results describe age effects within this catalog.
+
+Main-text vs supplement placement is a PI decision after the run. See
+`config/aging.yml` and `09b_aging_application/README.md`.
 
 ### 7.10 `10_environmental_exploratory`: exploratory exposure associations
 
@@ -717,6 +828,27 @@ evidence of environmental determination** -- §2.3 is explicit that low local SN
 variance does not imply it, and the converse holds here. This module is powered
 only for large effects of common exposures, and the eligibility gate is where
 that limitation is made concrete rather than asserted.
+
+**Stage B's outcome and variance, PI 2026-09-19.** The primary is the debiased
+exposure-explained sum of squares per donor, `(SS_exposure - df * sigma2_hat)/n`,
+not `-log10 p`: the per-VMR exposure model has no SNP term, so a high-control VMR
+keeps its local genetic variance in that model's residual and every SE-dependent
+outcome couples to the score mechanically, exactly as in §7.9. Inference is
+donor-bootstrap variance plus delete-one-chromosome jackknife variance
+(`00_shared/axis_inference.R`), because an OLS SE over 9,000-11,000 VMRs treats
+correlated loci estimated in one donor sample as independent. `-log10 p` is
+retained as a descriptive row carrying
+`mechanically_biased_toward_hypothesis = TRUE`.
+
+**The variance-budget limitation is permanent and belongs in the Discussion, not
+in a to-do list.** The axis contrast holds total methylation variance fixed, so a
+VMR higher on the local-genetic-control axis has, by construction, less
+non-genetic variance left for any exposure to move. A negative gradient is
+therefore close to arithmetically expected wherever a real exposure effect
+exists. The quantity that would separate the two readings -- an exposure effect
+relative to each VMR's non-genetic variance -- cannot be formed in this project,
+because its denominator is an absolute local PVE and §7.2 retired that. Debiasing
+removes the statistical half of the problem and cannot remove the arithmetic half.
 
 The acceptance gate is a **coverage** gate, not a success criterion: a null
 result is a legitimate outcome and must not block sealing.

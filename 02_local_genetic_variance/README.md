@@ -432,6 +432,11 @@ hidden by pooling cells or relaxing the score definition.
 | lgv-all_individuals.EA-caudate-20260917 | all_individuals.EA | caudate | vmrset-all_individuals-caudate-cb5519d7d2ad | 2026-09-17 | Kynon J.M. Benjamin | PASS_RELATIVE_SCORE_OBSERVED_QC | n=129; 11,248/11,249 eligible; cell of estcell-all_individuals.EA-caudate-20260910; replaces unaccepted lgv-all_individuals.EA-caudate-20260911 |
 | lgv-all_individuals.EA-dlpfc-20260917 | all_individuals.EA | dlpfc | vmrset-all_individuals-dlpfc-e88f46904afb | 2026-09-17 | Kynon J.M. Benjamin | PASS_RELATIVE_SCORE_OBSERVED_QC | n=55; 9,140/9,140 eligible; cell of estcell-all_individuals.EA-dlpfc-20260910; replaces unaccepted lgv-all_individuals.EA-dlpfc-20260911 |
 | lgv-all_individuals.EA-hippocampus-20260917 | all_individuals.EA | hippocampus | vmrset-all_individuals-hippocampus-809f8de0db2d | 2026-09-17 | Kynon J.M. Benjamin | PASS_RELATIVE_SCORE_OBSERVED_QC | n=60; 9,135/9,136 eligible; cell of estcell-all_individuals.EA-hippocampus-20260910; replaces unaccepted lgv-all_individuals.EA-hippocampus-20260911 |
+| lgv-AA.n118r1-caudate-20260918 | AA.n118r1 | caudate | vmrset-AA-caudate-937a41979978 | 2026-09-18 | Kynon J.M. Benjamin | PASS_RELATIVE_SCORE_OBSERVED_QC | n=118; 11,208/11,344 eligible (98.80%); 0 computational failures; 0 unaccounted; boundary rate 0.6431; cell of estcell-AA.n118r1-caudate-20260918; support sha 080c63cad06c |
+| lgv-AA.n118r2-caudate-20260918 | AA.n118r2 | caudate | vmrset-AA-caudate-937a41979978 | 2026-09-18 | Kynon J.M. Benjamin | PASS_RELATIVE_SCORE_OBSERVED_QC | n=118; 11,289/11,343 eligible (99.52%); 0 computational failures; 0 unaccounted; boundary rate 0.6445; cell of estcell-AA.n118r2-caudate-20260918; support sha 080c63cad06c |
+| lgv-AA.n118r3-caudate-20260918 | AA.n118r3 | caudate | vmrset-AA-caudate-937a41979978 | 2026-09-18 | Kynon J.M. Benjamin | PASS_RELATIVE_SCORE_OBSERVED_QC | n=118; 11,308/11,335 eligible (99.76%); 0 computational failures; 0 unaccounted; boundary rate 0.6456; cell of estcell-AA.n118r3-caudate-20260918; support sha 080c63cad06c |
+
+
 
 No downstream production module may consume Module 02 until its cell-specific
 run appears in this table.
@@ -537,10 +542,18 @@ FALSE; the frozen joint model is `9f26c327` in all three; upstream is
 `estcell-all_individuals.EA-{region}-20260910` carrying the pooled
 `vmr_set_id`s. `n_donors` is 129 (caudate), 55 (dlpfc) and 60 (hippocampus).
 
-The three arrays total 6,041 tasks against a 5,000 `MaxSubmit` limit, so
-hippocampus was held until the first two had drained enough to fit it and
-submitted once headroom reached 1,905 tasks. The 20260911 runs stay sealed and
-unaccepted; nothing is deleted.
+The three arrays total 6,041 tasks and hippocampus was held until the first two
+had drained enough to fit it, submitted once headroom reached 1,905 tasks. The
+20260911 runs stay sealed and unaccepted; nothing is deleted.
+
+**Correction, 2026-09-18: the binding limit was misnamed here.** The live limits
+are `MaxJobs = 5000` on the `p32505` association -- a cap on *running* jobs, not
+submitted ones -- and `MaxSubmitJobsPU = 100000` on the `normal` QOS
+(`sacctmgr show assoc user=owb0346 account=p32505`). Holding a run back to stay
+under 5,000 *submitted* tasks was therefore unnecessary. The correct instrument
+is the per-array throttle: every launcher now defaults to `%200`, so up to 25
+arrays can run at once inside the 5,000 running-job cap and several production
+chains can be submitted together instead of serialized.
 
 Original job chains, as recorded in each run's `submitted-jobs.tsv`: caudate
 6534846 (features) through 6534853, dlpfc 6534861 through 6534867, hippocampus

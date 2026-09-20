@@ -22,10 +22,11 @@
 ## families per exposure (AGENTS.md 10.3).
 
 source(file.path(Sys.getenv("V2_REPO_ROOT", "."), "00_shared", "load.R"))
-source(file.path(Sys.getenv(
+H_DIR <- Sys.getenv(
     "V2_RUN_CODE",
-    file.path(Sys.getenv("V2_REPO_ROOT", "."), "10_environmental_exploratory", "_h")),
-    "run_config.R"))
+    file.path(Sys.getenv("V2_REPO_ROOT", "."), "10_environmental_exploratory", "_h"))
+source(file.path(H_DIR, "run_config.R"))
+source(file.path(H_DIR, "exposure_model.R"))
 
 suppressPackageStartupMessages({
     library(data.table)
@@ -115,21 +116,23 @@ fit_one <- function(task) {
     }
     md <- merge(md, expo, by.x = "FID", by.y = "brnum", all = FALSE)
 
-    rbindlist(lapply(seq_len(nrow(pairs)), function(i) {
+    ## Stage 3's donor bootstrap refits every VMR thousands of times and cannot
+    ## re-read one phenotype file per draw, so the donor x VMR matrix is
+    ## checkpointed here, where the phenotypes are already in memory. The donor
+    ## covariate/exposure table is the same for every VMR in the region -- the
+    ## reader returns one covariate file per chromosome -- and the donor ORDER is
+    ## asserted identical across VMRs below.
+    assign("chk_md", md, envir = chk)
+    assign("chk_pc_names", ph$pc_names, envir = chk)
+
+    res_i <- rbindlist(lapply(seq_len(nrow(pairs)), function(i) {
         ex <- pairs$exposure[i]; st <- pairs$stratum[i]
         ## Inside a single-diagnosis stratum primarydx is constant, so keeping it
         ## as a covariate would make the design matrix rank-deficient. Dropping
         ## it is not a weaker adjustment: the collider path it was adjusting for
         ## is closed by the restriction itself.
-        keep_dx <- isTRUE(env$strata[[st]]$include_diagnosis_covariate)
-        base_terms <- c("age", "factor(sex)",
-                        if (keep_dx) "factor(diagnosis)" else NULL,
-                        ph$pc_names)
-        in_stratum <- if (identical(st, "all")) rep(TRUE, nrow(md)) else
-            md$primarydx %in% as.character(unlist(env$strata[[st]]$dx_filter))
-        keep <- in_stratum & !is.na(md[[ex]]) &
-            is.finite(as.numeric(md$phenotype)) &
-            is.finite(as.numeric(md$age)) & !is.na(md$sex) & !is.na(md$diagnosis)
+        base_terms <- exposure_base_terms(st, env, ph$pc_names)
+        keep <- exposure_keep_rows(md, ex, st, env)
         ## md is a data.frame (the shared reader returns data.frames), so a
         ## single-argument subscript would select COLUMNS. Be explicit.
         d <- md[keep, , drop = FALSE]
@@ -165,6 +168,20 @@ fit_one <- function(task) {
                               data = d)
         av <- stats::anova(null_fit, fit)
         joint_p <- av[["Pr(>F)"]][2]
+        ## The PRIMARY Stage B outcome, computed here because this is where the
+        ## model is fitted (PI 2026-09-19). ss_exposure is the extra sum of
+        ## squares of the exposure term against the covariate-only model, so
+        ## E[ss_exposure] = (the term's true contribution) + df * sigma^2, and
+        ## subtracting df * sigma2_hat leaves an unbiased estimate of the
+        ## contribution whose expectation does NOT involve the SE. -log10(p) does,
+        ## which is why it is demoted to descriptive: a VMR with strong local SNP
+        ## control carries its genetic variance in THIS model's residual, so its
+        ## SE is inflated and any SE-dependent outcome couples to the score
+        ## mechanically. See 00_shared/axis_inference.R and AGENTS.md 7.9.
+        df_term <- av[["Df"]][2]
+        ss_exposure <- av[["Sum of Sq"]][2]
+        sigma2_full <- sum(stats::residuals(fit)^2) / fit$df.residual
+        sigma2_null <- sum(stats::residuals(null_fit)^2) / null_fit$df.residual
         data.table(
             vmr_id = task$vmr_id, exposure = ex, stratum = st,
             term = rn[keep_terms],
@@ -173,16 +190,57 @@ fit_one <- function(task) {
             t = co[keep_terms, "t value"],
             p_term = co[keep_terms, "Pr(>|t|)"],
             p_joint = joint_p,
-            df_num = av[["Df"]][2],
+            df_num = df_term,
+            ss_exposure = ss_exposure,
+            sigma2_full = sigma2_full,
+            sigma2_null = sigma2_null,
+            omega = debiased_partial_ss(ss_exposure, df_term, sigma2_full, n_used),
             n_used = n_used,
             status = "ok"
         )
     }), fill = TRUE)
+    list(rows = res_i, vmr_id = task$vmr_id,
+         pheno = stats::setNames(as.numeric(md$phenotype), md$FID))
 }
 
-res <- rbindlist(lapply(seq_len(nrow(tasks)), function(i) {
-    fit_one(as.list(tasks[i]))
-}), fill = TRUE)
+chk <- new.env(parent = emptyenv())
+fits <- lapply(seq_len(nrow(tasks)), function(i) fit_one(as.list(tasks[i])))
+res <- rbindlist(lapply(fits, function(x) if (is.data.table(x)) x else x$rows),
+                 fill = TRUE)
+
+## ------------------------------------------------------- bootstrap checkpoint
+##
+## One donor order for the whole chromosome, and every phenotype ALIGNED to it by
+## donor ID rather than assumed to share it (AGENTS.md 7.1). A VMR whose donor
+## set differs is a hard stop, not a silently short column: the design matrix
+## stage 3 refits is shared by every VMR in a family, and that is only true if
+## the donor sets are identical.
+fitted_ok <- Filter(function(x) is.list(x) && !is.data.table(x), fits)
+if (length(fitted_ok)) {
+    phenos <- lapply(fitted_ok, `[[`, "pheno")
+    ids <- vapply(fitted_ok, `[[`, character(1), "vmr_id")
+    donors <- names(phenos[[1]])
+    bad <- which(vapply(phenos, function(v) !identical(names(v), donors), logical(1)))
+    if (length(bad)) {
+        stop(length(bad), " VMR(s) on chr", chrom_label, " carry a different donor ",
+             "set from the first; the exposure design is not shared across VMRs")
+    }
+    Y <- do.call(cbind, phenos)
+    colnames(Y) <- ids
+    md_ref <- get("chk_md", envir = chk)
+    md_ref <- md_ref[match(donors, md_ref$FID), , drop = FALSE]
+    stopifnot(identical(as.character(md_ref$FID), donors))
+    ## The phenotype column in `md` belongs to whichever VMR was fitted last.
+    ## Drop it so no consumer can mistake it for a locus phenotype: the matrix Y
+    ## is the only phenotype this checkpoint carries.
+    md_ref$phenotype <- NULL
+    ck_dir <- file.path(run_dir, "results", "checkpoint")
+    dir.create(ck_dir, showWarnings = FALSE, recursive = TRUE)
+    saveRDS(list(donors = donors, Y = Y, vmr_id = colnames(Y),
+                 chrom = rep(paste0("chr", chrom_label), ncol(Y)),
+                 md = md_ref, pc_names = get("chk_pc_names", envir = chk)),
+            file.path(ck_dir, paste0("pheno-chr", chrom_label, ".rds")))
+}
 
 res <- merge(res, tasks, by = "vmr_id", all.x = TRUE, sort = FALSE)
 res[, `:=`(cohort = cohort, region = region, run_id = opts$run_id,
