@@ -164,3 +164,23 @@ writing-notes/
 local-snp-prediction/oof_diagnostic/
 settings.json
 settings.local.json
+
+# Cross-region summary tables in `_m/combined/` ARE tracked -- they are each
+# module's deliverable, built from accepted runs: the decision rows, the
+# concordance tables, and the per-VMR result tables a journal would ask for as
+# Supplementary Data. A clone must be able to read the numbers behind a claim
+# without re-running SLURM. Two exceptions follow; everything else under
+# `combined/` is tracked.
+
+# Outputs of stages whose config is not PI-locked. `17_negative_control_traits.R`
+# and `18_locus_architecture.R` stamp `-UNACCEPTED` onto their filenames, and
+# 09's README states those numbers may not be cited. They are re-emitted without
+# the suffix once the config is locked and the run accepted; that version gets
+# tracked, this one does not.
+[0-9][0-9]*_*/_m/combined/*-UNACCEPTED.tsv
+
+# Public GWAS summary statistics lifted to hg38, plus the extraction logs: 118
+# trait files, 55 MB, none of it generated here. Rebuilt by
+# 09_schizophrenia_risk_application/_h/17a_extract_gwas_leads.sh from the
+# downloads named in config/gwas_negative_controls.yml.
+09_schizophrenia_risk_application/_m/combined/negative-control-gwas/

@@ -1,0 +1,4 @@
+region_a	region_b	n_a	n_b	n_shared	jaccard
+caudate	dlpfc	153	118	103	0.613095238095238
+caudate	hippocampus	153	117	102	0.607142857142857
+dlpfc	hippocampus	118	117	115	0.958333333333333

@@ -1,0 +1,4 @@
+region	log_odds_this_region	log_odds_other_regions_pooled	difference	difference_se_independent	difference_z	difference_p	direction_matches_general	significant_in_this_region	rule_sign_reversal_with_support	rule_magnitude_difference	is_region_specific_departure	departure_rule_met	difference_test_is_conservative_shared_donors	alpha
+caudate	-0.22569577965777	-0.160271756329015	-0.0654240233287551	0.0320941951932361	-2.03850020026498	0.0414999347473969	TRUE	TRUE	FALSE	TRUE	TRUE	magnitude_difference	TRUE	0.05
+dlpfc	-0.160730949086259	-0.193540885062984	0.0328099359767252	0.0323732264686987	1.01348983575822	0.310826248651356	TRUE	TRUE	FALSE	FALSE	FALSE	""	TRUE	0.05
+hippocampus	-0.159806653542875	-0.193784347355078	0.0339776938122031	0.0324790492402495	1.04614188552344	0.295495529321008	TRUE	TRUE	FALSE	FALSE	FALSE	""	TRUE	0.05

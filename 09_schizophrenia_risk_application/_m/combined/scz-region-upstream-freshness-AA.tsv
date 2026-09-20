@@ -1,0 +1,4 @@
+region	run_id	module_02_cited	module_02_accepted	upstream_current
+caudate	scz-AA-caudate-20260918	lgv-AA-caudate-rescore-20260913	lgv-AA-caudate-rescore-20260913	TRUE
+dlpfc	scz-AA-dlpfc-20260918	lgv-AA-dlpfc-rescore-20260913	lgv-AA-dlpfc-rescore-20260913	TRUE
+hippocampus	scz-AA-hippocampus-20260918	lgv-AA-hippocampus-rescore-20260913	lgv-AA-hippocampus-rescore-20260913	TRUE

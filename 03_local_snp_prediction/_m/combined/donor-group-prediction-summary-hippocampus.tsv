@@ -1,0 +1,2 @@
+region	group_a	group_b	n_donors_a	n_donors_b	n_donors_stacked	n_loci_shared	median_r2_a	median_r2_b	spearman_r2	pooled_r2_emitted	donor_group_inference	ancestry_effect_claim_allowed	analysis_thresholds_sha256
+hippocampus	AA	EA	117	60	177	9127	-1.60764692225257e-06	-0.000123177996235624	0.57295538193526	FALSE	concordance_only	FALSE	ee12dbdbbee18b964397213278c2aea11cb8ad63963156115768e7e236d8b12c
