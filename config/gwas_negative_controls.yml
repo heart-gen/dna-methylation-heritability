@@ -27,8 +27,14 @@
 #
 # Added 2026-09-19 (PI request, same day), after the Module 09 runs were
 # accepted. It is therefore a post hoc sensitivity, recorded as one.
+#
+# PI locked 2026-09-20. One negative control was dropped so that as much of the
+# collection as possible could be run, with the traits read by category: the
+# question is what local genetic control does to GWAS signal generated from
+# common variants, and a category reading answers that where a single trait
+# cannot.
 
-pi_locked: false
+pi_locked: true
 
 cohort: AA
 
@@ -48,12 +54,104 @@ collection:
   # run and reported, but excluded from the null distribution.
   exclude_unless_keep_yes: true
 
-# PGC3 schizophrenia, the Module 09 trait, under the SAME uniform locus rule.
-# hg19; genome-wide significant rows are lifted to hg38 by the extraction step.
-scz_pgc3:
-  sumstats_hg19: /projects/b1213/resources/gwas/PGC/SCZ/PGC3/PGC3_SCZ_wave3.european.autosome.public.v3.vcf.tsv.gz
-  columns: {chrom: 1, pos: 3, pvalue: 11, variant_id: 2}
-  liftover_chain_hg19_to_hg38: /projects/b1213/resources/magma/hg19ToHg38.over.chain.gz
+liftover_chain_hg19_to_hg38: /projects/b1213/resources/magma/hg19ToHg38.over.chain.gz
+
+# Summary statistics supplied directly rather than through the collection, each
+# put through the SAME uniform locus rule. The extraction step detects tab- vs
+# whitespace-separated rows per row and refuses any row whose p-value is not a
+# number, so no `delimiter` key is needed; see 17a for why that matters. hg19
+# files are lifted to hg38 by the extraction step, significant rows only. `role`
+# decides how stage 17 reads the row; none of these enters the negative-control
+# null distribution.
+#
+#   scz_uniform_rule     the Module 09 trait, the row the distribution is read
+#                        against. European, because that is what Module 09 used.
+#   ancestry_sensitivity added 2026-09-19 for the ancestry question below. Read
+#                        against its own European counterpart, never against the
+#                        null distribution.
+focal_sumstats:
+  - tag: PGC3_SCZ
+    path: /projects/b1213/resources/gwas/PGC/SCZ/PGC3/PGC3_SCZ_wave3.european.autosome.public.v3.vcf.tsv.gz
+    build: hg19
+    comment_prefix: "##"
+    columns: {chrom: 1, pos: 3, pvalue: 11, variant_id: 2}
+    role: scz_uniform_rule
+    category: Psychiatric-neurologic
+    ancestry: EUR
+    # 52,017 cases / 75,889 controls, 76 cohorts.
+    sample_size: 127906
+    compare_to: ~
+
+  - tag: PGC3_SCZ_multiancestry
+    path: /projects/b1213/resources/gwas/PGC/SCZ/PGC3/PGC3_SCZ_wave3.primary.autosome.public.v3.vcf.tsv.gz
+    build: hg19
+    comment_prefix: "##"
+    columns: {chrom: 1, pos: 3, pvalue: 11, variant_id: 2}
+    role: ancestry_sensitivity
+    category: Psychiatric-neurologic
+    # PGC3 "primary": 99 cohorts, 71,554 cases / 97,863 controls. ~80% European,
+    # the remainder East Asian, plus 9 African-American (6,152 cases / 3,918
+    # controls) and Latino (1,234 / 3,090) cohorts.
+    ancestry: EUR_EAS_AFR_AMR
+    sample_size: 169417
+    compare_to: PGC3_SCZ
+
+  - tag: BIP2024_multiancestry
+    path: /projects/b1213/resources/gwas/bip/bip2024_multianc_no23andMe.gz
+    build: hg19
+    comment_prefix: ~
+    columns: {chrom: 2, pos: 3, pvalue: 9, variant_id: 1}
+    role: ancestry_sensitivity
+    category: Psychiatric-neurologic
+    # PGC bipolar 2024, multi-ancestry, 23andMe cohorts excluded from the public
+    # release. 53,979 cases / 723,053 controls.
+    ancestry: EUR_EAS_AFR_AMR
+    sample_size: 777032
+    compare_to: ~
+
+# WHY THE ANCESTRY QUESTION CANNOT BE SETTLED HERE, and what is done instead.
+#
+# The methylation cohort is admixed African American; essentially the whole GWAS
+# collection is European or European-dominated (59 traits labelled European, 52
+# unlabelled and almost all European-ancestry UK Biobank analyses, 4
+# trans-ethnic, none African-ancestry). Two things keep that from invalidating
+# the contrast, and two things it genuinely affects:
+#
+#   PROTECTED. No LD reference is used anywhere. Leads are clumped by distance
+#     and VMRs are linked by a physical window, so lead -> VMR assignment cannot
+#     be mis-tagged by ancestry.
+#   PROTECTED. Every trait carries the identical mismatch under the identical
+#     rule, so where SCZ sits in the distribution is an internally valid
+#     comparison. Ancestry cannot explain a trait's rank among the others.
+#   AFFECTED. Which loci exist to be labelled. Loci that matter in
+#     African-ancestry donors and were never detected sit in the BACKGROUND set,
+#     which attenuates a true contrast toward zero rather than inflating it.
+#   AFFECTED. Transferable loci skew gene-dense. Regions detectable in Europeans
+#     and shared across ancestries are the conserved, well-mapped, gene-dense
+#     ones, and low-control VMRs are gene-proximal (AGENTS.md 7.4). Part of the
+#     depletion may therefore be discovery bias that broad genomic context is
+#     too coarse to absorb. Stage 18 is the finer-grained check.
+#
+# An ancestry-MATCHED test is impossible for either psychiatric trait with
+# existing data, and this is a power fact, not an oversight:
+#   PGC3_SCZ_wave3.afram.autosome.public.v3.vcf.tsv.gz   0 variants p < 5e-8
+#   bip2024_afr_no23andMe.gz                             0 variants p < 5e-8
+# Both were checked on 2026-09-19 at the locus rule below. Neither yields a
+# single locus, so neither can be run. Record that rather than omitting it.
+#
+# What IS run: the multi-ancestry releases above, which include the
+# African-American and Latino cohorts. They are a partial, not a matched, check:
+# African-ancestry samples are a small minority of each, so a lead that moves
+# between the European and multi-ancestry releases is informative while one that
+# does not move proves little.
+ancestry:
+  methylation_cohort: admixed_african_american
+  collection_is_european_dominated: true
+  african_ancestry_gwas_available_with_loci: false
+  matched_ancestry_test_possible: false
+  zero_lead_ancestry_specific_releases:
+    - PGC3_SCZ_wave3.afram.autosome.public.v3
+    - bip2024_afr_no23andMe
 
 # ONE locus rule for every trait. No LD reference is used, so the rule is
 # ancestry-neutral and identical for all traits: genome-wide significant
@@ -89,9 +187,109 @@ axis:
   fdr_method: BH
   alpha: 0.05
 
+# ---------------------------------------------------------------------------
+# STAGE 18: what the trait loci ARE, in Module 04 architecture terms.
+#
+# Stage 17 says schizophrenia is a typical GWAS trait on the control axis. It
+# does not say what distinguishes the traits that ARE depleted from the ones that
+# are not, and that is the biological question. Two observations make it worth
+# asking (both from the stage 17 run of 2026-09-19):
+#   - anthropometric traits are the most depleted category in all three regions;
+#   - immune traits show no depletion at all and trend positive outside caudate.
+# If immune loci sit in repeat-rich, heterochromatic, high-control sequence while
+# anthropometric loci sit in gene-dense active sequence, the axis contrast is
+# reporting where a trait's loci live in the genome, and the negative control
+# connects directly to the Module 04 architecture instead of merely qualifying
+# Module 09.
+#
+# Design mirrors 09b (AGENTS.md 7.9): ONE annotation at a time, each fitted with
+# and without the control score, so an enrichment that is only the axis
+# restated is visible as such. Same glm and same technical covariates as stage
+# 17 model A, so estimates are on one scale.
+#
+# Prespecified 2026-09-19 AFTER seeing the stage 17 category table, which is why
+# `role` is descriptive and the anthropometric/immune contrast is named above
+# rather than discovered later. It licenses no claim on its own.
+locus_architecture:
+  role: descriptive
+  # Outcome is trait linkage, exactly as in stage 17; the annotation is the
+  # predictor. Estimate is therefore a log odds ratio for a VMR near a trait
+  # lead carrying the annotation.
+  indicators:
+    - line_l1_any
+    - h3k9me3_any
+    - quiescent_any
+    - h3k27me3_any
+    - bivalent_any
+    - accessible_any
+    - h3k27ac_any
+    - segdup_any
+    - snp_proximal_any
+  continuous_z: [cell_composition_r2]
+  adjustments:
+    # Same covariates as stage 17 model A.
+    technical: []
+    # Plus the axis predictor: does the annotation enrichment survive knowing
+    # where the VMR sits on the control axis?
+    technical_score: [local_snp_contribution_score_z]
+  # AGENTS.md 7.4 requires a high-mappability restriction before any repeat or
+  # heterochromatin statement. Applied to the annotations where that rule bites;
+  # the others are fitted on all eligible VMRs only, to keep the test count down.
+  mappability_restricted_arm:
+    min_mappability: 0.9
+    annotations: [line_l1_any, h3k9me3_any, quiescent_any, segdup_any]
+  # BH across traits, within region x annotation x adjustment x arm. The family
+  # is "which traits stand out for THIS annotation", which is the question asked.
+  fdr_method: BH
+  fdr_within: [region, annotation, adjustment, arm]
+  min_linked_vmrs: 50
+  # Cross-trait reading: does a trait's axis estimate track its annotation
+  # enrichment? Spearman over traits in the null distribution, per region x
+  # annotation. This is the quantity that would tie the two modules together.
+  correlate_with_axis_estimate: true
+  prohibited:
+    # AGENTS.md 7.4. Overlap is overlap.
+    - retrotransposition_or_activity_claim_from_overlap
+    - cell_type_of_origin_from_bulk
+    # A trait's loci landing in a compartment says nothing about mechanism.
+    - trait_mechanism_claim_from_annotation_enrichment
+
 interpretation:
   post_hoc_sensitivity: true
   qualifies_claim: scz_linked_vmrs_lower_on_local_control_axis
   does_not_alter_module_09_decisions: true
   regions_are_independent_replicates: false
   caudate_tier: descriptive_only
+
+  # -------------------------------------------------------------------------
+  # WRITING RULES (PI, 2026-09-19). These bind the manuscript text, not just
+  # this stage's tables. They exist because the stage 17 result changes what the
+  # Module 09 sentence is allowed to say.
+  writing_rules:
+    # 1. The depletion is a property of GWAS loci, not of schizophrenia. Stage 17
+    #    puts SCZ at the 17th-33rd percentile of 63 traits, and at the 10th-15th
+    #    among traits of similar lead count, with psychiatric traits
+    #    indistinguishable as a category. So SCZ is a worked example of a general
+    #    pattern and must be written as one.
+    scz_depletion_is_trait_general: true
+    forbidden_phrasings:
+      - "schizophrenia-specific depletion"
+      - "SCZ-linked VMRs are uniquely low-control"
+      - "methylation at low-control VMRs is environmentally determined"
+    required_phrasings:
+      - "VMRs near trait-associated GWAS loci sit lower on the local
+         genetic-control axis; schizophrenia is a typical example"
+    # 2. Ancestry. Say whose GWAS the loci came from, every time the locus set is
+    #    described, and locate the limitation on the LOCUS DEFINITION rather than
+    #    on the axis: the control score was estimated in the African American
+    #    donors and is a within-cohort rank (AGENTS.md 7.2).
+    locus_sets_must_be_labelled_european_ancestry: true
+    ancestry_limitation_applies_to: locus_definition_not_the_axis
+    required_ancestry_sentence: "GWAS loci were defined from
+      European-ancestry summary statistics, while the methylation cohort is
+      admixed African American; an ancestry-matched test is not possible because
+      the African-ancestry schizophrenia and bipolar releases yield no
+      genome-wide significant loci."
+    # 3. Do not report the negative control as a validation of Module 09. It
+    #    qualifies the claim. Module 09's decisions are locked and untouched.
+    describe_stage_17_as: qualification_not_validation

@@ -711,6 +711,53 @@ Read SCZ against that distribution before writing "SCZ-linked" as if it were
 trait-specific. It qualifies the claim and changes no decision; config in
 `config/gwas_negative_controls.yml`.
 
+**It ran, and the answer is that the depletion is trait-general (2026-09-19).**
+Across 63 collection traits with ≥10 leads, schizophrenia sits at the 17th-33rd
+percentile of the axis estimate by region, and at the 10th-15th percentile among
+the 20 traits of similar lead count. Psychiatric traits are indistinguishable
+from the rest as a category (Wilcoxon p 0.18-0.96). Broad genomic context moves
+the SCZ estimate by 1-3%. **Three writing rules follow and they bind the
+manuscript text, not only this stage's tables:**
+
+1. Write the depletion as a property of trait-associated loci, with
+   schizophrenia as a typical example. Do not write "schizophrenia-specific",
+   and do not write that low-control VMRs are environmentally determined —
+   §2.3 already forbids the second.
+2. Say whose GWAS defined the loci every time the locus set is described. The
+   collection is European or European-dominated and the methylation cohort is
+   admixed African American. Put the limitation on the **locus definition**, not
+   on the axis: the score is estimated in these donors and is a within-cohort
+   rank (§7.2). No LD reference is used, so lead → VMR assignment is physical
+   and cannot be mis-tagged by ancestry; and because every trait carries the
+   identical mismatch, a trait's rank among the others is internally valid.
+   An ancestry-matched test is impossible, not omitted: the African-ancestry
+   PGC3 schizophrenia and PGC bipolar releases yield **zero** genome-wide
+   significant variants. The two multi-ancestry releases are run instead
+   (`focal_sumstats`), and both give a slightly **stronger** depletion than
+   their European counterpart, so the mismatch is not generating the result.
+3. Describe stage 17 as a qualification of Module 09, never as a validation of
+   it. Module 09's two decisions are locked and untouched.
+
+These are recorded machine-readably under `interpretation.writing_rules` in
+`config/gwas_negative_controls.yml`.
+
+**Stage 18, locus architecture (added 2026-09-19, descriptive).** Stage 17 says
+schizophrenia is typical; stage 18 asks what separates the traits that *are*
+depleted from the ones that are not, which is the biological question. It fits
+the same glm with one Module 04 annotation at a time as the predictor of trait
+linkage, with and without the control score, plus a high-mappability arm for the
+repeat and heterochromatin annotations as §7.4 requires. Result: a trait's axis
+depletion tracks how strongly its loci are enriched for **accessible chromatin
+and H3K27ac** (Spearman −0.44 to −0.60, q ≤ 2e-3 in all three regions) and
+tracks the opposite way for **quiescent chromatin, H3K27me3 and H3K9me3**. So the
+axis contrast is largely reporting whether a trait's loci sit in active or
+quiescent sequence. **No trait shows significant LINE/L1 enrichment in any
+region or arm**, so nothing here licenses a repeat statement; the LINE/L1
+axis-link correlation is inconsistent in sign across regions and collapses under
+the high-mappability restriction, which is exactly the §7.4 gate doing its job.
+Overlap remains overlap: no activity, retrotransposition, cell-type or
+trait-mechanism claim follows.
+
 ### 7.9 `09b_aging_application`: orthogonal aging application
 
 **Added 2026-09-19.** The module asks whether VMRs with weaker local SNP control
@@ -1009,6 +1056,12 @@ Use claim language such as:
 - “transcriptionally coupled”;
 - “schizophrenia-risk variants associate with methylation in genetically
   regulated VMRs.”
+- “VMRs near trait-associated GWAS loci sit lower on the local genetic-control
+  axis, and schizophrenia is a typical example” — the depletion is trait-general
+  (§7.8), so never write “schizophrenia-specific”.
+- “GWAS loci defined from European-ancestry summary statistics” — state the
+  ancestry of the locus set wherever the locus set is described, since the
+  methylation cohort is admixed African American (§7.8 rule 2).
 
 Always report denominators, exclusions, brain region, donor group, VMR set, and
 the exact metric used.
