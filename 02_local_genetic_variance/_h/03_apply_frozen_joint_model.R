@@ -9,6 +9,11 @@ script_path <- normalizePath(sub("^--file=", "", file_arg[[1L]]))
 h_dir <- dirname(script_path)
 source(file.path(h_dir, "00_functions.R"))
 source(file.path(h_dir, "joint_pve_functions.R"))
+## This stage verifies the support table against the sha Stage 00 pinned, so it
+## needs file_sha256(). 00_shared/sha.R is dependency-free by design: the full
+## loader pulls in config.R, which needs yaml, and yaml is deliberately absent
+## from the calibrated-local-h2 env this stage runs in.
+source(file.path(h_dir, "..", "..", "00_shared", "sha.R"))
 
 cli <- parse_cli(list(run_dir = ""))
 if (!nzchar(cli$run_dir)) stop("--run-dir is required")
@@ -53,8 +58,30 @@ if (!all(domain_fields %in% names(development))) {
 ## MAF spectrum differ between donor groups, so that borrowing is not
 ## defensible. A table without a `cell` column is a pre-2026-09-13 pooled
 ## table; refuse it rather than silently reinstating the union.
-support <- read_tsv(file.path(run_dir, "config",
-                              "joint-pve-characterized-support.tsv"))
+support_path <- file.path(run_dir, "config",
+                          "joint-pve-characterized-support.tsv")
+
+## The support table is pinned the same way the model is. Stage 00 records
+## config_characterized_support_sha256 from the repository copy and snapshots
+## the file into the run; without this check the two could diverge -- an edited
+## repository config, or an in-run copy replaced by hand -- and the run would
+## still seal and still reach a README acceptance row citing a sha it no longer
+## used. That is exactly the drift that happened once already, so it is a hard
+## stop, not a warning. Stage 00 is the only place the field may be written.
+support_sha <- tolower(file_sha256(support_path))
+manifest_support_sha <- tolower(mval("config_characterized_support_sha256"))
+if (is.na(support_sha)) {
+    stop("Cannot checksum the characterized-support table: ", support_path)
+}
+if (!identical(support_sha, manifest_support_sha)) {
+    stop("Characterized-support checksum changed after Stage 00.\n",
+         "  manifest: ", manifest_support_sha, "\n",
+         "  in-run:   ", support_sha, "\n",
+         "  The eligibility domain is part of this run's provenance; refusing ",
+         "to score against an unattributable support table (AGENTS.md 9).")
+}
+
+support <- read_tsv(support_path)
 required_support <- c("cell", "feature", "support_min", "support_max",
                       "allowed_n")
 if (!all(required_support %in% names(support))) {
@@ -138,6 +165,9 @@ if (length(complete)) {
 }
 features$joint_model_run_id <- mval("joint_model_run_id")
 features$joint_model_sha256 <- observed_sha
+## Carried per row alongside the model sha, so the support that defined each
+## locus's domain status is recoverable from the table alone.
+features$config_characterized_support_sha256 <- support_sha
 features$absolute_pve_interpretation_allowed <- FALSE
 write_tsv(features, file.path(
     run_dir, "results", "combined", "observed-joint-estimates.tsv"

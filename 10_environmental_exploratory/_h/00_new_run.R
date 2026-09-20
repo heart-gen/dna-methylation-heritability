@@ -36,6 +36,47 @@ if (!identical(env$testing$architecture_predictor,
          "are banned (AGENTS.md 3), and the heritable/non-heritable grouping ",
          "v1 used is banned outright (AGENTS.md 2.3).")
 }
+## PI 2026-09-19. The debiased primary and the two-part variance are the whole
+## reason Stage B's numbers can be read at all; a config edit that dropped either
+## would silently restore an SE-coupled outcome and an OLS p-value over
+## correlated VMRs. Refuse rather than default.
+if (!identical(env$testing$primary_axis_outcome, "debiased_partial_ss")) {
+    stop("testing.primary_axis_outcome must be debiased_partial_ss. Any ",
+         "SE-dependent outcome (|beta|, rank, |t|, -log10 p) couples to the ",
+         "local-control score mechanically (AGENTS.md 7.9).")
+}
+if (!identical(env$testing$axis_inference,
+               "donor_bootstrap_plus_chromosome_jackknife")) {
+    stop("testing.axis_inference must be ",
+         "donor_bootstrap_plus_chromosome_jackknife: an OLS SE over the VMR ",
+         "rows treats 9,000-11,000 correlated loci estimated in one donor ",
+         "sample as independent observations.")
+}
+if (!is.numeric(env$testing$n_bootstrap) || env$testing$n_bootstrap < 200) {
+    stop("testing.n_bootstrap must be a number >= 200")
+}
+## PI 2026-09-20. The percentage is a DERIVED ratio with a Fieller interval, not
+## an estimand obtained by dividing the outcome by its family mean. A config that
+## re-enables the old scaling, or drops the ratio-aware interval, is refused here
+## rather than defaulted, the same way the outcome and the inference are.
+if (!identical(env$testing$primary_axis_estimand,
+               "proportional_gradient_ratio_functional")) {
+    stop("testing.primary_axis_estimand must be ",
+         "proportional_gradient_ratio_functional. The absolute gradient does not ",
+         "replicate across chromosomes (its jackknife SE runs 5-10x its ",
+         "bootstrap SE), so it is carried as a sensitivity and not as the ",
+         "primary; see config/environmental.yml:testing.")
+}
+if (!isTRUE(env$testing$absolute_axis_sensitivity)) {
+    stop("testing.absolute_axis_sensitivity must be true: the absolute gradient ",
+         "and the Fieller flag are reported on every row so the reader sees ",
+         "that the absolute scale is null and why.")
+}
+if (!is.null(env$testing$relative_scale_min_mean_z)) {
+    stop("testing.relative_scale_min_mean_z is retired (PI 2026-09-20): its z ",
+         "treated correlated VMRs as independent and admitted the very family ",
+         "it was written to exclude. Fieller decides estimability instead.")
+}
 if (!isTRUE(env$testing$separate_fdr_family)) {
     stop("testing.separate_fdr_family must be true: one BH family per ",
          "exposure, never pooled (AGENTS.md 10.3).")
@@ -99,6 +140,14 @@ run <- new_run(
         max_missing_frac = as.character(env$eligibility$max_missing_frac),
         fdr_alpha = as.character(env$testing$fdr_alpha),
         primary_axis_model = env$testing$primary_axis_model,
+        primary_axis_outcome = env$testing$primary_axis_outcome,
+        axis_inference = env$testing$axis_inference,
+        n_bootstrap = as.character(env$testing$n_bootstrap),
+        primary_axis_estimand = env$testing$primary_axis_estimand,
+        absolute_axis_sensitivity = as.character(env$testing$absolute_axis_sensitivity),
+        relative_effect_interval = env$testing$relative_effect_interval,
+        non_gating_axis_arms = paste(
+            as.character(unlist(env$testing$non_gating_axis_arms)), collapse = ","),
         exploratory_supplement_only = "TRUE"
     )
 )

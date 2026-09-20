@@ -67,8 +67,19 @@ mkdir -p "$WORK"
 # blocks (the MHC, the chr8 and chr17 inversions) rather than genome-wide
 # structure, which is the classic way a PCA covariate adjusts for the wrong
 # thing. --maf is applied WITHIN this cell's donors, which is the point.
+# --no-parents/--no-sex/--no-pheno tell plink2 how to read a HEADERLESS
+# three-column .psam. inputs/genotypes/TOPMed_LIBD.AA.psam is exactly that
+# (FID, IID, SEX with no `#FID IID SEX` line), so without them plink2 stops with
+# "Line 1 ... has fewer tokens than expected". The pooled psam under
+# all_individuals/ does carry the header, which is why the donor-group cells
+# never needed these and the gap only surfaced on an AA-catalogued cell.
+# 01_vmr_catalog/_h/step_4.sh has carried the same three flags since it was
+# written; this stage is now consistent with it.
 "$PLINK2" --pfile "$PFILE" \
           --keep "$RUN_DIR/vmr/donors_plink.txt" \
+          --no-parents \
+          --no-sex \
+          --no-pheno \
           --autosome \
           --snps-only just-acgt \
           --maf 0.05 \
@@ -83,6 +94,9 @@ log_message "pruned to $(wc -l < "$WORK/prune.prune.in") variants"
 
 "$PLINK2" --pfile "$PFILE" \
           --keep "$RUN_DIR/vmr/donors_plink.txt" \
+          --no-parents \
+          --no-sex \
+          --no-pheno \
           --extract "$WORK/prune.prune.in" \
           --pca "$N_PC" approx \
           --threads "$V2_THREADS" \

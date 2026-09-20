@@ -27,8 +27,36 @@ cross_region:
   compare_standardized_effects: true
   shared_donor_analysis: true
 
+# Donor-group axis (08_region_donor_generalization). PI, 2026-09-18.
+#
+# `require_interaction_for_ancestry_claim: true` was removed here. It asked for a
+# test this design cannot run and must not run: an interaction term needs a
+# pooled group x genotype model, and AGENTS.md 7.6 forbids comparing the Module
+# 02 score across cells at any level. The key was unsatisfiable, so it licensed
+# nothing and guarded nothing. The three keys below say the same restriction
+# positively, and unlike the old key they are read and enforced -- see
+# 00_shared/gates.R::donor_group_inference_policy() and its callers in
+# 02/_h/14_combine_donor_group_cells.R, 03/_h/07_stack_donor_group_predictions.R
+# and 08_region_donor_generalization.
+#
+#   donor_group_inference: the ONLY inference the axis supports. `concordance_only`
+#     means the reportable quantity is ordering agreement between the two cells on
+#     the shared locus set -- a rank correlation and quartile overlap -- and never
+#     a level, a difference, or a per-cell effect size held up against the other.
+#   cross_group_raw_score_comparison: whether raw pve_cis_joint_unbounded or
+#     local_snp_contribution_score may be compared across cells. FALSE. The score
+#     is a within-cell midrank percentile (config/local_genetic_control.yml locks
+#     rank_scope: cohort_by_region), so cross-cell levels are not on one scale.
+#   ancestry_effect_claim_allowed: whether any observed AA/EA difference may be
+#     attributed to ancestry. FALSE, and not merely pending more data: the cells
+#     differ in n (EA is roughly half of AA per region), MAF spectrum, LD and SNP
+#     availability, and AGENTS.md 7.7 requires all of those be eliminated first.
+#     Flipping this to true is a PI act that needs the eliminating analysis in
+#     hand, not a config edit.
 donor_group:
-  require_interaction_for_ancestry_claim: true
+  donor_group_inference: concordance_only
+  cross_group_raw_score_comparison: false
+  ancestry_effect_claim_allowed: false
   min_n_per_group_for_stratified: 50
 
 repeat_sensitivity:
@@ -45,7 +73,7 @@ phase2_validation_success:
   external_resource_support_ge_1: required
 
 phase7_scz:
-  status: active_v1
+  status: active_v2_two_independent_decisions   # PI 2026-09-18
   primary_region: caudate
   primary_population: AA
   covariate_model: M3a
@@ -60,22 +88,53 @@ phase7_scz:
   # permits the claim once the analysis is run with ancestry-matched LD). The
   # cross-ancestry EUR-GWAS x AA-meQTL arm stays exploratory and gate-ineligible.
   # See config/schizophrenia.yml:colocalization.
-  deferred_analyses: [5_regional_specificity, 7_diagnosis_validation]
+  # 5_regional_specificity is no longer deferred: PI 2026-09-18 made "shared or
+  # region-dependent" half of Module 09's framing question. It is implemented by
+  # 09/_h/15_cross_region_axis_concordance.R (region-general association vs
+  # region-specific departure) on top of Module 08 (accepted
+  # rdg-AA-crossregion-20260918).
+  deferred_analyses: [7_diagnosis_validation]
+  #
+  # PI 2026-09-18: the lists below are ROUTED to Module 09's two independent
+  # decisions (config/schizophrenia.yml:independent_decisions). The two caudate
+  # items were previously main-text conditions; they now bear on the
+  # caudate-specific magnitude claim ONLY, and the application may stay in the
+  # main text when the caudate magnitude attenuates after n-matching.
+  #
+  # Documentation of the prespecified criteria, not read by code: the
+  # machine-evaluated forms are config/schizophrenia.yml:retention_criteria and
+  # independent_decisions.
   retain_in_main_if:
+    # -> scz_application_retention (decision 2)
     - ge_1_credible_risk_locus_with_cpg_meqtl
     - enrichment_toward_higher_predictability_or_interpretable_contrast
     - ge_1_locus_with_expression_or_splicing_coupling
-    - caudate_not_explained_solely_by_sample_size
+    - region_general_axis_association_supported_in_ge_2_regions_incl_ge_1_non_caudate
     - internal_or_external_meqtl_replication
     - robust_to_maf_ld_mappability_coverage_annotation
+  caudate_magnitude_claim_requires:
+    # -> caudate_magnitude_claim (decision 1)
+    - caudate_not_explained_solely_by_sample_size
   omit_or_supplement_if:
+    # -> scz_application_retention (decision 2)
     - no_credible_risk_variant_meqtl
     - results_vanish_after_technical_adjustment
     - single_problematic_locus_drives_signal
     - no_vmr_connects_to_expression_or_splicing
-    - caudate_specificity_disappears_after_downsampling
     - conclusions_rely_only_on_nominal_pvalues
     - adds_nothing_beyond_nonsignificant_sldsc
+  caudate_magnitude_claim_withdrawn_if:
+    # -> caudate_magnitude_claim (decision 1) only; never demotes decision 2
+    - caudate_specificity_disappears_after_downsampling
+  # Not machine-evaluated. Module 06's accepted S-LDSC result is null and
+  # 09/_h/12_apply_gates.R carries upstream_sldsc_supports_brain_enrichment onto
+  # the decision row; whether the application "adds something beyond" it is a PI
+  # judgment recorded at acceptance, not a gate.
+  pi_judgment_not_gated: [adds_nothing_beyond_nonsignificant_sldsc]
+  # Uniformity across regions is described, never required (PI 2026-09-18). A
+  # genuine region-specific departure qualifies the scope of the region-general
+  # claim; it does not demote the application.
+  biological_uniformity_required: false
 
 strong_go_requires:
   - internal_meqtl_burden_validates_predictability

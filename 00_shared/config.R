@@ -40,19 +40,8 @@ load_config <- function(name, root = repo_root()) {
     cfg
 }
 
-#' SHA-256 of a file, for the run manifest (AGENTS.md 9).
-file_sha256 <- function(path) {
-    if (!file.exists(path)) return(NA_character_)
-    if (requireNamespace("digest", quietly = TRUE)) {
-        return(digest::digest(path, algo = "sha256", file = TRUE))
-    }
-    ## digest is not in every env; fall back to the system tool rather than
-    ## silently recording NA for a provenance field.
-    out <- tryCatch(system2("sha256sum", shQuote(path), stdout = TRUE),
-                    error = function(e) NA_character_)
-    if (length(out) == 0 || is.na(out[1])) return(NA_character_)
-    sub(" .*$", "", out[1])
-}
+## file_sha256() now lives in 00_shared/sha.R, which has no yaml dependency
+## so the estimator env can source it too. load.R sources sha.R before this file.
 
 #' Fetch a nested config value by dotted key, erroring rather than returning NULL.
 config_get <- function(cfg, key) {
@@ -229,16 +218,58 @@ parse_cell <- function(cell, root = repo_root()) {
     }
     if (cell %in% as.character(cohorts$arms)) {
         return(list(cell = cell, catalog_cohort = cell, estimation_group = cell,
-                    is_estimation_cell = FALSE))
+                    is_estimation_cell = FALSE, cell_kind = "arm"))
     }
     spec <- cohorts$estimation_cells[[cell]]
     if (is.null(spec)) {
         stop("Unknown cohort/cell '", cell, "'. Valid: ",
              paste(valid_cells(root = root), collapse = ", "))
     }
-    for (k in c("catalog_cohort", "estimation_group", "race_filter")) {
+    ## Two kinds of cell, and they are defined by different things, so the
+    ## required keys differ. A race_partition cell is defined by a donor LABEL
+    ## and its siblings must partition the pooled set; a donor_subsample cell is
+    ## defined by a SEED, overlaps its own replicates, and is a proper subset of
+    ## one source cell. Absent `cell_kind` means race_partition, so the cells
+    ## written before 2026-09-18 parse unchanged.
+    kind <- spec$cell_kind %||% "race_partition"
+    if (!kind %in% c("race_partition", "donor_subsample")) {
+        stop("estimation_cells:", cell, " has unknown cell_kind '", kind, "'")
+    }
+    needed <- c("catalog_cohort", "estimation_group",
+                if (identical(kind, "race_partition")) "race_filter"
+                else "donor_subsample")
+    for (k in needed) {
         if (is.null(spec[[k]])) {
             stop("estimation_cells:", cell, " lacks ", k, " in config/cohorts.yml")
+        }
+    }
+    if (identical(kind, "donor_subsample")) {
+        ds <- spec$donor_subsample
+        for (k in c("source_cell", "region", "target_n", "replicate", "seed",
+                    "balance_on", "balance_smd_max", "max_draws")) {
+            if (is.null(ds[[k]])) {
+                stop("estimation_cells:", cell, "$donor_subsample lacks ", k)
+            }
+        }
+        ## A subsample of a subsample would make the donor provenance a chain
+        ## nobody checks; require the source to be a plain arm.
+        if (!ds$source_cell %in% as.character(cohorts$arms)) {
+            stop("estimation_cells:", cell, " draws from '", ds$source_cell,
+                 "', which is not an arm. Subsample cells draw from an arm.")
+        }
+        ## The subsample must live on its own source's catalog, or its loci and
+        ## its donors would come from different discovery runs.
+        if (!identical(ds$source_cell, spec$catalog_cohort)) {
+            stop("estimation_cells:", cell, " draws from '", ds$source_cell,
+                 "' but is catalogued on '", spec$catalog_cohort, "'")
+        }
+        ## The token must state the size it draws, so a mislabelled target_n
+        ## cannot hide behind a plausible-looking name.
+        if (!grepl(paste0("^n", ds$target_n, "r", ds$replicate, "$"),
+                   spec$estimation_group)) {
+            stop("estimation_cells:", cell, " estimation_group '",
+                 spec$estimation_group, "' does not state its own draw; ",
+                 "expected 'n", ds$target_n, "r", ds$replicate, "'")
         }
     }
     ## The catalog a cell is discovered on must itself be a real arm, or the
@@ -255,7 +286,8 @@ parse_cell <- function(cell, root = repo_root()) {
              "definition; expected '", expected, "'")
     }
     list(cell = cell, catalog_cohort = spec$catalog_cohort,
-         estimation_group = spec$estimation_group, is_estimation_cell = TRUE)
+         estimation_group = spec$estimation_group, is_estimation_cell = TRUE,
+         cell_kind = kind)
 }
 
 #' Full definition for one cell: catalog paths from its arm, donors from itself.
@@ -271,7 +303,13 @@ cell_def <- function(cell, root = repo_root()) {
         ## The cell narrows the donor set. It inherits the catalog arm's
         ## genotype and phenotype FILES -- an estimation cell is a subset of a
         ## pooled run, never a different genotype build.
-        d$race_filter <- as.character(spec$race_filter)
+        d$cell_kind <- parsed$cell_kind
+        if (identical(parsed$cell_kind, "donor_subsample")) {
+            d$donor_subsample <- spec$donor_subsample
+            d$race_filter <- NULL
+        } else {
+            d$race_filter <- as.character(spec$race_filter)
+        }
         d$label <- spec$label
     }
     d$cohort <- parsed$catalog_cohort
@@ -279,6 +317,7 @@ cell_def <- function(cell, root = repo_root()) {
     d$catalog_cohort <- parsed$catalog_cohort
     d$estimation_group <- parsed$estimation_group
     d$is_estimation_cell <- parsed$is_estimation_cell
+    d$cell_kind <- parsed$cell_kind
     d
 }
 

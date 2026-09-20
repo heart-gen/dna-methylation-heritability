@@ -7,6 +7,13 @@
 # was conditioned on the legacy predictability metric and the pre-repair VMR sets,
 # so per AGENTS.md 8 every number in it is a hypothesis to retest, not a result
 # to carry forward. Hero loci rs8048039 and rs13331198 remain CANDIDATES.
+#
+# Framing question (PI 2026-09-18): does regional variation in local genetic
+# control of methylation intersect schizophrenia-relevant regulatory biology,
+# and is that relationship shared or region-dependent? It is answered by two
+# INDEPENDENT decisions (independent_decisions below), and neither is a
+# per-region verdict: decision 2 is resolved only across all three regions, by
+# _h/15_cross_region_axis_concordance.R.
 
 pi_locked: true
 
@@ -59,21 +66,123 @@ testing:
     - gc_content
     - mappability
 
+# A LABEL since 2026-09-18, not a gate. It sets the is_primary_region column,
+# the "(primary region)" annotation and GTEx tissue order, and decides nothing:
+# the axis criterion is read in every region, the caudate criterion is scoped by
+# independent_decisions.caudate_magnitude_claim.scope_regions, and the
+# application decision is module-level. Caudate is also the region that can
+# never carry a claim alone (perfectly confounded with sequencing batch,
+# AGENTS.md 8.1), so "primary" must not be read as "most credible".
 primary_region: caudate
 
 retention_criteria:
   # AGENTS.md 7.8: the main-text application is retained only if the CORRECTED
   # run meets all of these. Recorded here so they are prespecified rather than
   # read off the results.
+  #
+  # Routing (PI 2026-09-18). Every criterion below EXCEPT
+  # caudate_not_sample_size_artifact is a per-region precondition of
+  # scz_application_retention (decision 2). caudate_not_sample_size_artifact
+  # feeds caudate_magnitude_claim (decision 1) ONLY and is excluded from
+  # decision 2 by _h/12_apply_gates.R and _h/15_cross_region_axis_concordance.R.
   min_loci_with_cpg_meqtl_support: 1
-  enrichment_along_local_control_axis_in_primary_region: true
+  # Read in EVERY region, not only primary_region (PI 2026-09-18; renamed from
+  # enrichment_along_local_control_axis_in_primary_region, which described the
+  # superseded scope). A significant contrast in either direction satisfies it
+  # ("interpretable contrast"), and the status names the direction: the
+  # accepted runs are a DEPLETION and must never be written as an enrichment.
+  enrichment_along_local_control_axis_in_every_region: true
   min_loci_with_transcriptional_coupling: 1
+  # SCOPE: caudate only. This asks whether CAUDATE's larger magnitude survives
+  # matching its donor count to DLPFC's; it is meaningless for a DLPFC or
+  # hippocampus run and must not gate them. PI 2026-09-18.
   caudate_not_sample_size_artifact: true      # via downsampling to N=118
   min_loci_with_external_genetic_support: 1   # GTEx eQTL, support not proof
   # Diagnosis associations are optional supportive evidence. A null best-VMR
   # diagnosis result does not invalidate genetic regulation; secondary hits are
   # labeled exploratory.
   diagnosis_required: false
+
+# PI 2026-09-18. Module 09 carries TWO INDEPENDENT DECISIONS, because its
+# framing question -- does regional variation in local genetic control of
+# methylation intersect schizophrenia-relevant regulatory biology, and is that
+# relationship shared or region-dependent -- has two separable answers, and the
+# caudate downsampling result speaks to only one of them.
+#
+#   caudate_magnitude_claim    is caudate's STRONGER signal more than its larger
+#                              donor count? Gated on Module 08 tier 3 alone.
+#   scz_application_retention  is there a convincing disorder-related pattern
+#                              ACROSS the three regions? May hold even if the
+#                              caudate magnitude attenuates after n-matching.
+#
+# The second must not be gated on the first. A failure of
+# caudate_not_sample_size_artifact demotes the caudate-specific magnitude claim
+# and nothing else.
+independent_decisions:
+  caudate_magnitude_claim:
+    requires_module_08_tier3_reading: donor_count_does_not_explain_the_excess
+    scope_regions: [caudate]
+  scz_application_retention:
+    # H1, tightened to match the gate exactly (PI 2026-09-18): SCZ-linked VMRs
+    # show LOWER local genetic-control scores in ALL three regions, with
+    # statistical support in at least two, including at least one non-caudate
+    # region. A negative-but-nonsignificant third region does NOT falsify H1 --
+    # the earlier phrasing "fails if any region is null" contradicted the
+    # >=2-of-3 rule and is superseded.
+    axis_direction_required: lower_in_scz_linked
+    axis_min_regions_with_statistical_support: 2
+    axis_requires_support_outside: caudate
+    # PI 2026-09-18, superseding axis_direction_consistent_in_all_regions: BIOLOGICAL
+    # UNIFORMITY IS NOT REQUIRED. Requiring the same direction in every region
+    # would make one deviating region falsify a real region-general association,
+    # and would also hide the more interesting result -- a genuine region-specific
+    # departure -- by treating it as failure. The region-general association and
+    # any region-specific departure are therefore assessed SEPARATELY and both are
+    # reported.
+    axis_direction_consistent_in_all_regions: false   # described, never required
+    # A departure is only "genuine" on evidence, not on a magnitude difference or
+    # a nonsignificant region. Either of these qualifies:
+    #   sign_reversal_with_support  the region's effect runs the OTHER way and is
+    #                               FDR-significant doing so;
+    #   magnitude_difference        the region differs from the other regions
+    #                               pooled, tested with independent SEs. Shared
+    #                               donors make the true SE of a difference SMALLER
+    #                               than that, so this test is CONSERVATIVE for
+    #                               declaring a departure -- which is the safe
+    #                               direction for a claim of region-specificity.
+    region_specific_departure_rules: [sign_reversal_with_support, magnitude_difference]
+    region_specific_departure_alpha: 0.05
+    # A departure does not veto the region-general claim; it qualifies its scope.
+    departure_vetoes_region_general_claim: false
+    # Caudate is perfectly confounded with sequencing batch (AGENTS.md 8.1), so
+    # it may contribute to concordance but can never be the only support.
+    independent_of_caudate_magnitude_claim: true
+
+# How the cross-region result may be stated (PI 2026-09-18). These are
+# interpretation locks, not analysis parameters: the stage named against each
+# emits the matching flag onto its output rows, so a downstream reader inherits
+# the constraint from the data. Changing a value here does not relax the code.
+cross_region_interpretation:
+  # The three regions are tissues from ONE cohort, not replicates: 100 donors
+  # are in all three, and dlpfc/hippocampus share 115 of 118 (Jaccard 0.96).
+  # Stage 15 measures the overlap on every run rather than trusting this line.
+  regions_are_independent_replicates: false
+  # Report concordance only. The fixed-effect estimate stage 15 emits is
+  # descriptive, and its SE assumes independence, so it is anticonservative.
+  pooled_p_value_permitted: false
+  # The independent-SE departure test is CONSERVATIVE for declaring a
+  # region-specific departure under shared donors -- the safe direction.
+  departure_test_is_conservative_under_shared_donors: true
+  # Module 08 tier 3 shows donor count is a plausible major contributor to
+  # caudate's larger MAGNITUDE. That is attenuation, not evidence that the
+  # caudate estimate is biased (stage 16 carries attenuation_is_not_bias).
+  attenuation_is_not_bias: true
+  permitted_caudate_wording: caudate magnitude attenuates after n-matching
+  forbidden_caudate_wording: [n-inflated, inflated by sample size, biased]
+  # Stage 16 repeats the axis contrast in the three caudate n=118 cells. It is
+  # a sensitivity that is REPORTED, never a gate on either decision.
+  axis_downsampling_sensitivity_gates_a_decision: false
+  blanket_repressive_chromatin_claim_permitted: false
 
 prioritization:
   max_loci: 5
@@ -99,9 +208,17 @@ prioritization:
         direction: asc
 
 integration:
-  # Are schizophrenia-linked VMRs enriched for the 04 architecture?
-  # Positive -> connect the disease application to the repeat/repressive story.
-  # Null -> present Phase 7 as a separate proof of disease relevance.
+  # Do schizophrenia-linked VMRs differ from background in the Module 04
+  # annotations, IN EITHER DIRECTION? _h/05_integration_enrichment.R tests
+  # linked vs background VMRs directly for each annotation below.
+  #
+  # PI 2026-09-18: claimability is narrower than significance, and is decided
+  # per annotation AND per region (stage 15 reports claimable_regions). Cite the
+  # annotation and the regions where it is claimable; a blanket "depleted of
+  # repressive chromatin" is not permitted. In the accepted runs: quiescent in
+  # all three regions, H3K9me3 in dlpfc and hippocampus, LINE/L1 in dlpfc only.
+  # A null here does not orphan the application; it is presented as a separate
+  # demonstration of disease relevance.
   test_against:
     - line_l1
     - h3k9me3
@@ -180,11 +297,18 @@ gates:
   min_pairs_tested: 500
   min_loci_coloc_tested: 10
   min_variants_shared: 100
-  # Module 08 owns the caudate downsampling arm and is not implemented. While
-  # this is false, retention_criteria.caudate_not_sample_size_artifact is
-  # recorded as PENDING_MODULE_08 -- neither a pass nor a gate failure -- and
-  # main_text_retention stays open.
-  require_module_08_downsampling: false
+  # Module 08 has landed and rdg-AA-crossregion-20260918 is accepted, so the
+  # dependency is now required. PI flipped 2026-09-18.
+  #
+  # This flag says only that the dependency is REQUIRED. It is not evidence:
+  # 12_apply_gates.R reads criterion 4 off the accepted Module 08 run's tier-3
+  # reading, pinned in the run manifest as region_donor_generalization_run_id,
+  # and hard-stops if that pin or the tier-3 table is missing. The flag alone can
+  # never pass the criterion.
+  #
+  # Scope is caudate only, and it gates independent_decisions.
+  # caudate_magnitude_claim alone -- never scz_application_retention.
+  require_module_08_downsampling: true
 
 # Superseded estimators. Their reappearance in any table this module reads or
 # writes is a hard error (00_shared/gates.R::load_local_genetic_control).
