@@ -1,6 +1,11 @@
 # 10_environmental_exploratory — exploratory environmental-factor analysis
 
-**Status: implemented, no run submitted. Supplement only, permanently.**
+**Status: three production runs sealed 2026-09-20, awaiting PI acceptance.
+Supplement only, permanently.** `env-AA-{caudate,dlpfc,hippocampus}-20260920-a`
+each returned `PASS_EXPLORATORY_COVERAGE` with 22/22 chromosomes reconciled and
+zero computational failures. They supersede four earlier rounds; see
+**Superseded runs**. Nothing here may be cited until the runs are entered in
+**Accepted runs**.
 
 Asks whether measured donor exposures associate with VMR methylation, and
 whether that association varies along Module 02's continuous local-genetic-control
@@ -219,10 +224,13 @@ that is superseded.
 The v2 replacement for v1's `01.fishers_enrichment.py`. Three prespecified
 models per eligible exposure:
 
-1. **Primary, threshold-free:** `-log10(p) ~ score_z + vmr_length + cpg_count +
+1. **Primary, threshold-free:** `omega ~ score_z + vmr_length + cpg_count +
    cpg_density + gc_content + mappability + mean_methylation +
-   methylation_variance`. Continuous on both sides, so the headline statement
-   does not depend on where the FDR cut lands.
+   methylation_variance`, where `omega` is the debiased exposure-explained sum of
+   squares per donor, `(SS_exposure - df*sigma2_hat)/n`. Continuous on both
+   sides, so the headline statement does not depend on where the FDR cut lands.
+   `-log10(p)` was the primary until 2026-09-19 and is now a descriptive row
+   only; see **The outcome scale couples to the score mechanically** for why.
 2. Wilcoxon of `score_z`, FDR-significant vs not.
 3. Logistic on the same indicator with the same covariates.
 
@@ -240,10 +248,13 @@ content and mappability are identical to the values Module 04 published.
 - **Region-specific only.** Caudate is sequencing batch 3 and region is
   perfectly confounded with batch (AGENTS.md §8.1), so no cross-region exposure
   contrast is emitted and none is licensed.
-- `antipsychotics` does not clear the gate in any region, so it is not tested
-  here. It stays declared because it is downstream of diagnosis, which is in the
-  locus model — a collider — and that flag must survive if the missingness
-  ceiling is ever revisited.
+- `antipsychotics` clears the gate **only in caudate, and only inside the
+  schizophrenia stratum** (18/46 split, 1.5% missing); in DLPFC and hippocampus
+  the case stratum is n = 48 with a minor class of 11 against a floor of 15, and
+  pooled it fails the 15% missingness ceiling in all three regions (22.9-26.5%).
+  Where it is tested, the collider path is closed by the restriction rather than
+  by adjustment — diagnosis is constant inside the stratum and is dropped from
+  the locus model — and the row stays `collider_flagged` regardless.
 - `any_substance_nontobacco` is a burden indicator across unrelated mechanisms.
 - Supplement only, always. The decision row carries
   `main_text_retention = NEVER_SUPPLEMENT_ONLY`.
@@ -300,6 +311,343 @@ The grouped tests could not run in any family
 (`fewer_than_10_vmrs_in_a_group`), so no row above has a second line of
 evidence.
 
+## First production runs (2026-09-19) — superseded, kept for the record
+
+**These numbers are on the retired `-log10 p` scale and must not be cited.** The
+section is kept because the two design changes below were found in these runs,
+and because the contrast between the two scales is the evidence for the change.
+
+
+`env-AA-{caudate,dlpfc,hippocampus}-20260919`, submitted through the SLURM chain
+on the accepted `lgv-AA-*-rescore-20260913` score and `rra-AA-*-20260906`
+features. All three: 22/22 chromosomes expected / completed, 0 excluded, 0
+QC-failed, 0 failed, 0 unaccounted; all five coverage checks pass;
+`PASS_EXPLORATORY_COVERAGE`.
+
+| region | donors | VMRs per family | eligible exposure×stratum | stage A pairs at q<0.05 | stage B families at q<0.05 |
+|---|---|---|---|---|---|
+| caudate | 153 | 11,251 | 9 (4 in cases) | **0** | 4 of 9 |
+| dlpfc | 118 | 9,251 | 5 (1 in cases) | **0** | 3 of 5 |
+| hippocampus | 117 | 9,166 | 5 (1 in cases) | **12** | 4 of 5 |
+
+**Stage A.** Null in caudate and DLPFC, as in the smoke run. Hippocampus returns
+12 FDR-significant VMR × exposure pairs, 11 of them `nicotine` (3 pooled, 8
+inside the case stratum at n = 48) and one `education`. `chr8:47762980-47763627`
+is the only VMR significant in both strata (q = 0.010 pooled, 0.003 in cases).
+Twelve pairs out of five families of ~9,200 tests is a thin result in the one
+region with the smallest exposed case count, and it is a supplemental
+observation, not a finding.
+
+**Stage B, the axis.** Only the threshold-free primary reports: the Wilcoxon and
+logistic forms were skipped in **every** family in **every** region
+(`fewer_than_10_vmrs_in_a_group`), which is why the primary was specified
+threshold-free.
+
+| exposure | stratum | caudate β (q) | dlpfc β (q) | hippocampus β (q) |
+|---|---|---|---|---|
+| nicotine | all | −0.036 (1.1e-8) | −0.026 (1.5e-4) | −0.052 (1.2e-12) |
+| smoking | all | −0.033 (6.3e-8) | −0.002 (0.66) | −0.017 (0.0078) |
+| marital_status | all | +0.017 (6.1e-4) | −0.022 (1.5e-4) | −0.006 (0.24) |
+| education | all | +0.008 (0.098) | +0.009 (0.096) | **+0.023 (1.8e-5)** |
+| any_substance_nontobacco | all | +0.016 (0.0014) | not eligible | not eligible |
+| nicotine | schizophrenia | −0.0005 (0.93) | **−0.042 (6.5e-9)** | **−0.088 (8.2e-30)** |
+| smoking | schizophrenia | +0.003 (0.77) | not eligible | not eligible |
+| antipsychotics | schizophrenia | +0.004 (0.74) | not eligible | not eligible |
+| any_trauma_hx | schizophrenia | +0.005 (0.74) | not eligible | not eligible |
+
+β is the change in the per-VMR exposure −log₁₀p per SD of
+`local_snp_contribution_score_z`, so these are shifts of a few hundredths of a
+−log₁₀p unit across the whole axis. They are statistically sharp because there
+are ~9,000-11,000 VMRs per family and numerically negligible.
+
+**Two things changed relative to the caudate smoke run.** Caudate reproduces it
+exactly — every pooled gradient collapses inside the case stratum. DLPFC and
+hippocampus do **not**: `nicotine` in cases is the *strongest* gradient in both
+(the hippocampal coefficient is 1.7× its own pooled value), so "the pooled
+gradient is diagnosis mixing" is a caudate statement and does not generalize. And
+`education`, the least diagnosis-linked exposure, is FDR-significant in
+hippocampus with the **opposite** sign to nicotine, so the axis gradients do not
+share a direction across exposures.
+
+### The outcome scale couples to the score mechanically
+
+This must be settled before any of stage B is written up. The primary outcome is
+−log₁₀p of a per-VMR exposure model that contains **no SNP term**, so a
+high-control VMR carries its local genetic variance in that model's residual.
+That inflates its SE and deflates its −log₁₀p, which produces a negative
+coefficient on `score_z` with no exposure biology involved. `09b_aging_application`
+hit the identical problem on 2026-09-19 and rejected every SE-dependent outcome
+(|β|, rank|β|, |t|, −log₁₀p) in favour of the debiased `β̂² − SE²`, with donor
+bootstrap plus block-jackknife variance (AGENTS.md §7.9).
+
+#### What the diagnostic found (2026-09-19, hand-run, `tests/debiased_axis_firstlook/`)
+
+`vmr-exposure-association-terms.tsv` already carries per-VMR `beta` and `se`, so
+for the five **1-df** exposures the debiased outcome `ω = β̂² − SE²` is computable
+from the sealed runs with no refit. The two 2-df exposures (`education`,
+`marital_status`) are not: they need the anova sum of squares and σ̂², which
+stage 2 does not emit. Three things came out of it, and they reorder the problem.
+
+**1. The gradient is not an artifact of the p-value scale.** Every family that is
+FDR-significant on `−log₁₀p` is significant on `ω` with the same sign, and the two
+outcomes order the VMRs almost identically (Spearman 0.91-0.96). On the
+interpretable scale the effect is **large**: the mean debiased squared exposure
+effect falls by 23-49% per SD of score (caudate nicotine −46%, smoking −47%;
+hippocampus nicotine −38%, within cases −49%; DLPFC nicotine −23%, within cases
+−27%). The "numerically negligible" reading of the `−log₁₀p` coefficients was an
+artifact of that scale, not a property of the association.
+
+**2. The residual-variance channel is real and carries much of the pooled
+result.** Within a family the design is shared, so `SE²` *is* the exposure model's
+residual variance up to a constant. It rises with `score_z` with total
+methylation variance held fixed, in every pooled family (p 1e-13 to 1e-28) — the
+local genetic variance is demonstrably sitting in that residual. Holding it fixed
+attenuates the `ω` gradient by 29-57% in the pooled families and removes it in
+two (`nicotine@all` in DLPFC, `smoking@all` in hippocampus). It does **not** touch
+the strongest result: `nicotine` within cases attenuates 3% in hippocampus
+(p = 4e-29) and gets *stronger* in DLPFC. This decomposition is indicative only —
+`SE²` is a component of `ω`, so conditioning on it partly conditions on the
+subtracted term. A clean version needs σ̂² from the covariate-only null model,
+which is the same extra column the 2-df exposures need.
+
+**3. Stage B's inference is anti-conservative, independently of the outcome.**
+`03_control_axis_test.R` reports plain `lm()` p-values over 9,000-11,000 VMRs
+treated as independent observations. A delete-one-chromosome weighted block
+jackknife — the construction Modules 06, 08 and 09b use — gives SEs a **median
+1.28× larger** (up to 2.0×), moving p-values by two to five orders of magnitude.
+Only one verdict at 0.05 changes among the significant families (caudate
+`any_substance_nontobacco` on `ω`, 0.012 → 0.069), so the direction of the result
+holds; but **the q-values now in the run's tables are optimistic**, and this
+applies to what is already reported rather than to a proposed replacement. The
+jackknife is only the VMR-level half — the donor-level half, which every VMR
+shares through the same 117-153 donors, is not in it at all.
+
+#### What followed: PI approval 2026-09-19
+
+Both changes were approved by the PI on 2026-09-19 and are implemented.
+
+- **Primary outcome** is now `debiased_partial_ss`, the debiased
+  exposure-explained sum of squares per donor, `(SS_exposure − df·σ̂²)/n`,
+  computed in stage 2 where the model is fitted. It is unbiased for the exposure
+  term's contribution whatever the SE, zero in expectation under the null, and
+  negative values are retained. For a 1-df exposure it equals `β̂² − SE²` up to a
+  factor constant within a family; the generalized form is what lets the two 2-df
+  categorical exposures (`education`, `marital_status`) use the same endpoint.
+  `−log₁₀p` is retained as a **descriptive** row with its own BH family and
+  `mechanically_biased_toward_hypothesis = TRUE`.
+- **Inference** is donor-bootstrap variance + delete-one-chromosome weighted
+  block-jackknife variance, B = 2000, seeded per family from the run ID. The
+  generic machinery moved out of 09b into `00_shared/axis_inference.R`
+  (`resample_rows`, `prepare_axis`, `axis_estimate`, `block_jackknife_se`,
+  `combined_inference`, plus `fit_scalar_matrix`/`fit_term_matrix` and the two
+  debiasing helpers); 09b sources it and
+  `09b_aging_application/tests/test_shared_axis_equivalence.R` checks the shared
+  versions against the definitions 09b carried at `abb0c6789`, so no accepted 09b
+  number moved. The OLS p-value is still emitted, as
+  `primary_p_ols_vmrs_independent`, so the difference stays visible.
+- Stage 2 now writes a donor × VMR phenotype checkpoint, because the bootstrap
+  refits every VMR 2000 times and cannot re-read one phenotype file per draw.
+  `_h/exposure_model.R` holds the stratum filter, the covariate list and the
+  design matrix **once**, called by both stages, so the bootstrap cannot drift
+  from the model whose estimate it is putting a SE on. Stage 3 asserts that its
+  matrix refit reproduces stage 2's per-VMR `ω` and stops if it does not.
+- `00_new_run.R` refuses a config that names any other primary outcome or
+  inference, rather than defaulting, the way
+  `gates.R::donor_group_inference_policy()` refuses a widened donor-group policy.
+
+### On what scale the gradient is reported (PI 2026-09-20)
+
+`ω` is an exposure-explained variance, and its *level* is a nuisance: it varies
+about 5× between chromosomes and about 6× between donor draws. Dividing by the
+family mean before fitting makes the coefficient a **proportional** change per SD
+of score, and that is the estimand the earlier runs reported. The question the PI
+put was whether the relative scale should be kept at all, and if so how to decide
+when its denominator is too close to zero to divide by. The old answer was a
+hand-set `relative_scale_min_mean_z: 2` guard; it was wrong twice over, because
+its z treated 9,000-11,000 correlated VMRs as independent and it admitted the very
+family it was written to exclude. It is **retired**, and `00_new_run.R` hard-stops
+on a config that still names it.
+
+The design now:
+
+- **The primary is the proportional gradient**, estimated as a ratio functional:
+  every bootstrap draw and every deleted chromosome recomputes `β/mean(ω)` on its
+  own rows, which is the standard variance treatment for a ratio estimator.
+- **The absolute gradient rides on every row** as a sensitivity —
+  `absolute_beta`, `absolute_se`, `absolute_p`, `absolute_role =
+  sensitivity_not_gating`. It gates nothing. A reader can see both scales rather
+  than take the module's word for one.
+- **A Fieller interval for the percentage is reported and never gates**
+  (`fieller_bounded`, `fieller_role = informational_not_gating`). On these data it
+  is unbounded in every family: the family mean is separated from zero by only
+  `mean_omega_z` 0.07-1.60, so no percentage is formally identifiable. That is a
+  statement about the denominator's own weakness, not about the primary.
+- **No threshold is set anywhere.** A gate on the denominator's separation from
+  zero excludes every family, including all three findings; and a gate on the
+  ratio's own interval (`CI width > 2|β̂|`) is algebraically `p > 0.05`, so it
+  would only restate the p-value already on the row. The one boundary left is
+  definitional: `mean(ω) ≤ 0` means no detectable exposure contribution, so the
+  ratio has no sign and that family reports the absolute gradient
+  (`primary_scale = raw`).
+- **`bootstrap_mean_omega_inflation` is on every relative-scale row.** Resampling
+  donors with replacement duplicates donors, which inflates an exposure-explained
+  sum of squares: the factor runs 2.0×-38.5× here. Where it exceeds 1 the ratio's
+  **bootstrap** variance is likely optimistic, so these p-values may be too small.
+  That is not resolved; it is made auditable. The same bootstrap construction is
+  in 09b's accepted runs, so it reaches there too. Settling it needs a null and
+  positive-control simulation that has not been run.
+
+**A defect found on 2026-09-20 and the reason `env-AA-*-20260920` is superseded.**
+`block_jackknife_cov()` computed its pseudo-values as `hj * full`, recycling a
+length-`n_blocks` vector against a length-2 one instead of forming the outer
+product. With 22 chromosomes — an even multiple of 2 — R issues **no warning**, so
+it was silent. It corrupted only the joint covariance, hence the `absolute_*`,
+`fieller_*` and `mean_omega_*` columns; the primary goes through
+`block_jackknife_se()`, a scalar path with no recycling, so no primary estimate,
+SE, p or q was ever affected. It was caught because on a `raw`-scale family the
+primary *is* the absolute estimand, yet their jackknife SEs disagreed ~8×. The
+invariant now has a regression test,
+`tests/test_jackknife_cov_agrees.R`, which fails on the old code at 22 blocks.
+Note that `code/` snapshots `_h/` and `config/` but **not** `00_shared/`, which is
+how a shared-code defect reached three sealed runs with no provenance trail.
+
+### Limitation for the discussion: the variance budget
+
+This is not a task. No analysis in this module can remove it, and none is
+planned. It is the paragraph to carry into PI summaries and into the manuscript
+Discussion wherever the Stage B gradient is mentioned:
+
+> The axis contrast holds each VMR's total methylation variance fixed, so a VMR
+> higher on the local-genetic-control axis has, by construction, less non-genetic
+> variance left for any exposure to move. A negative gradient is therefore close
+> to arithmetically expected wherever a real exposure effect exists, and it is
+> not evidence that exposure effects are concentrated among VMRs with weaker
+> local genetic control. Separating the two readings would require expressing
+> each exposure effect relative to that VMR's non-genetic variance, and that
+> denominator is an absolute local-PVE estimate — a quantity this project
+> retired, because its simulation calibration passed for relative ordering and
+> failed for absolute PVE. Debiasing the outcome removes the statistical half of
+> the problem, the SE inflation that makes a high-control VMR look less
+> exposure-responsive than it is; it cannot remove the arithmetic half. The
+> gradient is therefore reported in absolute units, as a description of where
+> exposure-associated variance sits along the axis, and never as evidence that a
+> VMR is environmentally determined.
+
+Recorded machine-readably as `interpretation.variance_budget_limitation` in
+`config/environmental.yml`, and in AGENTS.md §7.10. It applies equally to §7.9's
+aging axis, which asks the same question with age in place of exposure.
+
+**One open PI item follows from it.** `methylation_variance` is in this module's
+prespecified `axis_covariates`, and holding it fixed is exactly what activates the
+budget arithmetic. 09b faced the same choice and **excluded** total variance from
+its primary, on the ground that the outcome is part of it. The covariate set is
+prespecified and `pi_locked`, so it was left as locked here rather than changed
+alongside the outcome; whether Module 10 should carry a no-`methylation_variance`
+arm is a PI decision, and it is cheap to add now that the machinery exists.
+
+## Current production runs (`env-AA-*-20260920-a`, sealed 2026-09-20)
+
+On the accepted `lgv-AA-*-rescore-20260913` score and `rra-AA-*-20260906`
+features, unchanged from the 2026-09-19 round. All three: 22/22 chromosomes
+expected / completed, 0 excluded, 0 QC-failed, 0 failed, 0 unaccounted; all five
+coverage checks pass; `PASS_EXPLORATORY_COVERAGE`.
+
+| region | run_id | donors | VMRs (tested) | eligible exposure×stratum | stage A pairs at q<0.05 | stage B families at q<0.05 |
+|---|---|---|---|---|---|---|
+| caudate | `env-AA-caudate-20260920-a` | 153 | 11,251 (11,204) | 9 (4 in cases) | **0** | 1 of 9 |
+| dlpfc | `env-AA-dlpfc-20260920-a` | 118 | 9,251 (9,214) | 5 (1 in cases) | **0** | 0 of 5 |
+| hippocampus | `env-AA-hippocampus-20260920-a` | 117 | 9,166 (9,134) | 5 (1 in cases) | **12** | 2 of 5 |
+
+**Stage A is unchanged** from 2026-09-19, and necessarily so: it carries no
+bootstrap, so it is deterministic given the same inputs. Null in caudate and
+DLPFC. Hippocampus returns the same 12 FDR-significant VMR × exposure pairs, 11
+`nicotine` and one `education`, with `chr8:47762980-47763627` again the only VMR
+significant in both strata (q = 0.0100 pooled, 0.0027 in cases). Twelve pairs out
+of five families of ~9,200 tests, in the region with the smallest exposed case
+count, remains a supplemental observation and not a finding.
+
+**Stage B.** The Wilcoxon and logistic forms were again skipped in every family in
+every region (`fewer_than_10_vmrs_in_a_group`), so only the threshold-free primary
+reports. `β` is the **proportional** change in the debiased exposure-explained sum
+of squares per SD of `score_z`, as a fraction of the family mean — multiply by 100
+for a percentage. Families whose mean `ω` is at or below zero cannot form that
+ratio and report the absolute gradient instead (`primary_scale = raw`), marked ᴿ.
+
+| region | exposure | stratum | primary β | p | q | absolute p | mean_omega_z | boot infl |
+|---|---|---|---|---|---|---|---|---|
+| hippocampus | nicotine | schizophrenia | **−0.491** | 1.1e-5 | **1.1e-5** | 0.081 | 1.60 | 2.0× |
+| hippocampus | nicotine | all | **−0.376** | 3.3e-4 | **0.0013** | 0.21 | 1.49 | 2.6× |
+| caudate | nicotine | all | **−0.462** | 0.0017 | **0.0085** | 0.41 | 0.78 | 5.1× |
+| hippocampus | smoking | all | −0.322 | 0.029 | 0.057 | 0.53 | 0.86 | 4.1× |
+| dlpfc | nicotine | schizophrenia | −0.267 | 0.054 | 0.054 | 0.45 | 0.76 | 3.2× |
+| caudate | smoking | all | −0.474 | 0.030 | 0.074 | 0.43 | 0.70 | 5.8× |
+| dlpfc | nicotine | all | −0.232 | 0.134 | 0.269 | 0.60 | 0.66 | 4.0× |
+| dlpfc | marital_status | all | −2.411 | 0.106 | 0.269 | 0.58 | 0.07 | 38.5× |
+| dlpfc | smoking | all | −0.113 | 0.900 | 0.900 | 0.97 | 0.09 | 27.0× |
+| hippocampus | education | all | ᴿ +1.06e-5 | 0.242 | 0.323 | 0.242 | −0.49 | — |
+| hippocampus | marital_status | all | ᴿ −4.98e-6 | 0.695 | 0.695 | 0.695 | −0.04 | — |
+| caudate | marital_status | all | ᴿ +5.85e-6 | 0.345 | 0.542 | 0.345 | −0.41 | — |
+| caudate | any_substance_nontobacco | all | ᴿ +2.16e-6 | 0.533 | 0.542 | 0.533 | −0.27 | — |
+| caudate | education | all | ᴿ +3.18e-6 | 0.542 | 0.542 | 0.542 | −0.34 | — |
+| dlpfc | education | all | ᴿ +4.23e-6 | 0.763 | 0.900 | 0.763 | −0.58 | — |
+| caudate | smoking | schizophrenia | ᴿ +1.63e-6 | 0.862 | 0.980 | 0.862 | −0.09 | — |
+| caudate | any_trauma_hx | schizophrenia | ᴿ −1.02e-6 | 0.928 | 0.980 | 0.928 | −0.06 | — |
+| caudate | antipsychotics | schizophrenia | ᴿ +2.39e-7 | 0.979 | 0.980 | 0.979 | −0.26 | — |
+| caudate | nicotine | schizophrenia | ᴿ +2.49e-7 | 0.980 | 0.980 | 0.980 | −0.14 | — |
+
+**Three families survive FDR, all `nicotine`, and all negative.** Hippocampus in
+the case stratum (−49%, q = 1.1e-5) and pooled (−38%, q = 0.0013), and caudate
+pooled (−46%, q = 0.0085). The `cell_composition_r2` arm barely moves any of them
+— hippocampus cases −0.483 (p = 1.9e-6), hippocampus pooled −0.370 (p = 1.4e-4),
+caudate pooled −0.440 (p = 0.0040) — so the gradient is not cell composition
+restated. Three more families are marginal and resolve nothing: hippocampus
+`smoking` (q = 0.057), dlpfc `nicotine` in cases (q = 0.054) and caudate `smoking`
+(q = 0.074).
+
+**What the sensitivity columns say, and they are not decoration.** `absolute_p` is
+above 0.05 in **every** family in all three regions (`n_absolute_p_below_alpha =
+0`), and the Fieller interval is unbounded in every family
+(`n_fieller_bounded = 0`), because `mean_omega_z` never reaches 1.96 — its maximum
+anywhere is 1.60. So the *level* of exposure-explained variance is not resolved by
+these data at any locus, and **no percentage in the table above is formally
+identifiable as a percentage**; the ratio is what replicates, not the scale it is
+a ratio of. On `raw`-scale families the primary and the absolute estimand are the
+same quantity, and their p-values agree exactly, which is the check that the two
+paths compute one thing.
+
+**Four things a reader must not do with this table.**
+
+1. Do not read `−0.491` as "49% less exposure-explained variance" without the
+   caveat above. The point estimate is a ratio; its denominator is not separated
+   from zero.
+2. Do not quote a percentage from a `raw` row at all. Its family mean is at or
+   below zero, so there is no percentage to quote.
+3. Do not read `arm_attenuation` where the primary is null. It is a ratio of two
+   coefficients, so it explodes as the denominator approaches zero: in these runs
+   it is −8.6 for caudate `antipsychotics` (p = 0.98), +4.2 for caudate
+   `any_trauma_hx` (p = 0.93), +3.3 for dlpfc `smoking` (p = 0.90) and +2.2 for
+   caudate `nicotine` in cases (p = 0.98). None of those means anything. In the
+   three families that survive FDR it is 0.016-0.048, i.e. the arm changes almost
+   nothing, which is the only place the column is worth reading.
+4. Do not treat the negative sign as evidence that exposure effects concentrate
+   at weakly controlled VMRs. **Limitation for the discussion: the variance
+   budget** explains why a negative gradient is close to arithmetically expected,
+   and that limitation is permanent.
+
+## Superseded runs
+
+| run_id | sealed | superseded because |
+|---|---|---|
+| `env-AA-{region}-20260919` | 2026-09-19 | primary was `-log10 p`, which couples to the score mechanically, and inference was an OLS p-value over 9,000-11,000 correlated VMRs |
+| `env-AA-{region}-20260919-a` | 2026-09-19 | first debiased-outcome round; the `relative_scale_min_mean_z` guard it shipped with was invalid and inert |
+| `env-AA-{region}-20260919-b` | 2026-09-19 | the guard fix did not fire; reproduces `-a` exactly up to bootstrap noise |
+| `env-AA-{region}-20260920` | 2026-09-20 | `block_jackknife_cov()` recycling defect corrupted every `absolute_*`, `fieller_*` and `mean_omega_*` column; primary columns were unaffected |
+
+None of these may be cited. Their primary estimates from `-a` onward agree with
+the current runs to bootstrap noise, so nothing scientific turned on the last two
+replacements — but the tables are wrong in the columns named, and a sealed run is
+never edited.
+
 ## Planned extension, gated on Module 09
 
 Module 10's own scan is null, and the power arithmetic says it was never going
@@ -334,7 +682,15 @@ matches what stage 1 prespecified.
 | run_id | cohort | region | vmr_set_id | accepted_on | accepted_by | decision | notes |
 |---|---|---|---|---|---|---|---|
 
-None. No production run has been submitted.
+None yet. Three production runs are sealed and awaiting PI acceptance:
+`env-AA-caudate-20260920-a`, `env-AA-dlpfc-20260920-a` and
+`env-AA-hippocampus-20260920-a`, all `PASS_EXPLORATORY_COVERAGE` (see **Current
+production runs**). A completed SLURM chain and a passing coverage gate are not
+acceptance. Two things belong in the acceptance decision: that no percentage in
+the stage B table is formally identifiable, because `mean_omega_z` never reaches
+1.96; and that the donor bootstrap inflates the ratio's denominator 2.0×-38.5×,
+so the bootstrap half of its variance may be optimistic and the p-values with it.
+Neither is resolved here.
 
 ## Contract
 
