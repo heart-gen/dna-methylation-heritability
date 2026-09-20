@@ -4,7 +4,9 @@ Establishes what **reproduces** across brain regions, which regional difference
 is actually **identified**, and what the donor-group and matched-subset
 contrasts can support.
 
-**Status: implemented 2026-09-18, no run accepted.** The blocking upstreams are
+**Status: accepted (AA, 2026-09-18).** `rdg-AA-crossregion-20260918` passed the
+gate and is recorded under **Accepted runs**; criterion 10 was added the next day
+and it passes retrospectively. The blocking upstreams are
 satisfied — `04_repeat_repressive_architecture` (`rra-AA-*-20260906`) and
 `05_cpg_meqtl_burden` (`cmb-AA-*-20260825`) both record passing acceptance gates
 (AGENTS.md §6) — and the donor-group axis is unblocked by the six accepted cell
@@ -13,7 +15,8 @@ runs in each of `01b_estimation_cells`, `02_local_genetic_variance` and
 
 Tier 3 is the one axis that needed new upstream compute rather than assembly:
 `config/cohorts.yml` declares `AA.n118r{1,2,3}`, and their 01b → 02 → 03 chains
-must be sealed **and accepted** before this module will open a run.
+had to be sealed **and accepted** before this module would open a run. All nine
+are accepted (2026-09-18).
 
 ## Accepted runs
 
@@ -101,6 +104,14 @@ here. Every output carries exactly one tier:
 2. **DLPFC vs hippocampus is the only clean region-difference analysis.** Use
    the Module 04 template: primary claim on the identified contrast,
    strict-conjunction sensitivity gating, confounded cell reported separately.
+   The contrast is a two-sample z that adds the per-region variances, and the two
+   regions **share 115 of 118 donors** (Jaccard 0.96), so the estimates are
+   positively correlated and the true variance of the difference is smaller than
+   the one used. The test under-rejects, which is the safe direction for a tier
+   licensed to claim heterogeneity; a comment in `_h/02_identified_difference.R`
+   asserted independence until 2026-09-19 and was wrong. The paired donor
+   bootstrap in `09b_aging_application/_h/05_cross_region_concordance.R` is the
+   estimator that uses the covariance, and adopting it here is a scope change.
 3. **Caudate downsampled to n=118** tests Module 03's untested attribution of
    the caudate excess to donor count (153 vs 118). Read it in two directions
    only — the excess largely disappears (donor count is a plausible major
