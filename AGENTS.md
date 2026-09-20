@@ -829,6 +829,27 @@ variance does not imply it, and the converse holds here. This module is powered
 only for large effects of common exposures, and the eligibility gate is where
 that limitation is made concrete rather than asserted.
 
+**Stage B's outcome and variance, PI 2026-09-19.** The primary is the debiased
+exposure-explained sum of squares per donor, `(SS_exposure - df * sigma2_hat)/n`,
+not `-log10 p`: the per-VMR exposure model has no SNP term, so a high-control VMR
+keeps its local genetic variance in that model's residual and every SE-dependent
+outcome couples to the score mechanically, exactly as in §7.9. Inference is
+donor-bootstrap variance plus delete-one-chromosome jackknife variance
+(`00_shared/axis_inference.R`), because an OLS SE over 9,000-11,000 VMRs treats
+correlated loci estimated in one donor sample as independent. `-log10 p` is
+retained as a descriptive row carrying
+`mechanically_biased_toward_hypothesis = TRUE`.
+
+**The variance-budget limitation is permanent and belongs in the Discussion, not
+in a to-do list.** The axis contrast holds total methylation variance fixed, so a
+VMR higher on the local-genetic-control axis has, by construction, less
+non-genetic variance left for any exposure to move. A negative gradient is
+therefore close to arithmetically expected wherever a real exposure effect
+exists. The quantity that would separate the two readings -- an exposure effect
+relative to each VMR's non-genetic variance -- cannot be formed in this project,
+because its denominator is an absolute local PVE and §7.2 retired that. Debiasing
+removes the statistical half of the problem and cannot remove the arithmetic half.
+
 The acceptance gate is a **coverage** gate, not a success criterion: a null
 result is a legitimate outcome and must not block sealing.
 

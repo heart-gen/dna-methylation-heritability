@@ -174,3 +174,94 @@ combined_inference <- function(estimate, boot, se_jk, alpha = 0.05) {
          ci_lower = estimate - z * se, ci_upper = estimate + z * se,
          n_bootstrap_used = length(boot))
 }
+
+## ---------------------------------------------------------------------------
+## RATIO-AWARE RELATIVE EFFECT (PI, 2026-09-20)
+##
+## The absolute coefficient is in the outcome's own units (for Module 10, a
+## debiased sum of squares per donor, order 1e-5), which is not a quantity
+## anyone can read. The interpretable form is the fraction of the family mean,
+## R = beta / mean(y). Dividing the OUTCOME by its mean before fitting -- the
+## old `scale = "relative_to_mean"` path -- makes that ratio the estimand, and
+## then every bootstrap draw and every deleted chromosome carries a different
+## denominator. Where the mean sits near zero the coefficient explodes:
+## env-AA-dlpfc-20260919-{a,b} reported -2.41 (a -241% gradient) on a mean of
+## 4.9e-06, with a jackknife SE of 1.49.
+##
+## So estimate on the absolute scale and treat the ratio as a derived quantity
+## with its own uncertainty. Fieller's theorem inverts the test of
+## beta - R * mean = 0 over R, using the joint covariance of the two estimates,
+## and it returns no bounded interval exactly when the denominator is not itself
+## separated from zero at the same level. That replaces a hand-set stability
+## threshold with the confidence level already in use: the data decide whether a
+## percentage is estimable.
+
+## Both halves of the ratio, from one fit on one row set.
+axis_estimate_joint <- function(ax, y, drop = NULL) {
+    yy <- y[ax$ok]
+    Z <- ax$Z
+    if (!is.null(drop)) {
+        keep <- !drop[ax$ok]
+        yy <- yy[keep]; Z <- Z[keep, , drop = FALSE]
+        q <- qr(Z)
+    } else {
+        q <- ax$qr
+    }
+    c(beta = unname(qr.coef(q, yy)[ax$j]), mean = mean(yy))
+}
+
+## The jackknife of both halves together, so the COVARIANCE is carried and not
+## just the two variances. Same weighted construction as block_jackknife_se();
+## the scalar function is left alone because 09b's accepted runs call it.
+block_jackknife_cov <- function(ax, y, chrom) {
+    blocks <- sort(unique(chrom[ax$ok]))
+    if (length(blocks) < 2L) return(matrix(NA_real_, 2L, 2L))
+    full <- axis_estimate_joint(ax, y)
+    n_tot <- sum(ax$ok)
+    hj <- n_tot / vapply(blocks, function(b) sum(chrom[ax$ok] == b), numeric(1))
+    theta <- vapply(blocks, function(b) axis_estimate_joint(ax, y, drop = chrom == b),
+                    numeric(2))                      # 2 x n_blocks
+    pseudo <- outer(full, hj) - sweep(theta, 2, hj - 1, `*`)
+    centred <- pseudo - rowMeans(pseudo)
+    v <- tcrossprod(sweep(centred, 2, sqrt(hj - 1), `/`)) / length(blocks)
+    dimnames(v) <- list(c("beta", "mean"), c("beta", "mean"))
+    v
+}
+
+## Donor-bootstrap covariance plus block-jackknife covariance, the matrix form
+## of combined_inference()'s variance sum and justified by the same argument.
+combined_cov <- function(boot_mat, cov_jk) {
+    ok <- stats::complete.cases(boot_mat)
+    v <- stats::cov(boot_mat[ok, , drop = FALSE]) + cov_jk
+    dimnames(v) <- list(c("beta", "mean"), c("beta", "mean"))
+    v
+}
+
+## Fieller (1954) interval for num/den. Solving
+##   (num - R*den)^2 = z^2 * (v11 - 2R*v12 + R^2*v22)
+## gives A*R^2 + B*R + C = 0 with A = den^2 - z^2*v22. A <= 0 means the
+## denominator is not distinguishable from zero at this level, so the solution
+## set is unbounded (the complement of an interval) and no percentage is
+## reportable. `estimable` is that verdict; it is not a significance test of the
+## ratio, whose null R = 0 is identical to num = 0 and is already tested there.
+fieller_ratio_ci <- function(num, den, V, alpha = 0.05) {
+    z <- stats::qnorm(1 - alpha / 2)
+    ratio <- num / den
+    v11 <- V[1, 1]; v12 <- V[1, 2]; v22 <- V[2, 2]
+    A <- den^2 - z^2 * v22
+    Bq <- -2 * (num * den - z^2 * v12)
+    C <- num^2 - z^2 * v11
+    disc <- Bq^2 - 4 * A * C
+    bad <- function(why) list(ratio = ratio, ci_lower = NA_real_,
+                              ci_upper = NA_real_, estimable = FALSE,
+                              reason = why,
+                              den_z = den / sqrt(v22))
+    if (!all(is.finite(c(num, den, v11, v12, v22)))) return(bad("nonfinite_inputs"))
+    if (den <= 0) return(bad("family_mean_at_or_below_zero"))
+    if (A <= 0) return(bad("family_mean_not_separated_from_zero_at_this_level"))
+    if (disc < 0) return(bad("fieller_solution_set_empty"))
+    lo <- (-Bq - sqrt(disc)) / (2 * A)
+    hi <- (-Bq + sqrt(disc)) / (2 * A)
+    list(ratio = ratio, ci_lower = min(lo, hi), ci_upper = max(lo, hi),
+         estimable = TRUE, reason = NA_character_, den_z = den / sqrt(v22))
+}
