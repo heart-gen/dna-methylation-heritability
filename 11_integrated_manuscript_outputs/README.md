@@ -2,15 +2,20 @@
 
 Consumes only accepted immutable upstream runs and produces every manuscript number, table, and figure.
 
-**Status: Figures 1 and 2, Table 1, and the cohort QC panels implemented.**
-Figures 1-2 last built as `fig-all-20260826-a`; Table 1 and QC are new and have
-no accepted run yet. Figures 3-5,
-the manuscript-number registry, and the consolidated tables remain gated on
-acceptance of their upstream modules (AGENTS.md §6: "No downstream production
-run may consume an upstream result until the upstream README records a passing
-acceptance gate and immutable run ID"). Modules 03 and 05 have production runs
-but no recorded acceptance gate; Module 04 has smoke runs only, so Figure 3
-cannot be built.
+**Status: Figures 1 and 2, Table 1, the cohort QC panels and the Module 08 tier
+figure implemented; no run of this module accepted.** Figures 1-2 last built as
+`fig-all-20260826-a`, which consumed `lgv-AA-*-20260823` — **retired 2026-09-17**
+and superseded by the rescored runs — so Figure 2 needs a rebuild before it is
+cited. Table 1, the QC panels and the Module 08 figure have no accepted run yet.
+
+The upstream gating that blocked Figures 3-5 is now **cleared**: Modules 03, 04,
+05, 06, 07, 08, 09 and 09b all record passing acceptance gates and immutable run
+IDs (AGENTS.md §6). What remains is unbuilt rather than blocked — Figures 3-5,
+the manuscript-number registry, the consolidated main and supplementary tables,
+the figure source-data tables, the analysis-to-claim matrix, the exclusions and
+denominator table, the software and run manifest, and the Methods/Results
+summaries. The environmental supplement waits on acceptance of the `env-AA-*`
+runs submitted 2026-09-19.
 
 ## Implemented figures
 
