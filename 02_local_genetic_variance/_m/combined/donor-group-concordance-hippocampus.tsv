@@ -1,0 +1,2 @@
+region	n_loci_shared	n_loci_comparable	n_only_a	n_only_b	n_neither	group_a	group_b	n_donors_a	n_donors_b	median_num_snps_a	median_num_snps_b	median_p_eff_a	median_p_eff_b	spearman_score	quartile_concordance	absolute_pve_interpretation_allowed	donor_group_inference	ancestry_effect_claim_allowed	analysis_thresholds_sha256
+hippocampus	9365	9122	6	13	224	AA	EA	117	60	2059	2082.5	29.4899645488988	16.5164304047958	0.75892175214217	0.68723964042973	FALSE	concordance_only	FALSE	ee12dbdbbee18b964397213278c2aea11cb8ad63963156115768e7e236d8b12c

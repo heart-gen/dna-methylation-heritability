@@ -1,0 +1,2 @@
+region	n_loci_shared	n_loci_comparable	n_only_a	n_only_b	n_neither	group_a	group_b	n_donors_a	n_donors_b	median_num_snps_a	median_num_snps_b	median_p_eff_a	median_p_eff_b	spearman_score	quartile_concordance	absolute_pve_interpretation_allowed	donor_group_inference	ancestry_effect_claim_allowed	analysis_thresholds_sha256
+dlpfc	9374	9128	6	12	228	AA	EA	118	55	2060	2023	29.2622764853722	15.6273256119299	0.752699897472325	0.698619631901841	FALSE	concordance_only	FALSE	ee12dbdbbee18b964397213278c2aea11cb8ad63963156115768e7e236d8b12c

@@ -9,6 +9,14 @@ script in `05_cpg_meqtl_burden/_h/` from locked configuration and declared input
 - This README.
 - Small provenance files a script asserts against at runtime, where they exist
   (for example `02_local_genetic_variance/_m/calibration_frozen/`).
+- `combined/`: the cross-region summary tables, built from accepted runs. These
+  are the module's deliverable -- the decision rows, the concordance tables, and
+  the per-VMR result tables a journal would ask for as Supplementary Data -- so
+  the numbers behind a claim are readable from a clone without re-running SLURM.
+  Two things under `combined/` are not tracked: outputs of a stage whose config
+  is not PI-locked, which carry `-UNACCEPTED` in the filename and may not be
+  cited, and bulk external reference data such as the public GWAS summary
+  statistics under `09_schizophrenia_risk_application`.
 
 Everything else — `runs/`, matrices, PLINK output, figures, logs — is
 gitignored and lives on Quest.
