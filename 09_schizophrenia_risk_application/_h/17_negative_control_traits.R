@@ -61,10 +61,25 @@ sig_files <- list.files(file.path(gw_dir, "sig"), pattern = "\\.tsv$", full.name
 tags <- sub("\\.tsv$", "", basename(sig_files))
 traits <- data.table(tag = tags, sig_file = sig_files)
 traits <- merge(traits, meta, by = "tag", all.x = TRUE)
-traits[tag == "PGC3_SCZ", `:=`(category = "Psychiatric-neurologic", keep = "Yes",
-                               binary = TRUE)]
+
+## Focal GWAS supplied outside the collection (config focal_sumstats): PGC3
+## schizophrenia and the multi-ancestry releases. Their role, category and
+## ancestry come from the config, so adding one needs no code change here.
+focal <- rbindlist(lapply(cfg$focal_sumstats, function(e) data.table(
+    tag = as.character(e$tag), focal_role = as.character(e$role),
+    focal_category = as.character(e$category), ancestry = as.character(e$ancestry),
+    focal_sample_size = as.numeric(e$sample_size %||% NA_real_),
+    compare_to = as.character(e$compare_to %||% NA_character_))), fill = TRUE)
+missing_focal <- setdiff(focal$tag, traits$tag)
+if (length(missing_focal)) {
+    stop("focal_sumstats not extracted (rerun _h/17a_extract_gwas_leads.sh): ",
+         paste(missing_focal, collapse = ", "))
+}
+traits <- merge(traits, focal, by = "tag", all.x = TRUE)
+traits[!is.na(focal_role), `:=`(category = focal_category, keep = "Yes", binary = TRUE,
+                                sample_size = focal_sample_size)]
 pos_ctl <- as.character(unlist(cfg$collection$positive_control_tags))
-traits[, role := fcase(tag == "PGC3_SCZ", "scz_uniform_rule",
+traits[, role := fcase(!is.na(focal_role), focal_role,
                        tag %in% pos_ctl, "positive_control",
                        isTRUE(cfg$collection$exclude_unless_keep_yes) & !keep %in% "Yes",
                            "excluded_not_keep",
@@ -160,7 +175,8 @@ for (i in seq_len(nrow(traits))) {
         }
         res <- fit_contrast(v, linked)
         res[, `:=`(tag = tr$tag, role = tr$role, category = tr$category,
-                   sample_size = tr$sample_size, binary = tr$binary, region = re,
+                   sample_size = tr$sample_size, binary = tr$binary,
+                   ancestry = tr$ancestry, region = re,
                    locus_rule = "uniform_lead_snp", n_sig_variants = cl$n_sig,
                    n_leads = nrow(leads), n_leads_with_vmr = n_leads_with_vmr,
                    n_vmrs = nrow(v))]
@@ -176,6 +192,7 @@ for (re in regions) {
     res <- fit_contrast(v, lk)
     res[, `:=`(tag = "PGC3_SCZ_published", role = "scz_published_intervals",
                category = "Psychiatric-neurologic", sample_size = NA_real_, binary = TRUE,
+               ancestry = "EUR",
                region = re, locus_rule = "pgc3_fine_mapped_intervals_plus_flank",
                n_sig_variants = NA_integer_, n_leads = NA_integer_,
                n_leads_with_vmr = NA_integer_, n_vmrs = nrow(v))]
@@ -231,6 +248,40 @@ summ[, `:=`(cohort = opts$cohort, tier = fifelse(region %in% confounded, "descri
             post_hoc_sensitivity = TRUE, alters_module_09_decision = FALSE,
             regions_are_independent_replicates = FALSE,
             built_with_unaccepted_runs = allow_unaccepted)]
+## ------------------------------------------------- ancestry sensitivity
+## The GWAS collection is European-dominated and the methylation cohort is
+## admixed African American. No African-ancestry psychiatric GWAS yields a single
+## genome-wide significant locus (config ancestry:), so a matched test is
+## impossible and these multi-ancestry releases are the available partial check.
+## Each is placed against the null distribution and, where the config names one,
+## against its own European counterpart under the identical rule.
+anc <- rbindlist(lapply(regions, function(re) rbindlist(lapply(
+    c("A_technical", "B_technical_context"), function(m) {
+    d <- all[region == re & model == m & in_distribution == TRUE & is.finite(estimate)]
+    rbindlist(lapply(traits[role == "ancestry_sensitivity"]$tag, function(tg) {
+        s <- all[region == re & model == m & tag == tg]
+        cmp_tag <- traits[tag == tg]$compare_to[1]
+        cmp <- if (!is.na(cmp_tag)) all[region == re & model == m & tag == cmp_tag] else NULL
+        data.table(
+            region = re, model = m, tag = tg,
+            ancestry = traits[tag == tg]$ancestry[1],
+            estimate = s$estimate, se = s$se, p = s$p, n_leads = s$n_leads,
+            percentile_in_distribution = if (nrow(d)) mean(d$estimate < s$estimate) else NA_real_,
+            distribution_median = if (nrow(d)) stats::median(d$estimate) else NA_real_,
+            compared_with = cmp_tag %||% NA_character_,
+            comparator_estimate = if (!is.null(cmp) && nrow(cmp)) cmp$estimate else NA_real_,
+            comparator_n_leads = if (!is.null(cmp) && nrow(cmp)) cmp$n_leads else NA_integer_,
+            ## Positive = the multi-ancestry release gives a WEAKER depletion.
+            shift_from_comparator = if (!is.null(cmp) && nrow(cmp)) s$estimate - cmp$estimate else NA_real_)
+    }), fill = TRUE)
+}))))
+anc[, `:=`(cohort = opts$cohort,
+           tier = fifelse(region %in% confounded, "descriptive_only", "claim_eligible"),
+           ## The African-ancestry samples are a small minority of each release,
+           ## so this is a partial check and never an ancestry-matched one.
+           matched_ancestry_test = FALSE,
+           built_with_unaccepted_runs = allow_unaccepted)]
+
 by_cat <- all[in_distribution == TRUE & is.finite(estimate),
               .(n_traits = .N, median_estimate = stats::median(estimate),
                 n_negative_q_below_alpha = sum(q < alpha & estimate < 0),
@@ -241,11 +292,14 @@ sfx <- if (allow_unaccepted) paste0("-", opts$cohort, "-UNACCEPTED") else paste0
 write_atomic(all, file.path(out_dir, paste0("scz-negative-control-traits", sfx, ".tsv")))
 write_atomic(summ, file.path(out_dir, paste0("scz-negative-control-summary", sfx, ".tsv")))
 write_atomic(by_cat, file.path(out_dir, paste0("scz-negative-control-by-category", sfx, ".tsv")))
+write_atomic(anc, file.path(out_dir, paste0("scz-negative-control-ancestry", sfx, ".tsv")))
 write_atomic(rbindlist(lead_rows), file.path(out_dir, paste0("scz-negative-control-leads", sfx, ".tsv")))
 options(width = 220)
 print(summ[, .(region, model, scz_estimate, scz_p, scz_n_leads, n_traits_in_distribution,
                distribution_median, scz_percentile_in_distribution,
                n_traits_negative_q_below_alpha, scz_percentile_similar_lead_count,
                psychiatric_median, nonpsychiatric_median, scz_context_attenuation)])
+print(anc[, .(region, model, tag, n_leads, estimate, p, percentile_in_distribution,
+              compared_with, comparator_estimate, shift_from_comparator)])
 message("[17] negative-control traits written to ", out_dir,
         if (allow_unaccepted) "  (UNACCEPTED: unlocked config)" else "")
