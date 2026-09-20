@@ -1,0 +1,2 @@
+region	group_a	group_b	n_donors_a	n_donors_b	n_donors_stacked	n_loci_shared	median_r2_a	median_r2_b	spearman_r2	pooled_r2_emitted	donor_group_inference	ancestry_effect_claim_allowed	analysis_thresholds_sha256
+caudate	AA	EA	153	129	282	11242	-2.27992967716251e-06	-7.84935723507907e-06	0.675632793467056	FALSE	concordance_only	FALSE	ee12dbdbbee18b964397213278c2aea11cb8ad63963156115768e7e236d8b12c
