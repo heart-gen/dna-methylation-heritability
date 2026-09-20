@@ -198,9 +198,15 @@ unioned; the earlier `tobacco` union is retired.
 | 4 | `03_control_axis_test.R` | the local-genetic-control axis models |
 | 5 | `04_apply_gates.R` | coverage gate and interpretation flags |
 | 6 | `05_finalize_run.R` | seals the run |
+| 7 | `06_collate_regions.R` | collates the sealed runs into git-tracked tables under `_m/combined/`; **collates, never compares** |
 
     cd 10_environmental_exploratory/_m && mkdir -p logs
     ../_h/submit_environmental.sh AA caudate
+
+Stages 0-6 run once per region. Stage 7 runs once, by hand, after all three are
+sealed:
+
+    Rscript 10_environmental_exploratory/_h/06_collate_regions.R --cohort AA
 
 `SMOKE_N=1` permits unlocked keys and unaccepted upstreams; `DRY_RUN=1` prints
 the job graph and submits nothing.
@@ -238,6 +244,47 @@ models per eligible exposure:
 recorded reason when either group holds fewer than 10 VMRs. Technical covariates
 are joined from Module 04's `vmr-features.tsv` rather than recomputed, so GC
 content and mappability are identical to the values Module 04 published.
+
+## What a collaborator can read without Quest (`_m/combined/`)
+
+`_m/runs/{RUN_ID}/` is immutable, gitignored and stays on Quest: the per-VMR
+association table alone is 11 MB a region and the term matrix 20 MB. Stage 7
+(`06_collate_regions.R`) writes the small tables that a manuscript actually
+cites into `_m/combined/`, and those **are** tracked in Git, so nobody has to
+re-run the SLURM chain to write up or check a number.
+
+| file | rows | what it holds |
+|---|---|---|
+| `environmental-axis-reading-AA.tsv` | 19 | the stage B reading: one row per family with scale, `beta`, CI, `p`, `q`, the absolute sensitivity, `mean_omega_z`, the Fieller flag, the bootstrap inflation, the cell arm, and the Module 08 tier. A strict column subset of the table below — no number is derived here |
+| `environmental-axis-per-region-AA.tsv` | 19 | every stage B column the runs emit (81) plus the collation's provenance columns, 90 in all, stacked |
+| `environmental-vmr-associations-fdr-AA.tsv` | 12 | the stage A per-VMR rows that survive BH, with `vmr_id`, coordinates, `p_joint`, `fdr` and `omega`. All 12 are hippocampus (11 `nicotine`, 1 `education`); caudate and DLPFC have none |
+| `environmental-fdr-families-AA.tsv` | 19 | per family: VMRs tested, VMRs significant, `min_p`, the BH alpha and method |
+| `environmental-exposure-eligibility-AA.tsv` | 69 | every candidate exposure x stratum, its donor counts and class balance, and for the ineligible ones the reason. This is what explains why 19 families exist and not more |
+| `environmental-decision-AA.tsv` | 3 | the per-region decision row, plus whether the Module 02 score it cites is still the accepted one |
+| `environmental-gate-checks-AA.tsv` | 15 | each coverage check, observed against required |
+| `environmental-collation-provenance-AA.tsv` | 3 | run ID, `sealed_at`, donor checksum, `vmr_set_id`, every upstream run ID, the run's git commit and the config SHA-256; plus the collation's own commit and the standing interpretation limits as text |
+
+Three properties of these tables are worth stating because they are easy to
+assume away:
+
+- **No cross-region contrast.** `config/environmental.yml` sets
+  `cross_region_comparison_allowed: false`, because caudate is sequencing batch 3
+  and region is perfectly confounded with batch (AGENTS.md §8.1). Stage 7
+  therefore stacks per-region rows and emits no pooled p, no region-general
+  token and no between-region difference. Every row carries
+  `cross_region_contrast_emitted = FALSE` and
+  `regions_are_independent_replicates = FALSE`. The `tier` column marks caudate
+  `descriptive_only` and the other two `claim_eligible`, as Module 08 requires.
+- **FDR is not recomputed.** Every `q` is the one the sealed run wrote, from BH
+  within that region's own family set. `fdr_recomputed_across_regions = FALSE`
+  records it.
+- **`citable` is a column, not a filename.** Module 09's stages 17/18 stamp
+  `-UNACCEPTED` on their outputs because their *config* is unlocked;
+  `environmental.yml` is locked, so that marker does not apply. What is missing
+  is the PI's acceptance row. Until it exists, stage 7 refuses to run without
+  `--allow-unaccepted-runs` and every table it writes carries `citable = FALSE`
+  and `built_with_unaccepted_runs = TRUE`. Accepting the runs and re-running the
+  stage overwrites the same paths, so the diff is exactly the acceptance flip.
 
 ## Interpretation constraints
 
