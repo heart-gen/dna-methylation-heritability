@@ -71,7 +71,20 @@ def sh(*args):
 
 
 def accepted_ids(module):
-    """Run IDs in a module README's `## Accepted runs` table."""
+    """Run IDs in a module README's `## Accepted runs` table.
+
+    This reads every table row until the next `##` heading, so a section
+    holding a SECOND table collects that table's first column too -- Module 03
+    has one keyed by `cell`, which yields tokens like `all_individuals.EA`.
+    That is deliberate and must stay. The only use of this set is protection,
+    so over-collecting can at worst spare a directory, while under-collecting
+    deletes one; a token matching no run directory costs nothing.
+
+    Do not "tighten" this to the first table to match
+    `gates.R::read_accepted_runs()`, which is column-validated and correctly
+    returns only real rows. The two have opposite failure costs: the gate must
+    not admit a bogus acceptance, this must not miss a real one.
+    """
     path = os.path.join(REPO, module, "README.md")
     if not os.path.exists(path):
         return set()
@@ -124,12 +137,8 @@ def dir_bytes(path):
         return 0
 
 
-def main():
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--write", action="store_true",
-                    help="write DEPRECATED_RUNS.tsv (otherwise summarise only)")
-    args = ap.parse_args()
-
+def discover_modules():
+    """{module: [run_id, ...]} for every module with an `_m/runs/` tree."""
     modules = {}
     for entry in sorted(os.listdir(REPO)):
         runs_dir = os.path.join(REPO, entry, "_m", "runs")
@@ -138,12 +147,23 @@ def main():
         modules[entry] = sorted(
             d for d in os.listdir(runs_dir)
             if os.path.isdir(os.path.join(runs_dir, d)) and d not in NOT_A_RUN)
+    return modules
 
+
+def compute_protected(modules):
+    """The five protection clauses. Returns (protected_ids, figure_run).
+
+    This is the single source of truth for what may not be deleted, and it is
+    deliberately cheap -- no `du`, only reads -- so the cleanup stage can
+    recompute it immediately before removing anything rather than trusting a
+    DEPRECATED_RUNS.tsv that may have been written weeks earlier. A run that
+    became load-bearing after the ledger was generated is invisible to the
+    ledger and must not be invisible here.
+    """
     accepted = {m: accepted_ids(m) for m in modules}
-    all_accepted = set().union(*accepted.values()) if accepted else set()
+    protected = set().union(*accepted.values()) if accepted else set()
 
     # Clauses 3-5.
-    protected = set(all_accepted)
     for m, ids in accepted.items():
         for rid in ids:
             protected |= manifest_refs(
@@ -159,6 +179,17 @@ def main():
         protected.add(fig)
         protected |= manifest_refs(os.path.join(
             REPO, "11_integrated_manuscript_outputs", "_m", "runs", fig, "manifest.tsv"))
+    return protected, fig
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--write", action="store_true",
+                    help="write DEPRECATED_RUNS.tsv (otherwise summarise only)")
+    args = ap.parse_args()
+
+    modules = discover_modules()
+    protected, fig = compute_protected(modules)
 
     def hint(module, rid):
         """Longest-prefix protected run in the same module."""
