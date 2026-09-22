@@ -191,5 +191,15 @@ settings.local.json
 # `forbidden_columns` in every v2 config, so no v2 model, table or figure may
 # read them. Untracked 2026-09-20 under AGENTS.md 3; kept on Quest for audit and
 # recoverable from history before that commit. Not deposited.
+#
+# WARNING, observed 2026-09-22: untracking them with `git rm --cached` means
+# that pulling that commit DELETES any existing working-tree copy -- git treats
+# tracked -> untracked as a deletion and removes the file. It happened on this
+# clone the moment the branch merged to main. The content is safe (the 66 MB
+# table is an LFS object, and the other is plain text in history before
+# fc2275d5b), but "kept on Quest" is only true for a clone that already had
+# them and never pulled. Restore with:
+#   git show fc2275d5b^:<path> > <path>                       # observed-run-qc
+#   cp .git/lfs/objects/f9/82/f982746e... <path>              # calibrated-local-h2
 02_local_genetic_variance/_m/combined/calibrated-local-h2-all-cells.tsv
 02_local_genetic_variance/_m/combined/observed-run-qc-all-cells.tsv
