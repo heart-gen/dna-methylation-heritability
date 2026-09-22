@@ -1,0 +1,61 @@
+region	model	category	n_traits	median_estimate	n_negative_q_below_alpha	n_positive_q_below_alpha
+caudate	A_technical	Skeletal system disease	1	-0.554979857783224	1	0
+caudate	A_technical	Allergy	3	-0.294907277856295	2	0
+caudate	A_technical	Anthropometric	7	-0.168802131349245	5	0
+caudate	A_technical	Psychiatric-neurologic	9	-0.135295424424266	4	0
+caudate	A_technical	Cardiometabolic	14	-0.0856395772821308	5	0
+caudate	A_technical	Blood	14	-0.0842427972438058	7	0
+caudate	A_technical	Immune	9	-0.0485321043810262	1	0
+caudate	A_technical	Cancer	2	-0.0173880931788324	0	0
+caudate	A_technical	Hair morphology	3	0.0337435562930637	0	0
+caudate	A_technical	Endocrine system	1	0.0371882735004111	0	0
+caudate	B_technical_context	Skeletal system disease	1	-0.539037680215504	1	0
+caudate	B_technical_context	Allergy	3	-0.261024733752928	1	0
+caudate	B_technical_context	Anthropometric	7	-0.168438083296987	5	0
+caudate	B_technical_context	Psychiatric-neurologic	9	-0.12977422639834	4	0
+caudate	B_technical_context	Cardiometabolic	14	-0.0900775737600932	5	0
+caudate	B_technical_context	Blood	14	-0.0798765756134458	8	0
+caudate	B_technical_context	Immune	9	-0.0425107684986252	1	0
+caudate	B_technical_context	Cancer	2	-0.0319280954596741	0	0
+caudate	B_technical_context	Hair morphology	3	0.0162240274498536	0	0
+caudate	B_technical_context	Endocrine system	1	0.0556091267950579	0	0
+dlpfc	A_technical	Skeletal system disease	1	-0.196640112186609	0	0
+dlpfc	A_technical	Anthropometric	7	-0.111039360524047	5	0
+dlpfc	A_technical	Cancer	2	-0.0677178060069179	0	0
+dlpfc	A_technical	Blood	14	-0.0616155902024206	3	0
+dlpfc	A_technical	Cardiometabolic	14	-0.0536674479059504	0	0
+dlpfc	A_technical	Allergy	3	-0.047766928067601	0	0
+dlpfc	A_technical	Psychiatric-neurologic	9	-0.0461349735963265	2	1
+dlpfc	A_technical	Hair morphology	3	-0.021817126755464	0	0
+dlpfc	A_technical	Endocrine system	1	0.000540403669275911	0	0
+dlpfc	A_technical	Immune	9	0.0110706116311535	1	0
+dlpfc	B_technical_context	Skeletal system disease	1	-0.211360078105556	0	0
+dlpfc	B_technical_context	Anthropometric	7	-0.102352987445936	4	0
+dlpfc	B_technical_context	Cancer	2	-0.077344173373615	0	0
+dlpfc	B_technical_context	Psychiatric-neurologic	9	-0.0604248266543371	2	1
+dlpfc	B_technical_context	Blood	14	-0.0573228281637995	3	0
+dlpfc	B_technical_context	Cardiometabolic	14	-0.0414289254030512	0	0
+dlpfc	B_technical_context	Hair morphology	3	-0.0297227062238245	0	0
+dlpfc	B_technical_context	Allergy	3	0.0041803126365121	0	0
+dlpfc	B_technical_context	Endocrine system	1	0.00819237105701895	0	0
+dlpfc	B_technical_context	Immune	9	0.0288017096691188	0	0
+hippocampus	A_technical	Skeletal system disease	1	-0.290348439728298	0	0
+hippocampus	A_technical	Psychiatric-neurologic	9	-0.146751078567991	2	0
+hippocampus	A_technical	Anthropometric	7	-0.126779600272885	6	0
+hippocampus	A_technical	Hair morphology	3	-0.098712685050859	0	0
+hippocampus	A_technical	Cardiometabolic	14	-0.0508734154759698	3	0
+hippocampus	A_technical	Cancer	2	-0.0386746039766263	0	0
+hippocampus	A_technical	Blood	14	-0.0350062652996203	1	0
+hippocampus	A_technical	Endocrine system	1	0.0194920267528892	0	0
+hippocampus	A_technical	Allergy	3	0.0261455216501421	0	0
+hippocampus	A_technical	Immune	9	0.0488562102401658	0	0
+hippocampus	B_technical_context	Skeletal system disease	1	-0.289637274124266	0	0
+hippocampus	B_technical_context	Psychiatric-neurologic	9	-0.145573055389519	2	0
+hippocampus	B_technical_context	Anthropometric	7	-0.127292407275202	6	0
+hippocampus	B_technical_context	Hair morphology	3	-0.11805463610035	0	0
+hippocampus	B_technical_context	Cardiometabolic	14	-0.0375037687813861	2	0
+hippocampus	B_technical_context	Cancer	2	-0.0352587646100991	0	0
+hippocampus	B_technical_context	Blood	14	-0.0178291493712417	1	0
+hippocampus	B_technical_context	Endocrine system	1	0.0342418646585547	0	0
+hippocampus	B_technical_context	Immune	9	0.0680973302165455	0	0
+hippocampus	B_technical_context	Allergy	3	0.0828870315986979	0	0

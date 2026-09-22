@@ -303,8 +303,7 @@ pD <- ggplot(dg, aes(y = region_lab)) +
 right <- (pB / pC / pD) + plot_layout(heights = c(1, 0.9, 1))
 figure <- (pA | right) +
     plot_layout(widths = c(0.78, 1)) +
-    plot_annotation(tag_levels = "A") &
-    theme(plot.tag = element_text(face = "bold", size = 11))
+    fig_tags() & TAG_THEME
 
 save_figure(figure, FIG, width = FIG_WIDTH_FULL, height = 7.4, fig_dir = fig_dir)
 
@@ -345,27 +344,32 @@ save_figure(pS, FIG_S, width = FIG_WIDTH_FULL, height = 3.4, fig_dir = fig_dir)
 
 ## ------------------------------------------------------------ source data
 src <- list(
-    A = list(cells[, .(family, label, region, estimate, se, z, p, q, state,
+    a = list(cells[, .(family, label, region, estimate, se, z, p, q, state,
                        fdr_mark, replicated_strict, is_negative_control, test_id)],
              "cross-region-tests.tsv + cross-region-replication.tsv",
              "analysis_set == primary & (in_claim_family | is_negative_control)"),
-    B = list(qq[, .(test_id, analysis, outcome, predictor, delta, delta_se,
+    b = list(qq[, .(test_id, analysis, outcome, predictor, delta, delta_se,
                     delta_p, delta_q, difference_claimed, expected, observed)],
              "identified-difference.tsv", "testable == TRUE"),
-    C = list(ds_pts[, .(arm, region, replicate, mean_r2)],
+    c = list(ds_pts[, .(arm, region, replicate, mean_r2)],
              "caudate-downsampling-summary.tsv + caudate-downsampling-replicates.tsv",
              "all rows; DLPFC reference on DLPFC loci (no cross-region locus intersection)"),
-    D = list(dg[, .(region, cell_a, cell_b, n_donors_a, n_donors_b,
+    d = list(dg[, .(region, cell_a, cell_b, n_donors_a, n_donors_b,
                     n_loci_comparable, spearman_score, reliability_ceiling,
                     fraction_of_ceiling, donor_group_inference)],
              "donor-group-concordance.tsv", "all rows"))
+## `_panel_<rendered tag>`: the manuscript number registry in
+## 10_manuscript_tables.R splits on that marker to map a source table to the
+## panel it documents. Without it this figure's tables registered as four
+## separate figures and the figure itself registered as having no citable
+## numbers at all.
 for (nm in names(src)) {
-    write_source_data(src[[nm]][[1]], paste0(FIG, "_", nm), RDG,
+    write_source_data(src[[nm]][[1]], paste0(FIG, "_panel_", nm), RDG,
                       src[[nm]][[2]], SCRIPT, src[[nm]][[3]], data_dir)
 }
 write_source_data(sens[, .(analysis_set, label, region, estimate, se, z, p, q,
                            state, fdr_mark, is_negative_control, test_id)],
-                  FIG_S, RDG, "cross-region-tests.tsv + cross-region-replication.tsv",
+                  paste0(FIG_S, "_panel_a"), RDG, "cross-region-tests.tsv + cross-region-replication.tsv",
                   SCRIPT,
                   "analysis == repeat_architecture & (in_claim_family | is_negative_control)",
                   data_dir)

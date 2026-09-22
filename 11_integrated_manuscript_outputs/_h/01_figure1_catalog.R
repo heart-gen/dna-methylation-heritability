@@ -4,14 +4,19 @@
 ## coverage outside array-accessible CpGs. AGENTS.md 7.9 makes this module the
 ## only place manuscript figures may be assembled.
 ##
-## Panels
-##   A  donors and CpGs assayed per region
-##   B  VMRs per chromosome, three regions
-##   C  VMR width and CpGs per VMR
-##   D  WGBS coverage outside array-accessible CpGs   <- the 2.2 contribution
-##   E  genomic compartment the VMRs occupy (descriptive, not enrichment)
-##   F  distance to the nearest gene
-##   G  catalog turnover against the invalid legacy calls (the V1 repair)
+## Panels, in the order patchwork renders them -- the tag a figure SHOWS is
+## the only panel name this script may use, including in source_data/.
+##   a  donors and CpGs assayed per region
+##   b  VMRs per chromosome, three regions
+##   c  VMR width and CpGs per VMR
+##   d  WGBS coverage outside array-accessible CpGs   <- the 2.2 contribution
+##   e  genomic compartment the VMRs occupy (descriptive, not enrichment)
+##   f  distance to the nearest gene
+##
+## Catalog turnover against the invalid legacy calls is a repair audit against
+## a catalog AGENTS.md 8 calls invalid, so it ships as its own supplementary
+## figure rather than as a seventh panel here. Dropping it is also what brings
+## the main figure under one journal page.
 ##
 ## Usage:
 ##   Rscript 01_figure1_catalog.R --cohort AA --run-id fig-all-20260826
@@ -33,14 +38,36 @@ platform <- if (is.null(opts$platform)) "450K" else toupper(opts$platform)
 regions <- load_config("cohorts")$regions
 
 module_root <- file.path(V2_ROOT, "11_integrated_manuscript_outputs")
-run_dir  <- file.path(module_root, "_m", "runs", opts$run_id)
+## --out-dir renders a review draft outside the immutable run tree, so a panel
+## can be iterated on without minting and sealing a run. Same flag as
+## 06_figure_region_donor_generalization.R.
+run_dir  <- if (!is.null(opts$out_dir)) opts$out_dir else
+    file.path(module_root, "_m", "runs", opts$run_id)
 fig_dir  <- file.path(run_dir, "figures")
 data_dir <- file.path(run_dir, "source_data")
 
-## The catalog run holds the VMR calls; the qc rerun holds array coverage,
-## which the sealed catalog runs predate.
-CATALOG_RUN <- function(r) paste0("vmrcat-", cohort, "-", r, "-20260816")
-QC_RUN      <- function(r) paste0("vmrcatqc-", cohort, "-", r, "-20260826-a")
+## The catalog run holds the VMR calls; the qc refresh holds array coverage and
+## genomic context, which the sealed catalog runs predate.
+##
+## The catalog run is resolved through the acceptance gate (AGENTS.md 6), not
+## from a run-ID string template. A template is how Figure 2 came to cite a
+## Module 02 run that had been retired months earlier: nothing fails when the
+## README of record moves on, the figure just silently keeps building on a
+## superseded run. The QC refresh has no acceptance row of its own -- it
+## re-runs QC over an already accepted catalog -- so it is named, once, in
+## 00_figure_theme.R.
+CATALOG_RUN <- local({
+    cache <- new.env(parent = emptyenv())
+    function(r) {
+        if (is.null(cache[[r]])) {
+            cache[[r]] <- require_accepted_upstream("01_vmr_catalog",
+                                                    cohort = cohort,
+                                                    region = r)$run_id
+        }
+        cache[[r]]
+    }
+})
+QC_RUN <- function(r) QC_REFRESH_RUN(cohort, r)
 
 cat_dir <- function(r) file.path(V2_ROOT, "01_vmr_catalog", "_m", "runs", CATALOG_RUN(r))
 qc_dir  <- function(r) file.path(V2_ROOT, "01_vmr_catalog", "_m", "runs", QC_RUN(r))
@@ -106,7 +133,10 @@ pB <- ggplot(cutoffs[!is.na(chr)], aes(chr, n_vmrs, colour = region, group = reg
     scale_y_continuous(expand = expansion(mult = c(0.04, 0.10))) +
     labs(x = "Chromosome", y = "VMRs called") +
     BASE_THEME + NO_TITLES +
-    theme(legend.position = c(0.86, 0.82),
+    ## ggplot2 3.5 split the inside-legend position out of `legend.position`;
+    ## the bare c(x, y) form is soft-deprecated in 4.0 (this env runs 4.0.1).
+    theme(legend.position = "inside",
+          legend.position.inside = c(0.86, 0.82),
           legend.background = element_blank(),
           legend.key.height = grid::unit(0.34, "cm"))
 
@@ -157,11 +187,12 @@ pD <- ggplot(cov_long, aes(region, frac, fill = region)) +
     BASE_THEME + NO_TITLES +
     theme(axis.text.x = element_text(angle = 35, hjust = 1))
 
-## ---------------------------------------------------- E. catalog turnover
+## -------------------------------- supplement: catalog turnover (audit only)
 ##
 ## The legacy catalog is a comparison baseline only (AGENTS.md 8); it is
 ## invalid for scientific use because of the V1 donor-row misalignment. This
-## panel shows how much the repair moved, not that either set is correct.
+## shows how much the repair moved, not that either set is correct -- which is
+## why it is a supplementary figure and not a main panel.
 turn <- turnover[, .(region,
                      Retained = n_v2_overlapping_legacy,
                      `Novel in v2` = n_v2_novel,
@@ -171,7 +202,7 @@ turn_long <- melt(turn, id.vars = "region", variable.name = "class",
 turn_long[, class := factor(class, levels = c("Retained", "Novel in v2",
                                               "Lost from legacy"))]
 
-pE <- ggplot(turn_long, aes(region, n, fill = class)) +
+pTurn <- ggplot(turn_long, aes(region, n, fill = class)) +
     geom_col(width = 0.8, position = position_dodge(width = 0.8)) +
     scale_fill_manual(values = c(Retained = PAL_CHARCOAL,
                                  `Novel in v2` = PAL_RUST,
@@ -218,42 +249,75 @@ pG <- ggplot(gdist[distance_to_nearest_gene > 0],
     BASE_THEME + NO_TITLES
 
 ## ------------------------------------------------------------------ assemble
+##
+## Four rows, <= FIG_HEIGHT_MAX. save_figure() enforces the ceiling; it is not
+## left to a visual check.
 row3 <- pC + pD + plot_layout(widths = c(1, 0.85))
 row4 <- pF + pG + plot_layout(widths = c(1, 1))
-figure <- (pA / pB / row3 / row4 / pE) +
-    plot_layout(heights = c(1.0, 1.05, 1.15, 1.05, 0.9)) +
-    plot_annotation(tag_levels = "A",
-                    theme = theme(plot.margin = margin(2, 2, 2, 2))) &
-    theme(plot.tag = element_text(face = "bold", size = 11))
+figure <- (pA / pB / row3 / row4) +
+    plot_layout(heights = c(1.0, 1.05, 1.15, 1.05)) +
+    fig_tags(theme = theme(plot.margin = margin(2, 2, 2, 2))) &
+    TAG_THEME
 
 suffix <- if (platform == "450K") "" else paste0("_", tolower(platform))
 arm <- if (cohort == "AA") "" else paste0("_", cohort)
-save_figure(figure, paste0("figure1_vmr_catalog", arm, suffix),
-            width = FIG_WIDTH_FULL, height = 11.4, fig_dir = fig_dir)
+STEM <- paste0("figure1_vmr_catalog", arm, suffix)
+save_figure(figure, STEM, width = FIG_WIDTH_FULL, height = 9.2, fig_dir = fig_dir)
+
+## The turnover audit, as its own supplementary figure.
+##
+## Written on the 450K pass only. Turnover compares v2 VMR calls against the
+## legacy ones and has nothing to do with which array is the comparator, so the
+## EPIC pass was writing a byte-identical second copy under a different name --
+## four turnover figures where there are two results.
+TURN_STEM <- paste0("figureS_catalog_turnover", arm)
+if (platform == "450K") {
+    save_figure(pTurn + fig_tags() & TAG_THEME, TURN_STEM,
+                width = FIG_WIDTH_THREEQ, height = 3.2, fig_dir = fig_dir)
+}
 
 ## ---------------------------------------------------------- source data
-sd <- function(dt, nm, tbl, filt) {
-    write_source_data(dt, paste0("figure1_vmr_catalog", arm, suffix, "_", nm),
+##
+## Panel names follow the RENDERED tag, read off the assembly order above, not
+## the R variable holding the plot. The previous version named gctx "panelF"
+## and gdist "panelG" while patchwork tagged them e and f, so every panel's
+## source data documented the wrong panel.
+PANELS <- c(a = "pA", b = "pB", c = "pC", d = "pD", e = "pF", f = "pG")
+tag_for <- function(var) {
+    hit <- names(PANELS)[PANELS == var]
+    if (length(hit) != 1) stop("No rendered tag for plot object ", var)
+    hit
+}
+
+sd <- function(dt, var, tbl, filt) {
+    write_source_data(dt, paste0(STEM, "_panel_", tag_for(var)),
                       runs_used, tbl, SCRIPT, filt, data_dir)
 }
-sd(design_long, "panelA", "qc/technical_qc.tsv + vmr/vmr_catalog.tsv",
+sd(design_long, "pA", "qc/technical_qc.tsv + vmr/vmr_catalog.tsv",
    "is_primary_chrom == TRUE (autosomes; sex chromosomes excluded per V4)")
 sd(cutoffs[!is.na(chr), .(region, chr, n_vmrs, sd_cutoff, n_cpgs_tested)],
-   "panelB", "vmr/sd_cutoffs.tsv", "autosomes only")
+   "pB", "vmr/sd_cutoffs.tsv", "autosomes only")
 sd(shape[, .(n = .N, median = median(value), q25 = quantile(value, .25),
              q75 = quantile(value, .75)), by = .(region, metric)],
-   "panelC", "vmr/vmr_catalog.tsv", "all called VMRs; summary of plotted density")
-sd(cov_long, "panelD", "qc/array_coverage.tsv",
+   "pC", "vmr/vmr_catalog.tsv", "all called VMRs; summary of plotted density")
+sd(cov_long, "pD", "qc/array_coverage.tsv",
    paste0("array_platform == '", platform, "'"))
-sd(gctx, "panelF", "qc/genomic_context.tsv",
+sd(gctx, "pF", "qc/genomic_context.tsv",
    "all called VMRs; compartments assigned by priority, so they partition the catalog")
 sd(gdist[, .(n = .N, frac_within_gene = mean(distance_to_nearest_gene == 0),
              median_nonzero = as.numeric(median(distance_to_nearest_gene[distance_to_nearest_gene > 0]))),
          by = region],
-   "panelG", "qc/distance_to_nearest_gene.tsv",
+   "pG", "qc/distance_to_nearest_gene.tsv",
    "all called VMRs; density plotted for distance > 0 only (log axis)")
-sd(turn_long, "panelE", "qc/vmr_turnover.tsv",
-   "autosomes; legacy is a comparison baseline only (AGENTS.md 8)")
+
+## The turnover audit ships as its own figure, so its source data is named for
+## that figure rather than for Figure 1.
+if (platform == "450K") {
+    write_source_data(turn_long, paste0(TURN_STEM, "_panel_a"), runs_used,
+                      "qc/vmr_turnover.tsv", SCRIPT,
+                      "autosomes; legacy is a comparison baseline only (AGENTS.md 8)",
+                      data_dir)
+}
 
 message("[done] Figure 1 written to ", fig_dir)
 

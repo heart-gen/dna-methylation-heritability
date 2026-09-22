@@ -198,9 +198,15 @@ unioned; the earlier `tobacco` union is retired.
 | 4 | `03_control_axis_test.R` | the local-genetic-control axis models |
 | 5 | `04_apply_gates.R` | coverage gate and interpretation flags |
 | 6 | `05_finalize_run.R` | seals the run |
+| 7 | `06_collate_regions.R` | collates the sealed runs into git-tracked tables under `_m/combined/`; **collates, never compares** |
 
     cd 10_environmental_exploratory/_m && mkdir -p logs
     ../_h/submit_environmental.sh AA caudate
+
+Stages 0-6 run once per region. Stage 7 runs once, by hand, after all three are
+sealed:
+
+    Rscript 10_environmental_exploratory/_h/06_collate_regions.R --cohort AA
 
 `SMOKE_N=1` permits unlocked keys and unaccepted upstreams; `DRY_RUN=1` prints
 the job graph and submits nothing.
@@ -238,6 +244,47 @@ models per eligible exposure:
 recorded reason when either group holds fewer than 10 VMRs. Technical covariates
 are joined from Module 04's `vmr-features.tsv` rather than recomputed, so GC
 content and mappability are identical to the values Module 04 published.
+
+## What a collaborator can read without Quest (`_m/combined/`)
+
+`_m/runs/{RUN_ID}/` is immutable, gitignored and stays on Quest: the per-VMR
+association table alone is 11 MB a region and the term matrix 20 MB. Stage 7
+(`06_collate_regions.R`) writes the small tables that a manuscript actually
+cites into `_m/combined/`, and those **are** tracked in Git, so nobody has to
+re-run the SLURM chain to write up or check a number.
+
+| file | rows | what it holds |
+|---|---|---|
+| `environmental-axis-reading-AA.tsv` | 19 | the stage B reading: one row per family with scale, `beta`, CI, `p`, `q`, the absolute sensitivity, `mean_omega_z`, the Fieller flag, the bootstrap inflation, the cell arm, and the Module 08 tier. A strict column subset of the table below — no number is derived here |
+| `environmental-axis-per-region-AA.tsv` | 19 | every stage B column the runs emit (81) plus the collation's provenance columns, 90 in all, stacked |
+| `environmental-vmr-associations-fdr-AA.tsv` | 12 | the stage A per-VMR rows that survive BH, with `vmr_id`, coordinates, `p_joint`, `fdr` and `omega`. All 12 are hippocampus (11 `nicotine`, 1 `education`); caudate and DLPFC have none |
+| `environmental-fdr-families-AA.tsv` | 19 | per family: VMRs tested, VMRs significant, `min_p`, the BH alpha and method |
+| `environmental-exposure-eligibility-AA.tsv` | 69 | every candidate exposure x stratum, its donor counts and class balance, and for the ineligible ones the reason. This is what explains why 19 families exist and not more |
+| `environmental-decision-AA.tsv` | 3 | the per-region decision row, plus whether the Module 02 score it cites is still the accepted one |
+| `environmental-gate-checks-AA.tsv` | 15 | each coverage check, observed against required |
+| `environmental-collation-provenance-AA.tsv` | 3 | run ID, `sealed_at`, donor checksum, `vmr_set_id`, every upstream run ID, the run's git commit and the config SHA-256; plus the collation's own commit and the standing interpretation limits as text |
+
+Three properties of these tables are worth stating because they are easy to
+assume away:
+
+- **No cross-region contrast.** `config/environmental.yml` sets
+  `cross_region_comparison_allowed: false`, because caudate is sequencing batch 3
+  and region is perfectly confounded with batch (AGENTS.md §8.1). Stage 7
+  therefore stacks per-region rows and emits no pooled p, no region-general
+  token and no between-region difference. Every row carries
+  `cross_region_contrast_emitted = FALSE` and
+  `regions_are_independent_replicates = FALSE`. The `tier` column marks caudate
+  `descriptive_only` and the other two `claim_eligible`, as Module 08 requires.
+- **FDR is not recomputed.** Every `q` is the one the sealed run wrote, from BH
+  within that region's own family set. `fdr_recomputed_across_regions = FALSE`
+  records it.
+- **`citable` is a column, not a filename.** Module 09's stages 17/18 stamp
+  `-UNACCEPTED` on their outputs because their *config* is unlocked;
+  `environmental.yml` is locked, so that marker does not apply. What is missing
+  is the PI's acceptance row. Until it exists, stage 7 refuses to run without
+  `--allow-unaccepted-runs` and every table it writes carries `citable = FALSE`
+  and `built_with_unaccepted_runs = TRUE`. Accepting the runs and re-running the
+  stage overwrites the same paths, so the diff is exactly the acceptance flip.
 
 ## Interpretation constraints
 
@@ -681,16 +728,39 @@ matches what stage 1 prespecified.
 
 | run_id | cohort | region | vmr_set_id | accepted_on | accepted_by | decision | notes |
 |---|---|---|---|---|---|---|---|
+| env-AA-caudate-20260920-a | AA | caudate | vmrset-AA-caudate-937a41979978 | 2026-09-20 | Kynon J.M. Benjamin | PASS_EXPLORATORY_COVERAGE | n=153; 11,251 VMRs; 5/5 coverage criteria; 22/22 chromosomes, 0 excluded/QC-failed/failed/unaccounted. Stage A: 0 FDR-significant VMR x exposure pairs. Stage B: 1 of 9 families survives FDR -- nicotine@all, beta -0.462, q 0.0085, cell_composition_r2 arm -0.440 (p 0.0040). **No percentage here is formally identifiable**: mean_omega_z max 0.78, absolute_p > 0.05 in all 9 families, Fieller unbounded in all 9. **Donor bootstrap inflates the ratio denominator 5.0x-5.8x**, so the bootstrap half of the variance is likely optimistic and these p-values may be too small. Exploratory supplement only (`main_text_retention = NEVER_SUPPLEMENT_ONLY`); the variance-budget limitation (AGENTS.md 7.10) is permanent and a negative gradient may never be read as exposure effects concentrating at weakly controlled VMRs. Caudate is batch-confounded (AGENTS.md 8.1). |
+| env-AA-dlpfc-20260920-a | AA | dlpfc | vmrset-AA-dlpfc-856067dfe289 | 2026-09-20 | Kynon J.M. Benjamin | PASS_EXPLORATORY_COVERAGE | n=118; 9,251 VMRs; 5/5 coverage criteria; 22/22 chromosomes, 0 excluded/QC-failed/failed/unaccounted. Stage A: 0 FDR-significant pairs. Stage B: 0 of 5 families survives FDR; nearest is nicotine@schizophrenia (q 0.054). **No percentage is formally identifiable**: mean_omega_z max 0.76, absolute_p > 0.05 in all 5, Fieller unbounded in all 5. **Bootstrap denominator inflation 3.2x-38.5x**, the largest in the module (marital_status@all, the family the retired `relative_scale_min_mean_z` guard was written for, which now simply reports null). Exploratory supplement only; variance-budget limitation applies. |
+| env-AA-hippocampus-20260920-a | AA | hippocampus | vmrset-AA-hippocampus-2d907b892215 | 2026-09-20 | Kynon J.M. Benjamin | PASS_EXPLORATORY_COVERAGE | n=117; 9,166 VMRs; 5/5 coverage criteria; 22/22 chromosomes, 0 excluded/QC-failed/failed/unaccounted. Stage A: 12 FDR-significant VMR x exposure pairs (11 nicotine, 1 education) out of ~9,200 tests in 5 families, in the region with the smallest exposed case count -- a supplemental observation, not a finding. Stage B: 2 of 5 families survive FDR -- nicotine@schizophrenia beta -0.491 q 1.1e-5 (arm -0.483, p 1.9e-6) and nicotine@all beta -0.376 q 0.0013 (arm -0.370, p 1.4e-4). **No percentage is formally identifiable**: mean_omega_z max 1.60, never reaching 1.96; absolute_p > 0.05 in all 5; Fieller unbounded in all 5. **Bootstrap denominator inflation 2.0x-4.1x.** Exploratory supplement only; variance-budget limitation applies. |
 
-None yet. Three production runs are sealed and awaiting PI acceptance:
-`env-AA-caudate-20260920-a`, `env-AA-dlpfc-20260920-a` and
-`env-AA-hippocampus-20260920-a`, all `PASS_EXPLORATORY_COVERAGE` (see **Current
-production runs**). A completed SLURM chain and a passing coverage gate are not
-acceptance. Two things belong in the acceptance decision: that no percentage in
-the stage B table is formally identifiable, because `mean_omega_z` never reaches
-1.96; and that the donor bootstrap inflates the ratio's denominator 2.0×-38.5×,
-so the bootstrap half of its variance may be optimistic and the p-values with it.
-Neither is resolved here.
+Accepted by the PI on 2026-09-20. The gate is a **coverage** gate, so what the
+acceptance records is that these runs had the coverage to have said something --
+not that they found one. Two caveats are written into every row because they
+qualify every number in the stage B table and neither is resolved:
+
+1. **No percentage is formally identifiable.** `mean_omega_z` never reaches 1.96
+   (maximum 1.60, in hippocampus), so `absolute_p > 0.05` and the Fieller
+   interval is unbounded in **every** family in all three regions. The ratio is
+   what replicates; the level it is a ratio of is not resolved by these data.
+   Never write "49% less exposure-explained variance" without this.
+2. **The donor bootstrap inflates the ratio's denominator 2.0×-38.5×.**
+   Resampling donors with replacement duplicates donors, which inflates an
+   exposure-explained sum of squares, so the bootstrap half of the variance is
+   likely optimistic and these p-values may be too small. Settling it needs a
+   null plus positive-control simulation that has not been run. The same
+   bootstrap construction is in `09b_aging_application`'s accepted runs.
+
+The **variance-budget limitation** (see "Limitation for the discussion") is
+permanent and is a Discussion item, not a task: at fixed total variance a higher
+genetic share leaves less non-genetic variance for any exposure to move, so a
+negative gradient is close to arithmetically forced wherever a real effect
+exists. A negative β is never evidence that exposure effects concentrate in
+weakly controlled VMRs (AGENTS.md §2.3).
+
+This acceptance unblocks `06_collate_regions.R` without
+`--allow-unaccepted-runs`, so `_m/combined/` now carries `citable = TRUE`, and it
+unblocks the supplemental `figureS_environmental_axis` in
+`11_integrated_manuscript_outputs`. It does **not** move the module out of the
+supplement: `main_text_retention = NEVER_SUPPLEMENT_ONLY` stands.
 
 ## Contract
 

@@ -13,16 +13,20 @@
 ##   Plotting that distribution, or its z-score, would show only the definition.
 ##   The evidence is instead in what the ranking agrees with:
 ##
-##   A  the rank is reproduced by independent estimators, and is NOT explained
+##   a  the rank is reproduced by independent estimators, and is NOT explained
 ##      by locus geometry (the reviewer's first objection)
-##   B  held-out prediction accuracy rises monotonically across the rank
+##   b  held-out prediction accuracy rises monotonically across the rank
 ##      -- the secondary endpoint of AGENTS.md 11
-##   C  the rank is concordant across brain regions in VMRs called in both
-##   D  genic context across the rank -- descriptive proportions only, no
+##   c  the rank is concordant across brain regions in VMRs called in both
+##   d  genic context across the rank -- descriptive proportions only, no
 ##      enrichment test, no threshold. Repeat and repressive-chromatin
 ##      enrichment is Figure 3 / Module 04, whose enrichment model is a locked
 ##      PI decision (AGENTS.md 12); nothing here anticipates it.
-##   E  denominators and exclusions (AGENTS.md 7.9)
+##
+## Denominators and exclusions ship as their own supplementary figure. AGENTS.md
+## 11 requires they be reported, not that they occupy a main panel, and the
+## exclusions/denominator table in 10_manuscript_tables.R carries the same
+## numbers. Moving them out is what brings the main figure under a page.
 ##
 ## Usage:
 ##   Rscript 02_figure2_local_control.R --cohort AA --run-id fig-all-20260826
@@ -42,11 +46,31 @@ cohort <- opts$cohort
 regions <- load_config("cohorts")$regions
 
 module_root <- file.path(V2_ROOT, "11_integrated_manuscript_outputs")
-run_dir  <- file.path(module_root, "_m", "runs", opts$run_id)
+## --out-dir renders a review draft outside the immutable run tree, so a panel
+## can be iterated on without minting and sealing a run. Same flag as
+## 06_figure_region_donor_generalization.R.
+run_dir  <- if (!is.null(opts$out_dir)) opts$out_dir else
+    file.path(module_root, "_m", "runs", opts$run_id)
 fig_dir  <- file.path(run_dir, "figures")
 data_dir <- file.path(run_dir, "source_data")
 
-LGV_RUN <- function(r) paste0("lgv-", cohort, "-", r, "-20260823")
+## Resolved through the acceptance gate (AGENTS.md 6), never from a run-ID
+## template. The template this replaced read `lgv-{cohort}-{region}-20260823`,
+## which Module 02 retired on 2026-09-17 in favour of the rescored
+## `lgv-AA-*-rescore-20260913` runs -- and because nothing checked, the last
+## build of this figure (fig-all-20260826-a) shipped on the retired score and
+## could not be cited.
+LGV_RUN <- local({
+    cache <- new.env(parent = emptyenv())
+    function(r) {
+        if (is.null(cache[[r]])) {
+            cache[[r]] <- require_accepted_upstream("02_local_genetic_variance",
+                                                    cohort = cohort,
+                                                    region = r)$run_id
+        }
+        cache[[r]]
+    }
+})
 lgv_file <- function(r) file.path(
     V2_ROOT, "02_local_genetic_variance", "_m", "runs", LGV_RUN(r),
     "results", "combined",
@@ -111,16 +135,15 @@ conc[, group := factor(group, levels = c("Estimators", "Geometry"))]
 
 pA <- ggplot(conc, aes(rho, label, colour = region)) +
     geom_vline(xintercept = 0, colour = PAL_NULL, linewidth = 0.35) +
-    geom_errorbarh(aes(xmin = lo, xmax = hi), height = 0,
-                   position = position_dodge(width = 0.62), linewidth = 0.42) +
+    errorbar_h(aes(xmin = lo, xmax = hi),
+               position = position_dodge(width = 0.62), linewidth = 0.42) +
     geom_point(size = 1.5, position = position_dodge(width = 0.62)) +
     facet_grid(group ~ ., scales = "free_y", space = "free_y") +
     scale_colour_manual(values = REGION_COLORS, name = NULL) +
     scale_x_continuous(limits = c(-0.05, 1), breaks = seq(0, 1, 0.25)) +
     labs(x = "Spearman correlation with local SNP contribution rank", y = NULL) +
-    BASE_THEME + NO_TITLES +
+    BASE_THEME + NO_TITLES + GRID_Y +
     theme(legend.position = "top", legend.margin = margin(0, 0, -4, 0),
-          panel.grid.major.y = element_line(colour = "grey92", linewidth = 0.3),
           strip.text.y.right = element_text(angle = -90, face = "bold"),
           plot.margin = margin(5, 12, 5, 8))
 
@@ -178,8 +201,8 @@ pairs_dt <- rbindlist(list(
 pairs_dt[, pair := factor(pair, levels = rev(pair))]
 
 pC <- ggplot(pairs_dt, aes(rho, pair)) +
-    geom_errorbarh(aes(xmin = lo, xmax = hi), height = 0,
-                   colour = PAL_CHARCOAL, linewidth = 0.45) +
+    errorbar_h(aes(xmin = lo, xmax = hi),
+               colour = PAL_CHARCOAL, linewidth = 0.45) +
     geom_point(size = 1.8, colour = PAL_RUST) +
     geom_text(aes(x = 0.02, label = paste0("n = ", label_comma()(n))),
               hjust = 0, nudge_y = 0.28, size = 2.4, colour = "grey35") +
@@ -191,7 +214,9 @@ pC <- ggplot(pairs_dt, aes(rho, pair)) +
 ##
 ## Joined to the Module 01 QC run on vmr_id: both modules key on the same
 ## accepted catalog, so the join is exact rather than positional.
-CTX_RUN <- function(r) paste0("vmrcatqc-", cohort, "-", r, "-20260826-a")
+## Module 01's QC refresh: no acceptance row of its own, so it is named in
+## 00_figure_theme.R rather than duplicated here and in Figure 1.
+CTX_RUN <- function(r) QC_REFRESH_RUN(cohort, r)
 ctx <- rbindlist(lapply(regions, function(r) {
     d <- fread(file.path(V2_ROOT, "01_vmr_catalog", "_m", "runs", CTX_RUN(r),
                          "qc", "distance_to_nearest_gene.tsv"))
@@ -235,7 +260,7 @@ reasons <- all_rows[local_genetic_control_eligible == FALSE,
                     .N, by = local_genetic_control_exclusion_reason]
 setorder(reasons, -N)
 
-pD <- ggplot(excl_long, aes(region, n, fill = status)) +
+pDenom <- ggplot(excl_long, aes(region, n, fill = status)) +
     geom_col(width = 0.68) +
     geom_text(data = excl_long[, .(n = sum(n),
                                    lab = paste0(label_comma()(n[status == "Eligible"]),
@@ -254,13 +279,18 @@ pD <- ggplot(excl_long, aes(region, n, fill = status)) +
 
 ## ------------------------------------------------------------------ assemble
 arm <- if (cohort == "AA") "" else paste0("_", cohort)
-figure <- (pA / (pB | pC) / pCtx / pD) +
-    plot_layout(heights = c(1.25, 1.0, 0.85, 0.85)) +
-    plot_annotation(tag_levels = "A") &
-    theme(plot.tag = element_text(face = "bold", size = 11))
+STEM <- paste0("figure2_local_genetic_control", arm)
+figure <- (pA / (pB | pC) / pCtx) +
+    plot_layout(heights = c(1.25, 1.0, 0.85)) +
+    fig_tags() & TAG_THEME
 
-save_figure(figure, paste0("figure2_local_genetic_control", arm),
-            width = FIG_WIDTH_FULL, height = 10.2, fig_dir = fig_dir)
+save_figure(figure, STEM, width = FIG_WIDTH_FULL, height = 8.2,
+            fig_dir = fig_dir)
+
+## ------------------------------- supplement: denominators and exclusions
+DENOM_STEM <- paste0("figureS_local_control_denominators", arm)
+save_figure(pDenom + fig_tags() & TAG_THEME, DENOM_STEM,
+            width = FIG_WIDTH_THREEQ, height = 3.4, fig_dir = fig_dir)
 
 ## --------------------------------------------------- supplement: audit only
 ##
@@ -281,8 +311,13 @@ save_figure(pS, paste0("figureS_local_control_audit_unbounded", arm),
             width = FIG_WIDTH_THREEQ, height = 3.4, fig_dir = fig_dir)
 
 ## ---------------------------------------------------------- source data
+## Panel names follow the RENDERED tag: pA -> a, pB -> b, pC -> c, pCtx -> d.
 sd <- function(dt, nm, tbl, filt) {
-    write_source_data(dt, paste0("figure2_local_genetic_control", arm, "_", nm),
+    write_source_data(dt, paste0(STEM, "_", nm),
+                      runs_used, tbl, SCRIPT, filt, data_dir)
+}
+sd_denom <- function(dt, nm, tbl, filt) {
+    write_source_data(dt, paste0(DENOM_STEM, "_", nm),
                       runs_used, tbl, SCRIPT, filt, data_dir)
 }
 ## The audit panel ships as its own supplemental figure, so its source data is
@@ -292,19 +327,19 @@ sd_supp <- function(dt, nm, tbl, filt) {
                       runs_used, tbl, SCRIPT, filt, data_dir)
 }
 TBL <- sprintf("results/combined/local-genetic-control-%s-{region}-vmrs.tsv", cohort)
-sd(conc, "panelA", TBL, FILTER)
-sd(dec_sum, "panelB", TBL, paste(FILTER, "; deciles of local_snp_contribution_score"))
-sd(pairs_dt, "panelC", TBL,
+sd(conc, "panel_a", TBL, FILTER)
+sd(dec_sum, "panel_b", TBL, paste(FILTER, "; deciles of local_snp_contribution_score"))
+sd(pairs_dt, "panel_c", TBL,
    paste(FILTER, "; loci matched across regions by widest genomic overlap"))
-sd(ctx_sum, "panelD_genic_context",
+sd(ctx_sum, "panel_d",
    paste(TBL, "+ 01_vmr_catalog qc/distance_to_nearest_gene.tsv"),
    paste(FILTER, "; joined on vmr_id; descriptive proportions, no enrichment test"))
-sd(excl_long, "panelE", TBL, "all rows; eligibility as recorded upstream")
-sd(reasons, "panelE_reasons", TBL, "local_genetic_control_eligible == FALSE")
+sd_denom(excl_long, "panel_a", TBL, "all rows; eligibility as recorded upstream")
+sd_denom(reasons, "panel_a_reasons", TBL, "local_genetic_control_eligible == FALSE")
 sd_supp(elig[, .(n = .N, median = median(pve_cis_joint_unbounded),
             q25 = quantile(pve_cis_joint_unbounded, .25),
             q75 = quantile(pve_cis_joint_unbounded, .75)), by = region],
-   "distribution", TBL,
+   "panel_a", TBL,
    paste(FILTER, "; AUDIT ONLY, not interpretable as absolute PVE"))
 
 message("[done] Figure 2 written to ", fig_dir)

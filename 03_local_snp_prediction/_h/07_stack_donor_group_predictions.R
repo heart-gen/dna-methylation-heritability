@@ -118,6 +118,13 @@ if (length(dups)) {
          ". The donor groups must be disjoint.")
 }
 
+## The disjointness check above deliberately runs on the full identifier, the
+## most specific key available. Only afterwards is the array barcode dropped:
+## this table is tracked in Git and deposited, and the barcode is a sample
+## identifier rather than part of the de-identified donor ID
+## (00_shared/identity.R::strip_sample_barcode).
+stacked[, donor := strip_sample_barcode(donor)]
+
 out_dir <- file.path(module_root, "_m", "combined")
 dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
 write_atomic(stacked, file.path(

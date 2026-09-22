@@ -2,47 +2,127 @@
 
 Consumes only accepted immutable upstream runs and produces every manuscript number, table, and figure.
 
-**Status: Figures 1 and 2, Table 1, the cohort QC panels and the Module 08 tier
-figure implemented; no run of this module accepted.** Figures 1-2 last built as
-`fig-all-20260826-a`, which consumed `lgv-AA-*-20260823` — **retired 2026-09-17**
-and superseded by the rescored runs — so Figure 2 needs a rebuild before it is
-cited. Table 1, the QC panels and the Module 08 figure have no accepted run yet.
+**Status: Figures 1-5, the supplementary figures, Table 1, the cohort QC
+panels and every AGENTS.md §7.11 product are implemented. Built as
+`fig-all-20260922-c`; no run of this module is accepted yet.**
 
-The upstream gating that blocked Figures 3-5 is now **cleared**: Modules 03, 04,
-05, 06, 07, 08, 09 and 09b all record passing acceptance gates and immutable run
-IDs (AGENTS.md §6). What remains is unbuilt rather than blocked — Figures 3-5,
-the manuscript-number registry, the consolidated main and supplementary tables,
-the figure source-data tables, the analysis-to-claim matrix, the exclusions and
-denominator table, the software and run manifest, and the Methods/Results
-summaries. The environmental supplement waits on acceptance of the `env-AA-*`
-runs submitted 2026-09-19.
+That run is the first one a reader can reproduce from the run itself. It
+carries a `code/` snapshot of `_h/` and `config/` (33 files), records
+`git_dirty = false` against the commit that contains the builders, checksums
+every file it holds, and seals all of them. Earlier builds did none of that:
+`fig-all-20260920` recorded a dirty tree against a commit that did not contain
+the builders, leaving an uncommitted working tree as the only record of what
+produced the figures. `fig-all-20260922` and `-a`/`-b` were the intermediate
+rebuilds that surfaced two seal defects in `00_shared/runid.R::close_run()` --
+dotfiles escaping both the checksum manifest and the seal, and an unanchored
+exclusion pattern dropping `tables/software-and-run-manifest.tsv` from the
+checksums. All four earlier runs are superseded and recorded in
+`DEPRECATED_RUNS.tsv` for the cleanup stage.
+
+Figures 1-2 were previously built as `fig-all-20260826-a` on `lgv-AA-*-20260823`,
+retired 2026-09-17. That could happen because the builders resolved upstream run
+IDs from string templates, so nothing failed when the README of record moved on.
+Every builder now resolves them through
+`00_shared/gates.R::require_accepted_upstream()`, and
+`submit_manuscript_figures.sh` refuses to queue if any cell it needs lacks an
+accepted run. The one exception is Module 01's QC-refresh run, which re-runs QC
+over an already accepted catalog and so has no acceptance row of its own; it is
+named once, in `00_figure_theme.R::QC_REFRESH_RUN()`.
+
+Two upstreams were unblocked on 2026-09-20 rather than worked around:
+
+- **Module 09 stages 17/18.** Their outputs carried `-UNACCEPTED` only because
+  they had been built with `--allow-unlocked`.
+  `config/gwas_negative_controls.yml` was PI-locked on 2026-09-20, so both
+  stages were re-run without the flag (`09/_h/step_9_negative_controls.sh`) and
+  their tables are now citable. This is what makes Figure 5 possible.
+- **Module 10.** Its three sealed runs were accepted on 2026-09-20 and
+  `06_collate_regions.R` re-run without `--allow-unaccepted-runs`, so
+  `_m/combined/` carries `citable = TRUE` and `figureS_environmental_axis` is
+  wired into the build.
 
 ## Implemented figures
 
 | Output | Content | Upstream runs |
 |---|---|---|
-| `figure1_vmr_catalog[_all_individuals]` | cohort, catalog structure, off-array coverage vs 450K, genic context, distance to nearest gene, legacy turnover | `vmrcat-*-20260816`, `vmrcatqc-*-20260826-a` |
-| `figure1_vmr_catalog[_all_individuals]_epic` | as above, EPIC as the stricter array comparator | same |
-| `figure2_local_genetic_control[_all_individuals]` | estimator concordance vs locus geometry, held-out R² across rank deciles, cross-region rank concordance, genic context across the rank, denominators | `lgv-*-20260823`, `vmrcatqc-*-20260826-a` |
-| `figureS_local_control_audit_unbounded[_all_individuals]` | unbounded joint estimate distribution, **audit only** | `lgv-*-20260823` |
+| `figure1_vmr_catalog[_all_individuals][_epic]` | **a** cohort **b** VMRs per chromosome **c** VMR width and CpGs per VMR **d** off-array coverage **e** genomic compartment **f** distance to nearest gene | `vmrcat-*-20260816`, `vmrcatqc-*-20260826-a` |
+| `figure2_local_genetic_control[_all_individuals]` | **a** estimator concordance vs locus geometry **b** held-out R² across rank deciles **c** cross-region rank concordance **d** genic context across the rank | `lgv-AA-*-rescore-20260913` (AA), `lgv-all_individuals-*-20260823` |
+| `figure3_repeat_repressive_architecture` | **a** the BH family (quiescent, H3K9me3, LINE/L1) **b** complementary contrasts and the H3K27me3 specificity control **c** the five locked analysis sets **d** the continuous gradient | `rra-AA-*-20260906` |
+| `figure4_meqtl_burden_coupling` | **a** meQTL-positive CpG fraction across the rank **b** burden model with distal-null λ **c** coupling by modality and predictor **d** coupled-VMR denominators | `cmb-AA-*-20260825`, `tsc-AA-*-20260902` |
+| `figure5_gwas_architecture_axis` | **a** every trait's axis estimate by GWAS category **b** schizophrenia against its own null distribution **c** psychiatric vs other traits **d** what a trait's depletion tracks | `scz-AA-*-20260918` + stages 17/18 |
+| `figureS_catalog_turnover[...]` | legacy-catalog turnover, **audit only** | as Figure 1 |
+| `figureS_local_control_denominators[...]` | denominators and exclusion reasons | as Figure 2 |
+| `figureS_local_control_audit_unbounded[...]` | unbounded joint estimate, **audit only** | as Figure 2 |
+| `figureS_partitioned_heritability` | S-LDSC across the frozen 8-trait family. **A null**, reported as one | `sldsc-AA-*-20260903` |
+| `figureS_aging_axis` | **a** primary age gradient **b** gating sensitivities, incl. the composition arm that removes it | `age-AA-*-20260919` |
+| `figureS_environmental_axis` | stage B proportional gradients, with both acceptance caveats on the panel | `env-AA-*-20260920-a` |
+| `figureS_schizophrenia_application` | **a** the axis depletion **b** locus evidence tiers **c** prioritized loci | `scz-AA-*-20260918` |
+| `figure_region_donor_generalization` + `_sensitivity` | Module 08 tiers | `rdg-AA-crossregion-20260918` |
 | `table1_cohort` (`.tsv`, `.tex`) | donor demographics, both arms x three regions | `vmrcat-*-20260816` |
-| `figureS_ancestry_pcs` | genotype PC1/2 with 1000 Genomes reference, donor-group confirmation | `vmrcat-*-20260816` |
-| `figureS_sample_integrity` | cross-region donor concordance, sample-swap screen | `vmrcat-*-20260816` |
-| `figure_region_donor_generalization` | Module 08 tiers: A cross-region direction of the claim family and H3K27me3 control; B DLPFC-vs-hippocampus QQ; C caudate held-out R² at n = 153 and n = 118 beside DLPFC; D AA-vs-EA rank agreement against the reliability ceiling. Unnumbered: AGENTS.md §11 leaves main vs supplement to the PI | `rdg-AA-crossregion-20260918` (accepted, resolved at build time) |
-| `figureS_region_donor_generalization_sensitivity` | repeat claim family under the five Module 04 sensitivity sets | same |
+| `figureS_ancestry_pcs`, `figureS_sample_integrity` | genotype PCs over 1000 Genomes; cross-region swap screen | `vmrcat-*-20260816` |
+| `manuscript-number-registry.tsv` | every citable number -> panel, run, table, column, filter. **This is Supplementary Data 14** | all of the above |
+| `analysis-to-claim-matrix.tsv` (`.tex`) | claim -> module -> accepted run -> decision token | module READMEs |
+| `exclusions-and-denominators.tsv` | donors, VMRs called, scored, eligible, and why excluded | Modules 01, 02 |
+| `supplementary-table-index.tsv` | the tracked `_m/combined/` deliverables | all modules |
+| `software-and-run-manifest.tsv` | environment, git commit, upstream run IDs | this run |
 
 AA is the primary arm; `all_individuals` renders from the same builders as the
 sensitivity supplement.
 
-### Not yet built: the environmental supplement
+### The environmental supplement
 
-`10_environmental_exploratory` emits `control-axis-test.tsv` and
-`exposure-eligibility.tsv`, which a supplemental `figureS_environmental_axis`
-would render. It is gated on an accepted `env-*` run (AGENTS.md §6) and is not
-implemented. Whatever it becomes, it is a supplemental panel: the module's
-decision row carries `main_text_retention = NEVER_SUPPLEMENT_ONLY`, and AGENTS.md
-§2.3 forbids exposure results from defining the title, abstract, primary groups
-or main causal interpretation.
+Built, and wired into the run. `10_environmental_exploratory` was accepted on
+2026-09-20, so `figureS_environmental_axis` renders from the citable
+`_m/combined/` tables. It stays a supplement whatever it shows: the module's
+decision row carries `main_text_retention = NEVER_SUPPLEMENT_ONLY`, and
+AGENTS.md §2.3 forbids exposure results from defining the title, abstract,
+primary groups or main causal interpretation.
+
+Both acceptance caveats are rendered on the panel rather than left to the
+legend: no percentage is formally identifiable (`mean_omega_z` never reaches
+1.96), and the donor bootstrap inflates the ratio's denominator 2.0×-38.5×.
+A negative gradient is never evidence that exposure effects concentrate in
+weakly controlled VMRs — that is the permanent variance-budget limitation
+(AGENTS.md §7.10), and it belongs in the Discussion.
+
+### Figure 5 is trait-general, not schizophrenia-specific
+
+The axis depletion is a property of trait-associated loci in general:
+schizophrenia sits at the 16th-33rd percentile of 63 GWAS traits by region and
+psychiatric traits are indistinguishable as a category (Wilcoxon p 0.11-0.96).
+Figure 5 therefore shows the **distribution**, with schizophrenia marked in
+place as one trait among the rest, which is what AGENTS.md §7.8 rule 1 and
+§11 require the text to say.
+
+**PI decision, 2026-09-22: the GWAS collection is the main-text result and the
+schizophrenia detail is supplemental.** This is the split the build already
+implements, now recorded rather than inferred.
+
+Module 09's decision 2 is `scz_application_retention = RETAIN_MAIN_TEXT`, and
+that is honoured: schizophrenia appears in Figure 5 panels a, b and c, as one
+trait among the rest. What sits in `figureS_schizophrenia_application` is the
+locus-level detail — evidence tiers, prioritized loci, the per-region axis
+contrast — which is specific to the one trait and would otherwise crowd out
+the general result.
+
+The two decisions are compatible and neither overrides the other:
+`RETAIN_MAIN_TEXT` requires schizophrenia to *appear* in the main text, not to
+*own* a figure. Nothing here withdraws the schizophrenia application, and the
+Module 09 decision row is untouched — an agent must not edit a scientific
+result in `_m/` (AGENTS.md §5.2), and this decision does not call for it.
+
+Two constraints the builder asserts at runtime, because both are easy to get
+wrong from memory:
+
+- **No trait reaches q < 0.05 for LINE/L1 *enrichment*** in any region or arm
+  (0 of 888 per-trait tests). The *axis-link* Spearman is a different table and
+  does have nominally significant LINE/L1 rows in the all-VMR arm — in
+  inconsistent directions across regions, collapsing under high mappability.
+  Panel d shows both arms so that collapse is visible, and nothing here
+  licenses a repeat statement.
+- The GWAS collection is European or European-dominated while the cohort is
+  admixed African American. The limitation attaches to the **locus definition**,
+  not to the axis, which is a within-cohort rank.
 
 ### Figure 2 constraint
 
@@ -106,15 +186,42 @@ accepted `vmrcat-*-20260816` runs predate. Full reproduction order:
 
 Steps 1 and 2 are one-time: once the universes exist and a QC refresh run is
 recorded, step 3 alone rebuilds the figures. If the QC refresh is re-run, update
-`QC_RUN()` in `01_figure1_catalog.R` and `CTX_RUN()` in
-`02_figure2_local_control.R` to the new run IDs.
+`QC_REFRESH_RUN()` in `00_figure_theme.R` — one place, not two — to the new
+run ID. Every other upstream run ID is resolved through the acceptance gate and
+needs no edit here when a module supersedes a run.
+
+`step_1_figures.sh` builds in one order and seals last: both-arm figures, then
+the AA-only Figures 3-5 and supplements, then Table 1 and the QC panels, then
+`10_manuscript_tables.R` (which reads what the figures actually rendered), then
+`03_close_figure_run.R`. The old `step_2_table1_qc.sh` ran *after* the seal, so
+no sealed run ever contained a `tables/` directory; it has been folded in and
+removed.
 
 Both submit wrappers accept `DRY_RUN=1` to print the plan without queueing.
 
-`00_figure_theme.R` holds the shared theme, palette, `save_figure()`, and
-`write_source_data()`. It replaces the `BASE_THEME`/`save_plot()` block that was
-copy-pasted into ~40 scripts across the three legacy cohort trees; new panels
-source it rather than redefining a theme.
+`00_figure_theme.R` holds the shared theme, palette, `save_figure()`,
+`write_source_data()`, `sig_stars()`, `scale_fill_log2or()` and `fig_tags()`.
+It replaces the `BASE_THEME`/`save_plot()` block that was copy-pasted into ~40
+scripts across the three legacy cohort trees; new panels source it rather than
+redefining a theme. It lives in `_h/` rather than `00_shared/` deliberately:
+`_m/runs/*/code/` snapshots `_h/` and `config/` but not `00_shared/`, which is
+how a shared-code defect reached three sealed Module 10 runs with no provenance
+trail on 2026-09-20.
+
+Four things it settles that the v1 tree did not:
+
+- **Panel tags are lowercase.** `content/91.figure-legends.md` cites panels as
+  **a.**, **b.**; v1 rendered them uppercase and relabelled by hand during
+  manual assembly. `fig_tags()` emits them lowercase so that step is gone.
+- **The PDF device is `cairo_pdf`.** Base `pdf()` writes a single-byte encoding
+  and silently drops anything it cannot map — it was dropping the ρ in
+  Figure 2's "Out-of-fold ρ²" axis label, in the file destined for the
+  journal, while the PNG review copy rendered correctly.
+- **Figures are capped at 9.5 in tall** and `save_figure()` stops above it. The
+  first v2 drafts of Figures 1 and 2 were 11.4 and 10.2 in, which no journal
+  page accommodates.
+- **Every device gets `bg = "white"`**, and an SVG is written alongside the PDF
+  and PNG for the manubot manuscript build.
 
 ## Migrating from
 

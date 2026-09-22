@@ -184,3 +184,12 @@ settings.local.json
 # 09_schizophrenia_risk_application/_h/17a_extract_gwas_leads.sh from the
 # downloads named in config/gwas_negative_controls.yml.
 09_schizophrenia_risk_application/_m/combined/negative-control-gwas/
+
+# Outputs of the retired v1 elastic-net calibration, written by
+# `02_local_genetic_variance/_h/archive/2026-08-21_estimator_development/`. They
+# carry `h2_en_calibrated`, `h2_en_calibrated_unbounded` and `r2_oof`, which are
+# `forbidden_columns` in every v2 config, so no v2 model, table or figure may
+# read them. Untracked 2026-09-20 under AGENTS.md 3; kept on Quest for audit and
+# recoverable from history before that commit. Not deposited.
+02_local_genetic_variance/_m/combined/calibrated-local-h2-all-cells.tsv
+02_local_genetic_variance/_m/combined/observed-run-qc-all-cells.tsv

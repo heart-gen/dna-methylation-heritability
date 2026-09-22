@@ -272,8 +272,24 @@ reconcile <- function(expected, completed, excluded = character(),
 #' After this, the directory is finished. Downstream modules cite the run ID.
 close_run <- function(run, outputs = NULL) {
     if (is.null(outputs)) {
-        outputs <- list.files(run$dir, recursive = TRUE, full.names = TRUE)
-        outputs <- outputs[!grepl("(manifest\\.tsv|output_checksums\\.tsv)$", outputs)]
+        ## all.files = TRUE, because the default omits dotfiles and a file this
+        ## function does not list is neither checksummed nor made read-only --
+        ## it stays writable inside a run that claims to be immutable. Found
+        ## 2026-09-22, when Module 11 began snapshotting _h/ into the run and
+        ## carried an _h/.gitkeep in with it. With recursive = TRUE this adds
+        ## hidden files only: "." and ".." are not returned.
+        outputs <- list.files(run$dir, recursive = TRUE, full.names = TRUE,
+                              all.files = TRUE)
+        ## The run's own two bookkeeping files, matched by exact path. This was
+        ## a suffix pattern -- "(manifest\\.tsv|output_checksums\\.tsv)$" --
+        ## which is unanchored at the front, so it also swallowed any OUTPUT
+        ## whose name merely ends that way. Module 11's
+        ## tables/software-and-run-manifest.tsv is one, and it went unchecksummed
+        ## in fig-all-20260922-a without any warning. Name the two files; do not
+        ## describe them.
+        outputs <- setdiff(outputs,
+                           file.path(run$dir, c("manifest.tsv",
+                                                "output_checksums.tsv")))
     }
     sums <- data.table::data.table(
         file = sub(paste0("^", run$dir, "/"), "", outputs),
@@ -286,8 +302,11 @@ close_run <- function(run, outputs = NULL) {
         n_output_files = nrow(sums)
     ))
     ## Make the run read-only. Immutability enforced by the filesystem, not by
-    ## everyone remembering the rule.
-    Sys.chmod(list.files(run$dir, recursive = TRUE, full.names = TRUE), mode = "0444")
+    ## everyone remembering the rule. all.files = TRUE for the reason above:
+    ## sealing must cover every file the directory holds, not every file the
+    ## default listing happens to show.
+    Sys.chmod(list.files(run$dir, recursive = TRUE, full.names = TRUE,
+                         all.files = TRUE), mode = "0444")
     message("[run] closed ", run$dir, " (", nrow(sums), " output files)")
     invisible(sums)
 }

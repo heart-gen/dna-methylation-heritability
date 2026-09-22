@@ -29,8 +29,13 @@ if (length(srcs) == 0) stop("No source-data tables; AGENTS.md 7.9 requires one p
 stems <- unique(sub("\\.pdf$", "", grep("\\.pdf$", figs, value = TRUE)))
 missing <- Filter(function(st) !any(startsWith(srcs, st)), stems)
 if (length(missing) > 0) {
-    warning("Figures without a matching source-data table: ",
-            paste(missing, collapse = ", "))
+    ## Fatal, not a warning. AGENTS.md 7.11 requires every panel to record its
+    ## source run ID, table, script and filter, and Supplementary Data 14 IS
+    ## this mapping -- a figure that seals without it is a figure whose numbers
+    ## cannot be traced, and a warning in a SLURM log is not a gate.
+    stop("Figures without a matching source-data table: ",
+         paste(missing, collapse = ", "),
+         ". Every figure must ship its panel source data (AGENTS.md 7.11).")
 }
 
 upstream <- unique(unlist(lapply(file.path(run_dir, "source_data", srcs), function(f) {
@@ -38,20 +43,41 @@ upstream <- unique(unlist(lapply(file.path(run_dir, "source_data", srcs), functi
     unlist(strsplit(unique(d$source_run_id), ";"))
 })))
 
+## AGENTS.md 9 requires a configuration checksum on every production output.
+## This manifest carried none, so a config edit between two builds left no
+## trace. Checksum what the builders actually read -- naming more would attest
+## to files this module never opened.
+cfg_sha <- lapply(c("cohorts", "paths", "region_donor_generalization"),
+                  function(n) attr(load_config(n), "config_sha256"))
+names(cfg_sha) <- paste0("config_",
+                         c("cohorts", "paths", "region_donor_generalization"),
+                         "_sha256")
+
+## The code snapshot is the run's own record of what built it, and the manifest
+## must say whether one exists rather than leaving a reader to infer it from a
+## directory listing. git_dirty = TRUE with no snapshot is precisely the state
+## that made fig-all-20260920 unacceptable, so record both together.
+code_dir <- file.path(run_dir, "code")
+has_code <- dir.exists(file.path(code_dir, "_h"))
+
 run <- list(run_id = opts$run_id, dir = run_dir, module_root = module_root)
-write_manifest(run_dir, list(
+write_manifest(run_dir, c(list(
     run_id       = opts$run_id,
     analysis     = "integrated_manuscript_outputs",
     stage        = "main_and_supplemental_figures",
     git_commit   = git_commit(V2_ROOT),
     git_dirty    = git_dirty(V2_ROOT),
+    code_snapshot = if (has_code) "code/_h + code/config" else NA_character_,
+    n_code_files = if (has_code)
+        length(list.files(code_dir, recursive = TRUE)) else 0L,
     r_version    = paste(R.version$major, R.version$minor, sep = "."),
     conda_prefix = Sys.getenv("CONDA_PREFIX", NA_character_),
     hostname     = Sys.info()[["nodename"]],
+    slurm_job_id = Sys.getenv("SLURM_JOB_ID", NA_character_),
     n_figures    = length(figs),
     n_source_tables = length(srcs),
-    upstream_runs = paste(sort(upstream), collapse = ";")
-))
+    upstream_runs = paste(sort(upstream), collapse = ";")),
+    cfg_sha))
 
 close_run(run)
 message("[done] sealed ", run_dir, " (", length(figs), " figure files, ",
