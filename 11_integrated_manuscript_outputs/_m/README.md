@@ -33,6 +33,21 @@ upstream run IDs, `vmr_set_id`, ordered donor checksum, sample counts, seeds,
 software environment, SLURM job IDs), `task_reconciliation.tsv`, and
 `output_checksums.tsv`.
 
+A figure run of this module additionally carries three directories:
+
+- `figures/` — each figure as PDF (`cairo_pdf`, the journal deliverable),
+  PNG at 300 dpi (review copies) and SVG (for the manubot manuscript build).
+- `source_data/` — one table per rendered panel, named
+  `<figure stem>_panel_<tag>.tsv` where `<tag>` is the letter patchwork
+  actually renders. Each carries `source_run_id`, `source_table`,
+  `source_script` and `row_filter`, which is the AGENTS.md §7.11 contract.
+  `03_close_figure_run.R` refuses to seal a run in which any figure lacks one.
+- `tables/` — Table 1 and its booktabs fragment, the manuscript number
+  registry, the analysis-to-claim matrix, the exclusions/denominator table, the
+  supplementary-table index and the software/run manifest.
+
+`source_data/` plus `tables/` is Supplementary Data 14.
+
 ## Regenerating a run
 
 1. Check out the `git_commit` recorded in its `manifest.tsv`.

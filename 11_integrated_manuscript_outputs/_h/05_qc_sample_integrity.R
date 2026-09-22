@@ -234,3 +234,9 @@ write_source_data(
     data_dir      = data_dir)
 
 message("[10] sample-integrity QC written to ", run_dir)
+
+#### Reproducibility information ####
+print("Reproducibility information:")
+Sys.time(); proc.time()
+options(width = 120)
+sessioninfo::session_info()

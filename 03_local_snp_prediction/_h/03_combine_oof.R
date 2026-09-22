@@ -203,6 +203,11 @@ if (nrow(screen_tab)) {
 ## Per-donor prediction counts: config/prediction.yml requires them, and an
 ## uneven count is the symptom of folds that silently dropped donors.
 per_donor <- preds[, .(n_vmrs_predicted = uniqueN(vmr_id)), by = donor]
+## Grouped on the full identifier, then stripped of the array barcode, which is a
+## sample identifier (00_shared/identity.R::strip_sample_barcode). Runs sealed
+## before 2026-09-20 still carry it; their deposited copy is stripped at archive
+## time rather than by editing an immutable run.
+per_donor[, donor := strip_sample_barcode(donor)]
 ## donor_group labels each row with the cell it was predicted in, so the two
 ## donor-group cells can be stacked into one table downstream
 ## (_h/07_stack_donor_group_predictions.R) without a positional assumption

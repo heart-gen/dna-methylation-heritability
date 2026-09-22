@@ -1,2 +1,2 @@
 region	group_a	group_b	n_donors_a	n_donors_b	n_donors_stacked	n_loci_shared	median_r2_a	median_r2_b	spearman_r2	pooled_r2_emitted	donor_group_inference	ancestry_effect_claim_allowed	analysis_thresholds_sha256
-dlpfc	AA	EA	118	55	173	9133	-5.41880580042786e-05	-0.000243693087729868	0.563907891843933	FALSE	concordance_only	FALSE	ee12dbdbbee18b964397213278c2aea11cb8ad63963156115768e7e236d8b12c
+dlpfc	AA	EA	118	55	173	9133	-5.41880580042786e-05	-0.000243693087729868	0.563907891843933	FALSE	concordance_only	FALSE	ff6db810f81491083de926d0823b5429f1df3d74d58c9e21993c85ca66915fbe
