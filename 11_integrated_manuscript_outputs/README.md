@@ -4,7 +4,20 @@ Consumes only accepted immutable upstream runs and produces every manuscript num
 
 **Status: Figures 1-5, the supplementary figures, Table 1, the cohort QC
 panels and every AGENTS.md §7.11 product are implemented. Built as
-`fig-all-20260920`; no run of this module is accepted yet.**
+`fig-all-20260922-c`; no run of this module is accepted yet.**
+
+That run is the first one a reader can reproduce from the run itself. It
+carries a `code/` snapshot of `_h/` and `config/` (33 files), records
+`git_dirty = false` against the commit that contains the builders, checksums
+every file it holds, and seals all of them. Earlier builds did none of that:
+`fig-all-20260920` recorded a dirty tree against a commit that did not contain
+the builders, leaving an uncommitted working tree as the only record of what
+produced the figures. `fig-all-20260922` and `-a`/`-b` were the intermediate
+rebuilds that surfaced two seal defects in `00_shared/runid.R::close_run()` --
+dotfiles escaping both the checksum manifest and the seal, and an unanchored
+exclusion pattern dropping `tables/software-and-run-manifest.tsv` from the
+checksums. All four earlier runs are superseded and recorded in
+`DEPRECATED_RUNS.tsv` for the cleanup stage.
 
 Figures 1-2 were previously built as `fig-all-20260826-a` on `lgv-AA-*-20260823`,
 retired 2026-09-17. That could happen because the builders resolved upstream run
