@@ -1,0 +1,14 @@
+field	value
+run_id	fig-all-20260920
+analysis	integrated_manuscript_outputs
+stage	main_and_supplemental_figures
+git_commit	746960f73df95d976d38dead222cdf720a467f89
+git_dirty	true
+r_version	4.4.3
+conda_prefix	/projects/p32505/opt/envs/epigenomics
+hostname	qnode0120
+n_figures	46
+n_source_tables	74
+upstream_runs	age-AA-caudate-20260919;age-AA-dlpfc-20260919;age-AA-hippocampus-20260919;cmb-AA-caudate-20260825;cmb-AA-dlpfc-20260825;cmb-AA-hippocampus-20260825;env-AA-caudate-20260920-a;env-AA-dlpfc-20260920-a;env-AA-hippocampus-20260920-a;lgv-AA-caudate-rescore-20260913;lgv-AA-dlpfc-rescore-20260913;lgv-AA-hippocampus-rescore-20260913;lgv-all_individuals-caudate-20260823;lgv-all_individuals-dlpfc-20260823;lgv-all_individuals-hippocampus-20260823;rdg-AA-crossregion-20260918;rra-AA-caudate-20260906;rra-AA-dlpfc-20260906;rra-AA-hippocampus-20260906;scz-AA-caudate-20260918;scz-AA-dlpfc-20260918;scz-AA-hippocampus-20260918;sldsc-AA-caudate-20260903;sldsc-AA-dlpfc-20260903;sldsc-AA-hippocampus-20260903;tsc-AA-caudate-20260902;tsc-AA-dlpfc-20260902;tsc-AA-hippocampus-20260902;vmrcat-AA-caudate-20260816;vmrcat-AA-dlpfc-20260816;vmrcat-AA-hippocampus-20260816;vmrcat-all_individuals-caudate-20260816;vmrcat-all_individuals-dlpfc-20260816;vmrcat-all_individuals-hippocampus-20260816;vmrcatqc-AA-caudate-20260826-a;vmrcatqc-AA-dlpfc-20260826-a;vmrcatqc-AA-hippocampus-20260826-a;vmrcatqc-all_individuals-caudate-20260826-a;vmrcatqc-all_individuals-dlpfc-20260826-a;vmrcatqc-all_individuals-hippocampus-20260826-a
+finished_at	2026-09-20T16:17:21-0500
+n_output_files	153

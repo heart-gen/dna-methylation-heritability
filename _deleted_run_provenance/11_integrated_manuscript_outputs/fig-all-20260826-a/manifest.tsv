@@ -1,0 +1,14 @@
+field	value
+run_id	fig-all-20260826-a
+analysis	integrated_manuscript_outputs
+stage	main_and_supplemental_figures
+git_commit	205a41bea65714047cc7f0ace0d33c26229f9ab6
+git_dirty	true
+r_version	4.4.3
+conda_prefix	""
+hostname	quser33
+n_figures	16
+n_source_tables	42
+upstream_runs	lgv-AA-caudate-20260823;lgv-AA-dlpfc-20260823;lgv-AA-hippocampus-20260823;lgv-all_individuals-caudate-20260823;lgv-all_individuals-dlpfc-20260823;lgv-all_individuals-hippocampus-20260823;vmrcat-AA-caudate-20260816;vmrcat-AA-dlpfc-20260816;vmrcat-AA-hippocampus-20260816;vmrcat-all_individuals-caudate-20260816;vmrcat-all_individuals-dlpfc-20260816;vmrcat-all_individuals-hippocampus-20260816;vmrcatqc-AA-caudate-20260826-a;vmrcatqc-AA-dlpfc-20260826-a;vmrcatqc-AA-hippocampus-20260826-a;vmrcatqc-all_individuals-caudate-20260826-a;vmrcatqc-all_individuals-dlpfc-20260826-a;vmrcatqc-all_individuals-hippocampus-20260826-a
+finished_at	2026-08-26T00:54:53-0500
+n_output_files	58

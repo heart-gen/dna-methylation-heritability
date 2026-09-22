@@ -17,7 +17,10 @@ rebuilds that surfaced two seal defects in `00_shared/runid.R::close_run()` --
 dotfiles escaping both the checksum manifest and the seal, and an unanchored
 exclusion pattern dropping `tables/software-and-run-manifest.tsv` from the
 checksums. All four earlier runs are superseded and recorded in
-`DEPRECATED_RUNS.tsv` for the cleanup stage.
+`DEPRECATED_RUNS.tsv`, whose first cleanup tranche deleted them on 2026-09-22.
+Their `manifest.tsv` and `output_checksums.tsv` are kept under
+`_deleted_run_provenance/`, so the superseded builds remain auditable and this
+README's account of them stays checkable after the directories are gone.
 
 Figures 1-2 were previously built as `fig-all-20260826-a` on `lgv-AA-*-20260823`,
 retired 2026-09-17. That could happen because the builders resolved upstream run
