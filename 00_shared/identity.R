@@ -134,6 +134,32 @@ assert_no_dups <- function(ids, what = "identifiers") {
     invisible(TRUE)
 }
 
+#' Drop the methylation array barcode from a donor identifier.
+#'
+#' Donor identifiers arrive as `Br0000::0000000000_R00C00`: a BrNum joined to the
+#' chip barcode and position of the array the sample was run on. BrNum is the
+#' de-identified donor identity the study releases (PI decision 2026-09-20); the
+#' barcode names a physical array, which makes it a sample identifier, so it is
+#' stripped from anything written to a result table that leaves Quest.
+#'
+#' The strip is only safe while the mapping is one-to-one. A donor assayed on two
+#' arrays would collapse into a single row and silently halve that donor's
+#' contribution to any count, so the assertion -- not the caller's care -- is what
+#' keeps that from happening.
+strip_sample_barcode <- function(ids, what = "donors") {
+    ids <- as.character(ids)
+    out <- sub("::.*$", "", ids)
+    if (length(unique(out)) < length(unique(ids))) {
+        dups <- unique(out[duplicated(out)])
+        stop("Stripping the array barcode collapsed ", length(dups), " ", what,
+             " that were distinct beforehand: ",
+             paste(head(dups, 5), collapse = ", "),
+             ". Keep the barcode for these, or aggregate them deliberately.",
+             call. = FALSE)
+    }
+    out
+}
+
 #' Fail loudly on missing identifiers.
 assert_present <- function(ids, required, what = "donors") {
     missing <- setdiff(as.character(required), as.character(ids))
