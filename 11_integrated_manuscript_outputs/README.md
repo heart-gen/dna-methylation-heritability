@@ -4,7 +4,7 @@ Consumes only accepted immutable upstream runs and produces every manuscript num
 
 **Status: Figures 1-5, the supplementary figures, Table 1, the cohort QC
 panels and every AGENTS.md §7.11 product are implemented. Built as
-`fig-all-20260922-c`; no run of this module is accepted yet.**
+`fig-all-20260922-c` and accepted 2026-09-22 (see Accepted runs below).**
 
 That run is the first one a reader can reproduce from the run itself. It
 carries a `code/` snapshot of `_h/` and `config/` (33 files), records
@@ -40,6 +40,31 @@ Two upstreams were unblocked on 2026-09-20 rather than worked around:
   `06_collate_regions.R` re-run without `--allow-unaccepted-runs`, so
   `_m/combined/` carries `citable = TRUE` and `figureS_environmental_axis` is
   wired into the build.
+
+## Accepted runs
+
+Machine-readable, in the schema `00_shared/gates.R::read_accepted_runs()`
+parses. Three things about this table differ from every other module's, and all
+three are properties of Module 11 rather than oversights:
+
+- **Nothing consumes it.** Module 11 is terminal, so this row unblocks no
+  downstream gate. It records which figures the manuscript cites, and it is what
+  flips Supplementary Data 14 from `pending_acceptance` to `ready`.
+- **There is no gate script, so `decision` is not a computed token.**
+  AGENTS.md §7.11 lists the products this module owes and sets no pass/fail
+  criterion, so `ACCEPTED_MANUSCRIPT_OUTPUTS` records a judgement about
+  completeness and provenance. It is deliberately not spelled `PASS_*`: every
+  other `PASS_*` in this repository was emitted by a gate stage, and borrowing
+  the prefix would imply a check that does not exist.
+- **One run spans six cells** (two arms × three regions), so `cohort` is `all`
+  and `region` is the literal `crossregion`, following Module 08. The six
+  `vmr_set_id`s are recorded per arm × region in the run's own
+  `tables/exclusions-and-denominators.tsv`, which is sealed and checksummed,
+  rather than crushed into one cell here.
+
+| run_id | cohort | region | vmr_set_id | accepted_on | accepted_by | decision | notes |
+|---|---|---|---|---|---|---|---|
+| fig-all-20260922-c | all | crossregion | see `tables/exclusions-and-denominators.tsv` (6 cells: arm × region) | 2026-09-22 | Kynon J.M. Benjamin | ACCEPTED_MANUSCRIPT_OUTPUTS | Built at `efaae6220` with `git_dirty = false` and a `code/` snapshot of `_h/` and `config/` (33 files), so the run is reproducible from itself. 23 figures × PDF/SVG/PNG, 74 panel source tables, 11 tables; 190 files, 188 checksummed, 0 writable (the 2 exclusions are the run's own `manifest.tsv` and `output_checksums.tsv`). 40 upstream runs cited: 34 accepted, 6 Module 01 QC-refresh (`vmrcatqc-*-20260826-a`, the documented exception with no acceptance row of their own), 0 unaccepted. Every PDF has matching panel source data; every figure ≤ 9.5 in tall at 7.09/5.51 in column widths; every PDF carries embedded fonts and a ToUnicode map. `manuscript-number-registry.tsv` has 74 rows and **is** Supplementary Data 14; `analysis-to-claim-matrix.tsv` has 64. **No gate script exists for this module**, so this decision certifies completeness, provenance and the claim constraints asserted at build time — not a computed pass. Figure 5 is trait-general with schizophrenia as a marked example; the SCZ locus detail is `figureS_schizophrenia_application` (PI decision 2026-09-22), which honours Module 09's `scz_application_retention = RETAIN_MAIN_TEXT` without giving one trait a main figure. Supersedes `fig-all-20260920` and `fig-all-20260922{,-a,-b}`, all recorded in `DEPRECATED_RUNS.tsv`. |
 
 ## Implemented figures
 
