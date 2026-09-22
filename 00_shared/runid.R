@@ -280,7 +280,16 @@ close_run <- function(run, outputs = NULL) {
         ## hidden files only: "." and ".." are not returned.
         outputs <- list.files(run$dir, recursive = TRUE, full.names = TRUE,
                               all.files = TRUE)
-        outputs <- outputs[!grepl("(manifest\\.tsv|output_checksums\\.tsv)$", outputs)]
+        ## The run's own two bookkeeping files, matched by exact path. This was
+        ## a suffix pattern -- "(manifest\\.tsv|output_checksums\\.tsv)$" --
+        ## which is unanchored at the front, so it also swallowed any OUTPUT
+        ## whose name merely ends that way. Module 11's
+        ## tables/software-and-run-manifest.tsv is one, and it went unchecksummed
+        ## in fig-all-20260922-a without any warning. Name the two files; do not
+        ## describe them.
+        outputs <- setdiff(outputs,
+                           file.path(run$dir, c("manifest.tsv",
+                                                "output_checksums.tsv")))
     }
     sums <- data.table::data.table(
         file = sub(paste0("^", run$dir, "/"), "", outputs),
