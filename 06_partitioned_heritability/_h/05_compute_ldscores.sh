@@ -14,6 +14,14 @@
 # One array task per autosome. Each task builds its own .annot.gz and then the
 # matching .l2.ldscore.gz, so a failed chromosome is retried alone rather than
 # rerunning all 22.
+#
+# The .annot.gz carries TWO annotation columns (VMR membership + the continuous
+# score; see _h/annotations.py), so ldsc.py --l2 computes one LD score column
+# per annotation and writes two entries into .l2.M and .l2.M_5_50. Nothing in
+# the command below changes for that -- --thin-annot reads however many columns
+# the header declares -- but the outputs are two-column from here on, and stage
+# 05a checks that what reached the LD scores is the declared annotation set
+# before eight S-LDSC regressions are launched off it.
 
 # SLURM copies the batch script to /var/spool, so ${BASH_SOURCE[0]} does NOT
 # resolve to _h/ at run time. V2_REPO_ROOT is exported by the submit driver;
@@ -82,10 +90,10 @@ conda run --no-capture-output -p "$PY_ENV" python \
 
 require_file "${RUN_DIR}/ldscores/annot.${CHR}.l2.ldscore.gz"
 
-# LDSC drops the annotation name from the LD score column; restore it so the
-# downstream .results file names our category instead of labelling it by
-# position. See the module docstring in 05a_label_ldscore_column.py.
-log_message "labelling LD score column for chr${CHR}"
+# Check the annotation set that reached the LD scores, and restore the column
+# names if this LDSC build dropped them (it does so only for a single-annotation
+# file). See the module docstring in 05a_label_ldscore_column.py.
+log_message "checking LD score column names for chr${CHR}"
 conda run --no-capture-output -p "$PY_ENV" python \
     "${SCRIPT_DIR}/05a_label_ldscore_column.py" \
     --annot "$ANNOT" \
