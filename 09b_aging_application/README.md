@@ -115,7 +115,7 @@ All of these are fitted on the primary spec's age effects.
 
 | arm / outcome | role |
 |---|---|
-| + `cell_composition_r2` | gating |
+| + `cell_composition_r2` | gating, **caudate only** — the column is built from the DNAm scMD proportions, so it inherits scMD's integration gate exactly as the `cell_scmd` spec does (see below) |
 | + `methylation_variance` | non-gating |
 | mappability ≥ 0.9 | non-gating |
 | + H3K27me3, bivalent, H3K9me3 and quiescent fractions | non-gating decomposition: does the gradient ride on PRC2/bivalent age-hypermethylation or on Module 04's architecture? Attenuation links the two; it is not a failure. |
@@ -184,8 +184,41 @@ Then a strict conjunction applies:
   least 50% of the primary coefficient.
 
 A gating member that cannot be fitted in a region is recorded as absent
-evidence, not contrary evidence. `cell_scmd` outside caudate is the case in
-point.
+evidence, not contrary evidence, with its reason in
+`gating-sensitivities.tsv:reason`. Outside caudate that is **both** scMD-derived
+members.
+
+**Corrected 2026-09-23.** `cell_composition_r2` is the per-VMR R² of methylation
+on the DNAm scMD proportion PCs
+(`04_repeat_repressive_architecture/_h/01_build_features.R:185-199`), so it is
+the same quantity `cell_scmd` adjusts for, reduced to one scalar per VMR. It was
+nevertheless fitted and gating in all three regions while `cell_scmd` was
+correctly declined in two — the same quantity gated out under one name and
+admitted under another. `02_axis_test.R` now declines any **gating** arm built
+from the scMD proportions where the integration gate fails, and records it in
+`axis-arms-skipped.tsv`.
+
+The judgement, since the column is a derived scalar and AGENTS.md §7.4 does ask
+for "cell-composition-**associated** methylation properties": the adjective is
+load-bearing. Where the scMD proportions do not track composition (total-neuron
+ρ −0.03 DLPFC, −0.10 hippocampus, against 0.72 caudate) the R² measures
+methylation variance shared with three PCs of something that is not composition,
+and the only claim a gating boolean can license — "the gradient is not cell
+composition" — is unavailable. `config/repeat_annotations.yml:334` already
+states the same rule for Module 04's own arm: *caudate only, when the
+integration gate passes*. The **descriptive** annotation use of the column
+(stage 02's annotation table) is unchanged and still fitted everywhere, flagged
+`scmd_derived_annotation`; there the column is the annotation being described,
+not an adjustment claiming to have removed composition.
+
+If the PI instead holds the column a methylation property, it should move out of
+`same_n_members` for the reason `methylation_variance` is already non-gating —
+a VMR's R² on donor PCs is partly a function of its total variance, which
+contains the age variance — and the DLPFC reading changes the same way. The
+readings only stay as sealed if the column is held to be both a methylation
+property **and** a legitimate gate, in which case this code change is reverted.
+`config/aging.yml` is `pi_locked` and was not edited; the arm's membership and
+role are as locked.
 
 The coverage gate `PASS_AGING_AXIS_COVERAGE` decides sealing. It is **not** a
 success criterion: a null result seals.
@@ -244,10 +277,14 @@ These are carried on every decision row.
 - In DLPFC and hippocampus the only donor-level composition estimate is RNA
   MuSiC, because DNAm scMD fails its neuronal concordance gate there (ρ −0.03
   and −0.10).
-  - Module 04's `cell_composition_r2`, used by the gating arm, is built from
-    scMD proportions in **all** regions, including those two.
+  - Module 04's `cell_composition_r2` is built from scMD proportions in **all**
+    regions, including those two. Since 2026-09-23 the arm that uses it is
+    declined where the scMD gate fails, so it no longer gates the DLPFC or
+    hippocampus reading.
   - Residual composition confounding therefore cannot be excluded outside
-    caudate.
+    caudate. That limitation now stands on its own and is **not** discharged by
+    an arm whose covariate cannot measure composition there. Outside caudate the
+    composition evidence is `cell_music` alone.
 
 ## Pipeline
 
@@ -255,7 +292,7 @@ These are carried on every decision row.
 |---|---|---|
 | 00 | `_h/00_new_run.R` | run, manifest, `diagnostic-methpc-age.tsv` |
 | 01 | `_h/01_age_effects.R` | `vmr-age-effects.tsv`, `age-spec-summary.tsv`, `checkpoint/age-inputs.rds` |
-| 02 | `_h/02_axis_test.R` | `axis-tests.tsv`, `axis-quartile-summary.tsv`, `annotation-age-associations.tsv`, bootstrap draws |
+| 02 | `_h/02_axis_test.R` | `axis-tests.tsv`, `axis-arms-skipped.tsv`, `axis-quartile-summary.tsv`, `annotation-age-associations.tsv`, bootstrap draws |
 | 03 | `_h/03_apply_gates.R` | `gate-checks.tsv`, `gating-sensitivities.tsv`, `aging-decision.tsv` |
 | 04 | `_h/04_finalize_run.R` | sealed run |
 | 05 | `_h/05_cross_region_concordance.R` | `_m/combined/aging-*-AA.tsv`, including `aging-annotation-{associations,cross-region}-AA.tsv` |
@@ -267,7 +304,10 @@ To run:
     Rscript _h/05_cross_region_concordance.R --cohort AA   # after all three are accepted
 
 Before any submission, run the smoke checks by hand:
-`Rscript 09b_aging_application/tests/test_age_functions.R`. There are 19
+`Rscript 09b_aging_application/tests/test_scmd_gate_consistency.R` (the scMD
+gate, arm provenance, and the region reading reproduced from the sealed runs'
+own `axis-tests.tsv`) and
+`Rscript 09b_aging_application/tests/test_age_functions.R`. The latter has 19
 checks, covering:
 - matrix fits against `lm()`;
 - donor alignment;
@@ -283,6 +323,27 @@ checks, covering:
 `config/aging.yml` locked by the PI. Acceptance is a human entry below.
 
 ## Accepted runs
+
+**The three runs below predate the 2026-09-23 scMD-gate correction and their
+DLPFC reading is superseded.** `_m/` is immutable, so the correction takes effect
+only in a new run. Reading the sealed `axis-tests.tsv` through the corrected
+stage-03 logic (`tests/test_scmd_gate_consistency.R`) gives, with no refitting:
+
+- **caudate: unchanged.** The scMD gate passes there, so the arm is legitimately
+  fitted, and `cell_scmd` gates and fails at p 0.057 on its own.
+  `PRIMARY_ONLY_FAILS_GATING_SENSITIVITY` stands.
+- **DLPFC: `PRIMARY_ONLY_FAILS_GATING_SENSITIVITY` →
+  `SUPPORTED_SURVIVES_GATING_SENSITIVITIES`.** `cell_composition_r2` was its only
+  failing member; `cell_music` (−0.39, p 0.0096) and `controls_only` (72% of the
+  primary) both survive.
+- **hippocampus: unchanged, `NOT_SUPPORTED`.** The primary is not significant
+  (p 0.28) and `cell_music` fails on its own.
+
+Cross-region, that is one supported non-caudate region, not two, so the
+association is still not region-general: the stage-05 token moves from
+`NOT_SUPPORTED` to `SINGLE_NONCAUDATE_REGION`. The arithmetic above is a
+projection from sealed numbers, not an accepted result; the accepted numbers
+come from the rerun.
 
 | run_id | cohort | region | vmr_set_id | accepted_on | accepted_by | decision | notes |
 |---|---|---|---|---|---|---|---|
