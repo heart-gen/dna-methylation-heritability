@@ -193,3 +193,81 @@ arm_skipped_for_scmd <- function(arm, scmd_ok) {
     !isTRUE(scmd_ok) && identical(as.character(arm$role), "gating") &&
         arm_is_scmd_derived(arm)
 }
+
+
+## Region reading under strict conjunction (config/aging.yml:region_reading).
+##
+## Extracted from 03_apply_gates.R, arithmetic unchanged, so tests can drive it
+## from a sealed run's axis-tests.tsv without rerunning a stage -- and so the
+## "conjunction over FITTED members only" rule has one implementation to check.
+##
+## `main` is axis-tests.tsv restricted to the primary outcome. `reason_for` maps
+## a member name to why it was not fitted, for the audit trail.
+region_reading_members <- function(main, rr, hyp,
+                                   reason_for = function(m) NA_character_) {
+    row_for <- function(member) {
+        r <- main[(spec == member & arm == "base") |
+                  (spec == "primary" & arm == member)]
+        if (nrow(r) > 1L) stop("Ambiguous region-reading member: ", member)
+        r
+    }
+    prim <- row_for("primary")
+    if (!nrow(prim)) stop("The primary spec has no axis row")
+    primary_supported <- prim$direction == hyp &&
+        prim$p < as.numeric(rr$primary_alpha)
+
+    member_rows <- list()
+    for (m in as.character(unlist(rr$same_n_members))) {
+        r <- row_for(m)
+        if (!nrow(r)) {
+            ## Not fitted in this region. Recorded with its reason, and it does
+            ## not count against the conjunction: a member that cannot be
+            ## fitted is absent evidence, not contrary evidence. Both reasons
+            ## that reach here are the scMD integration gate -- for the
+            ## `cell_scmd` spec (01_age_effects.R) and for any scMD-derived
+            ## gating arm (02_axis_test.R).
+            member_rows[[m]] <- data.table::data.table(
+                member = m, rule = rr$same_n_rule, fitted = FALSE,
+                survives = NA, estimate = NA_real_, p = NA_real_,
+                reason = reason_for(m))
+            next
+        }
+        member_rows[[m]] <- data.table::data.table(
+            member = m, rule = rr$same_n_rule, fitted = TRUE,
+            survives = r$direction == hyp && r$p < as.numeric(rr$primary_alpha),
+            estimate = r$estimate, p = r$p, reason = NA_character_)
+    }
+    for (m in as.character(unlist(rr$reduced_n_members))) {
+        r <- row_for(m)
+        if (!nrow(r)) stop("Reduced-n member ", m, " was not fitted")
+        frac <- r$estimate / prim$estimate
+        member_rows[[m]] <- data.table::data.table(
+            member = m, rule = rr$reduced_n_rule, fitted = TRUE,
+            survives = r$direction == hyp && is.finite(frac) &&
+                frac >= as.numeric(rr$reduced_n_min_fraction),
+            estimate = r$estimate, p = r$p, reason = NA_character_,
+            fraction_of_primary = frac)
+    }
+    members <- data.table::rbindlist(member_rows, fill = TRUE)
+
+    ## The conjunction is over FITTED members only, and `all(logical(0))` is
+    ## TRUE, so an empty same-n set would silently return a vacuous "survives
+    ## every sensitivity". Refuse it rather than report it.
+    same_n <- as.character(unlist(rr$same_n_members))
+    if (!any(members$fitted & members$member %in% same_n)) {
+        stop("No same-n gating member was fitted; the strict conjunction would ",
+             "be vacuous. Check the scMD integration gate and config/aging.yml:",
+             "region_reading.same_n_members.")
+    }
+    all_survive <- all(members$survives[members$fitted])
+
+    reading <- if (!primary_supported) {
+        if (prim$p < as.numeric(rr$primary_alpha)) "OPPOSITE_DIRECTION" else "NOT_SUPPORTED"
+    } else if (all_survive) {
+        "SUPPORTED_SURVIVES_GATING_SENSITIVITIES"
+    } else {
+        "PRIMARY_ONLY_FAILS_GATING_SENSITIVITY"
+    }
+    list(members = members, prim = prim, primary_supported = primary_supported,
+         all_survive = all_survive, reading = reading)
+}
