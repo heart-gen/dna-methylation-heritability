@@ -55,7 +55,15 @@ REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # carry dots (donor-group cells: all_individuals.EA) and the older calibration
 # runs carry no date at all. Match generously; the classification never depends
 # on parsing a run ID, only the superseded_by hint does.
-RUN_TOKEN = re.compile(r"[a-z0-9]+(?:-[A-Za-z0-9_.]+)+-\d{8}(?:-[a-z])?")
+#
+# The suffix is `-?[a-z]`, not `-[a-z]`: this repo mints BOTH `fig-all-20260922-c`
+# and `lgv-joint-pve-decision-20260821a`, and 13 live directories use the second
+# form. Matching only the hyphenated form truncated those to a shorter ID, so a
+# manifest or config citing `...-20260821a` protected `...-20260821` instead and
+# left the real run exposed -- under-protection, the one direction that loses
+# data. The trailing lookahead stops a match running on into an adjacent word.
+RUN_TOKEN = re.compile(
+    r"[a-z0-9]+(?:-[A-Za-z0-9_.]+)+-\d{8}(?:-?[a-z])?(?![A-Za-z0-9])")
 SMOKE = re.compile(r"smoke|dry|probe|\btest\b", re.I)
 
 # Directories under _m/runs/ that are not runs.
@@ -71,7 +79,20 @@ def sh(*args):
 
 
 def accepted_ids(module):
-    """Run IDs in a module README's `## Accepted runs` table."""
+    """Run IDs in a module README's `## Accepted runs` table.
+
+    This reads every table row until the next `##` heading, so a section
+    holding a SECOND table collects that table's first column too -- Module 03
+    has one keyed by `cell`, which yields tokens like `all_individuals.EA`.
+    That is deliberate and must stay. The only use of this set is protection,
+    so over-collecting can at worst spare a directory, while under-collecting
+    deletes one; a token matching no run directory costs nothing.
+
+    Do not "tighten" this to the first table to match
+    `gates.R::read_accepted_runs()`, which is column-validated and correctly
+    returns only real rows. The two have opposite failure costs: the gate must
+    not admit a bogus acceptance, this must not miss a real one.
+    """
     path = os.path.join(REPO, module, "README.md")
     if not os.path.exists(path):
         return set()
@@ -124,12 +145,8 @@ def dir_bytes(path):
         return 0
 
 
-def main():
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--write", action="store_true",
-                    help="write DEPRECATED_RUNS.tsv (otherwise summarise only)")
-    args = ap.parse_args()
-
+def discover_modules():
+    """{module: [run_id, ...]} for every module with an `_m/runs/` tree."""
     modules = {}
     for entry in sorted(os.listdir(REPO)):
         runs_dir = os.path.join(REPO, entry, "_m", "runs")
@@ -138,12 +155,23 @@ def main():
         modules[entry] = sorted(
             d for d in os.listdir(runs_dir)
             if os.path.isdir(os.path.join(runs_dir, d)) and d not in NOT_A_RUN)
+    return modules
 
+
+def compute_protected(modules):
+    """The five protection clauses. Returns (protected_ids, figure_run).
+
+    This is the single source of truth for what may not be deleted, and it is
+    deliberately cheap -- no `du`, only reads -- so the cleanup stage can
+    recompute it immediately before removing anything rather than trusting a
+    DEPRECATED_RUNS.tsv that may have been written weeks earlier. A run that
+    became load-bearing after the ledger was generated is invisible to the
+    ledger and must not be invisible here.
+    """
     accepted = {m: accepted_ids(m) for m in modules}
-    all_accepted = set().union(*accepted.values()) if accepted else set()
+    protected = set().union(*accepted.values()) if accepted else set()
 
     # Clauses 3-5.
-    protected = set(all_accepted)
     for m, ids in accepted.items():
         for rid in ids:
             protected |= manifest_refs(
@@ -154,11 +182,43 @@ def main():
                 open(os.path.join(REPO, f), encoding="utf-8", errors="replace").read()))
         except OSError:
             pass
+    # Clause 6: any run named in `config/`. A locked config pins the runs a
+    # decision rests on, and those are exactly the runs no accepted result
+    # consumes -- so clauses 1-5, which all ask "is this an input to something
+    # accepted?", are blind to them by construction.
+    #
+    # `config/local_genetic_control.yml` is the case that matters:
+    # `decision_run_id`, `validation_run_id` and `training_run_id` name the
+    # runs behind AGENTS.md 7.2's retirement of `h2_en_calibrated`, and
+    # `frozen_model_sha256` pins the model 7.2 requires be applied once. Two of
+    # those three classified as `superseded`. They survived the first cleanup
+    # tranche only because no successor could be guessed for them, which is a
+    # naming heuristic, not knowledge that the project depends on them.
+    for root, _, files in os.walk(os.path.join(REPO, "config")):
+        for name in files:
+            try:
+                protected |= set(RUN_TOKEN.findall(
+                    open(os.path.join(root, name), encoding="utf-8",
+                         errors="replace").read()))
+            except OSError:
+                pass
+
     fig = newest_figure_run(modules)
     if fig:
         protected.add(fig)
         protected |= manifest_refs(os.path.join(
             REPO, "11_integrated_manuscript_outputs", "_m", "runs", fig, "manifest.tsv"))
+    return protected, fig
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--write", action="store_true",
+                    help="write DEPRECATED_RUNS.tsv (otherwise summarise only)")
+    args = ap.parse_args()
+
+    modules = discover_modules()
+    protected, fig = compute_protected(modules)
 
     def hint(module, rid):
         """Longest-prefix protected run in the same module."""
@@ -203,21 +263,58 @@ def main():
                 "cleanup_status": "pending",
             })
 
-    rows.sort(key=lambda r: (r["module"], r["run_id"]))
     cols = ["module", "run_id", "path", "status", "bytes", "superseded_by",
             "reason", "review_required", "deprecated_on", "cleanup_status"]
 
-    total = sum(int(r["bytes"]) for r in rows)
-    by = {}
+    # Carry forward what the cleanup stage already did. This survey only sees
+    # directories that still exist, so a deleted run would silently vanish from
+    # the ledger on the next --write and take the record of its deletion with
+    # it -- leaving no answer to "what was removed, and when". Rows already
+    # marked `deleted:` are preserved verbatim, and a previously recorded
+    # `cleanup_status` is kept for any run still on disk so a human decision
+    # (`keep`, `hold`, ...) is not reset by re-running the survey.
+    previous = {}
+    out = os.path.join(REPO, "DEPRECATED_RUNS.tsv")
+    if os.path.exists(out):
+        with open(out, encoding="utf-8") as fh:
+            head = fh.readline().rstrip("\n").split("\t")
+            for line in fh:
+                if line.strip():
+                    r = dict(zip(head, line.rstrip("\n").split("\t")))
+                    previous[r.get("run_id", "")] = r
+
+    live = {r["run_id"] for r in rows}
     for r in rows:
+        prior = previous.get(r["run_id"], {}).get("cleanup_status", "")
+        if prior and prior != "pending":
+            r["cleanup_status"] = prior
+    for rid, r in previous.items():
+        if rid not in live and r.get("cleanup_status", "").startswith("deleted"):
+            rows.append({c: r.get(c, "") for c in cols})
+
+    rows.sort(key=lambda r: (r["module"], r["run_id"]))
+
+    # Summarise only what is still on disk. The carried-forward `deleted:` rows
+    # are history, and counting their bytes here would report space that has
+    # already been reclaimed as though it were still waiting to be.
+    pending = [r for r in rows if not r["cleanup_status"].startswith("deleted")]
+    gone = [r for r in rows if r["cleanup_status"].startswith("deleted")]
+
+    total = sum(int(r["bytes"]) for r in pending)
+    by = {}
+    for r in pending:
         s = by.setdefault(r["status"], [0, 0])
         s[0] += 1
         s[1] += int(r["bytes"])
     print(f"protected (kept, not listed): {skipped}")
     for s, (n, b) in sorted(by.items()):
         print(f"  {s:<12} {n:4d} dirs  {b / 1e9:7.2f} GB")
-    print(f"  {'TOTAL':<12} {len(rows):4d} dirs  {total / 1e9:7.2f} GB")
-    print(f"  review_required: {sum(1 for r in rows if r['review_required'] == 'TRUE')}")
+    print(f"  {'TOTAL':<12} {len(pending):4d} dirs  {total / 1e9:7.2f} GB")
+    print(f"  review_required: {sum(1 for r in pending if r['review_required'] == 'TRUE')}")
+    if gone:
+        freed = sum(int(r["bytes"]) for r in gone)
+        print(f"  already deleted: {len(gone):4d} dirs  {freed / 1e9:7.2f} GB "
+              f"(history, retained in this file)")
     if fig:
         print(f"current figure run protected: {fig}")
 
@@ -225,7 +322,6 @@ def main():
         print("\n(dry run; pass --write to update DEPRECATED_RUNS.tsv)")
         return 0
 
-    out = os.path.join(REPO, "DEPRECATED_RUNS.tsv")
     tmp = out + ".tmp"
     with open(tmp, "w", encoding="utf-8") as fh:
         fh.write("\t".join(cols) + "\n")

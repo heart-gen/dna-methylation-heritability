@@ -1,0 +1,23 @@
+field	value
+run_id	vmrcatqc-all_individuals-hippocampus-20260826
+analysis	vmrcatqc
+cohort	all_individuals
+region	hippocampus
+vmr_set_id	vmrset-all_individuals-hippocampus-809f8de0db2d
+git_commit	205a41bea65714047cc7f0ace0d33c26229f9ab6
+git_dirty	true
+started_at	2026-08-26T00:20:56-0500
+r_version	4.4.3
+conda_prefix	""
+hostname	quser33
+slurm_job_id	""
+slurm_array_id	""
+config_paths_sha256	7bd4f190ad3544d9d1de49d8fc2b31084603c8b2aa6f1b94dd9c7cee06d146bb
+config_cohorts_sha256	f2ecbb5c2291244db867042478fa3f6092b4742c2035df7a5c878c1bc8c1bcde
+config_thresholds_sha256	67ad135f3144c21dfe1310c3e46822e1f9d29129536a537231c8f807954c305c
+config_covariates_sha256	9e200f9ba5cb8bf69efa405f261ed00fd84c511fe8110c3fc4c772e1a97107dd
+upstream_vmr_run_id	vmrcat-all_individuals-hippocampus-20260816
+stage	04_turnover_array_coverage_only
+rerun_reason	array universes absent when source run was sealed
+finished_at	2026-08-26T00:21:20-0500
+n_output_files	27
