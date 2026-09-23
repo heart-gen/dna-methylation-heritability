@@ -116,7 +116,22 @@ def safe_path(row):
 
 
 def archive_provenance(full, row):
-    """Copy the run's provenance files out before the tree is removed."""
+    """Copy the run's provenance files out before the tree is removed.
+
+    Replacing an existing archive entry rather than writing beside it is
+    deliberate, and so is not treating one as "already done". A run can reach
+    this function twice: the sealed Module 02 runs archived cleanly and then
+    failed at `rmtree`, so their files were here a day before the tree was.
+    `shutil.copy2` carries the source mode across, those sources were sealed
+    0444, and a second copy onto a 0444 file raises EACCES -- which guard 4
+    reads as a failed archive and refuses to delete. Retrying a delete would
+    have been impossible for exactly the runs most likely to need a retry.
+
+    The archive is therefore written read-only explicitly, not incidentally.
+    It is the surviving record of a run that no longer exists, and its mode
+    should not depend on whether the source happened to be sealed on the day
+    it was copied.
+    """
     dest = os.path.join(PROVENANCE, row["module"], row["run_id"])
     saved = []
     for name in KEEP:
@@ -124,7 +139,12 @@ def archive_provenance(full, row):
         if not os.path.exists(src):
             continue
         os.makedirs(dest, exist_ok=True)
-        shutil.copy2(src, os.path.join(dest, name))
+        out = os.path.join(dest, name)
+        if os.path.lexists(out):
+            os.chmod(out, 0o644)
+            os.unlink(out)
+        shutil.copy2(src, out)
+        os.chmod(out, 0o444)
         saved.append(name)
     return saved
 
