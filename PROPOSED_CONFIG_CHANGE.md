@@ -52,3 +52,33 @@ Proposed diff (comments only — no key, value or behaviour changes):
 If this is accepted, it changes no fit, no gate and no run: the config checksum
 in a future run's manifest would differ from the 2026-09-06 runs' for a
 comment-only reason, which is the only cost.
+
+## One decision the PI may want to make explicit (also not blocking)
+
+`cell_composition_dnam_scmd` carries no `gating:` key, and every sensitivity in
+this block is gating unless it says otherwise -- `exclude_snp_proximal_cpgs` has
+`descriptive_only: true` and `matched_measurability` has `gating: false`. The
+implementation follows that reading: where the integration gate passes, the
+`adjust_cell_composition_scmd` arm joins the survival conjunction.
+
+The consequence is asymmetric by construction and worth seeing before the rerun:
+**caudate's conjunction gains one arm that DLPFC's and hippocampus's do not
+have**, so a caudate outcome must now also survive the scMD-adjusted refit. On
+the accepted run caudate carries the quiescent survival (LINE/L1 is already set
+aside there as technically confounded), so if the scMD refit attenuates it, a
+3/3 quiescent claim could become 2/3 for a reason that exists in one region only.
+That is the locked config's rule working as written, not a defect, and the claims
+table now names the asymmetry in `sensitivity_arms_not_fitted`. But if the PI
+intends the scMD arm to be reported and never to break a claim, the one-line
+change is:
+
+```diff
+-  cell_composition_dnam_scmd: true    # caudate only, when the integration gate passes
++  cell_composition_dnam_scmd:
++    # caudate only, when the integration gate passes
++    gating: false
+```
+
+which would need a matching two-line change in `_h/02_test_association.R` to
+write that arm to its own file, exactly as `exclude_snp_proximal` is handled.
+No such change has been made: the code implements the config as it stands.
