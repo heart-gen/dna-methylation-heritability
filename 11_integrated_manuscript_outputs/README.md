@@ -82,7 +82,7 @@ three are properties of Module 11 rather than oversights:
 | `figureS_local_control_denominators[...]` | denominators and exclusion reasons | as Figure 2 |
 | `figureS_local_control_audit_unbounded[...]` | unbounded joint estimate, **audit only** | as Figure 2 |
 | `figureS_partitioned_heritability` | S-LDSC across the frozen 8-trait family. **A null**, reported as one | `sldsc-AA-*-20260903` |
-| `figureS_aging_axis` | **a** primary age gradient **b** gating sensitivities, incl. the composition arm that removes it | `age-AA-*-20260919` |
+| `figureS_aging_axis` | **a** primary age gradient **b** gating sensitivities, with the verdict derived from the run (see below) | `age-AA-*-20260919` |
 | `figureS_environmental_axis` | stage B proportional gradients, with both acceptance caveats on the panel | `env-AA-*-20260920-a` |
 | `figureS_schizophrenia_application` | **a** the axis depletion **b** locus evidence tiers **c** prioritized loci | `scz-AA-*-20260918` |
 | `figure_region_donor_generalization` + `_sensitivity` | Module 08 tiers | `rdg-AA-crossregion-20260918` |
@@ -96,6 +96,36 @@ three are properties of Module 11 rather than oversights:
 
 AA is the primary arm; `all_individuals` renders from the same builders as the
 sensitivity supplement.
+
+### The aging supplement's verdict is derived, not typed (corrected 2026-09-23)
+
+`figureS_aging_axis` panel b used to carry its conclusion as a string literal:
+"The VMR composition-sensitivity arm removes the gradient in every region,
+which is why the cross-region token is NOT_SUPPORTED", with a matching claim in
+the source table's `row_filter`. A per-region verdict written as prose goes
+stale silently the next time the verdict changes, and this one did — the
+Module 09b scMD-gate correction is projected to flip DLPFC's reading and move
+the stage-05 token off `NOT_SUPPORTED`.
+
+The caption is now built from the run: the token from
+`_m/combined/aging-cross-region-decision-{cohort}.tsv`, the supported regions
+from `region_supported`, and the failing arms from `fitted`/`survives` in each
+run's `gating-sensitivities.tsv`, with the fitted denominator **counted** rather
+than asserted as "every region". Where Module 09b supplies a `reason` for a
+not-fitted arm, the caption quotes it. The verdict also ships as data on the
+panel table (`cross_region_token`, `region_reading`, `region_supported`,
+`caption_rendered`), so a reader can check the caption against the numbers it
+was built from.
+
+This shares a root cause with the Figure 2 panel b correction above: in both
+cases Module 11 stated something its declared upstream run did not supply, and
+§7.11's requirement that a panel record its source run, table, script and
+filter is satisfied by none of it.
+
+On the sealed numbers the derived caption is already more accurate than the
+prose it replaces: `cell_composition_r2` fails in 3 of 3 regions, but
+`cell_music` also fails in 1 of 3 and `cell_scmd` in 1 of 1 fitted, which the
+single-arm sentence never said.
 
 ### The environmental supplement
 
