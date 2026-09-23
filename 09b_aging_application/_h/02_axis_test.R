@@ -24,6 +24,15 @@
 ## Arms change only the axis model (covariates or row subset) on the primary
 ## spec's age effects; the secondary outcome changes only the outcome.
 ##
+## A GATING arm built from the DNAm scMD proportions is not fitted where scMD
+## fails its integration gate, exactly as the `cell_scmd` age spec is not fitted
+## there (01_age_effects.R). `cell_composition_r2` is such an arm: Module 04
+## builds it from dnam-scmd-proportions-{region}.tsv, so gating a region's
+## verdict on it while declining to fit cell_scmd in that same region would
+## admit the same quantity under a second name. See age_functions.R:
+## SCMD_DERIVED_FEATURES for the judgement and what would change if it is
+## overturned. Declined arms go to results/axis-arms-skipped.tsv.
+##
 ## DESCRIPTIVE annotation associations (config/aging.yml:
 ## annotation_associations) are fitted here too, because they need the same
 ## donor-bootstrap draws: the same outcomes regressed on one Module 04 or 07
@@ -109,8 +118,38 @@ main_out <- cfg$axis$outcome; main_scale <- cfg$axis$outcome_scale
 for (sp in names(ck$designs)) {
     add_test(sp, "base", main_out, main_scale, spec_cfg[[sp]]$role, base_covs)
 }
+## The scMD integration gate, re-read from the concordance table exactly as
+## stage 01 read it, and cross-checked against what stage 01 recorded: the arm
+## rule below and the `cell_scmd` spec rule must never disagree within a run.
+scmd_ok <- scmd_gate_passes(region, cfg$cell_composition$scmd_gate_table)
+gate_recorded <- mf("scmd_integration_gate")
+if (!is.na(gate_recorded) &&
+    !identical(gate_recorded, if (scmd_ok) "PASS" else "FAIL")) {
+    stop("scMD integration gate is ", if (scmd_ok) "PASS" else "FAIL",
+         " here but stage 01 recorded ", gate_recorded)
+}
+
+arm_scmd <- list()
+arm_skipped <- list()
 for (arm in names(cfg$axis$arms)) {
     a <- cfg$axis$arms[[arm]]
+    arm_scmd[[arm]] <- arm_is_scmd_derived(a)
+    ## A gating arm built from the scMD proportions is not fitted where scMD
+    ## fails its integration gate -- the same treatment the `cell_scmd` spec
+    ## gets in 01_age_effects.R, for the same reason (age_functions.R:
+    ## SCMD_DERIVED_FEATURES documents why a derived scalar is still an scMD
+    ## adjustment when it is used to gate).
+    if (arm_skipped_for_scmd(a, scmd_ok)) {
+        arm_skipped[[arm]] <- data.table(
+            arm = arm, role = as.character(a$role), fitted = FALSE,
+            reason = "scmd_integration_gate_fails_in_region",
+            scmd_derived_covariate = TRUE,
+            covariates = paste(as.character(unlist(a$add_covariates)),
+                               collapse = ","))
+        message("[09b] arm ", arm, " not fitted: scMD integration gate FAILS in ",
+                region)
+        next
+    }
     covs <- c(base_covs, as.character(unlist(a$add_covariates)))
     rows <- if (!is.null(a$subset)) {
         v <- dt[[a$subset$column]]
@@ -210,6 +249,8 @@ estimate_ann <- function(outs) {
            numeric(1))
 }
 
+scmd_arms <- names(arm_scmd)[vapply(arm_scmd, isTRUE, logical(1))]
+
 estimate_all <- function(outs, keys) {
     vapply(keys, function(k) {
         t <- tests[[k]]
@@ -266,6 +307,11 @@ res <- rbindlist(lapply(names(tests), function(k) {
         ## estimate. Large for the debiased outcome by construction (~SE^2),
         ## which is why no percentile interval is formed.
         bootstrap_mean_minus_estimate = mean(boot[, k], na.rm = TRUE) - est[[k]],
+        ## Whether this row's adjustment comes from the DNAm scMD proportions,
+        ## so a reader can see which rows the integration gate governs without
+        ## knowing how cell_composition_r2 is built.
+        scmd_derived_covariate = t$arm %in% scmd_arms ||
+            isTRUE(spec_cfg[[t$spec]]$requires_scmd_integration_gate),
         covariates = paste(t$ax$covariates, collapse = ","))
 }))
 res[, direction := fifelse(estimate < 0, "negative", "positive")]
@@ -273,7 +319,17 @@ res[, hypothesized_direction := fifelse(outcome == main_out,
                                         cfg$axis$hypothesized_sign, NA_character_)]
 res[, `:=`(cohort = cohort, region = region, run_id = opts$run_id,
            predictor = predictor,
+           scmd_integration_gate = if (scmd_ok) "PASS" else "FAIL",
            inference = "donor_bootstrap_var_plus_chromosome_jackknife_var")]
+
+## Arms declined in this region, written even when empty so stage 03 always has
+## a reason to record for a member it cannot find.
+skipped <- if (length(arm_skipped)) rbindlist(arm_skipped, fill = TRUE) else
+    data.table(arm = character(0), role = character(0), fitted = logical(0),
+               reason = character(0), scmd_derived_covariate = logical(0),
+               covariates = character(0))
+skipped[, `:=`(cohort = cohort, region = region, run_id = opts$run_id,
+               scmd_integration_gate = if (scmd_ok) "PASS" else "FAIL")]
 
 ## ------------------------------------------------------------- descriptive
 d <- obs_out$primary[[main_out]]
@@ -301,6 +357,12 @@ ann_res <- rbindlist(lapply(names(ann_tests), function(k) {
         annotation = t$annotation, source_module = t$source_module,
         adjustment = t$adjustment, outcome = t$outcome, outcome_scale = t$scale,
         annotation_type = if (t$binary) "indicator" else "continuous_z",
+        ## Descriptive rows are fitted in every region on purpose
+        ## (config/aging.yml:213 keeps cell_composition_r2 here with the caveat
+        ## that outside caudate it is a weak composition proxy). Flagged so a
+        ## reader of this table cannot mistake it for a gated composition
+        ## adjustment; it never enters the region reading.
+        scmd_derived_annotation = sub("_z$", "", t$annotation) %in% SCMD_DERIVED_FEATURES,
         n_vmrs = sum(t$ax$ok),
         n_annotated = if (t$binary) sum(x == 1) else NA_integer_,
         estimate = est_ann[[k]], se = inf$se,
@@ -326,6 +388,7 @@ ann_res[, `:=`(cohort = cohort, region = region, run_id = opts$run_id, spec = "p
                inference = "donor_bootstrap_var_plus_chromosome_jackknife_var")]
 
 write_atomic(res, file.path(run_dir, "results", "axis-tests.tsv"))
+write_atomic(skipped, file.path(run_dir, "results", "axis-arms-skipped.tsv"))
 write_atomic(ann_res, file.path(run_dir, "results", "annotation-age-associations.tsv"))
 saveRDS(boot_ann, file.path(run_dir, "checkpoint", "annotation-bootstrap.rds"))
 write_atomic(quart, file.path(run_dir, "results", "axis-quartile-summary.tsv"))
@@ -339,6 +402,7 @@ saveRDS(stats::setNames(lapply(base_keys, function(k) tests[[k]]$ax),
         file.path(run_dir, "checkpoint", "axis-designs.rds"))
 append_manifest(list(dir = run_dir), list(
     n_axis_tests = as.character(nrow(res)),
+    axis_arms_not_fitted = paste(skipped$arm, collapse = ","),
     n_annotation_tests = as.character(length(ann_tests)),
     n_bootstrap_completed = as.character(B),
     max_bootstrap_failed = as.character(max(res$n_bootstrap_failed))

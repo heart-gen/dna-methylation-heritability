@@ -139,3 +139,57 @@ scmd_gate_passes <- function(region, gate_table, root = repo_root()) {
     isTRUE(row$rho >= as.numeric(val$min_neuronal_spearman_rho) &&
            row$neuron_fdr <= as.numeric(val$max_neuronal_fdr))
 }
+
+
+## Module 04 feature columns whose VALUE is computed FROM the DNAm scMD donor
+## proportions, and which therefore inherit scMD's integration gate.
+##
+## `cell_composition_r2` is the per-VMR R^2 of methylation across donors on the
+## scMD proportion PCs: 04_repeat_repressive_architecture/_h/01_build_features.R
+## lines 185-199 read inputs/cell_proportions/_m/dnam-scmd-proportions-{region}.tsv
+## and project each VMR's phenotype onto its PCs. It is the same quantity that
+## the `cell_scmd` age spec adjusts for, reduced to one scalar per VMR.
+##
+## Module 04 does NOT apply the integration gate when it BUILDS the column, and
+## it does not need to: the column is well defined in every region. The gate
+## belongs where the column is CONSUMED as a cell-composition adjustment, which
+## is here. That is why this fix needs no Module 04 rerun.
+##
+## WHY A GATED ARM RATHER THAN A METHYLATION PROPERTY. The column is a derived
+## scalar, so it can be read as a property of the VMR's methylation -- AGENTS.md
+## 7.4 does ask for "cell-composition-associated methylation properties" as an
+## adjustment. But the adjective is load-bearing. Outside caudate the scMD
+## proportions do not track composition at all (total-neuron rho -0.03 dlpfc,
+## -0.10 hippocampus, against 0.72 caudate; config/cell_deconvolution.yml
+## validation), so there the R^2 measures methylation variance shared with three
+## PCs of a quantity that is not composition. As a GATING member its output is a
+## boolean that moves the module's verdict, and the only claim that boolean can
+## license is "the gradient is not cell composition". Where scMD fails its gate
+## the arm cannot license that claim, so it must be treated exactly as
+## `cell_scmd` is: absent evidence, not contrary evidence.
+## config/repeat_annotations.yml:334 already states the same rule for Module 04's
+## own arm -- "caudate only, when the integration gate passes".
+##
+## The DESCRIPTIVE annotation block (config/aging.yml:annotation_associations)
+## keeps the column in every region on purpose, with that caveat written into
+## the config at line 211: there it is the annotation being described, not an
+## adjustment claiming to have removed composition, and it never reaches the
+## region reading.
+SCMD_DERIVED_FEATURES <- c("cell_composition_r2")
+
+## Does an axis arm's covariate set or row subset depend on an scMD-derived
+## feature? Arms are declared in config/aging.yml:axis.arms.
+arm_is_scmd_derived <- function(arm) {
+    cols <- unique(c(as.character(unlist(arm$add_covariates)),
+                     as.character(unlist(arm$subset$column))))
+    any(cols %in% SCMD_DERIVED_FEATURES)
+}
+
+## An scMD-derived arm in the GATING role is not fitted where the scMD
+## integration gate fails, mirroring the `requires_scmd_integration_gate` spec
+## rule in 01_age_effects.R. A non-gating arm is still fitted: it cannot move
+## the verdict, and it is flagged in axis-tests.tsv instead.
+arm_skipped_for_scmd <- function(arm, scmd_ok) {
+    !isTRUE(scmd_ok) && identical(as.character(arm$role), "gating") &&
+        arm_is_scmd_derived(arm)
+}
