@@ -238,14 +238,20 @@ reconcile <- function(expected, completed, excluded = character(),
 
     if (!is.null(run)) {
         write_atomic(summary, file.path(run$dir, "task_reconciliation.tsv"))
-        if (length(unaccounted) > 0 || length(failed) > 0) {
-            write_atomic(
-                data.table::data.table(
-                    task = c(unaccounted, failed),
-                    status = c(rep("unaccounted", length(unaccounted)),
-                               rep("failed", length(failed)))),
-                file.path(run$dir, "task_failures.tsv"))
-        }
+        ## Write the failure list UNCONDITIONALLY, header-only when there are no
+        ## failures. It was previously written only when failures existed and was
+        ## never cleared, so a run that failed tasks, was re-driven and then
+        ## reconciled clean kept the old list beside a reconciliation reporting
+        ## zero failures. A reader auditing AGENTS.md 9 compliance then sees
+        ## failures that did not occur in the accepted attempt. Both files are
+        ## now written by the same unconditional write_atomic() call in the same
+        ## block, so the pair always describes one reconcile.
+        write_atomic(
+            data.table::data.table(
+                task = c(unaccounted, failed),
+                status = c(rep("unaccounted", length(unaccounted)),
+                           rep("failed", length(failed)))),
+            file.path(run$dir, "task_failures.tsv"))
     }
 
     if (length(unexpected) > 0) {
