@@ -23,8 +23,16 @@
 ## Other repairs:
 ##   V6  top-CpG indexing guarded by the observed CpG count.
 ##   V7  chunks recombined in numeric order with a donor-order check.
+##
+##   F14 get_snp_pcs() drops donors with NA genotype PCs, and align_by_id() then
+##       carries that reduction into the residual matrix the VMR cutoff is
+##       computed from. That was a message in a SLURM log and nothing else. It is
+##       now recorded per chromosome for qc/exclusions.tsv, with the asymmetry it
+##       creates stated: VMR *boundaries* would come from the reduced donor set
+##       while 02_summarize.R computes VMR *phenotypes* on the full one.
 
 source(file.path(Sys.getenv("V2_REPO_ROOT", "."), "00_shared", "load.R"))
+source(file.path(V2_ROOT, "01_vmr_catalog", "_h", "exclusion_ledger.R"))
 
 suppressPackageStartupMessages({
     library(bsseq)
@@ -252,17 +260,42 @@ res_meth <- cbind(data.table(FID = donor_ids_ref, IID = a$y$IID),
                   do.call(cbind, resid_parts))
 write_atomic(res_meth, file.path(cpg_dir, "res_cpg_meth.phen"))
 
+## ---------------------------------------------- donor exclusion ledger (F14)
+##
+## Anything the residualization lost relative to the prepared matrix. Today this
+## is empty in every accepted run, which is exactly why it has to be written: a
+## recorded zero says the genotype PCs were complete, an absent file says nobody
+## looked. This is a record, not a filter -- donor_ids_ref was already fixed
+## above and is not touched here.
+dropped_donors <- setdiff(meth_ids_file, donor_ids_ref)
+if (length(dropped_donors) > 0) {
+    message("[donors] WARNING: ", length(dropped_donors), " donor(s) present in ",
+            "the prepared matrix are absent from the residualized one on chr",
+            chrom, ": ", paste(head(dropped_donors, 5), collapse = ", "),
+            "\n  The residual-SD cutoff that defines a VMR is therefore computed ",
+            "on ", length(donor_ids_ref), " donors while 02_summarize.R computes ",
+            "VMR phenotypes on ", length(meth_ids_file), ". Recorded in the ",
+            "exclusion ledger; resolve before treating the run as production.")
+}
+write_atomic(
+    excl_rows(stage = "01_analyze", unit_type = "donor",
+              exclusion_reason = "donor_missing_genotype_pcs_dropped_from_residualization",
+              unit_id = dropped_donors, chrom = chrom),
+    file.path(pca_dir, "exclusions_donors.tsv"))
+
 write_atomic(
     data.table(
         field = c("cohort", "region", "chrom", "n_donors", "n_cpgs",
                   "n_chunks", "donor_checksum", "snp_pcs_regressed",
-                  "meth_pcs_regressed", "sd_median", "sd_q99"),
+                  "meth_pcs_regressed", "sd_median", "sd_q99",
+                  "n_donors_prepared", "n_donors_dropped_missing_snp_pcs"),
         value = c(cohort, region, chrom, length(donor_ids_ref), nrow(res_var),
                   length(starts), donor_checksum(donor_ids_ref),
                   n_snp_pcs, n_meth_pcs,
                   format(median(res_var$sd, na.rm = TRUE), digits = 10),
                   format(quantile(res_var$sd, vmr_cfg$sd_quantile, na.rm = TRUE),
-                         digits = 10))),
+                         digits = 10),
+                  length(meth_ids_file), length(dropped_donors))),
     file.path(pca_dir, "analyze_summary.tsv"))
 
 message("[done] chr", chrom, ": residual variance for ", nrow(res_var),
