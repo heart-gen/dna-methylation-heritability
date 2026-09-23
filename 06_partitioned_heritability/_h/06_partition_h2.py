@@ -1,22 +1,29 @@
 #!/usr/bin/env python3
-"""06_partitioned_heritability -- run S-LDSC for one trait against the annotation.
+"""06_partitioned_heritability -- run S-LDSC for one trait against the model.
 
 Usage:
     python 06_partition_h2.py --run-id <id> --trait scz
 
-Reports the three metrics named in the legacy interpreting_sldsc_results.md:
-enrichment, enrichment p, and the tau coefficient z-score.
+Reports the three metrics named in the legacy interpreting_sldsc_results.md --
+enrichment, enrichment p, and the tau coefficient z-score -- once per annotation.
 
-For a CONTINUOUS annotation, "Enrichment" from LDSC is the ratio of the share of
-heritability to the share of the annotation's total value, and the coefficient
-z-score is the test of whether the annotation adds signal over the baselineLD
-model. The z-score is the primary statistic here: enrichment on a continuous
-annotation is scale-dependent, while tau is conditional on baselineLD and is
-what supports "heritability concentrates where local genetic control is high".
+The model is baselineLD plus TWO annotations of ours: the binary VMR_TESTED
+membership indicator and the continuous LOCAL_SNP_CONTRIBUTION_Z score. tau on
+the score is therefore conditional on membership, which is what makes it the
+within-VMR gradient the module claims to test; see annotations.py. tau on
+VMR_TESTED answers a different question -- are tested VMRs enriched at all --
+and stage 07 reports it descriptively, outside the frozen FDR family.
+
+For a CONTINUOUS annotation the tau z-score is the primary statistic:
+"Enrichment" from LDSC is the ratio of the heritability share to the share of the
+annotation's total value, and for a signed score that denominator is a signed
+sum, so the ratio is not interpretable. Each emitted row carries
+`enrichment_interpretable` so a reader does not have to remember which is which.
 """
 from __future__ import annotations
 
 import argparse
+import gzip
 import os
 import subprocess
 import sys
@@ -25,7 +32,9 @@ from pathlib import Path
 import pandas as pd
 import yaml
 
-ANNOT_NAME = "LOCAL_SNP_CONTRIBUTION_Z"
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from annotations import (ANNOT_COLUMNS, ANNOT_ROLE, ENRICHMENT_INTERPRETABLE,
+                         PRIMARY_ANNOT, check_annot_header, find_results_row)
 
 
 def repo_root() -> Path:
@@ -78,6 +87,36 @@ def parse_log(log_path: Path) -> dict:
     return out
 
 
+def read_m_5_50(ld_prefix: Path, chroms=range(1, 23)) -> dict:
+    """Total M_5_50 per annotation, summed over chromosomes.
+
+    Diagnostic rather than decorative. M_5_50 is the column sum of the
+    annotation over MAF 5-50% SNPs, which is the denominator LDSC divides by to
+    form Prop._SNPs and hence Enrichment. For VMR_TESTED it is a SNP count; for
+    the signed score it is a signed sum, and seeing the two side by side in the
+    metrics table is the clearest available statement of why enrichment is
+    interpretable for one and not the other.
+    """
+    totals = [0.0] * len(ANNOT_COLUMNS)
+    seen = 0
+    for chrom in chroms:
+        path = Path(f"{ld_prefix}{chrom}.l2.M_5_50")
+        if not path.exists():
+            continue
+        vals = [float(v) for v in path.read_text().split()]
+        if len(vals) != len(ANNOT_COLUMNS):
+            raise SystemExit(
+                f"{path} has {len(vals)} entries, expected "
+                f"{len(ANNOT_COLUMNS)} (one per annotation). The LD scores were "
+                "computed from a different annotation set than this stage "
+                "expects; recompute stage 05.")
+        totals = [t + v for t, v in zip(totals, vals)]
+        seen += 1
+    if seen == 0:
+        return {}
+    return dict(zip(ANNOT_COLUMNS, totals))
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--run-id", required=True)
@@ -106,6 +145,14 @@ def main() -> None:
         raise SystemExit(f"Custom LD scores not found at {ld_prefix}* "
                          "(run 05_compute_ldscores.sh first)")
 
+    # Fail closed before launching the regression: --overlap-annot reads these
+    # .annot.gz files to build the overlap matrix, and a one-annotation file here
+    # would produce a tau that is not conditional on membership -- the exact
+    # defect the two-annotation model exists to remove.
+    with gzip.open(f"{ld_prefix}1.annot.gz", "rt") as fh:
+        check_annot_header(fh.readline().rstrip("\n").split("\t"),
+                           f"{ld_prefix}1.annot.gz")
+
     out_dir = run_dir / "results" / "sldsc"
     out_dir.mkdir(parents=True, exist_ok=True)
     out_prefix = out_dir / args.trait
@@ -127,36 +174,42 @@ def main() -> None:
         raise SystemExit(f"S-LDSC failed for {args.trait} (exit {res.returncode})")
 
     df = pd.read_csv(results_file, sep="\t")
-    # The custom annotation is appended after the baselineLD columns, so it is
-    # the last row; match on name rather than position so a baselineLD version
-    # change cannot silently shift which row is read.
-    hit = df[df.iloc[:, 0].astype(str).str.startswith(ANNOT_NAME)]
-    if hit.empty:
-        raise SystemExit(
-            f"{args.trait}: no row named {ANNOT_NAME}* in {results_file}. "
-            f"Found: {list(df.iloc[:, 0])[-3:]}")
-    if len(hit) > 1:
-        raise SystemExit(f"{args.trait}: {len(hit)} rows match {ANNOT_NAME}*")
-    row = hit.iloc[0]
+    log_fields = parse_log(Path(f"{out_prefix}.log"))
+    m_5_50 = read_m_5_50(ld_prefix)
 
-    rec = {
-        "trait": args.trait,
-        "annotation": row.iloc[0],
-        "prop_snps": row.get("Prop._SNPs"),
-        "prop_h2": row.get("Prop._h2"),
-        "prop_h2_se": row.get("Prop._h2_std_error"),
-        "enrichment": row.get("Enrichment"),
-        "enrichment_se": row.get("Enrichment_std_error"),
-        "enrichment_p": row.get("Enrichment_p"),
-        "tau": row.get("Coefficient"),
-        "tau_se": row.get("Coefficient_std_error"),
-        "tau_z": row.get("Coefficient_z-score"),
-    }
-    rec.update(parse_log(Path(f"{out_prefix}.log")))
-    pd.DataFrame([rec]).to_csv(out_dir / f"{args.trait}.metrics.tsv",
-                               sep="\t", index=False)
-    print(f"[06] {args.trait}: enrichment {rec['enrichment']}, "
-          f"p {rec['enrichment_p']}, tau_z {rec['tau_z']}")
+    recs = []
+    for name in ANNOT_COLUMNS:
+        # One row per annotation, identified by name. Position is never used: our
+        # annotations come after baselineLD's, but a baselineLD version change
+        # must not be able to shift which row is read.
+        row = find_results_row(df, name)
+        rec = {
+            "trait": args.trait,
+            "annotation": row.iloc[0],
+            "annotation_name": name,
+            "annotation_role": ANNOT_ROLE[name],
+            "is_primary_hypothesis": name == PRIMARY_ANNOT,
+            "enrichment_interpretable": ENRICHMENT_INTERPRETABLE[name],
+            "m_5_50": m_5_50.get(name),
+            "prop_snps": row.get("Prop._SNPs"),
+            "prop_h2": row.get("Prop._h2"),
+            "prop_h2_se": row.get("Prop._h2_std_error"),
+            "enrichment": row.get("Enrichment"),
+            "enrichment_se": row.get("Enrichment_std_error"),
+            "enrichment_p": row.get("Enrichment_p"),
+            "tau": row.get("Coefficient"),
+            "tau_se": row.get("Coefficient_std_error"),
+            "tau_z": row.get("Coefficient_z-score"),
+        }
+        rec.update(log_fields)
+        recs.append(rec)
+
+    pd.DataFrame(recs).to_csv(out_dir / f"{args.trait}.metrics.tsv",
+                              sep="\t", index=False)
+    for rec in recs:
+        print(f"[06] {args.trait} [{rec['annotation_role']}]: "
+              f"enrichment {rec['enrichment']}, p {rec['enrichment_p']}, "
+              f"tau_z {rec['tau_z']}, M_5_50 {rec['m_5_50']}")
 
 
 if __name__ == "__main__":
