@@ -126,8 +126,11 @@ dec <- data.table(
     gating_members_not_fitted = paste(members[fitted == FALSE, member], collapse = ","),
     gating_members_not_fitted_reason = paste(
         members[fitted == FALSE, paste0(member, ":", reason)], collapse = ","),
-    ## Which regions the scMD-derived members could be fitted in at all.
+    ## Which regions the scMD-derived members could be fitted in at all, and
+    ## which modality `cell_composition_r2` actually carried in this run -- the
+    ## column's name is fixed by locked config, its provenance is not.
     scmd_integration_gate = mf("scmd_integration_gate"),
+    cell_composition_r2_source = mf("cell_composition_r2_source"),
     technically_confounded_region = region %in% confounded,
     cross_sectional_design = TRUE,
     causal_interpretation_allowed = FALSE,

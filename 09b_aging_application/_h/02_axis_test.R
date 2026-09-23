@@ -26,11 +26,13 @@
 ##
 ## A GATING arm built from the DNAm scMD proportions is not fitted where scMD
 ## fails its integration gate, exactly as the `cell_scmd` age spec is not fitted
-## there (01_age_effects.R). `cell_composition_r2` is such an arm: Module 04
-## builds it from dnam-scmd-proportions-{region}.tsv, so gating a region's
-## verdict on it while declining to fit cell_scmd in that same region would
-## admit the same quantity under a second name. See age_functions.R:
-## SCMD_DERIVED_FEATURES for the judgement and what would change if it is
+## there (01_age_effects.R): gating a region's verdict on scMD while declining to
+## fit cell_scmd in that same region would admit the same quantity under a second
+## name. WHICH columns are scMD-derived is read from Module 04's
+## `cell_composition_r2_source`, not assumed from a name, because that column's
+## modality changed on 2026-09-23 while its name -- fixed by PI-locked config --
+## did not. See age_functions.R:scmd_derived_feature_columns() for the judgement,
+## the pre-modality fallback and what would change if the judgement is
 ## overturned. Declined arms go to results/axis-arms-skipped.tsv.
 ##
 ## DESCRIPTIVE annotation associations (config/aging.yml:
@@ -129,17 +131,31 @@ if (!is.na(gate_recorded) &&
          " here but stage 01 recorded ", gate_recorded)
 }
 
+## Which feature columns are scMD-derived is READ from Module 04's table, which
+## records the modality of cell_composition_r2 in cell_composition_r2_source.
+## After Module 04's MuSiC correction that column is MuSiC-derived in every
+## region and its arm gates in every region; before it, it was scMD-derived and
+## its arm gates in caudate only. The provenance is reported in the run so the
+## audit trail names the modality that was actually adjusted for.
+scmd_cols <- scmd_derived_feature_columns(feat)
+r2_source <- if ("cell_composition_r2_source" %in% names(feat))
+    as.character(feat$cell_composition_r2_source[1]) else "unrecorded_assumed_dnam_scmd"
+message("[09b] cell_composition_r2 source: ", r2_source,
+        "; scMD-derived feature columns: ",
+        if (length(scmd_cols)) paste(scmd_cols, collapse = ",") else "(none)")
+
 arm_scmd <- list()
 arm_skipped <- list()
 for (arm in names(cfg$axis$arms)) {
     a <- cfg$axis$arms[[arm]]
-    arm_scmd[[arm]] <- arm_is_scmd_derived(a)
+    arm_scmd[[arm]] <- arm_is_scmd_derived(a, scmd_cols)
     ## A gating arm built from the scMD proportions is not fitted where scMD
     ## fails its integration gate -- the same treatment the `cell_scmd` spec
     ## gets in 01_age_effects.R, for the same reason (age_functions.R:
-    ## SCMD_DERIVED_FEATURES documents why a derived scalar is still an scMD
-    ## adjustment when it is used to gate).
-    if (arm_skipped_for_scmd(a, scmd_ok)) {
+    ## scmd_derived_feature_columns() documents why a derived scalar is still an
+    ## scMD adjustment when it is used to gate, and why the modality is read
+    ## rather than assumed).
+    if (arm_skipped_for_scmd(a, scmd_ok, scmd_cols)) {
         arm_skipped[[arm]] <- data.table(
             arm = arm, role = as.character(a$role), fitted = FALSE,
             reason = "scmd_integration_gate_fails_in_region",
@@ -320,6 +336,7 @@ res[, hypothesized_direction := fifelse(outcome == main_out,
 res[, `:=`(cohort = cohort, region = region, run_id = opts$run_id,
            predictor = predictor,
            scmd_integration_gate = if (scmd_ok) "PASS" else "FAIL",
+           cell_composition_r2_source = r2_source,
            inference = "donor_bootstrap_var_plus_chromosome_jackknife_var")]
 
 ## Arms declined in this region, written even when empty so stage 03 always has
@@ -329,7 +346,8 @@ skipped <- if (length(arm_skipped)) rbindlist(arm_skipped, fill = TRUE) else
                reason = character(0), scmd_derived_covariate = logical(0),
                covariates = character(0))
 skipped[, `:=`(cohort = cohort, region = region, run_id = opts$run_id,
-               scmd_integration_gate = if (scmd_ok) "PASS" else "FAIL")]
+               scmd_integration_gate = if (scmd_ok) "PASS" else "FAIL",
+               cell_composition_r2_source = r2_source)]
 
 ## ------------------------------------------------------------- descriptive
 d <- obs_out$primary[[main_out]]
@@ -359,10 +377,10 @@ ann_res <- rbindlist(lapply(names(ann_tests), function(k) {
         annotation_type = if (t$binary) "indicator" else "continuous_z",
         ## Descriptive rows are fitted in every region on purpose
         ## (config/aging.yml:213 keeps cell_composition_r2 here with the caveat
-        ## that outside caudate it is a weak composition proxy). Flagged so a
-        ## reader of this table cannot mistake it for a gated composition
-        ## adjustment; it never enters the region reading.
-        scmd_derived_annotation = sub("_z$", "", t$annotation) %in% SCMD_DERIVED_FEATURES,
+        ## that outside caudate it is a weak composition proxy). The flag is the
+        ## modality Module 04 recorded, so it goes FALSE by itself once the
+        ## column becomes MuSiC-derived, rather than needing this line edited.
+        scmd_derived_annotation = sub("_z$", "", t$annotation) %in% scmd_cols,
         n_vmrs = sum(t$ax$ok),
         n_annotated = if (t$binary) sum(x == 1) else NA_integer_,
         estimate = est_ann[[k]], se = inf$se,
@@ -403,6 +421,8 @@ saveRDS(stats::setNames(lapply(base_keys, function(k) tests[[k]]$ax),
 append_manifest(list(dir = run_dir), list(
     n_axis_tests = as.character(nrow(res)),
     axis_arms_not_fitted = paste(skipped$arm, collapse = ","),
+    cell_composition_r2_source = r2_source,
+    scmd_derived_feature_columns = paste(scmd_cols, collapse = ","),
     n_annotation_tests = as.character(length(ann_tests)),
     n_bootstrap_completed = as.character(B),
     max_bootstrap_failed = as.character(max(res$n_bootstrap_failed))
