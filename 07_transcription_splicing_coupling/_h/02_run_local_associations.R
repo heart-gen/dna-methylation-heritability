@@ -23,7 +23,10 @@
 ## to fitting the full model per pair, not an approximation.
 
 source(file.path(Sys.getenv("V2_REPO_ROOT", "."), "00_shared", "load.R"))
-source(file.path(Sys.getenv("V2_RUN_CODE", file.path(Sys.getenv("V2_REPO_ROOT", "."), "07_transcription_splicing_coupling", "_h")), "run_config.R"))
+V2_TSC_H <- Sys.getenv("V2_RUN_CODE", file.path(Sys.getenv("V2_REPO_ROOT", "."),
+                                                "07_transcription_splicing_coupling", "_h"))
+source(file.path(V2_TSC_H, "run_config.R"))
+source(file.path(V2_TSC_H, "psi_features.R"))
 
 suppressPackageStartupMessages({
     library(data.table)
@@ -61,13 +64,63 @@ n_pairs_declared <- nrow(links)
 n_features_declared <- uniqueN(links$feature_id)
 message("[07] ", modality, ": ", nrow(links), " declared pairs")
 
+## The link table must say which cell and which identifier scheme it belongs to,
+## and both must be this run's. Until 2026-09-23 the PSI links were keyed on
+## `psi_uid`, a ROW POSITION in one region's annotation file, and the single
+## configured annotation path is a symlink into the caudate delivery -- so every
+## region's links were built from caudate's row order, and the `%in%` join below
+## matched every one of them against a different splicing event in the other two
+## regions. No count changed, so nothing failed. These two assertions and
+## psi_resolve_rows() are what make that outcome an error instead.
+expected_ns <- if (identical(assay_kind, "psi")) {
+    PSI_FEATURE_NAMESPACE
+} else {
+    GENE_FEATURE_NAMESPACE
+}
+if (!"feature_namespace" %in% names(links)) {
+    stop("links/", basename(links_f), " carries no feature_namespace column, so ",
+         "it predates the 2026-09-23 identifier repair and its PSI features are ",
+         "row positions in whichever annotation stage 01 happened to read. ",
+         "Rebuild it with stage 01.")
+}
+if (!all(links$feature_namespace == expected_ns)) {
+    stop("links/", basename(links_f), " uses feature namespace(s) '",
+         paste(unique(links$feature_namespace), collapse = "', '"),
+         "'; this stage requires '", expected_ns, "' for a ", assay_kind, " assay.")
+}
+if (!"region" %in% names(links) || !all(links$region == region)) {
+    stop("links/", basename(links_f), " was built for region '",
+         paste(unique(links[["region"]]), collapse = "', '"),
+         "' but this run is ", region,
+         ". A link table is region-specific: its feature coordinates, and so its ",
+         "VMR-to-feature distances, come from that region's annotation.")
+}
+
 ## --------------------------------------------------------------- assay side
 rse_f <- file.path(repo_root(), ts$assay_files[[assay_kind]][[region]])
-env <- new.env(parent = emptyenv())
-load(rse_f, envir = env)
-objs <- mget(ls(env), envir = env)
-rse <- objs[[which(vapply(objs, function(x)
-    inherits(x, "SummarizedExperiment"), logical(1)))[1]]]
+rse <- load_assay_rse(rse_f)
+
+## The region's own psi_uid -> event map, from the assay object itself, so the
+## identifier that selects a row and the annotation that describes it come from
+## one file. rowData is used as a KEYED table only; in the delivered objects its
+## row order does not match the assay's, and the row LABELS are the half the
+## values follow (chrY-in-females test, _h/psi_features.R).
+psi_map <- NULL
+if (identical(assay_kind, "psi")) {
+    psi_map <- psi_feature_table_from_rse(rse, paste0(region, " PSI assay rowData"))
+    if (!isTRUE(attr(psi_map, "rowdata_aligned_with_rownames"))) {
+        message("[07] NOTE: ", basename(rse_f), " has rowData in annotation-file ",
+                "order while its rows carry a permuted psi_uid; reading rowData ",
+                "by key, never by position (see _h/psi_features.R).")
+    }
+    ## Stage 01 must have read THIS region's annotation. The assay is the arbiter,
+    ## so this also catches the case where both stages resolve the same wrong
+    ## path, which comparing stage 01's recorded checksum could not.
+    psi_annot_f <- psi_annotation_path(ts, region)
+    chk <- psi_assert_annotation_matches_assay(psi_map, psi_annot_f, region)
+    message("[07] PSI annotation verified against the ", region, " assay: ",
+            chk$n_shared, " psi_uids, all naming the same event")
+}
 
 cd <- as.data.frame(colData(rse))
 if (!"BrNum" %in% names(cd)) stop("RSE colData has no BrNum column")
@@ -95,13 +148,30 @@ colnames(rse) <- cd$sample_id
 ## universe can ever be fitted, so nothing is lost by dropping the rest first.
 full_lib <- if (assay_kind == "gene") colSums(assay(rse, 1L)) else NULL
 linked_features <- unique(links$feature_id)
-feat_rows <- rownames(rse) %in% linked_features
+## Resolve the link table's stable identifiers to the row labels this assay uses,
+## and fail on any that does not resolve. The old form was
+## `rownames(rse) %in% linked_features` on positional psi_uids, which succeeded
+## for every identifier in every region whether or not it named the right event.
+wanted_rows <- if (identical(assay_kind, "psi")) {
+    psi_resolve_rows(psi_map, linked_features, paste0(modality, " link table"))
+} else {
+    gene_resolve_rows(rse, linked_features, paste0(modality, " link table"))
+}
+feat_rows <- rownames(rse) %in% wanted_rows
 if (!any(feat_rows)) stop("No linked feature is present in the assay")
 message("[07] assay rows: ", sum(feat_rows), "/", nrow(rse), " are linked")
 rse <- rse[feat_rows, ]
 
 mat <- as.matrix(assay(rse, 1L))
 rownames(mat) <- rownames(rse)
+## Relabel the matrix with the stable event key, so from here on -- filters,
+## excluded/ tables, the pair table, the realised universe -- a PSI feature is
+## named by its own coordinates and gene rather than by a row position that means
+## something else in the next region.
+if (identical(assay_kind, "psi")) {
+    rownames(mat) <- psi_map$event_key[match(rownames(mat), psi_map$psi_uid)]
+    if (anyNA(rownames(mat))) stop("A selected PSI row did not resolve to an event key")
+}
 
 if (assay_kind == "gene") {
     nrm <- ts$normalisation$gene
@@ -307,8 +377,12 @@ links[, r := r_vec]
 links[, t := r * sqrt(df_resid) / sqrt(1 - r^2)]
 links[, p := 2 * pt(-abs(t), df = df_resid)]
 links[, fdr := p.adjust(p, method = ts$association$fdr_method)]
-links[, `:=`(n = length(donors), df = df_resid, modality = modality,
-             cohort = cohort, region = region, run_id = opts$run_id)]
+## `modality` and `region` already came from stage 01 and were asserted above, so
+## they are not re-assigned: inside `[.data.table` a bare `region` would bind to
+## the column rather than to the run's region, which reads like a check and is
+## not one.
+links[, `:=`(n = length(donors), df = df_resid,
+             cohort = cohort, run_id = opts$run_id)]
 
 fwrite(links, file.path(run_dir, "results",
                         paste0(modality, "-pair-associations.tsv.gz")), sep = "\t")
@@ -344,6 +418,7 @@ realised <- data.table(
     n_features_tested = uniqueN(links$feature_id),
     n_vmrs_tested = uniqueN(links$vmr_id),
     max_na_fraction = max_na,
+    feature_namespace = expected_ns,
     n_sig_pairs = sum(links$fdr < thr, na.rm = TRUE),
     n_vmrs_coupled = sum(vmr_summary$any_sig_fdr),
     fdr_method = ts$association$fdr_method,
