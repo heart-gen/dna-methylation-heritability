@@ -62,7 +62,43 @@ COVARIATES <- unlist(REALIZED_TERM[declared])
 ## Arms may add terms the primary does not carry (adjust_cell_composition),
 ## so the guard runs over the UNION of base and arm terms -- otherwise an
 ## arm-only term could be constant and enter the design unchecked.
+##
+## Which composition columns exist is decided in 01_build_features.R and is a
+## property of the REGION: `cell_composition_r2` is RNA MuSiC, built everywhere,
+## and `cell_composition_r2_scmd` is DNAm scMD, built only where the integration
+## gate passes (AGENTS.md 7.4; see the comment in 01_build_features.R). The two
+## are cross-checked against each other below, so neither a missing column nor a
+## stale gate can pass silently.
+CELL_COLS <- c("cell_composition_r2", "cell_composition_r2_music",
+               "cell_composition_r2_scmd", "cell_composition_r2_source",
+               "scmd_integration_gate")
+absent <- setdiff(CELL_COLS, names(feat))
+if (length(absent)) {
+    stop("vmr-features.tsv lacks the cell-composition column(s): ",
+         paste(absent, collapse = ", "),
+         "\n  This table predates the 2026-09-23 MuSiC/scMD split; re-run ",
+         "_h/01_build_features.R for this cell.")
+}
+if (!identical(feat$cell_composition_r2_source[1], "rna_music")) {
+    stop("cell_composition_r2 was not built from RNA MuSiC (source = '",
+         feat$cell_composition_r2_source[1],
+         "'); AGENTS.md 7.4 requires the MuSiC adjustment in every region.")
+}
+SCMD_GATE <- feat$scmd_integration_gate[1]
+scmd_available <- any(is.finite(feat$cell_composition_r2_scmd))
+if (identical(SCMD_GATE, "PASS") && !scmd_available) {
+    stop("scmd_integration_gate is PASS but cell_composition_r2_scmd is empty")
+}
+if (!identical(SCMD_GATE, "PASS") && scmd_available) {
+    stop("scmd_integration_gate is ", SCMD_GATE,
+         " but cell_composition_r2_scmd carries values; the feature build and ",
+         "the gate disagree.")
+}
 ARM_TERMS <- c(cell_composition_r2 = "cell_composition_r2")
+if (scmd_available) {
+    ARM_TERMS <- c(ARM_TERMS,
+                   cell_composition_r2_scmd = "cell_composition_r2_scmd")
+}
 term_col <- c(unlist(lapply(REALIZED_TERM[declared], function(t)
     gsub("^(log|factor)\\(|\\)$", "", t))), ARM_TERMS)
 constant <- vapply(term_col, function(k) {
@@ -79,6 +115,11 @@ if (any(constant)) {
     COVARIATES <- COVARIATES[!names(COVARIATES) %in% dropped]
     ARM_TERMS <- ARM_TERMS[!names(ARM_TERMS) %in% dropped]
 }
+
+## An arm asks for its term BY NAME and gets character(0) if the guard above
+## dropped it, so a dropped arm term degrades the arm to the primary design
+## rather than putting an NA into the formula.
+arm_term <- function(nm) unname(ARM_TERMS[intersect(nm, names(ARM_TERMS))])
 
 ## The BH family is declared in config, not here, so it cannot drift between
 ## runs. Everything else fitted below is either a second scale of a family
@@ -112,10 +153,19 @@ analysis_sets <- list(
         extra_terms = character(0)),
     exclude_segdups = list(subset = function(d) d[segdup_frac == 0],
                            extra_terms = character(0)),
-    ## config sensitivities.cell_composition_rna_music: restrict to loci whose
-    ## methylation is not dominated by cell composition. This is the SUBSET
-    ## form of the composition check; adjust_cell_composition below is the
-    ## adjustment form. They are independent and both are gating.
+    ## Which config key each arm realizes, stated once because it was miscited
+    ## here until 2026-09-23:
+    ##   sensitivities.cell_composition_rna_music -- the MODALITY, realized in
+    ##     01_build_features.R by building `cell_composition_r2` from RNA MuSiC
+    ##     in every region. Both arms below consume it, so both are gating in all
+    ##     three regions, which is what the key's unconditional `true` asks for.
+    ##   sensitivities.adjust_cell_composition -- the ADJUSTMENT form below.
+    ##   sensitivities.cell_composition_dnam_scmd -- "caudate only, when the
+    ##     integration gate passes", realized by the separate arm further down.
+    ## This arm is the SUBSET form: restrict to loci whose methylation is not
+    ## dominated by cell composition. Before the fix the column both arms read
+    ## was scMD-derived, so in DLPFC and hippocampus two gating arms rested on a
+    ## deconvolution that fails its own integration gate there.
     low_cell_composition = list(
         subset = function(d) {
             thr <- stats::quantile(d$cell_composition_r2, 0.75, na.rm = TRUE)
@@ -127,8 +177,21 @@ analysis_sets <- list(
     ## confounder-vs-mediator status is arguable; rather than settle that
     ## silently inside the primary, this arm refits every model with it added.
     adjust_cell_composition = list(subset = function(d) d,
-                                   extra_terms = unname(ARM_TERMS))
+                                   extra_terms = arm_term("cell_composition_r2"))
 )
+
+## config sensitivities.cell_composition_dnam_scmd -- "caudate only, when the
+## integration gate passes". A SEPARATE arm from adjust_cell_composition rather
+## than a second term inside it: the two modalities are alternative measurements
+## of the same donor property, so putting both in one design asks which of two
+## collinear estimates carries the adjustment, which is not the question either
+## key poses. Where the gate fails the arm is not fitted, and the not-fitted
+## record is written into the results table below rather than left absent.
+scmd_term <- arm_term("cell_composition_r2_scmd")
+if (length(scmd_term)) {
+    analysis_sets$adjust_cell_composition_scmd <- list(
+        subset = function(d) d, extra_terms = scmd_term)
+}
 
 ## config sensitivities.exclude_snp_proximal_cpgs, RETIRED from the gating
 ## conjunction 2026-09-02 as redundant: the identical BED already enters every
@@ -198,6 +261,25 @@ fit_sets <- function(sets) {
 }
 
 results <- fit_sets(analysis_sets)
+results[, arm_fitted := TRUE]
+
+## The not-fitted record for an arm that this region is not allowed to run.
+## AGENTS.md 7.4 makes the scMD adjustment conditional, so its absence outside
+## caudate is a result about the deconvolution, not a gap in the table: the rows
+## are present, carry `arm_fitted = FALSE` and a reason, and 03_apply_gates.R
+## excludes unfitted rows from the survival conjunction (an NA p there would
+## otherwise fail every outcome in the two regions where scMD is inadmissible).
+if (!length(scmd_term)) {
+    results <- rbind(results, CJ(analysis_set = "adjust_cell_composition_scmd",
+                                 outcome = OUTCOMES, predictor = PREDICTORS,
+                                 sorted = FALSE)[
+        , `:=`(n = NA_integer_, n_fitted = 0L, estimate = NA_real_,
+               se = NA_real_, z = NA_real_, p = NA_real_,
+               note = if (identical(SCMD_GATE, "PASS"))
+                          "arm term dropped as constant or absent"
+                      else "scmd_integration_gate_fails_in_region",
+               arm_fitted = FALSE)], fill = TRUE)
+}
 
 ## Multiple testing is applied within the primary analysis set, over the
 ## declared family only. Three exclusions, each deliberate:
