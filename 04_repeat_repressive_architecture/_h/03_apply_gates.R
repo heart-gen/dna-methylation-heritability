@@ -54,7 +54,25 @@ res <- rbindlist(lapply(run_ids, function(rid) {
                    "association-results.tsv")
     if (!file.exists(f)) stop("No association results for run ", rid)
     d <- fread(f); d[, run_id := rid]; d
-}))
+}), fill = TRUE)
+## `arm_fitted` marks a sensitivity that this region was not allowed to run --
+## currently the scMD composition arm outside caudate (AGENTS.md 7.4). Tables
+## written before 2026-09-23 have no such rows, so an absent column means every
+## row was fitted; that is the old invariant restated, not a guess.
+if (!"arm_fitted" %in% names(res)) res[, arm_fitted := TRUE]
+if (anyNA(res$arm_fitted)) stop("arm_fitted carries NA in the association table")
+
+## Which sensitivity the conjunction did NOT get, and where. survives() below
+## drops unfitted arms, so this is the audit trail for a conjunction that is
+## narrower in one region than in another -- currently the scMD composition arm,
+## which exists only where the integration gate passes.
+not_fitted <- res[analysis_set != "primary" & !arm_fitted,
+                  .(regions = paste(sort(unique(region)), collapse = ",")),
+                  by = .(analysis_set, reason = note)]
+arms_not_fitted <- if (nrow(not_fitted)) {
+    paste(sprintf("%s not fitted in %s (%s)", not_fitted$analysis_set,
+                  not_fitted$regions, not_fitted$reason), collapse = "; ")
+} else NA_character_
 
 regions <- sort(unique(res$region))
 if (length(regions) != 3) {
@@ -73,12 +91,14 @@ if (length(regions) != 3) {
 #' members, p for controls. Sensitivities are always judged on p: they are
 #' re-fits of a hypothesis already counted in the family, so correcting them
 #' again would penalize the same test twice.
+#' An arm that was not FITTED in this region is not evidence either way, so it is
+#' excluded from the conjunction rather than counted as a failure.
 survives <- function(d, stat = GATE_FAMILY) {
     prim <- d[analysis_set == "primary"]
     if (nrow(prim) != 1) return(FALSE)
     pv <- prim[[stat]]
     if (is.na(pv) || pv > ALPHA) return(FALSE)
-    sens <- d[analysis_set != "primary"]
+    sens <- d[analysis_set != "primary" & arm_fitted]
     if (nrow(sens) == 0) return(FALSE)
     all(!is.na(sens$p) & sens$p <= ALPHA & sign(sens$estimate) == sign(prim$estimate))
 }
@@ -369,6 +389,9 @@ if (claims[startsWith(permitted_claim, "not supported") & gate_supported, .N] > 
 claims[, gate_status := fifelse(
     gate_supported, "supported",
     fifelse(regions_surviving == 0L, "not_supported", "below_gate"))]
+## The conjunction is not identical in every region, and the claim must say so
+## rather than leave it to be inferred from row counts in the association table.
+claims[, sensitivity_arms_not_fitted := arms_not_fitted]
 
 ## Fold both qualifiers into the permitted claim, so a reader of the claims
 ## table alone cannot pick up the strong noun without the evidence for it.
@@ -408,6 +431,9 @@ writeLines(c(
     "  - Estimates are per 1 SD of the within-cell local SNP contribution score",
     "    among eligible, within-domain loci; they are not PVE differences.",
     "  - Claims exceeding `permitted_claim` are not supported by this analysis.",
+    sprintf("  - Sensitivity conjunction: %s.",
+            if (is.na(arms_not_fitted)) "identical in every region"
+            else arms_not_fitted),
     sprintf(paste("  - Region gates: %d of %d family outcomes cleared their",
                   "required region count (%s). This is the count that becomes",
                   "\n    the run decision; an outcome below its gate is not one of them."),
