@@ -34,7 +34,27 @@ claims <- fread(claims_f)
 ## in which no outcome survives is a legitimate, sealable negative result -- the
 ## failure mode this module must avoid is sealing without the gates having been
 ## applied at all, which the check above catches.
-n_supported <- sum(!startsWith(claims$permitted_claim, "not supported"))
+##
+## Support is read from `gate_supported`, the structured verdict
+## 03_apply_gates.R derives from regions_surviving vs regions_required. Until
+## 2026-09-23 it was derived here from the permitted_claim PROSE, as
+## `!startsWith(claim, "not supported")`. That counted every string that is not a
+## flat null as a success, so "below the gate (2/3 regions); may be described only
+## as suggestive in dlpfc, hippocampus" was counted as supported and the three
+## rra-AA-*-20260906 cells sealed as GATES_APPLIED_3_OF_3_OUTCOMES_SUPPORTED with
+## two outcomes cleared. The module README and MIGRATION_MANIFEST.tsv recorded the
+## correct 2 of 3 throughout; only the token was wrong, and it was wrong because
+## it was parsed from a sentence instead of read from a column.
+if (!"gate_supported" %in% names(claims)) {
+    stop("interpretation-claims.tsv carries no `gate_supported` column.\n",
+         "  It predates the 2026-09-23 fix and its decision token cannot be ",
+         "trusted; re-run _h/03_apply_gates.R across all three regions.")
+}
+if (!is.logical(claims$gate_supported) || anyNA(claims$gate_supported)) {
+    stop("`gate_supported` is not a complete logical column; refusing to guess ",
+         "which outcomes cleared their gate.")
+}
+n_supported <- sum(claims$gate_supported)
 decision <- sprintf("GATES_APPLIED_%d_OF_%d_OUTCOMES_SUPPORTED",
                     n_supported, nrow(claims))
 
