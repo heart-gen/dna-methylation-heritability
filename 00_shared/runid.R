@@ -267,10 +267,101 @@ reconcile <- function(expected, completed, excluded = character(),
     invisible(summary)
 }
 
+#' Seal a run directory tree: clear every write bit, files AND directories.
+#'
+#' POSIX checks the *directory's* write bit when a name is created or removed,
+#' never the file's own mode. A run whose files are all 0444 inside directories
+#' that are still 0775 is therefore not immutable: any result in it can be
+#' unlinked and written back under the same name, and new files can be added,
+#' with no error raised and nothing to show for it in output_checksums.tsv.
+#'
+#' Until 2026-09-23 close_run() chmodded only files, so that was true of every
+#' module except 02, which runs its own `chmod -R a-w` in
+#' 06_finalize_observed_run.R afterwards. That asymmetry is how the defect was
+#' found: during the run-retirement cleanup, Module 02 runs were the only ones
+#' that resisted deletion, and every other module's "sealed" run deleted freely.
+#' AGENTS.md 5.2 asks for immutability enforced by the filesystem rather than by
+#' everyone remembering the rule, and half a seal does not do that.
+#'
+#' The mode is computed per directory as `mode & ~0222`, not set to a constant
+#' "0555". These trees are setgid (2775) so that everything written beneath them
+#' inherits the project group; a flat chmod to 0555 drops that bit silently, and
+#' the loss only shows up later as a file owned by the wrong group. Clearing
+#' just the write bits preserves setgid, and preserves the execute bits on files
+#' that carry them, such as the `_h/` launchers Module 11 snapshots into `code/`.
+#'
+#' This cannot be applied retroactively. An already-sealed run's files are 0444
+#' and its directories are whatever they were, and rewriting the mode of a run
+#' that has been cited would change a run after it was closed, which is exactly
+#' what 5.2 forbids. The fix binds new runs only; existing runs outside Module 02
+#' keep writable directories and that is a fact about them, not a bug to repair.
+#'
+#' A seal that fails is worse than no seal, because everything downstream then
+#' assumes an immutability that is not there -- this defect survived unnoticed
+#' for exactly that reason. So verify and stop, rather than trusting the chmod.
+seal_run_dir <- function(dir) {
+    ## Without this, a typo'd path seals nothing and reports success: both
+    ## listings below return character(0) on a directory that does not exist,
+    ## and the verification pass then finds nothing writable.
+    if (!dir.exists(dir)) stop("Cannot seal, no such directory: ", dir)
+
+    ## all.files = TRUE because the default omits dotfiles, and a file this
+    ## listing misses stays writable inside a run that claims to be immutable.
+    ## That was the first of these seal defects (Module 11's _h/.gitkeep,
+    ## 2026-09-22); with recursive = TRUE it adds hidden files only, never
+    ## "." or "..".
+    files <- list.files(dir, recursive = TRUE, full.names = TRUE,
+                        all.files = TRUE)
+    if (length(files) > 0) Sys.chmod(files, mode = "0444")
+
+    ## list.dirs() returns `dir` itself and every subdirectory including hidden
+    ## ones, which is what this needs: the top of the run must be sealed too,
+    ## or its own entries stay unlinkable-and-replaceable.
+    dirs <- list.dirs(dir, recursive = TRUE, full.names = TRUE)
+    for (d in dirs) {
+        mode <- file.info(d)$mode
+        if (is.na(mode)) stop("Cannot stat directory while sealing: ", d)
+        Sys.chmod(d, mode = as.octmode(bitwAnd(as.integer(mode),
+                                               bitwNot(strtoi("222", 8L)))))
+    }
+
+    writable <- character(0)
+    for (p in c(files, dirs)) {
+        mode <- file.info(p)$mode
+        if (!is.na(mode) && bitwAnd(as.integer(mode), strtoi("222", 8L)) != 0) {
+            writable <- c(writable, p)
+        }
+    }
+    if (length(writable) > 0) {
+        stop("Seal incomplete: ", length(writable), " path(s) still writable ",
+             "under ", dir, ", first few: ",
+             paste(utils::head(writable, 5), collapse = ", "),
+             "\n  The run is not immutable and must not be cited (AGENTS.md 5.2).")
+    }
+    invisible(list(files = length(files), dirs = length(dirs)))
+}
+
 #' Checksum every file in a run directory and close the run.
 #'
 #' After this, the directory is finished. Downstream modules cite the run ID.
 close_run <- function(run, outputs = NULL) {
+    ## Refuse to re-close a run that is already closed. Before the directory
+    ## seal covered directories, this case SUCCEEDED: write_atomic() renames a
+    ## temp file into place, rename replaces a 0444 target happily as long as
+    ## the containing directory is writable, so re-running a finalizer quietly
+    ## rewrote a sealed run's manifest and checksums -- an update in place, which
+    ## AGENTS.md 5.2 forbids outright. Sealing the directories turns that into a
+    ## permission error instead, which is better but reads like a filesystem
+    ## problem. Say what it actually is, and what to do about it.
+    mf <- file.path(run$dir, "manifest.tsv")
+    if (file.exists(mf) &&
+        run_is_sealed(data.table::fread(mf, colClasses = "character"))) {
+        stop("Run is already closed: ", run$dir,
+             "\n  Its manifest records a finished_at, so it has been sealed and ",
+             "may already be cited.\n  AGENTS.md 5.2: never update a completed ",
+             "run in place -- supersede it by minting a new run ID.")
+    }
+
     if (is.null(outputs)) {
         ## all.files = TRUE, because the default omits dotfiles and a file this
         ## function does not list is neither checksummed nor made read-only --
@@ -302,11 +393,11 @@ close_run <- function(run, outputs = NULL) {
         n_output_files = nrow(sums)
     ))
     ## Make the run read-only. Immutability enforced by the filesystem, not by
-    ## everyone remembering the rule. all.files = TRUE for the reason above:
-    ## sealing must cover every file the directory holds, not every file the
-    ## default listing happens to show.
-    Sys.chmod(list.files(run$dir, recursive = TRUE, full.names = TRUE,
-                         all.files = TRUE), mode = "0444")
-    message("[run] closed ", run$dir, " (", nrow(sums), " output files)")
+    ## everyone remembering the rule. Directories are sealed as well as files;
+    ## see seal_run_dir() for why chmodding only the files left every run
+    ## outside Module 02 quietly mutable.
+    sealed <- seal_run_dir(run$dir)
+    message("[run] closed ", run$dir, " (", nrow(sums), " output files, ",
+            "sealed ", sealed$files, " files and ", sealed$dirs, " directories)")
     invisible(sums)
 }
