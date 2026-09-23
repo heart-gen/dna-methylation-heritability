@@ -52,16 +52,25 @@ for (f in c("vmr_catalog.tsv", "cpg_vmr_membership.tsv")) {
     Sys.chmod(file.path(run$dir, "vmr", f), mode = "0644")
 }
 
-## prepare_summary.tsv files feed the technical-QC table; copy the tree shape.
-prep <- list.files(src_dir, pattern = "^prepare_summary\\.tsv$",
-                   recursive = TRUE, full.names = TRUE)
+## Per-stage summaries and exclusion-ledger parts feed the QC tables. Copying
+## the ledger parts too is what lets a refresh emit a real qc/exclusions.tsv
+## rather than an almost-empty one; a source run that predates them simply has
+## none to copy, and 04_turnover.R records that as unbalanced-with-a-note.
+prep <- list.files(
+    src_dir,
+    pattern = "^(prepare_summary|analyze_summary|summarize_summary|sd_cutoffs|chromosome_status|exclusions_[a-z_]+)\\.tsv$",
+    recursive = TRUE, full.names = TRUE)
 for (f in prep) {
     rel <- sub(paste0("^", src_dir, "/"), "", f)
     dest <- file.path(run$dir, rel)
     dir.create(dirname(dest), recursive = TRUE, showWarnings = FALSE)
     file.copy(f, dest, overwrite = TRUE)
+    Sys.chmod(dest, mode = "0644")
 }
-message("[stage] copied catalog tables and ", length(prep), " prepare summaries")
+n_ledger <- sum(grepl("/exclusions_", prep))
+message("[stage] copied catalog tables, ", length(prep) - n_ledger,
+        " stage summaries and ", n_ledger, " exclusion-ledger part(s)")
+append_manifest(run, list(source_carried_exclusion_ledger = n_ledger > 0))
 
 run_stage <- function(script) {
     status <- system2(file.path(R.home("bin"), "Rscript"),
