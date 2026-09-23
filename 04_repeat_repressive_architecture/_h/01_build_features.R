@@ -182,30 +182,66 @@ feat[, broad_genomic_annotation := broad_genomic_annotation(vmr, gtf_bed)]
 ## its methylation across donors on the donor cell-proportion principal
 ## components. A VMR whose signal is mostly composition is exactly the one whose
 ## repeat enrichment would otherwise be over-read.
-prop_f <- file.path(repo_root(), "inputs", "cell_proportions", "_m",
-                    sprintf("dnam-scmd-proportions-%s.tsv", region))
-if (!file.exists(prop_f)) stop("Cell-proportion estimates not found: ", prop_f)
-pcs <- cell_composition_pcs(
-    prop_f, n_pcs = as.integer(annot$covariate_sources$n_cell_composition_pcs %||% 3L))
+##
+## WHICH deconvolution. AGENTS.md 7.4's sensitivity list is asymmetric and was
+## read as symmetric until 2026-09-23: "RNA MuSiC cell-composition adjustment" is
+## required in every region, while "caudate DNAm scMD adjustment" applies only
+## "when the integration gate passes". This script previously loaded the scMD
+## proportions unconditionally and never read MuSiC at all, so two of the three
+## regions were adjusted for an estimate whose neuronal fraction does not track
+## RNA-derived composition (rho -0.035 in DLPFC, -0.103 in hippocampus, against
+## 0.720 in caudate; inputs/cell_proportions/_m/dnam-scmd-rna-concordance.tsv).
+## config/repeat_annotations.yml:sensitivities already declared both keys, so the
+## locked configuration asked for this behaviour before the code did it.
+##
+## Both quantities are built where each is admissible, and the scMD column is
+## VISIBLY not-fitted rather than absent where the gate fails, so a reader of the
+## feature table can see which modality was available in which region.
+src <- cell_composition_sources(
+    region,
+    n_pcs = as.integer(annot$covariate_sources$n_cell_composition_pcs %||% 3L))
+message("[04] cell composition: MuSiC ", src$music_file,
+        "; scMD integration gate ", src$scmd_integration_gate,
+        if (identical(src$scmd_integration_gate, "PASS"))
+            paste0(" (", src$scmd_file, ")") else " (scMD arm not fitted)")
 
 vmr_run_dir <- file.path(repo_root(), "01_vmr_catalog", "_m", "runs",
                          mval("upstream_vmr_catalog_run_id"))
 phen_dir <- file.path(vmr_run_dir, "vmr", "phenotypes")
 if (!dir.exists(phen_dir)) stop("Module 01 phenotypes not found: ", phen_dir)
 
-feat[, cell_composition_r2 := {
-    vapply(seq_len(.N), function(i) {
-        f <- file.path(phen_dir, sprintf("%s_%d_%d_meth.phen",
-                                         chrom[i], start[i], end[i]))
-        if (!file.exists(f)) return(NA_real_)
-        ph <- fread(f, header = FALSE, col.names = c("FID", "IID", "y"),
-                    colClasses = list(character = 1:2))
-        idx <- match(ph$FID, rownames(pcs))
-        ok <- !is.na(idx) & is.finite(ph$y)
-        if (sum(ok) < 20) return(NA_real_)
-        summary(stats::lm(ph$y[ok] ~ pcs[idx[ok], , drop = FALSE]))$r.squared
-    }, numeric(1))
-}]
+comp_r2 <- vmr_composition_r2(phen_dir, feat$chrom, feat$start, feat$end,
+                              src$pc_sets)
+## `cell_composition_r2` keeps its name and becomes the MuSiC quantity: it is the
+## adjustment AGENTS.md 7.4 requires everywhere, and the name is referenced by
+## PI-locked configuration downstream (config/aging.yml:axis.sensitivities,
+## config/gwas_negative_controls.yml). `cell_composition_r2_source` is emitted
+## beside it so the change of modality is recorded in the data rather than only
+## in this comment.
+feat[, `:=`(cell_composition_r2 = comp_r2[, "music"],
+            cell_composition_r2_music = comp_r2[, "music"],
+            cell_composition_r2_source = "rna_music",
+            cell_composition_r2_scmd = if ("scmd" %in% colnames(comp_r2))
+                comp_r2[, "scmd"] else NA_real_,
+            scmd_integration_gate = src$scmd_integration_gate)]
+
+## The modality record, written whether or not scMD was admissible. A region
+## where scMD is not applicable has a row saying so with its reason.
+write_atomic(data.table(
+    region = region,
+    modality = c("rna_music", "dnam_scmd"),
+    column = c("cell_composition_r2_music", "cell_composition_r2_scmd"),
+    proportion_file = c(src$music_file, src$scmd_file),
+    n_donor_pcs = src$n_pcs,
+    fitted = c(TRUE, "scmd" %in% colnames(comp_r2)),
+    reason_not_fitted = c(NA_character_,
+        if ("scmd" %in% colnames(comp_r2)) NA_character_
+        else "scmd_integration_gate_fails_in_region"),
+    scmd_integration_gate = src$scmd_integration_gate,
+    gate_table = src$gate_table,
+    n_vmrs_nonmissing = c(sum(is.finite(feat$cell_composition_r2_music)),
+                          sum(is.finite(feat$cell_composition_r2_scmd)))),
+    file.path(run_dir, "results", "cell-composition-arms.tsv"))
 
 ## WGBS coverage: mean per-CpG read depth over the VMR's constituent CpGs,
 ## read from the same BSseq objects Module 01 built the catalog from. Done once
@@ -277,4 +313,13 @@ print(completeness)
 
 feat[, `:=`(region = region, population = cohort, vmr_set_id = mval("vmr_set_id"))]
 write_atomic(feat, file.path(run_dir, "results", "vmr-features.tsv"))
+
+## Which composition modality this cell could use is part of the run's identity
+## (AGENTS.md 9), not only of a results table: it decides which sensitivity arms
+## 02_test_association.R is allowed to fit.
+append_manifest(list(dir = run_dir), list(
+    cell_composition_primary_modality = "rna_music",
+    cell_composition_music_file = src$music_file,
+    scmd_integration_gate = src$scmd_integration_gate,
+    cell_composition_scmd_fitted = as.character("scmd" %in% colnames(comp_r2))))
 message("[04] built features for ", nrow(feat), " interpretable VMRs")

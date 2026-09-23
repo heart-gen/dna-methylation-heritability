@@ -65,9 +65,11 @@ run_results <- function(module, region, file) {
 ## the columns that are common to all of them and nothing else, so a schema
 ## change in one module cannot silently reshape the replication table.
 ## `analysis_set` is part of the KEY, not decoration. Module 04 publishes its
-## primary fit plus four sensitivities (primary, high_mappability,
-## exclude_segdups, low_cell_composition, adjust_cell_composition) -- 5 sets x
-## 28 outcome/predictor pairs = 140 rows per region. Keying on
+## primary fit plus four sensitivities in every region (primary,
+## high_mappability, exclude_segdups, low_cell_composition,
+## adjust_cell_composition) -- 5 sets x 28 outcome/predictor pairs = 140 rows --
+## and, in caudate only, the conditional adjust_cell_composition_scmd arm, which
+## is why the set count is read from the table rather than assumed. Keying on
 ## outcome+predictor alone makes every Module 04 test appear 15 times instead
 ## of 3, so the "complete in all three regions" filter drops the entire module
 ## -- the primary biological analysis -- without a word. Modules 05 and 07
@@ -92,6 +94,21 @@ harvest <- function(module, region, file, mapping, analysis_label) {
              "\n  Tier 1 assembles accepted results; it cannot recompute them.")
     }
     dt <- as.data.table(fread(f))
+    ## A row an upstream marked NOT fitted is not a test. Module 04 records its
+    ## conditional scMD composition arm in every region -- with estimates only
+    ## where the integration gate passes (AGENTS.md 7.4) -- so that the absence is
+    ## visible rather than silent. Harvesting those rows would make the arm look
+    ## complete in all three regions and then fail direction consistency on an NA
+    ## estimate, i.e. it would report a sensitivity that was never run as a
+    ## sensitivity that did not replicate.
+    if ("arm_fitted" %in% names(dt)) {
+        n_unfitted <- sum(!(dt$arm_fitted %in% TRUE))
+        if (n_unfitted > 0L) {
+            message("[08] ", module, "/", region, ": dropped ", n_unfitted,
+                    " row(s) marked arm_fitted = FALSE")
+        }
+        dt <- dt[dt$arm_fitted %in% TRUE]
+    }
     ## Every mapping entry names a COLUMN except `nuisance_terms`, which is a
     ## regex matched against the predictor column's VALUES. Including it here
     ## makes the check look for a column literally named
@@ -220,9 +237,9 @@ per_test[, replicated := complete_across_regions & direction_consistent &
 
 ## -------------------------------------------- primary vs sensitivity sets
 ##
-## Module 04's five analysis_sets are the SAME 28 tests refit under four
-## sensitivities, so counting all 140 as replications would report one test
-## five times and inflate the primary deliverable roughly fivefold. The
+## Module 04's analysis_sets are the SAME 28 tests refit under its sensitivities,
+## so counting all of them as replications would report one test five or six times
+## and inflate the primary deliverable roughly fivefold. The
 ## headline count is therefore PRIMARY ONLY, and the sensitivities are used the
 ## way Module 04 itself uses them: as a strict conjunction the primary claim
 ## must survive, not as extra evidence.

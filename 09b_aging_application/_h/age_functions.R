@@ -126,19 +126,12 @@ age_outcomes <- function(fit) {
 }
 
 
-## scMD integration gate, re-read from the concordance table on every run
-## (config/cell_deconvolution.yml:validation).
-scmd_gate_passes <- function(region, gate_table, root = repo_root()) {
-    val <- load_config("cell_deconvolution", root = root)$validation
-    tab <- data.table::fread(file.path(root, gate_table))
-    ## Selection computed OUTSIDE `[`: inside it the bare name `region` would
-    ## resolve to the column, matching every row (see gates.R).
-    keep <- tab$region == region & tab$broad_class == "Total_neuron"
-    row <- tab[which(keep)]
-    if (nrow(row) != 1L) stop("No Total_neuron concordance row for ", region)
-    isTRUE(row$rho >= as.numeric(val$min_neuronal_spearman_rho) &&
-           row$neuron_fdr <= as.numeric(val$max_neuronal_fdr))
-}
+## scMD integration gate: `scmd_gate_passes()` was defined here and MOVED to
+## 00_shared/cell_composition.R on 2026-09-23, unchanged, when Module 04 needed
+## the identical decision for its own composition arms. 00_shared/load.R sources
+## it, so callers in this module are unaffected; the point of the move is that
+## there is one definition of the gate rather than two that can drift
+## (AGENTS.md 5.3).
 
 
 ## Module 04 feature columns whose VALUE is computed FROM the DNAm scMD donor

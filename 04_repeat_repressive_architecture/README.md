@@ -414,6 +414,78 @@ regression result:
    artifact of the adjustment's functional form, so "caudate shows nothing" is
    not a claim these data support either.
 
+## Corrections landed 2026-09-23 (a rerun is required for either to take effect)
+
+Both were found in the PI-summary pass, both change sealed outputs, and neither
+is reflected in the accepted `rra-AA-*-20260906` runs.
+
+### 1. The composition adjustment is RNA MuSiC everywhere; scMD is caudate-only
+
+`_h/01_build_features.R` loaded `dnam-scmd-proportions-{region}.tsv`
+unconditionally and no script in the module read RNA MuSiC at all, so the single
+`cell_composition_r2` covariate -- and both gating composition arms built on it
+-- were scMD-derived in all three regions. AGENTS.md 7.4 is asymmetric: the RNA
+MuSiC adjustment is required unconditionally, the DNAm scMD adjustment only
+"when the integration gate passes". That gate passes in caudate
+(neuronal rho 0.720, FDR 2e-45) and fails in DLPFC (-0.035, p 0.66) and
+hippocampus (-0.103, p 0.27), so two of three regions were adjusted for a
+deconvolution that does not track the composition it claims to measure.
+`config/repeat_annotations.yml:sensitivities` already declared both
+`cell_composition_rna_music: true` and
+`cell_composition_dnam_scmd: true  # caudate only, when the integration gate
+passes`; the locked configuration asked for this before the code did it, and no
+config change was needed to implement it.
+
+What changed:
+
+| column / arm | before | after |
+|---|---|---|
+| `cell_composition_r2` | DNAm scMD, all regions | **RNA MuSiC, all regions** |
+| `cell_composition_r2_music` | -- | RNA MuSiC (same values, named) |
+| `cell_composition_r2_scmd` | -- | DNAm scMD where the gate passes, `NA` elsewhere |
+| `cell_composition_r2_source`, `scmd_integration_gate` | -- | provenance, on every row |
+| `low_cell_composition`, `adjust_cell_composition` | scMD-derived, gating | **MuSiC-derived**, gating in all three regions |
+| `adjust_cell_composition_scmd` | -- | new arm, **fitted in caudate only**, gating where fitted |
+| `results/cell-composition-arms.tsv` | -- | which modality was used, from which file, and why not |
+
+`cell_composition_r2` keeps its name because PI-locked configuration downstream
+refers to it (`config/aging.yml:axis.sensitivities`,
+`config/gwas_negative_controls.yml:continuous_z`); its modality is now recorded
+in the table rather than implied by the script. **Those downstream arms change
+value**, so 09b and Module 09 stage 18 must be rerun after this module.
+
+Where the gate fails, the scMD arm is present in `association-results.tsv` with
+`arm_fitted = FALSE` and the reason `scmd_integration_gate_fails_in_region`,
+never silently absent. `03_apply_gates.R` excludes unfitted arms from the
+survival conjunction -- counting them would fail every outcome in two regions --
+and records which arm was missing where in the claims table's
+`sensitivity_arms_not_fitted`. `08_region_donor_generalization` drops unfitted
+rows at harvest, so a sensitivity that was never run is not reported as one that
+did not replicate. The gate token's denominator is unaffected: it counts
+outcomes (3), not arms.
+
+Shared code: `00_shared/cell_composition.R` now holds `scmd_gate_passes()`
+(moved unchanged from `09b_aging_application/_h/age_functions.R`, which defined
+it first), plus `cell_composition_sources()` and `vmr_composition_r2()`.
+
+### 2. The run decision token counted prose, not gates
+
+`_h/05_finalize_run.R` derived its support count as
+`sum(!startsWith(claims$permitted_claim, "not supported"))`. H3K9me3's claim
+begins "below the gate (2/3 regions)", so it was counted as supported and all
+three cells sealed as `GATES_APPLIED_3_OF_3_OUTCOMES_SUPPORTED` when **two**
+outcomes had cleared. The claims table, this README and
+`MIGRATION_MANIFEST.tsv` recorded the correct 2-of-3 throughout; only the token
+was wrong, and it was wrong because it parsed a sentence.
+
+`03_apply_gates.R` now emits the structured verdict -- `gate_supported`
+(`regions_surviving >= regions_required`) and `gate_status` (`supported` /
+`below_gate` / `not_supported`) -- validates the gate counts, cross-checks them
+against the claim text, and `05_finalize_run.R` counts that column and refuses
+to seal a claims table that lacks it. The sealed 2026-09-06 manifests keep their
+overstated token; read `interpretation-claims.tsv`, not the token, until the
+rerun.
+
 ## QC scripts
 
 `_h/06` and `_h/07` are post-hoc analyses OF sealed runs, not stages of one.
