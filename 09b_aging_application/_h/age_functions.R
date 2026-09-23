@@ -134,57 +134,110 @@ age_outcomes <- function(fit) {
 ## (AGENTS.md 5.3).
 
 
-## Module 04 feature columns whose VALUE is computed FROM the DNAm scMD donor
-## proportions, and which therefore inherit scMD's integration gate.
+## Which Module 04 feature columns are computed FROM the DNAm scMD donor
+## proportions, and therefore inherit scMD's integration gate.
 ##
-## `cell_composition_r2` is the per-VMR R^2 of methylation across donors on the
-## scMD proportion PCs: 04_repeat_repressive_architecture/_h/01_build_features.R
-## lines 185-199 read inputs/cell_proportions/_m/dnam-scmd-proportions-{region}.tsv
-## and project each VMR's phenotype onto its PCs. It is the same quantity that
-## the `cell_scmd` age spec adjusts for, reduced to one scalar per VMR.
+## READ FROM THE FEATURE TABLE, never inferred from a column name. The name
+## `cell_composition_r2` is fixed by PI-locked configuration
+## (config/aging.yml:axis.arms, config/gwas_negative_controls.yml) while the
+## quantity behind it is not: before 2026-09-23 Module 04 built it from
+## dnam-scmd-proportions-{region}.tsv in every region; since the MuSiC
+## correction it builds it from the RNA MuSiC proportions in every region and
+## records the modality in `cell_composition_r2_source`, with the scMD value
+## kept beside it in `cell_composition_r2_scmd` (NA where the gate fails). A
+## constant here would have been right against one table and wrong against the
+## other, and would have put "scMD" in the audit trail of a run whose covariate
+## was MuSiC -- worse than the original defect, because it would be a false
+## reason for a defensible action.
 ##
-## Module 04 does NOT apply the integration gate when it BUILDS the column, and
-## it does not need to: the column is well defined in every region. The gate
-## belongs where the column is CONSUMED as a cell-composition adjustment, which
-## is here. That is why this fix needs no Module 04 rerun.
+## WHAT THE GATE IS FOR. AGENTS.md 7.4 is asymmetric: RNA MuSiC adjustment is
+## required in every region, DNAm scMD adjustment only "when the integration
+## gate passes", which is caudate alone (total-neuron rho 0.72 caudate, -0.03
+## dlpfc, -0.10 hippocampus). So a MuSiC-derived covariate gates everywhere and
+## an scMD-derived one gates in caudate only. The selection is on the recorded
+## modality; it was never really about the name.
 ##
 ## WHY A GATED ARM RATHER THAN A METHYLATION PROPERTY. The column is a derived
 ## scalar, so it can be read as a property of the VMR's methylation -- AGENTS.md
 ## 7.4 does ask for "cell-composition-associated methylation properties" as an
-## adjustment. But the adjective is load-bearing. Outside caudate the scMD
-## proportions do not track composition at all (total-neuron rho -0.03 dlpfc,
-## -0.10 hippocampus, against 0.72 caudate; config/cell_deconvolution.yml
-## validation), so there the R^2 measures methylation variance shared with three
-## PCs of a quantity that is not composition. As a GATING member its output is a
-## boolean that moves the module's verdict, and the only claim that boolean can
-## license is "the gradient is not cell composition". Where scMD fails its gate
-## the arm cannot license that claim, so it must be treated exactly as
-## `cell_scmd` is: absent evidence, not contrary evidence.
-## config/repeat_annotations.yml:334 already states the same rule for Module 04's
-## own arm -- "caudate only, when the integration gate passes".
+## adjustment. But the adjective is load-bearing. Where the proportions behind it
+## do not track composition, the R^2 measures methylation variance shared with
+## three PCs of a quantity that is not composition. As a GATING member its output
+## is a boolean that moves the module's verdict, and the only claim that boolean
+## can license is "the gradient is not cell composition". Where that is
+## unavailable the arm must be treated exactly as `cell_scmd` is: absent
+## evidence, not contrary evidence.
+##
+## The gate is still applied at the point of CONSUMPTION, not construction. The
+## column is well defined in every region whichever modality built it; what is
+## region-conditional is whether it can support a composition claim.
 ##
 ## The DESCRIPTIVE annotation block (config/aging.yml:annotation_associations)
-## keeps the column in every region on purpose, with that caveat written into
-## the config at line 211: there it is the annotation being described, not an
+## keeps the column in every region on purpose, with the caveat written into the
+## config at line 211: there it is the annotation being described, not an
 ## adjustment claiming to have removed composition, and it never reaches the
 ## region reading.
-SCMD_DERIVED_FEATURES <- c("cell_composition_r2")
+
+## Recognised values of `cell_composition_r2_source`. An unrecognised value is
+## an error, not a default: this module would be deciding a gate over a modality
+## it has never been told about.
+SCMD_MODALITY <- c(rna_music = FALSE, dnam_scmd = TRUE)
+
+## Used ONLY for a Module 04 table that predates `cell_composition_r2_source`
+## (runs up to rra-AA-*-20260906). Such a table genuinely is scMD-derived, so the
+## fallback is the correct answer for it -- but it is an assumption about data
+## that cannot speak for itself, so it is announced rather than taken quietly.
+SCMD_DERIVED_FEATURES_PRE_MODALITY <- c("cell_composition_r2")
+
+#' @param feat Module 04's vmr-features.tsv, as a data.table.
+#' @return the feature column names that are scMD-derived, possibly none.
+scmd_derived_feature_columns <- function(feat, announce = message) {
+    ## An explicitly named modality column means what it says whatever the
+    ## table-level source is; both exist side by side after the correction.
+    explicit <- intersect("cell_composition_r2_scmd", names(feat))
+    if (!"cell_composition_r2_source" %in% names(feat)) {
+        announce("[09b] Module 04 feature table carries no ",
+                 "cell_composition_r2_source column: treating it as a ",
+                 "pre-2026-09-23 table, in which cell_composition_r2 is ",
+                 "DNAm scMD-derived. Provenance is ASSUMED, not read.")
+        return(unique(c(SCMD_DERIVED_FEATURES_PRE_MODALITY, explicit)))
+    }
+    src <- unique(as.character(feat$cell_composition_r2_source))
+    src <- src[!is.na(src)]
+    if (!length(src)) {
+        stop("cell_composition_r2_source is present but entirely NA; the ",
+             "modality of cell_composition_r2 cannot be established")
+    }
+    if (length(src) > 1L) {
+        stop("cell_composition_r2_source takes more than one value in one ",
+             "feature table (", paste(src, collapse = ", "), "); one column ",
+             "cannot have two provenances")
+    }
+    if (!src %in% names(SCMD_MODALITY)) {
+        stop("Module 04 records cell_composition_r2_source '", src, "', which ",
+             "this module does not recognise. Teach age_functions.R:",
+             "SCMD_MODALITY whether that modality is scMD-derived; it is not ",
+             "assumed either way.")
+    }
+    unique(c(if (isTRUE(SCMD_MODALITY[[src]])) "cell_composition_r2", explicit))
+}
 
 ## Does an axis arm's covariate set or row subset depend on an scMD-derived
-## feature? Arms are declared in config/aging.yml:axis.arms.
-arm_is_scmd_derived <- function(arm) {
+## feature? Arms are declared in config/aging.yml:axis.arms; `scmd_cols` comes
+## from scmd_derived_feature_columns().
+arm_is_scmd_derived <- function(arm, scmd_cols) {
     cols <- unique(c(as.character(unlist(arm$add_covariates)),
                      as.character(unlist(arm$subset$column))))
-    any(cols %in% SCMD_DERIVED_FEATURES)
+    any(cols %in% scmd_cols)
 }
 
 ## An scMD-derived arm in the GATING role is not fitted where the scMD
 ## integration gate fails, mirroring the `requires_scmd_integration_gate` spec
 ## rule in 01_age_effects.R. A non-gating arm is still fitted: it cannot move
 ## the verdict, and it is flagged in axis-tests.tsv instead.
-arm_skipped_for_scmd <- function(arm, scmd_ok) {
+arm_skipped_for_scmd <- function(arm, scmd_ok, scmd_cols) {
     !isTRUE(scmd_ok) && identical(as.character(arm$role), "gating") &&
-        arm_is_scmd_derived(arm)
+        arm_is_scmd_derived(arm, scmd_cols)
 }
 
 
