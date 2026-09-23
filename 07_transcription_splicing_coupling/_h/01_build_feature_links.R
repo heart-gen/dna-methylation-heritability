@@ -17,7 +17,10 @@
 ## to be documented rather than implied.
 
 source(file.path(Sys.getenv("V2_REPO_ROOT", "."), "00_shared", "load.R"))
-source(file.path(Sys.getenv("V2_RUN_CODE", file.path(Sys.getenv("V2_REPO_ROOT", "."), "07_transcription_splicing_coupling", "_h")), "run_config.R"))
+V2_TSC_H <- Sys.getenv("V2_RUN_CODE", file.path(Sys.getenv("V2_REPO_ROOT", "."),
+                                                "07_transcription_splicing_coupling", "_h"))
+source(file.path(V2_TSC_H, "run_config.R"))
+source(file.path(V2_TSC_H, "psi_features.R"))
 
 suppressPackageStartupMessages({
     library(data.table)
@@ -92,10 +95,43 @@ window_links <- function(feat, window) {
     unique(dt, by = c("vmr_id", "feature_id"))
 }
 
+## Gene features are keyed on their own versioned Ensembl ID, which is what the
+## gene assay's rownames are in every region (verified 2026-09-23:
+## rownames(rse_gene) == rowData$gene_id == gene-annotation.tsv's gene_id, in
+## identical order, all three regions) and the single gene-annotation.tsv is
+## byte-identical across the three deliveries.
 gene_annot <- fread(file.path(repo_root(), ts$annotation$gene))
 gene_annot[, feature_id := gene_id]
-psi_annot <- fread(file.path(repo_root(), ts$annotation$psi))
-psi_annot[, feature_id := psi_uid]
+
+## PSI features are keyed on the EVENT, not on its row position. `psi_uid` is
+## literally `p{row index}` and the three regions order the same 690,907 events
+## differently, so the configured single annotation path -- a symlink into the
+## caudate delivery -- renamed every event for the other two regions without
+## failing to join. See _h/psi_features.R for the evidence and the two defects it
+## covers. The annotation is taken from beside THIS region's assay, and stage 02
+## re-checks it against that assay's own metadata before fitting anything.
+## Resolved only when a PSI modality is enabled, so a gene-only run is not made
+## to depend on a splicing annotation it never reads.
+psi_annot_f <- NA_character_
+psi_annot <- NULL
+if (any(vapply(enabled, function(m) identical(ts$modalities[[m]]$assay, "psi"),
+               logical(1)))) {
+    psi_annot_f <- psi_annotation_path(ts, region)
+    psi_annot <- psi_feature_table(fread(psi_annot_f),
+                                   paste0("psi-annotation.tsv for ", region))
+    message("[07] PSI annotation for ", region, ": ", psi_annot_f,
+            " (", nrow(psi_annot), " events)")
+    psi_annot[, feature_id := event_key]
+}
+
+## Named `feature_ns`, not `feature_namespace`: inside `[.data.table` a bare
+## symbol binds to the column first, and the column this fills is called
+## feature_namespace (see the `mf` note above for the same trap).
+feature_ns <- function(mod) {
+    if (identical(ts$modalities[[mod]]$assay, "psi")) PSI_FEATURE_NAMESPACE
+    else GENE_FEATURE_NAMESPACE
+}
+run_region <- region
 
 universe <- list()
 for (mod in enabled) {
@@ -152,9 +188,16 @@ for (mod in enabled) {
         warning("Modality ", mod, " produced no links")
         next
     }
-    links[, modality := mod]
+    ## The link table states which cell it was built for and which identifier
+    ## scheme it uses. Stage 02 refuses a table whose region is not its own: a
+    ## caudate-built PSI table applied to DLPFC is the defect being removed, and
+    ## a positional identifier joins successfully against any region, so the join
+    ## itself could not detect it.
+    links[, `:=`(modality = mod, region = run_region,
+                 feature_namespace = feature_ns(mod))]
     fwrite(links, file.path(run_dir, "links", paste0(mod, "-links.tsv.gz")),
            sep = "\t")
+    is_psi <- identical(spec$assay, "psi")
     universe[[mod]] <- data.table(
         modality = mod, label = spec$label,
         window_bp = spec$window_bp %||% NA_integer_,
@@ -162,7 +205,12 @@ for (mod in enabled) {
         n_features_linked = uniqueN(links$feature_id),
         n_pairs = nrow(links),
         median_distance = median(links$distance),
-        n_vmrs_in_catalog = nrow(vmr)
+        n_vmrs_in_catalog = nrow(vmr),
+        feature_namespace = feature_ns(mod),
+        annotation_file = if (is_psi) psi_annot_f
+                          else file.path(repo_root(), ts$annotation$gene),
+        annotation_sha256 = file_sha256(
+            if (is_psi) psi_annot_f else file.path(repo_root(), ts$annotation$gene))
     )
     message("[07] ", mod, ": ", nrow(links), " pairs, ",
             uniqueN(links$vmr_id), " VMRs, ",
