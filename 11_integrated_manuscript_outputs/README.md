@@ -74,7 +74,7 @@ three are properties of Module 11 rather than oversights:
 | Output | Content | Upstream runs |
 |---|---|---|
 | `figure1_vmr_catalog[_all_individuals][_epic]` | **a** cohort **b** VMRs per chromosome **c** VMR width and CpGs per VMR **d** off-array coverage **e** genomic compartment **f** distance to nearest gene | `vmrcat-*-20260816`, `vmrcatqc-*-20260826-a` |
-| `figure2_local_genetic_control[_all_individuals]` | **a** estimator concordance vs locus geometry **b** held-out R² across rank deciles **c** cross-region rank concordance **d** genic context across the rank | `lgv-AA-*-rescore-20260913` (AA), `lgv-all_individuals-*-20260823` |
+| `figure2_local_genetic_control[_all_individuals]` | **a** estimator concordance vs locus geometry **b** held-out local SNP prediction (end-to-end OOF R²) across rank deciles **c** cross-region rank concordance **d** genic context across the rank | `lgv-AA-*-rescore-20260913` (AA), `lgv-all_individuals-*-20260823`, `lsp-AA-*-20260825` (panel b) |
 | `figure3_repeat_repressive_architecture` | **a** the BH family (quiescent, H3K9me3, LINE/L1) **b** complementary contrasts and the H3K27me3 specificity control **c** the five locked analysis sets **d** the continuous gradient | `rra-AA-*-20260906` |
 | `figure4_meqtl_burden_coupling` | **a** meQTL-positive CpG fraction across the rank **b** burden model with distal-null λ **c** coupling by modality and predictor **d** coupled-VMR denominators | `cmb-AA-*-20260825`, `tsc-AA-*-20260902` |
 | `figure5_gwas_architecture_axis` | **a** every trait's axis estimate by GWAS category **b** schizophrenia against its own null distribution **c** psychiatric vs other traits **d** what a trait's depletion tracks | `scz-AA-*-20260918` + stages 17/18 |
@@ -165,6 +165,38 @@ distribution is uniform by construction. The figure therefore shows what the
 ranking *agrees with* -- independent estimators, held-out prediction, the other
 regions -- rather than the distribution of the score itself.
 
+### Which prediction number panel b carries (corrected 2026-09-23)
+
+AGENTS.md §7.3 names one primary v2 prediction endpoint: `r2_pred_oof`, the
+**end-to-end** out-of-fold R² from Module 03, in which the locus screen and the
+residualization are learned inside the outer training donors too. Module 02 also
+emits an `r2_oof` from the nested CV inside its joint-feature elastic net; §4
+separates the two standards, and that one is **model-level**.
+
+`fig-all-20260922-c` plotted Module 02's `r2_oof` in panel b under the axis
+label "Held-out R²". The two standards are invisible on that axis, and no panel
+of any figure in that run named an `lsp-*` run, so Module 03 reached the
+manuscript nowhere. Panel b now reads `r2_pred_oof` from the accepted
+`lsp-AA-{region}-20260825` runs, joined on `vmr_id` after asserting that
+Module 02 and Module 03 agree on `vmr_set_id`; Module 02's `r2_oof` stays in
+panel a, relabelled "Model-level OOF R²". Module 03's runs consumed the
+pre-rescore `lgv-AA-*-20260823` for their locus screen, which is why the
+identity check is on the catalog rather than on the upstream Module 02 run ID --
+`r2_pred_oof` is a genotype-to-phenotype quantity and carries no score in it.
+
+The substitution raises the top-decile median in all three regions (caudate
+0.870→0.881, DLPFC 0.775→0.794, hippocampus 0.762→0.785). That it is favourable
+is not why it was made.
+
+§7.3 also requires that negative `r2_pred_oof` be retained rather than replaced
+by `cor2_oof`. Panel b floors nothing and drops nothing: the median and
+quartiles are taken on the raw column, most low-decile loci are negative, and
+the panel's source table now carries `n_r2_negative` and `n_r2_missing` per
+decile so the retention is auditable from the table.
+
+**A new figure run is required for this to reach the manuscript.**
+`fig-all-20260922-c` is sealed and still carries the model-level statistic.
+
 ## Table 1 and cohort QC (PI decision D3, 2026-08-26)
 
 `04_table1_cohort.R` and `05_qc_sample_integrity.R` replace `sample_summary/`
@@ -243,7 +275,7 @@ Four things it settles that the v1 tree did not:
   manual assembly. `fig_tags()` emits them lowercase so that step is gone.
 - **The PDF device is `cairo_pdf`.** Base `pdf()` writes a single-byte encoding
   and silently drops anything it cannot map — it was dropping the ρ in
-  Figure 2's "Out-of-fold ρ²" axis label, in the file destined for the
+  Figure 2 panel a's ρ² estimator label, in the file destined for the
   journal, while the PNG review copy rendered correctly.
 - **Figures are capped at 9.5 in tall** and `save_figure()` stops above it. The
   first v2 drafts of Figures 1 and 2 were 11.4 and 10.2 in, which no journal
