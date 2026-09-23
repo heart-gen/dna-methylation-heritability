@@ -414,6 +414,29 @@ regression result:
    artifact of the adjustment's functional form, so "caudate shows nothing" is
    not a claim these data support either.
 
+## Corrections landed 2026-09-23 (a rerun is required for these to take effect)
+
+Found in the PI-summary pass; not reflected in the accepted `rra-AA-*-20260906`
+runs.
+
+### The run decision token counted prose, not gates
+
+`_h/05_finalize_run.R` derived its support count as
+`sum(!startsWith(claims$permitted_claim, "not supported"))`. H3K9me3's claim
+begins "below the gate (2/3 regions)", so it was counted as supported and all
+three cells sealed as `GATES_APPLIED_3_OF_3_OUTCOMES_SUPPORTED` when **two**
+outcomes had cleared. The claims table, this README and
+`MIGRATION_MANIFEST.tsv` recorded the correct 2-of-3 throughout; only the token
+was wrong, and it was wrong because it parsed a sentence.
+
+`03_apply_gates.R` now emits the structured verdict -- `gate_supported`
+(`regions_surviving >= regions_required`) and `gate_status` (`supported` /
+`below_gate` / `not_supported`) -- validates the gate counts, cross-checks them
+against the claim text, and `05_finalize_run.R` counts that column and refuses
+to seal a claims table that lacks it. The sealed 2026-09-06 manifests keep their
+overstated token; read `interpretation-claims.tsv`, not the token, until the
+rerun.
+
 ## QC scripts
 
 `_h/06` and `_h/07` are post-hoc analyses OF sealed runs, not stages of one.

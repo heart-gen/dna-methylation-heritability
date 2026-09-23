@@ -327,6 +327,49 @@ constitutive_basis <- if (!repressive_survives) {
             if (abs(repressive_signed) > abs(polycomb_signed)) ">" else "<=")
 }
 
+## ------------------------------------------------- the machine-readable verdict
+##
+## `gate_supported` is the structured answer to "did this outcome clear its
+## region gate", and it is what 05_finalize_run.R counts into the run decision.
+## That script previously derived the count from the permitted_claim PROSE, with
+## `!startsWith(claim, "not supported")`, which counted "below the gate (2/3
+## regions)" as a success and sealed three cells as
+## GATES_APPLIED_3_OF_3_OUTCOMES_SUPPORTED when H3K9me3 had cleared 2 of 3
+## required regions. Prose is written for a reader; the count must come from the
+## columns the rule is actually evaluated on.
+##
+## The rule is exactly the gate: the number of ELIGIBLE regions surviving every
+## fitted sensitivity reaches the required number. A one-region LINE/L1 survival
+## is therefore NOT supported here even though it licenses the weaker
+## "caudate-specific" sentence -- the claim string carries that nuance, the flag
+## carries the gate.
+if (!all(c("regions_surviving", "regions_required", "regions_eligible") %in%
+         names(claims))) {
+    stop("claims table lacks the structured gate columns; cannot classify")
+}
+bad <- claims[!is.finite(regions_surviving) | !is.finite(regions_required) |
+              !is.finite(regions_eligible) | regions_required < 1L |
+              regions_eligible < 1L | regions_surviving < 0L |
+              regions_surviving > regions_eligible]
+if (nrow(bad) > 0) {
+    stop("Gate counts are not interpretable for outcome(s): ",
+         paste(bad$outcome, collapse = ", "),
+         "\n  Refusing to classify support from a table this script cannot read.")
+}
+claims[, gate_supported := regions_surviving >= regions_required]
+## Cross-check against the prose in the one direction that is unambiguous: a
+## claim that says "not supported" must not be classified as supported, and
+## vice versa. Either mismatch means the two were written from different rules.
+if (claims[startsWith(permitted_claim, "not supported") & gate_supported, .N] > 0 ||
+    claims[!startsWith(permitted_claim, "not supported") & !gate_supported &
+           regions_surviving == 0L, .N] > 0) {
+    stop("permitted_claim and gate_supported disagree; the gate rule and the ",
+         "claim text have drifted apart")
+}
+claims[, gate_status := fifelse(
+    gate_supported, "supported",
+    fifelse(regions_surviving == 0L, "not_supported", "below_gate"))]
+
 ## Fold both qualifiers into the permitted claim, so a reader of the claims
 ## table alone cannot pick up the strong noun without the evidence for it.
 claims[, concentration_supported := concentration_supported]
@@ -365,6 +408,13 @@ writeLines(c(
     "  - Estimates are per 1 SD of the within-cell local SNP contribution score",
     "    among eligible, within-domain loci; they are not PVE differences.",
     "  - Claims exceeding `permitted_claim` are not supported by this analysis.",
+    sprintf(paste("  - Region gates: %d of %d family outcomes cleared their",
+                  "required region count (%s). This is the count that becomes",
+                  "\n    the run decision; an outcome below its gate is not one of them."),
+            sum(claims$gate_supported), nrow(claims),
+            paste(sprintf("%s %d/%d %s", claims$outcome, claims$regions_surviving,
+                          claims$regions_required, claims$gate_status),
+                  collapse = "; ")),
     "  - Family outcomes are gated on the BH-corrected q; the prespecified",
     "    controls in control-outcomes.tsv are outside that family and are",
     "    reported with raw (directional where declared) p.",
