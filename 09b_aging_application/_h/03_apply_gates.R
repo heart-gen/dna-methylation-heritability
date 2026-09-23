@@ -19,6 +19,9 @@ source(file.path(Sys.getenv("V2_REPO_ROOT", "."), "00_shared", "load.R"))
 H_DIR <- Sys.getenv("V2_RUN_CODE",
                     file.path(Sys.getenv("V2_REPO_ROOT", "."), "09b_aging_application", "_h"))
 source(file.path(H_DIR, "run_config.R"))
+## region_reading_members() lives there so a test can drive the reading from a
+## sealed run's axis-tests.tsv without rerunning a stage.
+source(file.path(H_DIR, "age_functions.R"))
 
 suppressPackageStartupMessages({
     library(data.table)
@@ -69,52 +72,31 @@ checks[, pass := mapply(function(o, r, cmp) {
 decision <- if (all(checks$pass)) "PASS_AGING_AXIS_COVERAGE" else "FAIL_AGING_AXIS_COVERAGE"
 
 ## ------------------------------------------------------------- region reading
+## The conjunction is over FITTED members only, and a member can fail to be
+## fitted in two ways, both of them the scMD integration gate: the `cell_scmd`
+## SPEC is declined in 01_age_effects.R, and an scMD-derived gating ARM is
+## declined in 02_axis_test.R. Both record a reason, collected here so the
+## decision row says why rather than only that.
 hyp <- cfg$axis$hypothesized_sign
 main <- axis[outcome == cfg$axis$outcome]
-row_for <- function(member) {
-    ## A member is a spec (arm "base") or a primary-spec arm.
-    r <- main[(spec == member & arm == "base") | (spec == "primary" & arm == member)]
-    if (nrow(r) > 1L) stop("Ambiguous region-reading member: ", member)
-    r
+skipped_f <- file.path(run_dir, "results", "axis-arms-skipped.tsv")
+skipped_arms <- if (file.exists(skipped_f)) fread(skipped_f) else
+    data.table(arm = character(0), reason = character(0))
+pick <- function(tab, key_col, key) {
+    if (!all(c(key_col, "reason") %in% names(tab))) return(character(0))
+    v <- as.character(tab[["reason"]][tab[[key_col]] == key])
+    v[!is.na(v)]
 }
-prim <- row_for("primary")
-primary_supported <- prim$direction == hyp && prim$p < as.numeric(rr$primary_alpha)
-
-member_rows <- list()
-for (m in unlist(rr$same_n_members)) {
-    r <- row_for(m)
-    if (!nrow(r)) {
-        ## Not fitted in this region (scMD fails its integration gate outside
-        ## caudate). Recorded, and it does not count against the conjunction:
-        ## an arm that cannot be fitted is absent evidence, not contrary evidence.
-        member_rows[[m]] <- data.table(member = m, rule = rr$same_n_rule,
-            fitted = FALSE, survives = NA, estimate = NA_real_, p = NA_real_)
-        next
-    }
-    member_rows[[m]] <- data.table(member = m, rule = rr$same_n_rule, fitted = TRUE,
-        survives = r$direction == hyp && r$p < as.numeric(rr$primary_alpha),
-        estimate = r$estimate, p = r$p)
+reason_for <- function(m) {
+    r <- c(pick(spec_summary, "spec", m), pick(skipped_arms, "arm", m))
+    if (length(r)) r[1] else NA_character_
 }
-for (m in unlist(rr$reduced_n_members)) {
-    r <- row_for(m)
-    if (!nrow(r)) stop("Reduced-n member ", m, " was not fitted")
-    frac <- r$estimate / prim$estimate
-    member_rows[[m]] <- data.table(member = m, rule = rr$reduced_n_rule, fitted = TRUE,
-        survives = r$direction == hyp && is.finite(frac) &&
-            frac >= as.numeric(rr$reduced_n_min_fraction),
-        estimate = r$estimate, p = r$p,
-        fraction_of_primary = frac)
-}
-members <- rbindlist(member_rows, fill = TRUE)
-all_survive <- all(members[fitted == TRUE, survives])
-
-reading <- if (!primary_supported) {
-    if (prim$p < as.numeric(rr$primary_alpha)) "OPPOSITE_DIRECTION" else "NOT_SUPPORTED"
-} else if (all_survive) {
-    "SUPPORTED_SURVIVES_GATING_SENSITIVITIES"
-} else {
-    "PRIMARY_ONLY_FAILS_GATING_SENSITIVITY"
-}
+rd <- region_reading_members(main, rr, hyp, reason_for)
+members <- rd$members
+prim <- rd$prim
+primary_supported <- rd$primary_supported
+all_survive <- rd$all_survive
+reading <- rd$reading
 region_supported <- reading == "SUPPORTED_SURVIVES_GATING_SENSITIVITIES"
 
 confounded <- as.character(config_get(load_config("region_donor_generalization"),
@@ -142,6 +124,10 @@ dec <- data.table(
     gating_members_failing = paste(members[fitted == TRUE & survives == FALSE, member],
                                    collapse = ","),
     gating_members_not_fitted = paste(members[fitted == FALSE, member], collapse = ","),
+    gating_members_not_fitted_reason = paste(
+        members[fitted == FALSE, paste0(member, ":", reason)], collapse = ","),
+    ## Which regions the scMD-derived members could be fitted in at all.
+    scmd_integration_gate = mf("scmd_integration_gate"),
     technically_confounded_region = region %in% confounded,
     cross_sectional_design = TRUE,
     causal_interpretation_allowed = FALSE,
