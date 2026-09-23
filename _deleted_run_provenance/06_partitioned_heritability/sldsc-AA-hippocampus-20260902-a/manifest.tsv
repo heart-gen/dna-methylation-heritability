@@ -1,0 +1,27 @@
+field	value
+run_id	sldsc-AA-hippocampus-20260902-a
+analysis	sldsc
+cohort	AA
+region	hippocampus
+vmr_set_id	vmrset-AA-hippocampus-2d907b892215
+git_commit	1cbe6fc62c95dc71475e3126b6b962946a3a6b5a
+git_dirty	true
+started_at	2026-09-02T23:40:27-0500
+r_version	4.4.3
+conda_prefix	/projects/p32505/opt/envs/epigenomics
+hostname	quser43
+slurm_job_id	
+slurm_array_id	
+config_paths_sha256	6841cf30081856561e3c0a46d4c41e82ac531352ba6d7812ea85de288505376b
+config_cohorts_sha256	f2ecbb5c2291244db867042478fa3f6092b4742c2035df7a5c878c1bc8c1bcde
+config_thresholds_sha256	67ad135f3144c21dfe1310c3e46822e1f9d29129536a537231c8f807954c305c
+config_covariates_sha256	9e200f9ba5cb8bf69efa405f261ed00fd84c511fe8110c3fc4c772e1a97107dd
+upstream_local_genetic_variance_run_id	lgv-AA-hippocampus-20260823
+smoke_run	FALSE
+config_partitioned_heritability_sha256	5f4fae04b527382e907ecf8dea7df217cb20c0578e9d2c7b06abac6f73ab71ac
+annotation_score_column	local_snp_contribution_score_z
+ld_reference_arm	eur_primary
+ld_reference_label	1000G Phase 3 EUR
+n_traits	8
+fdr_family	traits_within_cell
+fdr_method	fdr_bh
