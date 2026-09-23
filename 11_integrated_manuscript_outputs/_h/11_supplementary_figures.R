@@ -113,12 +113,19 @@ write_source_data(met[, .(region, trait_label, trait_class, annotation,
 
 ## ===================================================== Aging (Module 09b)
 ##
-## Cross-region token is NOT_SUPPORTED. Direction is concordant in all three
-## regions and two are individually significant, but the cell_composition_r2
-## gating arm removes the gradient everywhere -- so the sensitivity arms are a
-## PANEL, not a footnote. The reading is "the age-responsive low-control VMRs
-## are the composition-sensitive ones", and the figure must not be readable as
-## a clean aging result.
+## The design constraint, which does not depend on the result: a gating arm
+## that removes the gradient is the whole reading of this module, so the
+## sensitivity arms get a PANEL rather than a footnote, and the figure must
+## not be readable as a clean aging result whatever the arms do.
+##
+## The VERDICT -- the cross-region token, which regions are supported, which
+## arms fail -- is read out of the run's own decision tables below and never
+## written into a string here. A caption that states a per-region verdict as
+## prose goes stale silently the next time the verdict changes, and this one
+## did: it asserted "removes the gradient in every region, which is why the
+## cross-region token is NOT_SUPPORTED" while the module 09b scMD-gate
+## correction was in flight. AGENTS.md 7.11 wants a panel's numbers traceable
+## to a run, table, script and filter; a hard-coded claim is none of those.
 AGE <- vapply(regions, function(r)
     require_accepted_upstream("09b_aging_application", cohort, r)$run_id,
     character(1))
@@ -129,6 +136,18 @@ per <- fread(file.path(V2_ROOT, "09b_aging_application", "_m", "combined",
                        sprintf("aging-per-region-%s.tsv", cohort)))
 gat <- by_region(function(r) fread(file.path(age_dir(r), "gating-sensitivities.tsv")))
 qrt <- by_region(function(r) fread(file.path(age_dir(r), "axis-quartile-summary.tsv")))
+
+## The stage-05 cross-region decision row, which is where the token lives.
+xr <- fread(file.path(V2_ROOT, "09b_aging_application", "_m", "combined",
+                      sprintf("aging-cross-region-decision-%s.tsv", cohort)))
+if (nrow(xr) != 1L) {
+    stop("Expected one aging cross-region decision row for ", cohort,
+         ", found ", nrow(xr))
+}
+XR_TOKEN <- as.character(xr$aging_axis_association)
+if (!nzchar(XR_TOKEN) || is.na(XR_TOKEN)) {
+    stop("Aging cross-region decision carries no aging_axis_association token.")
+}
 
 stopifnot(all(per$cross_sectional_design %in% c(TRUE, "TRUE")))
 stopifnot(all(per$causal_interpretation_allowed %in% c(FALSE, "FALSE")))
@@ -165,12 +184,57 @@ gat <- gat[!is.na(mlab)]
 ## passes, which is caudate alone (AGENTS.md 7.9), so the other two cells are
 ## named in the caption rather than silently vanishing.
 not_fitted <- gat[!(fitted %in% c(TRUE, "TRUE"))]
+## Module 09b's scMD-gate correction adds a `reason` column, so the reason can
+## be quoted from the run instead of assumed. Before it lands there is no such
+## column and the note simply says the arm was not fitted -- which is the point:
+## the caption never asserts why on the run's behalf.
+nf_reason <- if ("reason" %in% names(not_fitted))
+    as.character(not_fitted$reason) else rep(NA_character_, nrow(not_fitted))
 nf_note <- if (nrow(not_fitted) == 0) "" else paste0(
     "\nNot fitted, so not shown: ",
-    paste(sprintf("%s in %s", MEMBER_LABELS[not_fitted$member],
-                  as.character(not_fitted$region)), collapse = "; "),
-    " (the scMD integration gate passes in caudate only).")
+    paste(sprintf("%s in %s%s", MEMBER_LABELS[not_fitted$member],
+                  as.character(not_fitted$region),
+                  ifelse(is.na(nf_reason) | !nzchar(nf_reason), "",
+                         paste0(" (", nf_reason, ")"))),
+          collapse = "; "), ".")
 gat_fit <- gat[fitted %in% c(TRUE, "TRUE")]
+
+## ------------------------------------------- panel b caption, derived not typed
+##
+## Every quantity below comes out of the tables already loaded. "Every region"
+## is a claim about a denominator, so the denominator is counted; which regions
+## are supported is read from `region_supported`; the token is read from the
+## stage-05 decision row. Nothing here changes if the verdict changes -- only
+## what it prints.
+failing <- gat_fit[!(survives %in% c(TRUE, "TRUE"))]
+fail_note <- if (nrow(failing) == 0) {
+    "No fitted gating arm removes the gradient."
+} else {
+    tab <- merge(failing[, .(n_fail = .N), by = member],
+                 gat_fit[, .(n_fitted = .N), by = member], by = "member")
+    paste0("Gradient removed by: ",
+           paste(sprintf("%s (%d of %d regions fitted)",
+                         MEMBER_LABELS[tab$member], tab$n_fail, tab$n_fitted),
+                 collapse = "; "), ".")
+}
+supported <- per[region_supported %in% c(TRUE, "TRUE"), as.character(region)]
+support_note <- if (length(supported) == 0)
+    "No region's reading is supported." else
+    paste0("Supported in: ", paste(sort(supported), collapse = ", "), ".")
+## The interpretive sentence is true only where an arm actually fails, so it is
+## conditioned rather than printed unconditionally.
+read_note <- if (nrow(failing) == 0) "" else paste0(
+    "Read as: where an arm removes the gradient, the age-responsive ",
+    "low-control VMRs are the arm-sensitive ones.")
+## A derived caption has no fixed length, so it is wrapped to the panel rather
+## than hand-broken. The hard-coded one could carry its own newlines because
+## nobody expected it to change.
+CAP_B <- paste(unlist(lapply(
+    c(paste0("Cross-region token: ", XR_TOKEN, ". ", support_note),
+      fail_note, read_note,
+      sub("^\n", "", nf_note)),
+    function(s) if (!nzchar(s)) NULL else strwrap(s, width = 78))),
+    collapse = "\n")
 
 pA2 <- ggplot(gat_fit, aes(estimate, mlab, colour = region,
                            shape = survives)) +
@@ -180,12 +244,7 @@ pA2 <- ggplot(gat_fit, aes(estimate, mlab, colour = region,
     scale_shape_manual(values = c(`TRUE` = 16, `FALSE` = 4),
                        labels = c(`TRUE` = "survives", `FALSE` = "fails"),
                        name = NULL) +
-    labs(x = "Gating-sensitivity estimate", y = NULL,
-         caption = paste0("The VMR composition-sensitivity arm removes the ",
-                          "gradient in every region, which is why\nthe ",
-                          "cross-region token is NOT_SUPPORTED. Read as: the ",
-                          "age-responsive low-control\nVMRs are the ",
-                          "composition-sensitive ones.", nf_note)) +
+    labs(x = "Gating-sensitivity estimate", y = NULL, caption = CAP_B) +
     BASE_THEME + NO_TITLES + GRID_Y +
     theme(legend.position = "top", legend.margin = margin(0, 0, -4, 0),
           plot.caption = element_text(size = 6.5, hjust = 0, colour = "grey35"))
@@ -197,9 +256,19 @@ write_source_data(per, paste0(S2, "_panel_a"), unname(AGE),
                   "_m/combined/aging-per-region-{cohort}.tsv", SCRIPT,
                   "accepted per-region rows; cross-sectional design; causal interpretation not allowed",
                   data_dir)
-write_source_data(gat, paste0(S2, "_panel_b"), unname(AGE),
-                  "results/gating-sensitivities.tsv", SCRIPT,
-                  "all gating members under strict conjunction; cell_composition_r2 fails in every region",
+## `row_filter` describes the rows, not the result. The verdict the old string
+## asserted -- which arm fails where -- is carried as DATA here: `fitted` and
+## `survives` per member per region, plus the region reading and the stage-05
+## token the caption prints. A reader checking the caption against the table
+## finds the same values, because the caption is built from them.
+gat_sd <- merge(gat,
+                per[, .(region, region_reading, region_supported)],
+                by = "region", all.x = TRUE)
+gat_sd[, `:=`(cross_region_token = XR_TOKEN, caption_rendered = CAP_B)]
+write_source_data(gat_sd, paste0(S2, "_panel_b"), unname(AGE),
+                  "results/gating-sensitivities.tsv + _m/combined/aging-cross-region-decision-{cohort}.tsv",
+                  SCRIPT,
+                  "all gating members under strict conjunction; not-fitted members retained and flagged, never dropped",
                   data_dir)
 write_source_data(qrt, paste0(S2, "_quartiles"), unname(AGE),
                   "results/axis-quartile-summary.tsv", SCRIPT,
