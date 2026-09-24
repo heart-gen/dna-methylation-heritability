@@ -36,6 +36,40 @@ primary_meqtl:
   latent_factor_policy: >
     Locked primary uses methPC1–5 (PCA on M0-residualized CpG phenotypes).
     Do not auto-include a larger surrogate-variable set without a new lock review.
+  # Pinned 2026-09-24. latent_factor_policy names a METHOD; this is the
+  # specification. Read by 00_shared/covariate_lock.py::latent_factor_recipe()
+  # and executed by 05_cpg_meqtl_burden/_h/01a_estimate_latent_factors.py, which
+  # records every value in results/latent-factor-provenance.tsv. The block must
+  # be complete or absent: a partial block is refused, because it would look
+  # pinned without being pinned.
+  latent_factor_recipe:
+    method: pca_on_m0_residuals
+    # The v1 implementation of this method, re-fitted on the v2 tested CpGs. The
+    # v1 factor TABLES are deliberately not reused: they were estimated on the v1
+    # VMR catalog's CpGs, which is a different CpG set.
+    implementation: "v1 09_estimate_latent_factors.py, re-fitted on v2 tested CpGs"
+    seed: 20260730
+    n_cpg_subsample: 50000
+    n_factors_estimated: 15
+    # M0 = agedeath + sex + primarydx + snpPC1-5, i.e. EVERY locked ancestry PC.
+    # sensitivity_models defines M3a as "M0 + methPC1-5"; the policy line above
+    # does not say whether the residualization carries the ancestry PCs, and this
+    # is the answer.
+    residualize_on: M0
+    cpg_standardization: zscore_per_cpg
+    # The subsample is drawn by INDEX, so the row order of the pooled CpG matrix
+    # decides which CpGs are selected. AGENTS.md 10.1 requires numeric chromosome
+    # ordering; without this key the recipe is not reproducible from its own
+    # description.
+    cpg_order: chrom_numeric_then_position
+    missing_imputation: cpg_mean
+    # An explicit solver rather than a library default: sklearn's
+    # svd_solver="auto" selects the RANDOMIZED solver at these shapes
+    # (153 x 50,000), so the factors would be reproducible only against one
+    # sklearn version and a minor-release change could silently alter a
+    # production covariate.
+    pca_solver: numpy_svd_full
+    sign_convention: max_abs_loading_positive
   cell_composition: sensitivity_only
   # Phase 1 lock sensitivity grid (see PHASE1_COVARIATE_SENSITIVITY_PLAN.md)
   sensitivity_models:
