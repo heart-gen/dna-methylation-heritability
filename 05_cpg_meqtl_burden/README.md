@@ -2,7 +2,13 @@
 
 Asks whether a higher relative local SNP contribution score (`local_snp_contribution_score_z`, Module 02) is associated with a greater fraction of constituent CpGs having conventional cis-meQTL support.
 
-**Status: run in production; all three AA cells accepted 2026-08-28.**
+**Status: the three accepted runs are superseded and a rerun is required
+(2026-09-24).** They were mapped under a covariate design that is not the locked
+one; see "The executed covariate model diverged from the lock" below. Their rows
+stay in the **Accepted runs** table until replacements are accepted, because
+nothing downstream has a v2 replacement yet, but no new downstream production run
+should consume them.
+
 See the **Accepted runs** table below for `cmb-AA-{caudate,dlpfc,hippocampus}-20260825`,
 each `PASS_CPG_MEQTL_BURDEN_QC`. The caudate run carries a distal-null lambda of
 1.139, recorded in its acceptance note. **Read the "Convergent evidence, not
@@ -28,6 +34,50 @@ quietly producing eight of nine.
 Note that `02_map_cpg_meqtl.py` deliberately computes **no** q-values:
 `fdr_family: per_brain_region` means FDR is applied once across all autosomes in
 `02b_combine_meqtl.R`, not 22 times per chromosome.
+
+### The executed covariate model diverged from the lock
+
+`config/covariates.yml:primary_meqtl` has been locked since 2026-08-01 to
+
+```text
+M3a = agedeath + sex + primarydx + snpPC1-5 + methPC1-5
+```
+
+`_h/01b_prepare_meqtl_inputs.py` set `n_pc = 3` and added no methylation PC, so
+the three accepted runs fitted `agedeath + sex + primarydx + snpPC1-3`. Nothing in
+this module or in `00_shared/` read `config/covariates.yml`; the only reference in
+the repository was `00_shared/runid.R`, which writes `config_covariates_sha256`
+into the manifest. The lock was attested by every sealed run and enforced by
+nothing.
+
+**PI decision 2026-09-24: the lock is authoritative.** The evidence is the
+decision pilot on branch `module05/covariate-model-pilot`
+(`PILOT_COVARIATE_MODEL.md`): on chr10, caudate, M3a lowers the distal-null lambda
+from 1.1651 to 1.1412, and every pi0-free discovery threshold favours it. The gain
+is entirely the latent factors — an snpPC1-5-only arm gives 1.1701, marginally
+*worse* than snpPC1-3 — so snpPC4-5 contribute nothing on their own.
+
+What changed here:
+
+- `_h/01a_estimate_latent_factors.py` (new) estimates methPC1-15 once per run,
+  before the mapping array, and writes `results/latent-factor-provenance.tsv`;
+- `_h/meqtl_covariates.py` (new) builds the design and
+  `00_shared/covariate_lock.py` (new) expands the lock from config, so no stage
+  types a term list;
+- `_h/01b` asserts the matrix it built against the lock before writing it.
+
+**The primary model is not free of cell composition.** The lock names a method for
+methPC1-5 and no specification, so the recipe is resolved explicitly in code and
+recorded per run (see `PROPOSED_CONFIG_CHANGE.md` at the repository root for the
+config block that would pin it). The pilot found methPC1 is 72% explained by this
+region's RNA MuSiC cell proportions (R² = 0.721; Oligo ρ = +0.766, p = 9.2e-31),
+so M3a carries a substantial cell-composition adjustment into the primary scan
+even though `config/covariates.yml:cell_composition` reads `sensitivity_only`. The
+M6d sensitivity is `M3a + dnamCellPC1-3`, so its contrast is an increment over a
+baseline that already carries that structure. This is a bulk-tissue correlation
+between a methylation PC and an RNA-derived proportion estimate: collinearity, not
+a cell type of origin (AGENTS.md §2.3). Every run writes it into
+`results/interpretation-constraints.txt`.
 
 ### Genomic inflation is measured on distal cis pairs
 
