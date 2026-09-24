@@ -79,6 +79,31 @@ between a methylation PC and an RNA-derived proportion estimate: collinearity, n
 a cell type of origin (AGENTS.md §2.3). Every run writes it into
 `results/interpretation-constraints.txt`.
 
+### The genotype QC donor set was the source pfile, not the analysis set
+
+`_h/01b` wrote a `{chrom}.keep` file and never passed it to plink2, so `--maf`,
+`--geno` and `--hwe` were evaluated over all 526 AA donors in the source pfile
+rather than the region's analysis donors — 373 of them outside a 153-donor
+caudate estimation set. `00_shared/locus_io.R` documents the opposite convention
+for Modules 02 and 03, where the filters run *after* the group restriction
+deliberately, so this was Module 05's divergence from project practice.
+
+The keep file was also malformed — `{donor}\t{donor}`, the FID twice — while the
+psam's IID is a chip barcode (`Br2585` → `3998646007_R01C01`). plink2 reads a
+two-column `--keep` as FID/IID, so the file matched **zero** samples; had it been
+passed as written, every array task would have failed. That is why the missing
+flag went unnoticed.
+
+Measured on chr10 (pilot, and reproduced by `tests/covariate_lock_smoke.py`): the
+locked QC over the 153 donors leaves 414,363 variants against the executed run's
+416,659, with 17,832 over-included and 15,536 wrongly excluded. 90.2% of the
+over-included fall to tensorqtl's in-sample MAF filter, but the surviving 1,747
+were tested and **all** of them exceed the locked `missingness_max: 0.05` in the
+153 donors, because tensorqtl re-applies MAF and never missingness. Lambda barely
+moves (1.1651 → 1.1619), so this is a denominator and QC-compliance defect rather
+than a calibration one — not a reason to rerun by itself, and a fix any rerun must
+carry.
+
 ### Genomic inflation is measured on distal cis pairs
 
 `config/meqtl_parameters.yml:genomic_inflation` gates on lambda computed over

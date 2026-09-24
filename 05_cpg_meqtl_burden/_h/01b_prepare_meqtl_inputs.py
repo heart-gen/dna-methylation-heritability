@@ -159,18 +159,47 @@ def main() -> None:
             link.unlink()
         link.symlink_to(f"{src_prefix}.{ext}")
     psam_lines = ["#FID\tIID\tSEX"]
+    fid_to_iid: dict[str, str] = {}
     for line in Path(f"{src_prefix}.psam").read_text().splitlines():
         if line.startswith("#") or not line.strip():
             continue
         f = line.split()
         psam_lines.append(f"{f[0]}\t{f[1]}\t{f[2] if len(f) > 2 else 'NA'}")
+        fid_to_iid[f[0]] = f[1]
     staged_prefix.with_suffix(".psam").write_text("\n".join(psam_lines) + "\n")
 
+    # The donor restriction, which until 2026-09-24 was written and then thrown
+    # away. Two defects, and the second is why the first was never noticed:
+    #
+    #   1. `--keep` was never passed, so --maf/--geno/--hwe were evaluated over
+    #      every donor in the source pfile -- 526 AA donors, of whom 373 are
+    #      outside a 153-donor caudate estimation set. On chr10 that over-included
+    #      17,832 variants and wrongly excluded 15,536 that pass the locked QC in
+    #      the 153. Of the over-included, 1,747 survive tensorqtl's in-sample MAF
+    #      filter and every one of them exceeds the locked missingness_max: 0.05
+    #      in the analysis donors, because tensorqtl re-applies MAF and never
+    #      missingness. 00_shared/locus_io.R:33-34 documents the opposite
+    #      convention for Modules 02 and 03 -- filters computed AFTER the group
+    #      restriction, deliberately -- so this was Module 05's divergence from
+    #      project practice, and it is now gone.
+    #   2. the file was written as `{donor}\t{donor}`, i.e. the FID twice. plink2
+    #      reads a two-column --keep as FID/IID and the real IID is a chip barcode
+    #      (Br2585 -> 3998646007_R01C01), so that file matches NO sample:
+    #      "--keep: 0 samples remaining. Error: No samples remaining after main
+    #      filters." Had --keep been passed as written, every array task would
+    #      have failed. A usable restriction pairs each FID with its psam IID.
+    missing = [d for d in cov.index if d not in fid_to_iid]
+    if missing:
+        raise SystemExit(
+            f"{chrom_label}: {len(missing)} analysis donor(s) absent from "
+            f"{src_prefix}.psam, e.g. {missing[:5]}. Refusing to restrict "
+            "genotype QC to a donor set the pfile does not contain.")
     keep_f = out_dir / f"{chrom_label}.keep"
-    keep_f.write_text("".join(f"{d}\t{d}\n" for d in cov.index))
+    keep_f.write_text("".join(f"{d}\t{fid_to_iid[d]}\n" for d in cov.index))
 
     cmd = [
         plink2, "--pfile", str(staged_prefix),
+        "--keep", str(keep_f),
         "--chr", chrom,
         "--maf", str(gq["maf_min"]),
         "--geno", str(gq["missingness_max"]),
@@ -183,8 +212,21 @@ def main() -> None:
     if res.returncode != 0:
         raise SystemExit(f"plink2 failed for {chrom_label}:\n{res.stderr[-4000:]}")
 
+    # plink2 exits 0 on a --keep that matched fewer donors than intended (it only
+    # errors at zero), so the restriction is verified against the pgen it wrote
+    # rather than trusted. A silent partial match would make the QC denominators
+    # wrong in exactly the way this stage just stopped being wrong.
+    kept = sum(1 for ln in (geno_prefix.with_suffix(".psam")).read_text().splitlines()
+               if ln.strip() and not ln.startswith("#"))
+    if kept != cov.shape[0]:
+        raise SystemExit(
+            f"{chrom_label}: --keep retained {kept} samples but the analysis set "
+            f"has {cov.shape[0]}. Genotype QC would be computed over the wrong "
+            "donors.")
+
     print(f"{chrom_label}: {len(keep)} tested CpGs, {cov.shape[0]} donors, "
-          f"{cov.shape[1]} covariates ({', '.join(cov.columns)})")
+          f"{cov.shape[1]} covariates ({', '.join(cov.columns)}), "
+          f"{kept} genotype samples after --keep")
 
 
 if __name__ == "__main__":
