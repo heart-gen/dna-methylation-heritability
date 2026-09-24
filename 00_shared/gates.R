@@ -277,3 +277,116 @@ donor_group_inference_policy <- function(root = repo_root()) {
          min_n_per_group_for_stratified = floor_n,
          config_sha256 = attr(cfg, "config_sha256"))
 }
+
+#' Does the covariate design a Module 05 run EXECUTED match the locked model?
+#'
+#' `config/covariates.yml:primary_meqtl` is the PI decision (AGENTS.md 12) and
+#' AGENTS.md 7.5 requires the locked covariate model to be preserved. Until
+#' 2026-09-24 nothing compared the two: `01b_prepare_meqtl_inputs.py` set
+#' `n_pc = 3` and added no methylation PC, so
+#' `cmb-AA-{caudate,dlpfc,hippocampus}-20260825` fitted
+#' `agedeath + sex + primarydx + snpPC1-3` against a lock reading
+#' `... + snpPC1-5 + methPC1-5`, and all three passed acceptance while their
+#' manifests checksummed the lock they had ignored.
+#'
+#' So this reads the covariate FILES the mapping stage handed to tensorqtl --
+#' `inputs/chr*.covariates.tsv`, whose first column holds the covariate names --
+#' and not a config value echoed back to itself. A run that reads the lock, fits
+#' something else and then reports the lock fails here.
+#'
+#' Vacuity is a failure, not a pass: a run with no covariate file to inspect
+#' certifies nothing, the same way Module 08's
+#' `cross_region_completeness_nonvacuous` refuses an empty comparison.
+#'
+#' The executed column names are not the config's names, for two reasons older
+#' than this gate: Module 01's `.qcovar` column is `age` where the config says
+#' `agedeath`, and `sex`/`diagnosis` are treatment-coded into `sex_M` /
+#' `diagnosis_Schizo` because tensorqtl needs a numeric design. The mapping below
+#' is the R twin of `00_shared/covariate_lock.py::canonical_term()`. The
+#' duplication is deliberate: a gate that imported the stage's own expansion
+#' would agree with it by construction.
+#'
+#' @param run_dir a 05_cpg_meqtl_burden run directory
+#' @return list(passed, detail, n_files, locked_terms, executed_terms, ...)
+meqtl_covariate_design_gate <- function(run_dir, root = repo_root()) {
+    cfg <- load_config("covariates", root = root)
+    pm <- config_get(cfg, "primary_meqtl")
+
+    model_id <- as.character(pm$locked_model %||% "")
+    ancestry <- as.character(pm$ancestry_pcs %||% character())
+    latent <- as.character(pm$locked_latent_factors %||% character())
+    required <- as.character(pm$required_phenotype_columns %||% character())
+    if (!nzchar(model_id) || length(required) == 0L || length(ancestry) == 0L) {
+        stop("config/covariates.yml:primary_meqtl is underspecified ",
+             "(locked_model / required_phenotype_columns / ancestry_pcs). ",
+             "Module 05 will not certify a design against a lock that does not ",
+             "state one (AGENTS.md 12).")
+    }
+    ## M3a is "M0 + methPC1-5" in primary_meqtl.sensitivity_models, so a lock
+    ## naming M3a with no latent factor is self-contradictory and is not quietly
+    ## read as M0.
+    if (identical(model_id, "M3a") && length(latent) == 0L) {
+        stop("locked_model is M3a but locked_latent_factors is empty; M3a is ",
+             "'M0 + methPC1-5' in primary_meqtl.sensitivity_models.")
+    }
+    locked_terms <- c(setdiff(required, ancestry), ancestry, latent)
+
+    canonical <- function(col) {
+        if (col %in% c("age", "agedeath")) return("agedeath")
+        if (col %in% c("diagnosis", "primarydx")) return("primarydx")
+        if (identical(col, "sex")) return("sex")
+        if (grepl("^(snpPC|methPC)[0-9]+$", col)) return(col)
+        if (startsWith(col, "sex_")) return("sex")
+        if (startsWith(col, "diagnosis_")) return("primarydx")
+        NA_character_
+    }
+
+    files <- sort(Sys.glob(file.path(run_dir, "inputs", "chr*.covariates.tsv")))
+    if (length(files) == 0L) {
+        return(list(passed = FALSE, n_files = 0L,
+                    locked_model = model_id,
+                    locked_terms = paste(locked_terms, collapse = ";"),
+                    executed_terms = NA_character_,
+                    config_sha256 = attr(cfg, "config_sha256"),
+                    detail = paste0("no inputs/chr*.covariates.tsv under ",
+                                    run_dir, "; the executed design cannot be ",
+                                    "inspected, so nothing is certified")))
+    }
+
+    bad <- character()
+    seen <- character()
+    for (f in files) {
+        cols <- data.table::fread(f, select = 1L, header = TRUE,
+                                  colClasses = "character")[[1]]
+        cols <- cols[nzchar(cols)]
+        mapped <- vapply(cols, canonical, character(1), USE.NAMES = FALSE)
+        unmapped <- cols[is.na(mapped)]
+        terms <- unique(mapped[!is.na(mapped)])
+        missing <- setdiff(locked_terms, terms)
+        extra <- setdiff(terms, locked_terms)
+        if (length(missing) || length(extra) || length(unmapped)) {
+            bad <- c(bad, sprintf(
+                "%s: missing=[%s] not_in_lock=[%s] unmapped=[%s]",
+                basename(f), paste(missing, collapse = ","),
+                paste(extra, collapse = ","),
+                paste(unmapped, collapse = ",")))
+        }
+        seen <- union(seen, terms)
+    }
+
+    passed <- length(bad) == 0L
+    list(passed = passed,
+         n_files = length(files),
+         locked_model = model_id,
+         locked_terms = paste(locked_terms, collapse = ";"),
+         executed_terms = paste(seen, collapse = ";"),
+         config_sha256 = attr(cfg, "config_sha256"),
+         detail = if (passed) {
+             sprintf("%s over %d chromosome file(s): %s", model_id,
+                     length(files), paste(locked_terms, collapse = "+"))
+         } else {
+             paste0(length(bad), "/", length(files),
+                    " chromosome file(s) diverge from ", model_id, "; ",
+                    paste(utils::head(bad, 3L), collapse = " | "))
+         })
+}

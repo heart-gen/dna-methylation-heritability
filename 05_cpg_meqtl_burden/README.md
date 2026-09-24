@@ -64,7 +64,17 @@ What changed here:
 - `_h/meqtl_covariates.py` (new) builds the design and
   `00_shared/covariate_lock.py` (new) expands the lock from config, so no stage
   types a term list;
-- `_h/01b` asserts the matrix it built against the lock before writing it.
+- `_h/01b` asserts the matrix it built against the lock before writing it, and
+  `_h/02` asserts the matrix it hands to tensorqtl, in the process that fits it;
+- `_h/04_check_burden.R` gains the criterion
+  `executed_covariate_design_matches_lock`, backed by
+  `00_shared/gates.R::meqtl_covariate_design_gate()`, which reads every
+  `inputs/chr*.covariates.tsv` off disk. It compares designs rather than
+  spellings (`age` → `agedeath`, `sex_M` → `sex`), fails on a column that maps to
+  no locked term, and fails rather than passing vacuously when there is no
+  covariate file to inspect. The older `continuous_predictor_is_primary`
+  criterion is the shape of check this replaces: it compares a config value with
+  itself, which is what let a design diverge silently through an acceptance.
 
 **The primary model is not free of cell composition.** The lock names a method for
 methPC1-5 and no specification, so the recipe is resolved explicitly in code and
