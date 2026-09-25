@@ -132,3 +132,188 @@ age_outcomes <- function(fit) {
 ## it, so callers in this module are unaffected; the point of the move is that
 ## there is one definition of the gate rather than two that can drift
 ## (AGENTS.md 5.3).
+
+
+## Which Module 04 feature columns are computed FROM the DNAm scMD donor
+## proportions, and therefore inherit scMD's integration gate.
+##
+## READ FROM THE FEATURE TABLE, never inferred from a column name. The name
+## `cell_composition_r2` is fixed by PI-locked configuration
+## (config/aging.yml:axis.arms, config/gwas_negative_controls.yml) while the
+## quantity behind it is not: before 2026-09-23 Module 04 built it from
+## dnam-scmd-proportions-{region}.tsv in every region; since the MuSiC
+## correction it builds it from the RNA MuSiC proportions in every region and
+## records the modality in `cell_composition_r2_source`, with the scMD value
+## kept beside it in `cell_composition_r2_scmd` (NA where the gate fails). A
+## constant here would have been right against one table and wrong against the
+## other, and would have put "scMD" in the audit trail of a run whose covariate
+## was MuSiC -- worse than the original defect, because it would be a false
+## reason for a defensible action.
+##
+## WHAT THE GATE IS FOR. AGENTS.md 7.4 is asymmetric: RNA MuSiC adjustment is
+## required in every region, DNAm scMD adjustment only "when the integration
+## gate passes", which is caudate alone (total-neuron rho 0.72 caudate, -0.03
+## dlpfc, -0.10 hippocampus). So a MuSiC-derived covariate gates everywhere and
+## an scMD-derived one gates in caudate only. The selection is on the recorded
+## modality; it was never really about the name.
+##
+## WHY A GATED ARM RATHER THAN A METHYLATION PROPERTY. The column is a derived
+## scalar, so it can be read as a property of the VMR's methylation -- AGENTS.md
+## 7.4 does ask for "cell-composition-associated methylation properties" as an
+## adjustment. But the adjective is load-bearing. Where the proportions behind it
+## do not track composition, the R^2 measures methylation variance shared with
+## three PCs of a quantity that is not composition. As a GATING member its output
+## is a boolean that moves the module's verdict, and the only claim that boolean
+## can license is "the gradient is not cell composition". Where that is
+## unavailable the arm must be treated exactly as `cell_scmd` is: absent
+## evidence, not contrary evidence.
+##
+## The gate is still applied at the point of CONSUMPTION, not construction. The
+## column is well defined in every region whichever modality built it; what is
+## region-conditional is whether it can support a composition claim.
+##
+## The DESCRIPTIVE annotation block (config/aging.yml:annotation_associations)
+## keeps the column in every region on purpose, with the caveat written into the
+## config at line 211: there it is the annotation being described, not an
+## adjustment claiming to have removed composition, and it never reaches the
+## region reading.
+
+## Recognised values of `cell_composition_r2_source`. An unrecognised value is
+## an error, not a default: this module would be deciding a gate over a modality
+## it has never been told about.
+SCMD_MODALITY <- c(rna_music = FALSE, dnam_scmd = TRUE)
+
+## Used ONLY for a Module 04 table that predates `cell_composition_r2_source`
+## (runs up to rra-AA-*-20260906). Such a table genuinely is scMD-derived, so the
+## fallback is the correct answer for it -- but it is an assumption about data
+## that cannot speak for itself, so it is announced rather than taken quietly.
+SCMD_DERIVED_FEATURES_PRE_MODALITY <- c("cell_composition_r2")
+
+#' @param feat Module 04's vmr-features.tsv, as a data.table.
+#' @return the feature column names that are scMD-derived, possibly none.
+scmd_derived_feature_columns <- function(feat, announce = message) {
+    ## An explicitly named modality column means what it says whatever the
+    ## table-level source is; both exist side by side after the correction.
+    explicit <- intersect("cell_composition_r2_scmd", names(feat))
+    if (!"cell_composition_r2_source" %in% names(feat)) {
+        announce("[09b] Module 04 feature table carries no ",
+                 "cell_composition_r2_source column: treating it as a ",
+                 "pre-2026-09-23 table, in which cell_composition_r2 is ",
+                 "DNAm scMD-derived. Provenance is ASSUMED, not read.")
+        return(unique(c(SCMD_DERIVED_FEATURES_PRE_MODALITY, explicit)))
+    }
+    src <- unique(as.character(feat$cell_composition_r2_source))
+    src <- src[!is.na(src)]
+    if (!length(src)) {
+        stop("cell_composition_r2_source is present but entirely NA; the ",
+             "modality of cell_composition_r2 cannot be established")
+    }
+    if (length(src) > 1L) {
+        stop("cell_composition_r2_source takes more than one value in one ",
+             "feature table (", paste(src, collapse = ", "), "); one column ",
+             "cannot have two provenances")
+    }
+    if (!src %in% names(SCMD_MODALITY)) {
+        stop("Module 04 records cell_composition_r2_source '", src, "', which ",
+             "this module does not recognise. Teach age_functions.R:",
+             "SCMD_MODALITY whether that modality is scMD-derived; it is not ",
+             "assumed either way.")
+    }
+    unique(c(if (isTRUE(SCMD_MODALITY[[src]])) "cell_composition_r2", explicit))
+}
+
+## Does an axis arm's covariate set or row subset depend on an scMD-derived
+## feature? Arms are declared in config/aging.yml:axis.arms; `scmd_cols` comes
+## from scmd_derived_feature_columns().
+arm_is_scmd_derived <- function(arm, scmd_cols) {
+    cols <- unique(c(as.character(unlist(arm$add_covariates)),
+                     as.character(unlist(arm$subset$column))))
+    any(cols %in% scmd_cols)
+}
+
+## An scMD-derived arm in the GATING role is not fitted where the scMD
+## integration gate fails, mirroring the `requires_scmd_integration_gate` spec
+## rule in 01_age_effects.R. A non-gating arm is still fitted: it cannot move
+## the verdict, and it is flagged in axis-tests.tsv instead.
+arm_skipped_for_scmd <- function(arm, scmd_ok, scmd_cols) {
+    !isTRUE(scmd_ok) && identical(as.character(arm$role), "gating") &&
+        arm_is_scmd_derived(arm, scmd_cols)
+}
+
+
+## Region reading under strict conjunction (config/aging.yml:region_reading).
+##
+## Extracted from 03_apply_gates.R, arithmetic unchanged, so tests can drive it
+## from a sealed run's axis-tests.tsv without rerunning a stage -- and so the
+## "conjunction over FITTED members only" rule has one implementation to check.
+##
+## `main` is axis-tests.tsv restricted to the primary outcome. `reason_for` maps
+## a member name to why it was not fitted, for the audit trail.
+region_reading_members <- function(main, rr, hyp,
+                                   reason_for = function(m) NA_character_) {
+    row_for <- function(member) {
+        r <- main[(spec == member & arm == "base") |
+                  (spec == "primary" & arm == member)]
+        if (nrow(r) > 1L) stop("Ambiguous region-reading member: ", member)
+        r
+    }
+    prim <- row_for("primary")
+    if (!nrow(prim)) stop("The primary spec has no axis row")
+    primary_supported <- prim$direction == hyp &&
+        prim$p < as.numeric(rr$primary_alpha)
+
+    member_rows <- list()
+    for (m in as.character(unlist(rr$same_n_members))) {
+        r <- row_for(m)
+        if (!nrow(r)) {
+            ## Not fitted in this region. Recorded with its reason, and it does
+            ## not count against the conjunction: a member that cannot be
+            ## fitted is absent evidence, not contrary evidence. Both reasons
+            ## that reach here are the scMD integration gate -- for the
+            ## `cell_scmd` spec (01_age_effects.R) and for any scMD-derived
+            ## gating arm (02_axis_test.R).
+            member_rows[[m]] <- data.table::data.table(
+                member = m, rule = rr$same_n_rule, fitted = FALSE,
+                survives = NA, estimate = NA_real_, p = NA_real_,
+                reason = reason_for(m))
+            next
+        }
+        member_rows[[m]] <- data.table::data.table(
+            member = m, rule = rr$same_n_rule, fitted = TRUE,
+            survives = r$direction == hyp && r$p < as.numeric(rr$primary_alpha),
+            estimate = r$estimate, p = r$p, reason = NA_character_)
+    }
+    for (m in as.character(unlist(rr$reduced_n_members))) {
+        r <- row_for(m)
+        if (!nrow(r)) stop("Reduced-n member ", m, " was not fitted")
+        frac <- r$estimate / prim$estimate
+        member_rows[[m]] <- data.table::data.table(
+            member = m, rule = rr$reduced_n_rule, fitted = TRUE,
+            survives = r$direction == hyp && is.finite(frac) &&
+                frac >= as.numeric(rr$reduced_n_min_fraction),
+            estimate = r$estimate, p = r$p, reason = NA_character_,
+            fraction_of_primary = frac)
+    }
+    members <- data.table::rbindlist(member_rows, fill = TRUE)
+
+    ## The conjunction is over FITTED members only, and `all(logical(0))` is
+    ## TRUE, so an empty same-n set would silently return a vacuous "survives
+    ## every sensitivity". Refuse it rather than report it.
+    same_n <- as.character(unlist(rr$same_n_members))
+    if (!any(members$fitted & members$member %in% same_n)) {
+        stop("No same-n gating member was fitted; the strict conjunction would ",
+             "be vacuous. Check the scMD integration gate and config/aging.yml:",
+             "region_reading.same_n_members.")
+    }
+    all_survive <- all(members$survives[members$fitted])
+
+    reading <- if (!primary_supported) {
+        if (prim$p < as.numeric(rr$primary_alpha)) "OPPOSITE_DIRECTION" else "NOT_SUPPORTED"
+    } else if (all_survive) {
+        "SUPPORTED_SURVIVES_GATING_SENSITIVITIES"
+    } else {
+        "PRIMARY_ONLY_FAILS_GATING_SENSITIVITY"
+    }
+    list(members = members, prim = prim, primary_supported = primary_supported,
+         all_survive = all_survive, reading = reading)
+}
