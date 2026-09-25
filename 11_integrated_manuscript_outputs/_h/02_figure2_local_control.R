@@ -15,8 +15,23 @@
 ##
 ##   a  the rank is reproduced by independent estimators, and is NOT explained
 ##      by locus geometry (the reviewer's first objection)
-##   b  held-out prediction accuracy rises monotonically across the rank
-##      -- the secondary endpoint of AGENTS.md 11
+##   b  held-out local SNP prediction accuracy rises monotonically across the
+##      rank -- the secondary endpoint of AGENTS.md 11
+##
+## Which prediction number panel b may carry
+##   AGENTS.md 7.3 names ONE primary v2 prediction endpoint: `r2_pred_oof`,
+##   the END-TO-END out-of-fold R-squared emitted by module 03, in which the
+##   locus screen and the residualization are also learned inside the outer
+##   training donors. Module 02 emits its own `r2_oof` from the nested CV
+##   inside its joint-feature elastic net; that is a MODEL-LEVEL out-of-fold
+##   statistic, and AGENTS.md 4 separates the two standards explicitly.
+##
+##   Until 2026-09-23 this panel plotted module 02's `r2_oof` under the axis
+##   label "Held-out R2", which presented the weaker standard where the
+##   manuscript claims the stronger, and left module 03 cited by no panel of
+##   any figure. Panel b now reads `r2_pred_oof` from the accepted module 03
+##   runs; module 02's `r2_oof` stays in panel a, relabelled as the
+##   model-level statistic it is.
 ##   c  the rank is concordant across brain regions in VMRs called in both
 ##   d  genic context across the rank -- descriptive proportions only, no
 ##      enrichment test, no threshold. Repeat and repressive-chromatin
@@ -94,8 +109,68 @@ stopifnot(all(all_rows$local_snp_contribution_score_basis == "pve_cis_joint_unbo
 elig <- all_rows[local_genetic_control_eligible == TRUE]
 elig[, region := as_region(region)]
 
+## -------------------- module 03: the end-to-end out-of-fold prediction endpoint
+##
+## Resolved through the same acceptance gate as module 02 (AGENTS.md 6), so the
+## run ID lands in this figure's source data and from there in the run manifest.
+## The join is on vmr_id and is safe on identity grounds only because both
+## modules key on the same accepted catalog: assert the vmr_set_id agrees rather
+## than trusting it. Module 03's accepted runs consumed the PRE-rescore module 02
+## run for their locus screen, which is why the check is on vmr_set_id -- the
+## catalog -- and not on the upstream module 02 run ID. `r2_pred_oof` is a
+## genotype-to-phenotype quantity and carries no score in it, so the rescore
+## does not touch it.
+LSP_RUN <- local({
+    cache <- new.env(parent = emptyenv())
+    function(r) {
+        if (is.null(cache[[r]])) {
+            cache[[r]] <- require_accepted_upstream("03_local_snp_prediction",
+                                                    cohort = cohort,
+                                                    region = r)$run_id
+        }
+        cache[[r]]
+    }
+})
+lsp_file <- function(r) file.path(
+    V2_ROOT, "03_local_snp_prediction", "_m", "runs", LSP_RUN(r),
+    "results", "combined",
+    sprintf("oof-prediction-%s-%s-vmrs.tsv", cohort, r))
+
+pred <- rbindlist(lapply(regions, function(r) {
+    d <- fread(lsp_file(r))
+    legacy <- intersect(c("r_squared_cv", "h2_unscaled", "h2_en_calibrated"),
+                        names(d))
+    if (length(legacy) > 0) {
+        stop("Module 03 table for ", r, " carries retired metric(s): ",
+             paste(legacy, collapse = ", "), " (AGENTS.md 3).")
+    }
+    if (!"r2_pred_oof" %in% names(d)) {
+        stop("Module 03 table for ", r, " has no r2_pred_oof column; AGENTS.md ",
+             "7.3 names it as the primary prediction endpoint.")
+    }
+    want <- unique(all_rows[region == r]$vmr_set_id)
+    got <- unique(as.character(d$vmr_set_id))
+    if (!identical(sort(want), sort(got))) {
+        stop("vmr_set_id disagrees between module 02 (", paste(want, collapse = ","),
+             ") and module 03 (", paste(got, collapse = ","), ") for ", r,
+             "; the panel b join would cross VMR catalogs.")
+    }
+    d[, .(vmr_id, region = r, r2_pred_oof)]
+}))
+pred[, region := as_region(region)]
+
+n_before <- nrow(elig)
+elig <- merge(elig, pred, by = c("vmr_id", "region"), all.x = TRUE)
+if (nrow(elig) != n_before) {
+    stop("Module 03 join changed the eligible row count (", n_before, " -> ",
+         nrow(elig), "); vmr_id is not unique within region.")
+}
+message("[join] end-to-end OOF prediction matched ",
+        sum(!is.na(elig$r2_pred_oof)), " of ", nrow(elig), " eligible VMRs")
+
 SCRIPT <- "11_integrated_manuscript_outputs/_h/02_figure2_local_control.R"
 runs_used <- vapply(regions, LGV_RUN, "")
+runs_used_pred <- c(runs_used, vapply(regions, LSP_RUN, ""))
 FILTER <- "local_genetic_control_eligible == TRUE"
 
 ## ------------------------- A. what the rank agrees with, and what it does not
@@ -103,10 +178,13 @@ FILTER <- "local_genetic_control_eligible == TRUE"
 ## Two contrasting groups on one axis. Independent estimators of local genetic
 ## control should track the rank; locus geometry should not, because a ranking
 ## driven by SNP count or LD would be an artifact rather than a signal.
+## The two `*_oof` entries are module 02's own nested-CV statistics, so they are
+## named for the standard they meet (AGENTS.md 4: model-level, not end-to-end).
+## The bare label "Held-out R2" conflated them with panel b's endpoint.
 CONCORD <- c(bslmm_pve = "BSLMM PVE",
              he_h2     = "Haseman-Elston",
-             rho2_oof  = "Out-of-fold \u03c1\u00b2",
-             r2_oof    = "Held-out R\u00b2")
+             rho2_oof  = "Model-level OOF \u03c1\u00b2",
+             r2_oof    = "Model-level OOF R\u00b2")
 GEOMETRY <- c(num_snps  = "cis SNPs",
               p_eff     = "Effective rank",
               ld_metric = "LD")
@@ -147,20 +225,31 @@ pA <- ggplot(conc, aes(rho, label, colour = region)) +
           strip.text.y.right = element_text(angle = -90, face = "bold"),
           plot.margin = margin(5, 12, 5, 8))
 
-## ------------------------------ B. held-out prediction across the rank
+## ------------------ B. held-out local SNP prediction across the rank
 ##
-## The secondary endpoint. Deciles of the rank, not thresholds: no cut point is
-## claimed, and the axis is prediction accuracy, never variance explained.
+## The secondary endpoint, and it is module 03's `r2_pred_oof` (AGENTS.md 7.3).
+## Deciles of the rank, not thresholds: no cut point is claimed, and the axis is
+## prediction accuracy, never variance explained.
+##
+## AGENTS.md 7.3 also requires that negative `r2_pred_oof` be RETAINED and never
+## swapped for `cor2_oof` when it is unfavourable. There is no floor and no
+## drop here: median and quartiles are taken on the raw column, and the count of
+## negative loci per decile ships in the panel's source data so the retention is
+## auditable from the table rather than asserted in a comment. Most low-decile
+## loci are negative, which is the honest reading of "not imputable".
 dec <- copy(elig)
 dec[, decile := cut(local_snp_contribution_score, breaks = seq(0, 1, 0.1),
                     labels = 1:10, include.lowest = TRUE)]
 dec_sum <- dec[!is.na(decile), .(
     n = .N,
-    median = median(r2_oof, na.rm = TRUE),
-    q25 = quantile(r2_oof, 0.25, na.rm = TRUE),
-    q75 = quantile(r2_oof, 0.75, na.rm = TRUE)), by = .(region, decile)]
+    n_r2_negative = sum(r2_pred_oof < 0, na.rm = TRUE),
+    n_r2_missing = sum(is.na(r2_pred_oof)),
+    median = median(r2_pred_oof, na.rm = TRUE),
+    q25 = quantile(r2_pred_oof, 0.25, na.rm = TRUE),
+    q75 = quantile(r2_pred_oof, 0.75, na.rm = TRUE)), by = .(region, decile)]
 
 pB <- ggplot(dec_sum, aes(as.integer(decile), median, colour = region, fill = region)) +
+    geom_hline(yintercept = 0, colour = PAL_NULL, linewidth = 0.35) +
     geom_ribbon(aes(ymin = q25, ymax = q75), alpha = 0.16, colour = NA) +
     geom_line(linewidth = 0.5) +
     geom_point(size = 1.3) +
@@ -168,7 +257,8 @@ pB <- ggplot(dec_sum, aes(as.integer(decile), median, colour = region, fill = re
     scale_fill_manual(values = REGION_COLORS, guide = "none") +
     scale_x_continuous(breaks = 1:10) +
     labs(x = "Decile of local SNP contribution rank",
-         y = expression("Held-out"~R^2)) +
+         y = expression(atop("Held-out local SNP prediction",
+                             R^2 ~ "(end-to-end out-of-fold)"))) +
     BASE_THEME + NO_TITLES
 
 ## ------------------------------------ C. cross-region rank concordance
@@ -312,9 +402,9 @@ save_figure(pS, paste0("figureS_local_control_audit_unbounded", arm),
 
 ## ---------------------------------------------------------- source data
 ## Panel names follow the RENDERED tag: pA -> a, pB -> b, pC -> c, pCtx -> d.
-sd <- function(dt, nm, tbl, filt) {
+sd <- function(dt, nm, tbl, filt, runs = runs_used) {
     write_source_data(dt, paste0(STEM, "_", nm),
-                      runs_used, tbl, SCRIPT, filt, data_dir)
+                      runs, tbl, SCRIPT, filt, data_dir)
 }
 sd_denom <- function(dt, nm, tbl, filt) {
     write_source_data(dt, paste0(DENOM_STEM, "_", nm),
@@ -327,8 +417,20 @@ sd_supp <- function(dt, nm, tbl, filt) {
                       runs_used, tbl, SCRIPT, filt, data_dir)
 }
 TBL <- sprintf("results/combined/local-genetic-control-%s-{region}-vmrs.tsv", cohort)
+## Panel b spans two modules: the decile comes from module 02's score, the
+## outcome from module 03's end-to-end OOF R-squared. Both tables and both sets
+## of run IDs are named, which is what puts module 03 into the run manifest's
+## `upstream_runs` -- 03_close_figure_run.R unions `source_run_id` over the
+## source-data tables, so a run that no panel names is a run the manifest does
+## not record (AGENTS.md 7.11, 9).
+TBL_PRED <- sprintf(paste("02_local_genetic_variance results/combined/local-genetic-control-%s-{region}-vmrs.tsv",
+                          "+ 03_local_snp_prediction results/combined/oof-prediction-%s-{region}-vmrs.tsv"),
+                    cohort, cohort)
 sd(conc, "panel_a", TBL, FILTER)
-sd(dec_sum, "panel_b", TBL, paste(FILTER, "; deciles of local_snp_contribution_score"))
+sd(dec_sum, "panel_b", TBL_PRED,
+   paste(FILTER, "; deciles of local_snp_contribution_score; outcome is",
+         "r2_pred_oof joined on vmr_id; negative values retained (AGENTS.md 7.3)"),
+   runs = runs_used_pred)
 sd(pairs_dt, "panel_c", TBL,
    paste(FILTER, "; loci matched across regions by widest genomic overlap"))
 sd(ctx_sum, "panel_d",
