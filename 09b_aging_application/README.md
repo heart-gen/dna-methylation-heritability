@@ -115,7 +115,7 @@ All of these are fitted on the primary spec's age effects.
 
 | arm / outcome | role |
 |---|---|
-| + `cell_composition_r2` | gating |
+| + `cell_composition_r2` | gating; **caudate only when the column is scMD-derived**, every region when it is MuSiC-derived. The modality is read from Module 04's `cell_composition_r2_source`, not from the name (see below) |
 | + `methylation_variance` | non-gating |
 | mappability ≥ 0.9 | non-gating |
 | + H3K27me3, bivalent, H3K9me3 and quiescent fractions | non-gating decomposition: does the gradient ride on PRC2/bivalent age-hypermethylation or on Module 04's architecture? Attenuation links the two; it is not a failure. |
@@ -184,8 +184,68 @@ Then a strict conjunction applies:
   least 50% of the primary coefficient.
 
 A gating member that cannot be fitted in a region is recorded as absent
-evidence, not contrary evidence. `cell_scmd` outside caudate is the case in
-point.
+evidence, not contrary evidence, with its reason in
+`gating-sensitivities.tsv:reason`.
+
+**Corrected 2026-09-23.** A gating arm whose covariate is **scMD-derived** is
+declined where scMD fails its integration gate, exactly as the `cell_scmd` spec
+is, and recorded in `axis-arms-skipped.tsv`. Previously `cell_composition_r2` —
+then the per-VMR R² of methylation on the *scMD* proportion PCs, the same
+quantity `cell_scmd` adjusts for reduced to one scalar — was fitted and gating in
+all three regions while `cell_scmd` was correctly declined in two: the same
+quantity gated out under one name and admitted under another.
+
+**Which columns are scMD-derived is read from the data, not from the name.** The
+name `cell_composition_r2` is fixed by PI-locked configuration
+(`config/aging.yml:axis.arms`, `config/gwas_negative_controls.yml`); the quantity
+behind it is not. Module 04's MuSiC correction (also 2026-09-23) rebuilt it from
+the RNA MuSiC proportions in every region and records the modality in
+`cell_composition_r2_source`, keeping the scMD value beside it in
+`cell_composition_r2_scmd`. So:
+
+| Module 04 table | `cell_composition_r2` is | the arm gates in |
+|---|---|---|
+| up to `rra-AA-*-20260906` (accepted today) | scMD-derived | caudate only |
+| after the MuSiC correction | MuSiC-derived | all three regions |
+
+`age_functions.R:scmd_derived_feature_columns()` reads
+`cell_composition_r2_source` and resolves the modality per column. A table with
+no such column predates the correction and genuinely is scMD-derived, so the
+constant is used as a fallback — announced in the run log and recorded as
+`cell_composition_r2_source = unrecorded_assumed_dnam_scmd`, because it is an
+assumption about data that cannot speak for itself. An **unrecognised** modality
+is an error, never a silent "not scMD". The resolved modality is written to
+`axis-tests.tsv`, `axis-arms-skipped.tsv`, `aging-decision.tsv` and the manifest,
+so the audit trail names the modality that was actually adjusted for rather than
+the one a constant assumed.
+
+The judgement, since the column is a derived scalar and AGENTS.md §7.4 does ask
+for "cell-composition-**associated** methylation properties": the adjective is
+load-bearing. Where the proportions behind the R² do not track composition
+(total-neuron ρ −0.03 DLPFC, −0.10 hippocampus, against 0.72 caudate) it measures
+methylation variance shared with three PCs of something that is not composition,
+and the only claim a gating boolean can license — "the gradient is not cell
+composition" — is unavailable. §7.4 is asymmetric in the same way: MuSiC
+adjustment is required in every region, scMD adjustment only "when the
+integration gate passes", which `config/repeat_annotations.yml:334` states as
+*caudate only, when the integration gate passes*. The selection is on modality;
+it was never really about the name. The gate is still applied where the column is
+**consumed**, not where it is built.
+
+The **descriptive** annotation use of the column (stage 02's annotation table) is
+unchanged and still fitted everywhere, flagged `scmd_derived_annotation` — which
+now goes FALSE by itself once the column becomes MuSiC-derived. There the column
+is the annotation being described, not an adjustment claiming to have removed
+composition.
+
+If the PI instead holds the column a methylation property, it should move out of
+`same_n_members` for the reason `methylation_variance` is already non-gating —
+a VMR's R² on donor PCs is partly a function of its total variance, which
+contains the age variance — and the DLPFC reading changes the same way. The
+readings only stay as sealed if the column is held to be both a methylation
+property **and** a legitimate gate, in which case this code change is reverted.
+`config/aging.yml` is `pi_locked` and was not edited; the arm's membership and
+role are as locked.
 
 The coverage gate `PASS_AGING_AXIS_COVERAGE` decides sealing. It is **not** a
 success criterion: a null result seals.
@@ -244,10 +304,17 @@ These are carried on every decision row.
 - In DLPFC and hippocampus the only donor-level composition estimate is RNA
   MuSiC, because DNAm scMD fails its neuronal concordance gate there (ρ −0.03
   and −0.10).
-  - Module 04's `cell_composition_r2`, used by the gating arm, is built from
-    scMD proportions in **all** regions, including those two.
-  - Residual composition confounding therefore cannot be excluded outside
-    caudate.
+  - Against the **currently accepted** Module 04 tables, `cell_composition_r2`
+    is built from scMD proportions in all three regions, so since 2026-09-23 the
+    arm that uses it is declined where the scMD gate fails and no longer gates
+    the DLPFC or hippocampus reading. Against a **post-MuSiC-correction** table
+    the column is MuSiC-derived, the arm is fitted in all three regions, and its
+    estimate is a genuine composition adjustment there.
+  - Residual composition confounding outside caudate is a DNAm-modality
+    limitation either way: no DNAm-based composition estimate is usable there.
+    The MuSiC-derived arm addresses RNA-estimated composition, not scMD's. That
+    limitation therefore stands on its own and is **not** discharged by an arm
+    whose covariate cannot measure the composition it names.
 
 ## Pipeline
 
@@ -255,7 +322,7 @@ These are carried on every decision row.
 |---|---|---|
 | 00 | `_h/00_new_run.R` | run, manifest, `diagnostic-methpc-age.tsv` |
 | 01 | `_h/01_age_effects.R` | `vmr-age-effects.tsv`, `age-spec-summary.tsv`, `checkpoint/age-inputs.rds` |
-| 02 | `_h/02_axis_test.R` | `axis-tests.tsv`, `axis-quartile-summary.tsv`, `annotation-age-associations.tsv`, bootstrap draws |
+| 02 | `_h/02_axis_test.R` | `axis-tests.tsv`, `axis-arms-skipped.tsv`, `axis-quartile-summary.tsv`, `annotation-age-associations.tsv`, bootstrap draws |
 | 03 | `_h/03_apply_gates.R` | `gate-checks.tsv`, `gating-sensitivities.tsv`, `aging-decision.tsv` |
 | 04 | `_h/04_finalize_run.R` | sealed run |
 | 05 | `_h/05_cross_region_concordance.R` | `_m/combined/aging-*-AA.tsv`, including `aging-annotation-{associations,cross-region}-AA.tsv` |
@@ -267,7 +334,10 @@ To run:
     Rscript _h/05_cross_region_concordance.R --cohort AA   # after all three are accepted
 
 Before any submission, run the smoke checks by hand:
-`Rscript 09b_aging_application/tests/test_age_functions.R`. There are 19
+`Rscript 09b_aging_application/tests/test_scmd_gate_consistency.R` (the scMD
+gate, arm provenance, and the region reading reproduced from the sealed runs'
+own `axis-tests.tsv`) and
+`Rscript 09b_aging_application/tests/test_age_functions.R`. The latter has 19
 checks, covering:
 - matrix fits against `lm()`;
 - donor alignment;
@@ -283,6 +353,56 @@ checks, covering:
 `config/aging.yml` locked by the PI. Acceptance is a human entry below.
 
 ## Accepted runs
+
+**The three runs below predate the 2026-09-23 scMD-gate correction and their
+DLPFC reading is superseded.** `_m/` is immutable, so the correction takes effect
+only in a new run. **What the rerun gives depends on which Module 04 table it
+consumes, and the two answers differ**, so both are set out here.
+
+### If Module 09b is rerun on the accepted `rra-AA-*-20260906` tables
+
+`cell_composition_r2` is scMD-derived there, so its arm is declined outside
+caudate and the reading follows from the sealed rows. Reading the sealed
+`axis-tests.tsv` through the corrected stage-03 logic
+(`tests/test_scmd_gate_consistency.R`) gives, with no refitting:
+
+- **caudate: unchanged.** The scMD gate passes there, so the arm is legitimately
+  fitted, and `cell_scmd` gates and fails at p 0.057 on its own.
+  `PRIMARY_ONLY_FAILS_GATING_SENSITIVITY` stands.
+- **DLPFC: `PRIMARY_ONLY_FAILS_GATING_SENSITIVITY` →
+  `SUPPORTED_SURVIVES_GATING_SENSITIVITIES`.** `cell_composition_r2` was its only
+  failing member; `cell_music` (−0.39, p 0.0096) and `controls_only` (72% of the
+  primary) both survive.
+- **hippocampus: unchanged, `NOT_SUPPORTED`.** The primary is not significant
+  (p 0.28) and `cell_music` fails on its own.
+
+Cross-region, that is one supported non-caudate region, not two, so the
+association is still not region-general: the stage-05 token moves from
+`NOT_SUPPORTED` to `SINGLE_NONCAUDATE_REGION`. The arithmetic above is a
+projection from sealed numbers, not an accepted result; the accepted numbers
+come from the rerun.
+
+### If Module 04 is rerun first, and Module 09b consumes the MuSiC table
+
+`cell_composition_r2` is then MuSiC-derived, the arm gates in **all three**
+regions, and **none of the three readings can be projected**. The arm's estimate
+is refitted on a different covariate: MuSiC PCs instead of scMD PCs, over more
+donors (MuSiC covers 153/118/117 against scMD's 151/110/116, so DLPFC gains 8),
+which can move it independently of the modality change. The sealed −0.17 (p 0.21)
+for DLPFC is an scMD-based number and says nothing about the MuSiC-based one.
+
+So DLPFC's reading is **not** guaranteed to flip in that state: it flips only if
+the MuSiC-derived arm keeps the sign and reaches p < 0.05, which is an empirical
+question for the rerun. The correction's guarantee is narrower and is the point
+of it — whichever table is consumed, the arm gates exactly where its covariate
+can support a composition claim, and `cell_composition_r2_source` on every
+emitted row says which modality that was.
+
+Run order therefore matters and is a PI decision: rerunning 09b alone tests the
+axis against the currently accepted architecture, while rerunning Module 04 first
+changes what the gating arm means. Module 09b does not require the Module 04
+rerun — the gate is applied at consumption — so either order is valid, but the
+two give different readings and the choice should be deliberate.
 
 | run_id | cohort | region | vmr_set_id | accepted_on | accepted_by | decision | notes |
 |---|---|---|---|---|---|---|---|
