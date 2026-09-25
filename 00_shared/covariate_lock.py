@@ -29,8 +29,9 @@ rather than papered over: `latent_factor_policy` names a method ("PCA on
 M0-residualized CpG phenotypes") and no file, CpG set, subsample, seed,
 standardization, or answer to whether the M0 residualization carries snpPC1-5.
 `latent_factor_recipe()` resolves every one of those, prefers an explicit
-`primary_meqtl.latent_factor_recipe` block when the PI adds one (see
-PROPOSED_CONFIG_CHANGE.md), and reports which source it used so the run manifest
+`primary_meqtl.latent_factor_recipe` block, which the PI added on 2026-09-24
+(see 05_cpg_meqtl_burden/PROPOSED_CONFIG_CHANGE.md for what was decided and
+why), and reports which source it used so the run manifest
 records the resolution instead of implying the config supplied it.
 """
 
