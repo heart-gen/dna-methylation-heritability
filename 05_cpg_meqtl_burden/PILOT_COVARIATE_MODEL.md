@@ -323,3 +323,50 @@ passes twice over: its covariate file is byte-identical to the sealed run's
 (md5 `61adc2091d03bf93fefd34ef11dd76d9`), and its λ matches the value recomputed
 independently from the sealed nominal parquet to four decimal places
 (1.1651 both ways).
+
+---
+
+## Addendum, 2026-09-24: what the genome-wide rerun did to the pilot's reading
+
+The PI adopted M3a (F9) and Module 05 was rerun in full as
+`cmb-AA-{caudate,dlpfc,hippocampus}-20260924`, all three sealed
+`PASS_CPG_MEQTL_BURDEN_QC` on 8/8 criteria. Two of this pilot's conclusions do
+not survive the extrapolation from chr10, and are corrected here rather than
+left to be read off a superseded table.
+
+**λ did not carry.** chr10 gave −0.0239, and the note above projected a pooled λ
+"near 1.115 if it carried". It did not carry, and it is not even one-signed:
+
+| region | λ under the executed 6-term design | λ under M3a | Δ |
+|---|---|---|---|
+| caudate | 1.139 | 1.137 | −0.002 |
+| DLPFC | 1.137 | **1.142** | **+0.005** |
+| hippocampus | 1.139 | 1.135 | −0.004 |
+
+All three stay under the 1.15 ceiling, DLPFC by 0.008. **λ should not be cited
+as evidence for M3a.** The adoption rests on the lock being authoritative and on
+the π₀-free and BH discovery comparisons, not on genomic inflation.
+
+**Discoveries did carry, and the burden coefficient attenuates.** Significant
+CpGs rose in every region (caudate 99,203 → 105,553; DLPFC 76,860 → 84,213;
+hippocampus 82,782 → 86,015), and the primary endpoint's coefficient on
+`local_snp_contribution_score_z` attenuated while its z rose and its
+overdispersion fell:
+
+| region | estimate | z | dispersion |
+|---|---|---|---|
+| caudate | 2.419 → 2.084 | 39.45 → 42.70 | 11.66 → 10.45 |
+| DLPFC | 2.449 → 2.094 | 34.95 → 41.16 | 9.83 → 8.74 |
+| hippocampus | 2.495 → 2.367 | 36.57 → 42.63 | 9.20 → 8.70 |
+
+This is the pattern expected if the five methylation factors absorb residual
+variance that was previously inflating both the coefficient and its residual
+dispersion. The burden gradient holds in all three regions.
+
+**Raw pilot outputs are not tracked.** `pilot_summary_chr10.tsv` and
+`pilot_methpcs_summary.json` were committed at the module root in the original
+branch, which AGENTS.md §5.2 forbids — generated results belong under `_m/`, and
+this pilot ran outside the run harness so it has no run ID to own a directory.
+They are removed; every number they held is tabulated above and in the arm table
+earlier in this file, and the pilot is reproducible from the recipe in
+**Reproducing**.
