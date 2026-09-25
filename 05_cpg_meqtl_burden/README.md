@@ -315,6 +315,15 @@ smoke checks. Configuration lives in `config/` at the repository root.
 **Current.** Accepted 2026-09-25 by the PI. These are the runs a downstream
 production run must consume.
 
+`00_shared/gates.R::read_accepted_runs()` parses the table below and stops at the
+first `###` heading, so **only this table is the acceptance record** and the two
+below it are prose. Keep Superseded and Not eligible as `###` headings: while they
+were bold paragraphs the parser read all three tables as one and excluded the
+superseded rows only because they happen to have eight columns against this
+table's ten. Widening that table by two columns would have made
+`require_accepted_upstream()` see two accepted runs per cell and refuse, blocking
+every downstream module for a cosmetic edit.
+
 Acceptance was held until the cross-region sample-integrity screen was
 adjudicated, because that was the only open item with the reach to invalidate
 these runs: excluding a donor would have re-derived Module 01, changed
@@ -340,8 +349,10 @@ commit alone -- a provenance defect of the same class as F10, recorded rather th
 hidden, and not a data defect: every config checksum is intact and the covariate
 design is verified off disk by the gate.
 
-**Superseded.** Retained per AGENTS.md §3 until every consumer points at the
-replacement. **No new downstream production run may consume these.**
+### Superseded
+
+Retained per AGENTS.md §3 until every consumer points at the replacement.
+**No new downstream production run may consume these.**
 
 | run_id                      | cohort | region      | vmr_set_id                         | upstream_lgv_run_id           | accepted_on | superseded_by               | why superseded                                                                              |
 |-----------------------------|--------|-------------|------------------------------------|-------------------------------|-------------|-----------------------------|---------------------------------------------------------------------------------------------|
@@ -349,8 +360,9 @@ replacement. **No new downstream production run may consume these.**
 | cmb-AA-dlpfc-20260825       | AA     | dlpfc       | vmrset-AA-dlpfc-856067dfe289       | lgv-AA-dlpfc-20260823         | 2026-08-28  | cmb-AA-dlpfc-20260924       | Same two defects; 90 over-admitted loci upstream                                            |
 | cmb-AA-hippocampus-20260825 | AA     | hippocampus | vmrset-AA-hippocampus-2d907b892215 | lgv-AA-hippocampus-20260823   | 2026-08-28  | cmb-AA-hippocampus-20260924 | Same two defects; 99 over-admitted loci upstream                                            |
 
-**Not eligible.** Both chr22 smokes are `smoke_run = TRUE` and neither is
-citable. `cmb-AA-caudate-20260924-smoke` **never sealed** -- it has no `decision`
+### Not eligible
+
+Both chr22 smokes are `smoke_run = TRUE` and neither is citable. `cmb-AA-caudate-20260924-smoke` **never sealed** -- it has no `decision`
 and no `sealed_at`, because the chain failed; it is kept as evidence of the
 failure and correctly has no decision row. `cmb-AA-caudate-20260924-smoke-b`
 sealed `PASS_SMOKE_ONLY_NOT_ACCEPTABLE` at 2026-09-24T10:15:00 and is the passing
