@@ -309,6 +309,29 @@ donor_counts:
 # in the region BSobjs with usable WGBS data, and all genotyped. They are
 # INCLUDED in v2.
 #
+# AFFIRMED 2026-09-25 after the cross-region sample-integrity screen. The line
+# above -- "the legacy blacklists were never a QC exclusion" -- was challenged by
+# that screen and has now been tested against it rather than left standing on the
+# 2026-08-15 reasoning alone. All eight donors are cleared and remain included.
+# Full record: 11_integrated_manuscript_outputs/T4_READMITTED_DONOR_ADJUDICATION.md.
+#
+# The short version, because a future reader will find the screen before the
+# record: on the accepted run fig-all-20260922-c, THREE of the eight are flagged,
+# not four (Br1927 is swap_candidate = FALSE in all three of its region pairs and
+# is its own best match out of 103 candidates). And none of the three flags is
+# coherent with a sample swap. A mislabelled tube is a property of ONE region's
+# sample, so it must break BOTH pairs that region participates in; each of
+# Br1249, Br1693 and Br1700 is flagged in exactly one pair while the companion
+# pair sharing the same candidate tube is clean -- rank 1 of ~102 for Br1249 and
+# Br1700. The two donors whose pattern IS swap-coherent, Br1134 (hippocampus) and
+# Br1459 (DLPFC), are NOT blacklist donors and are not addressed by this
+# affirmation; they remain open for the C->T follow-up.
+#
+# The screen cannot convict an individual donor by construction: Module 01 masks
+# the C->T SNP CpGs (00_prepare.R remove_ct_snps) that give a methylation
+# fingerprint its power, so it nominates candidates and does not adjudicate them
+# (11_integrated_manuscript_outputs/_h/05_qc_sample_integrity.R:12-22).
+#
 # Legacy files retained for provenance only, never read by v2:
 #   vmr-analysis/all_individuals/dlpfc/_m/samples_blacklist.txt        (7 donors)
 #   vmr-analysis/all_individuals/hippocampus/_m/samples_blacklist.txt (1 donor)
