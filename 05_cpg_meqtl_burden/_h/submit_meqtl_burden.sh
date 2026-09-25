@@ -62,6 +62,7 @@ if [ "${DRY_RUN:-0}" = "1" ]; then
     cat <<GRAPH
 planned job graph for ${RUN_ID}:
   1   01_prepare_cpg_set.R        submit host, before the array
+  1a  01a_estimate_latent_factors.py  submit host, once per run (locked methPCs)
   2   step_2_map_meqtl.sh         array ${ARRAY_SPEC}, one task per autosome
   2b  02b_combine_meqtl.R         afterany:2    (reconciles cancelled tasks)
   4   04_qc_plots.py              afterok:2b    (lambda, from the nominal pass)
@@ -75,7 +76,33 @@ fi
 # The CpG set is prepared on the submit host, not in the array: every mapping
 # task reads it, and 22 tasks racing to build it would be both wasteful and
 # non-deterministic.
-run_r "${RUN_CODE}/01_prepare_cpg_set.R" --run-id "$RUN_ID"
+#
+# SMOKE_CHROMS has to reach this stage, not only the array bound. Stage 01
+# records the restriction in the manifest; stage 02b reconciles the array
+# against that record, and with no record it reconciles against the config's
+# full autosome list and -- correctly, per AGENTS.md 9 -- refuses the run for
+# 21 unaccounted chromosomes. The flag was parsed by stage 01 and honoured by
+# 02b from the module's first commit, but no caller ever passed it, so a
+# SMOKE_CHROMS run could never get past the combine.
+#
+# Passing it cannot weaken a production run: stage 01 honours the restriction
+# only when `smoke_run = TRUE`, so SMOKE_CHROMS without SMOKE_N still dies at
+# the 02b reconciliation rather than narrowing its own denominator.
+PREP_ARGS=""
+if [ -n "${SMOKE_CHROMS:-}" ]; then
+    PREP_ARGS="--smoke-chroms ${SMOKE_CHROMS}"
+fi
+run_r "${RUN_CODE}/01_prepare_cpg_set.R" --run-id "$RUN_ID" ${PREP_ARGS}
+
+# The locked model (config/covariates.yml:primary_meqtl) is M3a, whose methPC1-5
+# are estimated from the tested CpGs POOLED over the autosomes. So they are
+# estimated once, here, not 22 times inside the array: a per-chromosome factor set
+# would be a different covariate on every chromosome, and 22 tasks racing to write
+# one shared table would be non-deterministic. 01b refuses to build the design
+# without this table, so a skipped stage fails loudly rather than reverting to the
+# unlocked design.
+conda run --no-capture-output -p /projects/p32505/opt/envs/genomics \
+    python "${RUN_CODE}/01a_estimate_latent_factors.py" --run-id "$RUN_ID"
 
 JOBS_TSV="${RUN_DIR}/submitted-jobs.tsv"
 printf 'step\tscript\tjob_id\n' > "$JOBS_TSV"

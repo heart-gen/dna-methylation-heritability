@@ -2,7 +2,13 @@
 
 Asks whether a higher relative local SNP contribution score (`local_snp_contribution_score_z`, Module 02) is associated with a greater fraction of constituent CpGs having conventional cis-meQTL support.
 
-**Status: run in production; all three AA cells accepted 2026-08-28.**
+**Status: the three accepted runs are superseded and a rerun is required
+(2026-09-24).** They were mapped under a covariate design that is not the locked
+one; see "The executed covariate model diverged from the lock" below. Their rows
+stay in the **Accepted runs** table until replacements are accepted, because
+nothing downstream has a v2 replacement yet, but no new downstream production run
+should consume them.
+
 See the **Accepted runs** table below for `cmb-AA-{caudate,dlpfc,hippocampus}-20260825`,
 each `PASS_CPG_MEQTL_BURDEN_QC`. The caudate run carries a distal-null lambda of
 1.139, recorded in its acceptance note. **Read the "Convergent evidence, not
@@ -28,6 +34,85 @@ quietly producing eight of nine.
 Note that `02_map_cpg_meqtl.py` deliberately computes **no** q-values:
 `fdr_family: per_brain_region` means FDR is applied once across all autosomes in
 `02b_combine_meqtl.R`, not 22 times per chromosome.
+
+### The executed covariate model diverged from the lock
+
+`config/covariates.yml:primary_meqtl` has been locked since 2026-08-01 to
+
+```text
+M3a = agedeath + sex + primarydx + snpPC1-5 + methPC1-5
+```
+
+`_h/01b_prepare_meqtl_inputs.py` set `n_pc = 3` and added no methylation PC, so
+the three accepted runs fitted `agedeath + sex + primarydx + snpPC1-3`. Nothing in
+this module or in `00_shared/` read `config/covariates.yml`; the only reference in
+the repository was `00_shared/runid.R`, which writes `config_covariates_sha256`
+into the manifest. The lock was attested by every sealed run and enforced by
+nothing.
+
+**PI decision 2026-09-24: the lock is authoritative.** The evidence is the
+decision pilot on branch `module05/covariate-model-pilot`
+(`PILOT_COVARIATE_MODEL.md`): on chr10, caudate, M3a lowers the distal-null lambda
+from 1.1651 to 1.1412, and every pi0-free discovery threshold favours it. The gain
+is entirely the latent factors — an snpPC1-5-only arm gives 1.1701, marginally
+*worse* than snpPC1-3 — so snpPC4-5 contribute nothing on their own.
+
+What changed here:
+
+- `_h/01a_estimate_latent_factors.py` (new) estimates methPC1-15 once per run,
+  before the mapping array, and writes `results/latent-factor-provenance.tsv`;
+- `_h/meqtl_covariates.py` (new) builds the design and
+  `00_shared/covariate_lock.py` (new) expands the lock from config, so no stage
+  types a term list;
+- `_h/01b` asserts the matrix it built against the lock before writing it, and
+  `_h/02` asserts the matrix it hands to tensorqtl, in the process that fits it;
+- `_h/04_check_burden.R` gains the criterion
+  `executed_covariate_design_matches_lock`, backed by
+  `00_shared/gates.R::meqtl_covariate_design_gate()`, which reads every
+  `inputs/chr*.covariates.tsv` off disk. It compares designs rather than
+  spellings (`age` → `agedeath`, `sex_M` → `sex`), fails on a column that maps to
+  no locked term, and fails rather than passing vacuously when there is no
+  covariate file to inspect. The older `continuous_predictor_is_primary`
+  criterion is the shape of check this replaces: it compares a config value with
+  itself, which is what let a design diverge silently through an acceptance.
+
+**The primary model is not free of cell composition.** The lock names a method for
+methPC1-5 and no specification, so the recipe is resolved explicitly in code and
+recorded per run (see `PROPOSED_CONFIG_CHANGE.md` at the repository root for the
+config block that would pin it). The pilot found methPC1 is 72% explained by this
+region's RNA MuSiC cell proportions (R² = 0.721; Oligo ρ = +0.766, p = 9.2e-31),
+so M3a carries a substantial cell-composition adjustment into the primary scan
+even though `config/covariates.yml:cell_composition` reads `sensitivity_only`. The
+M6d sensitivity is `M3a + dnamCellPC1-3`, so its contrast is an increment over a
+baseline that already carries that structure. This is a bulk-tissue correlation
+between a methylation PC and an RNA-derived proportion estimate: collinearity, not
+a cell type of origin (AGENTS.md §2.3). Every run writes it into
+`results/interpretation-constraints.txt`.
+
+### The genotype QC donor set was the source pfile, not the analysis set
+
+`_h/01b` wrote a `{chrom}.keep` file and never passed it to plink2, so `--maf`,
+`--geno` and `--hwe` were evaluated over all 526 AA donors in the source pfile
+rather than the region's analysis donors — 373 of them outside a 153-donor
+caudate estimation set. `00_shared/locus_io.R` documents the opposite convention
+for Modules 02 and 03, where the filters run *after* the group restriction
+deliberately, so this was Module 05's divergence from project practice.
+
+The keep file was also malformed — `{donor}\t{donor}`, the FID twice — while the
+psam's IID is a chip barcode (`Br2585` → `3998646007_R01C01`). plink2 reads a
+two-column `--keep` as FID/IID, so the file matched **zero** samples; had it been
+passed as written, every array task would have failed. That is why the missing
+flag went unnoticed.
+
+Measured on chr10 (pilot, and reproduced by `tests/covariate_lock_smoke.py`): the
+locked QC over the 153 donors leaves 414,363 variants against the executed run's
+416,659, with 17,832 over-included and 15,536 wrongly excluded. 90.2% of the
+over-included fall to tensorqtl's in-sample MAF filter, but the surviving 1,747
+were tested and **all** of them exceed the locked `missingness_max: 0.05` in the
+153 donors, because tensorqtl re-applies MAF and never missingness. Lambda barely
+moves (1.1651 → 1.1619), so this is a denominator and QC-compliance defect rather
+than a calibration one — not a reason to rerun by itself, and a fix any rerun must
+carry.
 
 ### Genomic inflation is measured on distal cis pairs
 

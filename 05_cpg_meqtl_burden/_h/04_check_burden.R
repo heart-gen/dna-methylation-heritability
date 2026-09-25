@@ -30,6 +30,13 @@ burden <- fread(file.path(res_dir, "vmr-meqtl-burden.tsv"))
 recon <- fread(file.path(run_dir, "task_reconciliation.tsv"))
 rn <- function(k) as.integer(recon$n[recon$category == k])
 
+## The covariate design is read back off disk, from the files the mapping stage
+## handed to tensorqtl, and compared with config/covariates.yml. The three
+## accepted 2026-08-25 runs passed this gate's six older criteria while fitting
+## snpPC1-3 against a lock reading snpPC1-5 + methPC1-5, because the only
+## covariate criterion here compared a config value with itself.
+cov_lock <- meqtl_covariate_design_gate(run_dir)
+
 infl_f <- file.path(res_dir, "qc", "genomic-inflation.tsv")
 lambda <- if (file.exists(infl_f)) fread(infl_f)$lambda[1] else NA_real_
 lambda_min <- config_get(meqtl, "genomic_inflation.min")
@@ -50,7 +57,8 @@ criteria <- data.table(
                   "burden_fraction_in_unit_interval",
                   "genomic_inflation_reported",
                   "genomic_inflation_resolved",
-                  "continuous_predictor_is_primary"),
+                  "continuous_predictor_is_primary",
+                  "executed_covariate_design_matches_lock"),
     passed = c(
         rn("unaccounted") == 0L && rn("unexpected") == 0L,
         audit$n_unaccounted == 0L,
@@ -61,7 +69,8 @@ criteria <- data.table(
         is.finite(lambda),
         is.finite(lambda) && lambda >= lambda_min && lambda <= lambda_max,
         identical(meqtl$predictability_score_column,
-                  "local_snp_contribution_score_z")
+                  "local_snp_contribution_score_z"),
+        isTRUE(cov_lock$passed)
     ),
     detail = c(
         sprintf("unaccounted=%d unexpected=%d", rn("unaccounted"), rn("unexpected")),
@@ -75,7 +84,8 @@ criteria <- data.table(
         sprintf("lambda=%s", format(lambda, digits = 4)),
         sprintf("lambda=%s (allowed %s-%s)", format(lambda, digits = 4),
                 lambda_min, lambda_max),
-        meqtl$predictability_score_column
+        meqtl$predictability_score_column,
+        cov_lock$detail
     )
 )
 
@@ -86,6 +96,10 @@ decision <- if (all(criteria$passed)) {
 criteria[, `:=`(run_id = opts$run_id, region = mval("region"),
                 population = mval("cohort"), decision = decision)]
 write_atomic(criteria, file.path(res_dir, "burden-qc-criteria.tsv"))
+write_atomic(data.table(field = names(cov_lock),
+                        value = vapply(cov_lock, function(v)
+                            paste(as.character(v), collapse = ";"), character(1))),
+             file.path(res_dir, "covariate-design-audit.tsv"))
 write_atomic(data.table(run_id = opts$run_id, decision = decision,
                         smoke_run = smoke, n_criteria = nrow(criteria),
                         n_passed = sum(criteria$passed)),

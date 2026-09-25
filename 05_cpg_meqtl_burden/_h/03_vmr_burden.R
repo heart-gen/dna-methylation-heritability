@@ -191,7 +191,14 @@ writeLines(c(
     sprintf("    pairs; the distal figure uses %s pairs. Lambda decaying",
             format(n_distal, big.mark = ",")),
     "    monotonically as the distance floor rises is the signature of signal",
-    "    rather than inflation; see results/qc/genomic-inflation-by-distance.tsv."
+    "    rather than inflation; see results/qc/genomic-inflation-by-distance.tsv.",
+    "  - The locked primary covariate model (config/covariates.yml: M3a) includes",
+    "    methPC1-5, and methPC1 is largely collinear with this region's estimated",
+    "    cell composition (R2 ~ 0.72 on RNA MuSiC proportions in caudate). The",
+    "    primary meQTL scan is therefore NOT free of cell-composition adjustment,",
+    "    and must not be described as if it were. That is a collinearity between a",
+    "    methylation PC and an RNA-derived proportion estimate; it implies no cell",
+    "    type of origin (AGENTS.md 2.3). See results/latent-factor-provenance.tsv."
 ), file.path(res_dir, "interpretation-constraints.txt"))
 
 print(primary[term == "local_snp_contribution_score_z"])
