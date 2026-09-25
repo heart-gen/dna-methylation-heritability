@@ -44,11 +44,28 @@ if (isTRUE(ts$gates$require_all_enabled_modalities) && !smoke) {
     }
 }
 
+## The locked floors are evaluated PER MODALITY, which is how the keys are
+## written: min_vmrs_tested is a property of an analysis, not of the best
+## analysis in the run. These two checks used max() across modalities until
+## 2026-09-25, which made them vacuous -- expression_nearest_gene links ~10,000
+## VMRs, so the maximum cleared 500 no matter how small any other modality was,
+## and expression_abc's 243-305 VMRs were never tested against the floor even
+## though 03_test_coupling.R was already warning about them.
+##
+## A modality below a floor is a RESTRICTION, not a run failure: its tests are
+## reported, excluded from the FDR family by stage 03, and excluded from the
+## claim here. The run fails only if NO modality clears the floors, because then
+## there is nothing left to interpret.
+uni[, meets_vmr_floor := n_vmrs_linked >= ts$gates$min_vmrs_tested]
+uni[, meets_pair_floor := n_pairs >= ts$gates$min_pairs_tested]
+uni[, power_eligible := meets_vmr_floor & meets_pair_floor]
+underpowered <- uni[power_eligible == FALSE]
+
 if (!smoke) {
-    if (max(uni$n_vmrs_linked, na.rm = TRUE) < ts$gates$min_vmrs_tested) {
+    if (!any(uni$meets_vmr_floor, na.rm = TRUE)) {
         fail <- c(fail, "TOO_FEW_VMRS_TESTED")
     }
-    if (max(uni$n_pairs, na.rm = TRUE) < ts$gates$min_pairs_tested) {
+    if (!any(uni$meets_pair_floor, na.rm = TRUE)) {
         fail <- c(fail, "TOO_FEW_PAIRS_TESTED")
     }
 }
@@ -92,6 +109,18 @@ dec <- data.table(
     total_vmrs_tested = max(uni$n_vmrs_linked, na.rm = TRUE),
     total_pairs_tested = sum(uni$n_pairs, na.rm = TRUE),
     fdr_threshold = thr,
+    ## The restriction travels with the result. A reader who sees two significant
+    ## meQTL-support tests where an earlier run reported three must be able to
+    ## find out here that a modality left the family, and why, without diffing
+    ## two runs' tables.
+    power_floor_min_vmrs = ts$gates$min_vmrs_tested,
+    power_floor_min_pairs = ts$gates$min_pairs_tested,
+    modalities_power_eligible =
+        paste(uni$modality[uni$power_eligible %in% TRUE], collapse = ","),
+    modalities_excluded_from_fdr_family =
+        if (nrow(underpowered)) paste(underpowered$modality, collapse = ",") else "",
+    n_modalities_excluded_from_fdr_family = nrow(underpowered),
+    fdr_family_size = sum(tests$in_fdr_family %in% TRUE),
     ## Module 09 consumes this: AGENTS.md 7.8 requires "at least one locus with
     ## transcriptional coupling" among its retention criteria.
     coupling_supported = nrow(sig) > 0 && !smoke && length(fail) == 0,
