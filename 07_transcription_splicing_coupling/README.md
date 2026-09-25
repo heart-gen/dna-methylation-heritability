@@ -2,7 +2,10 @@
 
 Tests whether meQTL-supported or locally controlled VMRs are more likely to have existing significant associations with gene/transcript abundance or transcript usage/splicing.
 
-**Status: accepted (AA, 2026-09-08); expression coupling in all three regions, PSI regionally heterogeneous; see Accepted runs.**
+**Status: expression coupling accepted (AA, 2026-09-08). The PSI (splicing)
+results of all three accepted runs are WITHDRAWN as of 2026-09-23 and require a
+rerun — see "The PSI identifier join was broken" below. Expression and ABC are
+unaffected and were verified so.**
 Gated on `05_cpg_meqtl_burden` acceptance ("No downstream
 production run may consume an upstream result until the upstream README records
 a passing acceptance gate and immutable run ID"), which is met
@@ -65,6 +68,59 @@ each pair reduces to a dot product. This is algebraically identical to fitting
 the full model per pair — verified against `lm()`, matching t and p to 4+
 significant figures — not an approximation.
 
+## The PSI identifier join was broken (found and fixed 2026-09-23)
+
+Two defects, both confirmed independently against the delivered files. The
+evidence and the fix are documented at the top of `_h/psi_features.R`.
+
+**1. `psi_uid` is a row position, not an identifier.** It is literally
+`p{row index}` in whatever order a region's `psi-annotation.tsv` is written, and
+the three regions ship the same 690,907 events in *different* orders:
+
+| pair | psi_uids naming the same event |
+|---|---|
+| caudate vs dlpfc | 93,580 / 690,907 |
+| caudate vs hippocampus | **0** / 690,907 |
+| dlpfc vs hippocampus | 309,180 / 690,907 |
+
+`config/transcription_splicing.yml`'s `annotation.psi` names one path,
+`inputs/counts/psi-annotation.tsv`, which is a tracked git **symlink into the
+caudate delivery**. Stage 01 therefore built every region's PSI links from
+caudate's row order, and stage 02 joined them with `rownames(rse) %in% ...`.
+Because the identifier exists in every region, the join always succeeded: no
+error, no warning, no reduced feature count. So **caudate's PSI analysis is
+intact**, DLPFC analysed a different event on 86.5% of its links, and
+hippocampus on 100% of them. The sealed significant-pair rates are the
+fingerprint: 419/353,728 (caudate), 36/177,537 (DLPFC), 9/243,226 (hippocampus).
+
+**2. The delivered `rse-psi.*.RData` objects are internally misaligned.**
+`rowData(rse)`'s columns are the region's annotation in file order
+(`rowData$psi_uid` is p0, p1, …, and `rowRanges` agrees with it), while the rows
+themselves carry a permutation of the same id set. A chrY event cannot be
+quantified in a female donor, so which half the assay values follow was settled
+from the data in all three regions: labelling by `rownames(rse)` puts the chrY
+rows at 0.90–0.92 NA in females against 0.67 in males (difference +0.221 to
++0.229), labelling by `rowData` gives +0.004 to +0.049. **`rownames(rse)` is
+authoritative; `rowData` is read only as a keyed lookup table, never positionally
+against the rows.**
+
+**The fix.** A PSI feature is keyed on `event_info` + `gene_id`, which is unique
+(690,907/690,907; `event_info` alone is not — 308 events are annotated to two
+genes). The annotation is read from beside *this region's* assay, with no
+fall-back to the caudate symlink. Every link table records its `region` and
+`feature_namespace`, stage 02 refuses one that is not its own, and stage 02
+verifies the annotation against the assay's own metadata before fitting
+anything — which also catches the case where both stages resolve the same wrong
+path. An identifier that does not resolve is an error; a legacy positional link
+table is refused by shape. Smoke check:
+`tests/test_psi_identifier_join.R`.
+
+**Expression and ABC are unaffected, and this was verified rather than assumed.**
+`rownames(rse_gene)` equals `rowData(rse_gene)$gene_id` equals
+`gene-annotation.tsv`'s `gene_id`, in identical order, in all three regions; the
+gene annotation file is byte-identical across the three deliveries (one MD5); and
+the identifier is a versioned Ensembl gene ID, not a row position.
+
 ### PSI missingness restricts the tested universe
 
 PSI events are frequently unquantified in a subset of donors: measured on
@@ -99,6 +155,14 @@ association screen rather than running a transcriptome-wide discovery. Enabling
 A null coupling result is a reportable finding, not a gate failure.
 
 ## Accepted runs
+
+**The PSI columns of these three runs are withdrawn (2026-09-23).** Their
+expression and ABC results stand; their splicing results must be recomputed with
+the repaired identifier join, and the PSI sentence below ("strong in caudate,
+thin in DLPFC, null in hippocampus") is exactly the artefact the defect
+produces. Caudate's PSI numbers are expected to survive largely unchanged,
+because caudate is the region whose annotation was read; DLPFC and hippocampus
+carry no information about splicing as run.
 
 Permitted claim: genetically regulated VMRs are more frequently transcriptionally
 coupled. Forbidden: methylation mediates the genetic effect on expression or
