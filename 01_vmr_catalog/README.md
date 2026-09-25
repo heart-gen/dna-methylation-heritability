@@ -75,6 +75,8 @@ cd 01_vmr_catalog/_m && mkdir -p logs
 | V10 | chr1's length used as the bound for every chromosome | `chrom_size()` per chromosome | `00_shared/slurm.sh` |
 | V11 | 500 kb vs 1 Mb cis window between arms | One window from `config/thresholds.yml` | `step_4.sh` |
 | V12 | `module load plink` | plink2 from `/projects/p32505/opt/bin/plink2` | `00_shared/slurm.sh` |
+| F14a | No exclusion table and no sex-chromosome manifest were ever produced | Per-stage exclusion ledger, assembled and balanced; chromosome manifest written unconditionally | `_h/exclusion_ledger.R`, `00_prepare.R`, `01_analyze.R`, `02_summarize.R`, `04_turnover.R` |
+| F14b | `3' UTR` was tested after `Exon`, so the category was unreachable and reached Figure 1 as an always-zero bar | Priority order separated from display order, both UTRs before `Exon`; reachability asserted at run time | `04c_genomic_context.R` |
 | — | Hippocampus read the **DLPFC** sample blacklist | Blacklists retired; per-region resolution retained, no fallback | `config/cohorts.yml`, `00_shared/config.R` |
 
 ### Sample blacklists are retired
@@ -100,10 +102,42 @@ Per accepted run, under `_m/runs/{RUN_ID}/`:
 - `vmr/donors_plink.txt` — `--keep` list, in catalog donor order
 - `vmr/sd_cutoffs.tsv` — per-chromosome SD cutoff and counts
 - `cpg/chr_{N}/`, `covs/chr_{N}/`, `pca/chr_{N}/` — per-chromosome intermediates
-- `qc/vmr_turnover.tsv`, `qc/array_coverage.tsv`, `qc/technical_qc.tsv`,
-  `qc/exclusions.tsv`
-- `excluded/` — sex chromosomes, with the reason recorded
+- `qc/vmr_turnover.tsv`, `qc/array_coverage.tsv`, `qc/technical_qc.tsv`
+- `qc/exclusions.tsv` — one row per donor, candidate VMR, chromosome or
+  aggregate CpG group that entered and did not survive, with the single rule
+  that removed it
+- `qc/exclusion_accounting.tsv` — `entered = survived + excluded` per unit type;
+  `04_turnover.R` **stops** if a row with complete inputs does not balance
+- `qc/chromosome_policy_manifest.tsv` — one row per chromosome in the policy,
+  including X and Y with their disposition and reason. Written unconditionally
+- `cpg/chr_{N}/exclusions_{donors,cpgs}.tsv`, `pca/chr_{N}/exclusions_donors.tsv`,
+  `vmr/exclusions_vmr_candidates.tsv`, `vmr/chromosome_status.tsv` — the
+  per-stage ledger parts `04_turnover.R` assembles
+- `excluded/` — sex chromosomes, when `WITH_SEX=1` prepared them
 - `manifest.tsv`, `task_reconciliation.tsv`, `output_checksums.tsv`
+
+### The exclusion table and the chromosome manifest are new (F14)
+
+Neither existed in the six accepted runs. `qc/exclusions.tsv` was written only
+when a sex-chromosome preparation happened to be on disk, and `step_1x.sh` is
+opt-in (`WITH_SEX=1`), so `excluded/` is empty and `exclusions.tsv` absent in all
+six. Even when present it would have held sex chromosomes only: donor selection,
+C→T masking, coverage QC, genotype-PC availability and the `min_cpgs` floor all
+decided exclusions that were recorded in a SLURM log and nowhere else.
+
+The stages now write their own decisions (`_h/exclusion_ledger.R` holds the
+schema) and `04_turnover.R` assembles and balances them. **This is a record, not
+a filter.** `00_prepare.R` asserts that the donors its ledger leaves unexcluded
+are exactly the donors the pipeline kept and stops if they differ, and
+`02_summarize.R` derives the dropped candidates as the complement of the
+unchanged `n > min_cpgs` expression. `tests/test-exclusion-accounting.R` runs the
+pre-F14 `select_donors()` and `call_vmrs()` out of git beside the current ones and
+asserts identical survivors, so `vmr_set_id` is unaffected.
+
+The accepted runs therefore keep their `vmr_set_id`s and nothing downstream is
+invalidated, but they cannot gain these tables: a rerun of the module (or, for
+everything except the donor and CpG ledgers, a `step_4b_qc_refresh.sh` refresh)
+is required to produce them.
 
 ## Acceptance gate
 
@@ -373,8 +407,24 @@ expected consequence of the V1 repair, not a surprise.
 Gitignored, hand-run before submitting an array:
 
 ```bash
-Rscript -e 'source("00_shared/load.R"); testthat::test_dir("01_vmr_catalog/tests")'
+conda run -p /projects/p32505/opt/envs/epigenomics Rscript -e \
+  'source("00_shared/load.R"); testthat::test_dir("01_vmr_catalog/tests")'
 ```
+
+- `test-exclusion-accounting.R` — the ledger primitives; that the donor and
+  candidate-VMR ledgers reproduce the pre-F14 survivor sets exactly (run out of
+  git against `F14_BASELINE_REF`, default `main`); and an end-to-end
+  `04_turnover.R` over a synthetic run, asserting a reason on every excluded row,
+  a balanced accounting for every unit type, an X/Y manifest written without
+  `WITH_SEX=1`, and that the stage **stops** when a count is perturbed.
+- `test-genomic-context-reachability.R` — builds a catalog holding one interval
+  from the territory unique to each declared compartment, runs the shipped stage,
+  and asserts every declared category comes back non-empty. Also confirms the
+  run-time guard rejects the pre-fix priority order.
+
+From a git worktree, set `V2_REPO_ROOT` to the worktree and make sure
+`inputs/supportfiles/_m/450k_universe_hg38.tsv.gz` is reachable (the test links
+it from `project_root` if it is missing, and skips if it cannot).
 
 ## `_m/` contents
 
@@ -424,6 +474,28 @@ These runs add:
   assigned by priority so they partition the catalog, and no test is applied.
   The legacy `local-snp-prediction/.../annotation/` outputs could not be reused
   because they are keyed to the invalid legacy catalog.
+
+**These `genomic_context.tsv` tables carry the F14b defect and must be
+regenerated.** `Exon` was tested before `3' UTR`, and a 3' UTR is an exonic
+interval, so no VMR could ever be assigned `3' UTR`; the six tables have no
+`3' UTR` row at all, while Figure 1 declares the level and drew it as an empty
+bar. Rerunning the corrected stage on the same sealed AA caudate catalog moves
+exactly the mis-assigned intervals and nothing else:
+
+| Category | `vmrcatqc-AA-caudate-20260826-a` | corrected stage |
+|---|---|---|
+| Promoter | 3,801 | 3,801 |
+| 5' UTR | 87 | 87 |
+| Exon | 1,214 | **795** |
+| Intron | 3,629 | 3,629 |
+| 3' UTR | *(no row)* | **419** |
+| Intergenic | 2,799 | 2,799 |
+
+795 + 419 = 1,214: every moved VMR came out of `Exon`, and no other compartment
+changes. The catalog is untouched -- the stage reads `vmr/vmr_catalog.tsv` and
+writes only to `qc/`, which `tests/test-exclusion-accounting.R` checks by md5.
+Figure 1 panel F in `11_integrated_manuscript_outputs` reads this table, so that
+module needs a reseal after the refresh; it is not a Module 01 gate.
 
 | Cohort | Region | VMR CpGs off 450K | VMRs invisible to 450K |
 |---|---|---|---|
