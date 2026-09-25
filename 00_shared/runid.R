@@ -52,6 +52,25 @@ new_run <- function(module, cohort, region, module_root,
     dir.create(file.path(run_dir, "logs"), recursive = TRUE)
     dir.create(file.path(run_dir, "excluded"), recursive = TRUE, showWarnings = FALSE)
 
+    commit <- git_commit(root)
+    has_code <- git_commit_has_module_code(commit, module_root, root)
+    if (identical(has_code, "false")) {
+        ## Loud, because a SLURM log is where this will be read. NOT fatal:
+        ## refusing the run is a policy change (AGENTS.md 12), and the case this
+        ## catches is a module whose code is not yet committed at all -- exactly
+        ## 01b_estimation_cells' first run. The field below makes the defect
+        ## machine-detectable in the sealed manifest either way; promoting it to
+        ## a stop() is a one-line change for the PI to authorise.
+        msg <- paste0(
+            "Recorded git_commit ", commit, " contains no files under ",
+            module_root, ".\n",
+            "  This run will not be reproducible from the commit it records ",
+            "(AGENTS.md 9).\n",
+            "  Commit the module's _h/ code before a production run.")
+        warning(msg, call. = FALSE, immediate. = TRUE)
+        message("[run] PROVENANCE WARNING: ", msg)
+    }
+
     manifest <- c(
         list(
             run_id          = run_id,
@@ -59,8 +78,9 @@ new_run <- function(module, cohort, region, module_root,
             cohort          = cohort,
             region          = region,
             vmr_set_id      = vmr_set_id,
-            git_commit      = git_commit(root),
+            git_commit      = commit,
             git_dirty       = git_dirty(root),
+            git_commit_has_module_code = has_code,
             started_at      = format(Sys.time(), "%Y-%m-%dT%H:%M:%S%z"),
             r_version       = paste(R.version$major, R.version$minor, sep = "."),
             conda_prefix    = Sys.getenv("CONDA_PREFIX", NA_character_),
@@ -167,6 +187,47 @@ git_dirty <- function(root = repo_root()) {
     if (is.null(out)) NA_character_ else if (length(out) == 0) "false" else "true"
 }
 
+#' Does `commit` actually contain the module's own code?
+#'
+#' AGENTS.md 9 requires every production output to carry a Git commit. A commit
+#' that predates the module is worse than no commit: it looks like provenance
+#' and reproduces nothing. Six sealed 01b_estimation_cells runs record
+#' f8fd01a74, which contains zero 01b_estimation_cells/ files, so those runs
+#' cannot be regenerated from what they record. Their configs and outputs are
+#' intact -- this is a provenance defect, not a data defect -- but it is
+#' mechanically checkable at run time, which is why it is checked here.
+#'
+#' Returns "true", "false", or NA_character_ when git could not answer. The
+#' three states are kept distinct for the same reason git_dirty() keeps them:
+#' a check that cannot run must not be recorded as a check that passed.
+git_commit_has_module_code <- function(commit, module_root, root = repo_root()) {
+    if (is.null(commit) || length(commit) == 0 || is.na(commit)) {
+        return(NA_character_)
+    }
+    rel <- tryCatch({
+        m <- normalizePath(module_root, mustWork = FALSE)
+        r <- normalizePath(root, mustWork = FALSE)
+        if (!startsWith(m, r)) return(NA_character_)
+        sub("^/+", "", substring(m, nchar(r) + 1L))
+    }, error = function(e) NA_character_)
+    if (is.na(rel) || !nzchar(rel)) return(NA_character_)
+
+    ## Confirm the commit resolves first. ls-tree on an unknown revision exits
+    ## nonzero with empty stdout, which is indistinguishable from "the module is
+    ## absent" unless the two questions are asked separately.
+    ## shQuote because git_run() hands its args to system2(), which builds a
+    ## /bin/sh command line rather than an argv: ^{commit} and the path would
+    ## otherwise be exposed to the shell.
+    ok <- git_run(root, c("rev-parse", "--verify", "--quiet",
+                          shQuote(paste0(commit, "^{commit}"))))
+    if (is.null(ok) || length(ok) == 0 || !nzchar(ok[1])) return(NA_character_)
+
+    out <- git_run(root, c("ls-tree", "-r", "--name-only", shQuote(commit),
+                           "--", shQuote(rel)))
+    if (is.null(out)) return(NA_character_)
+    if (length(out) == 0) "false" else "true"
+}
+
 #' Deterministic seed derived from run identity (AGENTS.md 9).
 #'
 #' "Use deterministic seeds derived from run ID, region, VMR task, repeat, and
@@ -238,14 +299,20 @@ reconcile <- function(expected, completed, excluded = character(),
 
     if (!is.null(run)) {
         write_atomic(summary, file.path(run$dir, "task_reconciliation.tsv"))
-        if (length(unaccounted) > 0 || length(failed) > 0) {
-            write_atomic(
-                data.table::data.table(
-                    task = c(unaccounted, failed),
-                    status = c(rep("unaccounted", length(unaccounted)),
-                               rep("failed", length(failed)))),
-                file.path(run$dir, "task_failures.tsv"))
-        }
+        ## Write the failure list UNCONDITIONALLY, header-only when there are no
+        ## failures. It was previously written only when failures existed and was
+        ## never cleared, so a run that failed tasks, was re-driven and then
+        ## reconciled clean kept the old list beside a reconciliation reporting
+        ## zero failures. A reader auditing AGENTS.md 9 compliance then sees
+        ## failures that did not occur in the accepted attempt. Both files are
+        ## now written by the same unconditional write_atomic() call in the same
+        ## block, so the pair always describes one reconcile.
+        write_atomic(
+            data.table::data.table(
+                task = c(unaccounted, failed),
+                status = c(rep("unaccounted", length(unaccounted)),
+                           rep("failed", length(failed)))),
+            file.path(run$dir, "task_failures.tsv"))
     }
 
     if (length(unexpected) > 0) {
