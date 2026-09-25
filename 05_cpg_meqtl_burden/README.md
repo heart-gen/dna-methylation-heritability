@@ -76,11 +76,14 @@ What changed here:
   criterion is the shape of check this replaces: it compares a config value with
   itself, which is what let a design diverge silently through an acceptance.
 
-**The primary model is not free of cell composition.** The lock names a method for
-methPC1-5 and no specification, so the recipe is resolved explicitly in code and
-recorded per run (see `PROPOSED_CONFIG_CHANGE.md` at the repository root for the
-config block that would pin it). The pilot found methPC1 is 72% explained by this
-region's RNA MuSiC cell proportions (R² = 0.721; Oligo ρ = +0.766, p = 9.2e-31),
+**The primary model is not free of cell composition.** `latent_factor_policy`
+named a method for methPC1-5 and no specification; the PI pinned the recipe as
+`primary_meqtl.latent_factor_recipe` on 2026-09-24, and every run records which
+source it resolved from (see `PROPOSED_CONFIG_CHANGE.md` in this directory for
+what was decided and why). The chr10 pilot measured methPC1 as 72% explained by
+this region's RNA MuSiC cell proportions (R² = 0.721; Oligo ρ = +0.766,
+p = 9.2e-31), and each accepted run now carries the same finding in its own
+`results/latent-factor-provenance.tsv:cell_composition_note`,
 so M3a carries a substantial cell-composition adjustment into the primary scan
 even though `config/covariates.yml:cell_composition` reads `sensitivity_only`. The
 M6d sensitivity is `M3a + dnamCellPC1-3`, so its contrast is an increment over a
