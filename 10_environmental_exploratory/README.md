@@ -644,12 +644,34 @@ ratio and report the absolute gradient instead (`primary_scale = raw`), marked �
 
 **Three families survive FDR, all `nicotine`, and all negative.** Hippocampus in
 the case stratum (−49%, q = 1.1e-5) and pooled (−38%, q = 0.0013), and caudate
-pooled (−46%, q = 0.0085). The `cell_composition_r2` arm barely moves any of them
-— hippocampus cases −0.483 (p = 1.9e-6), hippocampus pooled −0.370 (p = 1.4e-4),
-caudate pooled −0.440 (p = 0.0040) — so the gradient is not cell composition
-restated. Three more families are marginal and resolve nothing: hippocampus
-`smoking` (q = 0.057), dlpfc `nicotine` in cases (q = 0.054) and caudate `smoking`
-(q = 0.074).
+pooled (−46%, q = 0.0085). The `no_methylation_variance` arm barely moves any of
+them — hippocampus cases −0.483 (p = 1.9e-6), hippocampus pooled −0.370
+(p = 1.4e-4), caudate pooled −0.440 (p = 0.0040) — so the gradient is not carried
+by `methylation_variance`, the one covariate that arm drops. Three more families
+are marginal and resolve nothing: hippocampus `smoking` (q = 0.057), dlpfc
+`nicotine` in cases (q = 0.054) and caudate `smoking` (q = 0.074).
+
+**Cell composition is untested in this module, not ruled out.** An earlier
+revision of this section attributed the three numbers above to a
+`cell_composition_r2` arm and concluded "the gradient is not cell composition
+restated". No such arm exists here. `config/environmental.yml:307` declares
+exactly one, `non_gating_axis_arms: [no_methylation_variance]`, dropping
+`methylation_variance` and nothing else, and the axis covariate set at
+`config/environmental.yml:288-290` — joined from Module 04's `vmr-features.tsv` at
+`_h/03_control_axis_test.R:101-103` — contains no cell-composition term at all.
+`grep -rn cell_composition 10_environmental_exploratory/_h/ config/environmental.yml`
+returns nothing. The numbers were real (they are the `arm_beta`/`arm_p` columns of
+`environmental-axis-per-region-AA.tsv`); only the arm's name and the inference
+drawn from it were wrong, and the inference is therefore **untested rather than
+refuted**. 09b_aging_application does have a `cell_composition_r2` arm, and there
+it is *gating* and the gradient *fails* it, so the mislabel imported the opposite
+conclusion from the module next door.
+
+Adding the arm is a PI decision: `config/environmental.yml` is `pi_locked`, the
+axis covariate set is part of the lock, and enlarging it changes every stage B
+estimate and its BH family, so it requires a new Module 10 run rather than a
+re-derive. Until then, nothing in this module speaks to whether cell composition
+explains the exposure gradient.
 
 **What the sensitivity columns say, and they are not decoration.** `absolute_p` is
 above 0.05 in **every** family in all three regions (`n_absolute_p_below_alpha =
@@ -728,7 +750,7 @@ matches what stage 1 prespecified.
 
 | run_id | cohort | region | vmr_set_id | accepted_on | accepted_by | decision | notes |
 |---|---|---|---|---|---|---|---|
-| env-AA-caudate-20260920-a | AA | caudate | vmrset-AA-caudate-937a41979978 | 2026-09-20 | Kynon J.M. Benjamin | PASS_EXPLORATORY_COVERAGE | n=153; 11,251 VMRs; 5/5 coverage criteria; 22/22 chromosomes, 0 excluded/QC-failed/failed/unaccounted. Stage A: 0 FDR-significant VMR x exposure pairs. Stage B: 1 of 9 families survives FDR -- nicotine@all, beta -0.462, q 0.0085, cell_composition_r2 arm -0.440 (p 0.0040). **No percentage here is formally identifiable**: mean_omega_z max 0.78, absolute_p > 0.05 in all 9 families, Fieller unbounded in all 9. **Donor bootstrap inflates the ratio denominator 5.0x-5.8x**, so the bootstrap half of the variance is likely optimistic and these p-values may be too small. Exploratory supplement only (`main_text_retention = NEVER_SUPPLEMENT_ONLY`); the variance-budget limitation (AGENTS.md 7.10) is permanent and a negative gradient may never be read as exposure effects concentrating at weakly controlled VMRs. Caudate is batch-confounded (AGENTS.md 8.1). |
+| env-AA-caudate-20260920-a | AA | caudate | vmrset-AA-caudate-937a41979978 | 2026-09-20 | Kynon J.M. Benjamin | PASS_EXPLORATORY_COVERAGE | n=153; 11,251 VMRs; 5/5 coverage criteria; 22/22 chromosomes, 0 excluded/QC-failed/failed/unaccounted. Stage A: 0 FDR-significant VMR x exposure pairs. Stage B: 1 of 9 families survives FDR -- nicotine@all, beta -0.462, q 0.0085, no_methylation_variance arm -0.440 (p 0.0040). **No percentage here is formally identifiable**: mean_omega_z max 0.78, absolute_p > 0.05 in all 9 families, Fieller unbounded in all 9. **Donor bootstrap inflates the ratio denominator 5.0x-5.8x**, so the bootstrap half of the variance is likely optimistic and these p-values may be too small. Exploratory supplement only (`main_text_retention = NEVER_SUPPLEMENT_ONLY`); the variance-budget limitation (AGENTS.md 7.10) is permanent and a negative gradient may never be read as exposure effects concentrating at weakly controlled VMRs. Caudate is batch-confounded (AGENTS.md 8.1). |
 | env-AA-dlpfc-20260920-a | AA | dlpfc | vmrset-AA-dlpfc-856067dfe289 | 2026-09-20 | Kynon J.M. Benjamin | PASS_EXPLORATORY_COVERAGE | n=118; 9,251 VMRs; 5/5 coverage criteria; 22/22 chromosomes, 0 excluded/QC-failed/failed/unaccounted. Stage A: 0 FDR-significant pairs. Stage B: 0 of 5 families survives FDR; nearest is nicotine@schizophrenia (q 0.054). **No percentage is formally identifiable**: mean_omega_z max 0.76, absolute_p > 0.05 in all 5, Fieller unbounded in all 5. **Bootstrap denominator inflation 3.2x-38.5x**, the largest in the module (marital_status@all, the family the retired `relative_scale_min_mean_z` guard was written for, which now simply reports null). Exploratory supplement only; variance-budget limitation applies. |
 | env-AA-hippocampus-20260920-a | AA | hippocampus | vmrset-AA-hippocampus-2d907b892215 | 2026-09-20 | Kynon J.M. Benjamin | PASS_EXPLORATORY_COVERAGE | n=117; 9,166 VMRs; 5/5 coverage criteria; 22/22 chromosomes, 0 excluded/QC-failed/failed/unaccounted. Stage A: 12 FDR-significant VMR x exposure pairs (11 nicotine, 1 education) out of ~9,200 tests in 5 families, in the region with the smallest exposed case count -- a supplemental observation, not a finding. Stage B: 2 of 5 families survive FDR -- nicotine@schizophrenia beta -0.491 q 1.1e-5 (arm -0.483, p 1.9e-6) and nicotine@all beta -0.376 q 0.0013 (arm -0.370, p 1.4e-4). **No percentage is formally identifiable**: mean_omega_z max 1.60, never reaching 1.96; absolute_p > 0.05 in all 5; Fieller unbounded in all 5. **Bootstrap denominator inflation 2.0x-4.1x.** Exploratory supplement only; variance-budget limitation applies. |
 
