@@ -29,19 +29,17 @@ from __future__ import annotations
 
 import argparse
 import os
+import sys
 from pathlib import Path
 
 import pandas as pd
 import yaml
 
-
-def repo_root() -> Path:
-    d = Path(__file__).resolve()
-    while d != d.parent:
-        if (d / ".git").is_dir():
-            return d
-        d = d.parent
-    raise SystemExit("Could not locate repository root")
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from meqtl_covariates import (  # noqa: E402
+    CovariateLockError, assert_executed_design, load_covariates_config,
+    locked_meqtl_design, read_manifest, repo_root,
+)
 
 
 def normalize_variant_chrom(variant_df: pd.DataFrame) -> pd.DataFrame:
@@ -151,6 +149,20 @@ def main() -> None:
     phenotype_df = phenotype_df[sample_ids]
     assert covariates_df.index.equals(phenotype_df.columns)
 
+    # The design is asserted HERE, against the matrix that is about to be fitted,
+    # in the process that fits it. 01b asserts what it builds, but 01b and 02 are
+    # separate jobs reading separate files, and a stale or hand-edited
+    # covariates.tsv from an earlier design would otherwise be mapped without
+    # comment -- which is the shape of the defect this check exists for: the three
+    # accepted 2026-08-25 runs fitted snpPC1-3 while config/covariates.yml locked
+    # snpPC1-5 + methPC1-5 and their manifests checksummed that lock.
+    man = read_manifest(run_dir)
+    assert_executed_design(
+        covariates_df.columns,
+        locked_meqtl_design(load_covariates_config(root)),
+        context=f"{args.run_id} {chrom_label} (tensorqtl input)",
+        allow_unlocked=str(man.get("smoke_run", "FALSE")).upper() == "TRUE")
+
     pgr = pgen.PgenReader(geno_prefix, select_samples=sample_ids)
     pgr = prepare_chr_matched_genotypes(pgr)
 
@@ -194,4 +206,7 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except CovariateLockError as e:
+        raise SystemExit(f"COVARIATE LOCK: {e}")

@@ -18,6 +18,15 @@ to one chromosome rather than to the whole genome.
 
 Every QC constant comes from config/meqtl_parameters.yml, which is prespecified.
 Nothing here may be tuned after results are seen.
+
+The covariate design comes from `config/covariates.yml:primary_meqtl`, which is
+the PI decision (AGENTS.md 12), and is asserted against what this stage actually
+built before anything is written. Until 2026-09-24 the design was the literal
+`n_pc = 3` with no methylation PC, so the three accepted runs fitted
+`agedeath + sex + primarydx + snpPC1-3` while the lock said
+`... + snpPC1-5 + methPC1-5` and their manifests checksummed that lock. The
+latent factors come from `results/latent-factors.tsv`, which
+`_h/01a_estimate_latent_factors.py` writes once per run.
 """
 
 from __future__ import annotations
@@ -30,19 +39,12 @@ from pathlib import Path
 import pandas as pd
 import yaml
 
-
-def repo_root() -> Path:
-    d = Path(__file__).resolve()
-    while d != d.parent:
-        if (d / ".git").is_dir():
-            return d
-        d = d.parent
-    raise SystemExit("Could not locate repository root")
-
-
-def read_manifest(run_dir: Path) -> dict:
-    m = pd.read_csv(run_dir / "manifest.tsv", sep="\t", dtype=str)
-    return dict(zip(m["field"], m["value"]))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from meqtl_covariates import (  # noqa: E402
+    CovariateLockError, build_covariate_matrix, genotype_arm,
+    load_covariates_config, locked_meqtl_design, read_manifest, repo_root,
+    run_directory, vmr_catalog_dir,
+)
 
 
 def main() -> None:
@@ -53,11 +55,10 @@ def main() -> None:
     args = ap.parse_args()
 
     root = repo_root()
-    run_dir = root / "05_cpg_meqtl_burden" / "_m" / "runs" / args.run_id
-    if not run_dir.is_dir():
-        raise SystemExit(f"No such run: {run_dir}")
+    run_dir = run_directory(root, args.run_id)
     man = read_manifest(run_dir)
     cohort, region = man["cohort"], man["region"]
+    smoke = str(man.get("smoke_run", "FALSE")).upper() == "TRUE"
 
     cfg = yaml.safe_load((root / "config" / "meqtl_parameters.yml").read_text())
     gq = cfg["genotype_qc"]
@@ -118,63 +119,28 @@ def main() -> None:
     subprocess.run([bgzip, "-f", str(bed_f)], check=True)
     subprocess.run([tabix, "-p", "bed", "-f", str(bed_f) + ".gz"], check=True)
 
-    cat_dir = (root / "01_vmr_catalog" / "_m" / "runs"
-               / man["upstream_vmr_catalog_run_id"])
+    cat_dir = vmr_catalog_dir(root, man)
 
     # ------------------------------------------------------------ covariates
     # The locked donor and covariate model (AGENTS.md 7.5: "preserve the locked
-    # donor and covariate models"), taken from the SAME Module 01 files
-    # 00_shared/locus_io.R reads, so 02, 03 and 05 share one covariate design.
-    cov_dir = cat_dir / "covs" / f"chr_{chrom}"
-    prefix = "TOPMed_LIBD.AA" if cohort == "AA" else "TOPMed_LIBD"
-    covar = pd.read_csv(cov_dir / f"{prefix}.covar", sep=r"\s+", header=None,
-                        names=["FID", "IID", "sex", "diagnosis"], dtype={0: str, 1: str})
-    qcovar = pd.read_csv(cov_dir / f"{prefix}.qcovar", sep=r"\s+", header=None,
-                         names=["FID", "IID", "age"], dtype={0: str, 1: str})
-    cov = covar.merge(qcovar, on=["FID", "IID"])
-
-    # Genotype PCs. Ancestry structure is a covariate for meQTL mapping exactly
-    # as it is for the local-variance model.
-    gen = yaml.safe_load((root / "config" / "paths.yml").read_text())["genotype"]
-    arm = gen["AA"] if cohort == "AA" else gen["all_individuals"]
-    evec_f = root / arm["eigenvec"]
-    if evec_f.is_file():
-        evec = pd.read_csv(evec_f, sep=r"\s+", dtype={0: str, 1: str})
-        evec.columns = ["FID", "IID"] + [f"snpPC{i}" for i in
-                                         range(1, evec.shape[1] - 1)]
-        n_pc = 3
-        cov = cov.merge(evec[["FID", "IID"] + [f"snpPC{i}" for i in
-                                               range(1, n_pc + 1)]],
-                        on=["FID", "IID"], how="left")
-    else:
-        print(f"WARNING: no eigenvec at {evec_f}; proceeding without genotype PCs",
-              file=sys.stderr)
-
-    cov = cov.set_index("FID").drop(columns=["IID"])
-    cov = cov.loc[[d for d in donors if d in cov.index]]
-
-    # tensorqtl builds its residualizer straight from the covariate values, so
-    # the design must be fully numeric -- `sex` and `diagnosis` arrive as
-    # strings ("F"/"M", "Control"/...). Dummy-code them here, dropping the
-    # first level, which is the same treatment coding
-    # 00_shared/locus_io.R applies for modules 02 and 03.
-    categorical = [c for c in cov.columns if cov[c].dtype == object]
-    if categorical:
-        cov = pd.get_dummies(cov, columns=categorical, drop_first=True,
-                             dtype=float)
-    cov = cov.apply(pd.to_numeric, errors="coerce")
-
-    if cov.isnull().any().any():
-        bad = cov.columns[cov.isnull().any()].tolist()
-        raise SystemExit(f"{chrom_label}: null covariate values in {bad}")
-    # A constant column makes the residualizer rank-deficient.
-    constant = [c for c in cov.columns if cov[c].nunique() < 2]
-    if constant:
-        print(f"{chrom_label}: dropping constant covariate(s) {constant}")
-        cov = cov.drop(columns=constant)
+    # donor and covariate models"). The phenotype terms come from the SAME
+    # Module 01 files 00_shared/locus_io.R reads, so 02, 03 and 05 share one
+    # covariate source; WHICH terms are fitted comes from config/covariates.yml
+    # and from nowhere else. The design is asserted against the built matrix
+    # before it is written, so a run cannot report a lock it did not follow.
+    design = locked_meqtl_design(load_covariates_config(root))
+    print(f"{chrom_label}: locked design {design.describe()}")
+    cov, lock_record = build_covariate_matrix(
+        root, cat_dir, cohort, chrom, donors, design, terms="full",
+        latent_file=run_dir / "results" / "latent-factors.tsv",
+        context=f"{args.run_id} {chrom_label}", allow_unlocked=smoke)
     cov.T.to_csv(out_dir / f"{chrom_label}.covariates.tsv", sep="\t")
+    pd.DataFrame({"field": list(lock_record),
+                  "value": [str(v) for v in lock_record.values()]}).to_csv(
+        out_dir / f"{chrom_label}.covariate-design.tsv", sep="\t", index=False)
 
     # ------------------------------------------------------------- genotypes
+    arm = genotype_arm(root, cohort)
     src = root / arm["pgen"]
     src_prefix = str(src)[: -len(".pgen")]
     geno_prefix = out_dir / f"{chrom_label}"
@@ -193,18 +159,47 @@ def main() -> None:
             link.unlink()
         link.symlink_to(f"{src_prefix}.{ext}")
     psam_lines = ["#FID\tIID\tSEX"]
+    fid_to_iid: dict[str, str] = {}
     for line in Path(f"{src_prefix}.psam").read_text().splitlines():
         if line.startswith("#") or not line.strip():
             continue
         f = line.split()
         psam_lines.append(f"{f[0]}\t{f[1]}\t{f[2] if len(f) > 2 else 'NA'}")
+        fid_to_iid[f[0]] = f[1]
     staged_prefix.with_suffix(".psam").write_text("\n".join(psam_lines) + "\n")
 
+    # The donor restriction, which until 2026-09-24 was written and then thrown
+    # away. Two defects, and the second is why the first was never noticed:
+    #
+    #   1. `--keep` was never passed, so --maf/--geno/--hwe were evaluated over
+    #      every donor in the source pfile -- 526 AA donors, of whom 373 are
+    #      outside a 153-donor caudate estimation set. On chr10 that over-included
+    #      17,832 variants and wrongly excluded 15,536 that pass the locked QC in
+    #      the 153. Of the over-included, 1,747 survive tensorqtl's in-sample MAF
+    #      filter and every one of them exceeds the locked missingness_max: 0.05
+    #      in the analysis donors, because tensorqtl re-applies MAF and never
+    #      missingness. 00_shared/locus_io.R:33-34 documents the opposite
+    #      convention for Modules 02 and 03 -- filters computed AFTER the group
+    #      restriction, deliberately -- so this was Module 05's divergence from
+    #      project practice, and it is now gone.
+    #   2. the file was written as `{donor}\t{donor}`, i.e. the FID twice. plink2
+    #      reads a two-column --keep as FID/IID and the real IID is a chip barcode
+    #      (Br2585 -> 3998646007_R01C01), so that file matches NO sample:
+    #      "--keep: 0 samples remaining. Error: No samples remaining after main
+    #      filters." Had --keep been passed as written, every array task would
+    #      have failed. A usable restriction pairs each FID with its psam IID.
+    missing = [d for d in cov.index if d not in fid_to_iid]
+    if missing:
+        raise SystemExit(
+            f"{chrom_label}: {len(missing)} analysis donor(s) absent from "
+            f"{src_prefix}.psam, e.g. {missing[:5]}. Refusing to restrict "
+            "genotype QC to a donor set the pfile does not contain.")
     keep_f = out_dir / f"{chrom_label}.keep"
-    keep_f.write_text("".join(f"{d}\t{d}\n" for d in cov.index))
+    keep_f.write_text("".join(f"{d}\t{fid_to_iid[d]}\n" for d in cov.index))
 
     cmd = [
         plink2, "--pfile", str(staged_prefix),
+        "--keep", str(keep_f),
         "--chr", chrom,
         "--maf", str(gq["maf_min"]),
         "--geno", str(gq["missingness_max"]),
@@ -217,9 +212,25 @@ def main() -> None:
     if res.returncode != 0:
         raise SystemExit(f"plink2 failed for {chrom_label}:\n{res.stderr[-4000:]}")
 
+    # plink2 exits 0 on a --keep that matched fewer donors than intended (it only
+    # errors at zero), so the restriction is verified against the pgen it wrote
+    # rather than trusted. A silent partial match would make the QC denominators
+    # wrong in exactly the way this stage just stopped being wrong.
+    kept = sum(1 for ln in (geno_prefix.with_suffix(".psam")).read_text().splitlines()
+               if ln.strip() and not ln.startswith("#"))
+    if kept != cov.shape[0]:
+        raise SystemExit(
+            f"{chrom_label}: --keep retained {kept} samples but the analysis set "
+            f"has {cov.shape[0]}. Genotype QC would be computed over the wrong "
+            "donors.")
+
     print(f"{chrom_label}: {len(keep)} tested CpGs, {cov.shape[0]} donors, "
-          f"{cov.shape[1]} covariates")
+          f"{cov.shape[1]} covariates ({', '.join(cov.columns)}), "
+          f"{kept} genotype samples after --keep")
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except CovariateLockError as e:
+        raise SystemExit(f"COVARIATE LOCK: {e}")
