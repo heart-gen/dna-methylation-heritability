@@ -121,10 +121,21 @@ wide[testable == TRUE, delta_q := stats::p.adjust(delta_p, method = fdr_method)]
 ## fit. `both_nominal` guards the degenerate case where a "difference" is
 ## really one region estimating something and the other estimating nothing --
 ## that is a power contrast, not regional heterogeneity.
+##
+## BOTH regions must be nominal, so the operator is `&`. It was `|` until
+## 2026-09-23, which made the check vacuous: a pair in which only one region
+## reaches p < 0.05 is exactly the degenerate case the paragraph above says this
+## guard exists to exclude, and an OR admitted it. The bug was not academic --
+## it was the sole reason tier 2 reported a claimed difference at all
+## (expression_abc x any_meqtl_support: hippocampus near-complete separation on
+## 8 coupled VMRs of 244, DLPFC p = 0.0857). Under `&` the count is zero of 154
+## testable pairs, which is the honest reading and is what
+## writing-notes/WGBS_BATCH_REGION_CONFOUNDING.md and 07/README.md:107 already
+## say about that outcome independently.
 wide[, sens_fdr_significant := is.finite(delta_q) & delta_q < alpha]
 wide[, sens_both_nominal := is.finite(get(paste0("p_", a))) &
          is.finite(get(paste0("p_", b))) &
-         (get(paste0("p_", a)) < 0.05 | get(paste0("p_", b)) < 0.05)]
+         (get(paste0("p_", a)) < 0.05 & get(paste0("p_", b)) < 0.05)]
 wide[, sens_direction_opposed := sign(get(ea)) != sign(get(eb))]
 wide[, sens_magnitude := abs(delta) > pmax(get(sa), get(sb))]
 
