@@ -1,8 +1,13 @@
 # Proposed edits to `config/covariates.yml` (PI action required)
 
 Branch `module05/adopt-locked-covariate-model`, 2026-09-24. `config/covariates.yml`
-is PI-locked, so nothing below has been applied. AGENTS.md §12: agents may
-recommend, never silently decide.
+is PI-locked, so an agent may recommend an edit here and must not make one.
+AGENTS.md §12.
+
+**Status 2026-09-24.** Edit 1 was applied by the PI as commit `b083a8fc6` and is
+what the three accepted runs `cmb-AA-{caudate,dlpfc,hippocampus}-20260924` were
+computed under; it is kept below as the record of what was decided and why.
+Edit 2 is still open.
 
 Context: the PI decided (F9) that the lock is authoritative —
 `primary_meqtl.locked_model: M3a` governs, and
@@ -12,7 +17,7 @@ make correct on its own are below.
 
 ---
 
-## Edit 1 — pin the methPC recipe (required before the rerun is citable)
+## Edit 1 — pin the methPC recipe (APPLIED 2026-09-24, commit `b083a8fc6`)
 
 **Why the code alone cannot be correct.** `latent_factor_policy` names a *method*
 ("PCA on M0-residualized CpG phenotypes") and no specification: no file, no CpG
@@ -86,7 +91,7 @@ Two deviations from the pilot, both deliberate, both recorded:
   the pilot's **15.8%** (5.96/4.36/2.37/1.76/1.32%).
 - **`pca_solver`.** As annotated in the diff.
 
-## Edit 2 — `cell_composition: sensitivity_only` is now false of the primary model
+## Edit 2 — `cell_composition: sensitivity_only` is now false of the primary model (OPEN)
 
 **Why the code cannot fix this.** It is a statement about what the primary model
 is, and under M3a it is not true. The pilot measured **methPC1 as 72% explained by
@@ -96,6 +101,13 @@ a substantial cell-composition adjustment into the primary meQTL scan, while lin
 39 says cell composition is a sensitivity only and lines 49-50 register the
 cell-adjusted designs as the separate, gated M5 and M6d. The PI adopted M3a
 knowing this; what remains is to stop the config asserting the opposite.
+
+The three accepted runs now say so in their own provenance, so this is no longer
+a pilot inference: `results/latent-factor-provenance.tsv` carries
+`cell_composition_note` — methPC1 is largely collinear with the RNA MuSiC cell
+proportions (R² ≈ 0.72 in caudate) and the primary model is therefore **not**
+free of cell composition. Collinearity only; no cell type of origin is implied
+(AGENTS.md §2.3).
 
 It also weakens the M6d contrast by moving its baseline: M6d is literally
 `M3a + dnamCellPC1-3`, so much of what those PCs would adjust for is already in
