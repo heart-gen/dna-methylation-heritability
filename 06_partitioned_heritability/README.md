@@ -1,11 +1,13 @@
 # 06_partitioned_heritability — genome-wide disease relevance
 
-Tests whether common-variant heritability for brain-relevant traits is enriched
-in a **continuous** annotation built from the relative local SNP contribution
-score (`local_snp_contribution_score_z`, Module 02), using stratified LD score
-regression.
+Tests whether common-variant heritability for brain-relevant traits concentrates
+in the VMRs whose methylation is under stronger local genetic control, using
+stratified LD score regression. The estimand is a **within-VMR gradient**: among
+the tested VMR universe, do higher-scoring loci carry more heritability than
+lower-scoring ones?
 
-**Status: accepted (AA, 2026-09-08), null enrichment; see Accepted runs.**
+**Status: no interpretable run. The three 2026-09-08 acceptances passed QC but
+answer a different question than the one above; see Estimand and Accepted runs.**
 Gated on `02_local_genetic_variance` acceptance ("No downstream
 production run may consume an upstream result until the upstream README records
 a passing acceptance gate and immutable run ID"). Module 02 has accepted runs
@@ -13,6 +15,59 @@ for all six cells (`lgv-*-20260823`). See **Accepted runs** below.
 
 This module depends only on Module 02. Its position in 
 dependency list is a total order, not a claim that it consumes Modules 03–05.
+
+## Estimand: two annotations, not one
+
+The S-LDSC model is baselineLD plus **two** annotations of ours, in this column
+order:
+
+| # | annotation | form | role |
+|---|---|---|---|
+| 1 | `VMR_TESTED` | binary | membership in the tested VMR universe |
+| 2 | `LOCAL_SNP_CONTRIBUTION_Z` | continuous | the within-cell relative score |
+
+`local_snp_contribution_score_z` is a standardized within-cell midrank
+percentile, so it is symmetric about zero **by construction** and zero is the
+value of a median-ranked VMR. A single-column annotation therefore gave a SNP in
+no VMR and a SNP in a median-ranked VMR the same number, and with no membership
+term in the model there was nothing to absorb a VMR-versus-genome difference:
+tau blurred the within-VMR gradient with a membership effect it never meant to
+test. That is why the one-annotation result was not merely negative but
+uninterpretable, and it is why a null from it is not reportable.
+
+With `VMR_TESTED` in the model, tau on the score is conditional on membership
+and estimates the within-VMR gradient. tau on `VMR_TESTED` answers a second,
+separately interesting question — are tested VMRs enriched at all — which the
+one-annotation model could not ask either.
+
+**Prespecified, before any two-annotation result was seen:** the FDR family stays
+exactly the frozen traits on the **score** annotation, which carries the
+hypothesis. The membership tau is written to `sldsc-membership-metrics.tsv` with
+a nominal p and no q-value, so the family size does not change and no q-value
+the primary hypothesis depends on is revised.
+
+The contract lives in `_h/annotations.py` — names, column order, roles, and the
+assertion that neither name is a prefix of the other, since stage 06 identifies
+`.results` rows by name. Column order is positional in `.annot.gz`,
+`.l2.ldscore.gz` and `.l2.M_5_50`, so every stage reads it from that one file;
+row identification downstream is always by name and never by position.
+
+Enrichment is reported for both annotations and is interpretable for **only** the
+binary one. For a signed continuous annotation LDSC's denominator is a signed
+sum, so the ratio is not a share; each emitted row carries
+`enrichment_interpretable` rather than leaving that to a reader's memory. The
+`m_5_50` column makes it visible: a SNP count for `VMR_TESTED`, a signed sum for
+the score.
+
+See `writing-notes/ISSUE_06_two_annotation_model.md` for the full argument.
+
+### Not fixed by this, and still open
+
+The annotation covers ~0.6% of SNPs and the module has **no positive control**, so
+a null cannot be distinguished from a power null whatever the estimand. A
+separate issue should run the same pipeline on an annotation of comparable
+footprint known to be enriched for brain traits (Roadmap brain DHS or H3K4me3).
+Correcting the estimand does not remove that limitation.
 
 ## Why this module exists
 
@@ -36,10 +91,16 @@ and retirement status. Legacy directories stay in place until their row reads
 
 ## Endpoint discipline
 
-The annotation is **continuous**. Do not rebuild the retired v1 form, which
+The score annotation is **continuous**. Do not rebuild the retired v1 form, which
 partitioned VMRs into heritable and non-heritable classes at a threshold on
 `r_squared_cv` — banned. No threshold, no grouping, and no
 absolute locus PVE enters the annotation.
+
+`VMR_TESTED` is binary, and that is not a reintroduction of the banned form: it
+indicates **membership in the tested universe**, not a class of local genetic
+control. It is derived from the same overlap test as the score and from no
+threshold on it. `_h/01_build_annotation.R` still fails closed if the score
+itself looks like a partition rather than a gradient.
 
 Report the metrics named in the legacy `interpreting_sldsc_results.md`:
 enrichment, enrichment p, and the tau coefficient z-score. A significant
@@ -86,11 +147,11 @@ targeted robustness check rather than a parallel screen.
 | 00 | `_h/00_new_run.R` | Mint the run ID; gate on the accepted Module 02 run; freeze the trait family. |
 | 01 | `_h/01_build_annotation.R` | Build the continuous hg38 annotation BED. |
 | 02 | `_h/02_liftover_annotation.py` | hg38 → hg19, with every dropped interval recorded. |
-| 03 | `_h/03_make_annot.py` | Map the score onto reference SNPs (thin-annot). |
-| 05 | `_h/05_compute_ldscores.sh` | Array 1–22: annotation + LD scores per chromosome. |
+| 03 | `_h/03_make_annot.py` | Map membership + score onto reference SNPs (thin-annot, two columns). |
+| 05 | `_h/05_compute_ldscores.sh` | Array 1–22: annotation + LD scores per chromosome; `05a` checks the annotation set that reached them. |
 | 04 | `_h/04_munge_sumstats.py` | Munge the frozen trait list to LDSC format. |
-| 06 | `_h/06_partition_h2.py` | S-LDSC per trait; enrichment, enrichment p, tau z. |
-| 07 | `_h/07_fdr_and_gates.R` | FDR over the frozen family; acceptance gate. |
+| 06 | `_h/06_partition_h2.py` | S-LDSC per trait; one metrics row per annotation. |
+| 07 | `_h/07_fdr_and_gates.R` | FDR over the frozen family (score annotation only); membership reported separately; acceptance gate. |
 | 08 | `_h/08_plot.py` | Figures. |
 | 09 | `_h/09_finalize_run.R` | Seal the run (sealing is not acceptance). |
 
@@ -113,10 +174,17 @@ it.
 For each cohort-by-region cell, acceptance requires:
 
 1. an accepted Module 02 run for the same cell, and its `vmr_set_id` recorded;
-2. a continuous, unthresholded, ungrouped annotation carrying no absolute PVE;
+2. a continuous, unthresholded, ungrouped score annotation carrying no absolute
+   PVE;
 3. every declared trait munged and analysed — a partial family is refused,
    because BH over a smaller family understates every q;
-4. finite, positive tau standard errors for every trait;
+3b. both annotations present for every trait, so the reported tau is conditional
+   on VMR membership. A one-annotation run fails QC rather than earning a
+   caveat: its tau is not the within-VMR gradient this module reports, null or
+   otherwise;
+4. finite, positive tau standard errors for every trait on **both**
+   annotations — they are fitted jointly, so a degenerate SE on either means the
+   joint fit did not identify the model;
 5. at least one trait whose total observed-scale h2 is distinguishable from zero
    (`min_total_h2_z`);
 6. liftover loss below `max_annotation_missing_fraction`;
@@ -124,6 +192,18 @@ For each cohort-by-region cell, acceptance requires:
 8. immutable Stage 09 checksums and a manual README acceptance record.
 
 ## Accepted runs
+
+**Estimand withdrawn 2026-09-23; a rerun is required.** The three runs below
+passed QC and are computationally sound, but they were produced by the
+one-annotation model described under **Estimand** above, so their tau is not the
+within-VMR gradient this module reports. `sldsc_supports_brain_enrichment = FALSE`
+from these runs **must not be cited**, in Module 09's
+`adds_nothing_beyond_nonsignificant_sldsc` criterion or anywhere else: a null
+from an estimand that does not match the question is not a null for that
+question. The runs stay as they are — `_m/` is immutable — and stages 03, 05, 06,
+07 and 08 must be rerun for all three cells before any acceptance record here is
+valid again. Stage 07 now fails QC on one-annotation metrics, so a rerun cannot
+quietly reproduce the old estimand.
 
 QC passed with a null scientific result: `sldsc_supports_brain_enrichment = FALSE`
 in all three cells (0/8 traits FDR-significant). EUR LD scores; annotation is a
