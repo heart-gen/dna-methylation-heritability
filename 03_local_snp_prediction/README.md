@@ -141,9 +141,9 @@ smoke checks. Configuration lives in `config/` at the repository root.
 
 | run_id                      | cohort | region      | vmr_set_id                         | accepted_on | accepted_by         | decision               | notes                                                                                                                               |
 |-----------------------------|--------|-------------|------------------------------------|-------------|---------------------|------------------------|-------------------------------------------------------------------------------------------------------------------------------------|
-| lsp-AA-caudate-20260825     | AA     | caudate     | vmrset-AA-caudate-937a41979978     | 2026-08-28  | Kynon J.M. Benjamin | PASS_OOF_PREDICTION_QC | 11530 expected / 11343 scored / 187 QC-failed / 0 failed; median r2_pred_oof ~0, mean 0.204, 45.1% positive; relative rank use only |
-| lsp-AA-dlpfc-20260825       | AA     | dlpfc       | vmrset-AA-dlpfc-856067dfe289       | 2026-08-28  | Kynon J.M. Benjamin | PASS_OOF_PREDICTION_QC | 9572 expected / 9347 scored / 225 QC-failed / 0 failed; median r2_pred_oof ~0, mean 0.174, 44.4% positive; relative rank use only   |
-| lsp-AA-hippocampus-20260825 | AA     | hippocampus | vmrset-AA-hippocampus-2d907b892215 | 2026-08-28  | Kynon J.M. Benjamin | PASS_OOF_PREDICTION_QC | 9497 expected / 9272 scored / 225 QC-failed / 0 failed; median r2_pred_oof ~0, mean 0.188, 46.5% positive; relative rank use only   |
+| lsp-AA-caudate-20260925-a     | AA     | caudate     | vmrset-AA-caudate-937a41979978     | 2026-09-25  | Kynon J.M. Benjamin | PASS_OOF_PREDICTION_QC | 11530 expected / 11343 scored / 187 QC-failed / 0 failed; median r2_pred_oof ~0 (-4.0e-07), mean 0.204, 45.3% positive; consumes lgv-AA-caudate-rescore-20260913; relative rank use only |
+| lsp-AA-dlpfc-20260925-a       | AA     | dlpfc       | vmrset-AA-dlpfc-856067dfe289       | 2026-09-25  | Kynon J.M. Benjamin | PASS_OOF_PREDICTION_QC | 9572 expected / 9347 scored / 225 QC-failed / 0 failed; median r2_pred_oof ~0 (-1.0e-06), mean 0.175, 44.4% positive; consumes lgv-AA-dlpfc-rescore-20260913; relative rank use only |
+| lsp-AA-hippocampus-20260925-a | AA     | hippocampus | vmrset-AA-hippocampus-2d907b892215 | 2026-09-25  | Kynon J.M. Benjamin | PASS_OOF_PREDICTION_QC | 9497 expected / 9272 scored / 225 QC-failed / 0 failed; median r2_pred_oof ~0 (-5.9e-07), mean 0.188, 46.4% positive; consumes lgv-AA-hippocampus-rescore-20260913; relative rank use only |
 | lsp-all_individuals.AA-caudate-20260918 | all_individuals.AA | caudate | vmrset-all_individuals-caudate-cb5519d7d2ad | 2026-09-18 | Kynon J.M. Benjamin | PASS_OOF_PREDICTION_QC | n=153 donors; 11463 expected / 11246 scored / 217 QC-failed / 0 failed; median r2_pred_oof ~0 (-2.3e-06), mean 0.196, 44.9% positive; consumes lgv-all_individuals.AA-caudate-20260913; relative rank use only |
 | lsp-all_individuals.AA-dlpfc-20260918 | all_individuals.AA | dlpfc | vmrset-all_individuals-dlpfc-e88f46904afb | 2026-09-18 | Kynon J.M. Benjamin | PASS_OOF_PREDICTION_QC | n=118 donors; 9374 expected / 9139 scored / 235 QC-failed / 0 failed; median r2_pred_oof ~0 (-5.4e-05), mean 0.147, 44.6% positive; consumes lgv-all_individuals.AA-dlpfc-20260913; relative rank use only |
 | lsp-all_individuals.AA-hippocampus-20260918 | all_individuals.AA | hippocampus | vmrset-all_individuals-hippocampus-809f8de0db2d | 2026-09-18 | Kynon J.M. Benjamin | PASS_OOF_PREDICTION_QC | n=117 donors; 9365 expected / 9133 scored / 232 QC-failed / 0 failed; median r2_pred_oof ~0 (-1.6e-06), mean 0.164, 44.9% positive; consumes lgv-all_individuals.AA-hippocampus-20260913; relative rank use only |
@@ -153,6 +153,33 @@ smoke checks. Configuration lives in `config/` at the repository root.
 | lsp-AA.n118r1-caudate-20260918 | AA.n118r1 | caudate | vmrset-AA-caudate-937a41979978 | 2026-09-18 | Kynon J.M. Benjamin | PASS_OOF_PREDICTION_QC | n=118 donors (donor_subsample replicate 1 of the AA caudate arm); 11530 expected / 11344 scored / 186 QC-failed / 0 failed; median r2_pred_oof ~0 (-5.6e-06), mean 0.174, 40.8% positive; consumes lgv-AA.n118r1-caudate-20260918; sample-size sensitivity for Module 08 tier 3 only; relative rank use only |
 | lsp-AA.n118r2-caudate-20260918 | AA.n118r2 | caudate | vmrset-AA-caudate-937a41979978 | 2026-09-18 | Kynon J.M. Benjamin | PASS_OOF_PREDICTION_QC | n=118 donors (donor_subsample replicate 2 of the AA caudate arm); 11530 expected / 11343 scored / 187 QC-failed / 0 failed; median r2_pred_oof ~0 (-4.3e-06), mean 0.175, 40.7% positive; consumes lgv-AA.n118r2-caudate-20260918; sample-size sensitivity for Module 08 tier 3 only; relative rank use only |
 | lsp-AA.n118r3-caudate-20260918 | AA.n118r3 | caudate | vmrset-AA-caudate-937a41979978 | 2026-09-18 | Kynon J.M. Benjamin | PASS_OOF_PREDICTION_QC | n=118 donors (donor_subsample replicate 3 of the AA caudate arm); 11530 expected / 11335 scored / 195 QC-failed / 0 failed; median r2_pred_oof ~0 (-4.0e-06), mean 0.175, 40.9% positive; consumes lgv-AA.n118r3-caudate-20260918; sample-size sensitivity for Module 08 tier 3 only; relative rank use only |
+
+### Superseded
+
+`lsp-AA-{caudate,dlpfc,hippocampus}-20260825` (accepted 2026-08-28). Superseded
+2026-09-25 for provenance only: they consume `lgv-AA-{region}-20260823`, which the
+`lgv-AA-{region}-rescore-20260913` rescores replaced on 2026-09-17 for
+over-admitting loci under AA's own `p_eff` floor. **Their prediction metrics are
+materially unchanged by the rescore** -- scored-locus counts are identical
+(11343 / 9347 / 9272), mean `r2_pred_oof` moves by at most 0.001 and the positive
+fraction by at most 0.2 points. That is the expected result rather than a
+surprise: Module 02's score is not a predictor in this module and does not enter
+the fold-internal screen, so the rescore changes which loci Module 02 calls
+eligible and not how well any locus predicts. The rerun exists so that every
+downstream consumer reads one Module 02 generation, not because the answer moved.
+Do not cite the `-20260825` runs alongside the current ones; only one accepted run
+per cell may appear in the table above, or `require_accepted_upstream()` cannot
+resolve a cell.
+
+`lsp-AA-{caudate,dlpfc,hippocampus}-20260925` (no suffix) -- **abandoned, never
+sealed.** Submitted 13:20 on 2026-09-25 and destroyed by a cluster-wide root
+cancellation at 13:30-13:56 that killed 3,019 of 6,121 array tasks across 17+
+nodes with no logs and `ExitCode 0:0`. The combine step correctly refused all
+three cells rather than computing on partial loci ("Reconciliation found 5085
+unaccounted task(s) ... A missing output file is not an explanation"), which is
+AGENTS.md section 9 behaving as designed. Resubmitted as `-20260925-a` with the
+per-array throttle lowered from `%200` to `%66`, after which all three cells
+completed with zero failures.
 
 ### Reading the `r2_pred_oof` column
 
