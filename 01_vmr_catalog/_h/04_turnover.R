@@ -13,6 +13,7 @@
 ##   Rscript 04_turnover.R --cohort AA --region caudate --run-id ID
 
 source(file.path(Sys.getenv("V2_REPO_ROOT", "."), "00_shared", "load.R"))
+source(file.path(V2_ROOT, "01_vmr_catalog", "_h", "exclusion_ledger.R"))
 
 suppressPackageStartupMessages({
     library(data.table)
@@ -190,31 +191,289 @@ if (all(c("450K", "EPIC") %in% coverage$array_platform)) {
 write_atomic(coverage, file.path(qc_dir, "array_coverage.tsv"))
 
 ## ------------------------------------------- technical QC and exclusion table
-
+##
+## This glob deliberately reaches into excluded/ as well: `is_primary_chrom`
+## distinguishes those rows and Figure 1 filters on it, so a sex chromosome
+## cannot inflate the assayed-CpG count while still being visible here.
 prep_files <- list.files(run_dir, pattern = "^prepare_summary\\.tsv$",
                          recursive = TRUE, full.names = TRUE)
-qc_rows <- rbindlist(lapply(prep_files, function(f) {
+read_field_table <- function(f) {
     d <- fread(f)
     out <- as.list(d$value); names(out) <- d$field
     as.data.table(out)
-}), fill = TRUE)
+}
+qc_rows <- rbindlist(lapply(prep_files, read_field_table), fill = TRUE)
+write_atomic(qc_rows, file.path(qc_dir, "technical_qc.tsv"))
 
-## Sex chromosomes prepared but held out of the primary catalog (V4).
-excluded_dir <- file.path(run_dir, "excluded")
-excl <- if (dir.exists(excluded_dir)) {
-    sex_prep <- list.files(excluded_dir, pattern = "^prepare_summary\\.tsv$",
+## ============================================================================
+## F14: the exclusion table, the chromosome-policy manifest, and the accounting
+## ============================================================================
+##
+## AGENTS.md 7.1 requires a "technical QC and exclusion table" and, for the
+## chromosome policy, that sex chromosomes are "reported separately or excluded
+## with an explicit manifest". Before this block, `qc/exclusions.tsv` was written
+## only when a sex-chromosome preparation happened to be present -- and
+## step_1x.sh is opt-in (`WITH_SEX=1`), so all six accepted runs have an empty
+## excluded/ and no exclusions.tsv at all. Worse, even when present it would have
+## held only sex chromosomes: no donor, CpG or candidate-VMR exclusion was
+## recorded anywhere but a SLURM log.
+##
+## Nothing here decides an exclusion. The upstream stages now write their own
+## decisions as ledger parts; this assembles them, and balances them against the
+## surviving counts so a denominator cannot be quietly wrong (AGENTS.md 11, 14).
+
+## ------------------------------------------ chromosome policy manifest
+##
+## Written unconditionally, and derived from config rather than from what happens
+## to be on disk. That is the difference that matters: the manifest states that
+## X and Y are held out of the primary catalog and why, whether or not anyone
+## chose to run step_1x.sh for this run.
+primary_chroms <- as.character(chrom_order(include_sex = FALSE))
+sex_chrom_ids <- sex_chroms(th)
+
+status_file <- file.path(vmr_dir, "chromosome_status.tsv")
+chrom_status <- if (file.exists(status_file)) {
+    fread(status_file, colClasses = list(character = "chrom"))
+} else {
+    data.table(chrom = character(), status = character())
+}
+
+cutoffs_file <- file.path(vmr_dir, "sd_cutoffs.tsv")
+cutoffs <- if (file.exists(cutoffs_file)) fread(cutoffs_file) else data.table()
+
+chrom_prepared <- function(cc) {
+    any(dir.exists(c(
+        file.path(run_dir, "cpg", paste0("chr_", cc)),
+        file.path(run_dir, "excluded", "cpg", paste0("chr_", cc)))))
+}
+
+chrom_manifest <- rbindlist(lapply(c(primary_chroms, sex_chrom_ids), function(cc) {
+    in_policy <- cc %in% primary_chroms
+    st <- chrom_status$status[match(cc, chrom_status$chrom)]
+    prepared <- chrom_prepared(cc)
+    disposition <- if (!in_policy) {
+        "excluded_from_primary_catalog_by_chromosome_policy"
+    } else if (!is.na(st) && st == "completed") {
+        "in_primary_catalog"
+    } else if (!is.na(st)) {
+        st
+    } else if (!prepared) {
+        "not_prepared_in_this_run"
+    } else {
+        "prepared_but_catalog_status_unrecorded"
+    }
+    reason <- if (!in_policy) {
+        ## The substantive reason, not the policy restated: no C->T SNP mask
+        ## exists for X/Y, so those CpGs are unmasked and the legacy caudate
+        ## catalog carried a 3x excess of sex-chromosome VMRs (V4).
+        "no_ct_snp_mask_available_unmasked_cpgs_v4"
+    } else if (disposition == "in_primary_catalog") {
+        NA_character_
+    } else {
+        disposition
+    }
+    data.table(
+        cohort = cohort, region = region, vmr_set_id = vmr_set_id,
+        chrom = cc, in_primary_policy = in_policy,
+        ct_mask_available = has_ct_mask(cc),
+        prepared_in_this_run = prepared,
+        disposition = disposition, reason = reason,
+        n_vmrs_in_primary_catalog = if (nrow(cutoffs) > 0) {
+            as.integer(cutoffs$n_vmrs[match(paste0("chr", cc), cutoffs$chr)])
+        } else NA_integer_,
+        reported_separately_under = if (in_policy) NA_character_ else {
+            if (prepared) "_m/runs/{RUN_ID}/excluded/" else "not_run"
+        })
+}), use.names = TRUE)
+write_atomic(chrom_manifest, file.path(qc_dir, "chromosome_policy_manifest.tsv"))
+
+## ------------------------------------------------- assemble qc/exclusions.tsv
+ledger_files <- list.files(run_dir, pattern = "^exclusions_[a-z_]+\\.tsv$",
                            recursive = TRUE, full.names = TRUE)
-    rbindlist(lapply(sex_prep, function(f) {
-        d <- fread(f); out <- as.list(d$value); names(out) <- d$field
-        cbind(as.data.table(out),
-              exclusion_reason = "sex_chromosome_no_ct_mask_not_in_primary_catalog")
-    }), fill = TRUE)
+ledger_parts <- lapply(ledger_files, function(f) {
+    d <- fread(f, colClasses = list(character = "chrom"))
+    if (nrow(d) == 0) return(NULL)
+    rel <- sub(paste0("^", run_dir, "/"), "", f)
+    d[, catalog_tree := if (startsWith(rel, "excluded/")) "excluded" else "primary"]
+    d[, source_file := rel][]
+})
+ledger <- rbindlist(c(list(excl_empty()[, `:=`(catalog_tree = character(),
+                                               source_file = character())]),
+                      ledger_parts), use.names = TRUE, fill = TRUE)
+
+## Donor and CpG parts are written per chromosome. Donor eligibility does not
+## vary by chromosome, so 22 identical rows per donor are collapsed to one --
+## and if they ever are not identical, the rows stay separate and say so.
+donor_rows <- ledger[unit_type %in% c("donor", "phenotype_row") &
+                     catalog_tree == "primary"]
+other_rows <- ledger[!(unit_type %in% c("donor", "phenotype_row") &
+                       catalog_tree == "primary")]
+if (nrow(donor_rows) > 0) {
+    ## source_file names the chromosome directory, which would defeat the
+    ## collapse. Glob it, so the provenance survives as "which stage part" while
+    ## staying chromosome-independent -- the same property the rows themselves
+    ## have.
+    donor_rows[, source_file := sub("chr_[0-9XY]+/", "chr_*/", source_file)]
+    donor_rows <- collapse_uniform_chrom(
+        donor_rows, primary_chroms, by_extra = c("catalog_tree", "source_file"))
+}
+
+## The chromosome policy joins the ledger as chromosome-level rows, so a single
+## table answers "what did not make it into this catalog".
+chrom_rows <- chrom_manifest[!is.na(reason), excl_rows(
+    stage = "chromosome_policy", unit_type = "chromosome",
+    exclusion_reason = reason, unit_id = paste0("chr", chrom), chrom = chrom)]
+if (nrow(chrom_rows) > 0) {
+    chrom_rows[, `:=`(catalog_tree = "primary",
+                      source_file = "config/thresholds.yml:chromosomes")]
+}
+
+exclusions <- rbindlist(list(donor_rows, other_rows, chrom_rows),
+                        use.names = TRUE, fill = TRUE)
+exclusions[, `:=`(cohort = cohort, region = region, vmr_set_id = vmr_set_id,
+                  run_id = opts$run_id)]
+setcolorder(exclusions, c("cohort", "region", "run_id", "vmr_set_id",
+                          EXCLUSION_COLS, "catalog_tree", "source_file"))
+write_atomic(exclusions, file.path(qc_dir, "exclusions.tsv"))
+
+## -------------------------------------------------- entered = survived + excluded
+##
+## The accounting table is the claim; the ledger is the evidence. A row whose
+## inputs are present and whose arithmetic does not close stops the stage, since
+## AGENTS.md 14 makes a degenerate or undocumented denominator a stop condition.
+## A row whose inputs are absent is recorded as unbalanced with a note, never as
+## balanced -- that is the case for a QC-refresh run whose source predates these
+## ledger parts.
+num <- function(dt, field_name) {
+    if (is.null(dt) || nrow(dt) == 0 || !field_name %in% names(dt)) {
+        return(NA_integer_)
+    }
+    v <- suppressWarnings(as.integer(dt[[field_name]]))
+    if (length(v) == 0) NA_integer_ else v
+}
+one <- function(x, what) {
+    u <- unique(x[!is.na(x)])
+    if (length(u) == 0) return(NA_integer_)
+    if (length(u) > 1) {
+        stop(what, " differs across autosomes (", paste(u, collapse = ", "),
+             "). Donor eligibility must not depend on the chromosome.")
+    }
+    u
+}
+
+prim <- if ("is_primary_chrom" %in% names(qc_rows)) {
+    qc_rows[as.logical(is_primary_chrom) %in% TRUE]
+} else qc_rows
+
+summ_file <- file.path(vmr_dir, "summarize_summary.tsv")
+summ <- if (file.exists(summ_file)) {
+    d <- fread(summ_file); out <- as.list(d$value); names(out) <- d$field
+    as.data.table(out)
 } else data.table()
 
-write_atomic(qc_rows, file.path(qc_dir, "technical_qc.tsv"))
-if (nrow(excl) > 0) write_atomic(excl, file.path(qc_dir, "exclusions.tsv"))
+analyze_files <- list.files(file.path(run_dir, "pca"),
+                            pattern = "^analyze_summary\\.tsv$",
+                            recursive = TRUE, full.names = TRUE)
+analyze <- if (length(analyze_files) > 0) {
+    rbindlist(lapply(analyze_files, read_field_table), fill = TRUE)
+} else data.table()
 
-message("[done] QC tables written to ", qc_dir)
+no_ledger <- paste("upstream ledger fields absent; rerun the module to populate",
+                   "them (a QC-refresh run copies a pre-F14 source)")
+
+acc <- list()
+
+## Phenotype rows: the whole table, split into this region's candidates and the
+## rows that belong to another region's run.
+n_cand <- one(num(prim, "n_donor_candidate_rows"), "n_donor_candidate_rows")
+n_other <- one(num(prim, "n_phenotype_rows_other_region"),
+               "n_phenotype_rows_other_region")
+acc[["pheno"]] <- accounting_row(
+    "phenotype_row", "phenotype_table_all_regions",
+    if (is.na(n_cand) || is.na(n_other)) NA_integer_ else n_cand + n_other,
+    n_cand, n_other,
+    note = if (is.na(n_cand)) no_ledger else
+        "survivors are this region's candidate donors, not catalog donors")
+
+## Donors: candidates for this region against the catalog's donor set.
+n_donors_catalog <- num(summ, "n_donors")
+acc[["donor"]] <- accounting_row(
+    "donor", "autosomes_all", n_cand, n_donors_catalog,
+    one(num(prim, "n_donors_excluded"), "n_donors_excluded"),
+    note = if (is.na(n_cand)) no_ledger else
+        if (is.na(n_donors_catalog)) "vmr/summarize_summary.tsv absent" else
+            NA_character_)
+
+## Donors again, at the residualization step: prepared against residualized.
+if (nrow(analyze) > 0 && "n_donors_prepared" %in% names(analyze)) {
+    acc[["donor_resid"]] <- accounting_row(
+        "donor", "residualization_autosomes_total",
+        sum(num(analyze, "n_donors_prepared")),
+        sum(num(analyze, "n_donors")),
+        sum(num(analyze, "n_donors_dropped_missing_snp_pcs")),
+        note = "summed over chromosomes; a nonzero excluded count means the VMR cutoff and the VMR phenotypes used different donor sets")
+}
+
+## CpGs, per chromosome and in total.
+if ("n_cpgs_input" %in% names(prim)) {
+    cpg_in <- num(prim, "n_cpgs_input"); cpg_out <- num(prim, "n_cpgs")
+    cpg_ct <- num(prim, "n_cpgs_excluded_ct_snp")
+    cpg_lc <- num(prim, "n_cpgs_excluded_low_coverage")
+    acc[["cpg_chrom"]] <- rbindlist(lapply(seq_len(nrow(prim)), function(i) {
+        accounting_row("cpg", paste0("chr", prim$chrom[i]), cpg_in[i],
+                       cpg_out[i], cpg_ct[i] + cpg_lc[i])
+    }))
+    acc[["cpg_total"]] <- accounting_row(
+        "cpg", "autosomes_total", sum(cpg_in), sum(cpg_out),
+        sum(cpg_ct) + sum(cpg_lc))
+} else {
+    acc[["cpg_total"]] <- accounting_row("cpg", "autosomes_total", NA_integer_,
+                                         sum(num(prim, "n_cpgs")), NA_integer_,
+                                         note = no_ledger)
+}
+
+## Candidate VMRs: what regionFinder3() proposed against what min_cpgs kept.
+acc[["vmr"]] <- accounting_row(
+    "vmr_candidate", "autosomes_all", num(summ, "n_vmr_candidates"),
+    nrow(new_vmr), num(summ, "n_vmr_candidates_excluded"),
+    note = if (is.na(num(summ, "n_vmr_candidates"))) no_ledger else NA_character_)
+
+## Chromosomes: every chromosome in the genome policy is in exactly one bucket.
+acc[["chrom"]] <- accounting_row(
+    "chromosome", "genome_policy", nrow(chrom_manifest),
+    sum(chrom_manifest$disposition == "in_primary_catalog"),
+    sum(chrom_manifest$disposition != "in_primary_catalog"))
+
+accounting <- rbindlist(acc, use.names = TRUE, fill = TRUE)
+accounting[, `:=`(cohort = cohort, region = region, run_id = opts$run_id,
+                  vmr_set_id = vmr_set_id)]
+setcolorder(accounting, c("cohort", "region", "run_id", "vmr_set_id",
+                          ACCOUNTING_COLS))
+write_atomic(accounting, file.path(qc_dir, "exclusion_accounting.tsv"))
+print(accounting[, .(unit_type, scope, n_entered, n_survived, n_excluded,
+                     balanced)])
+
+broken <- accounting[balanced == FALSE & !is.na(n_entered) &
+                     !is.na(n_survived) & !is.na(n_excluded)]
+if (nrow(broken) > 0) {
+    stop("Exclusion accounting does not balance for ", nrow(broken), " row(s): ",
+         paste(broken$unit_type, broken$scope, sep = "/", collapse = ", "),
+         "\n  entered must equal survived + excluded. AGENTS.md 14 lists an ",
+         "undocumented denominator as a stop condition.")
+}
+unrecorded <- accounting[balanced == FALSE]
+if (nrow(unrecorded) > 0) {
+    message("[exclusions] ", nrow(unrecorded), " accounting row(s) could not be ",
+            "balanced because their inputs are absent: ",
+            paste(unrecorded$unit_type, unrecorded$scope, sep = "/",
+                  collapse = ", "),
+            "\n  This is expected for a QC refresh of a pre-F14 source run and ",
+            "is recorded in the table, not swallowed.")
+}
+
+message("[done] QC tables written to ", qc_dir, ": technical_qc.tsv, ",
+        "exclusions.tsv (", nrow(exclusions), " rows), ",
+        "exclusion_accounting.tsv, chromosome_policy_manifest.tsv")
 
 #### Reproducibility information ####
 print("Reproducibility information:")

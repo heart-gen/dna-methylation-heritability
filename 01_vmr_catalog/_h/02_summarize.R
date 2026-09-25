@@ -10,6 +10,7 @@
 ## AGENTS.md 6: "VMR turnover never authorizes reuse of downstream numbers."
 
 source(file.path(Sys.getenv("V2_REPO_ROOT", "."), "00_shared", "load.R"))
+source(file.path(V2_ROOT, "01_vmr_catalog", "_h", "exclusion_ledger.R"))
 
 suppressPackageStartupMessages({
     library(bsseq)
@@ -61,29 +62,38 @@ call_vmrs <- function(res_var, chrom, sd_quantile, max_gap, min_cpgs) {
     v <- res_var[order(pos)]
     sd_cut <- quantile(v$sd, probs = sd_quantile, na.rm = TRUE)
     is_high <- as.integer(!is.na(v$sd) & v$sd > sd_cut)
+    empty <- data.table(chr = character(), start = integer(), end = integer(),
+                        n = integer())
     if (sum(is_high) == 0) {
-        return(list(vmr = data.table(chr = character(), start = integer(),
-                                     end = integer(), n = integer()),
-                    sd_cut = sd_cut))
+        return(list(vmr = empty, dropped = empty, sd_cut = sd_cut,
+                    n_cpgs_above_cutoff = 0L))
     }
     found <- regionFinder3(is_high, rep(paste0("chr", chrom), nrow(v)),
                            v$pos, maxGap = max_gap, verbose = FALSE)$up
     if (is.null(found) || nrow(found) == 0) {
-        return(list(vmr = data.table(chr = character(), start = integer(),
-                                     end = integer(), n = integer()),
-                    sd_cut = sd_cut))
+        return(list(vmr = empty, dropped = empty, sd_cut = sd_cut,
+                    n_cpgs_above_cutoff = sum(is_high)))
     }
     found <- as.data.table(found)
-    vmr <- found[n > min_cpgs, .(chr = as.character(chr),
-                                 start = as.integer(start),
-                                 end = as.integer(end),
-                                 n = as.integer(n))]
-    list(vmr = vmr, sd_cut = sd_cut)
+    cols <- function(dt) dt[, .(chr = as.character(chr),
+                                start = as.integer(start),
+                                end = as.integer(end),
+                                n = as.integer(n))]
+    ## F14: the candidate regions the min_cpgs rule removes are returned instead
+    ## of discarded, so `min_cpgs` appears in qc/exclusions.tsv as a count of
+    ## named intervals. The surviving set is the identical `n > min_cpgs`
+    ## expression; `dropped` is its complement, which is what makes
+    ## candidates = kept + dropped hold by construction.
+    list(vmr = cols(found[n > min_cpgs]),
+         dropped = cols(found[n <= min_cpgs]),
+         sd_cut = sd_cut,
+         n_cpgs_above_cutoff = sum(is_high))
 }
 
 ## ------------------------------------------------------- part 1: call VMRs
 
 vmr_parts <- list(); membership_parts <- list(); cutoff_parts <- list()
+dropped_parts <- list()
 completed <- character(); qc_failed <- character()
 
 for (chrom in chroms) {
@@ -97,9 +107,17 @@ for (chrom in chroms) {
     out <- call_vmrs(res_var, chrom, vmr_cfg$sd_quantile, vmr_cfg$max_gap,
                      vmr_cfg$min_cpgs)
 
+    ## F14: n_candidate_regions and n_candidates_below_min_cpgs are the VMR-level
+    ## denominators. Added columns, so Figure 1's select-by-name read is unaffected.
     cutoff_parts[[chrom]] <- data.table(
         chr = paste0("chr", chrom), sd_cutoff = as.numeric(out$sd_cut),
-        n_cpgs_tested = nrow(res_var), n_vmrs = nrow(out$vmr))
+        n_cpgs_tested = nrow(res_var), n_vmrs = nrow(out$vmr),
+        n_cpgs_above_cutoff = as.integer(out$n_cpgs_above_cutoff),
+        n_candidate_regions = nrow(out$vmr) + nrow(out$dropped),
+        n_candidates_below_min_cpgs = nrow(out$dropped))
+    if (nrow(out$dropped) > 0) {
+        dropped_parts[[chrom]] <- out$dropped
+    }
 
     if (nrow(out$vmr) > 0) {
         vmr_parts[[chrom]] <- out$vmr
@@ -145,6 +163,37 @@ write_atomic(vmr[, .(chr, start, end)], file.path(vmr_dir, "vmr.bed"),
 write_atomic(vmr, file.path(vmr_dir, "vmr_catalog.tsv"))
 write_atomic(membership, file.path(vmr_dir, "cpg_vmr_membership.tsv"))
 write_atomic(rbindlist(cutoff_parts), file.path(vmr_dir, "sd_cutoffs.tsv"))
+
+## ------------------------------------- VMR-candidate exclusion ledger (F14)
+##
+## Candidate intervals that regionFinder3() found but `min_cpgs` removed. They
+## are itemized: there are hundreds, not millions, and a reader asking what the
+## CpG floor cost needs the intervals, not just the count.
+dropped_vmr <- if (length(dropped_parts) > 0) {
+    sort_genomic(rbindlist(dropped_parts), chr_col = "chr", pos_col = "start")
+} else {
+    data.table(chr = character(), start = integer(), end = integer(),
+               n = integer())
+}
+write_atomic(
+    excl_rows(stage = "02_summarize", unit_type = "vmr_candidate",
+              exclusion_reason = paste0("vmr_candidate_n_cpgs_not_above_min_cpgs_",
+                                        vmr_cfg$min_cpgs),
+              unit_id = if (nrow(dropped_vmr) > 0) {
+                  paste0(dropped_vmr$chr, ":", dropped_vmr$start, "-",
+                         dropped_vmr$end)
+              } else character(),
+              chrom = sub("^chr", "", dropped_vmr$chr)),
+    file.path(vmr_dir, "exclusions_vmr_candidates.tsv"))
+
+## Per-chromosome status, so the chromosome-policy manifest 04_turnover.R writes
+## can distinguish "held out by the autosome policy" from "produced no residual
+## variance", which reconcile() counts but does not name.
+write_atomic(
+    data.table(chrom = c(completed, qc_failed),
+               status = c(rep("completed", length(completed)),
+                          rep("qc_failed_no_res_var_all", length(qc_failed)))),
+    file.path(vmr_dir, "chromosome_status.tsv"))
 
 message("[vmr] ", nrow(vmr), " VMRs total | vmr_set_id = ", vmr_set_id)
 
@@ -215,12 +264,16 @@ write_atomic(
     data.table(
         field = c("cohort", "region", "vmr_set_id", "n_vmrs", "n_donors",
                   "n_cpgs_in_vmrs", "donor_checksum", "chromosomes",
-                  "bsseq_version", "sd_quantile", "max_gap", "min_cpgs"),
+                  "bsseq_version", "sd_quantile", "max_gap", "min_cpgs",
+                  "n_vmr_candidates", "n_vmr_candidates_excluded",
+                  "n_chroms_qc_failed"),
         value = c(cohort, region, vmr_set_id, nrow(vmr), length(donor_ref),
                   nrow(membership), donor_checksum(donor_ref),
                   paste(names(vmr_parts), collapse = ","),
                   bsseq_version, vmr_cfg$sd_quantile, vmr_cfg$max_gap,
-                  vmr_cfg$min_cpgs)),
+                  vmr_cfg$min_cpgs,
+                  nrow(vmr) + nrow(dropped_vmr), nrow(dropped_vmr),
+                  length(qc_failed))),
     file.path(vmr_dir, "summarize_summary.tsv"))
 
 #### Reproducibility information ####
