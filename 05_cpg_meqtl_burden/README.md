@@ -2,17 +2,29 @@
 
 Asks whether a higher relative local SNP contribution score (`local_snp_contribution_score_z`, Module 02) is associated with a greater fraction of constituent CpGs having conventional cis-meQTL support.
 
-**Status: the three accepted runs are superseded and a rerun is required
-(2026-09-24).** They were mapped under a covariate design that is not the locked
-one; see "The executed covariate model diverged from the lock" below. Their rows
-stay in the **Accepted runs** table until replacements are accepted, because
-nothing downstream has a v2 replacement yet, but no new downstream production run
-should consume them.
+**Status: the locked covariate model is implemented, the rerun is sealed
+(2026-09-24), and the three runs are ACCEPTED (2026-09-25).**
+`cmb-AA-{caudate,dlpfc,hippocampus}-20260924` were mapped under the locked `M3a`
+design and each sealed `PASS_CPG_MEQTL_BURDEN_QC` on 8 of 8 criteria, including
+the new `executed_covariate_design_matches_lock`. They are now the runs a
+downstream production run must consume, which releases the AGENTS.md §6 gate for
+`07_transcription_splicing_coupling`. The `-20260825` runs remain in
+the **Accepted runs** table marked **superseded**, because AGENTS.md §3 keeps a
+superseded row until every consumer points at the replacement; no new downstream
+production run may consume them.
 
-See the **Accepted runs** table below for `cmb-AA-{caudate,dlpfc,hippocampus}-20260825`,
-each `PASS_CPG_MEQTL_BURDEN_QC`. The caudate run carries a distal-null lambda of
-1.139, recorded in its acceptance note. **Read the "Convergent evidence, not
-independent replication" section below before citing any of it** -- the title of
+See the **Accepted runs** table below. The distal-null lambda is **1.137**
+caudate, **1.142** DLPFC, **1.135** hippocampus, all inside the 0.9-1.15 gate.
+
+**Lambda did not improve genome-wide, and must not be cited as evidence for
+M3a.** The chr10 decision pilot measured 1.1651 -> 1.1412 in caudate; genome-wide
+the same change is 1.139 -> 1.137 in caudate and 1.139 -> 1.135 in hippocampus,
+while **DLPFC moved the wrong way**, 1.137 -> 1.142. The pilot's gain was real on
+chr10 and did not carry. M3a is adopted because it is the PI-locked design
+(F9, 2026-09-24), which is an argument about authority and not about lambda.
+
+**Read the "Convergent evidence, not independent replication" section below
+before citing any of it** -- the title of
 this module says *convergent*, not *orthogonal*, and that is a substantive
 claim about what the analysis can support, not a wording preference.
 
@@ -44,8 +56,9 @@ M3a = agedeath + sex + primarydx + snpPC1-5 + methPC1-5
 ```
 
 `_h/01b_prepare_meqtl_inputs.py` set `n_pc = 3` and added no methylation PC, so
-the three accepted runs fitted `agedeath + sex + primarydx + snpPC1-3`. Nothing in
-this module or in `00_shared/` read `config/covariates.yml`; the only reference in
+the three superseded `-20260825` runs fitted
+`agedeath + sex + primarydx + snpPC1-3`. Nothing in this module or in
+`00_shared/` read `config/covariates.yml`; the only reference in
 the repository was `00_shared/runid.R`, which writes `config_covariates_sha256`
 into the manifest. The lock was attested by every sealed run and enforced by
 nothing.
@@ -91,6 +104,46 @@ baseline that already carries that structure. This is a bulk-tissue correlation
 between a methylation PC and an RNA-derived proportion estimate: collinearity, not
 a cell type of origin (AGENTS.md §2.3). Every run writes it into
 `results/interpretation-constraints.txt`.
+
+### What the locked model changed in the reported gradient
+
+The burden gradient is the number Modules 07, 08 and 11 consume, so the effect of
+the rerun on it is recorded here rather than left to be rediscovered. Primary
+model, `quasibinomial` on the continuous `local_snp_contribution_score_z`:
+
+| region      | estimate 20260825 | estimate 20260924 | z 20260825 | z 20260924 | n_vmrs 20260825 | n_vmrs 20260924 |
+|-------------|-------------------|-------------------|------------|------------|-----------------|-----------------|
+| caudate     | 2.419             | **2.084**         | 39.45      | **42.70**  | 11,231          | 11,142          |
+| dlpfc       | 2.449             | **2.094**         | 34.95      | **41.16**  | 9,216           | 9,134           |
+| hippocampus | 2.495             | **2.367**         | 36.57      | **42.63**  | 9,140           | 9,053           |
+
+The **estimate attenuates** in all three regions and the **z rises** in all
+three: the gradient is smaller and better determined. The direction of the claim
+is unchanged and so is the gate.
+
+**Do not attribute the attenuation to the covariate model.** Two inputs changed
+between these two dates -- the covariate design *and* the upstream Module 02
+score run, see below -- so this is a two-factor comparison with one cell observed. The
+table records what the accepted numbers are; it does not decompose why they moved,
+and no arm was run that would. In particular nothing here licenses a statement
+about how much of the gradient is cell composition: methPC1 is a methylation PC
+correlated with an RNA-derived proportion estimate, the attenuation is not
+decomposed, and a cell type of origin does not follow (AGENTS.md §2.3).
+
+**The rerun also corrected the upstream score pointer, and that is a second,
+independent defect.** The `-20260825` runs consumed `lgv-AA-{region}-20260823`,
+which Module 02 superseded on 2026-09-17 for scoring under the pooled `p_eff`
+floor 2.058 rather than AA's own 7.079 -- it over-admitted 90 caudate, 90 DLPFC and
+99 hippocampus loci that AA's own support excludes. The `-20260924` runs consume
+the accepted `lgv-AA-{region}-rescore-20260913`. That is the whole of the `n_vmrs`
+change (89, 82 and 87 fewer VMRs), and it means the `-20260825` runs were already
+superseded on their upstream pointer alone, before F9 is considered. The CpG
+denominators are untouched: `prepared`/`tested`/`untested` are identical across the
+two dates in all three regions, and `unaccounted = 0` in every case.
+
+Significant CpGs rose with the locked model, 99,203 -> 105,553 in caudate at the
+same FDR threshold and the same 189,998-CpG denominator, which is the power gain
+the latent factors buy.
 
 ### The genotype QC donor set was the source pfile, not the analysis set
 
@@ -259,8 +312,46 @@ smoke checks. Configuration lives in `config/` at the repository root.
 
 ## Accepted runs
 
-| run_id                      | cohort | region      | vmr_set_id                         | accepted_on | accepted_by         | decision                 | notes                                                                      |
-|-----------------------------|--------|-------------|------------------------------------|-------------|---------------------|--------------------------|----------------------------------------------------------------------------|
-| cmb-AA-caudate-20260825     | AA     | caudate     | vmrset-AA-caudate-937a41979978     | 2026-08-28  | Kynon J.M. Benjamin | PASS_CPG_MEQTL_BURDEN_QC | Convergent evidence, not independent replication; distal-null lambda 1.139 |
-| cmb-AA-dlpfc-20260825       | AA     | dlpfc       | vmrset-AA-dlpfc-856067dfe289       | 2026-08-28  | Kynon J.M. Benjamin | PASS_CPG_MEQTL_BURDEN_QC | Convergent evidence, not independent replication                           |
-| cmb-AA-hippocampus-20260825 | AA     | hippocampus | vmrset-AA-hippocampus-2d907b892215 | 2026-08-28  | Kynon J.M. Benjamin | PASS_CPG_MEQTL_BURDEN_QC | Convergent evidence, not independent replication                           |
+**Current.** Accepted 2026-09-25 by the PI. These are the runs a downstream
+production run must consume.
+
+Acceptance was held until the cross-region sample-integrity screen was
+adjudicated, because that was the only open item with the reach to invalidate
+these runs: excluding a donor would have re-derived Module 01, changed
+`vmr_set_id`, and taken every module with it. It was closed on 2026-09-25 with no
+donor excluded, so the donor set behind these three runs is final --- see
+`11_integrated_manuscript_outputs/T4_READMITTED_DONOR_ADJUDICATION.md` and the
+affirmation in the `sample_blacklist` comment block of `config/cohorts.yml`, both
+of which land on branch `qc/t4-readmitted-donor-adjudication`. Every other open
+finding routes through a module this one does not consume, or is metadata that no
+run reads back.
+
+| run_id                      | cohort | region      | vmr_set_id                         | upstream_lgv_run_id                 | sealed_at            | accepted_on | accepted_by | decision                 | notes                                                                                    |
+|-----------------------------|--------|-------------|------------------------------------|-------------------------------------|----------------------|-------------|-------------|--------------------------|------------------------------------------------------------------------------------------|
+| cmb-AA-caudate-20260924     | AA     | caudate     | vmrset-AA-caudate-937a41979978     | lgv-AA-caudate-rescore-20260913     | 2026-09-24T11:20:05  | 2026-09-25  | Kynon J.M. Benjamin | PASS_CPG_MEQTL_BURDEN_QC | 8/8 criteria; locked M3a verified on 22 chromosome files; distal-null lambda 1.137; n_vmrs 11,142 |
+| cmb-AA-dlpfc-20260924       | AA     | dlpfc       | vmrset-AA-dlpfc-856067dfe289       | lgv-AA-dlpfc-rescore-20260913       | 2026-09-24T11:33:49  | 2026-09-25  | Kynon J.M. Benjamin | PASS_CPG_MEQTL_BURDEN_QC | 8/8 criteria; locked M3a verified; distal-null lambda 1.142 -- the one region where lambda ROSE; n_vmrs 9,134 |
+| cmb-AA-hippocampus-20260924 | AA     | hippocampus | vmrset-AA-hippocampus-2d907b892215 | lgv-AA-hippocampus-rescore-20260913 | 2026-09-24T11:54:46  | 2026-09-25  | Kynon J.M. Benjamin | PASS_CPG_MEQTL_BURDEN_QC | 8/8 criteria; locked M3a verified; distal-null lambda 1.135; n_vmrs 9,053                 |
+
+All three are convergent evidence, not independent replication, and all three
+carry the cell-composition constraint in
+`results/interpretation-constraints.txt`. All three record `git_dirty = true`
+against commit `8d12d3900`, so they are not byte-reproducible from the recorded
+commit alone -- a provenance defect of the same class as F10, recorded rather than
+hidden, and not a data defect: every config checksum is intact and the covariate
+design is verified off disk by the gate.
+
+**Superseded.** Retained per AGENTS.md §3 until every consumer points at the
+replacement. **No new downstream production run may consume these.**
+
+| run_id                      | cohort | region      | vmr_set_id                         | upstream_lgv_run_id           | accepted_on | superseded_by               | why superseded                                                                              |
+|-----------------------------|--------|-------------|------------------------------------|-------------------------------|-------------|-----------------------------|---------------------------------------------------------------------------------------------|
+| cmb-AA-caudate-20260825     | AA     | caudate     | vmrset-AA-caudate-937a41979978     | lgv-AA-caudate-20260823       | 2026-08-28  | cmb-AA-caudate-20260924     | Two defects: fitted snpPC1-3 with no methPC against the locked M3a (F9); and consumed a Module 02 run superseded 2026-09-17 (90 over-admitted loci) |
+| cmb-AA-dlpfc-20260825       | AA     | dlpfc       | vmrset-AA-dlpfc-856067dfe289       | lgv-AA-dlpfc-20260823         | 2026-08-28  | cmb-AA-dlpfc-20260924       | Same two defects; 90 over-admitted loci upstream                                            |
+| cmb-AA-hippocampus-20260825 | AA     | hippocampus | vmrset-AA-hippocampus-2d907b892215 | lgv-AA-hippocampus-20260823   | 2026-08-28  | cmb-AA-hippocampus-20260924 | Same two defects; 99 over-admitted loci upstream                                            |
+
+**Not eligible.** Both chr22 smokes are `smoke_run = TRUE` and neither is
+citable. `cmb-AA-caudate-20260924-smoke` **never sealed** -- it has no `decision`
+and no `sealed_at`, because the chain failed; it is kept as evidence of the
+failure and correctly has no decision row. `cmb-AA-caudate-20260924-smoke-b`
+sealed `PASS_SMOKE_ONLY_NOT_ACCEPTABLE` at 2026-09-24T10:15:00 and is the passing
+chr22 exercise that preceded the three production chains.
