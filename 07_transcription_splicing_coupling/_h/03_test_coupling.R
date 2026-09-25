@@ -84,6 +84,7 @@ burden <- merge(burden,
                 by = "vmr_id", all.x = TRUE)
 
 results <- list()
+n_vmrs_modality <- list()
 per_modality_tables <- list()
 
 for (mod in enabled) {
@@ -105,8 +106,17 @@ for (mod in enabled) {
              "', example burden id '", burden$vmr_id[1],
              "'. These are different identifier conventions, not an empty result.")
     }
+    ## The locked power floor. `config/transcription_splicing.yml:gates` declares
+    ## min_vmrs_tested, and a modality below it is retained and reported but kept
+    ## OUT of the coupling-test FDR family -- see the note at the p.adjust call.
+    ## This used to warn and nothing more, while 04_apply_gates.R evaluated the
+    ## same floor against max() across modalities, so the strongest modality
+    ## satisfied it for every other one and the floor never bound anything.
+    n_vmrs_modality[[mod]] <- nrow(d)
     if (nrow(d) < ts$gates$min_vmrs_tested) {
-        warning(mod, ": only ", nrow(d), " VMRs after joining predictors")
+        warning(mod, ": only ", nrow(d), " VMRs after joining predictors, ",
+                "below the locked min_vmrs_tested (", ts$gates$min_vmrs_tested,
+                "); its tests are reported but excluded from the FDR family")
     }
 
     banned2 <- intersect(ts$forbidden_columns, names(d))
@@ -189,8 +199,48 @@ for (mod in enabled) {
 if (length(results) == 0) stop("No coupling test could be fitted")
 res <- rbindlist(results, fill = TRUE)
 res[, `:=`(cohort = cohort, region = region, run_id = opts$run_id)]
-## Correct across the tests actually reported: predictors x modalities.
-res[, q := p.adjust(p, method = ts$association$fdr_method)]
+
+## ------------------------------------------------- the coupling-test FDR family
+##
+## Correct across the tests actually reported -- predictors x modalities -- but
+## only for modalities that clear the locked power floor.
+##
+## `expression_abc` links 243-305 VMRs against a declared min_vmrs_tested of 500,
+## and with roughly 8-15 of those coupled a binary predictor has no off-cell to
+## estimate from: `any_meqtl_support` separated completely in all three AA regions
+## on 2026-09-25, returning a boundary estimate near 17.6 with an SE near 0.4 and
+## p underflowing to 0. BH then sorted that unidentified coefficient first, so the
+## most significant-looking row in the module was a fit that had not converged.
+##
+## The exclusion is NOT a reaction to that result. It applies the floor the PI
+## locked in config, evaluated per modality as the key is written, and it is
+## decided on the modality's SIZE -- which is a property of the ABC link set, not
+## of any p-value. An underpowered modality is retained in the table with a
+## nominal p and no q, the pattern 06_partitioned_heritability uses for its
+## membership tau, so the reader sees the estimate and the reason rather than a
+## silent gap.
+.nv <- unlist(n_vmrs_modality)
+res[, n_vmrs_modality := as.integer(.nv[modality])]
+## A modality with no recorded size must not become NA and slip through the
+## `any()` below as neither in nor out of the family; absent means excluded.
+if (anyNA(res$n_vmrs_modality)) {
+    warning("no recorded VMR count for modality(s) ",
+            paste(unique(res$modality[is.na(res$n_vmrs_modality)]),
+                  collapse = ", "), "; treating as below the power floor")
+}
+res[, power_eligible := !is.na(n_vmrs_modality) &
+        n_vmrs_modality >= ts$gates$min_vmrs_tested]
+res[, in_fdr_family := power_eligible & is.finite(p)]
+res[, fdr_exclusion_reason := fifelse(
+        power_eligible, NA_character_,
+        sprintf("modality links %d VMRs, below the locked min_vmrs_tested of %d",
+                n_vmrs_modality, ts$gates$min_vmrs_tested))]
+res[, q := NA_real_]
+if (any(res$in_fdr_family)) {
+    res[in_fdr_family == TRUE,
+        q := p.adjust(p, method = ts$association$fdr_method)]
+}
+res[, fdr_family_size := sum(res$in_fdr_family)]
 setorder(res, p)
 write_atomic(res, file.path(run_dir, "results", "coupling-tests.tsv"))
 
