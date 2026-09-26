@@ -104,28 +104,36 @@ message("[04] liftover hg38->hg19: ", nrow(lo$report) - n_drop, " unique, ",
         " multi-mapping)")
 
 ## Every hg19 chromatin track, in one table. The first two are the primary
-## repressive outcomes (BH family); the remaining four are the prespecified
-## controls -- H3K27me3/bivalent for Polycomb specificity, accessible/H3K27ac
-## for the complementary contrast the concentration claim needs. All six come
-## from the same EIDs and the same liftover, so nothing but the annotation
-## differs between them (config/repeat_annotations.yml, multiple_testing).
+## repressive outcomes (BH family); the rest are prespecified controls --
+## H3K27me3/bivalent for Polycomb specificity, accessible/H3K27ac for the
+## complementary contrast the concentration claim needs. Those six come from the
+## same EIDs and the same liftover, so nothing but the annotation differs
+## between them (config/repeat_annotations.yml, multiple_testing).
+##
+## atac_union is the exception and is deliberately NOT matched that way: it is
+## BrainScope pan-cell-type ATAC, an independent assay lifted hg38 -> hg19, so
+## assay and pipeline differ from Roadmap as well as the annotation. It is here
+## to test whether the accessible depletion survives a change of data source,
+## and it is not region-specific -- the same intervals are used in all three
+## regions, so it can never support a region-specific statement.
 CHROMATIN_TRACKS <- list(
     list(key = "h3k9me3",    reader = "gappedpeak"),
     list(key = "quiescent",  reader = "chromhmm"),
     list(key = "h3k27me3",   reader = "gappedpeak"),
     list(key = "bivalent",   reader = "chromhmm"),
     list(key = "accessible", reader = "chromhmm"),
-    list(key = "h3k27ac",    reader = "gappedpeak")
+    list(key = "h3k27ac",    reader = "gappedpeak"),
+    list(key = "atac_union", reader = "bed_hg19")
 )
 
 chrom_feat <- do.call(cbind, c(
     list(data.table(vmr_id = mcols(lo$gr)$vmr_id)),
     lapply(CHROMATIN_TRACKS, function(tr) {
-        gr <- if (tr$reader == "gappedpeak") {
-            load_gappedpeak_hg19(annot, region, tr$key)
-        } else {
-            load_chromhmm_states_hg19(annot, region, tr$key)
-        }
+        gr <- switch(tr$reader,
+            gappedpeak = load_gappedpeak_hg19(annot, region, tr$key),
+            chromhmm   = load_chromhmm_states_hg19(annot, region, tr$key),
+            bed_hg19   = load_bed_hg19(annot, region, tr$key),
+            stop("Unknown chromatin reader '", tr$reader, "' for ", tr$key))
         message("[04] ", tr$key, ": ", length(gr), " hg19 intervals")
         overlap_features(lo$gr, gr, tr$key)
     })
