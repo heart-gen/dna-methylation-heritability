@@ -116,6 +116,11 @@ message("[04] liftover hg38->hg19: ", nrow(lo$report) - n_drop, " unique, ",
 ## to test whether the accessible depletion survives a change of data source,
 ## and it is not region-specific -- the same intervals are used in all three
 ## regions, so it can never support a region-specific statement.
+##
+## The seven atac_<celltype> tracks after it are a labelled SECONDARY breakdown
+## of atac_union (T11), not seven independent contrasts: pairwise Jaccard is
+## 0.16-0.33, and they cannot establish a cell type of origin from bulk VMRs
+## (AGENTS.md 2.3). They are outside the BH family like every other control.
 CHROMATIN_TRACKS <- list(
     list(key = "h3k9me3",    reader = "gappedpeak"),
     list(key = "quiescent",  reader = "chromhmm"),
@@ -123,7 +128,14 @@ CHROMATIN_TRACKS <- list(
     list(key = "bivalent",   reader = "chromhmm"),
     list(key = "accessible", reader = "chromhmm"),
     list(key = "h3k27ac",    reader = "gappedpeak"),
-    list(key = "atac_union", reader = "bed_hg19")
+    list(key = "atac_union", reader = "bed_hg19"),
+    list(key = "atac_astro", reader = "bed_hg19"),
+    list(key = "atac_endo", reader = "bed_hg19"),
+    list(key = "atac_exc", reader = "bed_hg19"),
+    list(key = "atac_inh", reader = "bed_hg19"),
+    list(key = "atac_micro", reader = "bed_hg19"),
+    list(key = "atac_opc", reader = "bed_hg19"),
+    list(key = "atac_oligo", reader = "bed_hg19")
 )
 
 chrom_feat <- do.call(cbind, c(
