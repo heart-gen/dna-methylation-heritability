@@ -82,6 +82,29 @@ load_chromhmm_states_hg19 <- function(annot, region, key) {
     GRanges(keep$chrom, IRanges(keep$start + 1L, keep$end))
 }
 
+#' A plain BED track that is ALREADY hg19. Returns hg19 GRanges.
+#'
+#' `key` names a block under `chromatin:` carrying a `bed:` path rather than a
+#' `dir`/`template` pair. The Roadmap readers above resolve a per-region file by
+#' epigenome ID; this one does not, because the asset it reads is not
+#' region-specific. That asymmetry is the point rather than an oversight, and
+#' `region` is accepted and ignored so the caller can treat all three readers
+#' alike -- see the `not_region_specific` note in config.
+load_bed_hg19 <- function(annot, region, key) {
+    cfg <- annot$chromatin[[key]]
+    if (is.null(cfg)) stop("No chromatin track configured under key: ", key)
+    if (is.null(cfg$bed)) {
+        stop("Chromatin track '", key, "' has no `bed:` path. The hg19 BED ",
+             "reader requires one; Roadmap tracks use dir/template instead.")
+    }
+    f <- annot_path(cfg$bed)
+    if (!file.exists(f)) stop(key, " BED not found: ", f)
+    dt <- fread(cmd = paste("zcat", shQuote(f)), header = FALSE, select = 1:3,
+                col.names = c("chrom", "start", "end"))
+    if (nrow(dt) == 0) stop(key, " track is empty: ", f)
+    GRanges(dt$chrom, IRanges(dt$start + 1L, dt$end))   # BED is 0-based half-open
+}
+
 #' Lift hg38 VMRs down to hg19.
 #'
 #' Returns a list with `gr` (hg19 GRanges carrying vmr_id) and `report`, a row
