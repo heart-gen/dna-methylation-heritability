@@ -7,6 +7,36 @@ This wrapper handles remaining compatibility issues:
 1. np.matrix deprecation warnings - suppressed
 2. gzip.open() - use text mode by default for Python 2-era code
 
+Reading a failure from this wrapper
+-----------------------------------
+An LDSC failure produces TWO chained tracebacks in the job's .err, and the
+SECOND one is noise. Read the first.
+
+ldsc.py's own handler is `log.log(traceback.format_exc(ex))`, which passes the
+exception where `format_exc` expects `limit`, so `traceback.py` raises
+`TypeError: '>=' not supported between instances of 'ValueError' and 'int'`
+from inside itself. That TypeError is always the same regardless of what
+actually went wrong, and it replaces the `raise` on the next line, so:
+
+  - the REAL cause is the first traceback, above
+    "During handling of the above exception, another exception occurred";
+  - the TypeError below it names nothing about this run;
+  - LDSC's own results/sldsc/{trait}.log gets no traceback at all, because
+    log.log() throws before writing, and its `finally` block still appends
+    "Analysis finished at ... / Total time elapsed". A FAILED .log therefore
+    ends exactly like a successful one. Judge success from the .err, the exit
+    code, or the presence of {trait}.results -- never from the .log's last
+    lines. 06_partition_h2.py checks the exit code AND the .results file for
+    this reason.
+
+Nothing is lost: Python's chaining keeps the original exception, message and
+full traceback in the .err, which is archived under the run's logs/. Verified
+2026-09-25 against sldsc-AA-caudate-20260925-smoke-b, where the genuine cause
+-- "ValueError: LD Scores for concatenation must have identical SNP columns."
+from a chromosome-subset LD reference -- sits at the top of the file. Do not
+add a handler here to "recover" it; it was never gone, and wrapping the exec()
+below risks converting a real failure into a clean exit.
+
 Usage:
     python ldsc_wrapper.py <ldsc_dir> <script_name> [args...]
 
