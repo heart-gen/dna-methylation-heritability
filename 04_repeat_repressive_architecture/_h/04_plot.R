@@ -33,12 +33,37 @@ claims <- fread(claims_f)
 fig_dir <- file.path(out_dir, "figures")
 dir.create(fig_dir, showWarnings = FALSE, recursive = TRUE)
 
+cfg <- load_config("repeat_annotations")
+
+## ggsave() ABORTS above 50 inches, and two panels below size themselves from
+## the number of outcomes. Registering tracks in config therefore used to be
+## able to fail the seal stage from a figure -- which is what happened on
+## 2026-09-25 when the outcome set went from 6 to 30 and `forest-primary` asked
+## for exactly 50 inches. Clamp and warn instead: a squashed figure is a
+## regenerable inconvenience, an unsealed run is not.
+MAX_IN <- 45
+
 save_fig <- function(p, name, w = 7, h = 4.5) {
+    if (w > MAX_IN || h > MAX_IN) {
+        warning(name, ": requested ", round(w, 1), "x", round(h, 1),
+                " in, clamped to ", MAX_IN,
+                ". The panel is legible only if the outcome set is split.",
+                call. = FALSE)
+        w <- min(w, MAX_IN); h <- min(h, MAX_IN)
+    }
     ggsave(file.path(fig_dir, paste0(name, ".png")), p,
            width = w, height = h, dpi = 300)
 }
 
-cfg <- load_config("repeat_annotations")
+## The BH family and the prespecified controls are different objects: the family
+## is gated on q and carries the claims, the controls are gated on a one-sided
+## raw p and only qualify them. Drawing them in one undifferentiated strip
+## invited exactly the confusion this script's header warns about, and became
+## unreadable once the control set grew. They are now separate figures.
+FAMILY <- unlist(cfg$multiple_testing$family)
+FAMILY <- c(FAMILY, sub("_frac$", "_any", FAMILY))
+is_family <- function(x) x %in% FAMILY
+
 alpha <- config_get(cfg, "interpretation.alpha")
 
 ## ------------------------------------------------------- 1. forest, primary
@@ -47,9 +72,10 @@ alpha <- config_get(cfg, "interpretation.alpha")
 ## it in the SAME direction, so drawing all regions together is the point.
 prim <- res[analysis_set == "primary" &
                 predictor == config_get(cfg, "primary_model.predictor")]
-if (nrow(prim) > 0) {
-    prim[, `:=`(lo = estimate - 1.96 * se, hi = estimate + 1.96 * se)]
-    p <- ggplot(prim, aes(x = estimate, y = region, colour = p < alpha)) +
+prim[, `:=`(lo = estimate - 1.96 * se, hi = estimate + 1.96 * se)]
+fam <- prim[is_family(outcome)]
+if (nrow(fam) > 0) {
+    p <- ggplot(fam, aes(x = estimate, y = region, colour = p < alpha)) +
         geom_vline(xintercept = 0, colour = "grey40", linewidth = 0.4) +
         geom_errorbar(aes(xmin = lo, xmax = hi), orientation = "y", width = 0.18) +
         geom_point(size = 2) +
@@ -60,17 +86,52 @@ if (nrow(prim) > 0) {
                        "(NOT a PVE difference)"),
              y = NULL,
              title = paste0("Repressive-compartment association, ",
-                            opts$cohort, ", primary analysis set")) +
+                            opts$cohort, ", primary analysis set"),
+             subtitle = "BH family only; controls are in forest-controls") +
         theme_bw(base_size = 10)
-    save_fig(p, "forest-primary", h = 2 + 1.6 * uniqueN(prim$outcome))
+    save_fig(p, "forest-primary", h = 2 + 1.6 * uniqueN(fam$outcome))
+}
+
+## ------------------------------------------- 1b. forest, prespecified controls
+## Same panel for everything outside the BH family. Two columns, because the
+## control set is now 12 outcomes on two scales and a single column would be
+## taller than ggsave will write.
+ctl <- prim[!is_family(outcome)]
+if (nrow(ctl) > 0) {
+    p <- ggplot(ctl, aes(x = estimate, y = region, colour = p < alpha)) +
+        geom_vline(xintercept = 0, colour = "grey40", linewidth = 0.4) +
+        geom_errorbar(aes(xmin = lo, xmax = hi), orientation = "y", width = 0.18) +
+        geom_point(size = 2) +
+        facet_wrap(~ outcome, ncol = 2, scales = "free_x") +
+        scale_colour_manual(values = c(`TRUE` = "#1b6ca8", `FALSE` = "grey55"),
+                            name = sprintf("raw p < %s", alpha)) +
+        labs(x = paste("log-odds per 1 SD of the local SNP contribution score",
+                       "(NOT a PVE difference)"),
+             y = NULL,
+             title = paste0("Prespecified controls, ", opts$cohort,
+                            ", primary analysis set"),
+             subtitle = paste("Outside the BH family: raw p, one-sided against",
+                              "a declared direction, no claim of their own")) +
+        theme_bw(base_size = 9)
+    save_fig(p, "forest-controls",
+             w = 10, h = 2 + 1.6 * ceiling(uniqueN(ctl$outcome) / 2))
 }
 
 ## ------------------------------------- 2. sensitivity stability per outcome
 ## The gates require an estimate to survive every locked sensitivity, so the
 ## sensitivities belong in the figure set rather than in a supplement nobody
 ## opens. Colour marks the primary set so it stays distinguishable.
-sens <- res[predictor == config_get(cfg, "primary_model.predictor")]
-if (uniqueN(sens$analysis_set) > 1) {
+## Family only, because this panel is about what licenses a CLAIM.
+##
+## Not because controls skip the sensitivities -- they do not. 03_apply_gates.R
+## applies `survives(d, GATE_CONTROL)` to any control that declares an
+## expected_direction, which is why a control can clear its directional p and
+## still report supports_expectation = FALSE (atac_oligo_frac, 2026-09-25:
+## p_directional 5.9e-04, FALSE). The difference is what survival BUYS: for a
+## family member it licenses a claim, for a control it only qualifies one.
+sens <- res[predictor == config_get(cfg, "primary_model.predictor") &
+                is_family(outcome)]
+if (nrow(sens) > 0 && uniqueN(sens$analysis_set) > 1) {
     sens[, `:=`(lo = estimate - 1.96 * se, hi = estimate + 1.96 * se)]
     p <- ggplot(sens, aes(x = estimate, y = analysis_set,
                           colour = analysis_set == "primary")) +
@@ -81,7 +142,9 @@ if (uniqueN(sens$analysis_set) > 1) {
         scale_colour_manual(values = c(`TRUE` = "#1b6ca8", `FALSE` = "grey55"),
                             guide = "none") +
         labs(x = "log-odds per 1 SD (NOT a PVE difference)", y = NULL,
-             title = paste0("Sensitivity stability, ", opts$cohort)) +
+             title = paste0("Sensitivity stability, ", opts$cohort),
+             subtitle = paste("BH family only -- the outcomes whose survival",
+                              "licenses a claim")) +
         theme_bw(base_size = 9)
     save_fig(p, "sensitivity-stability",
              w = 3 + 2.4 * uniqueN(sens$region),
