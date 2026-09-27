@@ -62,7 +62,8 @@ planned job graph for ${RUN_ID}:
   3  03_test_coupling.R          afterok:2  (three tests per modality)
   4  04_apply_gates.R            afterok:3
   5  05_plot.py                  afterok:4
-  6  06_finalize_run.R           afterok:5
+  5b 08_power_analysis.R         afterok:4  (FDR-family power justification)
+  6  06_finalize_run.R           afterok:5,5b
 GRAPH
     exit 0
 fi
@@ -108,7 +109,15 @@ PLOT_JOB=$(sbatch_step tsc-plot "afterok:${GATE_JOB}" 1 16G 01:00:00 \
     "${R_ENV_SRC} && ${PY_RUN} ${RUN_CODE}/05_plot.py --run-id ${RUN_ID}")
 printf '5\t05_plot.py\t%s\n' "$PLOT_JOB" >> "$JOBS_TSV"
 
-FINAL_JOB=$(sbatch_step tsc-final "afterok:${PLOT_JOB}" 1 8G 01:00:00 \
+# The power analysis runs BEFORE sealing and after the gate, because the gate is
+# what decides which modalities are in the FDR family and the power table is the
+# justification a reader checks that decision against. Sealing last means a run
+# cannot be sealed without it.
+POWER_JOB=$(sbatch_step tsc-power "afterok:${GATE_JOB}" 1 16G 00:30:00 \
+    "${R_ENV_SRC} && run_r ${RUN_CODE}/08_power_analysis.R --run-id ${RUN_ID}")
+printf '5b\t08_power_analysis.R\t%s\n' "$POWER_JOB" >> "$JOBS_TSV"
+
+FINAL_JOB=$(sbatch_step tsc-final "afterok:${PLOT_JOB}:${POWER_JOB}" 1 8G 01:00:00 \
     "${R_ENV_SRC} && run_r ${RUN_CODE}/06_finalize_run.R --run-id ${RUN_ID}")
 printf '6\t06_finalize_run.R\t%s\n' "$FINAL_JOB" >> "$JOBS_TSV"
 
