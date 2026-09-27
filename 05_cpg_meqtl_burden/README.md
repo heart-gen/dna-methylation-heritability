@@ -89,16 +89,27 @@ What changed here:
   criterion is the shape of check this replaces: it compares a config value with
   itself, which is what let a design diverge silently through an acceptance.
 
-**The primary model is not free of cell composition.** `latent_factor_policy`
-named a method for methPC1-5 and no specification; the PI pinned the recipe as
-`primary_meqtl.latent_factor_recipe` on 2026-09-24, and every run records which
-source it resolved from (see `PROPOSED_CONFIG_CHANGE.md` in this directory for
-what was decided and why). The chr10 pilot measured methPC1 as 72% explained by
-this region's RNA MuSiC cell proportions (R² = 0.721; Oligo ρ = +0.766,
-p = 9.2e-31), and each accepted run now carries the same finding in its own
-`results/latent-factor-provenance.tsv:cell_composition_note`,
-so M3a carries a substantial cell-composition adjustment into the primary scan
-even though `config/covariates.yml:cell_composition` reads `sensitivity_only`. The
+**The primary model is not free of cell composition, and the config now says so.**
+`latent_factor_policy` named a method for methPC1-5 and no specification; the PI
+pinned the recipe as `primary_meqtl.latent_factor_recipe` on 2026-09-24, and every
+run records which source it resolved from. The chr10 pilot measured methPC1 as 72%
+explained by this region's RNA MuSiC cell proportions (R² = 0.721; Oligo
+ρ = +0.766, p = 9.2e-31), and each accepted run now carries the same finding in
+its own `results/latent-factor-provenance.tsv:cell_composition_note`,
+so M3a carries a substantial cell-composition adjustment into the primary scan.
+`config/covariates.yml:primary_meqtl.cell_composition` read `sensitivity_only`,
+which was false of the locked model; **the PI amended it on 2026-09-27** to
+`implicit_in_primary_via_latent_factors`, with the explicit designs M5 and M6d
+moved to the new `cell_composition_explicit_models: sensitivity_only`. No key the
+code reads changed — `00_shared/covariate_lock.py` reads
+`locked_model`, `required_phenotype_columns`, `ancestry_pcs`,
+`locked_latent_factors` and `latent_factor_recipe`, and none of them moved — so
+the amendment alters no fit and no gate. It does change the file's SHA-256, so
+the `config_covariates_sha256` recorded in the accepted `cmb-AA-*-20260924`
+manifests now predates the live config; those runs executed the design the
+amended file describes, which their own
+`executed_covariate_design_matches_lock` criterion and
+`latent-factor-provenance.tsv` both attest. The
 M6d sensitivity is `M3a + dnamCellPC1-3`, so its contrast is an increment over a
 baseline that already carries that structure. This is a bulk-tissue correlation
 between a methylation PC and an RNA-derived proportion estimate: collinearity, not
