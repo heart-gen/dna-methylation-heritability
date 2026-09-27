@@ -6,12 +6,11 @@ stratified LD score regression. The estimand is a **within-VMR gradient**: among
 the tested VMR universe, do higher-scoring loci carry more heritability than
 lower-scoring ones?
 
-**Status: no interpretable run. The three 2026-09-08 acceptances passed QC but
-answer a different question than the one above; see Estimand and Accepted runs.**
-Gated on `02_local_genetic_variance` acceptance ("No downstream
-production run may consume an upstream result until the upstream README records
-a passing acceptance gate and immutable run ID"). Module 02 has accepted runs
-for all six cells (`lgv-*-20260823`). See **Accepted runs** below.
+**Status: accepted (AA, 2026-09-25). The two-annotation estimand is implemented and
+the result is an interpretable null.** The three 2026-09-08 acceptances answered a
+different question and are superseded; see **Estimand** and **Accepted runs**.
+Module 02's accepted runs for the AA cells are now the `lgv-AA-{region}-rescore-20260913`
+rescores, which supersede `lgv-*-20260823`.
 
 This module depends only on Module 02. Its position in 
 dependency list is a total order, not a claim that it consumes Modules 03–05.
@@ -193,30 +192,62 @@ For each cohort-by-region cell, acceptance requires:
 
 ## Accepted runs
 
-**Estimand withdrawn 2026-09-23; a rerun is required.** The three runs below
-passed QC and are computationally sound, but they were produced by the
-one-annotation model described under **Estimand** above, so their tau is not the
-within-VMR gradient this module reports. `sldsc_supports_brain_enrichment = FALSE`
-from these runs **must not be cited**, in Module 09's
-`adds_nothing_beyond_nonsignificant_sldsc` criterion or anywhere else: a null
-from an estimand that does not match the question is not a null for that
-question. The runs stay as they are — `_m/` is immutable — and stages 03, 05, 06,
-07 and 08 must be rerun for all three cells before any acceptance record here is
-valid again. Stage 07 now fails QC on one-annotation metrics, so a rerun cannot
-quietly reproduce the old estimand.
+`tau_conditional_on_vmr_membership = TRUE` in all three cells, so the reported tau
+**is** the within-VMR gradient this module defines as its estimand. That is the
+difference from the 2026-09-08 acceptances, and it is why this null is reportable
+where theirs was not.
 
-QC passed with a null scientific result: `sldsc_supports_brain_enrichment = FALSE`
-in all three cells (0/8 traits FDR-significant). EUR LD scores; annotation is a
-genomic feature, not a donor-group LD claim. AFR sensitivity is not part of this
-acceptance.
+The scientific result is null and that is a legitimate outcome: 0 of 6 brain
+traits and 0 of 2 prespecified non-brain controls are FDR-significant on the score
+annotation, in every region. `sldsc_supports_brain_enrichment = FALSE`. All 8
+declared traits completed Stage 06 (a partial family is refused) and 7 of 8 have
+total observed-scale h2 distinguishable from zero. EUR LD scores (`eur_primary`);
+the annotation is a genomic feature, not a donor-group LD claim. The AFR
+sensitivity arm is not part of this acceptance.
 
 | run_id | cohort | region | vmr_set_id | accepted_on | accepted_by | decision | notes |
 |---|---|---|---|---|---|---|---|
-| sldsc-AA-caudate-20260903 | AA | caudate | vmrset-AA-caudate-937a41979978 | 2026-09-08 | Kynon J.M. Benjamin | PASS_PARTITIONED_H2_QC | Null: 0 brain and 0 control traits FDR-significant; 7/8 traits with interpretable total h2 |
-| sldsc-AA-dlpfc-20260903 | AA | dlpfc | vmrset-AA-dlpfc-856067dfe289 | 2026-09-08 | Kynon J.M. Benjamin | PASS_PARTITIONED_H2_QC | Null enrichment; same frozen 8-trait family |
-| sldsc-AA-hippocampus-20260903 | AA | hippocampus | vmrset-AA-hippocampus-2d907b892215 | 2026-09-08 | Kynon J.M. Benjamin | PASS_PARTITIONED_H2_QC | Null enrichment; same frozen 8-trait family |
+| sldsc-AA-caudate-20260925 | AA | caudate | vmrset-AA-caudate-937a41979978 | 2026-09-25 | Kynon J.M. Benjamin | PASS_PARTITIONED_H2_QC | Interpretable null: 0/6 brain and 0/2 control traits FDR-significant; 8/8 traits completed, 7/8 with interpretable total h2; tau conditional on VMR membership |
+| sldsc-AA-dlpfc-20260925 | AA | dlpfc | vmrset-AA-dlpfc-856067dfe289 | 2026-09-25 | Kynon J.M. Benjamin | PASS_PARTITIONED_H2_QC | Interpretable null, same frozen 8-trait family; tau conditional on VMR membership |
+| sldsc-AA-hippocampus-20260925 | AA | hippocampus | vmrset-AA-hippocampus-2d907b892215 | 2026-09-25 | Kynon J.M. Benjamin | PASS_PARTITIONED_H2_QC | Interpretable null, same frozen 8-trait family; tau conditional on VMR membership |
+
+Provenance: `lgv-AA-{region}-rescore-20260913` -> this run, sealed
+2026-09-25T13:21-13:29 at commit `881093065`, `smoke_run = FALSE`,
+`absolute_pve_interpretation_allowed = FALSE`, `fdr_family = traits_within_cell`
+over `LOCAL_SNP_CONTRIBUTION_Z` only, with the membership tau reported separately
+and carrying no q-value.
+
+### What this null does and does not license
+
+It **does** let Module 09's `adds_nothing_beyond_nonsignificant_sldsc` criterion
+in `config/analysis_thresholds.yml` finally be evaluated against a matching
+estimand, which the 2026-09-08 runs could not supply (T17). Note that the
+criterion is `pi_judgment_not_gated`: no Module 09 decision is computed from it,
+so this unblocks a judgement the PI can now make, not a gate that was failing.
+
+It does **not** establish that common-variant heritability is unenriched in these
+VMRs. The limitation recorded under **Not fixed by this, and still open** is
+unchanged by the estimand repair: the annotation covers ~0.6% of SNPs and the
+module still has **no positive control**, so a null cannot be distinguished from a
+power null. Write it as "no detectable enrichment at this footprint", never as
+"no enrichment". A separate issue should run the same pipeline on an annotation of
+comparable footprint known to be enriched for brain traits.
+
+One config proposal remains open in `PROPOSED_CONFIG_CHANGE.md`; it is a PI act
+and the code does not depend on it.
 
 ### Superseded runs
+
+`sldsc-AA-{caudate,dlpfc,hippocampus}-20260903` (accepted 2026-09-08, withdrawn
+2026-09-23). Computationally sound, but produced by the **one-annotation** model:
+with no `VMR_TESTED` term there was nothing to absorb a VMR-versus-genome
+difference, so tau blurred the within-VMR gradient with a membership effect it
+never meant to test. `sldsc_supports_brain_enrichment = FALSE` from these runs
+must not be cited anywhere, including Module 09's
+`adds_nothing_beyond_nonsignificant_sldsc` criterion: a null from an estimand that
+does not match the question is not a null for that question. Stage 07 now fails QC
+on one-annotation metrics, so a rerun cannot quietly reproduce the old estimand.
+Superseded by `sldsc-AA-{region}-20260925`.
 
 `sldsc-AA-{caudate,dlpfc,hippocampus}-20260902` failed at Stage 06 for all eight
 traits and must not be used. The LD scores and the S-LDSC regressions themselves
