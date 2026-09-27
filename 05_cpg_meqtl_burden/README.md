@@ -89,16 +89,27 @@ What changed here:
   criterion is the shape of check this replaces: it compares a config value with
   itself, which is what let a design diverge silently through an acceptance.
 
-**The primary model is not free of cell composition.** `latent_factor_policy`
-named a method for methPC1-5 and no specification; the PI pinned the recipe as
-`primary_meqtl.latent_factor_recipe` on 2026-09-24, and every run records which
-source it resolved from (see `PROPOSED_CONFIG_CHANGE.md` in this directory for
-what was decided and why). The chr10 pilot measured methPC1 as 72% explained by
-this region's RNA MuSiC cell proportions (R² = 0.721; Oligo ρ = +0.766,
-p = 9.2e-31), and each accepted run now carries the same finding in its own
-`results/latent-factor-provenance.tsv:cell_composition_note`,
-so M3a carries a substantial cell-composition adjustment into the primary scan
-even though `config/covariates.yml:cell_composition` reads `sensitivity_only`. The
+**The primary model is not free of cell composition, and the config now says so.**
+`latent_factor_policy` named a method for methPC1-5 and no specification; the PI
+pinned the recipe as `primary_meqtl.latent_factor_recipe` on 2026-09-24, and every
+run records which source it resolved from. The chr10 pilot measured methPC1 as 72%
+explained by this region's RNA MuSiC cell proportions (R² = 0.721; Oligo
+ρ = +0.766, p = 9.2e-31), and each accepted run now carries the same finding in
+its own `results/latent-factor-provenance.tsv:cell_composition_note`,
+so M3a carries a substantial cell-composition adjustment into the primary scan.
+`config/covariates.yml:primary_meqtl.cell_composition` read `sensitivity_only`,
+which was false of the locked model; **the PI amended it on 2026-09-27** to
+`implicit_in_primary_via_latent_factors`, with the explicit designs M5 and M6d
+moved to the new `cell_composition_explicit_models: sensitivity_only`. No key the
+code reads changed — `00_shared/covariate_lock.py` reads
+`locked_model`, `required_phenotype_columns`, `ancestry_pcs`,
+`locked_latent_factors` and `latent_factor_recipe`, and none of them moved — so
+the amendment alters no fit and no gate. It does change the file's SHA-256, so
+the `config_covariates_sha256` recorded in the accepted `cmb-AA-*-20260924`
+manifests now predates the live config; those runs executed the design the
+amended file describes, which their own
+`executed_covariate_design_matches_lock` criterion and
+`latent-factor-provenance.tsv` both attest. The
 M6d sensitivity is `M3a + dnamCellPC1-3`, so its contrast is an increment over a
 baseline that already carries that structure. This is a bulk-tissue correlation
 between a methylation PC and an RNA-derived proportion estimate: collinearity, not
@@ -315,6 +326,15 @@ smoke checks. Configuration lives in `config/` at the repository root.
 **Current.** Accepted 2026-09-25 by the PI. These are the runs a downstream
 production run must consume.
 
+`00_shared/gates.R::read_accepted_runs()` parses the table below and stops at the
+first `###` heading, so **only this table is the acceptance record** and the two
+below it are prose. Keep Superseded and Not eligible as `###` headings: while they
+were bold paragraphs the parser read all three tables as one and excluded the
+superseded rows only because they happen to have eight columns against this
+table's ten. Widening that table by two columns would have made
+`require_accepted_upstream()` see two accepted runs per cell and refuse, blocking
+every downstream module for a cosmetic edit.
+
 Acceptance was held until the cross-region sample-integrity screen was
 adjudicated, because that was the only open item with the reach to invalidate
 these runs: excluding a donor would have re-derived Module 01, changed
@@ -340,8 +360,10 @@ commit alone -- a provenance defect of the same class as F10, recorded rather th
 hidden, and not a data defect: every config checksum is intact and the covariate
 design is verified off disk by the gate.
 
-**Superseded.** Retained per AGENTS.md §3 until every consumer points at the
-replacement. **No new downstream production run may consume these.**
+### Superseded
+
+Retained per AGENTS.md §3 until every consumer points at the replacement.
+**No new downstream production run may consume these.**
 
 | run_id                      | cohort | region      | vmr_set_id                         | upstream_lgv_run_id           | accepted_on | superseded_by               | why superseded                                                                              |
 |-----------------------------|--------|-------------|------------------------------------|-------------------------------|-------------|-----------------------------|---------------------------------------------------------------------------------------------|
@@ -349,8 +371,9 @@ replacement. **No new downstream production run may consume these.**
 | cmb-AA-dlpfc-20260825       | AA     | dlpfc       | vmrset-AA-dlpfc-856067dfe289       | lgv-AA-dlpfc-20260823         | 2026-08-28  | cmb-AA-dlpfc-20260924       | Same two defects; 90 over-admitted loci upstream                                            |
 | cmb-AA-hippocampus-20260825 | AA     | hippocampus | vmrset-AA-hippocampus-2d907b892215 | lgv-AA-hippocampus-20260823   | 2026-08-28  | cmb-AA-hippocampus-20260924 | Same two defects; 99 over-admitted loci upstream                                            |
 
-**Not eligible.** Both chr22 smokes are `smoke_run = TRUE` and neither is
-citable. `cmb-AA-caudate-20260924-smoke` **never sealed** -- it has no `decision`
+### Not eligible
+
+Both chr22 smokes are `smoke_run = TRUE` and neither is citable. `cmb-AA-caudate-20260924-smoke` **never sealed** -- it has no `decision`
 and no `sealed_at`, because the chain failed; it is kept as evidence of the
 failure and correctly has no decision row. `cmb-AA-caudate-20260924-smoke-b`
 sealed `PASS_SMOKE_ONLY_NOT_ACCEPTABLE` at 2026-09-24T10:15:00 and is the passing

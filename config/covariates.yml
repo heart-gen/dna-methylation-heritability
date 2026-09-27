@@ -70,7 +70,24 @@ primary_meqtl:
     # production covariate.
     pca_solver: numpy_svd_full
     sign_convention: max_abs_loading_positive
-  cell_composition: sensitivity_only
+  # Amended 2026-09-27 by the PI. This key previously read `sensitivity_only`,
+  # which is not true of the locked M3a primary model. In the caudate pilot,
+  # methPC1 is 72% explained by that region's RNA MuSiC cell proportions
+  # (R2 = 0.721; Oligo rho = +0.766, p = 9.2e-31; D1-SPN rho = -0.63; D2-SPN
+  # rho = -0.62), so the primary meQTL scan carries a substantial
+  # cell-composition adjustment through its latent factors. The accepted runs
+  # `cmb-AA-*-20260924` record the same finding in
+  # results/latent-factor-provenance.tsv (cell_composition_note), so this is no
+  # longer a pilot inference. Recorded so that no Methods or Results text
+  # describes the primary scan as cell-composition-free.
+  #
+  # This is COLLINEARITY between a methylation PC and an RNA-derived proportion
+  # estimate. It does NOT establish a cell type of origin, which AGENTS.md 2.3
+  # forbids inferring from bulk tissue.
+  cell_composition: implicit_in_primary_via_latent_factors
+  # The EXPLICIT cell-composition designs -- M5 and M6d below -- remain
+  # sensitivity-only and gated. That is what the retired value was true of.
+  cell_composition_explicit_models: sensitivity_only
   # Phase 1 lock sensitivity grid (see PHASE1_COVARIATE_SENSITIVITY_PLAN.md)
   sensitivity_models:
     M0: baseline (agedeath+sex+primarydx+snpPC1-5)
@@ -81,6 +98,10 @@ primary_meqtl:
     M3c: M0 + methPC1-15
     M4: M1 + best methPC k (after pilot)
     M5: M0 + RNA MuSiC cellPC1-3 (legacy sensitivity only)
+    # Its baseline M3a already carries cell-composition structure through
+    # methPC1 (see cell_composition above), so the M6d contrast is an INCREMENT
+    # over that, not an unadjusted-versus-adjusted contrast. This is a note on
+    # how to read M6d, not a reason to change it.
     M6d: M3a + DNAm scMD dnamCellPC1-3 (gated sensitivity only)
   dnam_cell_composition_model:
     model_id: M6d
