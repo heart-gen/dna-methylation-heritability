@@ -472,6 +472,43 @@ Shared code: `00_shared/cell_composition.R` now holds `scmd_gate_passes()`
 (moved unchanged from `09b_aging_application/_h/age_functions.R`, which defined
 it first), plus `cell_composition_sources()` and `vmr_composition_r2()`.
 
+#### Closed 2026-09-27: the scMD arm gates, and on the accepted run it costs nothing
+
+`cell_composition_dnam_scmd` carries no `gating:` key, and in this config block
+every sensitivity gates unless it says otherwise -- `exclude_snp_proximal_cpgs`
+has `descriptive_only: true` and `matched_measurability` has `gating: false`. The
+implementation follows that reading, so **caudate's survival conjunction carries
+one arm that DLPFC's and hippocampus's do not.** The asymmetry is real and is
+named per outcome in the claims table's `sensitivity_arms_not_fitted`.
+
+The question was whether to add `gating: false` so a caudate-only arm can never
+break a shared claim. It was left as written, because on
+`rra-AA-*-20260925-a` the arm changes no verdict, and that is checkable rather
+than asserted:
+
+| caudate outcome | scMD-adjusted arm | verdict, and what actually decides it |
+|---|---|---|
+| `quiescent_frac` | est 0.340, p = 6.5e-28 | survives; **3/3 supported** and the scMD arm is not the weakest link |
+| `h3k9me3_frac` | est 0.093, p = 0.116 | caudate already fails at `high_mappability` (p = 0.545) and `adjust_cell_composition` (p = 0.141), so **2/3** holds with or without the scMD arm |
+| `line_l1_frac` | -- | caudate is set aside as technically confounded (§8.1) and is not counted at all |
+
+So the gating decision is presently **moot**: adding `gating: false` would change
+no claim, no token and no figure, and would change the config checksum. It stays
+as locked. This becomes live again the moment a caudate outcome's only failing arm
+is the scMD one, so the check above should be rerun whenever the claims table
+moves.
+
+One interaction to carry forward, because it is not visible from this module: the
+paragraph above says Module 08 drops unfitted rows at harvest so that "a
+sensitivity that was never run is not reported as one that did not replicate."
+That is true row by row and **not** true of the conjunction built on top of them.
+Dropping DLPFC and hippocampus leaves the scMD arm with `n_regions = 1`, and
+`08/_h/01_cross_region_replication.R` requires all three regions for
+`complete_across_regions`, so the arm can never satisfy strict replication and
+every repeat test inherits `replicated_strict = FALSE`. See
+`08_region_donor_generalization/README.md`, "The accepted run now rests on
+superseded upstreams" -- the fix belongs there, not here.
+
 ### 2. The run decision token counted prose, not gates
 
 `_h/05_finalize_run.R` derived its support count as
