@@ -129,6 +129,13 @@ implicit**:
 `ld_reference_arm` in `config/partitioned_heritability.yml` selects the arm, so
 the sensitivity analysis is a config switch rather than a forked pipeline.
 
+**This closes task T15** (the S-LDSC LD reference for an AA primary arm, left open
+by the 2026-08-26 gap review). The decision is the PI's, dated, recorded in
+versioned config as `ld_reference_arm: eur_primary`, and stamped onto every run's
+`partitioned-h2-decision.tsv`. What remains is not a decision but a writing
+obligation: the indented paragraph above must appear in Methods verbatim, and it
+is not yet in `content/`.
+
 ### AFR sensitivity arm (separate issue, not required for the primary result)
 
 No AFR LD scores exist on Quest: `/projects/b1213/resources/ldsc/` holds EUR
@@ -233,8 +240,36 @@ power null. Write it as "no detectable enrichment at this footprint", never as
 "no enrichment". A separate issue should run the same pipeline on an annotation of
 comparable footprint known to be enriched for brain traits.
 
-One config proposal remains open in `PROPOSED_CONFIG_CHANGE.md`; it is a PI act
-and the code does not depend on it.
+### The estimand is now declared, not only implemented (2026-09-27)
+
+The two-annotation set was a **code-level** contract in `_h/annotations.py`: the
+names, their order, their roles, which one carries the primary hypothesis and
+which one's enrichment is interpretable. Every stage read it from that file, and
+the file is snapshotted into `runs/{RUN_ID}/code/_h`, so each run recorded the set
+it used — but a PI reading `config/` could not see any of it.
+
+The PI declared it in `config/partitioned_heritability.yml` on 2026-09-27, under
+`annotation.annotations`, `annotation.primary_hypothesis_annotation` and
+`annotation.fdr_family_annotation`. A declaration that nothing verifies would be
+worse than none, so it is enforced in two places:
+`_h/annotations.py::check_against_config()`, called by stage 03 before any
+annotation is written, and a preflight block in `_h/00_new_run.R`, which stops a
+drifted config before a run directory exists. Both refuse a reordering (the order
+is positional in the `.annot.gz` and the LD-score columns), a changed role, a
+changed `enrichment_interpretable`, and any move of the FDR family off
+`LOCAL_SNP_CONTRIBUTION_Z` — that last would revise already-computed q-values,
+which AGENTS.md §10.3 forbids.
+
+Both checks **tolerate a config with the keys absent**, so the accepted
+2026-09-25 runs stay reproducible from their own snapshotted config, which
+predates the declaration. Those runs executed exactly what is now declared, and
+they say so themselves: `partitioned-h2-decision.tsv` stamps
+`annotations_in_model = LOCAL_SNP_CONTRIBUTION_Z,VMR_TESTED` and
+`fdr_family_annotation = LOCAL_SNP_CONTRIBUTION_Z` from the observed metrics. The
+edit does change the file's SHA-256, so the
+`config_partitioned_heritability_sha256` in those three manifests now predates
+the live config; no rerun is required for that reason alone, because no key the
+model reads changed.
 
 ### Superseded runs
 
