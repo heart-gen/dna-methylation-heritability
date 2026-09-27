@@ -2,7 +2,11 @@
 
 Tests whether a higher relative local SNP contribution score (`local_snp_contribution_score_z`, Module 02) is associated with repeat-rich and repressive genomic compartments. This is the module the manuscript's central claim rests on.
 
-**Status: accepted (AA, 2026-09-08), claims as in the Accepted runs table.**
+**Status: accepted (AA, 2026-09-25), claims as in the Accepted runs table.** The
+accepted runs are `rra-AA-{caudate,dlpfc,hippocampus}-20260925-a`. Both corrections
+recorded under **Corrections landed 2026-09-23** are in effect in them, they carry
+the BrainScope ATAC contrast added the same day, and every earlier acceptance is
+superseded.
 
 Stages 01-03 exist in `_h/` and have been run on a 400-VMR smoke in all three AA
 regions (`rra-smoke-AA-{caudate,dlpfc,hippocampus}-20260823`). All 14 declared
@@ -468,6 +472,43 @@ Shared code: `00_shared/cell_composition.R` now holds `scmd_gate_passes()`
 (moved unchanged from `09b_aging_application/_h/age_functions.R`, which defined
 it first), plus `cell_composition_sources()` and `vmr_composition_r2()`.
 
+#### Closed 2026-09-27: the scMD arm gates, and on the accepted run it costs nothing
+
+`cell_composition_dnam_scmd` carries no `gating:` key, and in this config block
+every sensitivity gates unless it says otherwise -- `exclude_snp_proximal_cpgs`
+has `descriptive_only: true` and `matched_measurability` has `gating: false`. The
+implementation follows that reading, so **caudate's survival conjunction carries
+one arm that DLPFC's and hippocampus's do not.** The asymmetry is real and is
+named per outcome in the claims table's `sensitivity_arms_not_fitted`.
+
+The question was whether to add `gating: false` so a caudate-only arm can never
+break a shared claim. It was left as written, because on
+`rra-AA-*-20260925-a` the arm changes no verdict, and that is checkable rather
+than asserted:
+
+| caudate outcome | scMD-adjusted arm | verdict, and what actually decides it |
+|---|---|---|
+| `quiescent_frac` | est 0.340, p = 6.5e-28 | survives; **3/3 supported** and the scMD arm is not the weakest link |
+| `h3k9me3_frac` | est 0.093, p = 0.116 | caudate already fails at `high_mappability` (p = 0.545) and `adjust_cell_composition` (p = 0.141), so **2/3** holds with or without the scMD arm |
+| `line_l1_frac` | -- | caudate is set aside as technically confounded (§8.1) and is not counted at all |
+
+So the gating decision is presently **moot**: adding `gating: false` would change
+no claim, no token and no figure, and would change the config checksum. It stays
+as locked. This becomes live again the moment a caudate outcome's only failing arm
+is the scMD one, so the check above should be rerun whenever the claims table
+moves.
+
+One interaction to carry forward, because it is not visible from this module: the
+paragraph above says Module 08 drops unfitted rows at harvest so that "a
+sensitivity that was never run is not reported as one that did not replicate."
+That is true row by row and **not** true of the conjunction built on top of them.
+Dropping DLPFC and hippocampus leaves the scMD arm with `n_regions = 1`, and
+`08/_h/01_cross_region_replication.R` requires all three regions for
+`complete_across_regions`, so the arm can never satisfy strict replication and
+every repeat test inherits `replicated_strict = FALSE`. See
+`08_region_donor_generalization/README.md`, "The accepted run now rests on
+superseded upstreams" -- the fix belongs there, not here.
+
 ### 2. The run decision token counted prose, not gates
 
 `_h/05_finalize_run.R` derived its support count as
@@ -513,13 +554,131 @@ smoke checks. Configuration lives in `config/` at the repository root.
 
 ## Accepted runs
 
-The three cells were gated together; `interpretation-claims.tsv` lives on the caudate run. Claims licensed:
-quiescent shared 3/3; LINE/L1 supported in both eligible regions (DLPFC,
-hippocampus), caudate set aside as technically confounded; H3K9me3 below the
-shared gate (2/3), suggestive in DLPFC and hippocampus only. Caudate is also GC-entangled for H3K9me3.
+The three cells were gated together; `interpretation-claims.tsv` lives on the
+caudate run. Both 2026-09-23 corrections are in effect here, and each is visible
+in the sealed output:
+
+- the composition adjustment is RNA MuSiC in all three regions, with the DNAm scMD
+  arm fitted in caudate only -- `sensitivity_arms_not_fitted` reads
+  `adjust_cell_composition_scmd not fitted in dlpfc,hippocampus
+  (scmd_integration_gate_fails_in_region)` rather than leaving the arm silently
+  absent;
+- the decision token is derived from the structured `gate_supported` column rather
+  than parsed from claim prose, so it reads
+  `GATES_APPLIED_2_OF_3_OUTCOMES_SUPPORTED` where the 2026-09-08 manifests
+  overstated 3 of 3. The claims table, this README and `MIGRATION_MANIFEST.tsv`
+  recorded the correct 2 of 3 throughout; only the token was wrong.
+
+Claims licensed, unchanged in substance from 2026-09-08. Written as a list rather
+than a table on purpose: `00_shared/gates.R::read_accepted_runs()` takes the
+**first** markdown table under this heading as the acceptance record and keeps only
+rows matching that table's column count, so a second table here silently replaces
+the record with itself.
+
+- `quiescent_frac` -- gate 3 of 3 -- **supported**, shared across all three regions.
+- `line_l1_frac` -- gate 2 of 2 eligible -- **supported** in DLPFC and
+  hippocampus; caudate set aside as technically confounded (estimate 0.0161,
+  p = 0.729), reported and not counted.
+- `h3k9me3_frac` -- gate 3 of 3 -- **below the gate** (2 of 3); describable only as
+  suggestive in DLPFC and hippocampus.
 
 | run_id | cohort | region | vmr_set_id | accepted_on | accepted_by | decision | notes |
 |---|---|---|---|---|---|---|---|
-| rra-AA-caudate-20260906 | AA | caudate | vmrset-AA-caudate-937a41979978 | 2026-09-08 | Kynon J.M. Benjamin | GC-entangled caudate, DLPFC and hippocampus strong associations | Gate host. Quiescent 3/3; LINE/L1 caudate excluded from claim (est 0.038, p=0.41); H3K9me3 fails (q=0.056, high-map p=0.55) |
-| rra-AA-dlpfc-20260906 | AA | dlpfc | vmrset-AA-dlpfc-856067dfe289 | 2026-09-08 | Kynon J.M. Benjamin | Quiescent outcome across 3 regions only | Survives H3K9me3, quiescent, LINE/L1; high-mappability H3K9me3 remains positive |
-| rra-AA-hippocampus-20260906 | AA | hippocampus | vmrset-AA-hippocampus-2d907b892215 | 2026-09-08 | Kynon J.M. Benjamin | Quiescent outcome across 3 regions only | Survives H3K9me3, quiescent, LINE/L1 |
+| rra-AA-caudate-20260925-a | AA | caudate | vmrset-AA-caudate-937a41979978 | 2026-09-25 | Kynon J.M. Benjamin | GATES_APPLIED_2_OF_3_OUTCOMES_SUPPORTED | Gate host; `interpretation-claims.tsv` and `association-results-all-regions.tsv` live here. Quiescent 3/3; LINE/L1 caudate excluded from the claim (0.0161, p=0.729); H3K9me3 below the shared gate. Caudate remains GC-entangled. 16 ATAC outcomes added outside the family |
+| rra-AA-dlpfc-20260925-a | AA | dlpfc | vmrset-AA-dlpfc-856067dfe289 | 2026-09-25 | Kynon J.M. Benjamin | GATES_APPLIED_2_OF_3_OUTCOMES_SUPPORTED | Survives quiescent and LINE/L1; H3K9me3 suggestive only. scMD arm not fitted (integration gate fails) |
+| rra-AA-hippocampus-20260925-a | AA | hippocampus | vmrset-AA-hippocampus-2d907b892215 | 2026-09-25 | Kynon J.M. Benjamin | GATES_APPLIED_2_OF_3_OUTCOMES_SUPPORTED | Survives quiescent and LINE/L1; H3K9me3 suggestive only. scMD arm not fitted (integration gate fails) |
+
+Provenance: `vmrcat-AA-{region}-20260816` -> `lgv-AA-{region}-rescore-20260913` ->
+`lsp-AA-{region}-20260925-a` -> this run, sealed 2026-09-25T23:09 at commit
+`d61f83b4c`, `git_dirty = false`, `smoke_run = FALSE`.
+
+### The ATAC contrast, added 2026-09-25 (T8 and T11)
+
+These runs are the first to carry the BrainScope ATAC CRE tracks: one published
+union (`atac_union_frac`, role `complementary_contrast_independent_assay`) and seven
+per-cell-type tracks (`atac_{astro,endo,exc,inh,micro,opc,oligo}_frac`, role
+`celltype_breakdown_secondary`). All sixteen `_frac`/`_any` outcomes sit in
+`outside_family`, gated on a one-sided raw `p` against a declared negative
+direction, and none of them touches a reported q. That is verified rather than
+assumed: the nine BH-family rows are **bit-identical** to the superseded
+`-20260925` run in estimate, `p` and `q`, while the cross-region results file grew
+from 504 to 1,080 rows. Adding a control cannot revise a claim, and here it
+demonstrably did not.
+
+**What the union buys.** `accessible_frac` is Roadmap ChromHMM; `atac_union_frac`
+is ATAC-seq from a different consortium, different donors and a different assay
+chemistry. They agree closely:
+
+| region | `accessible_frac` | `atac_union_frac` |
+|---|---|---|
+| caudate | -0.437 | -0.387 |
+| DLPFC | -0.431 | -0.496 |
+| hippocampus | -0.449 | -0.433 |
+
+So the depletion of local genetic control in accessible chromatin is not a property
+of one annotation pipeline. This is the one genuinely new piece of evidence in the
+rerun, and it strengthens a **control**, not a claim: the accessible-chromatin
+contrast qualifies the repressive-compartment result by showing the gradient runs
+the other way in active sequence, which is what a complementary contrast is for.
+
+**What the seven cell types do not buy.** Every one is negative and passes its
+one-sided gate in all three regions, with magnitudes from -0.19 (microglia,
+hippocampus) to -0.44 (OPC and astrocyte). **No cell type separates from the
+others**, and the breakdown must not be read as identifying one:
+
+- §2.3 forbids inferring a cell type of origin from bulk tissue, and nothing about
+  this design escapes that. The VMRs are bulk WGBS; only the annotation is
+  cell-resolved.
+- The seven tracks are not independent. Pairwise Jaccard is 0.16-0.33, so a
+  consistent sign across all seven is close to the expected outcome for any
+  genome-wide accessibility gradient, not seven concurring tests.
+- The seven do not reconstruct the union. Only 93.6-97.9% of each cell type's
+  intervals overlap the published union track, so the union is a separate
+  observation rather than a summary of the breakdown -- which is why both are
+  registered.
+
+Read the seven as a check that the union result is not driven by a single cell
+type's peaks, and stop there.
+
+### Resolved 2026-09-25: the secondary predictor is now on the rescored Module 03
+
+`upstream_local_snp_prediction_run_id` reads `lsp-AA-{region}-20260925-a` in all
+three cells. The earlier acceptances pointed at `lsp-AA-{region}-20260825`, which
+predated the Module 03 rescore reruns, so the primary predictor was on the rescore
+and the secondary `r2_pred_oof_z` arm was not.
+
+That mismatch is closed, and the check that was outstanding has now been run. It
+never threatened a licensed claim -- the gate already refuses to let that arm carry
+weight, and the LINE/L1 claim reads, in the sealed claims table: *"rests on the
+primary predictor ALONE -- the `r2_pred_oof_z` association is descriptive and
+near-circular, and may not be cited as corroboration."* The secondary arm lives in
+its own file (`secondary-predictor-descriptive.tsv`) and never enters the survival
+conjunction. What it did mean was that no number in that file could be quoted
+without a refresh first. Numbers from `secondary-predictor-descriptive.tsv` in
+`-20260925-a` are quotable; numbers from any earlier run are not.
+
+### Superseded
+
+`rra-AA-{caudate,dlpfc,hippocampus}-20260925` (accepted 2026-09-25, superseded the
+same day). Sound runs, superseded only because they predate two things: the
+BrainScope ATAC registration, and the Module 03 rescore pointer. Their BH family is
+bit-identical to the accepted runs, so every claim they licensed is unchanged --
+they are superseded for completeness of the outcome set and provenance, not for
+error. Do not cite them; nothing in them is wrong.
+
+`rra-AA-{caudate,dlpfc,hippocampus}-20260906` (accepted 2026-09-08). Superseded
+2026-09-25 on three counts, none of which changed a licensed claim: the scMD/MuSiC
+composition defect (two of three regions were adjusted for a deconvolution that
+does not track the composition it claims to measure), the prose-parsed decision
+token, and the Module 02 pointer (`lgv-AA-{region}-20260823`, replaced by the
+rescore). Their `interpretation-claims.tsv` remains readable for audit; their
+manifests' `GATES_APPLIED_3_OF_3_OUTCOMES_SUPPORTED` token must not be cited.
+
+`rra-AA-{caudate,dlpfc,hippocampus}-20260902` -- the first production run, never
+accepted. Superseded by `-20260906` after the 2026-09-02 adjustment-set amendment
+and the `exclude_snp_proximal` retirement. Still referenced above by the `_h/06`,
+`_h/07` and `_h/08` QC analyses, which were run against its sealed feature tables.
+
+`rra-smoke-AA-{region}-20260823` and `rra-smoke2-AA-{region}-20260925` -- smoke
+runs, `smoke_run = TRUE`, sealed with
+`GATES_APPLIED_..._SMOKE_ONLY_NOT_ACCEPTABLE`. Never citable.
