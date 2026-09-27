@@ -4,19 +4,90 @@ Establishes what **reproduces** across brain regions, which regional difference
 is actually **identified**, and what the donor-group and matched-subset
 contrasts can support.
 
-**Status: accepted (AA, 2026-09-18).** `rdg-AA-crossregion-20260918` passed the
-gate and is recorded under **Accepted runs**; criterion 10 was added the next day
-and it passes retrospectively. The blocking upstreams are
-satisfied — `04_repeat_repressive_architecture` (`rra-AA-*-20260906`) and
-`05_cpg_meqtl_burden` (`cmb-AA-*-20260825`) both record passing acceptance gates
-(AGENTS.md §6) — and the donor-group axis is unblocked by the six accepted cell
-runs in each of `01b_estimation_cells`, `02_local_genetic_variance` and
+**Status: accepted (AA, 2026-09-18), and its upstreams have since moved — see
+"The accepted run now rests on superseded upstreams" below.**
+`rdg-AA-crossregion-20260918` passed the gate and is recorded under **Accepted
+runs**; criterion 10 was added the next day and it passes retrospectively. The
+blocking upstreams were satisfied when it opened —
+`04_repeat_repressive_architecture` (`rra-AA-*-20260906`) and
+`05_cpg_meqtl_burden` (`cmb-AA-*-20260825`) both recorded passing acceptance
+gates (AGENTS.md §6) — and the donor-group axis is unblocked by the six accepted
+cell runs in each of `01b_estimation_cells`, `02_local_genetic_variance` and
 `03_local_snp_prediction`.
 
 Tier 3 is the one axis that needed new upstream compute rather than assembly:
 `config/cohorts.yml` declares `AA.n118r{1,2,3}`, and their 01b → 02 → 03 chains
 had to be sealed **and accepted** before this module would open a run. All nine
 are accepted (2026-09-18).
+
+## The accepted run now rests on superseded upstreams
+
+**Added 2026-09-27.** Four of `rdg-AA-crossregion-20260918`'s upstreams were
+superseded by the 2026-09-24/25 acceptances, so its manifest points at runs that
+are no longer the ones a new production run may consume:
+
+| upstream | in the accepted 08 run | now accepted |
+|---|---|---|
+| `03_local_snp_prediction` | `lsp-AA-*-20260825` | `lsp-AA-*-20260925-a` |
+| `04_repeat_repressive_architecture` | `rra-AA-*-20260906` | `rra-AA-*-20260925-a` |
+| `05_cpg_meqtl_burden` | `cmb-AA-*-20260825` | `cmb-AA-*-20260924` |
+| `07_transcription_splicing_coupling` | `tsc-AA-*-20260902` | `tsc-AA-*-20260925-b` |
+
+AGENTS.md §6 is not retroactive: the 2026-09-18 acceptance was valid when it was
+made and stays in the table. What follows is narrower and is the operative rule
+here — **no new production run may consume `rdg-AA-crossregion-20260918`**, and
+its tier counts may not be quoted beside numbers from the 2026-09-25 upstreams.
+
+### A rerun exists, passed its gate, and was deliberately not accepted
+
+`rdg-AA-crossregion-20260925` (sealed 2026-09-25 at commit `e93319890`,
+`git_dirty = false`) consumes all four replacements and returned
+`PASS_REGION_DONOR_GENERALIZATION_QC` on 10 of 10 criteria. It is **not** in the
+Accepted runs table, because four accounting defects were found in the tier
+counts after it sealed. The gate did not catch them and could not: none of its
+ten criteria inspects claim-family composition or the tier-2 denominator, which
+is consistent with §7.7 — the gate certifies tiering and interpretation
+constraints, not a positive finding.
+
+The run reports *15 of 16 claim-family tests replicate, 9 strict* and *39
+identified DLPFC-vs-hippocampus differences*, against 12/16, 12 strict and 1
+difference in the superseded run. Both directions of that movement are artifacts:
+
+1. **`expression_abc` enters the claim family.** `harvest()` defaults
+   `outcome_role` to `prespecified_family` and the Module 07 harvest spec does not
+   map the field, so Module 07's `in_fdr_family = FALSE` — set by the locked
+   per-modality power floor — is ignored here. Two of three ABC tests then count
+   as replicated and strict, which is the whole of the 12 → 15 rise. One carries
+   `p = 0` exactly.
+2. **A one-region arm makes strict replication unsatisfiable.**
+   `adjust_cell_composition_scmd` is correctly caudate-only (the scMD integration
+   gate passes only there), so `n_regions = 1`, while `complete_across_regions`
+   requires all three. Every one of the six repeat tests therefore reads
+   `replicated_strict = FALSE`. That is the whole of the 12 → 9 fall, and it is an
+   artifact of a conjunction over an arm that cannot be fitted, not lost
+   robustness.
+3. **A null estimate's sign vetoed a replication.**
+   `line_l1_frac × score_z × exclude_segdups` flipped TRUE → FALSE only because
+   the caudate estimate moved from +0.0165 (p = 0.745) to −0.0004 (p = 0.994),
+   while DLPFC holds at p = 5.1e-11 and hippocampus at p = 4.1e-14.
+   `direction_consistent := pmax(n_up, n_down) == n_regions` counts the sign of a
+   non-significant estimate, so a meaningless sign can veto a replication.
+4. **Tier 2 applies no `outcome_role` filter and no primary-arm filter.** Of its
+   39 "genuine regional heterogeneity" differences, 38 are the `atac_*` controls
+   registered under T8/T11, 28 rest on `r2_pred_oof_z` — which Module 04's own
+   claims table forbids citing as corroboration — and each sensitivity refit is
+   counted as a separate difference (9 primary + 30 refits), the inflation `_h/01`
+   refuses by design. Primary-arm, non-control differences: **1**, unchanged from
+   the superseded run.
+
+Under all three tier-1 fixes the corrected reading is **13 of 13 replicate, 13
+strict** — cleaner than either reported number, which is why nothing is lost by
+leaving the run unaccepted until the code is fixed.
+
+Fixes 1 and 3 are defect repairs in `_h/01_cross_region_replication.R`. Fix 2 and
+the tier-2 filters change reported counts and touch
+`config/region_donor_generalization.yml`, which is `pi_locked`, so they are PI
+decisions under AGENTS.md §12 and are not made here.
 
 ## Accepted runs
 
