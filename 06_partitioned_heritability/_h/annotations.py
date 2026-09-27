@@ -108,6 +108,60 @@ def assert_score_source_column(score_column: str) -> None:
             f"requires {SCORE_SOURCE_COLUMN!r} (AGENTS.md 3).")
 
 
+def check_against_config(cfg) -> None:
+    """Fail closed unless `config/partitioned_heritability.yml` declares exactly
+    this annotation set.
+
+    The PI declared the set on 2026-09-27; before that it lived only here, so a
+    reader of `config/` could not see which annotations were in the model or
+    which one the hypothesis rode on. A declaration nothing checks is worse than
+    none -- it reads as a guarantee and guards nothing -- so every stage that
+    loads the config calls this, and a disagreement stops the run rather than
+    producing a run whose declared and executed estimands differ.
+
+    Accepts a config missing the `annotations` block, so the three accepted
+    2026-09-25 runs remain reproducible from their own snapshotted config.
+    """
+    annot = (cfg or {}).get("annotation") or {}
+    declared = annot.get("annotations")
+    if declared is None:
+        return
+
+    names = [str(a.get("name", "")) for a in declared]
+    if names != list(ANNOT_COLUMNS):
+        raise SystemExit(
+            f"config annotation.annotations declares {names}, but the code "
+            f"contract is {list(ANNOT_COLUMNS)} in that order. The order is "
+            "positional in the .annot.gz and the LD-score columns, so this is "
+            "not a cosmetic disagreement.")
+
+    for entry in declared:
+        name = str(entry.get("name", ""))
+        role = str(entry.get("role", ""))
+        if role != ANNOT_ROLE[name]:
+            raise SystemExit(
+                f"config declares annotation {name!r} with role {role!r}; the "
+                f"code contract is {ANNOT_ROLE[name]!r}.")
+        if "enrichment_interpretable" in entry:
+            declared_enrich = bool(entry["enrichment_interpretable"])
+            if declared_enrich != ENRICHMENT_INTERPRETABLE[name]:
+                raise SystemExit(
+                    f"config declares enrichment_interpretable="
+                    f"{declared_enrich} for {name!r}; the code contract is "
+                    f"{ENRICHMENT_INTERPRETABLE[name]}. Enrichment is a share "
+                    "ratio and is not interpretable for a signed continuous "
+                    "annotation.")
+
+    for key, expected in (("primary_hypothesis_annotation", PRIMARY_ANNOT),
+                          ("fdr_family_annotation", PRIMARY_ANNOT)):
+        got = annot.get(key)
+        if got is not None and str(got) != expected:
+            raise SystemExit(
+                f"config annotation.{key} is {got!r}; Module 06 requires "
+                f"{expected!r}. Moving the FDR family to another annotation "
+                "would revise already-computed q-values (AGENTS.md 10.3).")
+
+
 def find_results_row(df, name: str):
     """Return the single `.results` row for annotation `name`.
 
