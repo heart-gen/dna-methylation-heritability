@@ -2,15 +2,21 @@
 
 Tests whether meQTL-supported or locally controlled VMRs are more likely to have existing significant associations with gene/transcript abundance or transcript usage/splicing.
 
-**Status: expression coupling accepted (AA, 2026-09-08). The PSI (splicing)
-results of all three accepted runs are WITHDRAWN as of 2026-09-23 and require a
-rerun — see "The PSI identifier join was broken" below. Expression and ABC are
-unaffected and were verified so.**
+**Status: accepted (AA, 2026-09-25), expression and splicing both.** The
+accepted runs are `tsc-AA-{caudate,dlpfc,hippocampus}-20260925-b`. They carry the
+repaired PSI identifier join and the locked per-modality power floor, and they
+supersede the `-20260902` runs, whose PSI results were withdrawn 2026-09-23 — see
+"The PSI identifier join was broken" below. **Splicing coupling is now a
+three-region result, not a caudate-specific one**, which changes the
+corresponding row of AGENTS.md §8. `expression_abc` is fitted and surfaced but
+sits **outside the coupling-test FDR family** on power grounds and is not a
+claim; see **The ABC exclusion**.
 Gated on `05_cpg_meqtl_burden` acceptance ("No downstream
 production run may consume an upstream result until the upstream README records
-a passing acceptance gate and immutable run ID"), which is met
-(`cmb-AA-*-20260825`). Runs `tsc-AA-{caudate,dlpfc,hippocampus}-20260902` all
-returned `PASS_TX_COUPLING_QC`. See **Accepted runs**.
+a passing acceptance gate and immutable run ID"), which is met by
+`cmb-AA-*-20260924` — the locked-covariate runs accepted 2026-09-25, which are
+what these runs consume. The `-20260902` runs consumed `cmb-AA-*-20260825`, now
+superseded. All three sealed `PASS_TX_COUPLING_QC`. See **Accepted runs**.
 
 ## Migrating from
 
@@ -219,9 +225,45 @@ surviving q-value's neighbours, and AGENTS.md section 10.3 forbids recombining
 FDR families after inspection, so the change was made on the locked power floor
 and not on any view of the results.
 
-Two config proposals remain open in `PROPOSED_CONFIG_CHANGE.md` -- the per-region
-PSI annotation path, and declaring the coupling-test FDR family explicitly. The
-code does not depend on either; both are PI acts.
+### Two config proposals, closed 2026-09-27 without changing the lock
+
+Both were recommendations, neither was required for correctness, and the PI
+declined both. The substance is recorded here so it is not rediscovered as a
+defect.
+
+**1. `annotation.psi` is an unused key, and stays one.**
+`config/transcription_splicing.yml` names a single `annotation.psi` path for a
+table that is per region, and that path is a tracked git symlink into the caudate
+delivery -- the origin of the identifier-join defect described above. The code no
+longer reads it: `_h/psi_features.R::psi_annotation_path()` derives each region's
+annotation from the per-region entry the config does carry,
+`assay_files.psi.{region}`, on the convention that the annotation describing an
+assay is delivered beside that assay. **There is deliberately no fall-back to
+`annotation.psi`**, and stage 02 then verifies the resolved table against the
+assay's own metadata and stops if they disagree, so a wrong resolution is fatal
+rather than silent. `annotation.gene` is left alone because it is genuinely
+single -- the gene annotation is byte-identical across the three deliveries. The
+residual risk is that `annotation.psi` still *reads* as though it were the
+annotation in use; this paragraph, not a config edit, is what stops the next
+reader wiring it back in.
+
+**2. The coupling-test FDR family stays declared in code.** `association.fdr_family`
+(`modality_within_cell`) governs the **pair-level** FDR -- which VMR-to-feature
+links are significant, and so what `any_sig_fdr` means. The family for the nine
+coupling tests themselves is `_h/03_test_coupling.R:233`,
+`in_fdr_family := power_eligible & is.finite(p)`, borrowing
+`association$fdr_method` because there is no `coupling` key to borrow from. It is
+stamped onto every run (`in_fdr_family`, `fdr_family_size`,
+`modalities_excluded_from_fdr_family`), so it is recoverable from a run's outputs
+without reading the code.
+
+**One consequence binds a downstream module.** Because the family is not a config
+key, a consumer cannot learn it from `config/`; it must read the `in_fdr_family`
+column out of this module's tables. `08_region_donor_generalization` does not --
+its harvest spec omits `outcome_role`, so `expression_abc` enters 08's claim
+family although this module excluded it on power grounds. That is a Module 08
+defect, recorded in that module's README, and it is the reason this proposal was
+worth writing down rather than deleting.
 
 ### Superseded
 
