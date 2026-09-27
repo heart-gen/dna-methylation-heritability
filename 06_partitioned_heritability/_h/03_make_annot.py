@@ -38,7 +38,8 @@ from pybedtools import BedTool
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from annotations import (ANNOT_COLUMNS, MEMBERSHIP_ANNOT, SCORE_ANNOT,
-                         assert_score_source_column, check_annot_header)
+                         assert_score_source_column, check_against_config,
+                         check_annot_header)
 
 
 def repo_root() -> Path:
@@ -119,6 +120,7 @@ def main() -> None:
     ref = cfg["ld_references"][arm]
     merge_op = cfg["annotation"]["merge_op"]
     assert_score_source_column(cfg["annotation"]["score_column"])
+    check_against_config(cfg)
 
     bimfile = Path(ref["bim_dir"]) / f"{ref['bim_prefix']}{args.chrom}.bim"
     if not bimfile.exists():
