@@ -2,9 +2,11 @@
 
 Tests whether a higher relative local SNP contribution score (`local_snp_contribution_score_z`, Module 02) is associated with repeat-rich and repressive genomic compartments. This is the module the manuscript's central claim rests on.
 
-**Status: accepted (AA, 2026-09-25), claims as in the Accepted runs table.** Both
-corrections recorded under **Corrections landed 2026-09-23** are in effect in these
-runs; the 2026-09-08 acceptances are superseded.
+**Status: accepted (AA, 2026-09-25), claims as in the Accepted runs table.** The
+accepted runs are `rra-AA-{caudate,dlpfc,hippocampus}-20260925-a`. Both corrections
+recorded under **Corrections landed 2026-09-23** are in effect in them, they carry
+the BrainScope ATAC contrast added the same day, and every earlier acceptance is
+superseded.
 
 Stages 01-03 exist in `_h/` and have been run on a 400-VMR smoke in all three AA
 regions (`rra-smoke-AA-{caudate,dlpfc,hippocampus}-20260823`). All 14 declared
@@ -545,37 +547,87 @@ the record with itself.
 
 | run_id | cohort | region | vmr_set_id | accepted_on | accepted_by | decision | notes |
 |---|---|---|---|---|---|---|---|
-| rra-AA-caudate-20260925 | AA | caudate | vmrset-AA-caudate-937a41979978 | 2026-09-25 | Kynon J.M. Benjamin | GATES_APPLIED_2_OF_3_OUTCOMES_SUPPORTED | Gate host; `interpretation-claims.tsv` lives here. Quiescent 3/3; LINE/L1 caudate excluded from the claim (0.0161, p=0.729); H3K9me3 below the shared gate. Caudate remains GC-entangled |
-| rra-AA-dlpfc-20260925 | AA | dlpfc | vmrset-AA-dlpfc-856067dfe289 | 2026-09-25 | Kynon J.M. Benjamin | GATES_APPLIED_2_OF_3_OUTCOMES_SUPPORTED | Survives quiescent and LINE/L1; H3K9me3 suggestive only. scMD arm not fitted (integration gate fails) |
-| rra-AA-hippocampus-20260925 | AA | hippocampus | vmrset-AA-hippocampus-2d907b892215 | 2026-09-25 | Kynon J.M. Benjamin | GATES_APPLIED_2_OF_3_OUTCOMES_SUPPORTED | Survives quiescent and LINE/L1; H3K9me3 suggestive only. scMD arm not fitted (integration gate fails) |
+| rra-AA-caudate-20260925-a | AA | caudate | vmrset-AA-caudate-937a41979978 | 2026-09-25 | Kynon J.M. Benjamin | GATES_APPLIED_2_OF_3_OUTCOMES_SUPPORTED | Gate host; `interpretation-claims.tsv` and `association-results-all-regions.tsv` live here. Quiescent 3/3; LINE/L1 caudate excluded from the claim (0.0161, p=0.729); H3K9me3 below the shared gate. Caudate remains GC-entangled. 16 ATAC outcomes added outside the family |
+| rra-AA-dlpfc-20260925-a | AA | dlpfc | vmrset-AA-dlpfc-856067dfe289 | 2026-09-25 | Kynon J.M. Benjamin | GATES_APPLIED_2_OF_3_OUTCOMES_SUPPORTED | Survives quiescent and LINE/L1; H3K9me3 suggestive only. scMD arm not fitted (integration gate fails) |
+| rra-AA-hippocampus-20260925-a | AA | hippocampus | vmrset-AA-hippocampus-2d907b892215 | 2026-09-25 | Kynon J.M. Benjamin | GATES_APPLIED_2_OF_3_OUTCOMES_SUPPORTED | Survives quiescent and LINE/L1; H3K9me3 suggestive only. scMD arm not fitted (integration gate fails) |
 
 Provenance: `vmrcat-AA-{region}-20260816` -> `lgv-AA-{region}-rescore-20260913` ->
-this run, sealed 2026-09-25T12:27 at commit `6c24285de`, `smoke_run = FALSE`.
+`lsp-AA-{region}-20260925-a` -> this run, sealed 2026-09-25T23:09 at commit
+`d61f83b4c`, `git_dirty = false`, `smoke_run = FALSE`.
 
-### The secondary predictor rests on a superseded Module 03
+### The ATAC contrast, added 2026-09-25 (T8 and T11)
 
-`upstream_local_snp_prediction_run_id` is `lsp-AA-{region}-20260825` in all three
-cells, because these runs were submitted before the Module 03 rescore reruns
-existed. The primary predictor is on the rescore; the secondary `r2_pred_oof_z`
-arm is not.
+These runs are the first to carry the BrainScope ATAC CRE tracks: one published
+union (`atac_union_frac`, role `complementary_contrast_independent_assay`) and seven
+per-cell-type tracks (`atac_{astro,endo,exc,inh,micro,opc,oligo}_frac`, role
+`celltype_breakdown_secondary`). All sixteen `_frac`/`_any` outcomes sit in
+`outside_family`, gated on a one-sided raw `p` against a declared negative
+direction, and none of them touches a reported q. That is verified rather than
+assumed: the nine BH-family rows are **bit-identical** to the superseded
+`-20260925` run in estimate, `p` and `q`, while the cross-region results file grew
+from 504 to 1,080 rows. Adding a control cannot revise a claim, and here it
+demonstrably did not.
 
-This is recorded rather than treated as a blocker, because the gate already
-refuses to let that arm carry weight. The LINE/L1 claim reads, in the sealed
-claims table: *"rests on the primary predictor ALONE -- the `r2_pred_oof_z`
-association is descriptive and near-circular, and may not be cited as
-corroboration."* The secondary arm lives in its own file
-(`secondary-predictor-descriptive.tsv`), never enters the survival conjunction,
-and is not citable as support. So a stale pointer on it cannot change a licensed
-claim.
+**What the union buys.** `accessible_frac` is Roadmap ChromHMM; `atac_union_frac`
+is ATAC-seq from a different consortium, different donors and a different assay
+chemistry. They agree closely:
 
-What it does mean: **do not quote a number from
-`secondary-predictor-descriptive.tsv` in the manuscript without refreshing this
-module against `lsp-AA-{region}-20260925-a` first.** Module 03's metrics are
-materially unchanged by the rescore, so a refresh is expected to move these
-descriptive values very little -- but "expected to" is not "checked", and the
-check has not been run.
+| region | `accessible_frac` | `atac_union_frac` |
+|---|---|---|
+| caudate | -0.437 | -0.387 |
+| DLPFC | -0.431 | -0.496 |
+| hippocampus | -0.449 | -0.433 |
+
+So the depletion of local genetic control in accessible chromatin is not a property
+of one annotation pipeline. This is the one genuinely new piece of evidence in the
+rerun, and it strengthens a **control**, not a claim: the accessible-chromatin
+contrast qualifies the repressive-compartment result by showing the gradient runs
+the other way in active sequence, which is what a complementary contrast is for.
+
+**What the seven cell types do not buy.** Every one is negative and passes its
+one-sided gate in all three regions, with magnitudes from -0.19 (microglia,
+hippocampus) to -0.44 (OPC and astrocyte). **No cell type separates from the
+others**, and the breakdown must not be read as identifying one:
+
+- §2.3 forbids inferring a cell type of origin from bulk tissue, and nothing about
+  this design escapes that. The VMRs are bulk WGBS; only the annotation is
+  cell-resolved.
+- The seven tracks are not independent. Pairwise Jaccard is 0.16-0.33, so a
+  consistent sign across all seven is close to the expected outcome for any
+  genome-wide accessibility gradient, not seven concurring tests.
+- The seven do not reconstruct the union. Only 93.6-97.9% of each cell type's
+  intervals overlap the published union track, so the union is a separate
+  observation rather than a summary of the breakdown -- which is why both are
+  registered.
+
+Read the seven as a check that the union result is not driven by a single cell
+type's peaks, and stop there.
+
+### Resolved 2026-09-25: the secondary predictor is now on the rescored Module 03
+
+`upstream_local_snp_prediction_run_id` reads `lsp-AA-{region}-20260925-a` in all
+three cells. The earlier acceptances pointed at `lsp-AA-{region}-20260825`, which
+predated the Module 03 rescore reruns, so the primary predictor was on the rescore
+and the secondary `r2_pred_oof_z` arm was not.
+
+That mismatch is closed, and the check that was outstanding has now been run. It
+never threatened a licensed claim -- the gate already refuses to let that arm carry
+weight, and the LINE/L1 claim reads, in the sealed claims table: *"rests on the
+primary predictor ALONE -- the `r2_pred_oof_z` association is descriptive and
+near-circular, and may not be cited as corroboration."* The secondary arm lives in
+its own file (`secondary-predictor-descriptive.tsv`) and never enters the survival
+conjunction. What it did mean was that no number in that file could be quoted
+without a refresh first. Numbers from `secondary-predictor-descriptive.tsv` in
+`-20260925-a` are quotable; numbers from any earlier run are not.
 
 ### Superseded
+
+`rra-AA-{caudate,dlpfc,hippocampus}-20260925` (accepted 2026-09-25, superseded the
+same day). Sound runs, superseded only because they predate two things: the
+BrainScope ATAC registration, and the Module 03 rescore pointer. Their BH family is
+bit-identical to the accepted runs, so every claim they licensed is unchanged --
+they are superseded for completeness of the outcome set and provenance, not for
+error. Do not cite them; nothing in them is wrong.
 
 `rra-AA-{caudate,dlpfc,hippocampus}-20260906` (accepted 2026-09-08). Superseded
 2026-09-25 on three counts, none of which changed a licensed claim: the scMD/MuSiC
