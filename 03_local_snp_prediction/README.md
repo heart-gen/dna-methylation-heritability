@@ -4,11 +4,15 @@ Answers whether a VMR can be imputed into a new cohort. This is **not** the
 primary biological endpoint—that is the continuous local SNP contribution
 score from `02_local_genetic_variance`.
 
-**Status: run in production; all three AA cells accepted 2026-08-28.**
-See the **Accepted runs** table below for `lsp-AA-{caudate,dlpfc,hippocampus}-20260825`.
+**Status: accepted (AA, 2026-09-25).** The AA cells are
+`lsp-AA-{caudate,dlpfc,hippocampus}-20260925-a`, which rescore against
+`lgv-AA-{region}-rescore-20260913` and supersede the `-20260825` runs accepted
+2026-08-28; the nine `all_individuals.{AA,EA}` and `AA.n118r*` cell runs accepted
+2026-09-18 are unaffected and stand. See the **Accepted runs** table below.
 Each reconciled with zero computational failures and zero unaccounted loci, and
-each carries the same headline result: median `r2_pred_oof` ~ 0 (-5.7e-07,
--2.1e-06, -5.2e-07), mean 0.17-0.20, 44-47% of loci positive. **These values
+each carries the same headline result: median `r2_pred_oof` ~ 0 (-4.0e-07,
+-1.0e-06, -5.9e-07 in caudate, DLPFC, hippocampus), mean 0.17-0.20, 44-46% of
+loci positive. **These values
 support relative ranking of loci only**, not a claim that any individual VMR is
 imputable into a new cohort. Post-hoc QC on the predictability distribution
 lives in `_h/06_qc_predictability_artifact.R` (see below).
