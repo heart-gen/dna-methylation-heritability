@@ -40,6 +40,34 @@ if (!isTRUE(ph$annotation$continuous) ||
          "The retired v1 quintile form is banned by AGENTS.md 3.")
 }
 
+## The two-annotation set became a DECLARED contract on 2026-09-27; before that
+## it lived only in _h/annotations.py. Check the declaration here as well as in
+## stage 03, so a drifted config stops before a run directory exists. Absent
+## keys are tolerated: the accepted 2026-09-25 runs snapshot a config that
+## predates the declaration and must stay reproducible from it.
+declared <- ph$annotation$annotations
+if (!is.null(declared)) {
+    got <- vapply(declared, function(a) as.character(a$name), character(1))
+    want <- c("VMR_TESTED", "LOCAL_SNP_CONTRIBUTION_Z")
+    if (!identical(got, want)) {
+        stop("config annotation.annotations declares ",
+             paste(got, collapse = ", "), "; Module 06 runs exactly ",
+             paste(want, collapse = ", "),
+             " in that order. The order is positional in the .annot.gz and in ",
+             "the LD-score columns.")
+    }
+}
+for (key in c("primary_hypothesis_annotation", "fdr_family_annotation")) {
+    got <- ph$annotation[[key]]
+    if (!is.null(got) && !identical(as.character(got),
+                                    "LOCAL_SNP_CONTRIBUTION_Z")) {
+        stop("config annotation.", key, " is '", got,
+             "'; Module 06 requires LOCAL_SNP_CONTRIBUTION_Z. Moving the FDR ",
+             "family to another annotation would revise already-computed ",
+             "q-values (AGENTS.md 10.3).")
+    }
+}
+
 arm <- ph$ld_reference_arm
 if (is.null(ph$ld_references[[arm]])) {
     stop("ld_reference_arm '", arm, "' has no entry under ld_references. ",
