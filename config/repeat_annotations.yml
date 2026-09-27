@@ -190,6 +190,75 @@
 # The BH family is untouched: same three outcomes, same primary analysis set,
 # same primary predictor. No reported q changes.
 
+# Amended 2026-09-25: registered the BrainScope pan-cell-type ATAC union as a
+# SECOND accessible-chromatin contrast (atac_union_frac), OUTSIDE the BH family.
+# Closes task T8. The BH family is untouched -- still h3k9me3_frac,
+# quiescent_frac, line_l1_frac -- so no reported q changes, and this amendment
+# is not subject to the D1 timing constraint, which binds only on the family.
+#
+# Why a second accessible track. The existing accessible_frac and h3k27ac_frac
+# are deliberately matched to the repressive tracks: same Roadmap EIDs, same
+# build, same liftover, so nothing but the annotation can drive the contrast.
+# That matching is a strength for internal validity and a weakness for
+# robustness -- every one of those tracks is one consortium's calls on one
+# reference epigenome. BrainScope ATAC is an independent assay, cohort and
+# pipeline. If the accessible depletion is real it should survive the change;
+# if it is a property of Roadmap's segmentation it should not.
+#
+# Source: https://brainscope.gersteinlab.org/data/atac_peaks/
+#   All.celltypes.Union.PeakCalls.bed -- union of the seven cell-type peak
+#   calls (Astro, Endo, Exc, Inh, Micro, OPC, Oligo). 562,098 hg38 peaks.
+# Build: the source is hg38 and is lifted DOWN to hg19 with this module's own
+#   hg38ToHg19 chain, so it lands in the same coordinate space as Roadmap and is
+#   tested on the SAME lifted VMR set as accessible_frac. Lifting the track
+#   rather than reading it in hg38 is what makes the two contrasts comparable;
+#   an hg38 reading would put it on the larger unlifted locus set, and a
+#   difference in locus set would be indistinguishable from a difference in
+#   annotation. 963 of 562,098 peaks (0.17%) failed to lift; intervals were then
+#   merged so the summed overlap fraction cannot double-count.
+#   Report: inputs/supportfiles/_m/brainscope-atac-liftover-report.tsv
+#
+# KNOWN LIMITATION, and it is not small. This track is NOT region-specific. The
+# Roadmap tracks resolve per region by epigenome ID (E068/E073/E071); this one
+# is the same intervals in all three regions. It therefore cannot contribute to
+# any region-specific or cross-region claim, and a difference between regions on
+# this outcome reflects the VMR sets alone. It is a robustness check on the
+# accessible contrast within a region, nothing more.
+#
+# The per-cell-type tracks (Astro/Endo/Exc/Inh/Micro/OPC/Oligo) are lifted and
+# staged beside the union under the same naming, but are NOT registered as
+# outcomes. Registering them is task T11 and is a separate decision.
+#
+# Amended 2026-09-25 (second amendment of this date): registered the seven
+# BrainScope per-cell-type ATAC tracks as a LABELLED SECONDARY breakdown of
+# atac_union_frac, outside the BH family. Closes task T11. The family is still
+# h3k9me3_frac / quiescent_frac / line_l1_frac, so no reported q changes.
+#
+# These are `role: celltype_breakdown_secondary`. Three constraints bind how
+# they may be read, and all three are structural rather than cautionary:
+#
+#  1. THEY CANNOT ESTABLISH A CELL TYPE OF ORIGIN. AGENTS.md 2.3 forbids that
+#     inference from bulk tissue, and nothing here evades it. These are
+#     cell-type PEAK CALLS from an external cohort intersected with VMRs called
+#     in bulk WGBS. A VMR overlapping the Oligo track is a VMR in sequence that
+#     is accessible in oligodendrocytes somewhere -- not a VMR whose methylation
+#     varies in oligodendrocytes in these donors.
+#  2. THEY ARE NOT SEVEN INDEPENDENT TESTS. Pairwise Jaccard on the lifted hg19
+#     intervals runs 0.16-0.33 (lowest micro-exc 0.16, highest astro-opc and
+#     exc-inh 0.33), so a nominally significant result in one is not
+#     corroborated by a nominally significant result in another. They are
+#     reported as a breakdown, never counted.
+#  3. THE UNION IS NOT RECONSTRUCTIBLE FROM THEM. Only 93.6% (exc) to 97.9%
+#     (opc) of each cell type's intervals overlap
+#     All.celltypes.Union.PeakCalls.bed at all, so 2-6% of each track sits
+#     outside the published union. The union is therefore treated as its own
+#     asset from the same resource, not as the sum of these seven, and
+#     atac_union_frac remains the outcome that carries the robustness check.
+#
+# Same provenance, build and liftover as the union (see the amendment above);
+# per-track accounting in brainscope-atac-liftover-report.tsv. Like the union,
+# NONE of these is region-specific.
+#
 # The primary predictor is the standardized continuous within-cell local SNP
 # contribution score among eligible loci; r2_pred_oof is secondary. Overlap
 # alone never implies activity, expression, or retrotransposition.
@@ -270,6 +339,47 @@ chromatin:
     dir: /projects/b1213/resources/EpigenomeRoadmap/egg2.wustl.edu/roadmap/data/byFileType/peaks/consolidated/gappedPeak
     template: "{eid}-H3K27ac.gappedPeak.gz"
     columns: [1, 2, 3]
+
+  # --- Independent accessible contrast, outside the BH family (T8) ---------
+  # BrainScope pan-cell-type ATAC union, lifted hg38 -> hg19. Plain BED with a
+  # `bed:` path rather than dir/template, because it is not keyed by epigenome
+  # ID: NOT region-specific. See the 2026-09-25 amendment above.
+  atac_union:
+    bed: inputs/supportfiles/_m/brainscope-atac-union.hg19.bed.gz
+    not_region_specific: true
+    source: https://brainscope.gersteinlab.org/data/atac_peaks/All.celltypes.Union.PeakCalls.bed
+
+  # --- Per-cell-type ATAC breakdown, secondary, outside the BH family (T11) --
+  # A breakdown of atac_union, NOT seven independent contrasts. See the second
+  # 2026-09-25 amendment above for the three constraints on reading these.
+  atac_astro:
+    bed: inputs/supportfiles/_m/brainscope-atac-astro.hg19.bed.gz
+    not_region_specific: true
+    source: https://brainscope.gersteinlab.org/data/atac_peaks/Astro.PeakCalls.bed
+  atac_endo:
+    bed: inputs/supportfiles/_m/brainscope-atac-endo.hg19.bed.gz
+    not_region_specific: true
+    source: https://brainscope.gersteinlab.org/data/atac_peaks/Endo.PeakCalls.bed
+  atac_exc:
+    bed: inputs/supportfiles/_m/brainscope-atac-exc.hg19.bed.gz
+    not_region_specific: true
+    source: https://brainscope.gersteinlab.org/data/atac_peaks/Exc.PeakCalls.bed
+  atac_inh:
+    bed: inputs/supportfiles/_m/brainscope-atac-inh.hg19.bed.gz
+    not_region_specific: true
+    source: https://brainscope.gersteinlab.org/data/atac_peaks/Inh.PeakCalls.bed
+  atac_micro:
+    bed: inputs/supportfiles/_m/brainscope-atac-micro.hg19.bed.gz
+    not_region_specific: true
+    source: https://brainscope.gersteinlab.org/data/atac_peaks/Micro.PeakCalls.bed
+  atac_opc:
+    bed: inputs/supportfiles/_m/brainscope-atac-opc.hg19.bed.gz
+    not_region_specific: true
+    source: https://brainscope.gersteinlab.org/data/atac_peaks/OPC.PeakCalls.bed
+  atac_oligo:
+    bed: inputs/supportfiles/_m/brainscope-atac-oligo.hg19.bed.gz
+    not_region_specific: true
+    source: https://brainscope.gersteinlab.org/data/atac_peaks/Oligo.PeakCalls.bed
 
   liftover:
     chain: inputs/supportfiles/_m/hg38ToHg19.over.chain
@@ -407,6 +517,20 @@ multiple_testing:
     bivalent_frac:   {role: descriptive,            expected_direction: null}
     accessible_frac: {role: complementary_contrast, expected_direction: negative}
     h3k27ac_frac:    {role: complementary_contrast, expected_direction: negative}
+    # Added 2026-09-25 (T8). Same directional expectation as accessible_frac,
+    # from an independent assay. Not region-specific -- see the amendment above.
+    atac_union_frac: {role: complementary_contrast_independent_assay, expected_direction: negative}
+    # Added 2026-09-25 (T11). Secondary breakdown of atac_union_frac. Correlated
+    # with each other (Jaccard 0.16-0.33) and not independent evidence; reported,
+    # never counted, and never read as a cell type of origin.
+    atac_astro_frac: {role: celltype_breakdown_secondary, expected_direction: negative}
+    atac_endo_frac:  {role: celltype_breakdown_secondary, expected_direction: negative}
+    atac_exc_frac:   {role: celltype_breakdown_secondary, expected_direction: negative}
+    atac_inh_frac:   {role: celltype_breakdown_secondary, expected_direction: negative}
+    atac_micro_frac: {role: celltype_breakdown_secondary, expected_direction: negative}
+    atac_opc_frac:   {role: celltype_breakdown_secondary, expected_direction: negative}
+    atac_oligo_frac: {role: celltype_breakdown_secondary, expected_direction: negative}
+
   # The gate reads q for family members and p for controls. Making this explicit
   # because 03_apply_gates.R previously tested raw p for everything, silently
   # ignoring the correction it had just computed.

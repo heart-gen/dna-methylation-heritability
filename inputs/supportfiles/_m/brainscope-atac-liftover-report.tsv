@@ -1,0 +1,9 @@
+track	source_file	n_hg38	n_hg19_lifted	n_unmapped	frac_unmapped	n_hg19_merged	bp_hg19_merged
+union	All.celltypes.Union.PeakCalls.bed	562098	561135	963	0.00171	560929	374978524
+astro	Astro.PeakCalls.bed	174020	173721	299	0.00172	173660	107911337
+endo	Endo.PeakCalls.bed	155772	155478	294	0.00189	155429	93379142
+exc	Exc.PeakCalls.bed	292037	291575	462	0.00158	291490	196229407
+inh	Inh.PeakCalls.bed	203602	203302	300	0.00147	203249	131184166
+micro	Micro.PeakCalls.bed	157885	157585	300	0.00190	157538	101641501
+opc	OPC.PeakCalls.bed	140050	139814	236	0.00169	139780	90074265
+oligo	Oligo.PeakCalls.bed	178629	178300	329	0.00184	178214	113309195
