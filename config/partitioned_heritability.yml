@@ -19,6 +19,44 @@ annotation:
   # usable and the PVE magnitude is not.
   score_column: local_snp_contribution_score_z
   continuous: true
+  # Declared 2026-09-27 by the PI. The S-LDSC model carries TWO annotations of
+  # ours, in this order. The order is positional in the .annot.gz, in the
+  # .l2.ldscore.gz score columns and in the .l2.M_5_50 entries; downstream
+  # identification is by name. Until now the annotation set was a code-level
+  # contract in _h/annotations.py alone; it is now declared here and
+  # _h/annotations.py::check_against_config() refuses a run whose code and
+  # declared contracts disagree.
+  #
+  # One column cannot ask this module's question.
+  # local_snp_contribution_score_z is a standardized within-cell midrank
+  # percentile, so zero is the value of a median-ranked VMR -- the same value a
+  # SNP in no VMR would receive. Without a membership term there is nothing to
+  # absorb a VMR-versus-genome difference, and tau blurs the within-VMR gradient
+  # with a membership effect. With vmr_tested in the model, tau on the score is
+  # conditional on membership.
+  # See writing-notes/ISSUE_06_two_annotation_model.md.
+  annotations:
+    - name: VMR_TESTED
+      role: membership
+      form: binary
+      # Derived from the same overlap test as the score, from no threshold on
+      # it. This is NOT the banned v1 partition: it indicates membership in the
+      # tested universe, not a class of local genetic control.
+      description: SNP overlaps a VMR in the tested universe
+      enrichment_interpretable: true
+    - name: LOCAL_SNP_CONTRIBUTION_Z
+      role: score
+      form: continuous
+      description: relative rank of local SNP contribution, within cohort by region
+      # LDSC's enrichment denominator is the annotation's total value, which for
+      # a signed score is a signed sum rather than a share.
+      enrichment_interpretable: false
+  primary_hypothesis_annotation: LOCAL_SNP_CONTRIBUTION_Z
+  # PRESPECIFIED before any two-annotation result was seen: the frozen trait
+  # family stays on the score annotation only, so the family size does not
+  # change and no already-computed q-value is revised. The membership tau is
+  # reported descriptively, with a nominal p and no q.
+  fdr_family_annotation: LOCAL_SNP_CONTRIBUTION_Z
   # Guardrails asserted in code, not merely documented.
   forbid_thresholding: true
   forbid_grouping: true
