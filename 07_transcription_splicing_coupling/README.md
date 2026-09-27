@@ -156,27 +156,91 @@ A null coupling result is a reportable finding, not a gate failure.
 
 ## Accepted runs
 
-**The PSI columns of these three runs are withdrawn (2026-09-23).** Their
-expression and ABC results stand; their splicing results must be recomputed with
-the repaired identifier join, and the PSI sentence below ("strong in caudate,
-thin in DLPFC, null in hippocampus") is exactly the artefact the defect
-produces. Caudate's PSI numbers are expected to survive largely unchanged,
-because caudate is the region whose annotation was read; DLPFC and hippocampus
-carry no information about splicing as run.
-
 Permitted claim: genetically regulated VMRs are more frequently transcriptionally
 coupled. Forbidden: methylation mediates the genetic effect on expression or
-splicing. Nearest-gene expression supports that sentence in all three AA cells.
-PSI is strong in caudate, thin in DLPFC (24 coupled VMRs), and null in
-hippocampus. ABC links are underpowered and not a claim. LIBD eQTL arm is off
-and is not part of this acceptance. PSI completeness filtering must be stated
-in Methods.
+splicing.
+
+Nearest-gene expression supports the permitted claim in all three AA cells, and
+**since the PSI repair so does splicing** -- the pre-repair reading "strong in
+caudate, thin in DLPFC, null in hippocampus" was the identifier-join defect, not
+biology. Splicing coupling is now a three-region result rather than a
+caudate-specific one, which changes the corresponding row of AGENTS.md section 8.
+`expression_abc` is excluded from the coupling-test FDR family on power grounds
+and is **not a claim**; see **The ABC exclusion** below. The LIBD eQTL arm is off
+and is not part of this acceptance. PSI completeness filtering must be stated in
+Methods.
+
+Coupled-VMR counts below are over **all tested VMRs in the modality**. The
+superseded rows' counts (227 / 24 / 7) were over the narrower association model
+frame; both are defensible denominators, and the earlier table did not say which
+it used. State the denominator wherever these counts appear.
 
 | run_id | cohort | region | vmr_set_id | accepted_on | accepted_by | decision | notes |
 |---|---|---|---|---|---|---|---|
-| tsc-AA-caudate-20260902 | AA | caudate | vmrset-AA-caudate-937a41979978 | 2026-09-08 | Kynon J.M. Benjamin | PASS_TX_COUPLING_QC | 6/9 tests FDR-significant (2 local-control, 4 meQTL); PSI 227 coupled VMRs |
-| tsc-AA-dlpfc-20260902 | AA | dlpfc | vmrset-AA-dlpfc-856067dfe289 | 2026-09-08 | Kynon J.M. Benjamin | PASS_TX_COUPLING_QC | 5/9 tests; nearest-gene expression all three predictors; PSI 24 coupled VMRs |
-| tsc-AA-hippocampus-20260902 | AA | hippocampus | vmrset-AA-hippocampus-2d907b892215 | 2026-09-08 | Kynon J.M. Benjamin | PASS_TX_COUPLING_QC | 5/9 tests; nearest-gene expression all three predictors; PSI null (7 coupled VMRs) |
+| tsc-AA-caudate-20260925-b | AA | caudate | vmrset-AA-caudate-937a41979978 | 2026-09-25 | Kynon J.M. Benjamin | PASS_TX_COUPLING_QC | 6/6 eligible tests FDR-significant (2 local-control, 4 meQTL); FDR family 6, `expression_abc` excluded; 11,528 VMRs / 2,679,486 pairs; PSI 253 coupled VMRs |
+| tsc-AA-dlpfc-20260925-b | AA | dlpfc | vmrset-AA-dlpfc-856067dfe289 | 2026-09-25 | Kynon J.M. Benjamin | PASS_TX_COUPLING_QC | 6/6 eligible tests FDR-significant (2 local-control, 4 meQTL); FDR family 6, `expression_abc` excluded; 9,570 VMRs / 2,093,522 pairs; PSI 87 coupled VMRs (34 pre-repair) |
+| tsc-AA-hippocampus-20260925-b | AA | hippocampus | vmrset-AA-hippocampus-2d907b892215 | 2026-09-25 | Kynon J.M. Benjamin | PASS_TX_COUPLING_QC | 6/6 eligible tests FDR-significant (2 local-control, 4 meQTL); FDR family 6, `expression_abc` excluded; 9,495 VMRs / 2,064,462 pairs; PSI 134 coupled VMRs (8 pre-repair) |
+
+Provenance is uniform across the three cells: `vmrcat-AA-{region}-20260816` ->
+`lgv-AA-{region}-rescore-20260913` -> `cmb-AA-{region}-20260924` -> this run,
+sealed 2026-09-25T15:21 at commit `e7bbcdaa7`, `smoke_run = FALSE`.
+
+### The ABC exclusion, and why it is a restriction rather than a result
+
+`config/transcription_splicing.yml:gates:min_vmrs_tested` is **500** and is
+`pi_locked`. `expression_abc` links 305 (caudate), 250 (DLPFC) and 243
+(hippocampus) VMRs, so it has been below that floor in every cell since the
+module was written. It nonetheless entered the FDR family until 2026-09-25,
+because `04_apply_gates.R` evaluated the floor against `max()` across modalities
+and `expression_nearest_gene` links ~10,000 VMRs. A floor satisfied by the
+strongest cell is not a floor.
+
+The consequence was not cosmetic. `any_meqtl_support` crossed with the coupled
+outcome is a 2x2 whose off-cell was **empty** in all three regions -- 15/305,
+12/250, 8/243 coupled VMRs, every one of them with meQTL support -- so the
+logistic coefficient had no maximum likelihood estimate and ran to the boundary
+(estimate near 17.6, SE near 0.4, p underflowing). Sorted by p, that
+unidentified coefficient was the module's single most significant "finding".
+
+Both defects are now closed: the floor is applied per modality, and excluded
+tests carry `q = NA`, `in_fdr_family = FALSE` and an
+`fdr_exclusion_reason` naming the VMR count against the locked floor. The
+estimates are **retained and reported**, not deleted -- the same
+restriction-not-removal mechanism Module 04 uses for technically confounded
+caudate. `results/coupling-power-analysis.tsv` (stage `_h/08`) carries the
+justification as a minimum detectable odds ratio: ABC 4.51 / 5.52 / 7.91 against
+1.25-2.04 for the powered modalities.
+
+**Two DLPFC PSI results became significant only because the family shrank from 9
+to 6**, at q = 4.25e-02 against a 0.05 threshold (`meqtl_proportion` and
+`any_meqtl_support`, from q = 5.46e-02). They must be written as marginal. This
+is disclosed rather than discovered later: shrinking a BH family raises every
+surviving q-value's neighbours, and AGENTS.md section 10.3 forbids recombining
+FDR families after inspection, so the change was made on the locked power floor
+and not on any view of the results.
+
+Two config proposals remain open in `PROPOSED_CONFIG_CHANGE.md` -- the per-region
+PSI annotation path, and declaring the coupling-test FDR family explicitly. The
+code does not depend on either; both are PI acts.
+
+### Superseded
+
+`tsc-AA-{caudate,dlpfc,hippocampus}-20260902` (accepted 2026-09-08). Withdrawn on
+two independent grounds: the PSI identifier-join defect (2026-09-23), and the
+vacuous power floor described above. Their nearest-gene expression conclusions
+are reproduced by the current runs; their PSI columns and their ABC q-values must
+not be cited. Notes retained for audit: caudate 6/9 tests, PSI 227 coupled VMRs
+(model-frame denominator); DLPFC 5/9, PSI 24; hippocampus 5/9, PSI null at 7.
+
+`tsc-AA-{caudate,dlpfc,hippocampus}-20260925` -- the first rerun of the day.
+It repaired PSI but still admitted `expression_abc` to the FDR family, so its
+q-values are over a 9-test family and its ABC rows report a separated
+coefficient as a finding. Superseded by `-20260925-b`.
+
+`tsc-AA-{caudate,dlpfc,hippocampus}-20260925-a` -- **abandoned, never sealed.**
+Killed mid-chain by a cluster-wide root cancellation at ~13:30-13:56 on
+2026-09-25 that also took 3,019 Module 03 array tasks across 17+ nodes, with no
+logs and `ExitCode 0:0`. No scientific content; do not cite.
 
 ## Contract
 
