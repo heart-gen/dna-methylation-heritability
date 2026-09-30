@@ -48,6 +48,10 @@ cohort <- mval("cohort")
 regions <- strsplit(mval("regions"), ",", fixed = TRUE)[[1]]
 tier <- "cross_region_replication"
 min_regions <- as.integer(config_get(cfg, "cross_region_replication.min_regions_for_replication"))
+## The nominal-support threshold. Named once because three counts must use the
+## same one: n_nominal, and the two direction counts restricted to it. Deliberately
+## NOT read from `identified_difference.alpha`, which is tier 2's.
+NOMINAL_ALPHA <- 0.05
 out_dir <- file.path(run_dir, "results")
 dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
 
@@ -82,8 +86,17 @@ run_results <- function(module, region, file) {
 ##   secondary_scale      the same outcome on another scale -- double-counting
 ##   complementary_contrast / descriptive  context, not claim
 ## A headline that pooled all five would count one finding several times and
-## would count a failed negative control as a success. Modules 05 and 07 have
-## no role column and are treated as their own prespecified family.
+## would count a failed negative control as a success.
+##
+## Modules 05 and 07 publish no `outcome_role` column, but neither is therefore
+## all-claim. Module 05 publishes its whole design matrix, so its covariate rows
+## are marked `nuisance` by `nuisance_terms`. Module 07 publishes the membership
+## flag itself -- `in_fdr_family`, set by its locked per-modality power floor --
+## so `fdr_family_flag` reads the role off that flag instead of defaulting. A row
+## the source module excluded from its OWN FDR family cannot be a member of this
+## module's claim family: `expression_abc` links 243-305 VMRs against a locked
+## floor of 500, and defaulting it into the family made an underpowered arm
+## count as a prespecified replication.
 COMMON <- c("region", "analysis", "analysis_set", "outcome_role", "outcome",
             "predictor", "estimate", "se", "p", "q", "n")
 
@@ -119,6 +132,17 @@ harvest <- function(module, region, file, mapping, analysis_label) {
         stop(module, " ", basename(f), " lacks: ",
              paste(missing, collapse = ", "))
     }
+    ## `fdr_family_flag` is read with `%in% TRUE`, which is NA-safe but answers
+    ## FALSE for a character "TRUE". A flag that stopped being logical would
+    ## therefore move every one of this module's tests out of the claim family
+    ## silently, so the type is checked rather than trusted.
+    if (!is.null(mapping$fdr_family_flag) &&
+        !is.logical(dt[[mapping$fdr_family_flag]])) {
+        stop(module, " ", basename(f), ": ", mapping$fdr_family_flag, " is ",
+             class(dt[[mapping$fdr_family_flag]])[[1]],
+             ", expected logical. The claim-family filter reads this column ",
+             "and must not guess.")
+    }
     out <- data.table(
         region    = region,
         analysis  = analysis_label,
@@ -127,6 +151,14 @@ harvest <- function(module, region, file, mapping, analysis_label) {
                        else "primary",
         outcome_role = if (!is.null(mapping$outcome_role)) {
                            as.character(dt[[mapping$outcome_role]])
+                       } else if (!is.null(mapping$fdr_family_flag)) {
+                           ## The source module's own FDR-family membership,
+                           ## read rather than assumed. Type-checked above,
+                           ## because `%in% TRUE` answers FALSE for a character
+                           ## "TRUE" and would move every test out of the claim
+                           ## family without a word.
+                           ifelse(dt[[mapping$fdr_family_flag]] %in% TRUE,
+                                  "prespecified_family", "power_excluded")
                        } else if (!is.null(mapping$nuisance_terms)) {
                            ## A model's covariate and intercept rows are not
                            ## scientific tests. Module 05 publishes its whole
@@ -172,7 +204,10 @@ specs <- list(
                         n = "n_vmrs")),
     list(module = "07_transcription_splicing_coupling",
          file = "coupling-tests.tsv", analysis = "expression_coupling",
+         ## `in_fdr_family` is Module 07's own power floor (min_vmrs_tested =
+         ## 500). It is the role, so it is mapped as one; see fdr_family_flag.
          mapping = list(outcome = "modality", predictor = "predictor",
+                        fdr_family_flag = "in_fdr_family",
                         estimate = "estimate", se = "se", p = "p", q = "q",
                         n = "n"))
 )
@@ -211,7 +246,14 @@ per_test <- tests[, .(
     regions        = paste(sort(region), collapse = ","),
     n_up           = sum(direction == "up"),
     n_down         = sum(direction == "down"),
-    n_nominal      = sum(is.finite(p) & p < 0.05),
+    n_nominal      = sum(is.finite(p) & p < NOMINAL_ALPHA),
+    ## The same two counts restricted to the regions that actually measured
+    ## something. `direction_consistent` is built from these, not from n_up and
+    ## n_down; see the assignment below for why.
+    n_up_nominal   = sum(direction == "up" &
+                             is.finite(p) & p < NOMINAL_ALPHA),
+    n_down_nominal = sum(direction == "down" &
+                             is.finite(p) & p < NOMINAL_ALPHA),
     n_fdr          = sum(is.finite(q) & q < 0.05),
     min_p          = if (any(is.finite(p))) min(p, na.rm = TRUE) else NA_real_,
     estimate_range = diff(range(estimate))
@@ -228,7 +270,28 @@ per_test <- tests[, .(
 n_regions_expected <- length(regions)
 stopifnot(n_regions_expected >= 1L, !is.na(n_regions_expected))
 per_test[, complete_across_regions := n_regions == n_regions_expected]
-per_test[, direction_consistent := pmax(n_up, n_down) == n_regions]
+
+## Direction agreement is asked of the regions that MEASURED a direction. The
+## rule was `pmax(n_up, n_down) == n_regions`, over every region, which reads the
+## sign of an estimate indistinguishable from zero as a claim about direction and
+## lets it veto the whole test. `line_l1_frac x score_z x exclude_segdups` is the
+## worked example: DLPFC p = 5.1e-11 and hippocampus p = 4.1e-14, both up, while
+## caudate sits at -0.0004 with SE 0.050 (p = 0.994) -- an SE 140x the estimate --
+## and the sign of that noise alone turned the test from replicating to not.
+##
+## A null estimate carries no direction, so it neither supports nor contradicts
+## one. A region that contradicts WITH support still vetoes, which is the part
+## that must not be lost: if two regions are significantly up and one is
+## significantly down, that is heterogeneity, not replication. And consistency
+## among zero supported regions is vacuous rather than true, so it is FALSE --
+## the script's own reason for adding the nominal requirement to `replicated` in
+## the first place ("three null estimates that happen to share a sign").
+##
+## The unrestricted rule is retained beside it, because a reader comparing this
+## table to the superseded run needs to see which rule produced which verdict.
+per_test[, direction_consistent_all_regions := pmax(n_up, n_down) == n_regions]
+per_test[, direction_consistent :=
+             n_nominal > 0L & pmax(n_up_nominal, n_down_nominal) == n_nominal]
 ## The replication call. Consistent direction AND nominal support in at least
 ## `min_regions` regions: direction alone would let three null estimates that
 ## happen to share a sign count as a replication.
@@ -338,6 +401,13 @@ summary_dt <- data.table(
                                                 in_claim_family == TRUE &
                                                 complete_across_regions == TRUE &
                                                 direction_consistent == TRUE, .N],
+    ## The same count under the superseded unrestricted rule, so the effect of
+    ## judging direction on the supported regions only is visible in the table
+    ## rather than inferable from the code.
+    n_claim_direction_consistent_all_regions =
+        per_test[is_primary == TRUE & in_claim_family == TRUE &
+                     complete_across_regions == TRUE &
+                     direction_consistent_all_regions == TRUE, .N],
     n_claim_replicated = per_test[is_primary == TRUE & in_claim_family == TRUE &
                                       replicated == TRUE, .N],
     n_claim_replicated_strict = per_test[replicated_strict == TRUE &
@@ -357,6 +427,11 @@ summary_dt <- data.table(
                                              control_tracks_claim == TRUE, .N],
     n_nuisance_terms_excluded = per_test[is_primary == TRUE &
                                              outcome_role == "nuisance", .N],
+    ## Tests the SOURCE module excluded from its own FDR family, so they are
+    ## fitted and surfaced but never counted as claim-family replications. All of
+    ## these are Module 07's underpowered modalities.
+    n_power_excluded_tests = per_test[is_primary == TRUE &
+                                          outcome_role == "power_excluded", .N],
     n_tests_primary = per_test[is_primary == TRUE, .N],
     n_sensitivity_sets_max = max(per_test$n_sensitivity_sets),
     min_regions_for_replication = min_regions,
@@ -378,6 +453,15 @@ message("  Denominators: ", summary_dt$n_tests_all_sets,
         "family only: a sensitivity refit is not a second test, a rescaled ",
         "outcome is not a second finding, and a negative control is not ",
         "support.")
+message("  Excluded from that family: ",
+        summary_dt$n_nuisance_terms_excluded, " covariate/intercept term(s) and ",
+        summary_dt$n_power_excluded_tests, " test(s) the source module itself ",
+        "kept out of its FDR family on a locked power floor. Direction is ",
+        "judged on the nominally supported regions only (",
+        summary_dt$n_claim_direction_consistent, " consistent; ",
+        summary_dt$n_claim_direction_consistent_all_regions,
+        " under the superseded all-regions rule, which let the sign of a null ",
+        "estimate veto a replication).")
 if (summary_dt$n_controls_tracking_claim > 0L) {
     message("  WARNING: ", summary_dt$n_controls_tracking_claim, " of ",
             summary_dt$n_negative_controls, " specificity controls replicate ",
