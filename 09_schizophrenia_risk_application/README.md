@@ -2,7 +2,7 @@
 
 Tests whether schizophrenia-risk variants regulate methylation within genetically anchored VMRs. Intended for the main text, conditional on surviving corrected VMRs and the new local-genetic-control axis.
 
-**Status: accepted (AA, 2026-09-19); both decisions resolved.** Upstream gates are satisfied — `05_cpg_meqtl_burden` (`cmb-AA-*-20260825`) and `07_transcription_splicing_coupling` (`tsc-AA-*-20260902`) both record passing acceptance gates (AGENTS.md §6). The three per-region runs `scz-AA-{caudate,dlpfc,hippocampus}-20260918` are accepted; see **Accepted runs**. Decision 1 is `CAUDATE_MAGNITUDE_CLAIM_NOT_SUPPORTED` and decision 2 is `RETAIN_MAIN_TEXT`, resolved by stage 15 in `_m/combined/` with `citable = TRUE`. Stages 17 and 18 are post hoc sensitivities, recorded as such. `config/gwas_negative_controls.yml` was PI-locked on 2026-09-20 and both stages were re-run against the accepted runs on 2026-09-20 (`_h/step_9_negative_controls.sh`), so their outputs are now emitted **without** the `-UNACCEPTED` suffix, carry `built_with_unaccepted_runs = FALSE`, and are citable. The superseded suffixed copies were removed; they are reproducible with `ALLOW_UNLOCKED=1` and differ only in that flag and in last-digit IRLS noise. They **qualify** Module 09's claim and change neither decision (AGENTS.md §7.8).
+**Status: accepted (AA, 2026-09-19); both decisions resolved. Its upstreams have since moved — see "The accepted runs now rest on superseded upstreams" below.** Every blocking upstream gate was satisfied when the runs opened: `05_cpg_meqtl_burden` (`cmb-AA-*-20260825`) and `07_transcription_splicing_coupling` (`tsc-AA-*-20260902`) each recorded a passing acceptance gate (AGENTS.md §6). The three per-region runs `scz-AA-{caudate,dlpfc,hippocampus}-20260918` are accepted; see **Accepted runs**. Decision 1 is `CAUDATE_MAGNITUDE_CLAIM_NOT_SUPPORTED` and decision 2 is `RETAIN_MAIN_TEXT`, resolved by stage 15 in `_m/combined/` with `citable = TRUE`. Stages 17 and 18 are post hoc sensitivities, recorded as such. `config/gwas_negative_controls.yml` was PI-locked on 2026-09-20 and both stages were re-run against the accepted runs on 2026-09-20 (`_h/step_9_negative_controls.sh`), so their outputs are now emitted **without** the `-UNACCEPTED` suffix, carry `built_with_unaccepted_runs = FALSE`, and are citable. The superseded suffixed copies were removed; they are reproducible with `ALLOW_UNLOCKED=1` and differ only in that flag and in last-digit IRLS noise. They **qualify** Module 09's claim and change neither decision (AGENTS.md §7.8).
 
 ## Migrating from
 
@@ -307,6 +307,78 @@ which is consistent with their lack of axis depletion. Note also that the
 extended MHC is excluded for every trait, which removes the dominant immune
 locus, so immune traits' remaining loci are a non-representative subset of their
 architecture.
+
+## The accepted runs now rest on superseded upstreams
+
+**Added 2026-09-27.** Four of the upstreams pinned in every
+`scz-AA-*-20260918` manifest were superseded by the 2026-09-24/25 acceptances:
+
+| upstream | in the accepted 09 runs | now accepted |
+|---|---|---|
+| `04_repeat_repressive_architecture` | `rra-AA-*-20260906` | `rra-AA-*-20260925-a` |
+| `05_cpg_meqtl_burden` | `cmb-AA-*-20260825` | `cmb-AA-*-20260924` |
+| `06_partitioned_heritability` | `sldsc-AA-*-20260903` | `sldsc-AA-*-20260925` |
+| `07_transcription_splicing_coupling` | `tsc-AA-*-20260902` | `tsc-AA-*-20260925-b` |
+
+Modules 01 and 02 are unchanged (`vmrcat-AA-*-20260816`,
+`lgv-AA-*-rescore-20260913`), so the axis predictor these runs were built on is
+still the accepted one.
+
+AGENTS.md §6 is not retroactive: the 2026-09-19 acceptance was valid when it was
+made and stays in the table. The operative rule is narrower — **no new
+production run may consume `scz-AA-*-20260918`**, and its numbers may not be
+quoted beside numbers from the 2026-09-24/25 upstreams.
+
+### The rerun is blocked on Module 08, not on this module
+
+`_h/00_new_run.R:94` calls `require_accepted_upstream("08_region_donor_generalization", …)`
+because `gates.require_module_08_downsampling: true`, so opening a new Module 09
+run needs an **accepted** Module 08 run. The only one is
+`rdg-AA-crossregion-20260918`, which its own README now forbids a new production
+run from consuming, and the `rdg-AA-crossregion-20260925` rerun is deliberately
+unaccepted pending four tier-accounting fixes. **Module 08 must be fixed and
+reaccepted before Module 09 can be rerun.**
+
+**Neither decision is at risk from that rerun.** Decision 1 reads Module 08 tier
+3 and nothing else, and tier 3 is stable across the two Module 08 runs —
+`reading = donor_count_is_a_plausible_major_contributor` in both, relative
+attenuation 0.1426 against 0.1432, all three locked criteria TRUE in both. The
+four Module 08 defects are confined to tier 1 and tier 2, which decision 1 does
+not read. Decision 2 rests on stage 15's cross-region axis concordance, whose
+inputs are Modules 01 and 02.
+
+What a rerun would move is the parts that read the superseded modules: stage 05's
+integration annotations and stage 06's coupling projection (Module 04 and Module
+07), and the `sldsc_supports_brain_enrichment` value the decision file carries
+from Module 06 — which is `FALSE` in both the superseded and the current Module
+06 runs, so that field does not move.
+
+### Stage 18's central finding has no independent-data-source check
+
+Stage 18's load-bearing result is that a trait's axis depletion tracks its
+enrichment for **accessible chromatin and H3K27ac** (ρ −0.44 to −0.60). Both
+predictors, `accessible_any` and `h3k27ac_any`, are Roadmap calls on one
+reference epigenome per region — one consortium, one build, one pipeline. Module
+04 registered `atac_union_frac` (BrainScope ATAC CRE union, 562,098 hg38 peaks,
+an independent assay, cohort and pipeline) on 2026-09-25 for exactly this
+robustness question, and `config/gwas_negative_controls.yml:locus_architecture.indicators`
+does not list it. Adding it is a `pi_locked` config amendment, so it is a PI
+decision under AGENTS.md §12 and is not made here. The two limitations recorded
+with that track travel with it: it is the same intervals in all three regions, so
+it cannot support a region-specific statement, and it is a different assay in
+every respect, so read it as "does the correlation survive a change of data
+source", not as a second estimate of the same quantity.
+
+### The meQTL colocalization arm is still not gate-eligible
+
+Its condition is that the `all_individuals` cohort carries EA donors across all
+three regions. `01b_estimation_cells`, Module 02 and Module 03 each have six
+accepted `all_individuals.{AA,EA}` cell runs, but **Module 05 has none** —
+`05_cpg_meqtl_burden/_m/runs/` holds only `cmb-AA-*` runs, and the meQTL arm
+needs an EA CpG meQTL map, not an EA score. The arm therefore stays
+`CROSS_ANCESTRY_LD_UNMATCHED` and exploratory, and flipping
+`colocalization.arms.meqtl.{qtl_ancestry,gate_eligible}` would assert a matching
+that does not exist.
 
 ## Accepted runs
 

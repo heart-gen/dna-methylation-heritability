@@ -89,8 +89,21 @@ if (!nrow(tests)) stop("Stage 01 produced no tests; run it first")
 ## Keyed the same way Stage 01 keys: analysis_set distinguishes Module 04's
 ## primary fit from its four sensitivities, and omitting it would collapse five
 ## distinct tests into one cell of the cast.
+##
+## `outcome_role` travels with the test because tier 2 must count the way tier 1
+## counts. It is a property of the test, not of the region, so it is carried on the
+## LHS; a role that varied by region would split a test into two rows and silently
+## double a difference, so the invariant is checked rather than assumed.
+role_by_test <- unique(tests[, .(test_id, outcome_role)])
+dupe_role <- role_by_test[, .N, by = test_id][N > 1L]
+if (nrow(dupe_role)) {
+    stop("outcome_role varies by region for ", nrow(dupe_role), " test(s), e.g. ",
+         dupe_role$test_id[[1]], ". The role identifies the test, so a ",
+         "region-dependent role would split one test into two contrast rows.")
+}
 wide <- dcast(tests[region %in% c(contrast, confounded)],
-              analysis + analysis_set + outcome + predictor + test_id ~ region,
+              analysis + analysis_set + outcome_role + outcome + predictor +
+                  test_id ~ region,
               value.var = c("estimate", "se", "p", "q", "n"))
 
 a <- contrast[[1]]; b <- contrast[[2]]
@@ -147,6 +160,32 @@ wide[, difference_claimed := if (strict) {
 } else {
     testable & sens_fdr_significant
 }]
+## ------------------------------------------------ what counts as a difference
+##
+## `difference_claimed` above answers a STATISTICAL question about one row: did
+## this contrast survive the conjunction. Whether that row is a countable finding
+## is a separate question, and tier 2 was not asking it. Stage 01 asks it for tier
+## 1 and its comments state why: Module 04's analysis_sets are the same tests
+## refit, so counting all of them "would report one test five or six times and
+## inflate the primary deliverable roughly fivefold", and "a negative control is
+## not support". Tier 2 counted every analysis_set and every outcome_role, which is
+## the inflation stage 01 refuses by design -- and the config points the same way,
+## naming Module 04 as `template_module` for its "primary claim on the identified
+## contrast".
+##
+## So the headline is the primary arm of the prespecified claim family, exactly as
+## in stage 01. The unfiltered count stays in the summary as the auditable
+## denominator, and every row stays in the table with its own verdict; nothing is
+## dropped, only counted correctly.
+wide[, is_primary := analysis_set == "primary"]
+wide[, in_claim_family := outcome_role %in% c("bh_family", "prespecified_family")]
+wide[, is_negative_control := outcome_role == "specificity_control"]
+wide[, difference_claimed_primary_claim_family :=
+         difference_claimed & is_primary & in_claim_family]
+## A control differing between regions is not a regional-heterogeneity finding; it
+## is a note about the control. Counted separately so it can never be added in.
+wide[, difference_claimed_negative_control :=
+         difference_claimed & is_primary & is_negative_control]
 wide[, tier := tier]
 wide[, licenses := trimws(config_get(cfg, paste0("tiers.", tier, ".licenses")))]
 
@@ -177,7 +216,19 @@ summary_dt <- data.table(
     n_pairs = nrow(wide),
     n_testable = wide[testable == TRUE, .N],
     n_fdr_significant = wide[sens_fdr_significant == TRUE, .N],
+    ## Every row that survived the statistical conjunction, all analysis_sets and
+    ## all roles. Reported so the headline's denominator is auditable, never as the
+    ## headline itself.
     n_difference_claimed = wide[difference_claimed == TRUE, .N],
+    n_difference_claimed_primary = wide[difference_claimed == TRUE &
+                                            is_primary == TRUE, .N],
+    ## THE HEADLINE: primary arm, prespecified claim family. One finding counted
+    ## once, and a negative control never counted as heterogeneity.
+    n_difference_claimed_primary_claim_family =
+        wide[difference_claimed_primary_claim_family == TRUE, .N],
+    n_difference_claimed_negative_control =
+        wide[difference_claimed_negative_control == TRUE, .N],
+    n_claim_family_pairs = wide[is_primary == TRUE & in_claim_family == TRUE, .N],
     alpha = alpha,
     fdr_method = fdr_method,
     confounded_regions_set_aside = paste(confounded, collapse = ","),
@@ -185,9 +236,18 @@ summary_dt <- data.table(
 write_atomic(summary_dt, file.path(out_dir, "identified-difference-summary.tsv"))
 
 print(summary_dt)
-message("[tier2] ", summary_dt$n_difference_claimed, " of ",
-        summary_dt$n_testable, " testable ", a, "-vs-", b,
+message("[tier2] ", summary_dt$n_difference_claimed_primary_claim_family, " of ",
+        summary_dt$n_claim_family_pairs, " primary claim-family ", a, "-vs-", b,
         " differences survive strict conjunction")
+message("  Denominators: ", summary_dt$n_testable, " testable pairs across all ",
+        "analysis_sets and roles, of which ", summary_dt$n_difference_claimed,
+        " survive the conjunction and ", summary_dt$n_difference_claimed_primary,
+        " are in the primary arm. The headline counts the primary arm of the ",
+        "prespecified claim family only: a sensitivity refit is not a second ",
+        "difference, a rescaled outcome is not a second finding, and a ",
+        "specificity control differing between regions (",
+        summary_dt$n_difference_claimed_negative_control,
+        ") is a note about the control, not regional heterogeneity.")
 message("  ", nrow(descriptive), " ", paste(confounded, collapse = "/"),
         " rows retained as DESCRIPTIVE ONLY: fitted and surfaced, excluded ",
         "from every claim.")
