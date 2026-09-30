@@ -53,12 +53,16 @@ The run reports *15 of 16 claim-family tests replicate, 9 strict* and *39
 identified DLPFC-vs-hippocampus differences*, against 12/16, 12 strict and 1
 difference in the superseded run. Both directions of that movement are artifacts:
 
-1. **`expression_abc` enters the claim family.** `harvest()` defaults
-   `outcome_role` to `prespecified_family` and the Module 07 harvest spec does not
-   map the field, so Module 07's `in_fdr_family = FALSE` — set by the locked
-   per-modality power floor — is ignored here. Two of three ABC tests then count
-   as replicated and strict, which is the whole of the 12 → 15 rise. One carries
-   `p = 0` exactly.
+1. **`expression_abc` enters the claim family.** *Repaired 2026-09-30 (T20).*
+   `harvest()` defaults `outcome_role` to `prespecified_family` and the Module 07
+   harvest spec does not map the field, so Module 07's `in_fdr_family = FALSE` —
+   set by the locked per-modality power floor — is ignored here. Two of three ABC
+   tests then count as replicated and strict, which is the whole of the 12 → 15
+   rise. One carries `p = 0` exactly. The spec now maps the flag through a new
+   `fdr_family_flag` key onto a `power_excluded` role, which `in_claim_family`
+   does not admit; the flag's type is checked rather than trusted, because the
+   NA-safe `%in% TRUE` idiom answers FALSE for a character `"TRUE"` and would
+   empty the claim family silently.
 2. **A one-region arm makes strict replication unsatisfiable.**
    `adjust_cell_composition_scmd` is correctly caudate-only (the scMD integration
    gate passes only there), so `n_regions = 1`, while `complete_across_regions`
@@ -66,12 +70,18 @@ difference in the superseded run. Both directions of that movement are artifacts
    `replicated_strict = FALSE`. That is the whole of the 12 → 9 fall, and it is an
    artifact of a conjunction over an arm that cannot be fitted, not lost
    robustness.
-3. **A null estimate's sign vetoed a replication.**
+3. **A null estimate's sign vetoed a replication.** *Repaired 2026-09-30 (T21).*
    `line_l1_frac × score_z × exclude_segdups` flipped TRUE → FALSE only because
    the caudate estimate moved from +0.0165 (p = 0.745) to −0.0004 (p = 0.994),
    while DLPFC holds at p = 5.1e-11 and hippocampus at p = 4.1e-14.
    `direction_consistent := pmax(n_up, n_down) == n_regions` counts the sign of a
-   non-significant estimate, so a meaningless sign can veto a replication.
+   non-significant estimate — there the SE is 140× the estimate — so a meaningless
+   sign can veto a replication. Direction is now judged on the nominally
+   supported regions only: a null estimate carries no direction and neither
+   supports nor contradicts one, a region that contradicts **with** support still
+   vetoes, and consistency among zero supported regions is FALSE rather than
+   vacuously TRUE. The superseded rule is retained beside it as
+   `direction_consistent_all_regions` so the two verdicts stay comparable.
 4. **Tier 2 applies no `outcome_role` filter and no primary-arm filter.** Of its
    39 "genuine regional heterogeneity" differences, 38 are the `atac_*` controls
    registered under T8/T11, 28 rest on `r2_pred_oof_z` — which Module 04's own
@@ -84,10 +94,38 @@ Under all three tier-1 fixes the corrected reading is **13 of 13 replicate, 13
 strict** — cleaner than either reported number, which is why nothing is lost by
 leaving the run unaccepted until the code is fixed.
 
-Fixes 1 and 3 are defect repairs in `_h/01_cross_region_replication.R`. Fix 2 and
-the tier-2 filters change reported counts and touch
-`config/region_donor_generalization.yml`, which is `pi_locked`, so they are PI
+**Fixes 1 and 3 are implemented (2026-09-30).** They are defect repairs in
+`_h/01_cross_region_replication.R` that change no configuration, so they carry no
+PI decision. Fix 2 and the tier-2 filters change reported counts and touch
+`config/region_donor_generalization.yml`, which is `pi_locked`, so they remain PI
 decisions under AGENTS.md §12 and are not made here.
+
+Re-running tier 1 against the same pinned upstreams with fixes 1 and 3 in place —
+outside `_m/`, since `rdg-AA-crossregion-20260925` is sealed — gives **13 of 13
+claim-family tests replicate, 7 strict**, and moves exactly the rows it should:
+
+- 9 rows change `outcome_role` (the three `expression_abc` tests × three regions)
+  and nothing else does, so `n_claim_tests` falls 16 → 13 and
+  `n_power_excluded_tests` reads 3;
+- 7 rows change `direction_consistent`, of which **one changes a verdict**:
+  `exclude_segdups × line_l1_frac × score_z` becomes `replicated`. The other six
+  lose a vacuous TRUE at zero nominal support and were already not replicating;
+- **no row loses `replicated` and none loses `replicated_strict`.** The
+  `cross-region-tests.tsv` table differs only in those 9 role cells, and
+  `cross-region-rank-agreement.tsv` is byte-identical.
+
+The strict count reads 7 rather than 13 because fix 2 is still open: the two
+`expression_abc` strict artifacts leave the claim family (9 → 7) while the six
+repeat tests stay blocked by the caudate-only `adjust_cell_composition_scmd` arm.
+Fix 3's contribution is visible in `n_sensitivity_replicated` for the `line_l1_frac
+× score_z` family, which rises 3 → 4 of 5; the unsatisfiable fifth is fix 2's, so
+**strict reaches 13 only once the PI closes fix 2.**
+
+Regression test: `tests/test_tier1_role_and_direction.R`. It evaluates the shipped
+`harvest()` body against all three real Module 07 tables and the shipped
+`direction_consistent` expressions against a five-case fixture plus the sealed
+run's own rows, so a future edit that reintroduces either defect fails there
+rather than in a production count.
 
 ## Accepted runs
 
