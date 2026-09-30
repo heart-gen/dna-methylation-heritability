@@ -307,20 +307,51 @@ per_test[, replicated := complete_across_regions & direction_consistent &
 ## way Module 04 itself uses them: as a strict conjunction the primary claim
 ## must survive, not as extra evidence.
 per_test[, is_primary := analysis_set == "primary"]
+
+## A cross-region conjunction can only range over arms that EXIST cross-region.
+## Module 04's `adjust_cell_composition_scmd` is correctly caudate-only -- the scMD
+## integration gate passes only there (AGENTS.md 7.4) -- so it has one region, can
+## never be `complete_across_regions`, and can never be `replicated`. Requiring it
+## made strict replication unsatisfiable for every repeat test: the conjunction was
+## vacuously false, the same defect class the gate's own
+## `cross_region_completeness_nonvacuous` criterion exists to catch one level up.
+##
+## The remedy is forced rather than chosen. The alternative -- judge the arm on the
+## region where it was fitted -- would let a CAUDATE-ONLY arm veto a cross-region
+## replication claim, and caudate is perfectly confounded with sequencing batch
+## (AGENTS.md 8.1), so a batch effect could decide a cross-region verdict. That is
+## the one reading the tier may never license.
+##
+## Nothing is hidden: arms outside the conjunction are counted in their own column
+## and remain in the table with their own `replicated` verdict.
+per_test[, sens_in_conjunction := is_primary == FALSE & complete_across_regions]
 sens <- per_test[is_primary == FALSE,
                  .(n_sensitivity_sets = .N,
+                   n_sensitivity_sets_cross_region = sum(complete_across_regions),
+                   n_sensitivity_sets_single_region =
+                       sum(!complete_across_regions),
                    n_sensitivity_replicated = sum(replicated)),
                  by = .(analysis, outcome_role, outcome, predictor)]
 per_test <- merge(per_test, sens,
                   by = c("analysis", "outcome_role", "outcome", "predictor"),
                   all.x = TRUE)
-per_test[is.na(n_sensitivity_sets), `:=`(n_sensitivity_sets = 0L,
-                                         n_sensitivity_replicated = 0L)]
+per_test[is.na(n_sensitivity_sets),
+         `:=`(n_sensitivity_sets = 0L, n_sensitivity_sets_cross_region = 0L,
+              n_sensitivity_sets_single_region = 0L,
+              n_sensitivity_replicated = 0L)]
 ## A primary test replicates STRICTLY when it replicates and so does every
-## sensitivity refit of it. A test with no sensitivities passes trivially, and
-## the n_sensitivity_sets column is what tells a reader which case they have.
+## sensitivity refit of it that is fittable across regions. A test with no
+## sensitivities still passes trivially (0 == 0) -- Modules 05 and 07 publish one
+## analysis_set each -- and the three n_sensitivity_* columns are what tell a
+## reader which case they have.
 per_test[, replicated_strict := replicated & is_primary &
-             n_sensitivity_replicated == n_sensitivity_sets]
+             n_sensitivity_replicated == n_sensitivity_sets_cross_region]
+## The conjunction must not be vacuous in the other direction either: if EVERY
+## sensitivity of a test were single-region, the test would pass strictly having
+## survived nothing. Surfaced per row rather than silently folded into the verdict,
+## because it is a property of Module 04's design, not of this test's robustness.
+per_test[, strict_conjunction_vacuous := is_primary &
+             n_sensitivity_sets > 0L & n_sensitivity_sets_cross_region == 0L]
 ## The claim family: the prespecified, FDR-controlled tests only.
 per_test[, in_claim_family := outcome_role %in% c("bh_family",
                                                   "prespecified_family")]
@@ -434,6 +465,13 @@ summary_dt <- data.table(
                                           outcome_role == "power_excluded", .N],
     n_tests_primary = per_test[is_primary == TRUE, .N],
     n_sensitivity_sets_max = max(per_test$n_sensitivity_sets),
+    ## Arms excluded from the strict conjunction because they exist in one region
+    ## only, and therefore cannot speak to cross-region replication at all. These
+    ## are Module 04's conditional scMD composition arms.
+    n_sensitivity_sets_single_region_max =
+        max(per_test$n_sensitivity_sets_single_region),
+    n_claim_strict_conjunction_vacuous =
+        per_test[in_claim_family == TRUE & strict_conjunction_vacuous == TRUE, .N],
     min_regions_for_replication = min_regions,
     ## Carried so no consumer has to know the rule to read the table.
     raw_score_comparison_emitted = FALSE,
