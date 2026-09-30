@@ -49,6 +49,11 @@ ten criteria inspects claim-family composition or the tier-2 denominator, which
 is consistent with §7.7 — the gate certifies tiering and interpretation
 constraints, not a positive finding.
 
+**All four are now repaired in `_h/` (2026-09-30), and that does not make this run
+acceptable.** Its tables were written by the defective code and `_m/` is immutable,
+so the corrected counts below describe what a rerun produces. Reacceptance needs a
+fresh run ID (T23).
+
 The run reports *15 of 16 claim-family tests replicate, 9 strict* and *39
 identified DLPFC-vs-hippocampus differences*, against 12/16, 12 strict and 1
 difference in the superseded run. Both directions of that movement are artifacts:
@@ -63,13 +68,20 @@ difference in the superseded run. Both directions of that movement are artifacts
    does not admit; the flag's type is checked rather than trusted, because the
    NA-safe `%in% TRUE` idiom answers FALSE for a character `"TRUE"` and would
    empty the claim family silently.
-2. **A one-region arm makes strict replication unsatisfiable.**
-   `adjust_cell_composition_scmd` is correctly caudate-only (the scMD integration
-   gate passes only there), so `n_regions = 1`, while `complete_across_regions`
-   requires all three. Every one of the six repeat tests therefore reads
-   `replicated_strict = FALSE`. That is the whole of the 12 → 9 fall, and it is an
-   artifact of a conjunction over an arm that cannot be fitted, not lost
-   robustness.
+2. **A one-region arm makes strict replication unsatisfiable.** *Repaired
+   2026-09-30 (T22).* `adjust_cell_composition_scmd` is correctly caudate-only (the
+   scMD integration gate passes only there), so `n_regions = 1`, while
+   `complete_across_regions` requires all three. Every one of the six repeat tests
+   therefore reads `replicated_strict = FALSE`. That is the whole of the 12 → 9
+   fall, and it is an artifact of a conjunction over an arm that cannot be fitted,
+   not lost robustness. The conjunction now ranges over arms that exist
+   cross-region. The remedy is forced, not chosen: judging the arm on the region
+   where it *was* fitted would let a caudate-only arm veto a cross-region
+   replication claim, and caudate is perfectly confounded with sequencing batch
+   (§8.1), so a batch effect could decide a cross-region verdict. Arms outside the
+   conjunction are counted in `n_sensitivity_sets_single_region` and keep their own
+   `replicated` verdict, and `strict_conjunction_vacuous` flags the opposite
+   failure — a test that would pass having survived nothing.
 3. **A null estimate's sign vetoed a replication.** *Repaired 2026-09-30 (T21).*
    `line_l1_frac × score_z × exclude_segdups` flipped TRUE → FALSE only because
    the caudate estimate moved from +0.0165 (p = 0.745) to −0.0004 (p = 0.994),
@@ -82,34 +94,45 @@ difference in the superseded run. Both directions of that movement are artifacts
    vetoes, and consistency among zero supported regions is FALSE rather than
    vacuously TRUE. The superseded rule is retained beside it as
    `direction_consistent_all_regions` so the two verdicts stay comparable.
-4. **Tier 2 applies no `outcome_role` filter and no primary-arm filter.** Of its
-   39 "genuine regional heterogeneity" differences, 38 are the `atac_*` controls
-   registered under T8/T11, 28 rest on `r2_pred_oof_z` — which Module 04's own
-   claims table forbids citing as corroboration — and each sensitivity refit is
+4. **Tier 2 applies no `outcome_role` filter and no primary-arm filter.**
+   *Repaired 2026-09-30 (T22).* Of its 39 "genuine regional heterogeneity"
+   differences, 30 are sensitivity refits and the rest are secondary scales,
+   cell-type breakdowns and independent-assay contrasts; each sensitivity refit was
    counted as a separate difference (9 primary + 30 refits), the inflation `_h/01`
    refuses by design. Primary-arm, non-control differences: **1**, unchanged from
-   the superseded run.
+   the superseded run. `_h/02` now carries `outcome_role` through its cast and
+   reports the primary claim-family count as the headline, with the unfiltered
+   count kept as the auditable denominator. `difference_claimed` is deliberately
+   unchanged — it answers a statistical question about one row, and both the gate
+   (`_h/05_apply_gates.R:121`) and Module 11's QQ panel read it — so the filters
+   are additive columns, not a redefinition.
 
-Under all three tier-1 fixes the corrected reading is **13 of 13 replicate, 13
-strict** — cleaner than either reported number, which is why nothing is lost by
-leaving the run unaccepted until the code is fixed.
+### All four are repaired (2026-09-30)
 
-**Fixes 1 and 3 are implemented (2026-09-30).** They are defect repairs in
-`_h/01_cross_region_replication.R` that change no configuration, so they carry no
-PI decision.
+None of the four needed a configuration change. An earlier version of this section
+said fixes 2 and 4 "touch `config/region_donor_generalization.yml`, which is
+`pi_locked`", and that was wrong on the facts: the config declares the tiers, their
+licences, the contrast, `require_strict_conjunction`, `alpha` and `fdr_method`, and
+says nothing about which `analysis_set`s or `outcome_role`s enter a conjunction or
+a count. There is no key to edit. AGENTS.md §12 turns on whether a change is a
+silent scientific decision, not on whether it edits a YAML file, and none of the
+four is: fix 1 reads a flag the source module already publishes, fix 3 stops a
+number with an SE 140× its magnitude from carrying a direction, fix 2's remedy is
+forced by §8.1, and fix 4 makes tier 2 count the way tier 1 in the same module
+already counts. What remains a human act is accepting the rerun, which §6 requires
+regardless.
 
-Fix 2 and the tier-2 filters were previously described here as PI decisions
-because they "touch `config/region_donor_generalization.yml`, which is
-`pi_locked`". **That was wrong on the facts.** The config declares the tiers,
-their licences, the contrast, `require_strict_conjunction`, `alpha` and
-`fdr_method`; it says nothing about which `analysis_set`s or `outcome_role`s enter
-a conjunction or a count, so there is no key to edit and no config change either
-fix needs. Both are code, in `_h/01` and `_h/02`. What remains a human act is
-accepting the rerun, which AGENTS.md §6 requires regardless.
+Re-running tiers 1 and 2 against the same pinned upstreams — outside `_m/`, since
+`rdg-AA-crossregion-20260925` is sealed — gives the corrected reading:
 
-Re-running tier 1 against the same pinned upstreams with fixes 1 and 3 in place —
-outside `_m/`, since `rdg-AA-crossregion-20260925` is sealed — gives **13 of 13
-claim-family tests replicate, 7 strict**, and moves exactly the rows it should:
+| | as sealed | corrected |
+|---|---|---|
+| claim-family tests | 16 | **13** |
+| replicate | 15 | **13** |
+| replicate strictly | 9 | **13** |
+| tier-2 differences | 39 | **1** |
+
+and moves only the rows it should:
 
 - 9 rows change `outcome_role` (the three `expression_abc` tests × three regions)
   and nothing else does, so `n_claim_tests` falls 16 → 13 and
@@ -117,22 +140,32 @@ claim-family tests replicate, 7 strict**, and moves exactly the rows it should:
 - 7 rows change `direction_consistent`, of which **one changes a verdict**:
   `exclude_segdups × line_l1_frac × score_z` becomes `replicated`. The other six
   lose a vacuous TRUE at zero nominal support and were already not replicating;
-- **no row loses `replicated` and none loses `replicated_strict`.** The
-  `cross-region-tests.tsv` table differs only in those 9 role cells, and
-  `cross-region-rank-agreement.tsv` is byte-identical.
+- 6 rows gain `replicated_strict`, all of them primary claim-family repeat tests,
+  each with 5 sensitivity sets of which 4 are cross-region and all 4 replicate;
+- **no row loses `replicated` and none loses `replicated_strict`.**
+  `cross-region-rank-agreement.tsv` is byte-identical, and in tier 2 both
+  `difference_claimed` and `delta_z` are unchanged for all 374 rows.
 
-The strict count reads 7 rather than 13 because fix 2 is still open: the two
-`expression_abc` strict artifacts leave the claim family (9 → 7) while the six
-repeat tests stay blocked by the caudate-only `adjust_cell_composition_scmd` arm.
-Fix 3's contribution is visible in `n_sensitivity_replicated` for the `line_l1_frac
-× score_z` family, which rises 3 → 4 of 5; the unsatisfiable fifth is fix 2's, so
-**strict reaches 13 only once the PI closes fix 2.**
+The 39 → 1 fall is accounting, not lost evidence: all 39 rows remain in
+`identified-difference.tsv` with their own verdicts, and 1 is the number this
+section already reported as the true count of primary-arm non-control differences.
 
-Regression test: `tests/test_tier1_role_and_direction.R`. It evaluates the shipped
-`harvest()` body against all three real Module 07 tables and the shipped
-`direction_consistent` expressions against a five-case fixture plus the sealed
-run's own rows, so a future edit that reintroduces either defect fails there
-rather than in a production count.
+Gate criterion 10 `cross_region_completeness_nonvacuous` still holds on the
+corrected tables (314 of 374 complete by both the flag and the re-derivation, 13
+claim-family tests complete), and `n_claim_strict_conjunction_vacuous` is 0.
+
+Regression test: `tests/test_tier1_role_and_direction.R`, 17 checks. It binds to
+the shipped code rather than a transcription of it — it evaluates the real
+`harvest()` body against all three real Module 07 tables, and the real
+`direction_consistent`, `replicated_strict`, `strict_conjunction_vacuous` and
+tier-2 filter expressions against fixtures plus the sealed run's own rows. It also
+asserts that `difference_claimed` still reads `n_sensitivities_passed`, so a future
+edit cannot redefine the column the gate depends on.
+
+**This run stays unaccepted.** The fixes are in `_h/`; nothing in `_m/` was
+touched, so the numbers above describe what a rerun will produce, not a sealed
+result. Reacceptance needs a fresh run ID (T23), after which Modules 09, 09b and 11
+rerun on it.
 
 ## Accepted runs
 
