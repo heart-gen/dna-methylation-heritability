@@ -96,9 +96,16 @@ leaving the run unaccepted until the code is fixed.
 
 **Fixes 1 and 3 are implemented (2026-09-30).** They are defect repairs in
 `_h/01_cross_region_replication.R` that change no configuration, so they carry no
-PI decision. Fix 2 and the tier-2 filters change reported counts and touch
-`config/region_donor_generalization.yml`, which is `pi_locked`, so they remain PI
-decisions under AGENTS.md §12 and are not made here.
+PI decision.
+
+Fix 2 and the tier-2 filters were previously described here as PI decisions
+because they "touch `config/region_donor_generalization.yml`, which is
+`pi_locked`". **That was wrong on the facts.** The config declares the tiers,
+their licences, the contrast, `require_strict_conjunction`, `alpha` and
+`fdr_method`; it says nothing about which `analysis_set`s or `outcome_role`s enter
+a conjunction or a count, so there is no key to edit and no config change either
+fix needs. Both are code, in `_h/01` and `_h/02`. What remains a human act is
+accepting the rerun, which AGENTS.md §6 requires regardless.
 
 Re-running tier 1 against the same pinned upstreams with fixes 1 and 3 in place —
 outside `_m/`, since `rdg-AA-crossregion-20260925` is sealed — gives **13 of 13
