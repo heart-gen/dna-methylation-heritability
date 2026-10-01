@@ -372,19 +372,40 @@ they replace, and the one reading the rerun changed, are under
 | age-AA-dlpfc-20261001 | AA | dlpfc | vmrset-AA-dlpfc-856067dfe289 | 2026-10-01 | Kynon J. Benjamin | PASS_AGING_AXIS_COVERAGE | Built at 644054e01, git_dirty false, smoke_run FALSE, on vmrcat-AA-dlpfc-20260816, lgv-AA-dlpfc-rescore-20260913, rra-AA-dlpfc-20260925-a, tsc-AA-dlpfc-20260925-b; 118 donors (70 control, 48 case), 9,251 VMRs modelled, 0 non-finite, 0 excluded, B = 1000 with 0 failures, 6/6 gate checks pass. Primary **-0.328** (SE 0.149, 95% CI -0.620 to -0.036, p 0.0279), hypothesized direction, on 9,214 VMRs. Gating arms, **all fitted members survive**: cell_music -0.386 (p 9.8e-03) PASS, cell_composition_r2 -0.327 (p 0.0289) PASS, controls_only -0.236 (p 0.324 but 72.0% of the primary, against the locked `reduced_n_min_fraction: 0.5`; its rule is sign_and_min_fraction_of_primary, not significance, because the arm keeps only ~58% of donors) PASS; cell_scmd NOT FITTED, reason scmd_integration_gate_fails_in_region. Non-gating: methylation_variance -0.323 (p 0.0166), high_mappability -0.339 (p 0.0335, 5,702 VMRs), chromatin_decomposition -0.300 (p 0.0364), age_ge_25 -0.307 (p 0.128). Region reading **SUPPORTED_SURVIVES_GATING_SENSITIVITIES**, region_supported TRUE -- changed from PRIMARY_ONLY_FAILS_GATING_SENSITIVITY in the superseded run, for the two reasons in "### Superseded". Quartile descriptive: top quartile 0.237 against bottom 1.648. 18 of 57 annotation associations at q<0.05. scMD integration gate FAIL, cell_composition_r2_source = rna_music. methPC-age max abs(rho) 0.451 at chr_11:PC5. Cross-sectional design; "age-associated methylation differences", never "change with age". |
 | age-AA-hippocampus-20261001 | AA | hippocampus | vmrset-AA-hippocampus-2d907b892215 | 2026-10-01 | Kynon J. Benjamin | PASS_AGING_AXIS_COVERAGE | Built at 644054e01, git_dirty false, smoke_run FALSE, on vmrcat-AA-hippocampus-20260816, lgv-AA-hippocampus-rescore-20260913, rra-AA-hippocampus-20260925-a, tsc-AA-hippocampus-20260925-b; 117 donors (69 control, 48 case), 9,166 VMRs modelled, 0 non-finite, 0 excluded, B = 1000 with 0 failures, 6/6 gate checks pass. Primary **-0.098** (SE 0.088, 95% CI -0.271 to 0.075, **p 0.269, not significant**), hypothesized direction. Gating arms: controls_only -0.243 (p 0.0204, 249% of primary) PASS, cell_music -0.139 (p 0.168) FAIL, cell_composition_r2 -0.073 (p 0.406) FAIL; cell_scmd NOT FITTED, scmd_integration_gate_fails_in_region. Non-gating all null: methylation_variance -0.097 (p 0.275), high_mappability -0.017 (p 0.866), chromatin_decomposition -0.099 (p 0.251), age_ge_25 -0.049 (p 0.642). Region reading **NOT_SUPPORTED**, region_supported FALSE -- unchanged from the superseded run, and the only region whose reading the rerun did not move. Quartile descriptive: top quartile 0.315 against bottom 1.145, the weakest separation of the three. 27 of 57 annotation associations at q<0.05. methPC-age max abs(rho) **0.641** at chr_17:PC4, the largest of the three regions, so the catalog-scope caveat bites hardest here: a methylation PC removed before VMR calling tracks age, and this catalog therefore under-samples regions whose variability is mostly age-driven. That is a plausible contributor to the null and is not evidence against an age effect. |
 
-**Cross-region (stage 05): pending rerun as of 2026-10-01.** The three
-per-region runs above are accepted; stage 05 runs only after that, by
-`Rscript _h/05_cross_region_concordance.R --cohort AA`, and until it does
-`_m/combined/` still holds the 2026-09-19 tables built on the superseded runs.
-Those are **not citable** against the accepted per-region numbers.
+**Cross-region (stage 05, rerun 2026-10-01 on the accepted runs):
+`aging_axis_association = SINGLE_NONCAUDATE_REGION`**, with `citable = TRUE`,
+`built_with_unaccepted_runs = FALSE` and `region_general = FALSE`. One region is
+supported (DLPFC), one of them outside caudate, against the §7.9 rule's
+requirement of at least two with at least one non-caudate. `_m/combined/` now
+holds this run and the 2026-09-19 tables are gone from it.
 
-The superseded stage 05 returned `aging_axis_association = NOT_SUPPORTED` with
-a DLPFC-hippocampus difference of -0.23 whose CI included 0. Do not assume the
-rerun repeats it: one non-caudate region is now supported where none was. Under
-the §7.9 rule -- Module 09's two-region rule, needing at least two regions with
-at least one non-caudate -- one supported region is still not region-general, so
-the token is expected to move off `NOT_SUPPORTED` without reaching support. The
-accepted answer is whatever stage 05 writes, not this sentence.
+**The association is not region-general, and the module's qualifier is now about
+count rather than composition.** The superseded stage 05 returned
+`NOT_SUPPORTED`, qualified by the `cell_composition_r2` arm removing the gradient
+in every region. That qualifier does not survive (see "### Superseded"). What
+replaces it is weaker and simpler: the gradient survives every fitted gating arm
+in exactly one claim-eligible region, and the other claim-eligible region is
+null. A single supported region cannot carry a region-general statement.
+
+Q2, the identified difference, is **not claimed**:
+`identified_difference_claimed = FALSE`. DLPFC minus hippocampus is **-0.230**
+(95% CI -0.516 to 0.056) under `primary` and **-0.246** (CI -0.547 to 0.054)
+under `cell_music`; the rule needs the CI to exclude zero in both specs and it
+excludes zero in neither. The difference is numerically unchanged from the
+superseded -0.23, so the DLPFC flip moved the region reading without moving the
+DLPFC-hippocampus contrast -- a reminder that a reading is a gating verdict, not
+an effect size. The two regions share 115 of 118 donors (Jaccard 0.958) and are
+not independent replicates; no pooled p is emitted
+(`pooled_p_emitted = FALSE`).
+
+Q3: caudate stays `descriptive_only` and no caudate contrast is emitted
+(AGENTS.md §8.1). `cross_region_raw_score_comparison_allowed = FALSE`,
+`causal_interpretation_allowed = FALSE`,
+`environmentally_determined_claim_allowed = FALSE`, and
+`cross_sectional_design = TRUE` on the emitted row.
+
+`manuscript_placement = pi_decision_after_run`, which §7.9 requires and this
+rerun makes ripe.
 
 ### Superseded
 
