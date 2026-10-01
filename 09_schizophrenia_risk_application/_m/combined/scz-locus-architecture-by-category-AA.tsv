@@ -25,8 +25,8 @@ caudate	segdup_any	technical	high_mappability	Cardiometabolic	13	-13.15630157623
 caudate	segdup_any	technical_score	high_mappability	Cardiometabolic	13	-13.1379628257653	0	0	AA	descriptive_only
 caudate	snp_proximal_any	technical	all_vmrs	Cardiometabolic	13	-0.103664296829379	0	0	AA	descriptive_only
 caudate	snp_proximal_any	technical_score	all_vmrs	Cardiometabolic	13	-0.0598663733287797	0	0	AA	descriptive_only
-caudate	cell_composition_r2	technical	all_vmrs	Cardiometabolic	13	0.0671281294764316	3	0	AA	descriptive_only
-caudate	cell_composition_r2	technical_score	all_vmrs	Cardiometabolic	13	0.12149076635714	1	0	AA	descriptive_only
+caudate	cell_composition_r2	technical	all_vmrs	Cardiometabolic	13	0.0555256406934508	3	0	AA	descriptive_only
+caudate	cell_composition_r2	technical_score	all_vmrs	Cardiometabolic	13	0.0945290173330423	3	0	AA	descriptive_only
 dlpfc	line_l1_any	technical	all_vmrs	Cardiometabolic	11	-0.0434828867552081	0	0	AA	claim_eligible
 dlpfc	line_l1_any	technical_score	all_vmrs	Cardiometabolic	11	-0.0234686226459985	0	0	AA	claim_eligible
 dlpfc	line_l1_any	technical	high_mappability	Cardiometabolic	11	0.192774658344131	0	0	AA	claim_eligible
@@ -53,8 +53,8 @@ dlpfc	segdup_any	technical	high_mappability	Cardiometabolic	11	-13.5097663420183
 dlpfc	segdup_any	technical_score	high_mappability	Cardiometabolic	11	-13.4959478587515	0	0	AA	claim_eligible
 dlpfc	snp_proximal_any	technical	all_vmrs	Cardiometabolic	11	-0.0974117740602793	0	0	AA	claim_eligible
 dlpfc	snp_proximal_any	technical_score	all_vmrs	Cardiometabolic	11	-0.0592410068219963	0	0	AA	claim_eligible
-dlpfc	cell_composition_r2	technical	all_vmrs	Cardiometabolic	11	-0.0152636708124232	0	0	AA	claim_eligible
-dlpfc	cell_composition_r2	technical_score	all_vmrs	Cardiometabolic	11	-0.0346901183351342	0	0	AA	claim_eligible
+dlpfc	cell_composition_r2	technical	all_vmrs	Cardiometabolic	11	0.0128623214049528	0	0	AA	claim_eligible
+dlpfc	cell_composition_r2	technical_score	all_vmrs	Cardiometabolic	11	0.0126459678544488	0	0	AA	claim_eligible
 caudate	line_l1_any	technical	all_vmrs	Blood	14	-0.163762546571443	0	0	AA	descriptive_only
 caudate	line_l1_any	technical_score	all_vmrs	Blood	14	-0.136262604129635	0	0	AA	descriptive_only
 caudate	line_l1_any	technical	high_mappability	Blood	14	-0.150171375524955	0	0	AA	descriptive_only
@@ -81,8 +81,8 @@ caudate	segdup_any	technical	high_mappability	Blood	14	-0.244034920983837	0	0	AA
 caudate	segdup_any	technical_score	high_mappability	Blood	14	-0.255943184917741	0	0	AA	descriptive_only
 caudate	snp_proximal_any	technical	all_vmrs	Blood	14	-0.100770251583305	0	0	AA	descriptive_only
 caudate	snp_proximal_any	technical_score	all_vmrs	Blood	14	-0.0846651753299188	0	0	AA	descriptive_only
-caudate	cell_composition_r2	technical	all_vmrs	Blood	14	-0.00645635983693749	0	1	AA	descriptive_only
-caudate	cell_composition_r2	technical_score	all_vmrs	Blood	14	-0.0428075245859937	0	2	AA	descriptive_only
+caudate	cell_composition_r2	technical	all_vmrs	Blood	14	0.00652420023192116	1	0	AA	descriptive_only
+caudate	cell_composition_r2	technical_score	all_vmrs	Blood	14	-0.0196299259915153	1	0	AA	descriptive_only
 dlpfc	line_l1_any	technical	all_vmrs	Blood	14	0.139062700787769	0	0	AA	claim_eligible
 dlpfc	line_l1_any	technical_score	all_vmrs	Blood	14	0.156187383229476	0	0	AA	claim_eligible
 dlpfc	line_l1_any	technical	high_mappability	Blood	14	0.297629483484899	0	0	AA	claim_eligible
@@ -109,8 +109,8 @@ dlpfc	segdup_any	technical	high_mappability	Blood	14	-0.940920259190914	0	0	AA	c
 dlpfc	segdup_any	technical_score	high_mappability	Blood	14	-0.960615335508603	0	0	AA	claim_eligible
 dlpfc	snp_proximal_any	technical	all_vmrs	Blood	14	-0.0294563189894259	0	0	AA	claim_eligible
 dlpfc	snp_proximal_any	technical_score	all_vmrs	Blood	14	-0.00222012490918536	0	0	AA	claim_eligible
-dlpfc	cell_composition_r2	technical	all_vmrs	Blood	14	-0.0280293189105239	0	0	AA	claim_eligible
-dlpfc	cell_composition_r2	technical_score	all_vmrs	Blood	14	-0.0440273831385817	0	0	AA	claim_eligible
+dlpfc	cell_composition_r2	technical	all_vmrs	Blood	14	0.0155230291103139	0	0	AA	claim_eligible
+dlpfc	cell_composition_r2	technical_score	all_vmrs	Blood	14	0.0154767035435229	0	0	AA	claim_eligible
 hippocampus	line_l1_any	technical	all_vmrs	Blood	14	0.198224142207491	0	0	AA	claim_eligible
 hippocampus	line_l1_any	technical_score	all_vmrs	Blood	14	0.211101889409205	0	0	AA	claim_eligible
 hippocampus	line_l1_any	technical	high_mappability	Blood	14	0.285632570886468	0	0	AA	claim_eligible
@@ -137,8 +137,8 @@ hippocampus	segdup_any	technical	high_mappability	Blood	14	0.00752847318004003	0
 hippocampus	segdup_any	technical_score	high_mappability	Blood	14	0.000281358457482565	0	0	AA	claim_eligible
 hippocampus	snp_proximal_any	technical	all_vmrs	Blood	14	-0.0759563929006869	0	0	AA	claim_eligible
 hippocampus	snp_proximal_any	technical_score	all_vmrs	Blood	14	-0.0673433329775537	0	0	AA	claim_eligible
-hippocampus	cell_composition_r2	technical	all_vmrs	Blood	14	0.00247352010242093	0	0	AA	claim_eligible
-hippocampus	cell_composition_r2	technical_score	all_vmrs	Blood	14	-0.00833611185707819	0	0	AA	claim_eligible
+hippocampus	cell_composition_r2	technical	all_vmrs	Blood	14	0.0267930212390622	0	0	AA	claim_eligible
+hippocampus	cell_composition_r2	technical_score	all_vmrs	Blood	14	0.0234702754651656	0	0	AA	claim_eligible
 caudate	line_l1_any	technical	all_vmrs	Cancer	2	0.219174196614266	0	0	AA	descriptive_only
 caudate	line_l1_any	technical_score	all_vmrs	Cancer	2	0.226011164550795	0	0	AA	descriptive_only
 caudate	line_l1_any	technical	high_mappability	Cancer	2	0.498923631562749	0	0	AA	descriptive_only
@@ -165,8 +165,8 @@ caudate	segdup_any	technical	high_mappability	Cancer	2	1.91724241967396	2	0	AA	d
 caudate	segdup_any	technical_score	high_mappability	Cancer	2	1.91550145669497	2	0	AA	descriptive_only
 caudate	snp_proximal_any	technical	all_vmrs	Cancer	2	-0.163574165170067	0	0	AA	descriptive_only
 caudate	snp_proximal_any	technical_score	all_vmrs	Cancer	2	-0.163658458769177	0	0	AA	descriptive_only
-caudate	cell_composition_r2	technical	all_vmrs	Cancer	2	-0.0814234026437567	0	0	AA	descriptive_only
-caudate	cell_composition_r2	technical_score	all_vmrs	Cancer	2	-0.0915889290517733	0	0	AA	descriptive_only
+caudate	cell_composition_r2	technical	all_vmrs	Cancer	2	-0.0542524850736231	0	0	AA	descriptive_only
+caudate	cell_composition_r2	technical_score	all_vmrs	Cancer	2	-0.0610356385877122	0	0	AA	descriptive_only
 dlpfc	line_l1_any	technical	all_vmrs	Cancer	2	0.109562721246479	0	0	AA	claim_eligible
 dlpfc	line_l1_any	technical_score	all_vmrs	Cancer	2	0.137177935900151	0	0	AA	claim_eligible
 dlpfc	line_l1_any	technical	high_mappability	Cancer	2	-0.0768189639918809	0	0	AA	claim_eligible
@@ -193,8 +193,8 @@ dlpfc	segdup_any	technical	high_mappability	Cancer	2	1.67851451957421	1	0	AA	cla
 dlpfc	segdup_any	technical_score	high_mappability	Cancer	2	1.66732580864634	0	0	AA	claim_eligible
 dlpfc	snp_proximal_any	technical	all_vmrs	Cancer	2	-0.53907419085219	0	1	AA	claim_eligible
 dlpfc	snp_proximal_any	technical_score	all_vmrs	Cancer	2	-0.532597111299995	0	0	AA	claim_eligible
-dlpfc	cell_composition_r2	technical	all_vmrs	Cancer	2	0.081467916421189	0	0	AA	claim_eligible
-dlpfc	cell_composition_r2	technical_score	all_vmrs	Cancer	2	0.0716631405791499	0	0	AA	claim_eligible
+dlpfc	cell_composition_r2	technical	all_vmrs	Cancer	2	0.0524957270564942	0	0	AA	claim_eligible
+dlpfc	cell_composition_r2	technical_score	all_vmrs	Cancer	2	0.0521470835002184	0	0	AA	claim_eligible
 hippocampus	line_l1_any	technical	all_vmrs	Cancer	2	0.192439722833577	0	0	AA	claim_eligible
 hippocampus	line_l1_any	technical_score	all_vmrs	Cancer	2	0.210943824873249	0	0	AA	claim_eligible
 hippocampus	line_l1_any	technical	high_mappability	Cancer	2	-0.0947610697795202	0	0	AA	claim_eligible
@@ -221,8 +221,8 @@ hippocampus	segdup_any	technical	high_mappability	Cancer	2	1.36598108723426	0	0	
 hippocampus	segdup_any	technical_score	high_mappability	Cancer	2	1.3094349264474	0	0	AA	claim_eligible
 hippocampus	snp_proximal_any	technical	all_vmrs	Cancer	2	-0.305316909960664	0	0	AA	claim_eligible
 hippocampus	snp_proximal_any	technical_score	all_vmrs	Cancer	2	-0.300793008401777	0	0	AA	claim_eligible
-hippocampus	cell_composition_r2	technical	all_vmrs	Cancer	2	0.0228851077082665	0	0	AA	claim_eligible
-hippocampus	cell_composition_r2	technical_score	all_vmrs	Cancer	2	0.0142824125376921	0	0	AA	claim_eligible
+hippocampus	cell_composition_r2	technical	all_vmrs	Cancer	2	0.00732467906118368	0	0	AA	claim_eligible
+hippocampus	cell_composition_r2	technical_score	all_vmrs	Cancer	2	0.00545457062449322	0	0	AA	claim_eligible
 hippocampus	line_l1_any	technical	all_vmrs	Cardiometabolic	11	0.0135327984198641	0	0	AA	claim_eligible
 hippocampus	line_l1_any	technical_score	all_vmrs	Cardiometabolic	11	-0.0490661640878145	0	0	AA	claim_eligible
 hippocampus	line_l1_any	technical	high_mappability	Cardiometabolic	11	-0.0806410581988708	0	0	AA	claim_eligible
@@ -249,8 +249,8 @@ hippocampus	segdup_any	technical	high_mappability	Cardiometabolic	11	-13.1143918
 hippocampus	segdup_any	technical_score	high_mappability	Cardiometabolic	11	-12.8479340318546	0	0	AA	claim_eligible
 hippocampus	snp_proximal_any	technical	all_vmrs	Cardiometabolic	11	-0.112152357856044	0	0	AA	claim_eligible
 hippocampus	snp_proximal_any	technical_score	all_vmrs	Cardiometabolic	11	-0.159770567670894	0	0	AA	claim_eligible
-hippocampus	cell_composition_r2	technical	all_vmrs	Cardiometabolic	11	-0.0026247217024794	2	0	AA	claim_eligible
-hippocampus	cell_composition_r2	technical_score	all_vmrs	Cardiometabolic	11	-0.0113575019555114	2	0	AA	claim_eligible
+hippocampus	cell_composition_r2	technical	all_vmrs	Cardiometabolic	11	0.0459046379808332	0	0	AA	claim_eligible
+hippocampus	cell_composition_r2	technical_score	all_vmrs	Cardiometabolic	11	0.0339598895053918	0	0	AA	claim_eligible
 caudate	line_l1_any	technical	all_vmrs	Allergy	3	-0.0108734150036221	0	0	AA	descriptive_only
 caudate	line_l1_any	technical_score	all_vmrs	Allergy	3	0.0412283206638831	0	0	AA	descriptive_only
 caudate	line_l1_any	technical	high_mappability	Allergy	3	-0.116219098544643	0	0	AA	descriptive_only
@@ -277,8 +277,8 @@ caudate	segdup_any	technical	high_mappability	Allergy	3	-0.0403274605460844	0	0	
 caudate	segdup_any	technical_score	high_mappability	Allergy	3	-0.0946718484711677	0	0	AA	descriptive_only
 caudate	snp_proximal_any	technical	all_vmrs	Allergy	3	-0.290024799516464	0	0	AA	descriptive_only
 caudate	snp_proximal_any	technical_score	all_vmrs	Allergy	3	-0.217506120777365	0	0	AA	descriptive_only
-caudate	cell_composition_r2	technical	all_vmrs	Allergy	3	-0.210631714772365	0	1	AA	descriptive_only
-caudate	cell_composition_r2	technical_score	all_vmrs	Allergy	3	-0.285991194972853	0	2	AA	descriptive_only
+caudate	cell_composition_r2	technical	all_vmrs	Allergy	3	-0.226617242973096	0	0	AA	descriptive_only
+caudate	cell_composition_r2	technical_score	all_vmrs	Allergy	3	-0.292262767811037	0	0	AA	descriptive_only
 dlpfc	line_l1_any	technical	all_vmrs	Allergy	3	0.292916934023038	0	0	AA	claim_eligible
 dlpfc	line_l1_any	technical_score	all_vmrs	Allergy	3	0.328099290853807	0	0	AA	claim_eligible
 dlpfc	line_l1_any	technical	high_mappability	Allergy	3	0.0908023191201847	0	0	AA	claim_eligible
@@ -305,8 +305,8 @@ dlpfc	segdup_any	technical	high_mappability	Allergy	3	-13.0234233718165	0	0	AA	c
 dlpfc	segdup_any	technical_score	high_mappability	Allergy	3	-13.1605116706055	0	0	AA	claim_eligible
 dlpfc	snp_proximal_any	technical	all_vmrs	Allergy	3	-0.167601949143374	0	0	AA	claim_eligible
 dlpfc	snp_proximal_any	technical_score	all_vmrs	Allergy	3	-0.148155766129143	0	0	AA	claim_eligible
-dlpfc	cell_composition_r2	technical	all_vmrs	Allergy	3	-0.214516611670365	0	0	AA	claim_eligible
-dlpfc	cell_composition_r2	technical_score	all_vmrs	Allergy	3	-0.246707030539046	0	0	AA	claim_eligible
+dlpfc	cell_composition_r2	technical	all_vmrs	Allergy	3	0.00132510184442833	0	0	AA	claim_eligible
+dlpfc	cell_composition_r2	technical_score	all_vmrs	Allergy	3	0.00116874238879787	0	0	AA	claim_eligible
 hippocampus	line_l1_any	technical	all_vmrs	Allergy	3	0.290837760637605	0	0	AA	claim_eligible
 hippocampus	line_l1_any	technical_score	all_vmrs	Allergy	3	0.286491151097519	0	0	AA	claim_eligible
 hippocampus	line_l1_any	technical	high_mappability	Allergy	3	0.258622215940968	0	0	AA	claim_eligible
@@ -333,8 +333,8 @@ hippocampus	segdup_any	technical	high_mappability	Allergy	3	-13.2338298330938	0	
 hippocampus	segdup_any	technical_score	high_mappability	Allergy	3	-13.2541735247064	0	0	AA	claim_eligible
 hippocampus	snp_proximal_any	technical	all_vmrs	Allergy	3	0.0418886633122756	0	0	AA	claim_eligible
 hippocampus	snp_proximal_any	technical_score	all_vmrs	Allergy	3	0.0027538403896621	0	0	AA	claim_eligible
-hippocampus	cell_composition_r2	technical	all_vmrs	Allergy	3	-0.0718257477825086	0	0	AA	claim_eligible
-hippocampus	cell_composition_r2	technical_score	all_vmrs	Allergy	3	-0.0599638978971496	0	0	AA	claim_eligible
+hippocampus	cell_composition_r2	technical	all_vmrs	Allergy	3	-0.03275786935797	0	0	AA	claim_eligible
+hippocampus	cell_composition_r2	technical_score	all_vmrs	Allergy	3	-0.0294065406410012	0	0	AA	claim_eligible
 caudate	line_l1_any	technical	all_vmrs	Anthropometric	7	-0.0886780983144832	0	0	AA	descriptive_only
 caudate	line_l1_any	technical_score	all_vmrs	Anthropometric	7	-0.0401990462292308	0	0	AA	descriptive_only
 caudate	line_l1_any	technical	high_mappability	Anthropometric	7	-0.0208308429245443	0	0	AA	descriptive_only
@@ -361,8 +361,8 @@ caudate	segdup_any	technical	high_mappability	Anthropometric	7	-0.52867039291883
 caudate	segdup_any	technical_score	high_mappability	Anthropometric	7	-0.620327344660505	1	0	AA	descriptive_only
 caudate	snp_proximal_any	technical	all_vmrs	Anthropometric	7	-0.0638503440495599	0	0	AA	descriptive_only
 caudate	snp_proximal_any	technical_score	all_vmrs	Anthropometric	7	0.0192448024912409	0	0	AA	descriptive_only
-caudate	cell_composition_r2	technical	all_vmrs	Anthropometric	7	0.0816800389046606	4	0	AA	descriptive_only
-caudate	cell_composition_r2	technical_score	all_vmrs	Anthropometric	7	0.043394421554028	3	0	AA	descriptive_only
+caudate	cell_composition_r2	technical	all_vmrs	Anthropometric	7	0.0814596944629518	4	0	AA	descriptive_only
+caudate	cell_composition_r2	technical_score	all_vmrs	Anthropometric	7	0.0476894580218695	1	0	AA	descriptive_only
 dlpfc	line_l1_any	technical	all_vmrs	Anthropometric	7	0.0285734171918532	0	0	AA	claim_eligible
 dlpfc	line_l1_any	technical_score	all_vmrs	Anthropometric	7	0.0575718956237945	0	0	AA	claim_eligible
 dlpfc	line_l1_any	technical	high_mappability	Anthropometric	7	0.254166952785451	0	0	AA	claim_eligible
@@ -389,8 +389,8 @@ dlpfc	segdup_any	technical	high_mappability	Anthropometric	7	-0.221488985656527	
 dlpfc	segdup_any	technical_score	high_mappability	Anthropometric	7	-0.257065299290538	0	0	AA	claim_eligible
 dlpfc	snp_proximal_any	technical	all_vmrs	Anthropometric	7	-0.0351591639638042	0	0	AA	claim_eligible
 dlpfc	snp_proximal_any	technical_score	all_vmrs	Anthropometric	7	0.0269495829077115	0	0	AA	claim_eligible
-dlpfc	cell_composition_r2	technical	all_vmrs	Anthropometric	7	0.0876559086348632	4	0	AA	claim_eligible
-dlpfc	cell_composition_r2	technical_score	all_vmrs	Anthropometric	7	0.0700048922091736	2	0	AA	claim_eligible
+dlpfc	cell_composition_r2	technical	all_vmrs	Anthropometric	7	0.0127688662091567	0	0	AA	claim_eligible
+dlpfc	cell_composition_r2	technical_score	all_vmrs	Anthropometric	7	0.0125390973256979	0	0	AA	claim_eligible
 hippocampus	line_l1_any	technical	all_vmrs	Anthropometric	7	-0.0161186990234819	0	0	AA	claim_eligible
 hippocampus	line_l1_any	technical_score	all_vmrs	Anthropometric	7	0.0336674305917103	0	0	AA	claim_eligible
 hippocampus	line_l1_any	technical	high_mappability	Anthropometric	7	0.0950245140918958	0	0	AA	claim_eligible
@@ -417,8 +417,8 @@ hippocampus	segdup_any	technical	high_mappability	Anthropometric	7	-0.2725097636
 hippocampus	segdup_any	technical_score	high_mappability	Anthropometric	7	-0.325115411392326	0	0	AA	claim_eligible
 hippocampus	snp_proximal_any	technical	all_vmrs	Anthropometric	7	-0.0838803663057672	0	0	AA	claim_eligible
 hippocampus	snp_proximal_any	technical_score	all_vmrs	Anthropometric	7	0.0182558583241109	0	0	AA	claim_eligible
-hippocampus	cell_composition_r2	technical	all_vmrs	Anthropometric	7	0.0830732888808612	4	0	AA	claim_eligible
-hippocampus	cell_composition_r2	technical_score	all_vmrs	Anthropometric	7	0.0630200375848188	2	0	AA	claim_eligible
+hippocampus	cell_composition_r2	technical	all_vmrs	Anthropometric	7	-0.00753314452776356	0	0	AA	claim_eligible
+hippocampus	cell_composition_r2	technical_score	all_vmrs	Anthropometric	7	-0.0162863167943971	0	0	AA	claim_eligible
 caudate	line_l1_any	technical	all_vmrs	Immune	9	-0.263430700399941	0	0	AA	descriptive_only
 caudate	line_l1_any	technical_score	all_vmrs	Immune	9	-0.234192426001311	0	0	AA	descriptive_only
 caudate	line_l1_any	technical	high_mappability	Immune	9	-0.116516944451266	0	0	AA	descriptive_only
@@ -445,8 +445,8 @@ caudate	segdup_any	technical	high_mappability	Immune	9	-0.709329228781317	0	0	AA
 caudate	segdup_any	technical_score	high_mappability	Immune	9	-0.703334472125929	0	0	AA	descriptive_only
 caudate	snp_proximal_any	technical	all_vmrs	Immune	9	-0.208477332527413	0	0	AA	descriptive_only
 caudate	snp_proximal_any	technical_score	all_vmrs	Immune	9	-0.180801500393479	0	0	AA	descriptive_only
-caudate	cell_composition_r2	technical	all_vmrs	Immune	9	-0.0451327427778319	0	1	AA	descriptive_only
-caudate	cell_composition_r2	technical_score	all_vmrs	Immune	9	-0.0824232580576052	0	1	AA	descriptive_only
+caudate	cell_composition_r2	technical	all_vmrs	Immune	9	-0.0466704510522374	0	0	AA	descriptive_only
+caudate	cell_composition_r2	technical_score	all_vmrs	Immune	9	-0.0649353571636556	0	0	AA	descriptive_only
 dlpfc	line_l1_any	technical	all_vmrs	Immune	8	-0.114067036188654	0	0	AA	claim_eligible
 dlpfc	line_l1_any	technical_score	all_vmrs	Immune	8	-0.100143194704788	0	0	AA	claim_eligible
 dlpfc	line_l1_any	technical	high_mappability	Immune	8	0.0476218819352379	0	0	AA	claim_eligible
@@ -473,8 +473,8 @@ dlpfc	segdup_any	technical	high_mappability	Immune	8	0.147837022205736	0	0	AA	cl
 dlpfc	segdup_any	technical_score	high_mappability	Immune	8	0.136910714467861	0	0	AA	claim_eligible
 dlpfc	snp_proximal_any	technical	all_vmrs	Immune	8	-0.0210851967575297	0	1	AA	claim_eligible
 dlpfc	snp_proximal_any	technical_score	all_vmrs	Immune	8	-0.0406211866994037	0	0	AA	claim_eligible
-dlpfc	cell_composition_r2	technical	all_vmrs	Immune	8	-0.041136179120044	0	0	AA	claim_eligible
-dlpfc	cell_composition_r2	technical_score	all_vmrs	Immune	8	-0.0544371353870754	0	0	AA	claim_eligible
+dlpfc	cell_composition_r2	technical	all_vmrs	Immune	8	-0.00459497655521628	0	0	AA	claim_eligible
+dlpfc	cell_composition_r2	technical_score	all_vmrs	Immune	8	-0.0048525731767103	0	0	AA	claim_eligible
 hippocampus	line_l1_any	technical	all_vmrs	Immune	8	0.00776635908431923	0	0	AA	claim_eligible
 hippocampus	line_l1_any	technical_score	all_vmrs	Immune	8	0.00393567947727764	0	0	AA	claim_eligible
 hippocampus	line_l1_any	technical	high_mappability	Immune	8	0.128471022573936	0	0	AA	claim_eligible
@@ -501,8 +501,8 @@ hippocampus	segdup_any	technical	high_mappability	Immune	8	-0.480476771059284	0	
 hippocampus	segdup_any	technical_score	high_mappability	Immune	8	-0.473674824413856	0	0	AA	claim_eligible
 hippocampus	snp_proximal_any	technical	all_vmrs	Immune	8	0.0168171737850936	0	0	AA	claim_eligible
 hippocampus	snp_proximal_any	technical_score	all_vmrs	Immune	8	0.0548122359767023	0	0	AA	claim_eligible
-hippocampus	cell_composition_r2	technical	all_vmrs	Immune	8	0.0374928508072567	1	0	AA	claim_eligible
-hippocampus	cell_composition_r2	technical_score	all_vmrs	Immune	8	0.0651879175980504	0	0	AA	claim_eligible
+hippocampus	cell_composition_r2	technical	all_vmrs	Immune	8	-0.0469708931203527	0	0	AA	claim_eligible
+hippocampus	cell_composition_r2	technical_score	all_vmrs	Immune	8	-0.0458603622745182	0	0	AA	claim_eligible
 caudate	line_l1_any	technical	all_vmrs	Psychiatric-neurologic	9	0.145639804313683	0	0	AA	descriptive_only
 caudate	line_l1_any	technical_score	all_vmrs	Psychiatric-neurologic	9	0.116069362444332	0	0	AA	descriptive_only
 caudate	line_l1_any	technical	high_mappability	Psychiatric-neurologic	9	-0.0118738560575462	0	0	AA	descriptive_only
@@ -529,8 +529,8 @@ caudate	segdup_any	technical	high_mappability	Psychiatric-neurologic	9	-13.05514
 caudate	segdup_any	technical_score	high_mappability	Psychiatric-neurologic	9	-13.0088181173021	0	0	AA	descriptive_only
 caudate	snp_proximal_any	technical	all_vmrs	Psychiatric-neurologic	9	-0.0955485315299613	0	1	AA	descriptive_only
 caudate	snp_proximal_any	technical_score	all_vmrs	Psychiatric-neurologic	9	-0.0347634390051236	0	0	AA	descriptive_only
-caudate	cell_composition_r2	technical	all_vmrs	Psychiatric-neurologic	9	0.0864073942648881	1	0	AA	descriptive_only
-caudate	cell_composition_r2	technical_score	all_vmrs	Psychiatric-neurologic	9	0.0354264357469926	2	0	AA	descriptive_only
+caudate	cell_composition_r2	technical	all_vmrs	Psychiatric-neurologic	9	0.0721693510575167	1	0	AA	descriptive_only
+caudate	cell_composition_r2	technical_score	all_vmrs	Psychiatric-neurologic	9	0.0137178309043486	1	0	AA	descriptive_only
 dlpfc	line_l1_any	technical	all_vmrs	Psychiatric-neurologic	8	0.0459972155922027	0	0	AA	claim_eligible
 dlpfc	line_l1_any	technical_score	all_vmrs	Psychiatric-neurologic	8	0.0370761327199819	0	0	AA	claim_eligible
 dlpfc	line_l1_any	technical	high_mappability	Psychiatric-neurologic	8	0.0458921117259854	0	0	AA	claim_eligible
@@ -557,8 +557,8 @@ dlpfc	segdup_any	technical	high_mappability	Psychiatric-neurologic	8	-7.29654658
 dlpfc	segdup_any	technical_score	high_mappability	Psychiatric-neurologic	8	-7.5221186332066	0	0	AA	claim_eligible
 dlpfc	snp_proximal_any	technical	all_vmrs	Psychiatric-neurologic	8	-0.0249880402508195	1	1	AA	claim_eligible
 dlpfc	snp_proximal_any	technical_score	all_vmrs	Psychiatric-neurologic	8	0.0376821198704763	0	0	AA	claim_eligible
-dlpfc	cell_composition_r2	technical	all_vmrs	Psychiatric-neurologic	8	0.0387699687877901	1	0	AA	claim_eligible
-dlpfc	cell_composition_r2	technical_score	all_vmrs	Psychiatric-neurologic	8	0.0188352391960452	0	0	AA	claim_eligible
+dlpfc	cell_composition_r2	technical	all_vmrs	Psychiatric-neurologic	8	0.0119337661582152	0	0	AA	claim_eligible
+dlpfc	cell_composition_r2	technical_score	all_vmrs	Psychiatric-neurologic	8	0.0113789111703219	0	0	AA	claim_eligible
 hippocampus	line_l1_any	technical	all_vmrs	Psychiatric-neurologic	8	0.0130725558357433	0	0	AA	claim_eligible
 hippocampus	line_l1_any	technical_score	all_vmrs	Psychiatric-neurologic	8	0.0327052642379955	0	0	AA	claim_eligible
 hippocampus	line_l1_any	technical	high_mappability	Psychiatric-neurologic	8	0.0527306672608088	0	0	AA	claim_eligible
@@ -585,8 +585,8 @@ hippocampus	segdup_any	technical	high_mappability	Psychiatric-neurologic	8	-13.2
 hippocampus	segdup_any	technical_score	high_mappability	Psychiatric-neurologic	8	-13.3227072184471	0	0	AA	claim_eligible
 hippocampus	snp_proximal_any	technical	all_vmrs	Psychiatric-neurologic	8	-0.0548147797065811	0	0	AA	claim_eligible
 hippocampus	snp_proximal_any	technical_score	all_vmrs	Psychiatric-neurologic	8	0.0327670609127478	0	0	AA	claim_eligible
-hippocampus	cell_composition_r2	technical	all_vmrs	Psychiatric-neurologic	8	0.134144321850833	3	0	AA	claim_eligible
-hippocampus	cell_composition_r2	technical_score	all_vmrs	Psychiatric-neurologic	8	0.105154030673219	1	0	AA	claim_eligible
+hippocampus	cell_composition_r2	technical	all_vmrs	Psychiatric-neurologic	8	0.023764130935856	0	0	AA	claim_eligible
+hippocampus	cell_composition_r2	technical_score	all_vmrs	Psychiatric-neurologic	8	0.0207481411009022	0	0	AA	claim_eligible
 caudate	line_l1_any	technical	all_vmrs	Endocrine system	1	-0.366802556239614	0	0	AA	descriptive_only
 caudate	line_l1_any	technical_score	all_vmrs	Endocrine system	1	-0.378862135835507	0	0	AA	descriptive_only
 caudate	line_l1_any	technical	high_mappability	Endocrine system	1	-0.17622122957785	0	0	AA	descriptive_only
@@ -613,8 +613,8 @@ caudate	segdup_any	technical	high_mappability	Endocrine system	1	-0.721704482724
 caudate	segdup_any	technical_score	high_mappability	Endocrine system	1	-0.731694145731895	0	0	AA	descriptive_only
 caudate	snp_proximal_any	technical	all_vmrs	Endocrine system	1	-0.271563225117585	0	0	AA	descriptive_only
 caudate	snp_proximal_any	technical_score	all_vmrs	Endocrine system	1	-0.302777981994139	0	0	AA	descriptive_only
-caudate	cell_composition_r2	technical	all_vmrs	Endocrine system	1	-0.014134854850571	0	0	AA	descriptive_only
-caudate	cell_composition_r2	technical_score	all_vmrs	Endocrine system	1	-0.00589774702629089	0	0	AA	descriptive_only
+caudate	cell_composition_r2	technical	all_vmrs	Endocrine system	1	-0.0199311943245168	0	0	AA	descriptive_only
+caudate	cell_composition_r2	technical_score	all_vmrs	Endocrine system	1	-0.0131058178712101	0	0	AA	descriptive_only
 dlpfc	line_l1_any	technical	all_vmrs	Endocrine system	1	-0.0693951866709428	0	0	AA	claim_eligible
 dlpfc	line_l1_any	technical_score	all_vmrs	Endocrine system	1	-0.0708356091846256	0	0	AA	claim_eligible
 dlpfc	line_l1_any	technical	high_mappability	Endocrine system	1	0.138337984962241	0	0	AA	claim_eligible
@@ -641,8 +641,8 @@ dlpfc	segdup_any	technical	high_mappability	Endocrine system	1	-0.12886448362932
 dlpfc	segdup_any	technical_score	high_mappability	Endocrine system	1	-0.14212578046033	0	0	AA	claim_eligible
 dlpfc	snp_proximal_any	technical	all_vmrs	Endocrine system	1	-0.188699854400511	0	0	AA	claim_eligible
 dlpfc	snp_proximal_any	technical_score	all_vmrs	Endocrine system	1	-0.200285197479443	0	0	AA	claim_eligible
-dlpfc	cell_composition_r2	technical	all_vmrs	Endocrine system	1	-0.0186241775612742	0	0	AA	claim_eligible
-dlpfc	cell_composition_r2	technical_score	all_vmrs	Endocrine system	1	-0.019781687747245	0	0	AA	claim_eligible
+dlpfc	cell_composition_r2	technical	all_vmrs	Endocrine system	1	0.0265610592932759	0	0	AA	claim_eligible
+dlpfc	cell_composition_r2	technical_score	all_vmrs	Endocrine system	1	0.0265616145950732	0	0	AA	claim_eligible
 hippocampus	line_l1_any	technical	all_vmrs	Endocrine system	1	-0.15420565084841	0	0	AA	claim_eligible
 hippocampus	line_l1_any	technical_score	all_vmrs	Endocrine system	1	-0.164345100465444	0	0	AA	claim_eligible
 hippocampus	line_l1_any	technical	high_mappability	Endocrine system	1	0.00322004332606973	0	0	AA	claim_eligible
@@ -669,8 +669,8 @@ hippocampus	segdup_any	technical	high_mappability	Endocrine system	1	-1.09493106
 hippocampus	segdup_any	technical_score	high_mappability	Endocrine system	1	-1.09502649382132	0	0	AA	claim_eligible
 hippocampus	snp_proximal_any	technical	all_vmrs	Endocrine system	1	-0.263212416988237	0	0	AA	claim_eligible
 hippocampus	snp_proximal_any	technical_score	all_vmrs	Endocrine system	1	-0.294968680047451	0	0	AA	claim_eligible
-hippocampus	cell_composition_r2	technical	all_vmrs	Endocrine system	1	-0.0510749270736107	0	0	AA	claim_eligible
-hippocampus	cell_composition_r2	technical_score	all_vmrs	Endocrine system	1	-0.0496983066255876	0	0	AA	claim_eligible
+hippocampus	cell_composition_r2	technical	all_vmrs	Endocrine system	1	0.0110555002181322	0	0	AA	claim_eligible
+hippocampus	cell_composition_r2	technical_score	all_vmrs	Endocrine system	1	0.0121885654518361	0	0	AA	claim_eligible
 caudate	line_l1_any	technical	all_vmrs	Skeletal system disease	1	-0.377026824902284	0	0	AA	descriptive_only
 caudate	line_l1_any	technical_score	all_vmrs	Skeletal system disease	1	-0.239239365407495	0	0	AA	descriptive_only
 caudate	line_l1_any	technical	high_mappability	Skeletal system disease	1	-0.194916978133045	0	0	AA	descriptive_only
@@ -697,8 +697,8 @@ caudate	segdup_any	technical	high_mappability	Skeletal system disease	1	-13.0929
 caudate	segdup_any	technical_score	high_mappability	Skeletal system disease	1	-13.1857245506313	0	0	AA	descriptive_only
 caudate	snp_proximal_any	technical	all_vmrs	Skeletal system disease	1	-0.549650996460001	0	0	AA	descriptive_only
 caudate	snp_proximal_any	technical_score	all_vmrs	Skeletal system disease	1	-0.367254783465581	0	0	AA	descriptive_only
-caudate	cell_composition_r2	technical	all_vmrs	Skeletal system disease	1	-0.062311738231151	0	0	AA	descriptive_only
-caudate	cell_composition_r2	technical_score	all_vmrs	Skeletal system disease	1	-0.171623801218665	0	0	AA	descriptive_only
+caudate	cell_composition_r2	technical	all_vmrs	Skeletal system disease	1	-0.0370115718755428	0	0	AA	descriptive_only
+caudate	cell_composition_r2	technical_score	all_vmrs	Skeletal system disease	1	-0.131144364218194	0	0	AA	descriptive_only
 dlpfc	line_l1_any	technical	all_vmrs	Skeletal system disease	1	-1.33780776277023	0	0	AA	claim_eligible
 dlpfc	line_l1_any	technical_score	all_vmrs	Skeletal system disease	1	-1.27740731249006	0	0	AA	claim_eligible
 dlpfc	line_l1_any	technical	high_mappability	Skeletal system disease	1	-1.37313666242703	0	0	AA	claim_eligible
@@ -725,8 +725,8 @@ dlpfc	segdup_any	technical	high_mappability	Skeletal system disease	1	-13.846063
 dlpfc	segdup_any	technical_score	high_mappability	Skeletal system disease	1	-13.5363114188	0	0	AA	claim_eligible
 dlpfc	snp_proximal_any	technical	all_vmrs	Skeletal system disease	1	-0.556043945368679	0	0	AA	claim_eligible
 dlpfc	snp_proximal_any	technical_score	all_vmrs	Skeletal system disease	1	-0.47564635965866	0	0	AA	claim_eligible
-dlpfc	cell_composition_r2	technical	all_vmrs	Skeletal system disease	1	0.0668354032903412	0	0	AA	claim_eligible
-dlpfc	cell_composition_r2	technical_score	all_vmrs	Skeletal system disease	1	0.0233850860850757	0	0	AA	claim_eligible
+dlpfc	cell_composition_r2	technical	all_vmrs	Skeletal system disease	1	-0.141480928535986	0	0	AA	claim_eligible
+dlpfc	cell_composition_r2	technical_score	all_vmrs	Skeletal system disease	1	-0.142375756899788	0	0	AA	claim_eligible
 hippocampus	line_l1_any	technical	all_vmrs	Skeletal system disease	1	-0.42677218024411	0	0	AA	claim_eligible
 hippocampus	line_l1_any	technical_score	all_vmrs	Skeletal system disease	1	-0.322612570224388	0	0	AA	claim_eligible
 hippocampus	line_l1_any	technical	high_mappability	Skeletal system disease	1	0.0830911282076296	0	0	AA	claim_eligible
@@ -753,8 +753,8 @@ hippocampus	segdup_any	technical	high_mappability	Skeletal system disease	1	-12.
 hippocampus	segdup_any	technical_score	high_mappability	Skeletal system disease	1	-13.0321243684408	0	0	AA	claim_eligible
 hippocampus	snp_proximal_any	technical	all_vmrs	Skeletal system disease	1	-0.288607966818317	0	0	AA	claim_eligible
 hippocampus	snp_proximal_any	technical_score	all_vmrs	Skeletal system disease	1	-0.1469483985186	0	0	AA	claim_eligible
-hippocampus	cell_composition_r2	technical	all_vmrs	Skeletal system disease	1	-0.0591867704782856	0	0	AA	claim_eligible
-hippocampus	cell_composition_r2	technical_score	all_vmrs	Skeletal system disease	1	-0.140809239773496	0	0	AA	claim_eligible
+hippocampus	cell_composition_r2	technical	all_vmrs	Skeletal system disease	1	0.0597921696029346	0	0	AA	claim_eligible
+hippocampus	cell_composition_r2	technical_score	all_vmrs	Skeletal system disease	1	0.046482902695348	0	0	AA	claim_eligible
 caudate	line_l1_any	technical	all_vmrs	Hair morphology	3	-0.013108947909553	0	0	AA	descriptive_only
 caudate	line_l1_any	technical_score	all_vmrs	Hair morphology	3	-0.0146282737344603	0	0	AA	descriptive_only
 caudate	line_l1_any	technical	high_mappability	Hair morphology	3	0.223699257562744	0	0	AA	descriptive_only
@@ -781,8 +781,8 @@ caudate	segdup_any	technical	high_mappability	Hair morphology	3	-0.3485895412073
 caudate	segdup_any	technical_score	high_mappability	Hair morphology	3	-0.342555610213923	0	0	AA	descriptive_only
 caudate	snp_proximal_any	technical	all_vmrs	Hair morphology	3	-0.0900499181858093	0	1	AA	descriptive_only
 caudate	snp_proximal_any	technical_score	all_vmrs	Hair morphology	3	-0.110273908564621	0	1	AA	descriptive_only
-caudate	cell_composition_r2	technical	all_vmrs	Hair morphology	3	0.0943054286980368	2	0	AA	descriptive_only
-caudate	cell_composition_r2	technical_score	all_vmrs	Hair morphology	3	0.111297197185459	2	0	AA	descriptive_only
+caudate	cell_composition_r2	technical	all_vmrs	Hair morphology	3	0.111521245064055	2	0	AA	descriptive_only
+caudate	cell_composition_r2	technical_score	all_vmrs	Hair morphology	3	0.130847765163306	2	0	AA	descriptive_only
 dlpfc	line_l1_any	technical	all_vmrs	Hair morphology	3	-0.00813829622521399	0	0	AA	claim_eligible
 dlpfc	line_l1_any	technical_score	all_vmrs	Hair morphology	3	7.5770068637617e-05	0	0	AA	claim_eligible
 dlpfc	line_l1_any	technical	high_mappability	Hair morphology	3	-0.0922676231213677	0	0	AA	claim_eligible
@@ -809,8 +809,8 @@ dlpfc	segdup_any	technical	high_mappability	Hair morphology	3	0.54794554653198	0
 dlpfc	segdup_any	technical_score	high_mappability	Hair morphology	3	0.533057219904801	0	0	AA	claim_eligible
 dlpfc	snp_proximal_any	technical	all_vmrs	Hair morphology	3	-0.0581994000629876	0	0	AA	claim_eligible
 dlpfc	snp_proximal_any	technical_score	all_vmrs	Hair morphology	3	-0.0488679225072638	0	0	AA	claim_eligible
-dlpfc	cell_composition_r2	technical	all_vmrs	Hair morphology	3	0.0892564100900834	0	0	AA	claim_eligible
-dlpfc	cell_composition_r2	technical_score	all_vmrs	Hair morphology	3	0.0890851101230929	0	0	AA	claim_eligible
+dlpfc	cell_composition_r2	technical	all_vmrs	Hair morphology	3	0.0701512103322844	0	0	AA	claim_eligible
+dlpfc	cell_composition_r2	technical_score	all_vmrs	Hair morphology	3	0.0701443546866039	0	0	AA	claim_eligible
 hippocampus	line_l1_any	technical	all_vmrs	Hair morphology	3	-0.145752366555862	0	0	AA	claim_eligible
 hippocampus	line_l1_any	technical_score	all_vmrs	Hair morphology	3	-0.121415624904988	0	0	AA	claim_eligible
 hippocampus	line_l1_any	technical	high_mappability	Hair morphology	3	-0.0437634421099627	0	0	AA	claim_eligible
@@ -837,5 +837,5 @@ hippocampus	segdup_any	technical	high_mappability	Hair morphology	3	-12.89774133
 hippocampus	segdup_any	technical_score	high_mappability	Hair morphology	3	-13.0317608121956	0	0	AA	claim_eligible
 hippocampus	snp_proximal_any	technical	all_vmrs	Hair morphology	3	-0.054275938708714	0	0	AA	claim_eligible
 hippocampus	snp_proximal_any	technical_score	all_vmrs	Hair morphology	3	-0.0144560067197876	0	0	AA	claim_eligible
-hippocampus	cell_composition_r2	technical	all_vmrs	Hair morphology	3	0.108834319969485	1	0	AA	claim_eligible
-hippocampus	cell_composition_r2	technical_score	all_vmrs	Hair morphology	3	0.0997460479717966	0	0	AA	claim_eligible
+hippocampus	cell_composition_r2	technical	all_vmrs	Hair morphology	3	-0.0428435909946048	0	0	AA	claim_eligible
+hippocampus	cell_composition_r2	technical_score	all_vmrs	Hair morphology	3	-0.0489266147288909	0	0	AA	claim_eligible
