@@ -360,74 +360,100 @@ first thing under this one. It was not: two `###` subsections sat above it, the
 parser returned zero rows, and
 `require_accepted_upstream("09b_aging_application", ...)` therefore refused every
 consumer -- `11_integrated_manuscript_outputs/_h/11_supplementary_figures.R`
-among them. The projections that were above the table are now below it.
+among them. Everything that was above the table is now below it.
 
-**The three runs below predate the 2026-09-23 scMD-gate correction and their
-DLPFC reading is superseded.** `_m/` is immutable, so the correction takes effect
-only in a new run. **What the rerun gives depends on which Module 04 table it
-consumes, and the two answers differ**; both are set out after the table.
+The runs below postdate the 2026-09-23 scMD-gate correction. The three runs
+they replace, and the one reading the rerun changed, are under
+"### Superseded".
 
 | run_id | cohort | region | vmr_set_id | accepted_on | accepted_by | decision | notes |
 |---|---|---|---|---|---|---|---|
-| age-AA-caudate-20260919 | AA | caudate | vmrset-AA-caudate-937a41979978 | 2026-09-19 | Kynon J. Benjamin | PASS_AGING_AXIS_COVERAGE | Built at 0d69f432e on lgv-AA-caudate-rescore-20260913, rra-AA-caudate-20260906, tsc-AA-caudate-20260902; 153 donors, 11,251 VMRs, B = 1000. Primary −0.25 (p 3e-4), hypothesized direction; survives controls-only, MuSiC cell PCs, methylation variance, mappability, chromatin decomposition; fails the cell_composition_r2 arm (−0.07, p 0.19) and cell_scmd (p 0.057). Region reading PRIMARY_ONLY_FAILS_GATING_SENSITIVITY. Caudate is batch-confounded (descriptive tier). methPC–age max rho 0.51. |
-| age-AA-dlpfc-20260919 | AA | dlpfc | vmrset-AA-dlpfc-856067dfe289 | 2026-09-19 | Kynon J. Benjamin | PASS_AGING_AXIS_COVERAGE | Built at 0d69f432e on lgv-AA-dlpfc-rescore-20260913, rra-AA-dlpfc-20260906, tsc-AA-dlpfc-20260902; 118 donors, 9,251 VMRs, B = 1000. Primary −0.33 (p 0.025), hypothesized direction; survives controls-only (72%), MuSiC cell PCs (−0.39, p 0.01), methylation variance, mappability, chromatin decomposition; fails the cell_composition_r2 arm (−0.17, p 0.21). Region reading PRIMARY_ONLY_FAILS_GATING_SENSITIVITY. methPC–age max rho 0.45. |
-| age-AA-hippocampus-20260919 | AA | hippocampus | vmrset-AA-hippocampus-2d907b892215 | 2026-09-19 | Kynon J. Benjamin | PASS_AGING_AXIS_COVERAGE | Built at 0d69f432e on lgv-AA-hippocampus-rescore-20260913, rra-AA-hippocampus-20260906, tsc-AA-hippocampus-20260902; 117 donors, 9,166 VMRs, B = 1000. Primary −0.10 (p 0.28), hypothesized direction, not significant; controls-only −0.24 (p 0.02). Region reading NOT_SUPPORTED. methPC–age max rho 0.64, the largest of the three. |
+| age-AA-caudate-20261001 | AA | caudate | vmrset-AA-caudate-937a41979978 | 2026-10-01 | Kynon J. Benjamin | PASS_AGING_AXIS_COVERAGE | Built at 644054e01, git_dirty false, smoke_run FALSE, on vmrcat-AA-caudate-20260816, lgv-AA-caudate-rescore-20260913, rra-AA-caudate-20260925-a, tsc-AA-caudate-20260925-b; 153 donors (88 control, 65 case), 11,251 VMRs modelled, 0 non-finite, 0 excluded, B = 1000 with 0 failures, 6/6 gate checks pass. Primary **-0.252** (SE 0.071, 95% CI -0.390 to -0.113, p 3.6e-04), hypothesized direction, on 11,204 VMRs over 22 chromosome blocks. Gating arms: controls_only -0.316 (p 3.0e-05, 126% of primary) PASS, cell_music -0.294 (p 5.0e-07) PASS, cell_composition_r2 -0.199 (p 1.0e-03) PASS, **cell_scmd -0.241 (p 0.0562) FAIL** -- the single failing member. Non-gating: methylation_variance -0.276 (p 3.8e-05), high_mappability -0.243 (p 1.7e-04, 8,196 VMRs), chromatin_decomposition -0.244 (p 5.1e-04), age_ge_25 -0.120 (p 0.199). Region reading **PRIMARY_ONLY_FAILS_GATING_SENSITIVITY**, region_supported FALSE. Quartile descriptive: top-control quartile carries 0.188 of the regional mean debiased squared age effect against 1.408 in the bottom quartile. 21 of 57 annotation associations at q<0.05. scMD integration gate PASS, so cell_scmd is legitimately fitted here and is the only region where it is. cell_composition_r2_source = rna_music. methPC-age max abs(rho) 0.513 at chr_7:PC4. Cross-sectional design; caudate is batch-confounded (descriptive tier) and no causal, clock or environmental-determination reading is licensed. |
+| age-AA-dlpfc-20261001 | AA | dlpfc | vmrset-AA-dlpfc-856067dfe289 | 2026-10-01 | Kynon J. Benjamin | PASS_AGING_AXIS_COVERAGE | Built at 644054e01, git_dirty false, smoke_run FALSE, on vmrcat-AA-dlpfc-20260816, lgv-AA-dlpfc-rescore-20260913, rra-AA-dlpfc-20260925-a, tsc-AA-dlpfc-20260925-b; 118 donors (70 control, 48 case), 9,251 VMRs modelled, 0 non-finite, 0 excluded, B = 1000 with 0 failures, 6/6 gate checks pass. Primary **-0.328** (SE 0.149, 95% CI -0.620 to -0.036, p 0.0279), hypothesized direction, on 9,214 VMRs. Gating arms, **all fitted members survive**: cell_music -0.386 (p 9.8e-03) PASS, cell_composition_r2 -0.327 (p 0.0289) PASS, controls_only -0.236 (p 0.324 but 72.0% of the primary, against the locked `reduced_n_min_fraction: 0.5`; its rule is sign_and_min_fraction_of_primary, not significance, because the arm keeps only ~58% of donors) PASS; cell_scmd NOT FITTED, reason scmd_integration_gate_fails_in_region. Non-gating: methylation_variance -0.323 (p 0.0166), high_mappability -0.339 (p 0.0335, 5,702 VMRs), chromatin_decomposition -0.300 (p 0.0364), age_ge_25 -0.307 (p 0.128). Region reading **SUPPORTED_SURVIVES_GATING_SENSITIVITIES**, region_supported TRUE -- changed from PRIMARY_ONLY_FAILS_GATING_SENSITIVITY in the superseded run, for the two reasons in "### Superseded". Quartile descriptive: top quartile 0.237 against bottom 1.648. 18 of 57 annotation associations at q<0.05. scMD integration gate FAIL, cell_composition_r2_source = rna_music. methPC-age max abs(rho) 0.451 at chr_11:PC5. Cross-sectional design; "age-associated methylation differences", never "change with age". |
+| age-AA-hippocampus-20261001 | AA | hippocampus | vmrset-AA-hippocampus-2d907b892215 | 2026-10-01 | Kynon J. Benjamin | PASS_AGING_AXIS_COVERAGE | Built at 644054e01, git_dirty false, smoke_run FALSE, on vmrcat-AA-hippocampus-20260816, lgv-AA-hippocampus-rescore-20260913, rra-AA-hippocampus-20260925-a, tsc-AA-hippocampus-20260925-b; 117 donors (69 control, 48 case), 9,166 VMRs modelled, 0 non-finite, 0 excluded, B = 1000 with 0 failures, 6/6 gate checks pass. Primary **-0.098** (SE 0.088, 95% CI -0.271 to 0.075, **p 0.269, not significant**), hypothesized direction. Gating arms: controls_only -0.243 (p 0.0204, 249% of primary) PASS, cell_music -0.139 (p 0.168) FAIL, cell_composition_r2 -0.073 (p 0.406) FAIL; cell_scmd NOT FITTED, scmd_integration_gate_fails_in_region. Non-gating all null: methylation_variance -0.097 (p 0.275), high_mappability -0.017 (p 0.866), chromatin_decomposition -0.099 (p 0.251), age_ge_25 -0.049 (p 0.642). Region reading **NOT_SUPPORTED**, region_supported FALSE -- unchanged from the superseded run, and the only region whose reading the rerun did not move. Quartile descriptive: top quartile 0.315 against bottom 1.145, the weakest separation of the three. 27 of 57 annotation associations at q<0.05. methPC-age max abs(rho) **0.641** at chr_17:PC4, the largest of the three regions, so the catalog-scope caveat bites hardest here: a methylation PC removed before VMR calling tracks age, and this catalog therefore under-samples regions whose variability is mostly age-driven. That is a plausible contributor to the null and is not evidence against an age effect. |
 
-Cross-region (stage 05, 2026-09-19): `aging_axis_association = NOT_SUPPORTED`.
-Direction is concordant in all three regions and the top-quartile-control
-VMRs carry 0.19–0.32 of the regional mean squared age effect, but the
-`cell_composition_r2` gating arm removes the gradient everywhere. Reading:
-the age-responsive low-control VMRs are the composition-sensitive ones.
-Donor-level composition PCs in the age model do not remove it; the VMR-level
-composition-sensitivity covariate does. Bulk data cannot separate an
-age-related composition shift from a compartment that is cell-type-variable
-and age-variable for the same reason; the manuscript may report the gradient
-only with that qualifier. DLPFC–hippocampus difference −0.23, CI includes 0.
+**Cross-region (stage 05): pending rerun as of 2026-10-01.** The three
+per-region runs above are accepted; stage 05 runs only after that, by
+`Rscript _h/05_cross_region_concordance.R --cohort AA`, and until it does
+`_m/combined/` still holds the 2026-09-19 tables built on the superseded runs.
+Those are **not citable** against the accepted per-region numbers.
 
-### If Module 09b is rerun on the accepted `rra-AA-*-20260906` tables
+The superseded stage 05 returned `aging_axis_association = NOT_SUPPORTED` with
+a DLPFC-hippocampus difference of -0.23 whose CI included 0. Do not assume the
+rerun repeats it: one non-caudate region is now supported where none was. Under
+the §7.9 rule -- Module 09's two-region rule, needing at least two regions with
+at least one non-caudate -- one supported region is still not region-general, so
+the token is expected to move off `NOT_SUPPORTED` without reaching support. The
+accepted answer is whatever stage 05 writes, not this sentence.
 
-`cell_composition_r2` is scMD-derived there, so its arm is declined outside
-caudate and the reading follows from the sealed rows. Reading the sealed
-`axis-tests.tsv` through the corrected stage-03 logic
-(`tests/test_scmd_gate_consistency.R`) gives, with no refitting:
+### Superseded
 
-- **caudate: unchanged.** The scMD gate passes there, so the arm is legitimately
-  fitted, and `cell_scmd` gates and fails at p 0.057 on its own.
-  `PRIMARY_ONLY_FAILS_GATING_SENSITIVITY` stands.
-- **DLPFC: `PRIMARY_ONLY_FAILS_GATING_SENSITIVITY` →
-  `SUPPORTED_SURVIVES_GATING_SENSITIVITIES`.** `cell_composition_r2` was its only
-  failing member; `cell_music` (−0.39, p 0.0096) and `controls_only` (72% of the
-  primary) both survive.
-- **hippocampus: unchanged, `NOT_SUPPORTED`.** The primary is not significant
-  (p 0.28) and `cell_music` fails on its own.
+`age-AA-{caudate,dlpfc,hippocampus}-20260919` (accepted 2026-09-19, superseded
+2026-10-01). Superseded on two counts, and **the DLPFC and caudate readings
+should not be quoted again.**
 
-Cross-region, that is one supported non-caudate region, not two, so the
-association is still not region-general: the stage-05 token moves from
-`NOT_SUPPORTED` to `SINGLE_NONCAUDATE_REGION`. The arithmetic above is a
-projection from sealed numbers, not an accepted result; the accepted numbers
-come from the rerun.
+First, their upstreams moved. All three consumed `rra-AA-*-20260906` and
+`tsc-AA-*-20260902`, both replaced by the 2026-09-25 acceptances. Modules 01 and
+02 are unchanged, so the axis predictor is the same one. AGENTS.md §6 is not
+retroactive: the 2026-09-19 acceptance was sound when it was made.
 
-### If Module 04 is rerun first, and Module 09b consumes the MuSiC table
+Second, and the reason a rerun was needed rather than a pointer, the
+`cell_composition_r2` gating arm was **scMD-derived** in those runs. Outside
+caudate the scMD integration gate FAILS, so in DLPFC and hippocampus that arm
+was vetoing the reading on a covariate whose own modality is not licensed in
+those regions. The 2026-09-23 stage-03 correction declines the arm where its
+covariate cannot support a composition claim; with Module 04 reaccepted on
+2026-09-25 the arm is MuSiC-derived and gates in all three regions.
 
-`cell_composition_r2` is then MuSiC-derived, the arm gates in **all three**
-regions, and **none of the three readings can be projected**. The arm's estimate
-is refitted on a different covariate: MuSiC PCs instead of scMD PCs, over more
-donors (MuSiC covers 153/118/117 against scMD's 151/110/116, so DLPFC gains 8),
-which can move it independently of the modality change. The sealed −0.17 (p 0.21)
-for DLPFC is an scMD-based number and says nothing about the MuSiC-based one.
+**The composition qualifier does not survive, and this is the one place where
+the module's conclusion changed rather than its accounting.** The superseded
+cross-region reading was `aging_axis_association = NOT_SUPPORTED` with the
+qualifier that "the age-responsive low-control VMRs are the
+composition-sensitive ones" -- because `cell_composition_r2` removed the
+gradient everywhere. On the MuSiC covariate it removes nothing in caudate
+(-0.199, p 1.0e-03, against the superseded -0.07, p 0.19) and nothing in DLPFC
+(-0.327, p 0.0289, against -0.17, p 0.21). The sealed -0.17 was an scMD-based
+number and, as the projection below the old table said in advance, said nothing
+about the MuSiC-based one.
 
-So DLPFC's reading is **not** guaranteed to flip in that state: it flips only if
-the MuSiC-derived arm keeps the sign and reaches p < 0.05, which is an empirical
-question for the rerun. The correction's guarantee is narrower and is the point
-of it — whichever table is consumed, the arm gates exactly where its covariate
-can support a composition claim, and `cell_composition_r2_source` on every
-emitted row says which modality that was.
+So **DLPFC moves from `PRIMARY_ONLY_FAILS_GATING_SENSITIVITY` to
+`SUPPORTED_SURVIVES_GATING_SENSITIVITIES`**, which was the flip the README
+declined to project. Caudate stays `PRIMARY_ONLY_FAILS_GATING_SENSITIVITY` but
+for a different and much narrower reason: its only failing member is now
+`cell_scmd` at p 0.0562, in the one region where scMD legitimately gates.
+Hippocampus is unchanged at `NOT_SUPPORTED`; its primary is p 0.269 and every
+non-gating arm is null.
 
-Run order therefore matters and is a PI decision: rerunning 09b alone tests the
-axis against the currently accepted architecture, while rerunning Module 04 first
-changes what the gating arm means. Module 09b does not require the Module 04
-rerun — the gate is applied at consumption — so either order is valid, but the
-two give different readings and the choice should be deliberate.
+What did **not** change is worth recording. Direction is negative in all three
+regions and in every arm of all three. Donor counts, VMR counts and the donor
+checksums are identical to the superseded runs (153/118/117 donors;
+11,251/9,251/9,166 VMRs), because Modules 01 and 02 did not move. The
+`controls_only` arm survives in all three, and the top-control quartile still
+carries far less of the regional mean squared age effect than the bottom
+(0.188/0.237/0.315 against 1.408/1.648/1.145). The methPC-age diagnostics are
+unchanged (0.513 / 0.451 / 0.641), so the catalog-scope caveat stands exactly as
+written.
+
+### Which Module 04 table was consumed, and why it mattered
+
+Two projections used to sit here, one per run order, because the gating arm's
+meaning depends on which Module 04 table supplies `cell_composition_r2`. The
+question is now settled empirically and the projections are removed so they
+cannot be quoted as results.
+
+Module 04 was reaccepted first (`rra-AA-*-20260925-a`), so the arm is
+**MuSiC-derived in all three regions** and `cell_composition_r2_source =
+rna_music` on every emitted row. That is the branch the README said could not be
+projected, for a reason worth keeping: the arm is refitted on a different
+covariate over more donors (MuSiC covers 153/118/117 against scMD's 151/110/116,
+so DLPFC gains 8), which can move it independently of the modality change. It
+moved. The arm survives in caudate and DLPFC where the scMD-derived version
+failed.
+
+The correction's guarantee was always the narrower one, and it held: whichever
+table is consumed, the arm gates exactly where its covariate can support a
+composition claim, and `cell_composition_r2_source` on every row says which
+modality that was.
 
 ## Contract
 
