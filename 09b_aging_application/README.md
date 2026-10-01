@@ -354,10 +354,35 @@ checks, covering:
 
 ## Accepted runs
 
+`00_shared/gates.R::read_accepted_runs()` takes the first `Accepted runs`
+heading and stops at the next heading of any level, so the table must be the
+first thing under this one. It was not: two `###` subsections sat above it, the
+parser returned zero rows, and
+`require_accepted_upstream("09b_aging_application", ...)` therefore refused every
+consumer -- `11_integrated_manuscript_outputs/_h/11_supplementary_figures.R`
+among them. The projections that were above the table are now below it.
+
 **The three runs below predate the 2026-09-23 scMD-gate correction and their
 DLPFC reading is superseded.** `_m/` is immutable, so the correction takes effect
 only in a new run. **What the rerun gives depends on which Module 04 table it
-consumes, and the two answers differ**, so both are set out here.
+consumes, and the two answers differ**; both are set out after the table.
+
+| run_id | cohort | region | vmr_set_id | accepted_on | accepted_by | decision | notes |
+|---|---|---|---|---|---|---|---|
+| age-AA-caudate-20260919 | AA | caudate | vmrset-AA-caudate-937a41979978 | 2026-09-19 | Kynon J. Benjamin | PASS_AGING_AXIS_COVERAGE | Built at 0d69f432e on lgv-AA-caudate-rescore-20260913, rra-AA-caudate-20260906, tsc-AA-caudate-20260902; 153 donors, 11,251 VMRs, B = 1000. Primary −0.25 (p 3e-4), hypothesized direction; survives controls-only, MuSiC cell PCs, methylation variance, mappability, chromatin decomposition; fails the cell_composition_r2 arm (−0.07, p 0.19) and cell_scmd (p 0.057). Region reading PRIMARY_ONLY_FAILS_GATING_SENSITIVITY. Caudate is batch-confounded (descriptive tier). methPC–age max rho 0.51. |
+| age-AA-dlpfc-20260919 | AA | dlpfc | vmrset-AA-dlpfc-856067dfe289 | 2026-09-19 | Kynon J. Benjamin | PASS_AGING_AXIS_COVERAGE | Built at 0d69f432e on lgv-AA-dlpfc-rescore-20260913, rra-AA-dlpfc-20260906, tsc-AA-dlpfc-20260902; 118 donors, 9,251 VMRs, B = 1000. Primary −0.33 (p 0.025), hypothesized direction; survives controls-only (72%), MuSiC cell PCs (−0.39, p 0.01), methylation variance, mappability, chromatin decomposition; fails the cell_composition_r2 arm (−0.17, p 0.21). Region reading PRIMARY_ONLY_FAILS_GATING_SENSITIVITY. methPC–age max rho 0.45. |
+| age-AA-hippocampus-20260919 | AA | hippocampus | vmrset-AA-hippocampus-2d907b892215 | 2026-09-19 | Kynon J. Benjamin | PASS_AGING_AXIS_COVERAGE | Built at 0d69f432e on lgv-AA-hippocampus-rescore-20260913, rra-AA-hippocampus-20260906, tsc-AA-hippocampus-20260902; 117 donors, 9,166 VMRs, B = 1000. Primary −0.10 (p 0.28), hypothesized direction, not significant; controls-only −0.24 (p 0.02). Region reading NOT_SUPPORTED. methPC–age max rho 0.64, the largest of the three. |
+
+Cross-region (stage 05, 2026-09-19): `aging_axis_association = NOT_SUPPORTED`.
+Direction is concordant in all three regions and the top-quartile-control
+VMRs carry 0.19–0.32 of the regional mean squared age effect, but the
+`cell_composition_r2` gating arm removes the gradient everywhere. Reading:
+the age-responsive low-control VMRs are the composition-sensitive ones.
+Donor-level composition PCs in the age model do not remove it; the VMR-level
+composition-sensitivity covariate does. Bulk data cannot separate an
+age-related composition shift from a compartment that is cell-type-variable
+and age-variable for the same reason; the manuscript may report the gradient
+only with that qualifier. DLPFC–hippocampus difference −0.23, CI includes 0.
 
 ### If Module 09b is rerun on the accepted `rra-AA-*-20260906` tables
 
@@ -403,23 +428,6 @@ axis against the currently accepted architecture, while rerunning Module 04 firs
 changes what the gating arm means. Module 09b does not require the Module 04
 rerun — the gate is applied at consumption — so either order is valid, but the
 two give different readings and the choice should be deliberate.
-
-| run_id | cohort | region | vmr_set_id | accepted_on | accepted_by | decision | notes |
-|---|---|---|---|---|---|---|---|
-| age-AA-caudate-20260919 | AA | caudate | vmrset-AA-caudate-937a41979978 | 2026-09-19 | Kynon J. Benjamin | PASS_AGING_AXIS_COVERAGE | Built at 0d69f432e on lgv-AA-caudate-rescore-20260913, rra-AA-caudate-20260906, tsc-AA-caudate-20260902; 153 donors, 11,251 VMRs, B = 1000. Primary −0.25 (p 3e-4), hypothesized direction; survives controls-only, MuSiC cell PCs, methylation variance, mappability, chromatin decomposition; fails the cell_composition_r2 arm (−0.07, p 0.19) and cell_scmd (p 0.057). Region reading PRIMARY_ONLY_FAILS_GATING_SENSITIVITY. Caudate is batch-confounded (descriptive tier). methPC–age max rho 0.51. |
-| age-AA-dlpfc-20260919 | AA | dlpfc | vmrset-AA-dlpfc-856067dfe289 | 2026-09-19 | Kynon J. Benjamin | PASS_AGING_AXIS_COVERAGE | Built at 0d69f432e on lgv-AA-dlpfc-rescore-20260913, rra-AA-dlpfc-20260906, tsc-AA-dlpfc-20260902; 118 donors, 9,251 VMRs, B = 1000. Primary −0.33 (p 0.025), hypothesized direction; survives controls-only (72%), MuSiC cell PCs (−0.39, p 0.01), methylation variance, mappability, chromatin decomposition; fails the cell_composition_r2 arm (−0.17, p 0.21). Region reading PRIMARY_ONLY_FAILS_GATING_SENSITIVITY. methPC–age max rho 0.45. |
-| age-AA-hippocampus-20260919 | AA | hippocampus | vmrset-AA-hippocampus-2d907b892215 | 2026-09-19 | Kynon J. Benjamin | PASS_AGING_AXIS_COVERAGE | Built at 0d69f432e on lgv-AA-hippocampus-rescore-20260913, rra-AA-hippocampus-20260906, tsc-AA-hippocampus-20260902; 117 donors, 9,166 VMRs, B = 1000. Primary −0.10 (p 0.28), hypothesized direction, not significant; controls-only −0.24 (p 0.02). Region reading NOT_SUPPORTED. methPC–age max rho 0.64, the largest of the three. |
-
-Cross-region (stage 05, 2026-09-19): `aging_axis_association = NOT_SUPPORTED`.
-Direction is concordant in all three regions and the top-quartile-control
-VMRs carry 0.19–0.32 of the regional mean squared age effect, but the
-`cell_composition_r2` gating arm removes the gradient everywhere. Reading:
-the age-responsive low-control VMRs are the composition-sensitive ones.
-Donor-level composition PCs in the age model do not remove it; the VMR-level
-composition-sensitivity covariate does. Bulk data cannot separate an
-age-related composition shift from a compartment that is cell-type-variable
-and age-variable for the same reason; the manuscript may report the gradient
-only with that qualifier. DLPFC–hippocampus difference −0.23, CI includes 0.
 
 ## Contract
 

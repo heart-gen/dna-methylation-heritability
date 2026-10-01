@@ -99,10 +99,12 @@ difference in the superseded run. Both directions of that movement are artifacts
    differences, 30 are sensitivity refits and the rest are secondary scales,
    cell-type breakdowns and independent-assay contrasts; each sensitivity refit was
    counted as a separate difference (9 primary + 30 refits), the inflation `_h/01`
-   refuses by design. Primary-arm, non-control differences: **1**, unchanged from
-   the superseded run. `_h/02` now carries `outcome_role` through its cast and
-   reports the primary claim-family count as the headline, with the unfiltered
-   count kept as the auditable denominator. `difference_claimed` is deliberately
+   refuses by design. Primary-arm, non-control differences: **1** here and in
+   `-20260930`, but **0** in the superseded `-20260918` -- whose single difference
+   was the `expression_abc` artifact fix 1 excludes. The count is not carried over
+   and the test is not the same one; see "### Superseded". `_h/02` now carries
+   `outcome_role` through its cast and reports the primary claim-family count as
+   the headline, with the unfiltered count kept as the auditable denominator. `difference_claimed` is deliberately
    unchanged — it answers a statistical question about one row, and both the gate
    (`_h/05_apply_gates.R:121`) and Module 11's QQ panel read it — so the filters
    are additive columns, not a redefinition.
@@ -176,7 +178,58 @@ A run of this module spans all three regions, so `region` is the literal
 
 | run_id | cohort | region | vmr_set_id | accepted_on | accepted_by | decision | notes |
 |---|---|---|---|---|---|---|---|
-| rdg-AA-crossregion-20260918 | AA | crossregion | see manifest vmr_set_id_{caudate,dlpfc,hippocampus} | 2026-09-18 | Kynon J.M. Benjamin | PASS_REGION_DONOR_GENERALIZATION_QC | 9/9 gate criteria; 14 outputs; built at 6c2a930e4. Tier 1: 12 of 16 prespecified claim-family tests replicate in all 3 regions (12 strict, all 154 tests complete), both specificity controls run opposite the claim family. Tier 2: 1 of 154 testable dlpfc-minus-hippocampus differences survives strict conjunction; 154 caudate rows retained descriptive-only. Tier 3: primary within-caudate paired delta on 11335 shared loci, A = 0.1426 (block-jackknife 95% CI 0.131-0.155, reported not gated), all 3 replicates same direction, gap_closed 0.984; reading donor_count_is_a_plausible_major_contributor; lower-boundary mass rises 0.6247 to 0.6444 (+2.0 pts), reported alongside and excluded from the 0.10 threshold. Donor-group axis: concordance only, rho 0.815/0.753/0.759 = 85.3%/88.9%/88.0% of the reliability ceiling; no ancestry effect claim. Caudate remains batch-confounded; residual excess may NOT be called biological. |
+| rdg-AA-crossregion-20260930 | AA | crossregion | see manifest vmr_set_id_{caudate,dlpfc,hippocampus} | 2026-09-30 | Kynon J. Benjamin | PASS_REGION_DONOR_GENERALIZATION_QC | 10/10 gate criteria; 14 outputs; built at 975054f3f, git_dirty false, smoke_run FALSE. Consumes rra-AA-*-20260925-a, cmb-AA-*-20260924, tsc-AA-*-20260925-b, lsp-AA-*-20260925-a. First run with all four tier-accounting repairs (T20-T22, merged in #117), so its tier-1 and tier-2 counts are not comparable to any earlier run's. Tier 1: **13 of 13** prespecified claim-family tests replicate in all 3 regions, **13 strict**; denominators 374 tests across all analysis_sets, 74 primary, 13 in the claim family; 4 covariate terms and 3 underpowered Module 07 tests (`expression_abc`, below its locked min_vmrs_tested of 500) excluded from the family rather than counted in it; direction judged on nominally supported regions only; both specificity controls run opposite the claim family, none tracks it; no strict conjunction is vacuous. Tier 2: **1** primary claim-family dlpfc-minus-hippocampus difference survives strict conjunction (meqtl_burden quasibinomial score_z: dlpfc 2.094 vs hippocampus 2.367, delta -0.273, z -3.63, q 0.0038), against 39 rows surviving the statistical conjunction across all analysis_sets and roles and 9 in the primary arm -- the difference between those numbers is accounting, not evidence, and all 39 remain in the table. This difference is NOT the one the 2026-09-18 run reported: that run's single difference was the underpowered `expression_abc` arm, which the corrected claim-family filter excludes, and the `meqtl_burden` difference was p 0.64 on the older Module 05 estimates. See "### Superseded". 374 caudate rows retained descriptive-only. Tier 3: primary within-caudate paired delta on 11,335 shared loci, A = 0.1432 (block-jackknife 95% CI 0.1317-0.1548 over 22 chromosome blocks, reported not gated), all 3 replicates same direction, range 0.0032, gap_closed 0.9923; reading donor_count_is_a_plausible_major_contributor; lower-boundary mass rises 0.6247 to 0.6444 (+2.0 pts), recorded as estimator resolution and excluded from the 0.10 threshold. Donor-group axis: concordance only, rho 0.8146/0.7527/0.7589 for caudate/dlpfc/hippocampus = 85.3%/88.9%/88.0% of the analytic reliability ceiling (0.9546/0.8485/0.8635); no ancestry effect claim. Caudate remains batch-confounded; residual excess may NOT be called biological. |
+
+### Superseded
+
+`rdg-AA-crossregion-20260918` (accepted 2026-09-18, superseded 2026-09-30).
+Superseded on two independent counts, and its tier-1 and tier-2 counts should not
+be quoted again.
+
+First, its upstreams moved. It consumed `rra-AA-*-20260906`, `cmb-AA-*-20260825`
+and `tsc-AA-*-20260902`, all three of which were replaced by the 2026-09-24/25
+acceptances. AGENTS.md §6 is not retroactive, so the acceptance was sound when it
+was made; it is the forward use that was already prohibited above.
+
+Second, and the reason a rerun was needed rather than a pointer, its tier counts
+were produced by code with four accounting defects, documented in full earlier in
+this README and repaired on 2026-09-30. It reported *12 of 16 claim-family tests
+replicate, 12 strict*. Three of those 16 were Module 07 arms the source module had
+excluded from its own FDR family, and its strict conjunction ranged over a
+caudate-only arm that could never satisfy it, so neither the numerator nor the
+denominator means what it appears to.
+
+**Its one tier-2 difference does not survive the corrected accounting, and the
+accepted run's is a different test.** This is the one place where a count that
+looks stable is not. Scored the way this module now scores, the superseded run has
+**zero** primary claim-family differences, not one: its single claimed difference
+was `expression_coupling / expression_abc / any_meqtl_support` (DLPFC 2.21 against
+hippocampus 19.58, delta -17.37, q 2.4e-09), and `expression_abc` is exactly the
+underpowered arm -- 250 and 243 VMRs against Module 07's locked floor of 500 --
+that fix 1 excludes from the claim family. An estimate of 19.6 on 243 VMRs is the
+kind of number that filter exists for.
+
+The accepted run's one difference is `meqtl_burden` score_z, and it is new rather
+than carried over. In the superseded run that same test read DLPFC 2.449 against
+hippocampus 2.495, delta -0.046, p 0.64 -- not remotely significant. It reaches
+DLPFC 2.094 against hippocampus 2.367, delta -0.273, p 2.9e-04, q 0.0038 only on
+the `cmb-AA-*-20260924` burden estimates. So tier 2's answer moved from one
+spurious difference to one real one, for two independent reasons: fix 1 removed the
+artifact, and the Module 05 reacceptance created the finding.
+
+Do not read the unfiltered counts (1 against 39) as a change of verdict either.
+The test universe grew from 154 pairs to 374 when Module 04 registered its ATAC
+outcomes on 2026-09-25 (T8/T11), and most of that 39 is `atac_*` rows outside the
+claim family.
+
+What did **not** change across the rerun is worth recording, because it is what
+makes Module 09's decision 1 safe: tier 3 and the donor-group concordance tables
+are byte-identical between `-20260925` and `-20260930`. The tier-3 reading has been
+`donor_count_is_a_plausible_major_contributor` in every run, with relative
+attenuation 0.1426 / 0.1432 / 0.1432.
+
+`rdg-AA-crossregion-20260925` was never accepted. It is the run whose sealing
+exposed the four defects; see the section above. Nothing in it is citable.
 
 ## Pipeline
 
