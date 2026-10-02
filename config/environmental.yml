@@ -288,24 +288,88 @@ testing:
   axis_covariates:
     [vmr_length, cpg_count, cpg_density, gc_content, mappability,
      mean_methylation, methylation_variance]
-  # PI 2026-09-19. A NON-GATING arm, added with the debiased outcome.
+  # ------------------------------------------------------------------ axis arms
   #
-  # methylation_variance is in the adjustment set above, and holding total
-  # variance fixed is exactly what activates the variance-budget arithmetic in
-  # interpretation.variance_budget_limitation: at a fixed total, a higher genetic
-  # share leaves less non-genetic variance for any exposure to move.
-  # 09b_aging_application faced the same choice and EXCLUDED total variance from
-  # its primary, on the ground that the outcome is part of what is being adjusted
-  # for. This arm drops it and nothing else, so the difference between the two
-  # estimates is attributable to that one covariate.
+  # An arm refits the PRIMARY outcome and the primary estimand with one change to
+  # the adjustment set, on the primary's VMR rows and the primary's bootstrap
+  # draws, so the comparison is paired. Every arm here is NON-GATING: it cannot
+  # promote or demote the primary, it gets its own BH family, and neither
+  # direction is a failure. `axis_covariates` above is the prespecified primary
+  # and is NOT touched by any of this -- no arm changes the primary estimate or
+  # the primary's BH family.
   #
-  # It is a sensitivity, not a second headline: it cannot promote or demote the
-  # primary, it is fitted on the SAME VMR rows and the SAME bootstrap draws as the
-  # primary so the comparison is paired, and it gets its own BH family. Neither
-  # direction is a failure -- the primary stays primary because it is the
-  # prespecified model, and this arm says how much of it the covariate carries.
-  non_gating_axis_arms: [no_methylation_variance]
-  arm_no_methylation_variance_drops: [methylation_variance]
+  # SHAPE NOTE. Until 2026-10-02 this was two flat keys,
+  # `non_gating_axis_arms: [...]` plus `arm_<name>_drops: [...]`, which could only
+  # express a dropped covariate. The cell-composition arm adds one, so the keys
+  # became the `axis_arms` map below -- the same shape 09b_aging_application
+  # already uses at config/aging.yml:axis.arms. A sealed run snapshots its config,
+  # so _h/03_control_axis_test.R reads BOTH shapes and an older run still re-runs.
+  #
+  # WHY NON_GATING AND NOT GATING, which is where 09b puts its cell arm. A gate
+  # exists to decide something. 09b has a per-region reading to decide, so its
+  # cell arm sits in `region_reading.same_n_members` and can veto. Module 10 has
+  # no such decision to make: its gate is a COVERAGE gate (gates: below), a null
+  # axis result is a legitimate outcome that must seal, and
+  # `main_text_retention = NEVER_SUPPLEMENT_ONLY` holds whatever any arm does. An
+  # arm that cannot change an outcome is not a gate, and calling it one would
+  # imply this module has a finding to defend.
+  axis_arms:
+
+    # PI 2026-09-19, carried forward unchanged.
+    #
+    # methylation_variance is in the adjustment set above, and holding total
+    # variance fixed is exactly what activates the variance-budget arithmetic in
+    # interpretation.variance_budget_limitation: at a fixed total, a higher
+    # genetic share leaves less non-genetic variance for any exposure to move.
+    # 09b faced the same choice and EXCLUDED total variance from its primary, on
+    # the ground that the outcome is part of what is being adjusted for. This arm
+    # drops it and nothing else, so the difference between the two estimates is
+    # attributable to that one covariate.
+    #
+    # PI 2026-10-02, closing the open item in the module README: the primary
+    # KEEPS methylation_variance and this stays a sensitivity. Two reasons. The
+    # arm moves the three FDR-surviving families by 0.016-0.048 of their
+    # coefficient on the sealed env-AA-*-20260920-a runs, so promoting it would
+    # change no reading; and the covariate set is prespecified, so swapping the
+    # primary after seeing which way the arm went is exactly the choice
+    # prespecification exists to prevent. The variance-budget limitation is a
+    # permanent Discussion item either way -- it is arithmetic, not a covariate.
+    no_methylation_variance:
+      role: non_gating
+      drop_covariates: [methylation_variance]
+
+    # PI 2026-10-02, closing the open item in the module README.
+    #
+    # Module 10 had NO cell-composition arm, and an earlier revision of the
+    # README wrongly reported one -- it named the no_methylation_variance numbers
+    # as a `cell_composition_r2` arm and concluded the gradient was "not cell
+    # composition restated". The numbers were real; the arm did not exist, so the
+    # conclusion was untested rather than established. Worse, 09b DOES have this
+    # arm, there it is gating, and there the aging gradient FAILS it -- so the
+    # mislabel imported the opposite conclusion from the module next door.
+    #
+    # This arm makes the module answer the question it was wrongly credited with
+    # answering. `cell_composition_r2` is Module 04's per-VMR R-squared of
+    # methylation on cell-composition PCs, the same column 09b's gating arm uses,
+    # so the two modules' sensitivities are directly comparable.
+    #
+    # MODALITY. It is RNA MuSiC in all three regions -- Module 04 records that in
+    # `cell_composition_r2_source` and _h/03_control_axis_test.R verifies it
+    # rather than trusting the name, because the column was DNAm scMD before
+    # Module 04's 2026-09-25 rebuild and a silent modality switch would change
+    # what this arm means. DNAm scMD is deliberately NOT a second arm: its
+    # integration gate passes in caudate only (AGENTS.md 7.4, 7.9), so an scMD
+    # arm would give the three regions different sensitivity sets for no gain
+    # here, where nothing is being gated. `cell_composition_r2_scmd` stays
+    # available in Module 04's table for anyone who wants that comparison.
+    #
+    # REQUIRES rra-AA-*-20260925-a or later: the column does not exist in
+    # rra-AA-*-20260906. Stage 03 stops with the Module 04 run ID named if it is
+    # absent, rather than dropping the arm quietly.
+    cell_composition_r2:
+      role: non_gating
+      add_covariates: [cell_composition_r2]
+      requires_cell_composition_r2_source: rna_music
   # PI 2026-09-20, replacing relative_scale_min_mean_z.
   #
   # The interpretable quantity is the ratio R = beta / mean(omega) -- "38% less

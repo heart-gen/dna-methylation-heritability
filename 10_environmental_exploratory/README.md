@@ -1,11 +1,17 @@
 # 10_environmental_exploratory — exploratory environmental-factor analysis
 
-**Status: three production runs sealed 2026-09-20, awaiting PI acceptance.
-Supplement only, permanently.** `env-AA-{caudate,dlpfc,hippocampus}-20260920-a`
-each returned `PASS_EXPLORATORY_COVERAGE` with 22/22 chromosomes reconciled and
-zero computational failures. They supersede four earlier rounds; see
-**Superseded runs**. Nothing here may be cited until the runs are entered in
-**Accepted runs**.
+**Status: accepted 2026-09-20; rerunning 2026-10-02 to re-pin Module 04 and add
+a cell-composition arm. Supplement only, permanently.**
+`env-AA-{caudate,dlpfc,hippocampus}-20260920-a` each returned
+`PASS_EXPLORATORY_COVERAGE` with 22/22 chromosomes reconciled and zero
+computational failures, and the PI accepted all three on 2026-09-20, so
+`_m/combined/` carries `citable = TRUE` — see **Accepted runs**. They supersede
+four earlier rounds; see **Superseded runs**.
+
+Those runs pin `rra-AA-*-20260906`, which Module 04 superseded on 2026-09-25.
+The replacement round re-pins the accepted Module 04 run and closes the module's
+two open PI items at the same time; see **The 2026-10-02 rerun** for what moves
+(the provenance) and what does not (every number).
 
 Asks whether measured donor exposures associate with VMR methylation, and
 whether that association varies along Module 02's continuous local-genetic-control
@@ -245,6 +251,36 @@ recorded reason when either group holds fewer than 10 VMRs. Technical covariates
 are joined from Module 04's `vmr-features.tsv` rather than recomputed, so GC
 content and mappability are identical to the values Module 04 published.
 
+#### Non-gating arms
+
+`config/environmental.yml:testing.axis_arms` declares the sensitivities. An arm
+refits the **primary** outcome and the **primary** estimand with one change to
+the adjustment set, on the primary's VMR rows and the primary's bootstrap draws,
+so every comparison is paired. Two exist:
+
+| arm | change | asks |
+|---|---|---|
+| `no_methylation_variance` | drops `methylation_variance` | how much of the gradient that one covariate carries, since holding total variance fixed is what activates the variance-budget arithmetic |
+| `cell_composition_r2` | adds `cell_composition_r2` | whether the gradient is cell composition restated — the question this module was once wrongly credited with answering |
+
+Three properties bind both, and all three are enforced in code rather than
+documented here and hoped for:
+
+- **Non-gating.** Neither can promote or demote the primary. Module 10's gate is
+  a coverage gate, a null axis result is a legitimate outcome, and
+  `main_text_retention = NEVER_SUPPLEMENT_ONLY` holds whatever an arm shows, so
+  there is nothing here for an arm to gate. `_h/03_control_axis_test.R` refuses
+  an arm declared `role: gating`. This is the one place Module 10 and 09b differ
+  on purpose: 09b's `cell_composition_r2` arm **is** gating, because 09b has a
+  per-region reading to decide.
+- **Its own BH family, within stratum.** An arm must not borrow significance
+  from the primary, lend it, or share a family with another arm — otherwise each
+  arm's q would depend on how many sensitivities happen to be declared.
+- **`arm_attenuation` is not a test.** It is the fraction of the primary
+  coefficient the covariate change carries, so it is a ratio of two coefficients
+  and explodes as the primary approaches zero. Do not read it where the primary
+  is null.
+
 ## What a collaborator can read without Quest (`_m/combined/`)
 
 `_m/runs/{RUN_ID}/` is immutable, gitignored and stays on Quest: the per-VMR
@@ -255,13 +291,14 @@ re-run the SLURM chain to write up or check a number.
 
 | file | rows | what it holds |
 |---|---|---|
-| `environmental-axis-reading-AA.tsv` | 19 | the stage B reading: one row per family with scale, `beta`, CI, `p`, `q`, the absolute sensitivity, `mean_omega_z`, the Fieller flag, the bootstrap inflation, the cell arm, and the Module 08 tier. A strict column subset of the table below — no number is derived here |
-| `environmental-axis-per-region-AA.tsv` | 19 | every stage B column the runs emit (81) plus the collation's provenance columns, 90 in all, stacked |
+| `environmental-axis-reading-AA.tsv` | 19 | the stage B reading: one row per family with scale, `beta`, CI, `p`, `q`, the absolute sensitivity, `mean_omega_z`, the Fieller flag, the bootstrap inflation, every arm's `beta`/`p`/`q`/attenuation, and the Module 08 tier. A strict column subset of the table below — no number is derived here. (Before 2026-10-02 this row said "the cell arm"; there was no cell arm, and the columns held `no_methylation_variance`.) |
+| `environmental-axis-per-region-AA.tsv` | 19 | every stage B column the runs emit plus the collation's provenance columns, stacked |
+| `environmental-axis-arms-AA.tsv` | 19 x arms | the non-gating arms in **long** form, one row per region x exposure x stratum x arm: `beta`, `se`, `p`, its own `fdr`, CI, Fieller flag, attenuation against the primary, the arm's covariate set, and `n_vmrs_lost_vs_primary`. Derived from the wide columns by reshaping, never recomputed, so the two cannot disagree. This is the table to read now that there is more than one arm |
 | `environmental-vmr-associations-fdr-AA.tsv` | 12 | the stage A per-VMR rows that survive BH, with `vmr_id`, coordinates, `p_joint`, `fdr` and `omega`. All 12 are hippocampus (11 `nicotine`, 1 `education`); caudate and DLPFC have none |
 | `environmental-fdr-families-AA.tsv` | 19 | per family: VMRs tested, VMRs significant, `min_p`, the BH alpha and method |
 | `environmental-exposure-eligibility-AA.tsv` | 69 | every candidate exposure x stratum, its donor counts and class balance, and for the ineligible ones the reason. This is what explains why 19 families exist and not more |
-| `environmental-decision-AA.tsv` | 3 | the per-region decision row, plus whether the Module 02 score it cites is still the accepted one |
-| `environmental-gate-checks-AA.tsv` | 15 | each coverage check, observed against required |
+| `environmental-decision-AA.tsv` | 3 | the per-region decision row, the arms it carried, and whether **every** upstream it cites is still the accepted one — per upstream, not Module 02 alone; see **The 2026-10-02 rerun** |
+| `environmental-gate-checks-AA.tsv` | 18 | each coverage check, observed against required |
 | `environmental-collation-provenance-AA.tsv` | 3 | run ID, `sealed_at`, donor checksum, `vmr_set_id`, every upstream run ID, the run's git commit and the config SHA-256; plus the collation's own commit and the standing interpretation limits as text |
 
 Three properties of these tables are worth stating because they are easy to
@@ -584,13 +621,24 @@ Recorded machine-readably as `interpretation.variance_budget_limitation` in
 `config/environmental.yml`, and in AGENTS.md §7.10. It applies equally to §7.9's
 aging axis, which asks the same question with age in place of exposure.
 
-**One open PI item follows from it.** `methylation_variance` is in this module's
-prespecified `axis_covariates`, and holding it fixed is exactly what activates the
-budget arithmetic. 09b faced the same choice and **excluded** total variance from
-its primary, on the ground that the outcome is part of it. The covariate set is
-prespecified and `pi_locked`, so it was left as locked here rather than changed
-alongside the outcome; whether Module 10 should carry a no-`methylation_variance`
-arm is a PI decision, and it is cheap to add now that the machinery exists.
+**This raised one PI item, closed 2026-10-02: the primary keeps
+`methylation_variance`, and dropping it stays a sensitivity.**
+`methylation_variance` is in this module's prespecified `axis_covariates`, and
+holding it fixed is exactly what activates the budget arithmetic. 09b faced the
+same choice and **excluded** total variance from its primary, on the ground that
+the outcome is part of it. Two reasons the asymmetry stands here:
+
+- **It would change no reading.** On the sealed `env-AA-*-20260920-a` runs the
+  `no_methylation_variance` arm moves the three FDR-surviving families by
+  0.016-0.048 of their coefficient. Promoting it swaps which number is the
+  headline and leaves every conclusion where it was.
+- **The covariate set is prespecified.** Changing the primary after seeing which
+  way the arm went is the choice prespecification exists to prevent. The arm
+  reports the covariate's contribution, which is what a sensitivity is for.
+
+The variance-budget limitation is unaffected either way. It is arithmetic, not a
+covariate: at fixed total variance a higher genetic share leaves less non-genetic
+variance for any exposure to move, and no adjustment set removes that.
 
 ## Current production runs (`env-AA-*-20260920-a`, sealed 2026-09-20)
 
@@ -651,27 +699,44 @@ by `methylation_variance`, the one covariate that arm drops. Three more families
 are marginal and resolve nothing: hippocampus `smoking` (q = 0.057), dlpfc
 `nicotine` in cases (q = 0.054) and caudate `smoking` (q = 0.074).
 
-**Cell composition is untested in this module, not ruled out.** An earlier
-revision of this section attributed the three numbers above to a
-`cell_composition_r2` arm and concluded "the gradient is not cell composition
-restated". No such arm exists here. `config/environmental.yml:307` declares
-exactly one, `non_gating_axis_arms: [no_methylation_variance]`, dropping
-`methylation_variance` and nothing else, and the axis covariate set at
-`config/environmental.yml:288-290` — joined from Module 04's `vmr-features.tsv` at
-`_h/03_control_axis_test.R:101-103` — contains no cell-composition term at all.
+**Cell composition was untested in these runs, and that is why they are being
+replaced.** An earlier revision of this section attributed the three numbers
+above to a `cell_composition_r2` arm and concluded "the gradient is not cell
+composition restated". No such arm existed. The config declared exactly one arm,
+`no_methylation_variance`, dropping `methylation_variance` and nothing else, and
+the axis covariate set contained no cell-composition term;
 `grep -rn cell_composition 10_environmental_exploratory/_h/ config/environmental.yml`
-returns nothing. The numbers were real (they are the `arm_beta`/`arm_p` columns of
-`environmental-axis-per-region-AA.tsv`); only the arm's name and the inference
-drawn from it were wrong, and the inference is therefore **untested rather than
-refuted**. 09b_aging_application does have a `cell_composition_r2` arm, and there
-it is *gating* and the gradient *fails* it, so the mislabel imported the opposite
-conclusion from the module next door.
+returned nothing. The numbers were real — they are the `arm_beta`/`arm_p` columns
+of `environmental-axis-per-region-AA.tsv`, i.e. the `no_methylation_variance`
+arm — but the arm's name and the inference drawn from it were wrong, so the
+inference was **untested rather than refuted**. 09b does have a
+`cell_composition_r2` arm, there it is *gating*, and there the aging gradient
+*fails* it, so the mislabel imported the opposite conclusion from the module next
+door.
 
-Adding the arm is a PI decision: `config/environmental.yml` is `pi_locked`, the
-axis covariate set is part of the lock, and enlarging it changes every stage B
-estimate and its BH family, so it requires a new Module 10 run rather than a
-re-derive. Until then, nothing in this module speaks to whether cell composition
-explains the exposure gradient.
+**PI decision 2026-10-02: add the arm, as a non-gating sensitivity.**
+`config/environmental.yml:testing.axis_arms.cell_composition_r2` adds Module 04's
+`cell_composition_r2` and changes nothing else; see **Non-gating arms** for the
+role, the own-BH-family rule and why this one is non-gating where 09b's is
+gating. Three consequences worth stating:
+
+- **The primary does not move.** The arm adds a covariate to its own refit, not
+  to `axis_covariates`. The primary estimate, its BH family and every q-value in
+  the primary family are untouched, so this is not a re-estimation of the
+  module's headline.
+- **It needs the new Module 04 pin.** `cell_composition_r2` does not exist in
+  `rra-AA-*-20260906`; it first appears in `rra-AA-*-20260925-a`. Stage 03 stops
+  with the Module 04 run ID named rather than dropping the arm quietly. So the
+  arm and the stale-pin repair are one rerun, not two.
+- **The modality is checked, not assumed.** `cell_composition_r2` was DNAm scMD
+  before Module 04's 2026-09-25 rebuild and is RNA MuSiC after it. The arm
+  declares `requires_cell_composition_r2_source: rna_music` and stage 03 verifies
+  Module 04's recorded source, so a future modality switch stops the stage
+  instead of silently changing what the arm means. DNAm scMD is deliberately not
+  a second arm: its integration gate passes in caudate only, so an scMD arm would
+  give the three regions different sensitivity sets for no gain where nothing is
+  being gated. `cell_composition_r2_scmd` remains in Module 04's table for
+  anyone who wants that comparison.
 
 **What the sensitivity columns say, and they are not decoration.** `absolute_p` is
 above 0.05 in **every** family in all three regions (`n_absolute_p_below_alpha =
@@ -703,6 +768,77 @@ paths compute one thing.
    budget** explains why a negative gradient is close to arithmetically expected,
    and that limitation is permanent.
 
+## The 2026-10-02 rerun
+
+### Why: the accepted runs pin a superseded Module 04
+
+`env-AA-*-20260920-a` pin `rra-AA-*-20260906`. Module 04 superseded that on
+2026-09-25 with `rra-AA-*-20260925-a`. A scan of every accepted run in all
+thirteen v2 modules against its upstreams' acceptance tables found **this was the
+only stale pin in the project**: Modules 09 and 09b both pin `-20260925-a`, and
+Module 03's nine `estcell-*` pins resolve to `01b_estimation_cells`, which
+accepts them.
+
+**Scientifically the pin is inert, and that is measured rather than assumed.**
+Module 10 takes exactly seven columns from `vmr-features.tsv` —
+`vmr_length`, `cpg_count`, `cpg_density`, `gc_content`, `mappability`,
+`mean_methylation`, `methylation_variance`. Comparing the two Module 04 runs row
+by row:
+
+| check | caudate | dlpfc | hippocampus |
+|---|---|---|---|
+| rows, `-20260906` → `-20260925-a` | 11,341 → 11,251 | 9,341 → 9,251 | 9,265 → 9,166 |
+| VMRs Module 10 tested | 11,251 | 9,251 | 9,166 |
+| Module 10's set equals the new run's row set | yes | yes | yes |
+| rows Module 10 used that the new run drops | 0 | 0 | 0 |
+| rows differing in any of the seven covariates | 0 | 0 | 0 |
+
+So the VMRs the new Module 04 run drops were already outside Module 10's tested
+set, and the seven covariates are identical on every row Module 10 used. The new
+run only **adds** columns: sixteen ATAC features and the `cell_composition_r2`
+MuSiC/scMD split. A rerun on the current pin therefore reproduces the primary
+estimates, and the point of it is the provenance chain, not the numbers.
+
+### Why it still mattered: `upstream_current` checked one upstream of three
+
+`_h/06_collate_regions.R` sets
+
+```r
+citable <- !allow_unaccepted && !smoke && n_stale == 0L
+```
+
+so the module's own citability rule is built to catch exactly this. It missed it
+because `n_stale` came from a currency check over **Module 02 alone**, while
+`_h/00_new_run.R` pins three upstreams. The emitted column named
+`upstream_current` therefore read `TRUE` on all three rows, and `citable` stayed
+`TRUE`, while a pinned upstream was superseded.
+
+`00_shared/gates.R::require_accepted_upstream()` does no transitive check either
+— it asks only whether the named module has one accepted run for the cohort ×
+region — so Module 11 would have consumed this silently and recorded a provenance
+chain that was false one hop up.
+
+**Fixed 2026-10-02.** The check now runs over every upstream the run pinned and
+emits, per region: `upstream_{vmr_catalog,local_genetic_variance,repeat_architecture}_{cited,accepted,current}`,
+plus `n_upstreams_checked`, `n_upstreams_stale`, `n_upstreams_unpinned` and a
+`stale_upstreams` string naming each mismatch. An upstream the run pinned
+**nothing** for is reported as unknown rather than current, because a provenance
+hole is not evidence of currency. `module_02_cited` and `module_02_accepted` keep
+their names so consumers written before today still read.
+
+### What the rerun changes
+
+1. Re-pins all three upstreams to the accepted runs, `rra-AA-*-20260925-a` among
+   them.
+2. Adds the `cell_composition_r2` non-gating arm, which is only possible on that
+   pin.
+3. Carries the widened currency columns and the long-form arms table.
+
+The primary model, its covariate set, its estimand, its inference and its BH
+families are unchanged. Expect the primary numbers to reproduce the sealed runs
+to bootstrap noise; the seeds are derived from the run ID, so the new run ID
+makes the draws differ while the estimator does not.
+
 ## Superseded runs
 
 | run_id | sealed | superseded because |
@@ -730,11 +866,18 @@ new one.
 
 That would remove the leading alternative explanation for Module 09 (smoking is
 72% in cases vs 28% in controls; antipsychotics has zero exposed controls). It
-is **not implemented**. Its precondition is now met — Module 09 recorded
-accepted runs `scz-AA-{caudate,dlpfc,hippocampus}-20260918` on 2026-09-19 — but
-commissioning it remains a PI decision. The design, the mandatory positive control, and the collider
-caution are in
-`writing-notes/exposure_confounding_of_scz_meqtl_strategy.md`.
+is **not implemented**. Its precondition is met: Module 09 has accepted runs,
+now `scz-AA-{caudate,dlpfc,hippocampus}-20261001`, reaccepted 2026-10-01 after
+the stages 15-18 rerun. (This paragraph cited the superseded `-20260918` runs
+until 2026-10-02.) The design, the mandatory positive control and the collider
+caution are in `writing-notes/exposure_confounding_of_scz_meqtl_strategy.md`.
+
+**PI decision 2026-10-02: deferred past Module 11, not declined.** It is new
+analysis rather than a rerun, it cannot change a main-text claim — §7.10's
+ceiling holds whatever it finds — and Module 11's rebuild is the step that
+unblocks the manuscript narrative. Commissioning it stays a live option once the
+figures are rebuilt; nothing in this module's rerun forecloses it, and the
+strategy note is unchanged.
 
 ## Acceptance gate
 
@@ -743,8 +886,16 @@ caution are in
 criterion — a null axis result is a legitimate outcome and must not block
 sealing. What it checks is whether the run had the coverage to have said
 anything: at least one eligible exposure, at least 500 tested VMRs, at least one
-axis model fitted, no forbidden column in any input, and a BH family count that
-matches what stage 1 prespecified.
+axis model fitted, no forbidden column in any input, a BH family count that
+matches what stage 1 prespecified, and — added 2026-10-02 — that **every arm the
+config declares was actually fitted**.
+
+That sixth check is coverage in the same sense as the other five: it asks whether
+the run produced the sensitivity it claims to carry, and is indifferent to what
+the sensitivity shows. An arm that attenuates the primary to zero passes it.
+Without it, an arm that failed for every family would leave a run sealing with a
+sensitivity that exists only in the config — which is the failure mode this
+module has already had once, in prose rather than in code.
 
 ## Accepted runs
 
@@ -770,6 +921,15 @@ qualify every number in the stage B table and neither is resolved:
    likely optimistic and these p-values may be too small. Settling it needs a
    null plus positive-control simulation that has not been run. The same
    bootstrap construction is in `09b_aging_application`'s accepted runs.
+
+   **This is not a Module 10 item and the 2026-10-02 rerun does not address it**
+   (PI 2026-10-02). The construction is shared with 09b, so a simulation that
+   settled it here would have to be redone there; it is one methods-validation
+   task spanning both modules, tracked as **T28** in
+   `writing-notes/v2-analysis/TASKS.md` rather than as a rerun of either. It
+   does not block Module 11: the caveat is already carried on every emitted row
+   and in every acceptance note, which is what a reader needs in order not to
+   over-read these p-values.
 
 The **variance-budget limitation** (see "Limitation for the discussion") is
 permanent and is a Discussion item, not a task: at fixed total variance a higher
