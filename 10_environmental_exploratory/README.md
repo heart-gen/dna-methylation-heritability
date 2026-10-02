@@ -9,9 +9,10 @@ computational failures, and the PI accepted all three on 2026-09-20, so
 four earlier rounds; see **Superseded runs**.
 
 Those runs pin `rra-AA-*-20260906`, which Module 04 superseded on 2026-09-25. The
-replacement round `env-AA-*-20261002` **sealed 2026-10-02 with
+replacement round `env-AA-*-20261002-a` **sealed 2026-10-02 with
 `PASS_EXPLORATORY_COVERAGE` in all three regions and awaits PI acceptance**: it
-re-pins the accepted Module 04 run, adds a cell-composition arm, and closes the
+re-pins the accepted Module 04 run, adds two cell-composition arms (RNA MuSiC in
+every region, DNAm scMD in caudate where its gate passes), and closes the
 module's four open PI items. Every primary point estimate reproduces the sealed
 runs bit-identically, so the stale pin cost nothing scientifically; what the
 rerun adds is a true provenance chain and one new result, which is that the
@@ -263,10 +264,11 @@ refits the **primary** outcome and the **primary** estimand with one change to
 the adjustment set, on the primary's VMR rows and the primary's bootstrap draws,
 so every comparison is paired. Two exist:
 
-| arm | change | asks |
-|---|---|---|
-| `no_methylation_variance` | drops `methylation_variance` | how much of the gradient that one covariate carries, since holding total variance fixed is what activates the variance-budget arithmetic |
-| `cell_composition_r2` | adds `cell_composition_r2` | whether the gradient is cell composition restated — the question this module was once wrongly credited with answering |
+| arm | change | regions | asks |
+|---|---|---|---|
+| `no_methylation_variance` | drops `methylation_variance` | all | how much of the gradient that one covariate carries, since holding total variance fixed is what activates the variance-budget arithmetic |
+| `cell_composition_r2` | adds `cell_composition_r2` (RNA MuSiC) | all | whether the gradient is cell composition restated — the question this module was once wrongly credited with answering |
+| `cell_composition_r2_scmd` | adds `cell_composition_r2_scmd` (DNAm scMD) | **caudate only** | whether the caudate attenuation the MuSiC arm found is a property of cell composition or of the RNA-derived measure of it |
 
 Three properties bind both, and all three are enforced in code rather than
 documented here and hoped for:
@@ -285,6 +287,37 @@ documented here and hoped for:
   coefficient the covariate change carries, so it is a ratio of two coefficients
   and explodes as the primary approaches zero. Do not read it where the primary
   is null.
+
+#### Region-conditional arms
+
+`cell_composition_r2_scmd` is the module's first region-conditional arm.
+AGENTS.md §7.4 and §7.9 both scope DNAm scMD to "where the integration gate
+passes", and Module 04 records that per run in `scmd_integration_gate`: **PASS**
+in caudate, with `cell_composition_r2_scmd` populated for all 11,251 VMRs, and
+**FAIL** in DLPFC and hippocampus, where the column is empty for every VMR. The
+arm therefore cannot be fitted in two regions of three.
+
+An unfittable arm is **skipped, and the skip is recorded in three places** — the
+manifest (`axis_arms_fitted`, `axis_arms_skipped`, `scmd_integration_gate`), the
+arms table's `arm_status`, and the decision row that `_m/combined/` carries. A
+skipped arm keeps its full column set, filled with NA plus the reason, so the
+absence reads as an explicit skip rather than as a column nobody thinks to look
+for. The redundancy is deliberate: a sensitivity that was silently absent and
+reported as present is a mistake this module has already made once.
+
+The coverage gate counts **eligible** arms, not declared ones
+(`eligible_axis_arms_fitted`), and reads eligibility from the arm's own recorded
+status rather than inferring it from a missing row — so a skip that stage 03
+failed to record fails the gate instead of passing quietly. Three guards stop the
+gate excusing a genuine problem: a column absent **altogether** is checked across
+every *declared* arm before eligibility is consulted, because that is a pin
+problem and not a region property; an eligible arm whose covariate has no finite
+value stops the stage, since Module 04's gate and its data then disagree; and all
+arms being ineligible stops the stage, because this module's sensitivities cannot
+all be region-conditional.
+
+A region carrying one more sensitivity than another changes no reading. Nothing
+here is gated on any arm, and §7.10 emits no cross-region contrast at all.
 
 ## What a collaborator can read without Quest (`_m/combined/`)
 
@@ -737,11 +770,10 @@ gating. Three consequences worth stating:
   before Module 04's 2026-09-25 rebuild and is RNA MuSiC after it. The arm
   declares `requires_cell_composition_r2_source: rna_music` and stage 03 verifies
   Module 04's recorded source, so a future modality switch stops the stage
-  instead of silently changing what the arm means. DNAm scMD is deliberately not
-  a second arm: its integration gate passes in caudate only, so an scMD arm would
-  give the three regions different sensitivity sets for no gain where nothing is
-  being gated. `cell_composition_r2_scmd` remains in Module 04's table for
-  anyone who wants that comparison.
+  instead of silently changing what the arm means. The DNAm scMD modality is the
+  separate `cell_composition_r2_scmd` arm, added 2026-10-02 once the MuSiC arm's
+  caudate result made the comparison worth having; see **Region-conditional
+  arms** below.
 
 **The arm has now run, and the answer is not uniform:** the gradient is
 essentially untouched by cell composition in hippocampus and DLPFC and roughly
@@ -852,7 +884,13 @@ families are unchanged. Expect the primary numbers to reproduce the sealed runs
 to bootstrap noise; the seeds are derived from the run ID, so the new run ID
 makes the draws differ while the estimator does not.
 
-### What the rerun produced (`env-AA-*-20261002`, sealed 2026-10-02)
+### What the rerun produced (`env-AA-*-20261002-a`, sealed 2026-10-02)
+
+The round is `-a`. `env-AA-*-20261002` sealed earlier the same day with two arms,
+and the PI added the caudate DNAm scMD arm before accepting, so the config SHA
+changed and all three regions were rerun on it — a collation whose three runs
+attested to different configs would not be readable. The two-arm round is in
+**Superseded runs** and was never accepted.
 
 All three: `PASS_EXPLORATORY_COVERAGE`, 22/22 chromosomes expected / completed,
 0 excluded, 0 QC-failed, 0 failed, 0 unaccounted, all six coverage checks pass.
@@ -866,18 +904,30 @@ That is the measurement that settles whether the stale Module 04 pin mattered: i
 did not. The q-values move in the fourth significant figure because the bootstrap
 seed is derived from the run ID.
 
-#### One q-value crossed alpha, and it is not a finding
+#### One family's q is seed-dependent, and three rounds now prove it
 
-DLPFC `nicotine@schizophrenia`: q 0.05434 → 0.04914. The point estimate is
-**identical** (−0.2666); only the bootstrap draws differ. So this family's FDR
-status is not stable to the bootstrap seed, and the right reading is that it sits
-at alpha and always did — not that DLPFC has acquired an FDR-significant family.
-The sealed-run text called it "the nearest is `nicotine@schizophrenia`
-(q 0.054)", and that description still holds.
+DLPFC `nicotine@schizophrenia`, on a **bit-identical point estimate** of
+−0.2666303408 every time:
 
-This is also the cleanest evidence yet for **T28**: the half of the variance that
-moved it is the donor bootstrap, which is the half whose denominator inflation
-(3.2x in this family) is unvalidated.
+| run | q | survives FDR |
+|---|---|---|
+| `env-AA-dlpfc-20260920-a` | 0.05434 | no |
+| `env-AA-dlpfc-20261002` | 0.04914 | **yes** |
+| `env-AA-dlpfc-20261002-a` | 0.05500 | no |
+
+Three bootstrap seeds, three answers, one estimate. **This family sits at alpha
+and its FDR status must not be reported as resolved in either direction.** The
+seed is derived from the run ID, so the only thing that changed between these
+rounds is which donors each of 2,000 draws happened to duplicate.
+
+Two things follow. First, DLPFC has no FDR-surviving stage B family, and the
+sealed-2026-09-20 description — "the nearest is `nicotine@schizophrenia`
+(q 0.054)" — is the one to keep. Second, this is now the module's strongest
+concrete argument for **T28**: the half of the combined variance that moves it is
+the donor bootstrap, the half whose denominator inflation (3.2x in this family)
+has never been validated against a null or a positive control. A q that swings
+across alpha on the seed alone is what an unvalidated variance looks like from the
+outside.
 
 #### The cell-composition arm: the answer is regional, and one region fails it
 
@@ -926,11 +976,33 @@ Four things this does and does not license:
 4. **The variance-budget limitation is untouched.** It is arithmetic and no
    adjustment set removes it.
 
-**A follow-up this makes worth considering, not a defect.** DNAm scMD was
-deliberately excluded as a second arm because its integration gate passes in
-caudate only, and caudate is exactly where the MuSiC arm bites. An scMD arm in
-caudate would say whether the attenuation is specific to the RNA-derived measure.
-It needs a PI decision and another run; nothing here is blocked on it.
+#### The scMD arm: the caudate attenuation is not an artefact of the RNA measure
+
+The MuSiC arm raised one question — is the caudate attenuation a property of cell
+composition, or of the RNA-derived way of measuring it? Caudate is the one region
+where the DNAm scMD integration gate passes, so the question is answerable
+exactly where it arises. **PI 2026-10-02: arm added before acceptance.** The
+answer is that scMD attenuates *more*, not less:
+
+| caudate family | primary | MuSiC arm | scMD arm |
+|---|---|---|---|
+| `nicotine@all` (q 0.0088) | −0.462 | −0.220 (atten 0.525, q 0.46) | **−0.164 (atten 0.645, q 0.83)** |
+| `smoking@all` (q 0.074) | −0.474 | −0.268 (atten 0.435, q 0.54) | **−0.160 (atten 0.661, q 0.83)** |
+
+So the reading that survives is the stronger one: **roughly two thirds of the
+caudate gradient is attributable to cell composition on the DNAm-derived measure,
+and the MuSiC arm was if anything conservative.** Two independent measures of
+composition, from different assays, agree in direction and the DNAm one removes
+more. Caudate's gradient may not be described as independent of cell composition
+under either.
+
+What this still does not do: it does not demote the primary — the arm is
+non-gating in config and in code — and it does not make the caudate-vs-other-region
+contrast interpretable, because caudate remains sequencing batch 3 (AGENTS.md
+§8.1) and is also striatum against two cortical regions. DLPFC and hippocampus
+carry no scMD arm at all, so the comparison simply does not exist there; their
+`arm_status` records `skipped_scmd_integration_gate_fail` on all five families
+each.
 
 ## Superseded runs
 
@@ -940,6 +1012,7 @@ It needs a PI decision and another run; nothing here is blocked on it.
 | `env-AA-{region}-20260919-a` | 2026-09-19 | first debiased-outcome round; the `relative_scale_min_mean_z` guard it shipped with was invalid and inert |
 | `env-AA-{region}-20260919-b` | 2026-09-19 | the guard fix did not fire; reproduces `-a` exactly up to bootstrap noise |
 | `env-AA-{region}-20260920` | 2026-09-20 | `block_jackknife_cov()` recycling defect corrupted every `absolute_*`, `fieller_*` and `mean_omega_*` column; primary columns were unaffected |
+| `env-AA-{region}-20261002` | 2026-10-02 | never accepted. Re-pinned Module 04 correctly and carried the RNA MuSiC cell arm, but predates the caudate DNAm scMD arm the PI added the same day; its config SHA therefore differs from the accepted round's, and three runs attesting to different configs are not collatable as one set. Every primary estimate is identical to `-20261002-a` |
 
 None of these may be cited. Their primary estimates from `-a` onward agree with
 the current runs to bootstrap noise, so nothing scientific turned on the last two
@@ -980,8 +1053,8 @@ criterion — a null axis result is a legitimate outcome and must not block
 sealing. What it checks is whether the run had the coverage to have said
 anything: at least one eligible exposure, at least 500 tested VMRs, at least one
 axis model fitted, no forbidden column in any input, a BH family count that
-matches what stage 1 prespecified, and — added 2026-10-02 — that **every arm the
-config declares was actually fitted**.
+matches what stage 1 prespecified, and — added 2026-10-02 — that **every arm
+eligible in this region was actually fitted** (`eligible_axis_arms_fitted`).
 
 That sixth check is coverage in the same sense as the other five: it asks whether
 the run produced the sensitivity it claims to carry, and is indifferent to what
@@ -989,6 +1062,12 @@ the sensitivity shows. An arm that attenuates the primary to zero passes it.
 Without it, an arm that failed for every family would leave a run sealing with a
 sensitivity that exists only in the config — which is the failure mode this
 module has already had once, in prose rather than in code.
+
+**Eligible, not declared.** `cell_composition_r2_scmd` is region-conditional, so
+in DLPFC and hippocampus it is legitimately skipped and the run must still seal.
+The check reads eligibility from the arm's own recorded status, so a skip that was
+never recorded fails it rather than passing quietly. See **Region-conditional
+arms**.
 
 ## Accepted runs
 
