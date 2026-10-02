@@ -1,23 +1,24 @@
 # 10_environmental_exploratory — exploratory environmental-factor analysis
 
-**Status: accepted 2026-09-20; rerunning 2026-10-02 to re-pin Module 04 and add
-a cell-composition arm. Supplement only, permanently.**
-`env-AA-{caudate,dlpfc,hippocampus}-20260920-a` each returned
+**Status: accepted 2026-10-02. Supplement only, permanently.**
+`env-AA-{caudate,dlpfc,hippocampus}-20261002-a` each returned
 `PASS_EXPLORATORY_COVERAGE` with 22/22 chromosomes reconciled and zero
-computational failures, and the PI accepted all three on 2026-09-20, so
+computational failures, and the PI accepted all three on 2026-10-02, so
 `_m/combined/` carries `citable = TRUE` — see **Accepted runs**. They supersede
-four earlier rounds; see **Superseded runs**.
+five earlier rounds, including the previously accepted `-20260920-a`; see
+**Superseded runs**.
 
-Those runs pin `rra-AA-*-20260906`, which Module 04 superseded on 2026-09-25. The
-replacement round `env-AA-*-20261002-a` **sealed 2026-10-02 with
-`PASS_EXPLORATORY_COVERAGE` in all three regions and awaits PI acceptance**: it
-re-pins the accepted Module 04 run, adds two cell-composition arms (RNA MuSiC in
-every region, DNAm scMD in caudate where its gate passes), and closes the
-module's four open PI items. Every primary point estimate reproduces the sealed
-runs bit-identically, so the stale pin cost nothing scientifically; what the
-rerun adds is a true provenance chain and one new result, which is that the
-caudate gradient does not survive cell-composition adjustment while the
-hippocampus one does. See **The 2026-10-02 rerun**.
+The accepted round pins `rra-AA-*-20260925-a`, Module 04's current accepted run,
+and all three upstreams are current (3/3). It adds two cell-composition arms (RNA
+MuSiC in every region, DNAm scMD in caudate where its integration gate passes)
+and closes the module's four open PI items. Every primary point estimate
+reproduces the superseded `-20260920-a` runs bit-identically, so the stale Module
+04 pin those carried cost nothing scientifically; what this round adds is a true
+provenance chain and one new result — **the caudate gradient does not survive
+cell-composition adjustment on either measure, while the hippocampus one does.**
+DLPFC has no FDR-surviving stage B family, and its near-miss is seed-dependent
+across three rounds on one identical point estimate. See **The 2026-10-02
+rerun**.
 
 Asks whether measured donor exposures associate with VMR methylation, and
 whether that association varies along Module 02's continuous local-genetic-control
@@ -678,7 +679,7 @@ The variance-budget limitation is unaffected either way. It is arithmetic, not a
 covariate: at fixed total variance a higher genetic share leaves less non-genetic
 variance for any exposure to move, and no adjustment set removes that.
 
-## Current production runs (`env-AA-*-20260920-a`, sealed 2026-09-20)
+## The superseded 2026-09-20 round (`env-AA-*-20260920-a`)
 
 On the accepted `lgv-AA-*-rescore-20260913` score and `rra-AA-*-20260906`
 features, unchanged from the 2026-09-19 round. All three: 22/22 chromosomes
@@ -895,8 +896,8 @@ attested to different configs would not be readable. The two-arm round is in
 All three: `PASS_EXPLORATORY_COVERAGE`, 22/22 chromosomes expected / completed,
 0 excluded, 0 QC-failed, 0 failed, 0 unaccounted, all six coverage checks pass.
 Donor counts (153 / 118 / 117), tested VMRs (11,251 / 9,251 / 9,166) and eligible
-exposure x stratum counts (9 / 5 / 5) are unchanged. **Not yet accepted**, so
-`_m/combined/` still describes `env-AA-*-20260920-a`.
+exposure x stratum counts (9 / 5 / 5) are unchanged. **Accepted 2026-10-02**,
+so `_m/combined/` was recollated against these runs; see **Accepted runs**.
 
 **Every primary point estimate is bit-identical to the sealed runs — 19 of 19
 families, all three regions**, together with `mean_omega` and `absolute_beta`.
@@ -1012,6 +1013,7 @@ each.
 | `env-AA-{region}-20260919-a` | 2026-09-19 | first debiased-outcome round; the `relative_scale_min_mean_z` guard it shipped with was invalid and inert |
 | `env-AA-{region}-20260919-b` | 2026-09-19 | the guard fix did not fire; reproduces `-a` exactly up to bootstrap noise |
 | `env-AA-{region}-20260920` | 2026-09-20 | `block_jackknife_cov()` recycling defect corrupted every `absolute_*`, `fieller_*` and `mean_omega_*` column; primary columns were unaffected |
+| `env-AA-{region}-20260920-a` | 2026-09-20 | accepted 2026-09-20, superseded 2026-10-02. Pinned `rra-AA-*-20260906`, which Module 04 superseded on 2026-09-25, and carried no cell-composition arm. Every primary estimate is identical to `-20261002-a`, so nothing scientific turned on the replacement; what moved is the provenance chain and the two new arms |
 | `env-AA-{region}-20261002` | 2026-10-02 | never accepted. Re-pinned Module 04 correctly and carried the RNA MuSiC cell arm, but predates the caudate DNAm scMD arm the PI added the same day; its config SHA therefore differs from the accepted round's, and three runs attesting to different configs are not collatable as one set. Every primary estimate is identical to `-20261002-a` |
 
 None of these may be cited. Their primary estimates from `-a` onward agree with
@@ -1073,11 +1075,11 @@ arms**.
 
 | run_id | cohort | region | vmr_set_id | accepted_on | accepted_by | decision | notes |
 |---|---|---|---|---|---|---|---|
-| env-AA-caudate-20260920-a | AA | caudate | vmrset-AA-caudate-937a41979978 | 2026-09-20 | Kynon J.M. Benjamin | PASS_EXPLORATORY_COVERAGE | n=153; 11,251 VMRs; 5/5 coverage criteria; 22/22 chromosomes, 0 excluded/QC-failed/failed/unaccounted. Stage A: 0 FDR-significant VMR x exposure pairs. Stage B: 1 of 9 families survives FDR -- nicotine@all, beta -0.462, q 0.0085, no_methylation_variance arm -0.440 (p 0.0040). **No percentage here is formally identifiable**: mean_omega_z max 0.78, absolute_p > 0.05 in all 9 families, Fieller unbounded in all 9. **Donor bootstrap inflates the ratio denominator 5.0x-5.8x**, so the bootstrap half of the variance is likely optimistic and these p-values may be too small. Exploratory supplement only (`main_text_retention = NEVER_SUPPLEMENT_ONLY`); the variance-budget limitation (AGENTS.md 7.10) is permanent and a negative gradient may never be read as exposure effects concentrating at weakly controlled VMRs. Caudate is batch-confounded (AGENTS.md 8.1). |
-| env-AA-dlpfc-20260920-a | AA | dlpfc | vmrset-AA-dlpfc-856067dfe289 | 2026-09-20 | Kynon J.M. Benjamin | PASS_EXPLORATORY_COVERAGE | n=118; 9,251 VMRs; 5/5 coverage criteria; 22/22 chromosomes, 0 excluded/QC-failed/failed/unaccounted. Stage A: 0 FDR-significant pairs. Stage B: 0 of 5 families survives FDR; nearest is nicotine@schizophrenia (q 0.054). **No percentage is formally identifiable**: mean_omega_z max 0.76, absolute_p > 0.05 in all 5, Fieller unbounded in all 5. **Bootstrap denominator inflation 3.2x-38.5x**, the largest in the module (marital_status@all, the family the retired `relative_scale_min_mean_z` guard was written for, which now simply reports null). Exploratory supplement only; variance-budget limitation applies. |
-| env-AA-hippocampus-20260920-a | AA | hippocampus | vmrset-AA-hippocampus-2d907b892215 | 2026-09-20 | Kynon J.M. Benjamin | PASS_EXPLORATORY_COVERAGE | n=117; 9,166 VMRs; 5/5 coverage criteria; 22/22 chromosomes, 0 excluded/QC-failed/failed/unaccounted. Stage A: 12 FDR-significant VMR x exposure pairs (11 nicotine, 1 education) out of ~9,200 tests in 5 families, in the region with the smallest exposed case count -- a supplemental observation, not a finding. Stage B: 2 of 5 families survive FDR -- nicotine@schizophrenia beta -0.491 q 1.1e-5 (arm -0.483, p 1.9e-6) and nicotine@all beta -0.376 q 0.0013 (arm -0.370, p 1.4e-4). **No percentage is formally identifiable**: mean_omega_z max 1.60, never reaching 1.96; absolute_p > 0.05 in all 5; Fieller unbounded in all 5. **Bootstrap denominator inflation 2.0x-4.1x.** Exploratory supplement only; variance-budget limitation applies. |
+| env-AA-caudate-20261002-a | AA | caudate | vmrset-AA-caudate-937a41979978 | 2026-10-02 | Kynon J.M. Benjamin | PASS_EXPLORATORY_COVERAGE | n=153; 11,251 VMRs; 6/6 coverage criteria; 22/22 chromosomes, 0 excluded/QC-failed/failed/unaccounted. Re-pins `rra-AA-caudate-20260925-a`; 3/3 upstreams current. All three arms fitted (`scmd_integration_gate = PASS`). Stage A: 0 FDR-significant VMR x exposure pairs. Stage B: 1 of 9 families survives FDR -- nicotine@all, beta -0.462, q 0.0088, identical to both superseded rounds. **The caudate gradient may NOT be described as independent of cell composition:** RNA MuSiC arm -0.220 (attenuation 0.525, arm q 0.46), DNAm scMD arm -0.164 (attenuation 0.645, arm q 0.83); smoking@all behaves the same (0.435, 0.661). Two assays agree in direction and the DNAm measure removes more. Arms are non-gating and do not demote the primary. `no_methylation_variance` -0.440, q 0.021. **No percentage is formally identifiable:** mean_omega_z max 0.78, absolute_p > 0.05 in all 9, Fieller unbounded in all 9. **Donor bootstrap inflates the ratio denominator 5.0x-5.8x** (T28, unresolved). Exploratory supplement only (`main_text_retention = NEVER_SUPPLEMENT_ONLY`); the variance-budget limitation (AGENTS.md 7.10) is permanent and a negative beta is never evidence that exposure effects concentrate at weakly controlled VMRs. Caudate is batch-confounded (AGENTS.md 8.1) and is also striatum against two cortical regions, so the between-region difference in arm behaviour is descriptive only. |
+| env-AA-dlpfc-20261002-a | AA | dlpfc | vmrset-AA-dlpfc-856067dfe289 | 2026-10-02 | Kynon J.M. Benjamin | PASS_EXPLORATORY_COVERAGE | n=118; 9,251 VMRs; 6/6 coverage criteria; 22/22 chromosomes, 0 excluded/QC-failed/failed/unaccounted. Re-pins `rra-AA-dlpfc-20260925-a`; 3/3 upstreams current. 2 of 3 arms fitted; `cell_composition_r2_scmd` recorded `skipped_scmd_integration_gate_fail` on all 5 families (`scmd_integration_gate = FAIL`, column empty for every VMR). Stage A: 0 FDR-significant pairs. **Stage B: 0 of 5 families survive FDR.** nicotine@schizophrenia is q 0.0550 here against 0.04914 in `-20261002` and 0.05434 in `-20260920-a`, on a bit-identical point estimate of -0.2666303408: **its FDR status is seed-dependent and must not be reported as resolved in either direction.** The MuSiC arm leaves it unchanged (-0.264, attenuation 0.009); its `no_methylation_variance` arm reaches q 0.032, which licenses nothing because the arms carry separate BH families and cannot promote a primary. **No percentage is formally identifiable:** mean_omega_z max 0.73, absolute_p > 0.05 in all 5, Fieller unbounded in all 5. **Bootstrap denominator inflation 3.2x-38.7x**, the largest in the module (marital_status@all). Exploratory supplement only; variance-budget limitation applies. |
+| env-AA-hippocampus-20261002-a | AA | hippocampus | vmrset-AA-hippocampus-2d907b892215 | 2026-10-02 | Kynon J.M. Benjamin | PASS_EXPLORATORY_COVERAGE | n=117; 9,166 VMRs; 6/6 coverage criteria; 22/22 chromosomes, 0 excluded/QC-failed/failed/unaccounted. Re-pins `rra-AA-hippocampus-20260925-a`; 3/3 upstreams current. 2 of 3 arms fitted; `cell_composition_r2_scmd` recorded `skipped_scmd_integration_gate_fail` on all 5 families. Stage A: 12 FDR-significant VMR x exposure pairs (11 nicotine, 1 education) out of ~9,200 tests in 5 families, in the region with the smallest exposed case count -- a supplemental observation, not a finding. Stage B: 2 of 5 families survive FDR -- nicotine@schizophrenia beta -0.491 q 1.4e-5 and nicotine@all beta -0.376 q 0.0014, both identical to the superseded rounds. **Both survive the RNA MuSiC arm essentially untouched** (attenuation 0.009 and -0.006; arm q 1.1e-5 and 0.00108), so the hippocampus gradient is not cell composition restated -- the first time this module has tested that, and the opposite of what caudate shows. smoking@all has primary q 0.0554 and cell arm q 0.0463: separate BH families, and a non-gating arm cannot promote a primary. **No percentage is formally identifiable:** mean_omega_z max 1.55, never reaching 1.96; absolute_p > 0.05 in all 5; Fieller unbounded in all 5. **Bootstrap denominator inflation 2.0x-4.1x.** Exploratory supplement only; variance-budget limitation applies. |
 
-Accepted by the PI on 2026-09-20. The gate is a **coverage** gate, so what the
+Accepted by the PI on 2026-10-02. The gate is a **coverage** gate, so what the
 acceptance records is that these runs had the coverage to have said something --
 not that they found one. Two caveats are written into every row because they
 qualify every number in the stage B table and neither is resolved:
