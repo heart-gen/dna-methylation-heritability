@@ -119,14 +119,17 @@ read_axis_arms <- function(tst) {
                  drops = as.character(unlist(spec$drop_covariates)),
                  adds = as.character(unlist(spec$add_covariates)),
                  require_source = as.character(
-                     spec$requires_cell_composition_r2_source %||% NA_character_))
+                     spec$requires_cell_composition_r2_source %||% NA_character_),
+                 require_scmd_gate = as.character(
+                     spec$requires_scmd_integration_gate %||% NA_character_))
         }))
     }
     nm <- as.character(unlist(tst$non_gating_axis_arms))
     lapply(stats::setNames(nm, nm), function(a) list(
         name = a, role = "non_gating",
         drops = as.character(unlist(tst[[paste0("arm_", a, "_drops")]])),
-        adds = character(0), require_source = NA_character_))
+        adds = character(0), require_source = NA_character_,
+        require_scmd_gate = NA_character_))
 }
 arms <- read_axis_arms(env$testing)
 
@@ -206,7 +209,11 @@ if (length(missing_covs)) {
 ## build that predates the column: `cell_composition_r2` first appears in
 ## rra-AA-*-20260925-a and is absent from rra-AA-*-20260906. Dropping the arm
 ## quietly would turn a missing sensitivity into an apparently clean result.
-missing_arm_covs <- setdiff(arm_extra_covs, names(feat))
+## Checked over EVERY declared arm, before eligibility is known: a column that is
+## absent altogether is a pin problem, not a region property, and must not be
+## excused by a region gate.
+missing_arm_covs <- setdiff(
+    unique(unlist(lapply(arms, `[[`, "adds"))) %||% character(0), names(feat))
 if (length(missing_arm_covs)) {
     stop("Module 04 run '", feat_run, "' has no column(s) ",
          paste(missing_arm_covs, collapse = ", "),
@@ -245,6 +252,71 @@ for (a in arms) {
                  paste0("records '", cell_r2_source, "'. The column's modality ",
                         "changed, so the arm no longer means what the config says.")
              })
+    }
+}
+
+## ------------------------------------------------- region-conditional arms
+##
+## AGENTS.md 7.4 and 7.9 scope DNAm scMD to "where the integration gate passes".
+## Module 04 records that per run in `scmd_integration_gate`, and where it is not
+## PASS the `cell_composition_r2_scmd` column is empty for every VMR -- so the
+## arm cannot be fitted there and `prepare_axis()` would see zero complete rows.
+##
+## Such an arm is SKIPPED, and the skip is recorded on the run, in the arms table
+## and on the decision row. It is never dropped silently: a sensitivity that is
+## quietly absent is the exact failure this module has already had once, and
+## `04_apply_gates.R` counts ELIGIBLE arms rather than declared ones so a skip
+## cannot be mistaken for a pass.
+scmd_gate <- if ("scmd_integration_gate" %in% names(feat)) {
+    g <- unique(as.character(feat$scmd_integration_gate))
+    g <- g[!is.na(g)]
+    if (length(g) != 1L) {
+        stop("scmd_integration_gate takes ", length(g), " values in ", feat_run,
+             "; it is a property of the run, so exactly one must hold.")
+    }
+    g
+} else NA_character_
+
+arm_skip_reason <- vapply(arms, function(a) {
+    if (is.na(a$require_scmd_gate)) return(NA_character_)
+    if (identical(scmd_gate, a$require_scmd_gate)) return(NA_character_)
+    paste0("skipped_scmd_integration_gate_", if (is.na(scmd_gate)) {
+        "column_absent"
+    } else tolower(scmd_gate))
+}, character(1))
+
+arms_eligible <- arms[is.na(arm_skip_reason)]
+arms_skipped <- arms[!is.na(arm_skip_reason)]
+if (length(arms_skipped)) {
+    message("[10] axis arms skipped in ", region, ": ",
+            paste(sprintf("%s (%s)", names(arms_skipped),
+                          arm_skip_reason[names(arms_skipped)]),
+                  collapse = ", "))
+}
+if (!length(arms_eligible) && length(arms)) {
+    stop("Every declared axis arm is ineligible in ", region,
+         ". That is a config error, not a region property: this module's ",
+         "sensitivities cannot all be region-conditional.")
+}
+
+## Only ELIGIBLE arms contribute covariates to the merge. A skipped arm's column
+## may exist but be entirely NA, which would silently shrink nothing here and
+## then produce an empty design downstream.
+arm_extra_covs <- unique(unlist(lapply(arms_eligible, `[[`, "adds")))
+if (is.null(arm_extra_covs)) arm_extra_covs <- character(0)
+missing_elig <- setdiff(arm_extra_covs, names(feat))
+if (length(missing_elig)) {
+    stop("Module 04 run '", feat_run, "' has no column(s) ",
+         paste(missing_elig, collapse = ", "), ", required by an eligible arm.")
+}
+## An eligible arm whose covariate is present but entirely non-finite is a
+## contradiction between the gate and the data, not a reason to skip.
+for (cv in arm_extra_covs) {
+    if (!any(is.finite(suppressWarnings(as.numeric(feat[[cv]]))))) {
+        stop("Column '", cv, "' in ", feat_run, " has no finite value, but the ",
+             "arm that needs it is eligible here (scmd_integration_gate = ",
+             scmd_gate %||% "<absent>", "). Module 04's gate and its data ",
+             "disagree.")
     }
 }
 
@@ -404,14 +476,14 @@ test_one <- function(ex, st) {
     ## denominator does. A DROP arm therefore has exactly the primary's rows; an
     ## ADD arm can have fewer, if the added covariate is missing somewhere, so
     ## each arm's row count is recorded and compared rather than assumed equal.
-    arm_ax <- lapply(arms, function(a)
+    arm_ax <- lapply(arms_eligible, function(a)
         prepare_axis(d, predictor, arm_covs_of[[a$name]], rows = ax$ok))
-    arm_jt <- lapply(names(arms), function(a) axis_estimate_joint(arm_ax[[a]],
-                                                                 d$omega))
-    names(arm_jt) <- names(arms)
-    arm_jb <- lapply(arms, function(a) matrix(
+    arm_jt <- lapply(names(arms_eligible),
+                     function(a) axis_estimate_joint(arm_ax[[a]], d$omega))
+    names(arm_jt) <- names(arms_eligible)
+    arm_jb <- lapply(arms_eligible, function(a) matrix(
         NA_real_, B, 2L, dimnames = list(NULL, c("beta", "mean"))))
-    arm_boot <- lapply(arms, function(a) rep(NA_real_, B))
+    arm_boot <- lapply(arms_eligible, function(a) rep(NA_real_, B))
 
     ## ------------------------------------------------------------- bootstrap
     ## Donors are resampled WITHIN diagnosis so each draw keeps the observed
@@ -441,7 +513,7 @@ test_one <- function(ex, st) {
         ## Every arm is refit on THIS draw, so arm and primary share the donor
         ## resample and their difference is paired rather than two independent
         ## estimates that happen to use the same B.
-        for (a in names(arms)) {
+        for (a in names(arms_eligible)) {
             v <- axis_estimate_joint(arm_ax[[a]], om_b)
             arm_jb[[a]][b, ] <- v
             if (identical(scale, "relative_to_mean")) {
@@ -490,6 +562,29 @@ test_one <- function(ex, st) {
     ## than the primary cannot be compared with it.
     arm_block <- list()
     for (a in names(arms)) {
+        pre <- paste0("arm_", a, "_")
+        ## A skipped arm still gets its full column set, filled with NA and a
+        ## reason. An absent sensitivity must be visible as an explicit skip in
+        ## the table, not as a missing column a reader never thinks to look for.
+        if (!a %in% names(arms_eligible)) {
+            arm_block[[paste0(pre, "status")]] <- arm_skip_reason[[a]]
+            arm_block[[paste0(pre, "role")]] <- arms[[a]]$role
+            arm_block[[paste0(pre, "covariates")]] <-
+                paste(arm_covs_of[[a]], collapse = ",")
+            arm_block[[paste0(pre, "drops")]] <- if (length(arms[[a]]$drops)) {
+                paste(arms[[a]]$drops, collapse = ",") } else NA_character_
+            arm_block[[paste0(pre, "adds")]] <- if (length(arms[[a]]$adds)) {
+                paste(arms[[a]]$adds, collapse = ",") } else NA_character_
+            for (f in c("n_vmrs", "n_vmrs_lost_vs_primary", "n_bootstrap_used")) {
+                arm_block[[paste0(pre, f)]] <- NA_integer_
+            }
+            for (f in c("beta", "se", "p", "ci_lower", "ci_upper",
+                        "attenuation")) {
+                arm_block[[paste0(pre, f)]] <- NA_real_
+            }
+            arm_block[[paste0(pre, "fieller_bounded")]] <- NA
+            next
+        }
         jt_a <- arm_jt[[a]]
         est_a <- if (identical(scale, "relative_to_mean")) {
             jt_a[["beta"]] / jt_a[["mean"]]
@@ -500,7 +595,7 @@ test_one <- function(ex, st) {
             block_jackknife_se(arm_ax[[a]], d$omega, d$chrom, scale), alpha_ci)
         rel_a <- fieller_ratio_ci(jt_a[["beta"]], jt_a[["mean"]],
                                   combined_cov(arm_jb[[a]], cov_jk_a), alpha_ci)
-        pre <- paste0("arm_", a, "_")
+        arm_block[[paste0(pre, "status")]] <- "fitted"
         arm_block[[paste0(pre, "role")]] <- arms[[a]]$role
         arm_block[[paste0(pre, "covariates")]] <-
             paste(arm_covs_of[[a]], collapse = ",")
@@ -616,8 +711,12 @@ test_one <- function(ex, st) {
         ## The arms themselves are appended below as one prefixed block per arm,
         ## and repeated in long form in control-axis-arms.tsv. Only their count
         ## and names belong on the family row.
-        n_axis_arms = length(arms),
+        n_axis_arms_declared = length(arms),
+        n_axis_arms_fitted = length(arms_eligible),
         axis_arm_names = paste(names(arms), collapse = ","),
+        axis_arm_names_fitted = paste(names(arms_eligible), collapse = ","),
+        axis_arm_names_skipped = if (length(arms_skipped)) {
+            paste(names(arms_skipped), collapse = ",") } else NA_character_,
         axis_arms_role = "non_gating_sensitivity",
         ## Descriptive, and never a decision. Its expectation depends on the SE,
         ## so it is biased toward the hypothesis by construction.
@@ -693,7 +792,7 @@ write_atomic(out, file.path(run_dir, "results", "control-axis-test.tsv"))
 ## representations cannot disagree. This is the table to read when there is more
 ## than one arm; the wide columns stay on the family row because a one-row-per-
 ## family reading table is what the collate stage and a writer want.
-arm_fields <- c("role", "covariates", "drops", "adds", "n_vmrs",
+arm_fields <- c("status", "role", "covariates", "drops", "adds", "n_vmrs",
                 "n_vmrs_lost_vs_primary", "beta", "se", "p", "fdr",
                 "ci_lower", "ci_upper", "fieller_bounded", "attenuation",
                 "n_bootstrap_used")
@@ -704,7 +803,12 @@ arms_long <- rbindlist(lapply(names(arms), function(a) {
     src <- paste0("arm_", a, "_", arm_fields)
     present <- intersect(src, names(out))
     d <- out[, c(intersect(keep_id, names(out)), present), with = FALSE]
-    setnames(d, present, sub(paste0("^arm_", a, "_"), "", present))
+    ## `status` is the FAMILY's status and arrives via keep_id, so stripping the
+    ## arm prefix must not collapse the arm's own status onto that name -- two
+    ## columns called `status` and setnames() renames the wrong one.
+    newnames <- sub(paste0("^arm_", a, "_"), "", present)
+    newnames[newnames == "status"] <- "arm_status"
+    setnames(d, present, newnames)
     d[, arm := a]
     d
 }), fill = TRUE)
@@ -734,6 +838,12 @@ append_manifest(list(dir = run_dir), list(
     },
     axis_non_gating_arms = if (length(arms)) {
         paste(names(arms), collapse = ",") } else "none",
+    axis_arms_fitted = if (length(arms_eligible)) {
+        paste(names(arms_eligible), collapse = ",") } else "none",
+    axis_arms_skipped = if (length(arms_skipped)) paste(sprintf(
+        "%s(%s)", names(arms_skipped), arm_skip_reason[names(arms_skipped)]),
+        collapse = ",") else "none",
+    scmd_integration_gate = scmd_gate %||% NA_character_,
     axis_arm_covariate_sets = if (length(arms)) paste(vapply(
         names(arms),
         function(a) paste0(a, "={", paste(arm_covs_of[[a]], collapse = ","), "}"),
@@ -751,6 +861,7 @@ print(out[, .(exposure, stratum, primary_scale, primary_beta, primary_p,
 if (nrow(arms_long)) {
     cat("\n[10] non-gating arms (own BH family each; neither sign is a failure)\n")
     print(arms_long[status == "ok",
-                    .(arm, exposure, stratum, n_vmrs_lost_vs_primary,
-                      primary_beta, beta, attenuation, p, fdr)])
+                    .(arm, arm_status, exposure, stratum,
+                      n_vmrs_lost_vs_primary, primary_beta, beta, attenuation,
+                      p, fdr)])
 }
