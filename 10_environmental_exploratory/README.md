@@ -8,10 +8,15 @@ computational failures, and the PI accepted all three on 2026-09-20, so
 `_m/combined/` carries `citable = TRUE` — see **Accepted runs**. They supersede
 four earlier rounds; see **Superseded runs**.
 
-Those runs pin `rra-AA-*-20260906`, which Module 04 superseded on 2026-09-25.
-The replacement round re-pins the accepted Module 04 run and closes the module's
-two open PI items at the same time; see **The 2026-10-02 rerun** for what moves
-(the provenance) and what does not (every number).
+Those runs pin `rra-AA-*-20260906`, which Module 04 superseded on 2026-09-25. The
+replacement round `env-AA-*-20261002` **sealed 2026-10-02 with
+`PASS_EXPLORATORY_COVERAGE` in all three regions and awaits PI acceptance**: it
+re-pins the accepted Module 04 run, adds a cell-composition arm, and closes the
+module's four open PI items. Every primary point estimate reproduces the sealed
+runs bit-identically, so the stale pin cost nothing scientifically; what the
+rerun adds is a true provenance chain and one new result, which is that the
+caudate gradient does not survive cell-composition adjustment while the
+hippocampus one does. See **The 2026-10-02 rerun**.
 
 Asks whether measured donor exposures associate with VMR methylation, and
 whether that association varies along Module 02's continuous local-genetic-control
@@ -738,6 +743,14 @@ gating. Three consequences worth stating:
   being gated. `cell_composition_r2_scmd` remains in Module 04's table for
   anyone who wants that comparison.
 
+**The arm has now run, and the answer is not uniform:** the gradient is
+essentially untouched by cell composition in hippocampus and DLPFC and roughly
+halves in caudate, where the one FDR-surviving family does not survive the arm's
+own family. See **The cell-composition arm: the answer is regional, and one
+region fails it**. So the conclusion the mislabel asserted holds in two regions of
+three, and the region where it fails is the one the mislabel would have covered
+up.
+
 **What the sensitivity columns say, and they are not decoration.** `absolute_p` is
 above 0.05 in **every** family in all three regions (`n_absolute_p_below_alpha =
 0`), and the Fieller interval is unbounded in every family
@@ -838,6 +851,86 @@ The primary model, its covariate set, its estimand, its inference and its BH
 families are unchanged. Expect the primary numbers to reproduce the sealed runs
 to bootstrap noise; the seeds are derived from the run ID, so the new run ID
 makes the draws differ while the estimator does not.
+
+### What the rerun produced (`env-AA-*-20261002`, sealed 2026-10-02)
+
+All three: `PASS_EXPLORATORY_COVERAGE`, 22/22 chromosomes expected / completed,
+0 excluded, 0 QC-failed, 0 failed, 0 unaccounted, all six coverage checks pass.
+Donor counts (153 / 118 / 117), tested VMRs (11,251 / 9,251 / 9,166) and eligible
+exposure x stratum counts (9 / 5 / 5) are unchanged. **Not yet accepted**, so
+`_m/combined/` still describes `env-AA-*-20260920-a`.
+
+**Every primary point estimate is bit-identical to the sealed runs — 19 of 19
+families, all three regions**, together with `mean_omega` and `absolute_beta`.
+That is the measurement that settles whether the stale Module 04 pin mattered: it
+did not. The q-values move in the fourth significant figure because the bootstrap
+seed is derived from the run ID.
+
+#### One q-value crossed alpha, and it is not a finding
+
+DLPFC `nicotine@schizophrenia`: q 0.05434 → 0.04914. The point estimate is
+**identical** (−0.2666); only the bootstrap draws differ. So this family's FDR
+status is not stable to the bootstrap seed, and the right reading is that it sits
+at alpha and always did — not that DLPFC has acquired an FDR-significant family.
+The sealed-run text called it "the nearest is `nicotine@schizophrenia`
+(q 0.054)", and that description still holds.
+
+This is also the cleanest evidence yet for **T28**: the half of the variance that
+moved it is the donor bootstrap, which is the half whose denominator inflation
+(3.2x in this family) is unvalidated.
+
+#### The cell-composition arm: the answer is regional, and one region fails it
+
+Attenuation is the fraction of the primary coefficient the added covariate
+carries. Reading only the families where the primary is not null, because the
+ratio explodes elsewhere:
+
+| region | family | primary | cell arm | attenuation | arm q |
+|---|---|---|---|---|---|
+| hippocampus | `nicotine@schizophrenia` | −0.491 | −0.487 | +0.009 | 9.5e-6 |
+| hippocampus | `nicotine@all` | −0.376 | −0.378 | −0.006 | 0.0012 |
+| hippocampus | `smoking@all` | −0.322 | −0.330 | −0.023 | 0.045 |
+| dlpfc | `nicotine@schizophrenia` | −0.267 | −0.264 | +0.009 | 0.053 |
+| dlpfc | `nicotine@all` | −0.232 | −0.234 | −0.009 | 0.250 |
+| dlpfc | `marital_status@all` | −2.411 | −2.363 | +0.020 | 0.250 |
+| **caudate** | **`nicotine@all`** | **−0.462** | **−0.220** | **+0.525** | **0.452** |
+| **caudate** | **`smoking@all`** | **−0.474** | **−0.268** | **+0.435** | **0.538** |
+
+**In hippocampus and DLPFC the gradient is not cell composition restated.** The
+arm moves the coefficient by at most 5%, and hippocampus's two FDR-surviving
+families survive the arm's own family at q 9.5e-6 and 0.0012. The claim the
+mislabelled README made is true in these two regions — it was simply never tested
+before today.
+
+**In caudate it is about half cell composition, and the surviving family does not
+survive the arm.** `nicotine@all` halves, and the arm's own BH family puts it at
+q 0.45. The same attenuation appears in every caudate family, 0.39 to 0.62, so it
+is a property of the region's adjustment rather than of one exposure.
+
+Four things this does and does not license:
+
+1. **It does not demote caudate's primary.** The arm is non-gating by
+   construction, in config and in code: `main_text_retention =
+   NEVER_SUPPLEMENT_ONLY` already holds, and there is no decision here for an arm
+   to overturn. What it does is tell a writer that the caudate number cannot be
+   described as independent of cell composition, where the hippocampus numbers can.
+2. **The between-region difference is not regional biology.** Caudate is AANRI
+   sequencing batch 3 and region is perfectly confounded with batch
+   (AGENTS.md §8.1), so "the arm bites in caudate and not elsewhere" is
+   descriptive only. Caudate is also striatum against two cortical/archicortical
+   regions, which is an obvious alternative reading, and this design cannot
+   separate the two.
+3. **An arm that survives where the primary does not licenses nothing.**
+   Hippocampus `smoking@all` has arm q 0.045 against primary q 0.054. Separate BH
+   families, and a non-gating sensitivity cannot promote a primary.
+4. **The variance-budget limitation is untouched.** It is arithmetic and no
+   adjustment set removes it.
+
+**A follow-up this makes worth considering, not a defect.** DNAm scMD was
+deliberately excluded as a second arm because its integration gate passes in
+caudate only, and caudate is exactly where the MuSiC arm bites. An scMD arm in
+caudate would say whether the attenuation is specific to the RNA-derived measure.
+It needs a PI decision and another run; nothing here is blocked on it.
 
 ## Superseded runs
 
