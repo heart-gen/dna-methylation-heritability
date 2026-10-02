@@ -254,6 +254,22 @@ token <- if (region_general) {
 stale <- sum(!per_region$upstream_current)
 smoke <- any(per_region$smoke_run %in% TRUE)
 
+## AGENTS.md 7.9 placement. The key was the scalar `pi_decision_after_run`
+## until the PI decided on 2026-10-01, and is a map from then on. Read both
+## shapes rather than the current one, so a reader of an older config does not
+## get a 6-element vector silently recycled into this one-row table.
+mp <- cfg$interpretation$manuscript_placement
+placement <- if (is.list(mp)) {
+    list(placement = as.character(mp$placement),
+         main_text_mention_required = isTRUE(mp$main_text_mention_required),
+         provisional = isTRUE(mp$provisional_pending_writing_narrative))
+} else {
+    list(placement = as.character(mp),
+         main_text_mention_required = NA,
+         provisional = NA)
+}
+stopifnot(length(placement$placement) == 1L, !is.na(placement$placement))
+
 decision <- data.table(
     cohort = opts$cohort,
     aging_axis_association = token,
@@ -267,7 +283,9 @@ decision <- data.table(
     regions_are_independent_replicates = FALSE,
     max_pairwise_jaccard = max(overlap$jaccard),
     pooled_p_emitted = FALSE,
-    manuscript_placement = as.character(cfg$interpretation$manuscript_placement),
+    manuscript_placement = placement$placement,
+    manuscript_main_text_mention_required = placement$main_text_mention_required,
+    manuscript_placement_provisional = placement$provisional,
     n_regions_citing_superseded_module_02 = stale,
     citable = !allow_unaccepted && stale == 0L && !smoke,
     built_with_unaccepted_runs = allow_unaccepted,
