@@ -2,7 +2,17 @@
 
 Tests whether schizophrenia-risk variants regulate methylation within genetically anchored VMRs. Intended for the main text, conditional on surviving corrected VMRs and the new local-genetic-control axis.
 
-**Status: accepted (AA, 2026-09-19); both decisions resolved. Its upstreams have since moved — see "The accepted runs now rest on superseded upstreams" below.** Every blocking upstream gate was satisfied when the runs opened: `05_cpg_meqtl_burden` (`cmb-AA-*-20260825`) and `07_transcription_splicing_coupling` (`tsc-AA-*-20260902`) each recorded a passing acceptance gate (AGENTS.md §6). The three per-region runs `scz-AA-{caudate,dlpfc,hippocampus}-20260918` are accepted; see **Accepted runs**. Decision 1 is `CAUDATE_MAGNITUDE_CLAIM_NOT_SUPPORTED` and decision 2 is `RETAIN_MAIN_TEXT`, resolved by stage 15 in `_m/combined/` with `citable = TRUE`. Stages 17 and 18 are post hoc sensitivities, recorded as such. `config/gwas_negative_controls.yml` was PI-locked on 2026-09-20 and both stages were re-run against the accepted runs on 2026-09-20 (`_h/step_9_negative_controls.sh`), so their outputs are now emitted **without** the `-UNACCEPTED` suffix, carry `built_with_unaccepted_runs = FALSE`, and are citable. The superseded suffixed copies were removed; they are reproducible with `ALLOW_UNLOCKED=1` and differ only in that flag and in last-digit IRLS noise. They **qualify** Module 09's claim and change neither decision (AGENTS.md §7.8).
+**Status: accepted (AA, 2026-10-01); both decisions resolved.** The three
+per-region runs `scz-AA-{caudate,dlpfc,hippocampus}-20261001` are accepted; see
+**Accepted runs**, and "### Superseded" for the `-20260918` runs they replace.
+Every upstream is current (see **Upstream currency**), including
+`rdg-AA-crossregion-20260930` for the Module 08 dependency. Decision 1 is
+`CAUDATE_MAGNITUDE_CLAIM_NOT_SUPPORTED` and decision 2 is `RETAIN_MAIN_TEXT`,
+resolved by stage 15 in `_m/combined/` with `citable = TRUE`. Stages 15 through
+18 were rerun on the accepted runs on 2026-10-01 without `--allow-unlocked`, so
+every `_m/combined/` table is citable. Stages 17 and 18 are post hoc
+sensitivities that **qualify** Module 09's claim and change neither decision
+(AGENTS.md §7.8).
 
 ## Migrating from
 
@@ -172,18 +182,29 @@ cannot resolve decision 2 — it writes `PENDING_CROSS_REGION` — so the retent
 answer lives only in `_m/combined/scz-application-decisions-{cohort}.tsv`, from
 stage 15.
 
-**Current state (accepted runs `scz-AA-{region}-20260918`, stage 15 re-run
-2026-09-19 without `--allow-unlocked`, `citable = TRUE`):**
+**Current state (accepted runs `scz-AA-{region}-20261001`; stages 15-18 rerun
+2026-10-01 without `--allow-unlocked`, `citable = TRUE`): both decisions
+resolved.**
 
-- decision 1 `CAUDATE_MAGNITUDE_CLAIM_NOT_SUPPORTED` — tier 3 reads
+- decision 1 `CAUDATE_MAGNITUDE_CLAIM_NOT_SUPPORTED`, from the caudate run's own
+  `retention-criteria.tsv`: tier 3 of `rdg-AA-crossregion-20260930` reads
   `donor_count_is_a_plausible_major_contributor`.
-- decision 2 `RETAIN_MAIN_TEXT` — `lower_in_scz_linked` in 3/3 regions,
-  FDR-significant in 3/3 (2 outside caudate); one region-specific departure,
-  caudate (log-odds −0.226 vs −0.160 for the other two pooled, p = 0.042,
-  independent-SE test and therefore conservative under shared donors).
+- decision 2 `RETAIN_MAIN_TEXT`, `h1_met = TRUE`. `lower_in_scz_linked` in 3/3
+  regions, FDR-significant in 3/3 (2 outside caudate); one region-specific
+  departure, caudate, by the `magnitude_difference` rule and not a sign reversal
+  (log-odds -0.2257 against -0.1603 pooled, difference -0.0654, p 0.042 by an
+  independent-SE test that is conservative under shared donors), which does not
+  veto the region-general claim. **Heterogeneity across regions is not
+  significant** (Q 4.156, 2 df, p 0.125), and the pooled log-odds -0.183
+  (OR 0.833) is `pooled_is_descriptive_only = TRUE` with an anticonservative SE:
+  100 of 168 donors appear in all three regions.
 - stage 16: the axis contrast survives n-matching in all three caudate n=118
-  replicates; |log-odds| changes by +5.8% on average (range +1.9% to +8.2%),
-  against tier 3's 14.3% attenuation of the prediction magnitude.
+  replicates, direction preserved 3/3, all FDR-significant; abs(log-odds) changes
+  by **+5.8%** on average (range +1.9% to +8.2%) -- the matched replicates are
+  slightly stronger, not weaker -- against tier 3's 14.3% attenuation of the
+  prediction magnitude, which is a different quantity.
+- stages 17 and 18 regenerated (job 8189349). Stage 17 is identical to the digit.
+  Stage 18 moved on Module 04's reacceptance; see "### Locus architecture".
 
 Note also that Module 06's accepted S-LDSC result is **null**
 (`sldsc_supports_brain_enrichment = FALSE`), which
@@ -282,7 +303,11 @@ heterochromatin annotations as AGENTS.md §7.4 requires. Spec:
 
 The axis contrast is largely reporting whether a trait's loci sit in active or in
 quiescent sequence. Spearman correlation across the 58-62 distribution traits
-between a trait's annotation enrichment and its axis estimate, score-adjusted:
+between a trait's annotation enrichment and its axis estimate. The primary arm
+adjusts the
+enrichment fit for technical covariates only; the score-adjusted arm is reported
+below it, and is weaker by construction, since adjusting for the control score
+removes part of the axis signal from the quantity being correlated with the axis:
 
 | annotation | caudate | dlpfc | hippocampus | direction |
 |---|---|---|---|---|
@@ -292,9 +317,16 @@ between a trait's annotation enrichment and its axis estimate, score-adjusted:
 | H3K27me3 | +0.31 | +0.39 | +0.28 | marks non-depleted traits |
 | H3K9me3 | +0.22 | +0.54 | +0.30 | marks non-depleted traits |
 
-All of the above reach q < 0.05 in at least two regions except H3K9me3 in
-caudate. Between 17 and 24 traits per region are individually enriched for
-accessible chromatin at q < 0.05.
+All of the above reach q < 0.05 in at least two regions. Two cells do not:
+H3K9me3 in caudate (q 0.18) and H3K27me3 in hippocampus (q 0.058). Under
+**score adjustment** the pattern keeps its sign everywhere but weakens
+materially, and hippocampus loses significance throughout: accessible -0.32
+(q 0.044) / -0.30 (q 0.049) / -0.24 (q 0.24), H3K27ac -0.22 (q 0.16) / -0.44
+(q 0.0035) / -0.18 (q 0.28), quiescent +0.31 / +0.33 / +0.22 (q 0.26), H3K27me3
++0.35 / +0.40 / +0.31 (q 0.18), H3K9me3 +0.12 (q 0.45) / +0.50 / +0.20 (q 0.26),
+caudate/DLPFC/hippocampus in that order. Between 17 and 24 traits per region are
+individually enriched for accessible chromatin at q < 0.05 in the score-adjusted
+arm, and between 21 and 29 in the primary arm.
 
 **No LINE/L1 statement is licensed.** Not one trait reaches q < 0.05 for LINE/L1
 enrichment in any region or either arm, the axis-link correlation disagrees in
@@ -308,50 +340,28 @@ extended MHC is excluded for every trait, which removes the dominant immune
 locus, so immune traits' remaining loci are a non-representative subset of their
 architecture.
 
-## The accepted runs now rest on superseded upstreams
+`cell_composition_r2` is not in the table above and should not be read from the
+superseded run. It was scMD-derived in `rra-AA-*-20260906` and is MuSiC-derived
+in `rra-AA-*-20260925-a`, and the axis-link correlation does not survive the
+switch: DLPFC rho -0.582 (q 1.3e-05) becomes **+0.253 (q 0.069)**, a sign flip to
+non-significance, and hippocampus -0.538 (q 1.8e-04) becomes -0.114 (q 0.435). On
+the MuSiC covariate, composition-sensitivity does not track axis depletion in any
+region. This is the same modality switch that moved Module 09b's gating arm.
 
-**Added 2026-09-27.** Four of the upstreams pinned in every
-`scz-AA-*-20260918` manifest were superseded by the 2026-09-24/25 acceptances:
+## Upstream currency
 
-| upstream | in the accepted 09 runs | now accepted |
-|---|---|---|
-| `04_repeat_repressive_architecture` | `rra-AA-*-20260906` | `rra-AA-*-20260925-a` |
-| `05_cpg_meqtl_burden` | `cmb-AA-*-20260825` | `cmb-AA-*-20260924` |
-| `06_partitioned_heritability` | `sldsc-AA-*-20260903` | `sldsc-AA-*-20260925` |
-| `07_transcription_splicing_coupling` | `tsc-AA-*-20260902` | `tsc-AA-*-20260925-b` |
+**Resolved 2026-10-01.** The accepted runs consume the current acceptance of
+every upstream: `vmrcat-AA-*-20260816`, `lgv-AA-*-rescore-20260913`,
+`rra-AA-*-20260925-a`, `cmb-AA-*-20260924`, `sldsc-AA-*-20260925`,
+`tsc-AA-*-20260925-b`, and `rdg-AA-crossregion-20260930` for the Module 08
+dependency that `gates.require_module_08_downsampling: true` makes mandatory.
 
-Modules 01 and 02 are unchanged (`vmrcat-AA-*-20260816`,
-`lgv-AA-*-rescore-20260913`), so the axis predictor these runs were built on is
-still the accepted one.
-
-AGENTS.md §6 is not retroactive: the 2026-09-19 acceptance was valid when it was
-made and stays in the table. The operative rule is narrower — **no new
-production run may consume `scz-AA-*-20260918`**, and its numbers may not be
-quoted beside numbers from the 2026-09-24/25 upstreams.
-
-### The rerun is blocked on Module 08, not on this module
-
-`_h/00_new_run.R:94` calls `require_accepted_upstream("08_region_donor_generalization", …)`
-because `gates.require_module_08_downsampling: true`, so opening a new Module 09
-run needs an **accepted** Module 08 run. The only one is
-`rdg-AA-crossregion-20260918`, which its own README now forbids a new production
-run from consuming, and the `rdg-AA-crossregion-20260925` rerun is deliberately
-unaccepted pending four tier-accounting fixes. **Module 08 must be fixed and
-reaccepted before Module 09 can be rerun.**
-
-**Neither decision is at risk from that rerun.** Decision 1 reads Module 08 tier
-3 and nothing else, and tier 3 is stable across the two Module 08 runs —
-`reading = donor_count_is_a_plausible_major_contributor` in both, relative
-attenuation 0.1426 against 0.1432, all three locked criteria TRUE in both. The
-four Module 08 defects are confined to tier 1 and tier 2, which decision 1 does
-not read. Decision 2 rests on stage 15's cross-region axis concordance, whose
-inputs are Modules 01 and 02.
-
-What a rerun would move is the parts that read the superseded modules: stage 05's
-integration annotations and stage 06's coupling projection (Module 04 and Module
-07), and the `sldsc_supports_brain_enrichment` value the decision file carries
-from Module 06 — which is `FALSE` in both the superseded and the current Module
-06 runs, so that field does not move.
+The four-upstream supersession recorded here from 2026-09-27, and the Module 08
+blocker that made the rerun impossible, are discharged. Module 08's four
+tier-accounting defects were repaired and `rdg-AA-crossregion-20260930` accepted
+on 2026-09-30; the Module 09 rerun followed on 2026-10-01. The prediction made
+when that blocker was recorded held: neither decision moved, and the
+architecture-axis tables are byte-identical across the rerun.
 
 ### Stage 18's central finding has no independent-data-source check
 
@@ -384,9 +394,59 @@ that does not exist.
 
 | run_id | cohort | region | vmr_set_id | accepted_on | accepted_by | decision | notes |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| scz-AA-caudate-20260918 | AA | caudate | vmrset-AA-caudate-937a41979978 | 2026-09-19 | Kynon J. Benjamin | PASS_SCZ_APPLICATION_QC | Built at 2b5e0c9ec on lgv-AA-caudate-rescore-20260913 and rdg-AA-crossregion-20260918. 2654 VMRs linked to 612 loci; 84 loci with CpG-meQTL support; axis lower_in_scz_linked (significant); 145 loci with transcriptional coupling; 3 of 5 prioritized loci with GTEx support; 232 claimable ancestry-matched colocalizations. Decision 1 CAUDATE_MAGNITUDE_CLAIM_NOT_SUPPORTED (Module 08 tier 3: donor count is a plausible major contributor). Caudate is batch-confounded. |
-| scz-AA-dlpfc-20260918 | AA | dlpfc | vmrset-AA-dlpfc-856067dfe289 | 2026-09-19 | Kynon J. Benjamin | PASS_SCZ_APPLICATION_QC | Built at 2b5e0c9ec on lgv-AA-dlpfc-rescore-20260913. 2063 VMRs linked to 612 loci; 58 loci with CpG-meQTL support; axis lower_in_scz_linked (significant); 99 loci with transcriptional coupling; 4 of 5 prioritized loci with GTEx support; 175 claimable ancestry-matched colocalizations. Decision 1 not applicable. |
-| scz-AA-hippocampus-20260918 | AA | hippocampus | vmrset-AA-hippocampus-2d907b892215 | 2026-09-19 | Kynon J. Benjamin | PASS_SCZ_APPLICATION_QC | Built at 2b5e0c9ec on lgv-AA-hippocampus-rescore-20260913. 2017 VMRs linked to 612 loci; 64 loci with CpG-meQTL support; axis lower_in_scz_linked (significant); 66 loci with transcriptional coupling; 5 of 5 prioritized loci with GTEx support; 174 claimable ancestry-matched colocalizations. Decision 1 not applicable. |
+| scz-AA-caudate-20261001 | AA | caudate | vmrset-AA-caudate-937a41979978 | 2026-10-01 | Kynon J. Benjamin | PASS_SCZ_APPLICATION_QC | Built at 644054e01, git_dirty false, smoke_run FALSE, on vmrcat-AA-caudate-20260816, lgv-AA-caudate-rescore-20260913, rra-AA-caudate-20260925-a, cmb-AA-caudate-20260924, sldsc-AA-caudate-20260925, tsc-AA-caudate-20260925-b and rdg-AA-crossregion-20260930; 106,067 output files, failures "". 2,654 VMRs linked to 522 of 612 published loci; 363,164 pairs tested in the single `scz_risk_variant_cpg_pairs_per_region` family, 27,470 significant; **94** loci with CpG-meQTL support. Axis significant, `lower_in_scz_linked`: Wilcoxon mean score_z difference -0.283 (q 8.0e-37), adjusted logistic log-odds **-0.226** per SD (SE 0.026, q 4.2e-18, adjusted for vmr_length, cpg_count, gc_content, mappability) -- **byte-identical to the superseded run**, since the axis reads Modules 01 and 02 only. 145 loci with transcriptional coupling. 70 ancestry-matched loci evaluated for colocalization, **267** claimable, coloc_claim_permitted TRUE, 19,046 cross-ancestry regions retained exploratory-only. 5 prioritized loci (rule ranked_composite_v1), 4 with GTEx support; the set is loci 73/276/432/163/198 and 3 of the superseded 5 are retained -- see "### The five prioritized loci are illustrative, and churn". Integration: 1 of 5 annotations claimable (quiescent chromatin -0.088, q 2.2e-20), **0 enriched**, all claimable annotations DEPLETED, so integration_supports_repressive_architecture_link FALSE. Decision 1 **CAUDATE_MAGNITUDE_CLAIM_NOT_SUPPORTED** -- criterion `caudate_not_sample_size_artifact` reads FAIL_SAMPLE_SIZE_ARTIFACT off rdg-AA-crossregion-20260930 tier 3 (`donor_count_is_a_plausible_major_contributor`); retention-criteria.tsv is byte-identical to the superseded run. Decision 2 PENDING_CROSS_REGION -- a per-region run cannot resolve it. Upstream `sldsc_supports_brain_enrichment = FALSE` carried from Module 06. Caudate is batch-confounded (AGENTS.md 8.1); the residual excess may not be called biological, and permitted wording is "caudate magnitude attenuates after n-matching", never "inflated" or "biased". |
+| scz-AA-dlpfc-20261001 | AA | dlpfc | vmrset-AA-dlpfc-856067dfe289 | 2026-10-01 | Kynon J. Benjamin | PASS_SCZ_APPLICATION_QC | Built at 644054e01, git_dirty false, smoke_run FALSE, on vmrcat-AA-dlpfc-20260816, lgv-AA-dlpfc-rescore-20260913, rra-AA-dlpfc-20260925-a, cmb-AA-dlpfc-20260924, sldsc-AA-dlpfc-20260925, tsc-AA-dlpfc-20260925-b; 81,569 output files, failures "". 2,063 VMRs linked to 565 of 612 published loci; 225,527 pairs tested, 12,547 significant; **64** loci with CpG-meQTL support. Axis significant, `lower_in_scz_linked`: Wilcoxon -0.166 (q 6.6e-11), adjusted logistic log-odds **-0.161** per SD (SE 0.026, q 1.3e-09) -- byte-identical to the superseded run. 100 loci with transcriptional coupling. 42 ancestry-matched loci evaluated, **190** claimable, 8,945 cross-ancestry exploratory. 5 prioritized loci, 4 with GTEx support; loci 490/493/544/283/136, 3 of the superseded 5 retained. **`rs13331198` (locus 544) is prioritized here at rank 3** -- the only region where either legacy hero locus passes corrected prioritization (AGENTS.md §8). Integration: 3 of 5 claimable -- quiescent chromatin -0.086 (q 6.0e-14), LINE/L1 -0.017 (q 3.2e-04), H3K9me3 -0.012 (q 0.032) -- **0 enriched**, all three DEPLETED, integration_supports_repressive_architecture_link FALSE. This is the only region where LINE/L1 is claimable, and the sign is DEPLETION in SCZ-linked VMRs -- a different quantity from Module 04's LINE/L1 enrichment along the control axis, which this does not speak to either way. Nothing here licenses a repeat statement about schizophrenia, and a single claimable region could not support one in any case. Decision 1 NOT_APPLICABLE_NON_CAUDATE_REGION. Decision 2 PENDING_CROSS_REGION. Upstream `sldsc_supports_brain_enrichment = FALSE`. |
+| scz-AA-hippocampus-20261001 | AA | hippocampus | vmrset-AA-hippocampus-2d907b892215 | 2026-10-01 | Kynon J. Benjamin | PASS_SCZ_APPLICATION_QC | Built at 644054e01, git_dirty false, smoke_run FALSE, on vmrcat-AA-hippocampus-20260816, lgv-AA-hippocampus-rescore-20260913, rra-AA-hippocampus-20260925-a, cmb-AA-hippocampus-20260924, sldsc-AA-hippocampus-20260925, tsc-AA-hippocampus-20260925-b; 71,159 output files, failures "". 2,017 VMRs linked to 560 of 612 published loci; 216,837 pairs tested, **10,056** significant -- **down from 12,204 in the superseded run, the only region where the meQTL evidence weakened**; 64 loci with CpG-meQTL support, unchanged. Axis significant, `lower_in_scz_linked`: Wilcoxon -0.164 (q 1.7e-10), adjusted logistic log-odds **-0.160** per SD (SE 0.027, q 2.0e-09) -- byte-identical to the superseded run. 78 loci with transcriptional coupling, up from 66. 40 ancestry-matched loci evaluated, **192** claimable, 9,509 cross-ancestry exploratory. 5 prioritized loci, **4 with GTEx support, down from 5 of 5**: loci 441/264/118/136/198, 4 of the superseded 5 retained. The new rank-1 locus 441 (rs139139) carries no GTEx support and max PP4 0.015, and entered because the Module 05 hard filter admitted it while the old rank-1 locus 164 (rs11076631) left the eligible pool; read it as an illustrative locus, not a lead. Integration: 2 of 5 claimable -- quiescent chromatin -0.057 (q 5.1e-07), H3K9me3 -0.015 (q 0.021) -- 0 enriched, both DEPLETED, integration_supports_repressive_architecture_link FALSE; LINE/L1 is not claimable here (-0.008, q 0.080). Decision 1 NOT_APPLICABLE_NON_CAUDATE_REGION. Decision 2 PENDING_CROSS_REGION. Upstream `sldsc_supports_brain_enrichment = FALSE`. |
+
+### Superseded
+
+`scz-AA-{caudate,dlpfc,hippocampus}-20260918` (accepted 2026-09-19, superseded
+2026-10-01). Superseded because four upstreams moved, which is the condition
+the section above this table described and which the rerun has now discharged.
+AGENTS.md §6 is not retroactive: the 2026-09-19 acceptance was sound when it was
+made.
+
+**What is safe to carry across, because it is byte-identical in all three
+regions:** the architecture-axis tests and descriptives, the PGC3 locus
+definition and index SNPs, the locus-to-VMR links and the VMR linkage table.
+Decision 1's `retention-criteria.tsv` is byte-identical in caudate. So neither
+decision changed, and the two decisions were always the thing at risk.
+
+**What must not be quoted from the superseded runs:** every count that reads
+Module 05 or Module 07 -- pairs significant, loci with CpG-meQTL support, loci
+with transcriptional coupling, ancestry-matched loci evaluated for coloc,
+claimable colocalizations -- and the identity of the five prioritized loci. The
+superseded caudate run also carried `git_dirty true`, so its code state is not
+exactly recoverable from its commit; the accepted runs are clean.
+
+One criterion was tested more weakly in the superseded runs than it is now.
+`config/schizophrenia.yml` renamed
+`enrichment_along_local_control_axis_in_primary_region` to
+`..._in_every_region` in `9ba7f1aae` on 2026-09-19, after those runs sealed. The
+status token `PASS_INTERPRETABLE_CONTRAST_DEPLETION` is identical in both, but it
+certifies the every-region form only in the accepted runs. It passes because the
+axis is significant with `lower_in_scz_linked` in 3 of 3 regions.
+
+### The five prioritized loci are illustrative, and churn
+
+Retained from the superseded set: caudate 3 of 5, DLPFC 3 of 5, hippocampus 4 of
+5. This is expected and is recorded here so that no draft treats the five as a
+stable result.
+
+`prioritization.rule` applies a hard filter on
+`has_significant_risk_variant_cpg_meqtl`, which is Module 05-dependent, so the
+eligible pool changes whenever Module 05 is reaccepted. It then ranks on
+`max_abs_local_snp_contribution_score_z`, and the top of that ordering is a
+near-tie: hippocampus ranks 1-6 are 1.7318, 1.7170, 1.7140, 1.7136, 1.7114,
+1.7053, so the five-locus cut falls inside a spread of 0.026. Both mechanisms
+operated -- hippocampus's old rank-1 locus left the pool, and the surviving order
+is decided at the third decimal place.
+
+AGENTS.md §8's hero-loci retest is answered by these runs. **`rs13331198`
+survives corrected prioritization in DLPFC only** (rank 3; rank 15 caudate, rank
+12 hippocampus). **`rs8048039` survives in no region** (rank 48 / 53 / 47),
+though it carries meQTL support, GTEx support and max PP4 0.966 in all three; it
+should not be presented as a hero locus.
 
 ## Contract
 
