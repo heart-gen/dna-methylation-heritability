@@ -2,7 +2,17 @@
 
 Tests whether schizophrenia-risk variants regulate methylation within genetically anchored VMRs. Intended for the main text, conditional on surviving corrected VMRs and the new local-genetic-control axis.
 
-**Status: accepted (AA, 2026-10-01); decision 1 resolved, decision 2 pending the stage 15 rerun.** The three per-region runs `scz-AA-{caudate,dlpfc,hippocampus}-20261001` are accepted; see **Accepted runs**, and "### Superseded" for the `-20260918` runs they replace. Every upstream is current (see **Upstream currency**), including `rdg-AA-crossregion-20260930` for the Module 08 dependency. Decision 1 is `CAUDATE_MAGNITUDE_CLAIM_NOT_SUPPORTED`. **Decision 2 lives only in `_m/combined/`, written by stage 15, which has not been rerun** -- `_m/combined/` still holds the 2026-09-19 tables built on the superseded runs, and they are not citable beside the accepted per-region numbers; the superseded answer was `RETAIN_MAIN_TEXT`. The same applies to stages 17 and 18: `config/gwas_negative_controls.yml` was PI-locked on 2026-09-20 and both stages ran against the `-20260918` runs, so their conclusions stand -- they read the axis, which is byte-identical across the rerun -- but every number in them must be regenerated before it is quoted again. Stages 17 and 18 are post hoc sensitivities that **qualify** Module 09's claim and change neither decision (AGENTS.md §7.8).
+**Status: accepted (AA, 2026-10-01); both decisions resolved.** The three
+per-region runs `scz-AA-{caudate,dlpfc,hippocampus}-20261001` are accepted; see
+**Accepted runs**, and "### Superseded" for the `-20260918` runs they replace.
+Every upstream is current (see **Upstream currency**), including
+`rdg-AA-crossregion-20260930` for the Module 08 dependency. Decision 1 is
+`CAUDATE_MAGNITUDE_CLAIM_NOT_SUPPORTED` and decision 2 is `RETAIN_MAIN_TEXT`,
+resolved by stage 15 in `_m/combined/` with `citable = TRUE`. Stages 15 through
+18 were rerun on the accepted runs on 2026-10-01 without `--allow-unlocked`, so
+every `_m/combined/` table is citable. Stages 17 and 18 are post hoc
+sensitivities that **qualify** Module 09's claim and change neither decision
+(AGENTS.md §7.8).
 
 ## Migrating from
 
@@ -172,24 +182,29 @@ cannot resolve decision 2 — it writes `PENDING_CROSS_REGION` — so the retent
 answer lives only in `_m/combined/scz-application-decisions-{cohort}.tsv`, from
 stage 15.
 
-**Current state (accepted runs `scz-AA-{region}-20261001`): decisions 1 and 2
-are not symmetric, and only decision 1 is resolved.**
+**Current state (accepted runs `scz-AA-{region}-20261001`; stages 15-18 rerun
+2026-10-01 without `--allow-unlocked`, `citable = TRUE`): both decisions
+resolved.**
 
 - decision 1 `CAUDATE_MAGNITUDE_CLAIM_NOT_SUPPORTED`, from the caudate run's own
   `retention-criteria.tsv`: tier 3 of `rdg-AA-crossregion-20260930` reads
   `donor_count_is_a_plausible_major_contributor`.
-- decision 2 **pending**. It lives only in `_m/combined/`, written by stage 15,
-  and stages 15 through 18 have not been rerun on the accepted runs. `_m/combined/`
-  still holds the 2026-09-19 tables built on `scz-AA-*-20260918`, **which are not
-  citable beside the accepted per-region numbers**. The superseded answer was
-  `RETAIN_MAIN_TEXT`; the inputs stage 15 reads -- the per-region axis tables --
-  are byte-identical across the rerun, so it is expected to repeat, but the
-  accepted answer is whatever stage 15 writes.
-- stages 17 and 18 (`step_9_negative_controls.sh`) are likewise not rerun. Every
-  number in "### Negative-control traits" and "### Locus architecture" currently
-  rests on the superseded runs. The trait-general conclusion and the three §7.8
-  writing rules are not in doubt -- they read the axis, which did not move -- but
-  the tables must be regenerated before any of their numbers are quoted again.
+- decision 2 `RETAIN_MAIN_TEXT`, `h1_met = TRUE`. `lower_in_scz_linked` in 3/3
+  regions, FDR-significant in 3/3 (2 outside caudate); one region-specific
+  departure, caudate, by the `magnitude_difference` rule and not a sign reversal
+  (log-odds -0.2257 against -0.1603 pooled, difference -0.0654, p 0.042 by an
+  independent-SE test that is conservative under shared donors), which does not
+  veto the region-general claim. **Heterogeneity across regions is not
+  significant** (Q 4.156, 2 df, p 0.125), and the pooled log-odds -0.183
+  (OR 0.833) is `pooled_is_descriptive_only = TRUE` with an anticonservative SE:
+  100 of 168 donors appear in all three regions.
+- stage 16: the axis contrast survives n-matching in all three caudate n=118
+  replicates, direction preserved 3/3, all FDR-significant; abs(log-odds) changes
+  by **+5.8%** on average (range +1.9% to +8.2%) -- the matched replicates are
+  slightly stronger, not weaker -- against tier 3's 14.3% attenuation of the
+  prediction magnitude, which is a different quantity.
+- stages 17 and 18 regenerated (job 8189349). Stage 17 is identical to the digit.
+  Stage 18 moved on Module 04's reacceptance; see "### Locus architecture".
 
 Note also that Module 06's accepted S-LDSC result is **null**
 (`sldsc_supports_brain_enrichment = FALSE`), which
@@ -288,7 +303,11 @@ heterochromatin annotations as AGENTS.md §7.4 requires. Spec:
 
 The axis contrast is largely reporting whether a trait's loci sit in active or in
 quiescent sequence. Spearman correlation across the 58-62 distribution traits
-between a trait's annotation enrichment and its axis estimate, score-adjusted:
+between a trait's annotation enrichment and its axis estimate. The primary arm
+adjusts the
+enrichment fit for technical covariates only; the score-adjusted arm is reported
+below it, and is weaker by construction, since adjusting for the control score
+removes part of the axis signal from the quantity being correlated with the axis:
 
 | annotation | caudate | dlpfc | hippocampus | direction |
 |---|---|---|---|---|
@@ -298,9 +317,16 @@ between a trait's annotation enrichment and its axis estimate, score-adjusted:
 | H3K27me3 | +0.31 | +0.39 | +0.28 | marks non-depleted traits |
 | H3K9me3 | +0.22 | +0.54 | +0.30 | marks non-depleted traits |
 
-All of the above reach q < 0.05 in at least two regions except H3K9me3 in
-caudate. Between 17 and 24 traits per region are individually enriched for
-accessible chromatin at q < 0.05.
+All of the above reach q < 0.05 in at least two regions. Two cells do not:
+H3K9me3 in caudate (q 0.18) and H3K27me3 in hippocampus (q 0.058). Under
+**score adjustment** the pattern keeps its sign everywhere but weakens
+materially, and hippocampus loses significance throughout: accessible -0.32
+(q 0.044) / -0.30 (q 0.049) / -0.24 (q 0.24), H3K27ac -0.22 (q 0.16) / -0.44
+(q 0.0035) / -0.18 (q 0.28), quiescent +0.31 / +0.33 / +0.22 (q 0.26), H3K27me3
++0.35 / +0.40 / +0.31 (q 0.18), H3K9me3 +0.12 (q 0.45) / +0.50 / +0.20 (q 0.26),
+caudate/DLPFC/hippocampus in that order. Between 17 and 24 traits per region are
+individually enriched for accessible chromatin at q < 0.05 in the score-adjusted
+arm, and between 21 and 29 in the primary arm.
 
 **No LINE/L1 statement is licensed.** Not one trait reaches q < 0.05 for LINE/L1
 enrichment in any region or either arm, the axis-link correlation disagrees in
@@ -313,6 +339,14 @@ which is consistent with their lack of axis depletion. Note also that the
 extended MHC is excluded for every trait, which removes the dominant immune
 locus, so immune traits' remaining loci are a non-representative subset of their
 architecture.
+
+`cell_composition_r2` is not in the table above and should not be read from the
+superseded run. It was scMD-derived in `rra-AA-*-20260906` and is MuSiC-derived
+in `rra-AA-*-20260925-a`, and the axis-link correlation does not survive the
+switch: DLPFC rho -0.582 (q 1.3e-05) becomes **+0.253 (q 0.069)**, a sign flip to
+non-significance, and hippocampus -0.538 (q 1.8e-04) becomes -0.114 (q 0.435). On
+the MuSiC covariate, composition-sensitivity does not track axis depletion in any
+region. This is the same modality switch that moved Module 09b's gating arm.
 
 ## Upstream currency
 
