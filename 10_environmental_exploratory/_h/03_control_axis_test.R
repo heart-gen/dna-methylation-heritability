@@ -24,14 +24,24 @@
 ##   2. DESCRIPTIVE: the same model on -log10(p). Retained because it is what
 ##      this stage reported before 2026-09-19 and a reader will want the
 ##      comparison, and flagged mechanically_biased_toward_hypothesis = TRUE.
-##   3. NON-GATING ARM: the primary outcome and model with
-##      `methylation_variance` dropped and nothing else changed. Holding total
-##      variance fixed is what activates the variance-budget arithmetic (see
-##      config/environmental.yml:interpretation.variance_budget_limitation), and
-##      09b excluded total variance from its primary for the same reason. Fitted
-##      on the SAME VMR rows and the SAME bootstrap draws as the primary, so the
-##      two are paired and their difference is attributable to that one
-##      covariate. It cannot promote or demote the primary.
+##   3. NON-GATING ARMS, one per entry in `testing.axis_arms`: the primary
+##      outcome and the primary estimand refitted with one change to the
+##      adjustment set -- a dropped covariate, an added one, or both. Each is
+##      fitted on the SAME VMR rows and the SAME bootstrap draws as the primary,
+##      so every comparison is paired, and each gets its OWN BH family so no arm
+##      borrows significance from the primary or from another arm. None can
+##      promote or demote the primary. As of 2026-10-02 there are two:
+##
+##        no_methylation_variance  drops methylation_variance. Holding total
+##          variance fixed is what activates the variance-budget arithmetic (see
+##          config/environmental.yml:interpretation.variance_budget_limitation),
+##          and 09b excluded total variance from its primary for the same reason.
+##        cell_composition_r2      adds Module 04's per-VMR cell-composition
+##          R-squared, the same column 09b's GATING arm uses. Module 10 had no
+##          such arm before 2026-10-02 and a README revision wrongly reported
+##          one, so whether cell composition explains this module's gradient was
+##          untested rather than refuted. It is non-gating here because this
+##          module has no reading to gate; see the config comment.
 ##   4. Wilcoxon of score_z, FDR-significant vs not.
 ##   5. Logistic on the same indicator with the same covariates.
 ##
@@ -87,6 +97,77 @@ env <- load_run_config("environmental", run_dir)
 predictor <- env$testing$architecture_predictor
 axis_covs <- as.character(unlist(env$testing$axis_covariates))
 
+## ---------------------------------------------------------------- axis arms
+##
+## SHAPE TOLERANCE. This was two flat keys until 2026-10-02 --
+## `non_gating_axis_arms: [name]` plus `arm_<name>_drops: [cov]` -- which could
+## only express a dropped covariate. The cell-composition arm adds one, so the
+## config became an `axis_arms` map, the shape 09b already uses. A sealed run
+## snapshots its own config and `load_run_config()` reads that snapshot, so
+## re-running stage 03 on a run sealed before today must still work: both shapes
+## are read here rather than only the current one.
+read_axis_arms <- function(tst) {
+    if (!is.null(tst$axis_arms)) {
+        nm <- names(tst$axis_arms)
+        if (!length(nm) || any(!nzchar(nm))) {
+            stop("testing.axis_arms is present but has no named entries")
+        }
+        return(lapply(stats::setNames(nm, nm), function(a) {
+            spec <- tst$axis_arms[[a]]
+            list(name = a,
+                 role = as.character(spec$role %||% "non_gating"),
+                 drops = as.character(unlist(spec$drop_covariates)),
+                 adds = as.character(unlist(spec$add_covariates)),
+                 require_source = as.character(
+                     spec$requires_cell_composition_r2_source %||% NA_character_))
+        }))
+    }
+    nm <- as.character(unlist(tst$non_gating_axis_arms))
+    lapply(stats::setNames(nm, nm), function(a) list(
+        name = a, role = "non_gating",
+        drops = as.character(unlist(tst[[paste0("arm_", a, "_drops")]])),
+        adds = character(0), require_source = NA_character_))
+}
+arms <- read_axis_arms(env$testing)
+
+## Structural validation, before any data is touched. Every failure here is a
+## config error that would otherwise surface as a silently missing arm.
+for (a in arms) {
+    ## AGENTS.md 7.10: this module's gate is a coverage gate and a null axis
+    ## result must seal, so there is nothing for an arm to gate. A `gating` arm
+    ## would imply a finding to defend.
+    if (!identical(a$role, "non_gating")) {
+        stop("testing.axis_arms$", a$name, "$role is '", a$role, "'. Module 10 ",
+             "admits non_gating arms only: its gate is a coverage gate, a null ",
+             "axis result is a legitimate outcome, and main_text_retention is ",
+             "NEVER_SUPPLEMENT_ONLY whatever an arm shows (AGENTS.md 7.10).")
+    }
+    if (!length(a$drops) && !length(a$adds)) {
+        stop("Arm '", a$name, "' changes no covariate: it declares neither ",
+             "drop_covariates nor add_covariates, so it would refit the primary ",
+             "under a second name.")
+    }
+    bad_drop <- setdiff(a$drops, axis_covs)
+    if (length(bad_drop)) {
+        stop("Arm '", a$name, "' drops covariate(s) that are not in ",
+             "testing.axis_covariates: ", paste(bad_drop, collapse = ", "))
+    }
+    redundant <- intersect(a$adds, axis_covs)
+    if (length(redundant)) {
+        stop("Arm '", a$name, "' adds covariate(s) the primary already adjusts ",
+             "for: ", paste(redundant, collapse = ", "), ". That is a no-op arm.")
+    }
+    if (length(intersect(a$adds, a$drops))) {
+        stop("Arm '", a$name, "' both adds and drops: ",
+             paste(intersect(a$adds, a$drops), collapse = ", "))
+    }
+}
+arm_covs_of <- lapply(arms, function(a) c(setdiff(axis_covs, a$drops), a$adds))
+arm_extra_covs <- unique(unlist(lapply(arms, `[[`, "adds")))
+if (is.null(arm_extra_covs)) arm_extra_covs <- character(0)
+message("[10] axis arms: ",
+        if (length(arms)) paste(names(arms), collapse = ", ") else "none")
+
 assoc <- fread(file.path(run_dir, "results", "vmr-exposure-association.tsv"))
 
 score <- load_local_genetic_control(mf("upstream_local_genetic_variance_run_id"),
@@ -120,9 +201,57 @@ if (length(missing_covs)) {
          paste(missing_covs, collapse = ", "))
 }
 
+## An arm's added covariate must exist in the Module 04 run this run pinned. The
+## error names the run, because the usual cause is a run pinned to a Module 04
+## build that predates the column: `cell_composition_r2` first appears in
+## rra-AA-*-20260925-a and is absent from rra-AA-*-20260906. Dropping the arm
+## quietly would turn a missing sensitivity into an apparently clean result.
+missing_arm_covs <- setdiff(arm_extra_covs, names(feat))
+if (length(missing_arm_covs)) {
+    stop("Module 04 run '", feat_run, "' has no column(s) ",
+         paste(missing_arm_covs, collapse = ", "),
+         ", required by axis arm(s) ",
+         paste(names(arms)[vapply(arms, function(a)
+             any(a$adds %in% missing_arm_covs), logical(1))], collapse = ", "),
+         ". Re-open this run against a Module 04 run that carries them.")
+}
+
+## MODALITY, verified rather than assumed. `cell_composition_r2` was DNAm scMD
+## before Module 04's 2026-09-25 rebuild and is RNA MuSiC after it; Module 04
+## records which in `cell_composition_r2_source`. An arm that declares the
+## modality it needs gets it checked, so a future rebuild that switches modality
+## stops this stage instead of silently changing what the arm means. 09b applies
+## the same rule in _h/age_functions.R.
+cell_r2_source <- if ("cell_composition_r2_source" %in% names(feat)) {
+    src <- unique(as.character(feat$cell_composition_r2_source))
+    src <- src[!is.na(src)]
+    if (length(src) != 1L) {
+        stop("cell_composition_r2_source takes ", length(src), " values in ",
+             feat_run, "; exactly one modality must hold for a run.")
+    }
+    src
+} else NA_character_
+for (a in arms) {
+    if (is.na(a$require_source)) next
+    if (!identical(cell_r2_source, a$require_source)) {
+        stop("Arm '", a$name, "' requires cell_composition_r2_source = '",
+             a$require_source, "' but Module 04 run '", feat_run, "' ",
+             if (is.na(cell_r2_source)) {
+                 paste0("has no cell_composition_r2_source column at all, so ",
+                        "the modality cannot be established. That column was ",
+                        "added in rra-AA-*-20260925-a; re-open this run against ",
+                        "a Module 04 run that records the modality.")
+             } else {
+                 paste0("records '", cell_r2_source, "'. The column's modality ",
+                        "changed, so the arm no longer means what the config says.")
+             })
+    }
+}
+
 dt <- merge(assoc, score[, c("vmr_id", predictor), with = FALSE],
             by = "vmr_id", all.x = TRUE)
-dt <- merge(dt, feat[, c("vmr_id", axis_covs), with = FALSE],
+dt <- merge(dt, feat[, c("vmr_id", union(axis_covs, arm_extra_covs)),
+                     with = FALSE],
             by = "vmr_id", all.x = TRUE)
 
 ## Denominators are explicit (AGENTS.md 11). A VMR dropped for want of a
@@ -154,27 +283,12 @@ Y_all <- do.call(cbind, lapply(cks, `[[`, "Y"))
 md_all <- cks[[1]]$md
 pc_names <- cks[[1]]$pc_names
 stopifnot(identical(as.character(md_all$FID), donors))
-arm_drops <- as.character(unlist(env$testing$arm_no_methylation_variance_drops))
-arm_covs <- setdiff(axis_covs, arm_drops)
 if (!identical(env$testing$primary_axis_estimand,
                "proportional_gradient_ratio_functional")) {
     stop("testing.primary_axis_estimand must be proportional_gradient_ratio_functional")
 }
 if (!isTRUE(env$testing$absolute_axis_sensitivity)) {
     stop("testing.absolute_axis_sensitivity must be true")
-}
-arm_declared <- "no_methylation_variance" %in%
-    as.character(unlist(env$testing$non_gating_axis_arms))
-if (arm_declared) {
-    if (!length(arm_drops)) {
-        stop("testing.non_gating_axis_arms names no_methylation_variance but ",
-             "testing.arm_no_methylation_variance_drops is empty")
-    }
-    missing_drop <- setdiff(arm_drops, axis_covs)
-    if (length(missing_drop)) {
-        stop("The arm drops covariate(s) that are not in axis_covariates: ",
-             paste(missing_drop, collapse = ", "))
-    }
 }
 B <- as.integer(env$testing$n_bootstrap)
 if (!is.finite(B) || B < 2L) stop("config/environmental.yml:testing.n_bootstrap missing")
@@ -284,16 +398,20 @@ test_one <- function(ex, st) {
     } else est_absolute
     est_descr <- axis_estimate(ax, d$y, "raw")
 
-    ## The arm reuses `ax$ok`, so it is fitted on exactly the primary's VMRs
-    ## rather than on the larger set a smaller adjustment set would admit. That
-    ## is deliberate: the question is what the covariate does, not what a
-    ## different denominator does.
-    ax_arm <- if (arm_declared) prepare_axis(d, predictor, arm_covs,
-                                            rows = ax$ok) else NULL
-    jt_arm <- if (arm_declared) axis_estimate_joint(ax_arm, d$omega) else NULL
-    est_arm <- if (!arm_declared) NA_real_ else if (identical(scale, "relative_to_mean")) {
-        jt_arm[["beta"]] / jt_arm[["mean"]]
-    } else jt_arm[["beta"]]
+    ## Every arm passes `rows = ax$ok`, so each is fitted on the primary's VMRs
+    ## rather than on whatever set its own adjustment set would admit. That is
+    ## deliberate: the question is what the covariate does, not what a different
+    ## denominator does. A DROP arm therefore has exactly the primary's rows; an
+    ## ADD arm can have fewer, if the added covariate is missing somewhere, so
+    ## each arm's row count is recorded and compared rather than assumed equal.
+    arm_ax <- lapply(arms, function(a)
+        prepare_axis(d, predictor, arm_covs_of[[a$name]], rows = ax$ok))
+    arm_jt <- lapply(names(arms), function(a) axis_estimate_joint(arm_ax[[a]],
+                                                                 d$omega))
+    names(arm_jt) <- names(arms)
+    arm_jb <- lapply(arms, function(a) matrix(
+        NA_real_, B, 2L, dimnames = list(NULL, c("beta", "mean"))))
+    arm_boot <- lapply(arms, function(a) rep(NA_real_, B))
 
     ## ------------------------------------------------------------- bootstrap
     ## Donors are resampled WITHIN diagnosis so each draw keeps the observed
@@ -306,8 +424,7 @@ test_one <- function(ex, st) {
     ## two columns also give the covariance the sensitivity and Fieller need. One
     ## fit, three quantities.
     jb_p <- matrix(NA_real_, B, 2L, dimnames = list(NULL, c("beta", "mean")))
-    jb_a <- matrix(NA_real_, B, 2L, dimnames = list(NULL, c("beta", "mean")))
-    boot_p <- rep(NA_real_, B); boot_a <- rep(NA_real_, B)
+    boot_p <- rep(NA_real_, B)
     boot_d <- rep(NA_real_, B)
     set.seed(seed_for(opts$run_id, region, paste0("axis-boot-", ex, "-", st)))
     for (b in seq_len(B)) {
@@ -321,18 +438,25 @@ test_one <- function(ex, st) {
         p_b <- stats::pf(f_b, fmb$df_term, fmb$df_resid, lower.tail = FALSE)
         boot_d[b] <- axis_estimate(ax, -log10(pmax(p_b, eps)), "raw")
         jb_p[b, ] <- axis_estimate_joint(ax, om_b)
-        if (arm_declared) jb_a[b, ] <- axis_estimate_joint(ax_arm, om_b)
+        ## Every arm is refit on THIS draw, so arm and primary share the donor
+        ## resample and their difference is paired rather than two independent
+        ## estimates that happen to use the same B.
+        for (a in names(arms)) {
+            v <- axis_estimate_joint(arm_ax[[a]], om_b)
+            arm_jb[[a]][b, ] <- v
+            if (identical(scale, "relative_to_mean")) {
+                if (v[["mean"]] > 0) arm_boot[[a]][b] <- v[["beta"]] / v[["mean"]]
+            } else {
+                arm_boot[[a]][b] <- v[["beta"]]
+            }
+        }
         ## The ratio series needs a positive denominator in the draw; such a
         ## draw is counted in n_bootstrap_failed, never imputed. The absolute
         ## series above keeps every draw, since it has no denominator.
         if (identical(scale, "relative_to_mean")) {
             if (jb_p[b, "mean"] > 0) boot_p[b] <- jb_p[b, "beta"] / jb_p[b, "mean"]
-            if (arm_declared && jb_a[b, "mean"] > 0) {
-                boot_a[b] <- jb_a[b, "beta"] / jb_a[b, "mean"]
-            }
         } else {
             boot_p[b] <- jb_p[b, "beta"]
-            if (arm_declared) boot_a[b] <- jb_a[b, "beta"]
         }
     }
     ## Primary: the jackknife of the SAME functional the point estimate is, so a
@@ -360,16 +484,52 @@ test_one <- function(ex, st) {
     boot_mean_inflation <- if (identical(scale, "relative_to_mean")) {
         mean(jb_p[, "mean"], na.rm = TRUE) / mean_om
     } else NA_real_
-    cov_jk_a <- if (arm_declared) block_jackknife_cov(ax_arm, d$omega, d$chrom) else NULL
-    inf_a <- if (arm_declared) {
-        combined_inference(est_arm, boot_a,
-                           block_jackknife_se(ax_arm, d$omega, d$chrom, scale),
-                           alpha_ci)
-    } else NULL
-    rel_a <- if (arm_declared) {
-        fieller_ratio_ci(jt_arm[["beta"]], jt_arm[["mean"]],
-                         combined_cov(jb_a, cov_jk_a), alpha_ci)
-    } else NULL
+    ## ------------------------------------------------------- the non-gating arms
+    ## Each gets the primary's full treatment -- ratio functional, combined
+    ## variance, Fieller flag -- because an arm reported with weaker inference
+    ## than the primary cannot be compared with it.
+    arm_block <- list()
+    for (a in names(arms)) {
+        jt_a <- arm_jt[[a]]
+        est_a <- if (identical(scale, "relative_to_mean")) {
+            jt_a[["beta"]] / jt_a[["mean"]]
+        } else jt_a[["beta"]]
+        cov_jk_a <- block_jackknife_cov(arm_ax[[a]], d$omega, d$chrom)
+        inf_a <- combined_inference(
+            est_a, arm_boot[[a]],
+            block_jackknife_se(arm_ax[[a]], d$omega, d$chrom, scale), alpha_ci)
+        rel_a <- fieller_ratio_ci(jt_a[["beta"]], jt_a[["mean"]],
+                                  combined_cov(arm_jb[[a]], cov_jk_a), alpha_ci)
+        pre <- paste0("arm_", a, "_")
+        arm_block[[paste0(pre, "role")]] <- arms[[a]]$role
+        arm_block[[paste0(pre, "covariates")]] <-
+            paste(arm_covs_of[[a]], collapse = ",")
+        arm_block[[paste0(pre, "drops")]] <- if (length(arms[[a]]$drops)) {
+            paste(arms[[a]]$drops, collapse = ",") } else NA_character_
+        arm_block[[paste0(pre, "adds")]] <- if (length(arms[[a]]$adds)) {
+            paste(arms[[a]]$adds, collapse = ",") } else NA_character_
+        ## Fewer rows than the primary means the ADDED covariate is missing for
+        ## some VMRs. The arm is still paired on the rows it has, but the reader
+        ## needs to see that the denominators differ.
+        arm_block[[paste0(pre, "n_vmrs")]] <- sum(arm_ax[[a]]$ok)
+        arm_block[[paste0(pre, "n_vmrs_lost_vs_primary")]] <-
+            sum(ax$ok) - sum(arm_ax[[a]]$ok)
+        arm_block[[paste0(pre, "beta")]] <- est_a
+        arm_block[[paste0(pre, "se")]] <- inf_a$se
+        arm_block[[paste0(pre, "p")]] <- inf_a$p
+        arm_block[[paste0(pre, "ci_lower")]] <- inf_a$ci_lower
+        arm_block[[paste0(pre, "ci_upper")]] <- inf_a$ci_upper
+        arm_block[[paste0(pre, "fieller_bounded")]] <- rel_a$estimable
+        arm_block[[paste0(pre, "n_bootstrap_used")]] <- inf_a$n_bootstrap_used
+        ## The fraction of the primary coefficient this arm's covariate change
+        ## carries. NOT a test, and neither sign is a failure. It is a ratio of
+        ## two coefficients, so it explodes as the primary approaches zero and
+        ## must not be read where the primary is null.
+        arm_block[[paste0(pre, "attenuation")]] <-
+            if (is.finite(est_primary) && abs(est_primary) > 0) {
+                1 - est_a / est_primary
+            } else NA_real_
+    }
 
     ## The OLS p-value this stage used to report, kept for the comparison only.
     ols <- summary(stats::lm(stats::as.formula(paste("omega ~", predictor, "+",
@@ -453,22 +613,14 @@ test_one <- function(ex, st) {
         ## sum of squares. Above 1 the ratio's bootstrap variance is likely
         ## optimistic, so this is the audit trail for that caveat.
         bootstrap_mean_omega_inflation = boot_mean_inflation,
+        ## The arms themselves are appended below as one prefixed block per arm,
+        ## and repeated in long form in control-axis-arms.tsv. Only their count
+        ## and names belong on the family row.
+        n_axis_arms = length(arms),
+        axis_arm_names = paste(names(arms), collapse = ","),
+        axis_arms_role = "non_gating_sensitivity",
         ## Descriptive, and never a decision. Its expectation depends on the SE,
         ## so it is biased toward the hypothesis by construction.
-        ## Non-gating arm: the primary model minus methylation_variance.
-        ## `arm_attenuation` is the fraction of the primary coefficient that the
-        ## covariate carries; it is NOT a test, and neither sign is a failure.
-        arm_no_methylation_variance = arm_declared,
-        arm_covariates = if (arm_declared) paste(arm_covs, collapse = ",") else NA_character_,
-        arm_beta = if (arm_declared) est_arm else NA_real_,
-        arm_se = if (arm_declared) inf_a$se else NA_real_,
-        arm_p = if (arm_declared) inf_a$p else NA_real_,
-        arm_ci_lower = if (arm_declared) inf_a$ci_lower else NA_real_,
-        arm_ci_upper = if (arm_declared) inf_a$ci_upper else NA_real_,
-        arm_fieller_bounded = if (arm_declared) rel_a$estimable else NA,
-        arm_attenuation = if (arm_declared && is.finite(est_primary) &&
-                              abs(est_primary) > 0) 1 - est_arm / est_primary else NA_real_,
-        arm_role = "non_gating_sensitivity",
         neglog10p_beta = est_descr,
         neglog10p_se = inf_d$se,
         neglog10p_p = inf_d$p,
@@ -484,7 +636,7 @@ test_one <- function(ex, st) {
         logistic_p = if (!is.null(g_co)) unname(g_co[4]) else NA_real_,
         grouped_tests_skipped_reason =
             if (is.null(w)) "fewer_than_10_vmrs_in_a_group" else NA_character_
-    ))
+    ), if (length(arm_block)) as.data.table(arm_block) else NULL)
 }
 
 pairs <- unique(assoc[, .(exposure, stratum)])
@@ -505,10 +657,19 @@ out[status == "ok",
     primary_fdr := stats::p.adjust(primary_p, method = "BH"), by = stratum]
 out[status == "ok",
     neglog10p_fdr := stats::p.adjust(neglog10p_p, method = "BH"), by = stratum]
-## Its own family: a non-gating sensitivity must not borrow significance from the
-## primary, nor lend it.
-out[status == "ok" & !is.na(arm_p),
-    arm_fdr := stats::p.adjust(arm_p, method = "BH"), by = stratum]
+## Each arm gets its OWN family, within stratum. A non-gating sensitivity must
+## not borrow significance from the primary, nor lend it, and with more than one
+## arm it must not borrow from another arm either -- pooling two arms would make
+## each one's q depend on how many sensitivities happen to be declared.
+for (a in names(arms)) {
+    pc <- paste0("arm_", a, "_p"); fc <- paste0("arm_", a, "_fdr")
+    data.table::set(out, j = fc, value = NA_real_)
+    idx <- which(out$status == "ok" & is.finite(out[[pc]]))
+    for (g in split(idx, out$stratum[idx])) {
+        data.table::set(out, i = g, j = fc,
+                        value = stats::p.adjust(out[[pc]][g], method = "BH"))
+    }
+}
 out[status == "ok" & !is.na(wilcoxon_p),
     wilcoxon_fdr := stats::p.adjust(wilcoxon_p, method = "BH"), by = stratum]
 out[status == "ok" & !is.na(logistic_p),
@@ -526,6 +687,36 @@ out[, `:=`(
 )]
 
 write_atomic(out, file.path(run_dir, "results", "control-axis-test.tsv"))
+
+## -------------------------------------------------------- the arms, in long form
+## Derived from the wide block above rather than computed again, so the two
+## representations cannot disagree. This is the table to read when there is more
+## than one arm; the wide columns stay on the family row because a one-row-per-
+## family reading table is what the collate stage and a writer want.
+arm_fields <- c("role", "covariates", "drops", "adds", "n_vmrs",
+                "n_vmrs_lost_vs_primary", "beta", "se", "p", "fdr",
+                "ci_lower", "ci_upper", "fieller_bounded", "attenuation",
+                "n_bootstrap_used")
+keep_id <- c("cohort", "region", "run_id", "exposure", "stratum", "status",
+             "predictor", "n_vmrs_in_axis", "primary_scale", "primary_beta",
+             "primary_p", "primary_fdr")
+arms_long <- rbindlist(lapply(names(arms), function(a) {
+    src <- paste0("arm_", a, "_", arm_fields)
+    present <- intersect(src, names(out))
+    d <- out[, c(intersect(keep_id, names(out)), present), with = FALSE]
+    setnames(d, present, sub(paste0("^arm_", a, "_"), "", present))
+    d[, arm := a]
+    d
+}), fill = TRUE)
+if (nrow(arms_long)) {
+    setcolorder(arms_long, c("cohort", "region", "run_id", "exposure", "stratum",
+                             "arm"))
+    arms_long[, `:=`(exploratory_supplement_only = TRUE,
+                     cell_composition_r2_source = cell_r2_source,
+                     arm_can_promote_or_demote_primary = FALSE)]
+    write_atomic(arms_long,
+                 file.path(run_dir, "results", "control-axis-arms.tsv"))
+}
 append_manifest(list(dir = run_dir), list(
     n_axis_tests = as.character(nrow(out[status == "ok"])),
     axis_predictor = predictor,
@@ -541,11 +732,25 @@ append_manifest(list(dir = run_dir), list(
         v <- v[is.finite(v)]
         if (length(v)) as.character(signif(max(v), 4)) else NA_character_
     },
-    axis_non_gating_arms = if (arm_declared) "no_methylation_variance" else "none",
+    axis_non_gating_arms = if (length(arms)) {
+        paste(names(arms), collapse = ",") } else "none",
+    axis_arm_covariate_sets = if (length(arms)) paste(vapply(
+        names(arms),
+        function(a) paste0(a, "={", paste(arm_covs_of[[a]], collapse = ","), "}"),
+        character(1)), collapse = " | ") else "none",
+    axis_arm_config_shape = if (!is.null(env$testing$axis_arms)) {
+        "axis_arms_map" } else "legacy_flat_non_gating_axis_arms",
+    cell_composition_r2_source = cell_r2_source %||% NA_character_,
     axis_inference = "donor_bootstrap_var_plus_chromosome_jackknife_var",
     n_bootstrap = as.character(B),
     n_axis_donors_refit = paste(sort(unique(out$n_donors_refit)), collapse = ",")
 ))
 print(out[, .(exposure, stratum, primary_scale, primary_beta, primary_p,
               primary_fdr, mean_omega, absolute_beta, absolute_p,
-              bootstrap_mean_omega_inflation, arm_beta, arm_p, neglog10p_p)])
+              bootstrap_mean_omega_inflation, neglog10p_p)])
+if (nrow(arms_long)) {
+    cat("\n[10] non-gating arms (own BH family each; neither sign is a failure)\n")
+    print(arms_long[status == "ok",
+                    .(arm, exposure, stratum, n_vmrs_lost_vs_primary,
+                      primary_beta, beta, attenuation, p, fdr)])
+}

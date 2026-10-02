@@ -146,8 +146,17 @@ run <- new_run(
         primary_axis_estimand = env$testing$primary_axis_estimand,
         absolute_axis_sensitivity = as.character(env$testing$absolute_axis_sensitivity),
         relative_effect_interval = env$testing$relative_effect_interval,
-        non_gating_axis_arms = paste(
-            as.character(unlist(env$testing$non_gating_axis_arms)), collapse = ","),
+        ## Both config shapes (see _h/03_control_axis_test.R::read_axis_arms).
+        ## Recorded on the run so the arms a sealed run carried are readable from
+        ## the manifest without re-deriving them from the config snapshot.
+        non_gating_axis_arms = {
+            nm <- if (!is.null(env$testing$axis_arms)) {
+                names(env$testing$axis_arms)
+            } else as.character(unlist(env$testing$non_gating_axis_arms))
+            if (length(nm)) paste(nm, collapse = ",") else "none"
+        },
+        axis_arm_config_shape = if (!is.null(env$testing$axis_arms)) {
+            "axis_arms_map" } else "legacy_flat_non_gating_axis_arms",
         exploratory_supplement_only = "TRUE"
     )
 )
