@@ -5,7 +5,7 @@
 `PASS_EXPLORATORY_COVERAGE` with 22/22 chromosomes reconciled and zero
 computational failures, and the PI accepted all three on 2026-10-02, so
 `_m/combined/` carries `citable = TRUE` — see **Accepted runs**. They supersede
-five earlier rounds, including the previously accepted `-20260920-a`; see
+six earlier rounds, including the previously accepted `-20260920-a`; see
 **Superseded runs**.
 
 The accepted round pins `rra-AA-*-20260925-a`, Module 04's current accepted run,
@@ -1016,10 +1016,13 @@ each.
 | `env-AA-{region}-20260920-a` | 2026-09-20 | accepted 2026-09-20, superseded 2026-10-02. Pinned `rra-AA-*-20260906`, which Module 04 superseded on 2026-09-25, and carried no cell-composition arm. Every primary estimate is identical to `-20261002-a`, so nothing scientific turned on the replacement; what moved is the provenance chain and the two new arms |
 | `env-AA-{region}-20261002` | 2026-10-02 | never accepted. Re-pinned Module 04 correctly and carried the RNA MuSiC cell arm, but predates the caudate DNAm scMD arm the PI added the same day; its config SHA therefore differs from the accepted round's, and three runs attesting to different configs are not collatable as one set. Every primary estimate is identical to `-20261002-a` |
 
-None of these may be cited. Their primary estimates from `-a` onward agree with
-the current runs to bootstrap noise, so nothing scientific turned on the last two
-replacements — but the tables are wrong in the columns named, and a sealed run is
-never edited.
+None of these may be cited. Their primary estimates from `-20260919-a` onward
+agree with the accepted runs to bootstrap noise — bit-identically from
+`-20260920-a` on — so nothing scientific turned on the last three replacements.
+Two different reasons sit in this table and should not be conflated: `-20260919`
+through `-20260920` were replaced because something was **wrong** in the columns
+named, while `-20260920-a` and `-20261002` were replaced because the **provenance
+or the arm set** moved. Either way a sealed run is never edited.
 
 ## Planned extension, gated on Module 09
 
