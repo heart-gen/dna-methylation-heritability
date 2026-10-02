@@ -357,11 +357,8 @@ testing:
     # `cell_composition_r2_source` and _h/03_control_axis_test.R verifies it
     # rather than trusting the name, because the column was DNAm scMD before
     # Module 04's 2026-09-25 rebuild and a silent modality switch would change
-    # what this arm means. DNAm scMD is deliberately NOT a second arm: its
-    # integration gate passes in caudate only (AGENTS.md 7.4, 7.9), so an scMD
-    # arm would give the three regions different sensitivity sets for no gain
-    # here, where nothing is being gated. `cell_composition_r2_scmd` stays
-    # available in Module 04's table for anyone who wants that comparison.
+    # what this arm means. The DNAm scMD modality is the separate
+    # `cell_composition_r2_scmd` arm below.
     #
     # REQUIRES rra-AA-*-20260925-a or later: the column does not exist in
     # rra-AA-*-20260906. Stage 03 stops with the Module 04 run ID named if it is
@@ -370,6 +367,35 @@ testing:
       role: non_gating
       add_covariates: [cell_composition_r2]
       requires_cell_composition_r2_source: rna_music
+
+    # PI 2026-10-02, added after the first 2026-10-02 round came back.
+    #
+    # WHY. The RNA MuSiC arm above attenuates the gradient by about half in
+    # CAUDATE and by at most 5% in DLPFC and hippocampus, and caudate is the one
+    # region where the DNAm scMD integration gate passes. So the question the
+    # MuSiC arm raises is answerable exactly where it is raised: is the caudate
+    # attenuation a property of cell composition, or of the RNA-derived measure
+    # of it? One arm, one region, and it is the only place the comparison exists.
+    #
+    # REGION-CONDITIONAL, and that is a first for this module. AGENTS.md 7.4 and
+    # 7.9 both scope DNAm scMD to "where the integration gate passes", which
+    # Module 04 records per run in `scmd_integration_gate`: PASS in caudate,
+    # FAIL in DLPFC and hippocampus, where `cell_composition_r2_scmd` is empty
+    # for every VMR. An arm that cannot be fitted is SKIPPED, with the reason
+    # recorded on the run, in the arms table and on the decision row -- never
+    # dropped silently. A silently absent sensitivity is the exact failure this
+    # module has already had once, and the coverage gate counts ELIGIBLE arms
+    # rather than declared ones so a skip cannot be mistaken for a pass.
+    #
+    # It does not make the three regions comparable or incomparable: nothing is
+    # gated on any arm here, and AGENTS.md 7.10 emits no cross-region contrast at
+    # all, so a region carrying one more sensitivity than another changes no
+    # reading. What it changes is how well the caudate number is characterised
+    # before anyone cites it.
+    cell_composition_r2_scmd:
+      role: non_gating
+      add_covariates: [cell_composition_r2_scmd]
+      requires_scmd_integration_gate: PASS
   # PI 2026-09-20, replacing relative_scale_min_mean_z.
   #
   # The interpretable quantity is the ratio R = beta / mean(omega) -- "38% less

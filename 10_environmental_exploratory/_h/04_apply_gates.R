@@ -49,31 +49,51 @@ n_tested_vmrs <- length(unique(assoc$vmr_id))
 min_eligible <- as.integer(env$gates$min_eligible_exposures)
 min_vmrs <- as.integer(env$gates$min_tested_vmrs)
 
-## Declared arms must have been FITTED. This is a coverage check in the same
+## ELIGIBLE arms must have been FITTED. This is a coverage check in the same
 ## sense as the others -- it asks whether the run produced the sensitivity it
 ## says it carries -- and not a success criterion: what the arm shows is
 ## irrelevant here, and an arm that attenuates the primary to zero passes.
 ## Without it, an arm that failed for every family would leave a run sealing with
 ## a sensitivity that exists only in the config.
+##
+## ELIGIBLE, not DECLARED, because `cell_composition_r2_scmd` is
+## region-conditional: AGENTS.md 7.4 and 7.9 scope DNAm scMD to where the
+## integration gate passes, which is caudate. In DLPFC and hippocampus that arm
+## is legitimately skipped and the run must still seal. The skip is read from the
+## arm's own recorded status rather than inferred from a missing row, so a skip
+## that stage 03 did NOT record would fail this check rather than pass it
+## quietly.
 arms_declared <- if (!is.null(env$testing$axis_arms)) {
     names(env$testing$axis_arms)
 } else as.character(unlist(env$testing$non_gating_axis_arms))
 arms_declared <- arms_declared[nzchar(arms_declared %||% "")]
 n_arms_declared <- length(arms_declared)
-n_arms_fitted <- if (!n_arms_declared) 0L else if (is.null(arms_long)) 0L else {
-    length(intersect(arms_declared, unique(arms_long[status == "ok" &
-                                                     is.finite(beta)]$arm)))
+arm_status_of <- function(a) {
+    if (is.null(arms_long) || !"arm_status" %in% names(arms_long)) return(NA_character_)
+    v <- unique(arms_long[arm == a & status == "ok"]$arm_status)
+    if (!length(v)) NA_character_ else v[1]
+}
+arms_skipped <- Filter(function(a) {
+    st <- arm_status_of(a)
+    !is.na(st) && !identical(st, "fitted")
+}, arms_declared)
+arms_eligible <- setdiff(arms_declared, arms_skipped)
+n_arms_eligible <- length(arms_eligible)
+n_arms_fitted <- if (!n_arms_eligible || is.null(arms_long)) 0L else {
+    length(intersect(arms_eligible,
+                     unique(arms_long[status == "ok" & arm_status == "fitted" &
+                                      is.finite(beta)]$arm)))
 }
 
 checks <- data.table(
     check = c("eligible_exposures", "tested_vmrs", "axis_models_fitted",
               "no_forbidden_columns", "fdr_families_match_eligible",
-              "declared_axis_arms_fitted"),
+              "eligible_axis_arms_fitted"),
     observed = c(n_eligible, n_tested_vmrs, nrow(axis[status == "ok"]),
                  length(intersect(unlist(env$forbidden_columns),
                                   c(names(assoc), names(axis)))),
                  nrow(axis), n_arms_fitted),
-    required = c(min_eligible, min_vmrs, 1L, 0L, n_eligible, n_arms_declared),
+    required = c(min_eligible, min_vmrs, 1L, 0L, n_eligible, n_arms_eligible),
     comparison = c(">=", ">=", ">=", "==", "==", "==")
 )
 checks[, pass := mapply(function(o, r, cmp) {
@@ -106,8 +126,17 @@ dec <- data.table(
     ## sensitivities the run carried without opening another table -- and
     ## because the absence of a cell-composition arm was once reported as its
     ## presence. `arm_can_promote_or_demote_decision` is FALSE by construction.
-    n_axis_arms = n_arms_declared,
+    n_axis_arms_declared = n_arms_declared,
+    n_axis_arms_fitted = n_arms_fitted,
     axis_arms = if (n_arms_declared) paste(arms_declared, collapse = ",") else "none",
+    axis_arms_fitted = if (n_arms_eligible) paste(arms_eligible, collapse = ",") else "none",
+    ## A region-conditional arm that could not be fitted here, with its reason.
+    ## Recorded on the decision row so a reader of _m/combined/ sees the skip
+    ## without opening the arms table.
+    axis_arms_skipped = if (length(arms_skipped)) paste(sprintf(
+        "%s(%s)", arms_skipped, vapply(arms_skipped, arm_status_of, character(1))),
+        collapse = ",") else "none",
+    scmd_integration_gate = mf("scmd_integration_gate"),
     axis_arms_role = "non_gating_sensitivity",
     arm_can_promote_or_demote_decision = FALSE,
     cell_composition_r2_source = if (!is.null(arms_long) &&
