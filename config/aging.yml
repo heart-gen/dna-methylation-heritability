@@ -314,4 +314,29 @@ interpretation:
     A null axis result means age-effect magnitude does not track local genetic
     control within this catalog. It is not evidence that low-control VMRs are
     environmentally determined (AGENTS.md 2.3), nor the reverse.
-  manuscript_placement: pi_decision_after_run
+  # AGENTS.md 7.9: "Main-text vs supplement placement is a PI decision after the
+  # run." Decided 2026-10-01, after the age-AA-*-20261001 acceptance.
+  #
+  # The reading is SINGLE_NONCAUDATE_REGION: supported in DLPFC only, not
+  # region-general, and the DLPFC-hippocampus contrast does not exclude zero.
+  # That is not a strong enough application to carry a main figure, so 09b gets
+  # a supplementary figure.
+  #
+  # PROVISIONAL, and provisional in one direction only. The placement may be
+  # revisited at the writing stage, which cannot begin until every module has
+  # been rerun on current upstreams -- Module 11 included. It is NOT a licence
+  # to re-read the result; the gating tokens are fixed by the accepted runs.
+  manuscript_placement:
+    placement: supplementary_figure
+    main_text_mention_required: true
+    decided_on: 2026-10-01
+    decided_by: Kynon J. Benjamin
+    provisional_pending_writing_narrative: true
+    # Project-wide, not specific to 09b: every result is stated in the main
+    # text even when its figure is supplementary. A supplementary figure is a
+    # decision about where the panel sits, never about whether the finding is
+    # reported. Module 11's analysis-to-claim matrix is where this is enforced.
+    rule: >
+      Report the finding in the main text and place the panel in the
+      supplement. Supplementary placement never licenses omitting a result
+      from the main text.

@@ -1,8 +1,16 @@
 # 09b_aging_application — age-associated methylation along the local-genetic-control axis
 
-**Status: implemented and smoke-tested 2026-09-19. `config/aging.yml` locked
-by the PI 2026-09-19; production runs `age-AA-{region}-20260919` accepted the
-same day (see Accepted runs). Cross-region token: NOT_SUPPORTED.**
+**Status: accepted (AA, 2026-10-01).** `config/aging.yml` was locked by the PI
+2026-09-19. The accepted production runs are
+`age-AA-{caudate,dlpfc,hippocampus}-20261001` (see **Accepted runs**, and
+"### Superseded" for the `-20260919` runs they replace, whose DLPFC and caudate
+readings must not be quoted again). Cross-region token:
+**`SINGLE_NONCAUDATE_REGION`** — the axis association is supported in DLPFC and
+in DLPFC only. The 2026-09-19 `NOT_SUPPORTED` rested on a `cell_composition_r2`
+built from a deconvolution invalid in two of three regions; Module 04's
+2026-09-25 reacceptance made it MuSiC-derived and DLPFC survives gating on it.
+Placement is settled: **supplementary figure, reported in the main text**
+(PI, 2026-10-01; see "### Manuscript placement").
 
 ## Question
 
@@ -274,7 +282,8 @@ The decision token `aging_axis_association` takes one of these values:
 - `OPPOSITE_DIRECTION`
 - `NOT_SUPPORTED`
 
-Main-text vs supplement placement is a PI decision after the run.
+Main-text vs supplement placement was a PI decision after the run, and was
+made on 2026-10-01. See "### Manuscript placement".
 
 ## Catalog scope: a methylation PC tracks age
 
@@ -404,8 +413,36 @@ Q3: caudate stays `descriptive_only` and no caudate contrast is emitted
 `environmentally_determined_claim_allowed = FALSE`, and
 `cross_sectional_design = TRUE` on the emitted row.
 
-`manuscript_placement = pi_decision_after_run`, which §7.9 requires and this
-rerun makes ripe.
+`manuscript_placement = supplementary_figure`, with
+`manuscript_main_text_mention_required = TRUE` and
+`manuscript_placement_provisional = TRUE`.
+
+### Manuscript placement
+
+**PI decision, 2026-10-01 (Kynon J. Benjamin), closing the AGENTS.md §7.9
+"PI decision after the run" item.** 09b gets a **supplementary figure**, and the
+finding is **reported in the main text**.
+
+The reading is `SINGLE_NONCAUDATE_REGION`: one of three regions supported, no
+region-general claim, and the DLPFC−hippocampus contrast does not exclude zero
+(−0.230, CI −0.516 to +0.056). That does not carry a main figure.
+
+Two things this decision is not:
+
+- It is **not** permission to omit the result. Project-wide, every finding is
+  stated in the main text even when its panel sits in the supplement;
+  supplementary placement decides where the figure goes, never whether the
+  result is reported. Module 11's `analysis-to-claim-matrix.tsv` is where that
+  is enforced, so a 09b row must exist there with a main-text claim attached.
+- It is **not** final in the upward direction. The placement may be revisited
+  when the manuscript narrative is written, which cannot begin until every
+  module has been rerun on current upstreams — Module 11 included. Revisiting
+  placement does not reopen the result: the gating tokens are fixed by the
+  accepted runs and a narrative does not move them.
+
+Recorded machine-readably under `interpretation.manuscript_placement` in
+`config/aging.yml`, and emitted on the `aging-cross-region-decision-AA.tsv` row
+so the placement travels with the decision rather than living only in prose.
 
 ### Superseded
 
