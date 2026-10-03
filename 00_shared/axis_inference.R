@@ -66,6 +66,38 @@
 ## file is therefore not a test at its stated level. That is a recorded
 ## limitation, not a repair (PI, 2026-10-02); see each module's README.
 ##
+## CONFIRMED ON THE FULL 192-CELL GRID AND SIGNED, 2026-10-03. The grid was
+## extended with a `no_effect` condition (every b_v exactly zero, so the family
+## mean is zero and no proportional effect exists) and run to 192 cells with zero
+## failures. Ratio-scale maxima over the complete grid:
+##
+##   THIS (se_combined)       type-I 0.027-0.046   min power 0.246-0.685
+##   donor bootstrap alone    type-I 0.282-0.438
+##   chromosome jk alone      type-I 0.060-0.154
+##   delete-one-donor alone   type-I 0.019-0.079
+##   delta-method ratio SE    type-I 0.0006-0.016  min power 0.041
+##
+## Four decisions were put to the PI and signed on 2026-10-03:
+##   D1 ACCEPTED -- the sum above is the ratio-scale inference and does not
+##      change. It is the only variant that is both calibrated and powered; at
+##      the realistic cell (n=152, factor noise) the delta-method alternative
+##      falls to power 0.041 against 0.246. Do not "fix" this toward either half
+##      and do not substitute a delta-method SE.
+##   D2 ACCEPTED -- the absolute-scale columns are over-conservative and are NOT
+##      tests at 0.05. Recorded, not repaired; no absolute-scale variance among
+##      those tested is calibrated.
+##   D3 REJECTED -- the draw-level guard below still admits a bootstrap draw on
+##      the family mean being POSITIVE rather than separated from zero, so a draw
+##      with a denominator of 1e-9 is admitted and contributes an enormous ratio.
+##      The candidate replacement was measured and is worse (power 0.041 against
+##      0.246), so the guard is unchanged and this is a KNOWN CONSERVATISM. The
+##      magnitude gate below bounds the misuse of a near-zero denominator; it does
+##      not remove the inflated draw's effect on the gradient p.
+##   D4 ACCEPTED -- n_bootstrap is not raised in either module's config. For the
+##      quotient of a debiased statistic the series does not converge with B: one
+##      Module 10 family's se_bootstrap GROWS from 0.092 at B=2000 to 0.101 at
+##      B=8000, which is what a heavy-tailed series does.
+##
 ## Provenance: extracted from 09b_aging_application/_h/age_functions.R on
 ## 2026-09-19, arithmetic unchanged, when Module 10 needed the same three
 ## functions. 09b sources this file and keeps only its age-specific parts.
@@ -316,6 +348,19 @@ fieller_ratio_ci <- function(num, den, V, alpha = 0.05) {
 ## and 3.23 under a delete-one-donor one, flipping the verdict at 1.96. The gate
 ## therefore uses delete-one-donor + delete-one-chromosome, built by
 ## delete_one_donor_cov() below and block_jackknife_cov() above.
+##
+## THE GATE'S OWN ERROR RATES, MEASURED BEFORE IT SHIPPED (T28 full grid, 192
+## cells, signed 2026-10-03). Under a `no_effect` condition in which every b_v is
+## exactly zero -- so the true family mean is zero and no proportional effect
+## exists, because the quantity it would be a proportion OF does not exist:
+## false "reportable" 0.0000 at n=152 and 0.0010 at n=48; max q95 den_z <= 1.03
+## against the 1.96 threshold; sensitivity 0.87-1.00 where the mean is well
+## separated; and `design` (per-VMR effects fixed vs redrawn) moves it not at all,
+## correctly. The pinned covariance beats a bootstrap v22 in all 16 cells at both
+## sample sizes at identical false-positive rates, by up to 0.89 of sensitivity.
+## The ratio-scale type-I and power quoted above were the 16-cell read; the full
+## grid gives type-I 0.027-0.046 and power 0.246-0.685 for se_combined, and
+## 0.0006-0.016 / 0.041 for the delta-method alternative.
 ## The relative-magnitude gate is read and TYPE-CHECKED, never defaulted. A run
 ## whose config does not declare it, or declares a different covariance, must stop
 ## rather than quietly report magnitudes the PI's 2026-10-02 decision forbids.
