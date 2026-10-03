@@ -68,6 +68,7 @@ if (!is.finite(B) || B < 2L) stop("Manifest carries no usable n_bootstrap")
 predictor <- cfg$axis$predictor
 base_covs <- as.character(unlist(cfg$axis$covariates))
 alpha <- as.numeric(cfg$inference$alpha)
+require_magnitude_gate(cfg$axis, "config/aging.yml:axis")
 
 ck <- readRDS(file.path(run_dir, "checkpoint", "age-inputs.rds"))
 if (!identical(ck$run_id, opts$run_id)) stop("Checkpoint belongs to another run")
@@ -304,12 +305,60 @@ for (b in seq_len(B)) {
     if (b %% 100L == 0L) message("[09b] bootstrap ", b, "/", B)
 }
 
+## ------------------------------------- the relative-magnitude gate (PI, 2026-10-02)
+## T28 decision B. This module reports its estimate as a PROPORTIONAL change --
+## `axis_estimate(scale = "relative_to_mean")` divides the outcome by its own mean
+## -- and until now it carried no estimability check of any kind: no Fieller
+## interval, and not even the `mean > 0` sign test Module 10 had. Fieller's
+## denominator-stability condition is now the gate on whether that proportional
+## magnitude may be stated. It does NOT gate the test of nullity; see
+## 00_shared/axis_inference.R::relative_magnitude_gate() for why, and
+## 09b_aging_application/README.md for what it means here.
+##
+## The gate's covariance is delete-one-donor + delete-one-chromosome, never the
+## bootstrap one: v22 is an absolute-scale variance and T28 found the donor
+## bootstrap over-conservative there. It matters in this module specifically --
+## the hippocampus primary has den_z 1.93 under a bootstrap covariance and 3.23
+## under this one, which straddles the 1.96 the gate turns on.
+message("[09b] relative-magnitude gate: delete-one-donor refits for ",
+        length(ck$designs), " spec(s)")
+donor_del <- lapply(names(ck$designs), function(sp) {
+    des <- ck$designs[[sp]]
+    Ysp <- Y[des$rows, , drop = FALSE]
+    nd <- nrow(des$X)
+    outs <- lapply(seq_len(nd), function(u) {
+        Xu <- des$X[-u, , drop = FALSE]
+        if (qr(Xu)$rank < ncol(Xu)) return(NULL)
+        age_outcomes(fit_age_matrix(Xu, Ysp[-u, , drop = FALSE], des$age_col))
+    })
+    list(outs = outs, n_donors = nd)
+})
+names(donor_del) <- names(ck$designs)
+
 ## ------------------------------------------------------------- inference
 res <- rbindlist(lapply(names(tests), function(k) {
     t <- tests[[k]]
     y <- obs_out[[t$spec]][[t$outcome]]
     se_jk <- block_jackknife_se(t$ax, y, ck$chrom, t$scale)
     inf <- combined_inference(est[[k]], boot[, k], se_jk, alpha)
+    ## The gate applies only where the reported estimate IS a proportion.
+    mag <- if (identical(t$scale, "relative_to_mean")) {
+        dd <- donor_del[[t$spec]]
+        jt <- axis_estimate_joint(t$ax, y)
+        djk <- delete_one_donor_cov(t$ax, function(u) {
+            o <- dd$outs[[u]]
+            if (is.null(o)) NULL else o[[t$outcome]]
+        }, dd$n_donors)
+        V_gate <- djk$cov + block_jackknife_cov(t$ax, y, ck$chrom)
+        c(relative_magnitude_gate(jt[["beta"]], jt[["mean"]], V_gate, alpha),
+          list(n_used = djk$n_used, mean_outcome = jt[["mean"]]))
+    } else {
+        list(reportable = NA, den_z = NA_real_,
+             reason = "outcome is not reported as a proportion",
+             ci_lower = NA_real_, ci_upper = NA_real_,
+             covariance = NA_character_, alpha = alpha,
+             n_used = NA_integer_, mean_outcome = NA_real_)
+    }
     data.table(
         test = k, spec = t$spec, arm = t$arm, outcome = t$outcome,
         outcome_scale = t$scale, role = t$role,
@@ -328,6 +377,19 @@ res <- rbindlist(lapply(names(tests), function(k) {
         ## knowing how cell_composition_r2 is built.
         scmd_derived_covariate = t$arm %in% scmd_arms ||
             isTRUE(spec_cfg[[t$spec]]$requires_scmd_integration_gate),
+        ## ------------------------------------- the relative-magnitude gate (B)
+        ## FALSE means `estimate` may not be stated as a proportional change or a
+        ## percentage. It does not mean the test above is void: p, ci_* and the
+        ## region reading are unaffected by this gate, by design.
+        relative_magnitude_reportable = mag$reportable,
+        relative_magnitude_gate_reason = mag$reason,
+        relative_magnitude_den_z = mag$den_z,
+        relative_magnitude_gate_covariance = mag$covariance,
+        relative_magnitude_ci_lower = mag$ci_lower,
+        relative_magnitude_ci_upper = mag$ci_upper,
+        relative_magnitude_gate_n_donor_deletions_used = mag$n_used,
+        mean_outcome = mag$mean_outcome,
+        relative_magnitude_gate_decided_by_pi = "2026-10-02",
         covariates = paste(t$ax$covariates, collapse = ","))
 }))
 res[, direction := fifelse(estimate < 0, "negative", "positive")]
@@ -371,6 +433,24 @@ ann_res <- rbindlist(lapply(names(ann_tests), function(k) {
     yy <- y[t$ax$ok]
     if (t$scale == "relative_to_mean") yy <- yy / mean(yy)
     g <- obs_out$primary$signed_beta_age[t$ax$ok]
+    ## The gate reaches these rows too: a descriptive magnitude is still a
+    ## magnitude, and these are reported as biology in their own table
+    ## (AGENTS.md 7.9). Every annotation test is on the primary spec, so the
+    ## delete-one-donor refits are already in hand and only the axis fits repeat.
+    amag <- if (identical(t$scale, "relative_to_mean")) {
+        dd <- donor_del[["primary"]]
+        jt <- axis_estimate_joint(t$ax, y)
+        djk <- delete_one_donor_cov(t$ax, function(u) {
+            o <- dd$outs[[u]]
+            if (is.null(o)) NULL else o[[t$outcome]]
+        }, dd$n_donors)
+        relative_magnitude_gate(jt[["beta"]], jt[["mean"]],
+                                djk$cov + block_jackknife_cov(t$ax, y, ck$chrom),
+                                alpha)
+    } else {
+        list(reportable = NA, den_z = NA_real_,
+             reason = "outcome is not reported as a proportion")
+    }
     data.table(
         annotation = t$annotation, source_module = t$source_module,
         adjustment = t$adjustment, outcome = t$outcome, outcome_scale = t$scale,
@@ -392,6 +472,9 @@ ann_res <- rbindlist(lapply(names(ann_tests), function(k) {
         mean_other = if (t$binary) mean(yy[x == 0]) else NA_real_,
         frac_gain_with_age_annotated = if (t$binary) mean(g[x == 1] > 0) else NA_real_,
         frac_gain_with_age_other = if (t$binary) mean(g[x == 0] > 0) else NA_real_,
+        relative_magnitude_reportable = amag$reportable,
+        relative_magnitude_gate_reason = amag$reason,
+        relative_magnitude_den_z = amag$den_z,
         covariates = paste(t$ax$covariates, collapse = ","))
 }))
 if (nrow(ann_res)) {

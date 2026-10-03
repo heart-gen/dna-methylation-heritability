@@ -216,8 +216,15 @@ if (nrow(arms_long)) setorder(arms_long, region, arm, stratum, fdr, na.last = TR
 ## The 81-column run table is not readable by hand. This is a strict COLUMN
 ## SUBSET of it -- no new numbers, nothing recomputed -- holding what a writer
 ## needs to state a result and its two standing caveats.
+## `relative_magnitude_reportable` sits immediately beside `primary_beta` on
+## purpose. A writer reads THIS table, not the 81-column run table, and without
+## the flag here the reading table hands them -0.462 with nothing to say they may
+## not call it a 46% gradient -- which is the one misuse the PI's 2026-10-02 gate
+## exists to stop.
 read_cols <- c("region", "tier", "exposure", "stratum", "n_vmrs_in_axis",
-               "n_donors_refit", "primary_scale", "primary_beta", "primary_se",
+               "n_donors_refit", "primary_scale", "primary_beta",
+               "relative_magnitude_reportable", "relative_magnitude_gate_reason",
+               "relative_magnitude_den_z", "primary_se",
                "primary_ci_lower", "primary_ci_upper", "primary_p", "primary_fdr",
                "absolute_beta", "absolute_p", "absolute_role",
                "mean_omega", "mean_omega_z", "fieller_bounded", "fieller_role",
@@ -266,6 +273,9 @@ provenance <- rbindlist(lapply(regions, function(re) data.table(
     n_axis_associations_fdr = as.integer(mf(re, "n_axis_associations_fdr")),
     n_absolute_p_below_alpha = as.integer(mf(re, "n_absolute_p_below_alpha")),
     n_fieller_bounded = as.integer(mf(re, "n_fieller_bounded")),
+    n_relative_magnitude_reportable =
+        as.integer(mf(re, "n_relative_magnitude_reportable")),
+    relative_magnitude_gate = mf(re, "relative_magnitude_gate"),
     max_bootstrap_mean_omega_inflation =
         as.numeric(mf(re, "max_bootstrap_mean_omega_inflation")),
     axis_primary_estimand = mf(re, "primary_axis_estimand"),
