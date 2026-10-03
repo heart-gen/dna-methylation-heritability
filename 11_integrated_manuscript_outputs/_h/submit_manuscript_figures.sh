@@ -83,6 +83,25 @@ if (is.na(r8)) {
                     "AA", "crossregion", r8))
 }
 
+## Module 02b's cells are its two arms: `sim x ar1` and AA x each region.
+## figureS_greml_benchmark reads its _m/combined/ collation of those runs.
+gcfg <- load_config("greml_benchmark")
+gcells <- rbind(c(gcfg$arm1$run_cohort, gcfg$arm1$run_region),
+                cbind(gcfg$arm2$cohort, unlist(gcfg$arm2$regions)))
+for (i in seq_len(nrow(gcells))) {
+    r <- tryCatch(require_accepted_upstream("02b_greml_simulation_benchmark",
+                                            gcells[i, 1], gcells[i, 2])$run_id,
+                  error = function(e) NA_character_)
+    if (is.na(r)) bad <- c(bad, sprintf("02b_greml_simulation_benchmark [%s x %s]",
+                                        gcells[i, 1], gcells[i, 2]))
+    else message(sprintf("  %-36s %-16s %-12s %s", "02b_greml_simulation_benchmark",
+                         gcells[i, 1], gcells[i, 2], r))
+}
+if (!file.exists(file.path(repo_root(), "02b_greml_simulation_benchmark", "_m",
+                           "combined", "greml-benchmark-recovery-metrics.tsv"))) {
+    bad <- c(bad, "02b combined: run _h/10_collate.R without --allow-unaccepted")
+}
+
 ## Figure 5 reads the module-level stage 17/18 tables. They carry -UNACCEPTED
 ## until both stages are re-run without --allow-unlocked.
 sfx <- file.path(repo_root(), "09_schizophrenia_risk_application", "_m", "combined")
@@ -125,8 +144,12 @@ mkdir -p "$RUN_DIR/code"
 cp -a "$HERE" "$RUN_DIR/code/_h"
 mkdir -p "$RUN_DIR/code/config"
 cp -a "$REPO_DIR/config/." "$RUN_DIR/code/config/"
+# Module 11's own reporting constraints (PI decisions a panel must honour that
+# no upstream column carries); read from here by read_reporting_constraints().
+mkdir -p "$RUN_DIR/code/module_config"
+cp -a "$REPO_DIR/11_integrated_manuscript_outputs/config/." "$RUN_DIR/code/module_config/"
 RUN_CODE="$RUN_DIR/code/_h"
-log_message "snapshotted _h/ and config/ into ${RUN_DIR}/code"
+log_message "snapshotted _h/, config/ and module config/ into ${RUN_DIR}/code"
 
 JOB=$(sbatch --parsable --export="ALL,RUN_ID=$RUN_ID,V2_RUN_CODE=$RUN_CODE" \
     "$RUN_CODE/step_1_figures.sh")
