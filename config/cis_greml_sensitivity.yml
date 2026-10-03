@@ -1,0 +1,98 @@
+# Conventional cis-GREML sensitivity (02c_cis_greml_sensitivity)
+#
+# Question: does conventional cis-window GREML, fitted to the REAL VMR
+# methylation phenotypes, support the existence and the ORDERING of local genetic
+# control that Module 02's relative score reports? (02b asks the prior question,
+# whether GREML works at all in this regime, on simulated phenotypes.)
+#
+# What 02c is not (PI, 2026-10-03), enforced by assert_cgs_interpretation():
+#   * it does not replace the Module 02 score -- the score stays the primary
+#     endpoint, and 02c reads it read-only from the accepted run;
+#   * it provides no reportable per-VMR absolute h2 -- 02b measured per-locus
+#     RMSE ~0.08-0.12 at true h2 0.05-0.1, as large as the quantity;
+#   * it does not define "genetically controlled VMRs" from GREML significance --
+#     02b measured 95% CI coverage of only ~0.75 at true h2 = 0, so the LRT is
+#     not calibrated for per-VMR calls at this n. Estimate, SE, convergence and
+#     LRT are retained per VMR; nothing is classified on them.
+#
+# What 02c may say: whether the aggregate mean cis-GREML estimate across
+# VMRs is above zero (existence; 02b found the unconstrained estimator unbiased
+# on average), and whether cis-GREML estimates rank VMRs in agreement with the
+# Module 02 score (ordering), each with a delete-one-chromosome jackknife CI.
+#
+# pi_locked is false until the PI signs the design. Smoke runs pass
+# --allow-unlocked.
+
+pi_locked: false
+locked_on: null
+locked_by: null
+
+module: 02c_cis_greml_sensitivity
+module_tag: cgs
+
+cohort: AA
+regions: [caudate, dlpfc, hippocampus]
+upstreams:
+  vmr_catalog: 01_vmr_catalog
+  local_genetic_variance: 02_local_genetic_variance
+
+gcta:
+  binary: /gpfs/projects/p32505/opt/envs/genomics/bin/gcta64
+  version: "1.94.1"
+  reml_maxit: 100
+  estimation_failure_patterns:
+    - "the information matrix is not invertible"
+    - "Log-likelihood not converged"
+    - "not converged"
+    - "is not positive definite"
+    - "the variance-covariance matrix V is not invertible"
+    - "more than half of the variance components are constrained"
+  divergence_crash_exit_codes: [134, 136, 139]
+  divergence_magnitude: 1.0e+10
+
+# Locus model. Every item is Module 02's, so the two estimators see the same
+# data; 01_fit_cis_greml.R asserts the per-VMR SNP count equals Module 02's
+# num_snps rather than assuming it.
+#   window and SNP QC: thresholds.yml cis (+/-500 kb, MAF >= 0.05,
+#                      missingness <= 0.05, >= 100 variants), applied by
+#                      00_shared/locus_io.R::load_observed_locus()
+#   covariates:        age + sex + diagnosis (+ snpPCs where a cell carries
+#                      them), the same load_observed_locus() design matrix,
+#                      passed to GCTA as --qcovar
+#   GRM:               ONE cis-window GRM from exactly those SNPs
+#                      (00_shared/gcta.R::grm_from_dosage, which matches
+#                      gcta --make-grm); no LD-stratified components
+reml_modes:
+  # FUSION's formulation (FUSION.compute_weights.R: --reml --reml-no-constrain
+  # --reml-lrt 1 on a local GRM), unconstrained so boundary clipping cannot
+  # manufacture a pile at 0 or 1.
+  - id: fusion_unconstrained
+    role: primary
+    args: ["--reml-no-constrain", "--reml-lrt", "1"]
+  # Same model, Fisher scoring. 02b's prototype saw GCTA's default AI
+  # algorithm diverge in 7 of 9 unconstrained fits at n = 118, so a
+  # convergence-only sensitivity is fitted beside it. It never substitutes for
+  # a failed primary fit: each mode is summarized on its own converged set.
+  - id: fisher_unconstrained
+    role: convergence_sensitivity
+    args: ["--reml-no-constrain", "--reml-alg", "1", "--reml-lrt", "1"]
+
+tasks:
+  vmrs_per_task: 100
+  smoke_n_vmrs: 60
+
+summaries:
+  # Comparisons are on Module 02-eligible VMRs whose fit converged in the mode
+  # being summarized; the converged fraction is reported per score decile, so
+  # selection by convergence is visible.
+  score_column: local_snp_contribution_score
+  score_deciles: 10
+  # Module 02 joint features read for descriptive estimator concordance.
+  module02_estimator_columns: [he_h2, bslmm_pve]
+
+interpretation:
+  replaces_module_02_score: false
+  per_vmr_absolute_h2_reportable: false
+  greml_significance_class_allowed: false
+  absolute_pve_interpretation_allowed: false
+  cross_region_level_comparison_allowed: false
