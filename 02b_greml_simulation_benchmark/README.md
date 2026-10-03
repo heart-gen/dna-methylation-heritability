@@ -6,15 +6,20 @@ unconstrained Fisher scoring primary, v1's constrained AI-REML secondary.
 
 ## Question
 
-How well does a classical REML estimator (GCTA-GREML) recover **absolute** local
-SNP heritability at this cohort's donor counts and real cis-window LD?
+How well does a classical REML estimator (GCTA-GREML) recover **absolute**
+local SNP heritability at this cohort's donor counts and real cis-window LD?
 
-AGENTS.md §7.2 retired absolute locus PVE after the frozen elastic-net joint
+AGENTS.md 7.2 retired absolute locus PVE after the frozen elastic-net joint
 model failed 6 of 14 absolute-PVE gates while passing the ordering gate. That
-evidence came from one estimator family. This module asks the same question of
-an estimator that shares nothing with it, so the retirement does not rest on a
-property of elastic net alone. It is a port of the legacy
-`simulation-analysis/gcta/` benchmark (PI decision 2026-10-03).
+evidence concerns one estimator. This module asks the question of an estimator
+that shares nothing with it. It is a port of the legacy `simulation-analysis/gcta/`
+benchmark (PI decision 2026-10-03).
+
+The answer is not assumed in either direction. If REML recovers absolute local h2
+well on simulated phenotypes, that narrows 7.2's retirement to the estimator it
+was measured on; it does not by itself license an absolute PVE for any observed
+VMR, which this module never estimates (see **What it does not do**). That
+question, if it is to be asked, is a PI decision and a new analysis.
 
 ## What it does not do
 
