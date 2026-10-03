@@ -34,8 +34,8 @@ patterns <- unlist(cfg$gcta$estimation_failure_patterns)
 tmp <- file.path(run_dir, "work", sprintf("task_%d", task_id))
 dir.create(tmp, recursive = TRUE, showWarnings = FALSE)
 
-unit_id <- function(vmr, g, m) sprintf("%s|h2=%s|%s|rep%d|%s", vmr, format(g$h2),
-                                       g$architecture, g$replicate, m)
+unit_id <- function(vmr, g, m) arm2_unit_id(vmr, g$h2, g$architecture,
+                                           g$replicate, m)
 rows <- list(); st <- list(); geo <- list()
 for (i in seq_len(nrow(loci))) {
     L <- loci[i]
@@ -70,7 +70,7 @@ for (i in seq_len(nrow(loci))) {
     for (j in seq_len(nrow(grid))) {
         g <- grid[j]
         set.seed(seed_for(cfg$seeds$namespace, region, L$vmr_id,
-                          paste(format(g$h2), g$architecture, g$replicate)))
+                          paste(as.character(g$h2), g$architecture, g$replicate)))
         sim <- simulate_phenotype_on_observed_genotype(G, loc$covariates, g$h2,
                                                        g$architecture)
         phen <- file.path(tmp, "pheno.txt")

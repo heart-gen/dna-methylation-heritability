@@ -101,8 +101,8 @@ if (identical(arm, cfg$arm1$id)) {
     expected[, `:=`(vmr_id = loci$vmr_id[match(locus_index, loci$locus_index)],
                     h2_nominal = grid$h2[g], architecture = grid$architecture[g],
                     replicate = grid$replicate[g])]
-    expected[, unit := sprintf("%s|h2=%s|%s|rep%d|%s", vmr_id, format(h2_nominal),
-                               architecture, replicate, reml_mode)]
+    expected[, unit := arm2_unit_id(vmr_id, h2_nominal, architecture, replicate,
+                                    reml_mode)]
     st <- read_status("^reml_task_")
     reconcile(expected$unit, completed = st[status == "completed", unit],
               qc_failed = st[status == "qc_failed", unit],
