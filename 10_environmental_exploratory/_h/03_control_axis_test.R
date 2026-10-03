@@ -362,6 +362,7 @@ if (!identical(env$testing$primary_axis_estimand,
 if (!isTRUE(env$testing$absolute_axis_sensitivity)) {
     stop("testing.absolute_axis_sensitivity must be true")
 }
+require_magnitude_gate(env$testing, "config/environmental.yml:testing")
 B <- as.integer(env$testing$n_bootstrap)
 if (!is.finite(B) || B < 2L) stop("config/environmental.yml:testing.n_bootstrap missing")
 alpha_ci <- as.numeric(env$testing$fdr_alpha)
@@ -544,6 +545,28 @@ test_one <- function(ex, st) {
     inf_abs <- combined_inference(est_absolute, jb_p[, "beta"],
                                   sqrt(cov_jk_p["beta", "beta"]), alpha_ci)
     rel_p <- fieller_ratio_ci(est_absolute, mean_om, V_p, alpha_ci)
+    ## ------------------------------------- the relative-magnitude gate (PI, B)
+    ## PI decision 2026-10-02, T28 decision B. Fieller's denominator-stability
+    ## condition now GATES whether this family's proportional magnitude may be
+    ## reported at all. It does not gate the TEST of nullity: that null is
+    ## identical on both scales and T28 measured the ratio-scale SE at type-I
+    ## 0.038-0.052 against the absolute scale's 0.000-0.003, so gating the test
+    ## would move every family onto the worse of two tests of one hypothesis.
+    ## See 00_shared/axis_inference.R::relative_magnitude_gate().
+    ##
+    ## The gate's covariance is delete-one-donor + delete-one-chromosome, NOT the
+    ## bootstrap one used for V_p. v22 is an absolute-scale variance, where the
+    ## donor bootstrap is over-conservative, and gating on it would import that
+    ## defect into a decision -- measurably: 09b's hippocampus primary has
+    ## den_z 1.93 under the bootstrap covariance and 3.23 under this one.
+    djk_p <- delete_one_donor_cov(ax, function(u) {
+        Xu <- X[-u, , drop = FALSE]
+        if (qr(Xu)$rank < ncol(Xu)) return(NULL)
+        fmu <- fit_term_matrix(Xu, Yf[-u, , drop = FALSE], des$cols)
+        debiased_partial_ss(fmu$ss_term, fmu$df_term, fmu$sigma2, n_don - 1L)
+    }, n_don)
+    V_gate <- djk_p$cov + cov_jk_p
+    mag <- relative_magnitude_gate(est_absolute, mean_om, V_gate, alpha_ci)
     ## How far the donor bootstrap inflates the denominator. Resampling with
     ## replacement duplicates donors, which inflates an exposure-explained sum of
     ## squares; measured at 2.1x, 5.0x and 38x on the -b runs. It is on every row
@@ -650,11 +673,13 @@ test_one <- function(ex, st) {
         n_donors_refit = n_don,
         primary_outcome = "debiased_partial_ss",
         primary_outcome_meaning = paste(
-            "proportional change in the debiased exposure-explained sum of",
-            "squares per donor, per SD of score, as a fraction of this family's",
-            "mean; multiply by 100 for a percentage. Families whose mean is at",
-            "or below zero report the absolute gradient instead, and say so in",
-            "primary_scale_reason"),
+            "signed, FDR-controlled test of whether the debiased",
+            "exposure-explained sum of squares per donor varies with the score.",
+            "On a relative_to_mean family the estimate is a fraction of the",
+            "family mean, but it may be read as a proportional magnitude or a",
+            "percentage ONLY where relative_magnitude_reportable is TRUE",
+            "(PI 2026-10-02); families whose mean is at or below zero report the",
+            "absolute gradient instead, and say so in primary_scale_reason"),
         primary_scale = scale,
         primary_scale_reason = scale_reason,
         mean_omega = mean_om,
@@ -702,7 +727,21 @@ test_one <- function(ex, st) {
         fieller_ci_upper = rel_p$ci_upper,
         fieller_bounded = rel_p$estimable,
         fieller_unbounded_reason = rel_p$reason,
-        fieller_role = "informational_not_gating",
+        fieller_role = "gating_on_magnitude",
+        ## ------------------------------------- the relative-magnitude gate (B)
+        ## Whether this family's PROPORTIONAL MAGNITUDE may be reported. FALSE
+        ## means primary_beta and primary_ci_* may not be quoted as a percentage
+        ## or as a proportional change -- not that the test below is void. The
+        ## numbers are emitted with the flag rather than blanked, the way
+        ## absolute_pve_interpretation_allowed is carried in Module 02.
+        relative_magnitude_reportable = mag$reportable,
+        relative_magnitude_gate_reason = mag$reason,
+        relative_magnitude_den_z = mag$den_z,
+        relative_magnitude_gate_covariance = mag$covariance,
+        relative_magnitude_ci_lower = mag$ci_lower,
+        relative_magnitude_ci_upper = mag$ci_upper,
+        relative_magnitude_gate_n_donor_deletions_used = djk_p$n_used,
+        relative_magnitude_gate_decided_by_pi = "2026-10-02",
         ## Donor-bootstrap inflation of the denominator: resampling with
         ## replacement duplicates donors, which inflates an exposure-explained
         ## sum of squares. Above 1 the ratio's bootstrap variance is likely
@@ -831,6 +870,12 @@ append_manifest(list(dir = run_dir), list(
     n_absolute_p_below_alpha = as.character(
         nrow(out[status == "ok" & absolute_p < alpha_ci])),
     n_fieller_bounded = as.character(nrow(out[status == "ok" & fieller_bounded == TRUE])),
+    ## The gate's own tally, so a reader of the manifest can see at a glance how
+    ## many families may state a proportional magnitude at all (PI 2026-10-02).
+    n_relative_magnitude_reportable = as.character(
+        nrow(out[status == "ok" & relative_magnitude_reportable == TRUE])),
+    relative_magnitude_gate = "fieller_denominator_stability",
+    relative_magnitude_gate_covariance = "donor_jackknife_plus_chromosome_block",
     max_bootstrap_mean_omega_inflation = {
         v <- out$bootstrap_mean_omega_inflation
         v <- v[is.finite(v)]
