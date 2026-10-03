@@ -2,9 +2,12 @@
 ##
 ## The axis depletion is TRAIT-GENERAL. Module 09 stage 17 ran the identical
 ## locus -> VMR -> axis contrast over the harmonized GWAS collection under one
-## lead-SNP rule, and schizophrenia sits at the 16th-33rd percentile of the 63
-## distribution traits depending on region, with psychiatric traits
-## indistinguishable as a category (Wilcoxon p 0.11-0.96).
+## lead-SNP rule. Schizophrenia sits in the middle of that distribution in every
+## region, and psychiatric traits are indistinguishable from the rest as a
+## category. The percentile and Wilcoxon ranges are read from stage 17's summary
+## table under the PRIMARY model and printed into the source data below; they
+## are not restated here, because a header that quoted them mixed the two
+## models' ranges (16th vs 17th percentile) and drifted from AGENTS.md 7.8.
 ##
 ## So the main figure is the DISTRIBUTION, not schizophrenia. AGENTS.md 7.8
 ## rule 1 and 11 both require the depletion be written as a property of
@@ -105,8 +108,18 @@ for (nm in c("traits", "summ", "axlink", "arch")) {
 
 ## The headline is trait-GENERAL. If schizophrenia ever stopped being typical,
 ## this figure's whole framing would be wrong, so the claim is checked.
+## Guards read every model (a separation under either model would break the
+## framing); the quoted ranges are the PRIMARY model's, as AGENTS.md 7.8 quotes.
 PCT <- summ[, range(scz_percentile_in_distribution, na.rm = TRUE)]
 WIL <- summ[, min(psychiatric_vs_other_wilcoxon_p, na.rm = TRUE)]
+PRIMARY_MODEL_ID <- "A_technical"
+sp <- summ[model == PRIMARY_MODEL_ID]
+if (nrow(sp) != length(regions)) stop("stage 17 summary lacks the primary model in every region")
+fmt_range <- function(x, f) paste(f(min(x)), f(max(x)), sep = "-")
+PCT_TXT <- fmt_range(100 * sp$scz_percentile_in_distribution, function(v) sprintf("%.0f", v))
+WIL_TXT <- fmt_range(sp$psychiatric_vs_other_wilcoxon_p, function(v) sprintf("%.2f", v))
+CTX_TXT <- fmt_range(100 * abs(sp$scz_context_attenuation), function(v) sprintf("%.1f", v))
+N_TRAITS <- unique(sp$n_traits_in_distribution)
 if (WIL < 0.05) {
     stop("Psychiatric traits now separate from the rest (min Wilcoxon p = ",
          signif(WIL, 3), "). Figure 5 is built on their being ",
@@ -133,7 +146,7 @@ message("[guard] SCZ percentile ", paste(round(PCT, 3), collapse = "-"),
         "; psychiatric-vs-other Wilcoxon p >= ", signif(WIL, 2),
         "; LINE/L1 enrichment 0/", nrow(l1), " tests at q < 0.05")
 
-PRIMARY_MODEL <- "A_technical"
+PRIMARY_MODEL <- PRIMARY_MODEL_ID
 MODEL_LABELS <- c(A_technical = "Technical covariates",
                   B_technical_context = "+ genomic context")
 
@@ -301,10 +314,14 @@ sd(ax[, .(region, annotation, adjustment, arm, n_traits, spearman_rho,
          "under the high-mappability restriction (AGENTS.md 7.8)."))
 sd(bycat, "category_medians",
    "_m/combined/scz-negative-control-by-category-{cohort}.tsv",
-   "category medians for both models; broad genomic context moves the estimate 1-3%")
+   paste0("category medians for both models; broad genomic context moves the ",
+          "schizophrenia estimate ", CTX_TXT, "% (scz_context_attenuation, by region)"))
 sd(summ, "trait_distribution_summary",
    "_m/combined/scz-negative-control-summary-{cohort}.tsv",
-   "both models; stages 17/18 QUALIFY Module 09 and change neither of its decisions")
+   paste0("both models; under the primary model schizophrenia sits at the ", PCT_TXT,
+          " percentile of ", paste(N_TRAITS, collapse = "/"), " traits by region and ",
+          "psychiatric-vs-other Wilcoxon p is ", WIL_TXT, "; stages 17/18 QUALIFY ",
+          "Module 09 and change neither of its decisions"))
 
 message("[done] Figure 5 written to ", fig_dir)
 
