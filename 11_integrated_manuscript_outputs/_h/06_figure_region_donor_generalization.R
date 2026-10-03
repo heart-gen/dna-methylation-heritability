@@ -210,22 +210,41 @@ k <- seq_len(n_qq)
 qq[, `:=`(expected = -log10(ppoints(n_qq)), observed = -log10(delta_p),
           lo = -log10(qbeta(0.975, k, n_qq - k + 1)),
           hi = -log10(qbeta(0.025, k, n_qq - k + 1)))]
-qq[, claimed := as.logical(difference_claimed)]
+## Tier 2 claims only what Module 08's repaired accounting (T22, 2026-09-30)
+## claims: a difference in the PRIMARY claim family that survives the strict
+## conjunction, `difference_claimed_primary_claim_family`. The unfiltered
+## `difference_claimed` also counts rows outside the family (mostly the
+## atac_* breakdown tracks) and is an auditable denominator, not a claim --
+## until 2026-10-03 this panel claimed and labelled all of them. Those rows are
+## still drawn, hollow and unlabelled, so nothing is hidden.
+qq[, claimed := difference_claimed_primary_claim_family %in% c(TRUE, "TRUE")]
+qq[, passes_outside := difference_claimed %in% c(TRUE, "TRUE") & !claimed]
 qq[, label := fifelse(claimed, label_test(outcome, predictor), NA_character_)]
+if (anyNA(qq[claimed == TRUE, label]) ||
+    any(grepl("^NA", qq[claimed == TRUE, label]))) {
+    stop("A tier-2 claim-family difference has no Figure label: ",
+         paste(qq[claimed == TRUE, test_id], collapse = ", "))
+}
 n_claimed <- sum(qq$claimed)
+n_outside <- sum(qq$passes_outside)
 
 pB <- ggplot(qq, aes(expected, observed)) +
     geom_ribbon(aes(ymin = lo, ymax = hi), fill = "grey90") +
     geom_abline(slope = 1, intercept = 0, colour = PAL_NULL, linewidth = 0.35) +
-    geom_point(data = qq[claimed == FALSE], colour = PAL_CHARCOAL, size = 1,
-               alpha = 0.7) +
+    geom_point(data = qq[claimed == FALSE & passes_outside == FALSE],
+               colour = PAL_CHARCOAL, size = 1, alpha = 0.7) +
+    geom_point(data = qq[passes_outside == TRUE], colour = PAL_RUST, size = 1.3,
+               shape = 1) +
     geom_point(data = qq[claimed == TRUE], colour = PAL_RUST, size = 1.8) +
-    geom_text(data = qq[claimed == TRUE], aes(label = label), hjust = 1.08,
-              size = 2.3, colour = PAL_RUST) +
+    ## Right of the point: the claimed differences sit at the top of the QQ
+    ## curve, so a left-hanging label runs off the panel edge.
+    geom_text(data = qq[claimed == TRUE], aes(label = label), hjust = -0.12,
+              vjust = 1.2, size = 2.3, colour = PAL_RUST) +
     annotate("text", x = Inf, y = -Inf, hjust = 1.05, vjust = -0.4, size = 2.3,
              colour = PAL_CHARCOAL, lineheight = 0.9,
-             label = sprintf("DLPFC vs hippocampus\n%d tests, %d claimed",
-                             n_qq, n_claimed)) +
+             label = sprintf(paste0("DLPFC vs hippocampus\n%d tests, %d claimed\n",
+                                    "\u25cb %d pass outside the claim family"),
+                             n_qq, n_claimed, n_outside)) +
     scale_x_continuous(limits = c(0, NA), expand = expansion(mult = c(0.02, 0.04))) +
     labs(x = expression(Expected~-log[10]~italic(P)),
          y = expression(Observed~-log[10]~italic(P))) +
@@ -349,8 +368,11 @@ src <- list(
              "cross-region-tests.tsv + cross-region-replication.tsv",
              "analysis_set == primary & (in_claim_family | is_negative_control)"),
     b = list(qq[, .(test_id, analysis, outcome, predictor, delta, delta_se,
-                    delta_p, delta_q, difference_claimed, expected, observed)],
-             "identified-difference.tsv", "testable == TRUE"),
+                    delta_p, delta_q, in_claim_family, difference_claimed,
+                    difference_claimed_primary_claim_family, claimed,
+                    passes_outside, expected, observed)],
+             "identified-difference.tsv",
+             "testable == TRUE; claimed = difference_claimed_primary_claim_family (the tier-2 claim); passes_outside = difference_claimed outside the claim family, an auditable denominator, not a claim"),
     c = list(ds_pts[, .(arm, region, replicate, mean_r2)],
              "caudate-downsampling-summary.tsv + caudate-downsampling-replicates.tsv",
              "all rows; DLPFC reference on DLPFC loci (no cross-region locus intersection)"),
