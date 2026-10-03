@@ -17,12 +17,16 @@
 #     legacy correlation script's Heritable/Non-heritable/Low prediction split
 #     is not ported.
 #
-# pi_locked is false until the PI signs the scenario grid and the REML mode.
-# Smoke runs pass --allow-unlocked.
+# PI-locked 2026-10-03 as proposed: the scenario grid below, arm 1 as the full
+# v1 design, unconstrained Fisher scoring primary and v1's constrained AI-REML
+# secondary. The DLPFC smoke run (greml-AA-dlpfc-smoke-20261003) converged on
+# 191 of 192 fits in the primary mode and passed 6/6 gate criteria; its numbers
+# are not results. Changing the grid or a REML mode after this lock needs a new
+# PI decision and new runs, not an edit.
 
-pi_locked: false
-locked_on: null
-locked_by: null
+pi_locked: true
+locked_on: 2026-10-03
+locked_by: Kynon J.M. Benjamin
 
 module: 02b_greml_simulation_benchmark
 module_tag: greml

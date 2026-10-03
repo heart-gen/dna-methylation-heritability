@@ -1,7 +1,8 @@
 # 02b_greml_simulation_benchmark — can REML recover absolute local h2 at this cohort's n?
 
-**Status: implemented 2026-10-03; no accepted run.** `config/greml_benchmark.yml`
-is not yet PI-locked: the scenario grid and the primary REML mode are proposals.
+**Status: implemented and PI-locked 2026-10-03; no accepted run yet.**
+`config/greml_benchmark.yml` was locked as proposed: the scenario grid below,
+unconstrained Fisher scoring primary, v1's constrained AI-REML secondary.
 
 ## Question
 
@@ -105,7 +106,7 @@ returns (`greml_functions.R::grm_from_dosage()`). It reproduces
 |diff| 1.0e-7 on a 3,428-SNP DLPFC locus with 1,930 missing calls (repeated in
 `tests/`). REML adjusts for the locked covariates through `--qcovar`.
 
-### REML modes (proposed for the PI lock)
+### REML modes (PI-locked 2026-10-03)
 
 | mode | role | GCTA flags | why |
 |---|---|---|---|
