@@ -1,24 +1,35 @@
 # 10_environmental_exploratory — exploratory environmental-factor analysis
 
-**Status: accepted 2026-10-02. Supplement only, permanently.**
-`env-AA-{caudate,dlpfc,hippocampus}-20261002-a` each returned
+**Status: accepted 2026-10-03. Supplement only, permanently.**
+`env-AA-{caudate,dlpfc,hippocampus}-20261003` each returned
 `PASS_EXPLORATORY_COVERAGE` with 22/22 chromosomes reconciled and zero
-computational failures, and the PI accepted all three on 2026-10-02, so
+computational failures, and the PI accepted all three on 2026-10-03, so
 `_m/combined/` carries `citable = TRUE` — see **Accepted runs**. They supersede
-six earlier rounds, including the previously accepted `-20260920-a`; see
+seven earlier rounds, including the previously accepted `-20261002-a`; see
 **Superseded runs**.
 
+**No family in any region may be reported as a percentage, and that is now
+enforced rather than advised.** The 2026-10-03 round installs the Fieller
+magnitude gate (T28 decision B, PI 2026-10-03) and
+`n_relative_magnitude_reportable` is **0** in all three regions — 0 of 9 in
+caudate, 0 of 5 in DLPFC, 0 of 5 in hippocampus. The largest `den_z` anywhere is
+1.756 against the 1.96 threshold. The signed gradient may still be stated for
+the FDR-surviving families; "X% less exposure-explained variance" may not be
+stated for any of them. See **The 2026-10-03 magnitude-gate round**.
+
 The accepted round pins `rra-AA-*-20260925-a`, Module 04's current accepted run,
-and all three upstreams are current (3/3). It adds two cell-composition arms (RNA
-MuSiC in every region, DNAm scMD in caudate where its integration gate passes)
-and closes the module's four open PI items. Every primary point estimate
-reproduces the superseded `-20260920-a` runs bit-identically, so the stale Module
-04 pin those carried cost nothing scientifically; what this round adds is a true
-provenance chain and one new result — **the caudate gradient does not survive
-cell-composition adjustment on either measure, while the hippocampus one does.**
-DLPFC has no FDR-surviving stage B family, and its near-miss is seed-dependent
-across three rounds on one identical point estimate. See **The 2026-10-02
-rerun**.
+and all three upstreams are current (3/3). It carries two cell-composition arms
+(RNA MuSiC in every region, DNAm scMD in caudate where its integration gate
+passes), both added in the 2026-10-02 round, which closed the module's four open
+PI items. Every primary point estimate reproduces the superseded `-20260920-a`
+and `-20261002-a` runs bit-identically, so neither replacement turned on a
+number; what the 2026-10-02 round added was a true provenance chain and one new
+result — **the caudate gradient does not survive cell-composition adjustment on
+either measure, while the hippocampus one does** — and what the 2026-10-03 round
+adds is the magnitude gate. DLPFC's stage B near-miss is seed-dependent across
+**four** rounds on one identical point estimate and its FDR call is undetermined
+at B = 1000; it must not be reported as resolved in either direction. See **The
+2026-10-02 rerun** and **The 2026-10-03 magnitude-gate round**.
 
 Asks whether measured donor exposures associate with VMR methylation, and
 whether that association varies along Module 02's continuous local-genetic-control
@@ -330,7 +341,7 @@ re-run the SLURM chain to write up or check a number.
 
 | file | rows | what it holds |
 |---|---|---|
-| `environmental-axis-reading-AA.tsv` | 19 | the stage B reading: one row per family with scale, `beta`, CI, `p`, `q`, the absolute sensitivity, `mean_omega_z`, the Fieller flag, the bootstrap inflation, every arm's `beta`/`p`/`q`/attenuation, and the Module 08 tier. A strict column subset of the table below — no number is derived here. (Before 2026-10-02 this row said "the cell arm"; there was no cell arm, and the columns held `no_methylation_variance`.) |
+| `environmental-axis-reading-AA.tsv` | 19 | the stage B reading: one row per family with scale, `beta`, CI, `p`, `q`, the absolute sensitivity, `mean_omega_z`, the Fieller flag, **`relative_magnitude_reportable` with its `..._gate_reason` and `..._den_z`** (FALSE on all 19 rows -- this is the column that stops a percentage being written), the bootstrap inflation, every arm's `beta`/`p`/`q`/attenuation, and the Module 08 tier. A strict column subset of the table below — no number is derived here. (Before 2026-10-02 this row said "the cell arm"; there was no cell arm, and the columns held `no_methylation_variance`.) |
 | `environmental-axis-per-region-AA.tsv` | 19 | every stage B column the runs emit plus the collation's provenance columns, stacked |
 | `environmental-axis-arms-AA.tsv` | 19 x arms | the non-gating arms in **long** form, one row per region x exposure x stratum x arm: `beta`, `se`, `p`, its own `fdr`, CI, Fieller flag, attenuation against the primary, the arm's covariate set, and `n_vmrs_lost_vs_primary`. Derived from the wide columns by reshaping, never recomputed, so the two cannot disagree. This is the table to read now that there is more than one arm |
 | `environmental-vmr-associations-fdr-AA.tsv` | 12 | the stage A per-VMR rows that survive BH, with `vmr_id`, coordinates, `p_joint`, `fdr` and `omega`. All 12 are hippocampus (11 `nicotine`, 1 `education`); caudate and DLPFC have none |
@@ -600,25 +611,43 @@ The design now:
   `absolute_beta`, `absolute_se`, `absolute_p`, `absolute_role =
   sensitivity_not_gating`. It gates nothing. A reader can see both scales rather
   than take the module's word for one.
-- **A Fieller interval for the percentage is reported and never gates**
-  (`fieller_bounded`, `fieller_role = informational_not_gating`). On these data it
-  is unbounded in every family: the family mean is separated from zero by only
-  `mean_omega_z` 0.07-1.60, so no percentage is formally identifiable. That is a
-  statement about the denominator's own weakness, not about the primary.
-- **No threshold is set anywhere.** A gate on the denominator's separation from
-  zero excludes every family, including all three findings; and a gate on the
-  ratio's own interval (`CI width > 2|β̂|`) is algebraically `p > 0.05`, so it
-  would only restate the p-value already on the row. The one boundary left is
-  definitional: `mean(ω) ≤ 0` means no detectable exposure contribution, so the
-  ratio has no sign and that family reports the absolute gradient
-  (`primary_scale = raw`).
-- **`bootstrap_mean_omega_inflation` is on every relative-scale row.** Resampling
-  donors with replacement duplicates donors, which inflates an exposure-explained
-  sum of squares: the factor runs 2.0×-38.5× here. Where it exceeds 1 the ratio's
-  **bootstrap** variance is likely optimistic, so these p-values may be too small.
-  That is not resolved; it is made auditable. The same bootstrap construction is
-  in 09b's accepted runs, so it reaches there too. Settling it needs a null and
-  positive-control simulation that has not been run.
+- **A Fieller interval for the percentage is reported and never gates the
+  signed test** (`fieller_bounded`, `fieller_role = informational_not_gating`).
+  On these data it is unbounded in every family: the family mean is separated
+  from zero by only `mean_omega_z` 0.07-1.60, so no percentage is formally
+  identifiable. That is a statement about the denominator's own weakness, not
+  about the primary.
+- **Changed 2026-10-03: Fieller's denominator condition now gates the
+  *magnitude*.** This bullet used to read "no threshold is set anywhere", on the
+  ground that a gate on the denominator's separation from zero would exclude
+  every family including all three findings. That is still true — and it is now
+  the point rather than the objection. The PI's T28 decision B separates the two
+  questions: whether the gradient is zero is tested on the ratio-scale combined
+  SE, unthresholded, exactly as before; whether a *proportional magnitude and
+  interval* may be reported is gated on `den_z = mean(ω)/sqrt(v22) > 1.96`. The
+  consequence is that `relative_magnitude_reportable` is FALSE for all 19
+  families in all three regions, which is the honest reading of a denominator
+  this weak, and the FDR-surviving gradients are still reported as signed
+  effects. See **The 2026-10-03 magnitude-gate round**. The other half of the old
+  bullet stands: a gate on the ratio's own interval (`CI width > 2|β̂|`) is
+  algebraically `p > 0.05` and would only restate the p-value already on the row.
+  The remaining boundary is definitional: `mean(ω) ≤ 0` means no detectable
+  exposure contribution, so the ratio has no sign and that family reports the
+  absolute gradient (`primary_scale = raw`).
+- **`bootstrap_mean_omega_inflation` is on every relative-scale row**, and T28
+  settled what it means (2026-10-02, signed 2026-10-03). Resampling donors with
+  replacement destroys the residual-design orthogonality that makes the debiasing
+  term `− df·σ̂²` cancel, so a donor resample inflates an exposure-explained sum
+  of squares: the factor runs 2.0×-38.5× here. The reading that is now
+  established is **not** that the p-values are too small. On the **ratio** scale
+  the bias largely cancels in the quotient, and the combined SE measured
+  calibrated — type-I 0.027-0.046 against nominal 0.05 over 192 simulation cells,
+  with the best power of any calibrated variant. On the **absolute** scale
+  nothing cancels it, so `absolute_se` is too large and `absolute_p` is
+  over-conservative (type-I 0.000-0.003). Read the inflation factor as a readout
+  of how deflated the bootstrap half of the ratio variance is, not as a warning
+  about the ratio p. See **The 2026-10-03 magnitude-gate round** for the four
+  decisions this produced.
 
 **A defect found on 2026-09-20 and the reason `env-AA-*-20260920` is superseded.**
 `block_jackknife_cov()` computed its pseudo-values as `hj * full`, recycling a
@@ -1005,6 +1034,177 @@ carry no scMD arm at all, so the comparison simply does not exist there; their
 `arm_status` records `skipped_scmd_integration_gate_fail` on all five families
 each.
 
+## The 2026-10-03 magnitude-gate round
+
+`env-AA-{caudate,dlpfc,hippocampus}-20261003`, accepted 2026-10-03, replacing
+`-20261002-a`. Same commit for all three (9604a1529, `git_dirty = false`), one
+shared `config_environmental_sha256` (`c89a378c…`), `smoke_run = FALSE`, 141
+output files each, and the same three upstreams and `vmr_set_id` as the runs they
+replace. Nothing upstream moved; the round exists to install one gate.
+
+**It adds no new primary number.** `primary_beta` and `mean_omega` are
+bit-identical to `-20261002-a` in all three regions for all 19 families. Stage A
+is deterministic and unchanged: 0 / 0 / 12 FDR-significant VMR × exposure pairs.
+The caudate-versus-hippocampus cell-composition split established in
+`-20261002-a` is unchanged and still stands. What the round buys is the gate and
+the `pi_locked` config entry behind it.
+
+### What the gate is, and what it is not
+
+Module 10 already computed a Fieller interval and reported it as informational.
+The gate makes Fieller's *denominator condition* decisive for one thing only:
+
+- **Gated:** whether a proportional magnitude and its interval may be reported
+  at all. Licensed only where `den_z = mean(ω)/sqrt(v22) > 1.96`.
+- **Not gated:** whether the gradient is zero. That test stays on the
+  ratio-scale combined SE, which T28 measured as calibrated, and no threshold is
+  applied to it (PI, 2026-10-03, "magnitude only").
+
+`00_shared/axis_inference.R::require_magnitude_gate()` refuses a run whose config
+does not name the gate and its covariance, rather than defaulting to one.
+
+### No family in any region is reportable as a percentage
+
+| region | families | FDR-surviving | max `den_z` | reportable |
+|---|---|---|---|---|
+| caudate | 9 | 1 — nicotine@all, β -0.4622, q 0.00799 | 0.952 | **0 of 9** |
+| DLPFC | 5 | 1 — nicotine@schizophrenia, β -0.2666, q 0.0496 (undetermined, below) | 0.943 | **0 of 5** |
+| hippocampus | 5 | 2 — nicotine@all β -0.3758 q 0.0015; nicotine@schizophrenia β -0.4912 q 9.82e-6 | 1.756 | **0 of 5** |
+
+This is not a new finding. It is the module's long-standing caveat — "no
+percentage is formally identifiable" — ceasing to be prose and becoming a
+machine-checked flag on every row, carried into `_m/combined/` where a writer
+actually meets it. The manuscript may state a signed gradient for the
+FDR-surviving families and may not attach a percentage to any of them.
+
+### The gate's own error rates were measured before it shipped
+
+The gate is inferential, so assuming its error rates would have been the same
+mistake as assuming the variance's. T28's grid was extended with a `no_effect`
+condition in which every per-VMR effect is exactly zero, so the true family mean
+is zero and no proportional effect exists — the only condition that can measure a
+false "reportable". Read over 192 cells, 1,000 replicates each, 0 failures:
+
+| quantity | result |
+|---|---|
+| false "reportable" against a true zero denominator | **0.0000** (n=152), 0.0010 (n=48) |
+| max q95 `den_z` against a true zero denominator | **≤ 1.03**, against threshold 1.96 |
+| sensitivity where the family mean is well separated | 0.87 – 1.00 |
+| effect of `design` (VMR effects fixed vs redrawn) | none, correctly |
+
+### Why the covariance is pinned to the jackknife pairing
+
+`config/environmental.yml` pins the gate's covariance as
+`donor_jackknife_plus_chromosome_block`. This is the one load-bearing choice in
+the decision, because `v22` is the variance of the **denominator** — an
+absolute-scale quantity — and the absolute scale is exactly where T28 found the
+donor bootstrap inflated. Gating on the bootstrap covariance would have imported
+that defect into a decision. The cost of having done so, measured:
+
+| simulation cell | bootstrap accepts | pinned accepts |
+|---|---|---|
+| independent / binary / signal 1 | 0.001 | 0.892 |
+| independent / continuous / signal 1 | 0.000 | 0.867 |
+| factor / continuous / signal 4 | 0.898 | 1.000 |
+
+Identical false-positive rates, up to 0.89 of sensitivity lost. The pinned
+pairing is also the **middle** of three options rather than the most permissive:
+the donor jackknife alone is more liberal (`den_z` 5.37 against 4.59 in one
+cell), so the chromosome-block term is the conservative half of the pin. In 09b,
+where the gate has live consequences, the covariance choice flips the verdict in
+5 of 13 specs.
+
+### The four T28 decisions, as signed
+
+T28 (`writing-notes/DRAFT_T28_axis_variance_20261002.md`, signed 2026-10-03)
+validated this module's inference on 192 simulation cells built to reproduce the
+fixtures' own cross-VMR residual covariance through a 10-factor model.
+
+- **D1 accepted.** The combined donor-bootstrap + delete-one-chromosome
+  block-jackknife variance stays as the ratio-scale inference. It is calibrated
+  (type-I 0.027-0.046 against nominal 0.05) and has the best power of any
+  calibrated variant; the bootstrap alone runs type-I 0.282-0.438 and a
+  delta-method ratio SE collapses to power 0.041 at the realistic n=152 cell. **No
+  config change, and the estimator must not be changed.**
+- **D2 accepted.** The `absolute_*` columns are **over-conservative and are not
+  tests at 0.05**: measured type-I 0.000-0.003 against nominal 0.05, because on
+  the absolute scale nothing cancels the bootstrap's loss of the debiasing. Their
+  p-values are too large and their intervals too wide. A rejection there is safe;
+  a non-rejection means very little. This matters for the ten families whose mean
+  ω ≤ 0 and which therefore report on the raw scale (`primary_scale = raw`) — for
+  those the primary *is* the absolute estimand and inherits the caveat. No
+  absolute-scale variance among those tested is calibrated, so an absolute-scale
+  claim would need its own work.
+- **D3 rejected.** The bootstrap draw guard admits a draw on `mean(ω) > 0` rather
+  than on a denominator separated from zero, so a draw with a denominator of 1e-9
+  is admitted and contributes an enormous ratio. The candidate replacement was
+  measured and is **worse** — power 0.041 against `se_combined`'s 0.246 at the
+  realistic cell — so the guard is unchanged and this is recorded as a **known
+  conservatism** rather than fixed. The magnitude gate bounds the misuse of a
+  near-zero denominator but does not remove the inflated-draw effect on the
+  gradient p. This is the one T28 defect that remains live, and it is why the
+  DLPFC family below cannot be resolved by compute.
+- **D4 accepted.** `n_bootstrap` is **not** raised. For the quotient of a debiased
+  statistic the series does not converge with B: DLPFC `nicotine@schizophrenia`'s
+  `se_bootstrap` *grows* from mean 0.092 at B = 2000 to 0.101 at B = 8000, which
+  is what a heavy-tailed series does, while a well-conditioned family in the same
+  run tightens correctly (hippocampus `smoking@all`, 0.0997-0.1122 at B = 500 to
+  0.1059-0.1086 at B = 8000).
+
+### DLPFC `nicotine@schizophrenia`: the FDR call is undetermined at B = 1000
+
+Four rounds, one point estimate identical to ten decimal places
+(-0.2666303408), four bootstrap seeds:
+
+| run | q | FDR-significant |
+|---|---|---|
+| `env-AA-dlpfc-20260920-a` | 0.054341 | no |
+| `env-AA-dlpfc-20261002` | 0.049137 | **yes** |
+| `env-AA-dlpfc-20261002-a` | 0.055002 | no |
+| `env-AA-dlpfc-20261003` | 0.049638 | **yes** |
+
+Range 0.0491-0.0550, mean 0.0520, so alpha sits essentially mid-spread and
+`n_axis_associations_fdr` reads 0 or 1 in DLPFC depending on the seed. **No round
+overturned another**: the quantity is a coin flip at this B, `-20261002-a`
+landed high and `-20261003` landed low.
+
+**PI decision, 2026-10-03: report it as undetermined.** The estimate and its
+interval are given, and the FDR call is stated as not stable across bootstrap
+seeds. Two options were declined. Raising B *would* pin the number — the
+`se_bootstrap` spread across seeds (0.0886-0.0937) is about what `se/sqrt(2B)`
+predicts at B = 1000, so roughly B = 16,000 would do it, and unlike the stage-B
+variance question this instability is ordinary Monte Carlo error in a bootstrap
+SE rather than the quotient pathology — but the four-seed mean sits above alpha,
+so the likely outcome is a stable non-significant result a hair above threshold,
+which is an extrapolation and not a measurement. Prespecifying that the family
+is not read at alpha at all was also declined. So the family keeps its place in
+the table, carries its estimate and interval, and its FDR status **must not be
+reported as resolved in either direction**.
+
+### How the re-runs were verified, and a correction
+
+The acceptance criterion was first stated as bit-identity of every pre-existing
+column. That was wrong and unachievable: AGENTS.md §9 requires deterministic
+seeds **derived from the run ID**, so a new run ID necessarily redraws the donor
+bootstrap and every quantity downstream of it moves by Monte Carlo error.
+Demanding bit-identity of those is demanding that the seed policy be violated.
+The criterion actually applied, encoded as code rather than prose in
+`00_shared/tests/t28_axis_variance/t28_compare_reruns.R`:
+
+1. every deterministic column bit-identical;
+2. seed-dependent columns within Monte Carlo error;
+3. no decision token moved, and no p or q crossing alpha.
+
+Criteria 1 and 2 hold in all three regions. Criterion 3 holds in caudate (0
+crossings) and in hippocampus for the primary — its two crossings are in the
+descriptive `neglog10p_*` row, which already carries
+`mechanically_biased_toward_hypothesis = TRUE`. It does not hold in DLPFC, which
+is the family above. The classifier keys on column **shape**, not an exact name
+list, and exempts quantities that look seed-dependent but are computed without
+touching the RNG — `den_z` among them, since it comes from the deterministic
+delete-one-donor jackknife and is the gate's own decision variable, so a move in
+it would be a real defect rather than noise.
+
 ## Superseded runs
 
 | run_id | sealed | superseded because |
@@ -1015,14 +1215,17 @@ each.
 | `env-AA-{region}-20260920` | 2026-09-20 | `block_jackknife_cov()` recycling defect corrupted every `absolute_*`, `fieller_*` and `mean_omega_*` column; primary columns were unaffected |
 | `env-AA-{region}-20260920-a` | 2026-09-20 | accepted 2026-09-20, superseded 2026-10-02. Pinned `rra-AA-*-20260906`, which Module 04 superseded on 2026-09-25, and carried no cell-composition arm. Every primary estimate is identical to `-20261002-a`, so nothing scientific turned on the replacement; what moved is the provenance chain and the two new arms |
 | `env-AA-{region}-20261002` | 2026-10-02 | never accepted. Re-pinned Module 04 correctly and carried the RNA MuSiC cell arm, but predates the caudate DNAm scMD arm the PI added the same day; its config SHA therefore differs from the accepted round's, and three runs attesting to different configs are not collatable as one set. Every primary estimate is identical to `-20261002-a` |
+| `env-AA-{region}-20261002-a` | 2026-10-02 | accepted 2026-10-02, superseded 2026-10-03. Replaced by the magnitude-gate round and by nothing else: same three upstreams, same `vmr_set_id`, and `primary_beta` and `mean_omega` bit-identical in all 19 families. What they lack is the Fieller magnitude gate, so a reader of those runs could have attached a percentage to a gradient for which this module cannot identify one. Their DLPFC `nicotine@schizophrenia` q is 0.05500 against 0.049638 here on an identical point estimate, which is the seed instability recorded under **The 2026-10-03 magnitude-gate round** and not a change of result |
 
 None of these may be cited. Their primary estimates from `-20260919-a` onward
 agree with the accepted runs to bootstrap noise — bit-identically from
-`-20260920-a` on — so nothing scientific turned on the last three replacements.
-Two different reasons sit in this table and should not be conflated: `-20260919`
-through `-20260920` were replaced because something was **wrong** in the columns
-named, while `-20260920-a` and `-20261002` were replaced because the **provenance
-or the arm set** moved. Either way a sealed run is never edited.
+`-20260920-a` on — so nothing scientific turned on the last four replacements.
+Three different reasons sit in this table and should not be conflated:
+`-20260919` through `-20260920` were replaced because something was **wrong** in
+the columns named; `-20260920-a` and `-20261002` were replaced because the
+**provenance or the arm set** moved; and `-20261002-a` was replaced because the
+**inference contract** moved, a gate being added that no earlier run could
+carry. Either way a sealed run is never edited.
 
 ## Planned extension, gated on Module 09
 
@@ -1078,9 +1281,9 @@ arms**.
 
 | run_id | cohort | region | vmr_set_id | accepted_on | accepted_by | decision | notes |
 |---|---|---|---|---|---|---|---|
-| env-AA-caudate-20261002-a | AA | caudate | vmrset-AA-caudate-937a41979978 | 2026-10-02 | Kynon J.M. Benjamin | PASS_EXPLORATORY_COVERAGE | n=153; 11,251 VMRs; 6/6 coverage criteria; 22/22 chromosomes, 0 excluded/QC-failed/failed/unaccounted. Re-pins `rra-AA-caudate-20260925-a`; 3/3 upstreams current. All three arms fitted (`scmd_integration_gate = PASS`). Stage A: 0 FDR-significant VMR x exposure pairs. Stage B: 1 of 9 families survives FDR -- nicotine@all, beta -0.462, q 0.0088, identical to both superseded rounds. **The caudate gradient may NOT be described as independent of cell composition:** RNA MuSiC arm -0.220 (attenuation 0.525, arm q 0.46), DNAm scMD arm -0.164 (attenuation 0.645, arm q 0.83); smoking@all behaves the same (0.435, 0.661). Two assays agree in direction and the DNAm measure removes more. Arms are non-gating and do not demote the primary. `no_methylation_variance` -0.440, q 0.021. **No percentage is formally identifiable:** mean_omega_z max 0.78, absolute_p > 0.05 in all 9, Fieller unbounded in all 9. **Donor bootstrap inflates the ratio denominator 5.0x-5.8x** (T28, unresolved). Exploratory supplement only (`main_text_retention = NEVER_SUPPLEMENT_ONLY`); the variance-budget limitation (AGENTS.md 7.10) is permanent and a negative beta is never evidence that exposure effects concentrate at weakly controlled VMRs. Caudate is batch-confounded (AGENTS.md 8.1) and is also striatum against two cortical regions, so the between-region difference in arm behaviour is descriptive only. |
-| env-AA-dlpfc-20261002-a | AA | dlpfc | vmrset-AA-dlpfc-856067dfe289 | 2026-10-02 | Kynon J.M. Benjamin | PASS_EXPLORATORY_COVERAGE | n=118; 9,251 VMRs; 6/6 coverage criteria; 22/22 chromosomes, 0 excluded/QC-failed/failed/unaccounted. Re-pins `rra-AA-dlpfc-20260925-a`; 3/3 upstreams current. 2 of 3 arms fitted; `cell_composition_r2_scmd` recorded `skipped_scmd_integration_gate_fail` on all 5 families (`scmd_integration_gate = FAIL`, column empty for every VMR). Stage A: 0 FDR-significant pairs. **Stage B: 0 of 5 families survive FDR.** nicotine@schizophrenia is q 0.0550 here against 0.04914 in `-20261002` and 0.05434 in `-20260920-a`, on a bit-identical point estimate of -0.2666303408: **its FDR status is seed-dependent and must not be reported as resolved in either direction.** The MuSiC arm leaves it unchanged (-0.264, attenuation 0.009); its `no_methylation_variance` arm reaches q 0.032, which licenses nothing because the arms carry separate BH families and cannot promote a primary. **No percentage is formally identifiable:** mean_omega_z max 0.73, absolute_p > 0.05 in all 5, Fieller unbounded in all 5. **Bootstrap denominator inflation 3.2x-38.7x**, the largest in the module (marital_status@all). Exploratory supplement only; variance-budget limitation applies. |
-| env-AA-hippocampus-20261002-a | AA | hippocampus | vmrset-AA-hippocampus-2d907b892215 | 2026-10-02 | Kynon J.M. Benjamin | PASS_EXPLORATORY_COVERAGE | n=117; 9,166 VMRs; 6/6 coverage criteria; 22/22 chromosomes, 0 excluded/QC-failed/failed/unaccounted. Re-pins `rra-AA-hippocampus-20260925-a`; 3/3 upstreams current. 2 of 3 arms fitted; `cell_composition_r2_scmd` recorded `skipped_scmd_integration_gate_fail` on all 5 families. Stage A: 12 FDR-significant VMR x exposure pairs (11 nicotine, 1 education) out of ~9,200 tests in 5 families, in the region with the smallest exposed case count -- a supplemental observation, not a finding. Stage B: 2 of 5 families survive FDR -- nicotine@schizophrenia beta -0.491 q 1.4e-5 and nicotine@all beta -0.376 q 0.0014, both identical to the superseded rounds. **Both survive the RNA MuSiC arm essentially untouched** (attenuation 0.009 and -0.006; arm q 1.1e-5 and 0.00108), so the hippocampus gradient is not cell composition restated -- the first time this module has tested that, and the opposite of what caudate shows. smoking@all has primary q 0.0554 and cell arm q 0.0463: separate BH families, and a non-gating arm cannot promote a primary. **No percentage is formally identifiable:** mean_omega_z max 1.55, never reaching 1.96; absolute_p > 0.05 in all 5; Fieller unbounded in all 5. **Bootstrap denominator inflation 2.0x-4.1x.** Exploratory supplement only; variance-budget limitation applies. |
+| env-AA-caudate-20261003 | AA | caudate | vmrset-AA-caudate-937a41979978 | 2026-10-03 | Kynon J.M. Benjamin | PASS_EXPLORATORY_COVERAGE | Built at 9604a1529, git_dirty false, smoke_run FALSE, no stage given --allow-unlocked; config_environmental_sha256 c89a378c…, shared by all three regions; sealed 2026-10-03, 141 output files. n=153; 11,251 VMRs; 101,259 tested pairs; 6/6 coverage criteria; 22/22 chromosomes, 0 excluded/QC-failed/failed/unaccounted. Pins `rra-AA-caudate-20260925-a`; 3/3 upstreams current, all three identical to the superseded `-20261002-a`. All three arms fitted (`scmd_integration_gate = PASS`). Stage A: 0 FDR-significant VMR x exposure pairs. Stage B: 1 of 9 families survives FDR -- nicotine@all, beta -0.4622, q 0.00799, point estimate bit-identical to both superseded rounds. **No family is reportable as a percentage:** `n_relative_magnitude_reportable = 0` of 9, max relative_magnitude_den_z 0.952 against the 1.96 threshold, gate `fieller_denominator_stability`, covariance `donor_jackknife_plus_chromosome_block` (PI 2026-10-03). mean_omega_z max 0.79; absolute_p > 0.05 in all 9; Fieller unbounded in all 9. **The caudate gradient may NOT be described as independent of cell composition:** RNA MuSiC arm -0.219 (attenuation 0.525, arm q 0.455), DNAm scMD arm -0.164 (attenuation 0.645, arm q 0.832); smoking@all behaves the same (0.435, 0.661). Two assays agree in direction and the DNAm measure removes more. Arms are non-gating and do not demote the primary. `no_methylation_variance` -0.440, q 0.0192. **Donor bootstrap inflates the ratio denominator 5.0x-5.8x**, which T28 established is a readout of bootstrap-half deflation and not evidence the ratio p is too small. Exploratory supplement only (`main_text_retention = NEVER_SUPPLEMENT_ONLY`); the variance-budget limitation (AGENTS.md 7.10) is permanent and a negative beta is never evidence that exposure effects concentrate at weakly controlled VMRs. Caudate is batch-confounded (AGENTS.md 8.1) and is also striatum against two cortical regions, so the between-region difference in arm behaviour is descriptive only. |
+| env-AA-dlpfc-20261003 | AA | dlpfc | vmrset-AA-dlpfc-856067dfe289 | 2026-10-03 | Kynon J.M. Benjamin | PASS_EXPLORATORY_COVERAGE | Built at 9604a1529, git_dirty false, smoke_run FALSE, no stage given --allow-unlocked; config_environmental_sha256 c89a378c…, shared by all three regions; sealed 2026-10-03, 141 output files. n=118; 9,251 VMRs; 46,255 tested pairs; 6/6 coverage criteria; 22/22 chromosomes, 0 excluded/QC-failed/failed/unaccounted. Pins `rra-AA-dlpfc-20260925-a`; 3/3 upstreams current, identical to `-20261002-a`. 2 of 3 arms fitted; `cell_composition_r2_scmd` recorded `skipped_scmd_integration_gate_fail` on all 5 families (`scmd_integration_gate = FAIL`). Stage A: 0 FDR-significant pairs. **Stage B: the FDR call is undetermined.** nicotine@schizophrenia is q 0.049638 here against 0.05500 in `-20261002-a`, 0.049137 in `-20261002` and 0.054341 in `-20260920-a`, on a bit-identical point estimate of -0.2666303408 -- four seeds, range 0.0491-0.0550, mean 0.0520, alpha mid-spread. `n_axis_associations_fdr` reads 1 here and 0 in the superseded accepted round, and **its FDR status must not be reported as resolved in either direction** (PI 2026-10-03: report as undetermined, with the estimate and interval; raising B was declined, and so was prespecifying that the family is not read at alpha). The MuSiC arm leaves it unchanged (-0.264, attenuation 0.009); its `no_methylation_variance` arm reaches q 0.0267, which licenses nothing because the arms carry separate BH families and cannot promote a primary. **No family is reportable as a percentage:** 0 of 5, max den_z 0.943; mean_omega_z max 0.77; absolute_p > 0.05 in all 5; Fieller unbounded in all 5. **Bootstrap denominator inflation 3.2x-38.4x**, the largest in the module (marital_status@all). Exploratory supplement only; variance-budget limitation applies. |
+| env-AA-hippocampus-20261003 | AA | hippocampus | vmrset-AA-hippocampus-2d907b892215 | 2026-10-03 | Kynon J.M. Benjamin | PASS_EXPLORATORY_COVERAGE | Built at 9604a1529, git_dirty false, smoke_run FALSE, no stage given --allow-unlocked; config_environmental_sha256 c89a378c…, shared by all three regions; sealed 2026-10-03, 141 output files. n=117; 9,166 VMRs; 45,830 tested pairs; 6/6 coverage criteria; 22/22 chromosomes, 0 excluded/QC-failed/failed/unaccounted. Pins `rra-AA-hippocampus-20260925-a`; 3/3 upstreams current, identical to `-20261002-a`. 2 of 3 arms fitted; `cell_composition_r2_scmd` recorded `skipped_scmd_integration_gate_fail` on all 5 families. Stage A: 12 FDR-significant VMR x exposure pairs (11 nicotine, 1 education) out of ~9,200 tests in 5 families, in the region with the smallest exposed case count -- a supplemental observation, not a finding. Stage B: 2 of 5 families survive FDR -- nicotine@schizophrenia beta -0.4912 q 9.82e-6 and nicotine@all beta -0.3758 q 0.0015, both point-identical to the superseded rounds. **Both survive the RNA MuSiC arm essentially untouched** (attenuation 0.009 and -0.006; arm q 7.7e-6 and 0.00117), so the hippocampus gradient is not cell composition restated -- the opposite of what caudate shows. smoking@all has primary q 0.0555 and cell arm q 0.0462: separate BH families, and a non-gating arm cannot promote a primary. **No family is reportable as a percentage:** 0 of 5, max den_z **1.756** -- the largest in the module and still short of 1.96, so the region with the module's strongest gradient is also the one that comes closest to supporting a magnitude and does not. mean_omega_z max 1.65; absolute_p > 0.05 in all 5; Fieller unbounded in all 5. **Bootstrap denominator inflation 2.0x-4.1x.** Exploratory supplement only; variance-budget limitation applies. |
 
 Accepted by the PI on 2026-10-02. The gate is a **coverage** gate, so what the
 acceptance records is that these runs had the coverage to have said something --
