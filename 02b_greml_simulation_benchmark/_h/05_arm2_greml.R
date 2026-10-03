@@ -85,7 +85,8 @@ for (i in seq_len(nrow(loci))) {
                           c("--reml", "--grm", pre, "--pheno", phen, "--qcovar", qcov,
                             "--reml-maxit", cfg$gcta$reml_maxit, margs),
                           out, threads = threads)
-            cl <- classify_reml(r$exit, paste0(out, ".hsq"), r$log, patterns)
+            cl <- classify_reml(r$exit, paste0(out, ".hsq"), r$log, patterns,
+                                reml_divergence_rule(cfg))
             u <- unit_id(L$vmr_id, g, m$reml_mode)
             st[[length(st) + 1L]] <- data.table(unit = u, status = cl$status, reason = cl$reason)
             if (cl$status == "completed") {
