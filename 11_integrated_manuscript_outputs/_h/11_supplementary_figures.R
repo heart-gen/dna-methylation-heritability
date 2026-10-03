@@ -47,11 +47,20 @@ by_region <- function(fun) rbindlist(lapply(regions, function(r) {
 
 ## ===================================================== S-LDSC (Module 06)
 ##
-## The accepted result is a NULL: sldsc_supports_brain_enrichment = FALSE in
-## all three cells, 0 of 8 traits FDR-significant. The figure has to make the
-## null legible rather than imply a signal, so it plots the enrichment estimate
-## WITH its standard error -- the SEs are large, which is the actual finding --
-## and states the FDR outcome on the panel.
+## The accepted result is a NULL under the two-annotation model
+## (sldsc-AA-*-20260925): tau of LOCAL_SNP_CONTRIBUTION_Z is estimated
+## CONDITIONAL on VMR_TESTED, so it is the within-VMR gradient, and no trait
+## reaches q < 0.05 in any cell.
+##
+## What is plotted is that tau, as a z-score. Until 2026-10-03 this panel
+## plotted `enrichment`, which for a signed continuous annotation is a ratio
+## over a signed sum and not a share of heritability; Module 06 marks exactly
+## those rows enrichment_interpretable = FALSE. The guard below stops the build
+## if an uninterpretable enrichment would be drawn.
+##
+## Module 06's writing rule: "no detectable enrichment at this footprint",
+## never "no enrichment" -- the annotation is small and the module has no
+## positive control, so a null cannot be told from a power null.
 SLDSC <- vapply(regions, function(r)
     require_accepted_upstream("06_partitioned_heritability", cohort, r)$run_id,
     character(1))
@@ -61,54 +70,65 @@ sldsc_dir <- function(r) file.path(V2_ROOT, "06_partitioned_heritability",
 met <- by_region(function(r) fread(file.path(sldsc_dir(r), "sldsc-metrics.tsv")))
 dec <- by_region(function(r) fread(file.path(sldsc_dir(r), "partitioned-h2-decision.tsv")))
 
-## The null is the accepted reading; if a cell ever turns positive the panel's
-## framing is wrong.
+if (!all(dec$tau_conditional_on_vmr_membership %in% c(TRUE, "TRUE"))) {
+    stop("A Module 06 cell is not the two-annotation model; its tau is not the ",
+         "within-VMR gradient this panel describes.")
+}
 supports <- grep("supports", names(dec), value = TRUE)
 if (length(supports) == 1 && any(dec[[supports]] %in% c(TRUE, "TRUE"))) {
     stop("A Module 06 cell now supports brain enrichment; this supplement is ",
          "written as a null. Re-read the accepted decision.")
 }
+met <- met[is_primary_hypothesis %in% c(TRUE, "TRUE")]
+if (any(met$enrichment_interpretable %in% c(TRUE, "TRUE"))) {
+    stop("A primary-hypothesis S-LDSC row is now marked enrichment-interpretable; ",
+         "re-decide what this panel should show.")
+}
 met[, region := as_region(region)]
-met[, `:=`(lo = enrichment - 1.96 * enrichment_se,
-           hi = enrichment + 1.96 * enrichment_se)]
 met[, class := factor(fifelse(trait_class == "brain", "Brain", "Non-brain control"),
                       levels = c("Brain", "Non-brain control"))]
-## Order by the pooled estimate so the panel reads as one ranking.
-ord <- met[, .(m = mean(enrichment)), by = trait_label][order(-m)]
+## The facet already says "Non-brain control"; the label suffix repeating it
+## pushed the panel to a sliver.
+met[, trait_label := sub("\\s*--\\s*non-brain negative control$", "", trait_label)]
+ord <- met[, .(m = mean(tau_z)), by = trait_label][order(-m)]
 met[, trait_label := factor(trait_label, levels = ord$trait_label)]
 n_sig <- met[, sum(tau_q < 0.05, na.rm = TRUE)]
+n_traits <- uniqueN(met$trait_label)
 
-pS1 <- ggplot(met, aes(enrichment, trait_label, colour = region)) +
+pS1 <- ggplot(met, aes(tau_z, trait_label, colour = region)) +
     geom_vline(xintercept = 0, colour = PAL_NULL, linewidth = 0.35) +
-    errorbar_h(aes(xmin = lo, xmax = hi),
-               position = position_dodge(width = 0.7), linewidth = 0.4) +
-    geom_point(size = 1.4, position = position_dodge(width = 0.7)) +
+    geom_vline(xintercept = c(-1.96, 1.96), colour = PAL_NULL, linewidth = 0.3,
+               linetype = 2) +
+    geom_point(size = 1.6, position = position_dodge(width = 0.6)) +
     facet_grid(class ~ ., scales = "free_y", space = "free_y", switch = "y") +
     scale_colour_manual(values = REGION_COLORS, name = NULL) +
-    labs(x = "S-LDSC enrichment of the local genetic-control annotation",
+    labs(x = "S-LDSC \u03c4 z, score | VMR membership",
          y = NULL,
-         caption = paste0(
-             "Prespecified 8-trait family, EUR LD scores. ", n_sig,
-             " of ", nrow(met), " tests reach q < 0.05: the annotation shows",
-             "\nno partitioned-heritability enrichment in any region. Wide",
-             " intervals are the result, not a rendering artefact.\nThe",
-             " annotation is a genomic feature, not a donor-group LD claim.")) +
+         caption = paste(strwrap(paste0(
+             "Prespecified ", n_traits, "-trait family, EUR LD scores, two-annotation ",
+             "model. ", n_sig, " of ", nrow(met), " tests reach q < 0.05: no detectable ",
+             "enrichment at this footprint. The annotation is small and there is no ",
+             "positive control, so this null is not distinguishable from a power null. ",
+             "Dashed lines: |z| = 1.96 (nominal)."), width = 115), collapse = "\n")) +
     BASE_THEME + NO_TITLES + GRID_Y +
     theme(legend.position = "top", legend.margin = margin(0, 0, -4, 0),
           strip.placement = "outside",
           strip.text.y.left = element_text(angle = 0, face = "bold", size = 8),
-          plot.caption = element_text(size = 6.5, hjust = 0, colour = "grey35"))
+          plot.caption = element_text(size = 6.5, hjust = 0, colour = "grey35"),
+          plot.caption.position = "plot")
 
 S1 <- paste0("figureS_partitioned_heritability", arm)
 save_figure(pS1, S1, width = FIG_WIDTH_FULL, height = 4.2, fig_dir = fig_dir)
-write_source_data(met[, .(region, trait_label, trait_class, annotation,
-                          prop_snps, prop_h2, prop_h2_se, enrichment,
-                          enrichment_se, enrichment_p, tau, tau_se, tau_z,
-                          tau_p, tau_q, total_h2, total_h2_se, lambda_gc,
-                          intercept)],
+write_source_data(met[, .(region, trait_label, trait_class, annotation_name,
+                          annotation_role, is_primary_hypothesis,
+                          enrichment_interpretable, tau, tau_se, tau_z, tau_p,
+                          tau_q, in_fdr_family, n_tests_in_family, total_h2,
+                          total_h2_se, lambda_gc, intercept, ld_reference_arm)],
                   paste0(S1, "_panel_a"), unname(SLDSC),
                   "results/sldsc-metrics.tsv", SCRIPT,
-                  "the frozen 8-trait family; accepted decision is a NULL (sldsc_supports_brain_enrichment = FALSE in all three cells)",
+                  paste0("is_primary_hypothesis (LOCAL_SNP_CONTRIBUTION_Z, tau conditional on VMR_TESTED); ",
+                         n_sig, " of ", nrow(met),
+                         " q < 0.05; enrichment omitted because enrichment_interpretable = FALSE"),
                   data_dir)
 
 ## ===================================================== Aging (Module 09b)
@@ -151,6 +171,13 @@ if (!nzchar(XR_TOKEN) || is.na(XR_TOKEN)) {
 
 stopifnot(all(per$cross_sectional_design %in% c(TRUE, "TRUE")))
 stopifnot(all(per$causal_interpretation_allowed %in% c(FALSE, "FALSE")))
+## The 2026-10-03 magnitude gate (T28 decision B): a region whose family mean
+## is not separated from zero reports a SIGNED TEST only, never a proportional
+## change. The label says which, from the run's own column, so a reader cannot
+## take the point estimate of a gated region as a percentage.
+per[, mag_ok := primary_relative_magnitude_reportable %in% c(TRUE, "TRUE")]
+per[, p_lab := paste0("P = ", signif(primary_p, 2),
+                      fifelse(mag_ok, "", " \u00b7 signed test only"))]
 per[, region := as_region(region)]
 gat[, region := as_region(region)]
 
@@ -159,14 +186,18 @@ pA1 <- ggplot(per, aes(primary_estimate, region, colour = region)) +
     errorbar_h(aes(xmin = primary_ci_lower, xmax = primary_ci_upper),
                linewidth = 0.45) +
     geom_point(size = 1.8) +
-    geom_text(aes(label = paste0("P = ", signif(primary_p, 2))),
+    geom_text(aes(label = p_lab),
               x = Inf, hjust = 1.05, vjust = -1.0, size = 2.2,
               colour = "grey35") +
     scale_colour_manual(values = REGION_COLORS, guide = "none") +
     scale_y_discrete(limits = rev, expand = expansion(add = c(0.5, 0.8))) +
-    labs(x = "Primary: debiased squared age effect per SD of rank", y = NULL,
-         caption = paste("Cross-sectional design: age-associated",
-                         "differences,\nnever change with age.")) +
+    labs(x = "Primary gradient per SD of rank", y = NULL,
+         caption = paste(strwrap(paste0(
+             "Gradient in the debiased squared age effect, ratio scale. ",
+             "Cross-sectional design: age-associated differences, never change ",
+             "with age. \"Signed test only\": the magnitude gate withholds a ",
+             "proportional reading (", sum(!per$mag_ok), " of ", nrow(per),
+             " regions)."), width = 78), collapse = "\n")) +
     BASE_THEME + NO_TITLES + GRID_Y +
     theme(plot.caption = element_text(size = 6.5, hjust = 0, colour = "grey35"))
 
@@ -221,17 +252,17 @@ supported <- per[region_supported %in% c(TRUE, "TRUE"), as.character(region)]
 support_note <- if (length(supported) == 0)
     "No region's reading is supported." else
     paste0("Supported in: ", paste(sort(supported), collapse = ", "), ".")
-## The interpretive sentence is true only where an arm actually fails, so it is
-## conditioned rather than printed unconditionally.
-read_note <- if (nrow(failing) == 0) "" else paste0(
-    "Read as: where an arm removes the gradient, the age-responsive ",
-    "low-control VMRs are the arm-sensitive ones.")
+## No interpretive sentence is attached to a failing arm. The one that used to
+## be here -- "the age-responsive low-control VMRs are the arm-sensitive ones"
+## -- is the composition qualifier the 2026-10-01 reacceptance retired: it was
+## true only of the scMD-derived cell_composition_r2 arm, which Module 04's
+## 2026-09-25 reacceptance replaced with a MuSiC-derived one.
 ## A derived caption has no fixed length, so it is wrapped to the panel rather
 ## than hand-broken. The hard-coded one could carry its own newlines because
 ## nobody expected it to change.
 CAP_B <- paste(unlist(lapply(
     c(paste0("Cross-region token: ", XR_TOKEN, ". ", support_note),
-      fail_note, read_note,
+      fail_note,
       sub("^\n", "", nf_note)),
     function(s) if (!nzchar(s)) NULL else strwrap(s, width = 78))),
     collapse = "\n")
@@ -303,13 +334,24 @@ if (env_ok) {
     stopifnot(all(eax$exploratory_supplement_only %in% c(TRUE, "TRUE")))
     stopifnot(all(eax$environmentally_determined_claim_allowed %in% c(FALSE, "FALSE")))
 
+    ## PI 2026-10-03: one family's FDR call is undetermined across bootstrap
+    ## seeds and must not be drawn as resolved either way. Matched before the
+    ## region labels are prettified, against the raw region token.
+    eax[, fdr_call_undetermined := apply_reporting_constraint(
+        read_reporting_constraints(run_dir), "fdr_call_undetermined",
+        "environmental-axis-per-region", eax, "region",
+        paste0(eax$exposure, "@", eax$stratum))]
+    n_fam <- nrow(eax)
+    n_reportable <- sum(eax$relative_magnitude_reportable %in% c(TRUE, "TRUE"))
+    max_den_z <- max(as.numeric(eax$relative_magnitude_den_z), na.rm = TRUE)
     eax[, region := as_region(region)]
     eax[, fam := paste0(exposure, " @ ", stratum)]
     ## Ratio-scale families only: a `raw` family has mean(omega) <= 0, so no
     ## ratio exists and its estimate is not on the same scale.
     rel <- eax[primary_scale != "raw"]
     rel[, fam := factor(fam, levels = unique(rel[order(primary_beta), fam]))]
-    rel[, stars := sig_stars(primary_fdr)]
+    rel[, stars := data.table::fifelse(fdr_call_undetermined, "?",
+                                       sig_stars(primary_fdr))]
 
     ## One null family (dlpfc marital_status, the family the retired
     ## relative-scale guard was written for) has a point estimate near -2.4 and
@@ -322,6 +364,22 @@ if (env_ok) {
             primary_beta < LIM[1] | primary_beta > LIM[2]]
     rel[, off_lab := sprintf("%.2f [%.2f, %.2f]", primary_beta,
                              primary_ci_lower, primary_ci_upper)]
+
+    ## Derived, so of no fixed length: wrapped to the panel, never hand-broken
+    ## (ggplot does not wrap captions; the unwrapped draft ran off the page).
+    CAP_E <- paste(unlist(lapply(c(
+        paste0("Exploratory supplement; x axis clipped to [", LIM[1], ", ", LIM[2],
+               "], estimates outside it printed in full. ", SIG_KEY,
+               "   ? FDR call undetermined across bootstrap seeds."),
+        if (n_reportable == 0L) paste0(
+            "Signed gradients only: no family passes the relative-magnitude gate (0 of ",
+            n_fam, "; max denominator z = ", sprintf("%.2f", max_den_z),
+            "), so no percentage may be attached to any estimate.")
+        else paste0(n_reportable, " of ", n_fam, " families pass the relative-magnitude ",
+                    "gate; only those may be stated as a percentage."),
+        paste0("A negative gradient is NOT evidence that exposure effects concentrate ",
+               "in weakly controlled VMRs (variance budget, AGENTS.md 7.10).")),
+        strwrap, width = 120)), collapse = "\n")
 
     pE <- ggplot(rel, aes(primary_beta, fam, colour = region)) +
         geom_vline(xintercept = 0, colour = PAL_NULL, linewidth = 0.35) +
@@ -337,21 +395,7 @@ if (env_ok) {
         scale_colour_manual(values = REGION_COLORS, name = NULL) +
         labs(x = "Proportional gradient in exposure-explained variance per SD of rank",
              y = NULL,
-             caption = paste0(
-                 "Exploratory supplement, x axis clipped to [", LIM[1], ", ",
-                 LIM[2], "]; estimates outside it are printed in full.\n",
-                 "NO percentage here is formally identifiable: the family mean ",
-                 "never separates from zero (max |z| = ",
-                 sprintf("%.2f", max(eax$mean_omega_z, na.rm = TRUE)),
-                 " < 1.96),\nso the ratio replicates but the level it is a ",
-                 "ratio of does not. The donor bootstrap inflates the ",
-                 "denominator ",
-                 sprintf("%.1f", min(eax$bootstrap_mean_omega_inflation, na.rm = TRUE)),
-                 "-",
-                 sprintf("%.1f", max(eax$bootstrap_mean_omega_inflation, na.rm = TRUE)),
-                 "x,\nso these p-values may be too small. A negative gradient ",
-                 "is NOT evidence that exposure effects concentrate in weakly ",
-                 "controlled VMRs.")) +
+             caption = CAP_E) +
         BASE_THEME + NO_TITLES + GRID_Y +
         theme(legend.position = "top", legend.margin = margin(0, 0, -4, 0),
               plot.caption = element_text(size = 6.5, hjust = 0, colour = "grey35"))
@@ -368,8 +412,108 @@ if (env_ok) {
                       unique(eax$run_id),
                       "_m/combined/environmental-vmr-associations-fdr-{cohort}.tsv",
                       SCRIPT,
-                      "stage A FDR-surviving VMR x exposure pairs (0 caudate / 0 dlpfc / 12 hippocampus)",
+                      paste0("stage A FDR-surviving VMR x exposure pairs (",
+                             paste(sprintf("%d %s", as.integer(table(factor(ever$region, levels = regions))),
+                                           regions), collapse = " / "), ")"),
                       data_dir)
+}
+
+## ================================= GREML simulation benchmark (Module 02b)
+##
+## Recovery of ABSOLUTE local h2 by GCTA-GREML on SIMULATED phenotypes: arm 2
+## on real AA cis-window genotypes at each region's design n, arm 1 the v1
+## AR(1) design (out of regime). No observed methylation locus is estimated, so
+## nothing here is a PVE for any VMR (AGENTS.md 3, 7.2). The panel shows what
+## the ordering-vs-level distinction looks like for an estimator that is not
+## the elastic net Module 02 retired.
+##
+## A production build requires the accepted 02b runs. A draft build
+## (--out-dir) may read the -UNACCEPTED collation instead, and says so on the
+## panel; it never reaches a sealed run that way.
+GREML_MODULE <- "02b_greml_simulation_benchmark"
+gcfg <- load_config("greml_benchmark")
+greml_cells <- rbind(data.table(cohort = gcfg$arm1$run_cohort, region = gcfg$arm1$run_region),
+                     data.table(cohort = gcfg$arm2$cohort, region = unlist(gcfg$arm2$regions)))
+greml_ok <- all(vapply(seq_len(nrow(greml_cells)), function(i) !is.null(tryCatch(
+    require_accepted_upstream(GREML_MODULE, greml_cells$cohort[i], greml_cells$region[i]),
+    error = function(e) NULL)), logical(1)))
+gcomb <- file.path(V2_ROOT, GREML_MODULE, "_m", "combined")
+gsuffix <- if (greml_ok) "" else "-UNACCEPTED"
+if (!greml_ok && is.null(opts$out_dir)) {
+    stop("02b_greml_simulation_benchmark has no accepted run for every cell; ",
+         "the GREML supplement cannot enter a sealed figure run.")
+}
+gm_f <- file.path(gcomb, paste0("greml-benchmark-recovery-metrics", gsuffix, ".tsv"))
+if (file.exists(gm_f)) {
+    gm <- fread(gm_f)
+    gsp <- fread(file.path(gcomb, paste0("greml-benchmark-spearman", gsuffix, ".tsv")))
+    stopifnot(all(gm$simulated_phenotypes_only %in% c(TRUE, "TRUE")),
+              all(gm$absolute_pve_interpretation_allowed_for_observed_loci %in% c(FALSE, "FALSE")))
+    PRIMARY_REML <- unique(gm[reml_role == "primary", reml_mode])
+    stopifnot(length(PRIMARY_REML) == 1L)
+    a2 <- gm[cell_type == "region_design_n" & reml_mode == PRIMARY_REML]
+    a1 <- gm[cell_type == "simulated_n"]
+    a2[, region := as_region(cell)]
+    draft_note <- if (greml_ok) "" else "DRAFT: built from UNACCEPTED 02b runs. "
+
+    pG1 <- ggplot(a2, aes(h2_nominal, mean_estimate, colour = region)) +
+        geom_abline(slope = 1, intercept = 0, colour = PAL_NULL, linewidth = 0.35) +
+        geom_line(linewidth = 0.45) + geom_point(size = 1.1) +
+        facet_wrap(~ architecture, nrow = 1) +
+        scale_colour_manual(values = REGION_COLORS, name = NULL) +
+        labs(x = "Simulated local h2", y = "Mean REML estimate") +
+        BASE_THEME + NO_TITLES + GRID_Y +
+        theme(legend.position = "top", legend.margin = margin(0, 0, -4, 0))
+    pG2 <- ggplot(a2, aes(h2_nominal, coverage95, colour = region)) +
+        geom_hline(yintercept = 0.95, colour = PAL_NULL, linewidth = 0.35, linetype = 2) +
+        geom_line(linewidth = 0.45) + geom_point(size = 1.1) +
+        facet_wrap(~ architecture, nrow = 1) +
+        scale_colour_manual(values = REGION_COLORS, guide = "none") +
+        scale_y_continuous(labels = percent_format(accuracy = 1)) +
+        labs(x = "Simulated local h2", y = "95% CI coverage") +
+        BASE_THEME + NO_TITLES + GRID_Y
+    pG3 <- if (nrow(a1)) ggplot(a1, aes(as.numeric(cell), bias, colour = reml_mode)) +
+        geom_hline(yintercept = 0, colour = PAL_NULL, linewidth = 0.35) +
+        geom_line(linewidth = 0.45) + geom_point(size = 1.1) +
+        scale_x_log10() +
+        scale_colour_manual(values = c(PAL_BLUE, PAL_TAN), name = NULL) +
+        labs(x = "Simulated sample size (log scale)", y = "Mean bias") +
+        BASE_THEME + NO_TITLES + GRID_Y +
+        theme(legend.position = "top", legend.margin = margin(0, 0, -4, 0))
+    else NULL
+    CAP_G <- paste(strwrap(paste0(
+        draft_note, "Simulated phenotypes only; no observed locus is estimated. ",
+        "a-b: real AA cis-window genotypes at each region's design n, primary mode ",
+        PRIMARY_REML, ".", if (!is.null(pG3)) paste0(
+            " c: the v1 AR(1) design, out of regime for real cis-windows; it does ",
+            "not transfer to the cohort.") else ""), width = 115), collapse = "\n")
+    cap_theme <- theme(plot.caption = element_text(size = 6.5, hjust = 0, colour = "grey35"),
+                       plot.caption.position = "plot")
+    ## The caption rides the last panel, whichever that is.
+    if (is.null(pG3)) pG2 <- pG2 + labs(caption = CAP_G) + cap_theme
+    else pG3 <- pG3 + labs(caption = CAP_G) + cap_theme
+    SG <- paste0("figureS_greml_benchmark", arm)
+    gfig <- if (is.null(pG3)) (pG1 / pG2) else (pG1 / pG2 / pG3)
+    save_figure(gfig + fig_tags() & TAG_THEME, SG, width = FIG_WIDTH_FULL,
+                height = if (is.null(pG3)) 5.0 else 7.4, fig_dir = fig_dir)
+    gruns <- unique(gm$source_run_id)
+    write_source_data(a2, paste0(SG, "_panel_a"), gruns,
+                      paste0("_m/combined/greml-benchmark-recovery-metrics", gsuffix, ".tsv"),
+                      SCRIPT, paste0("arm 2 (observed_AA_cis), reml_mode == ", PRIMARY_REML,
+                                     "; mean estimate vs simulated h2"), data_dir)
+    write_source_data(a2, paste0(SG, "_panel_b"), gruns,
+                      paste0("_m/combined/greml-benchmark-recovery-metrics", gsuffix, ".tsv"),
+                      SCRIPT, paste0("arm 2, reml_mode == ", PRIMARY_REML,
+                                     "; 95% CI coverage of the realized simulated h2"), data_dir)
+    if (nrow(a1)) write_source_data(a1, paste0(SG, "_panel_c"), gruns,
+                      paste0("_m/combined/greml-benchmark-recovery-metrics", gsuffix, ".tsv"),
+                      SCRIPT, "arm 1 (ar1_out_of_regime), both REML modes; out of regime", data_dir)
+    write_source_data(gsp, paste0(SG, "_spearman"), gruns,
+                      paste0("_m/combined/greml-benchmark-spearman", gsuffix, ".tsv"),
+                      SCRIPT, "Spearman(truth, estimate) with cluster-bootstrap CI, every cell and mode",
+                      data_dir)
+} else {
+    message("[skip] figureS_greml_benchmark: no ", basename(gm_f))
 }
 
 ## ============================================ Schizophrenia (Module 09)
