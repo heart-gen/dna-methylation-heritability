@@ -248,6 +248,16 @@ spearman_cluster_ci <- function(est, truth, cluster, n_boot, seed) {
                n_clusters = length(cl))
 }
 
+## The one definition of an arm 2 unit ID, used by the stage that writes a
+## unit's status and by the stage that reconciles it. Two inline sprintf()s
+## disagreed on the first smoke run: format() over the whole h2 vector pads to
+## a common width ("0.00"), over one value it does not ("0"), so 144 of 192
+## units looked unexpected. as.character() formats element-wise.
+arm2_unit_id <- function(vmr_id, h2, architecture, replicate, reml_mode) {
+    sprintf("%s|h2=%s|%s|rep%d|%s", vmr_id, as.character(h2), architecture,
+            as.integer(replicate), reml_mode)
+}
+
 ## Write the per-task status rows every stage emits, so reconciliation counts
 ## units rather than trusting a SLURM exit code.
 write_status <- function(rows, path) {
