@@ -40,12 +40,37 @@ legacy_path <- if (cohort == "AA") {
     file.path(V2_ROOT, "vmr-analysis", "all_individuals", region, "_m", "vmr.bed")
 }
 
+## The legacy trees were retired from the working tree on 2026-10-03 and
+## survive in git history under the recovery tag (config/paths.yml
+## legacy_recovery_tag). The legacy vmr.bed files were tracked, so a rerun reads
+## the identical bytes from the tag and the turnover table stays reproducible
+## from any clone that has the tag. `legacy_origin` records which source was read.
+legacy_rel <- sub(paste0("^", V2_ROOT, "/"), "", legacy_path)
+legacy_src <- NULL
+legacy_origin <- NA_character_
+if (file.exists(legacy_path)) {
+    legacy_src <- legacy_path
+    legacy_origin <- legacy_rel
+} else {
+    tag <- load_config("paths")$legacy_recovery_tag
+    if (!is.null(tag)) {
+        tmp <- tempfile(fileext = ".bed")
+        st <- suppressWarnings(system2(git_bin(), c("-C", V2_ROOT, "show",
+                                                  paste0(tag, ":", legacy_rel)),
+                                       stdout = tmp, stderr = FALSE))
+        if (identical(as.integer(st), 0L) && file.size(tmp) > 0) {
+            legacy_src <- tmp
+            legacy_origin <- paste0(tag, ":", legacy_rel)
+        }
+    }
+}
+
 to_gr <- function(dt) GRanges(dt$chr, IRanges(dt$start, dt$end))
 
 ## ------------------------------------------------------------ turnover table
 
-if (file.exists(legacy_path)) {
-    legacy <- fread(legacy_path, header = FALSE, colClasses = list(character = 1),
+if (!is.null(legacy_src)) {
+    legacy <- fread(legacy_src, header = FALSE, colClasses = list(character = 1),
                     col.names = c("chr", "start", "end"))
     ## The legacy catalogs write bare chromosome names ("1", "X"); v2 writes
     ## "chr1". Normalize before comparing, or every region looks novel.
@@ -84,7 +109,7 @@ if (file.exists(legacy_path)) {
         n_legacy_lost = nrow(legacy_auto) - length(unique(subjectHits(ov))),
         jaccard_bp = if (union_w > 0) inter / union_w else NA_real_,
         frac_v2_novel = 1 - length(unique(queryHits(ov))) / nrow(new_vmr),
-        legacy_path = sub(paste0("^", V2_ROOT, "/"), "", legacy_path),
+        legacy_path = legacy_origin,
         legacy_status = "legacy_invalid_for_prediction_accuracy")
 
     print(turnover)

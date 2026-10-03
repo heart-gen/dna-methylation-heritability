@@ -16,7 +16,7 @@ expanded_populations:
   - AA
   - EA
 
-phenotype_table: sample_summary/_m/phenotype_data.tsv
+phenotype_table: inputs/phenotypes/_m/phenotype_data.tsv
 
 region_phenotype_tables:
   caudate: inputs/wgbs-data/combined/_m/caudate_phenotypes.csv
@@ -24,9 +24,10 @@ region_phenotype_tables:
   hippocampus: inputs/wgbs-data/combined/_m/hippocampus_phenotypes.csv
 
 # AA discovery VMRs (primary Phase 1). all_individuals VMRs available for EA/expanded.
+# Read only by inputs/data_dictionary (an inventory of the legacy data). It
+# resolves inside this repo, so after the 2026-10-03 retirement the inventory
+# records the legacy BED as absent; the file survives at legacy_recovery_tag.
 vmr_bed_template: vmr-analysis/{region}/_m/vmr.bed
-vmr_bed_aa_template: vmr-analysis/{region}/_m/vmr.bed
-vmr_bed_all_individuals_template: vmr-analysis/all_individuals/{region}/_m/vmr.bed
 
 # legacy_invalid_for_prediction_accuracy
 # These templates serve existing meqtl-validation consumers only. They carry
@@ -85,8 +86,6 @@ cpg_methylation_matrix_template: vmr-analysis/{region}/_m/cpg/chr_{chrom}/cpg_me
 cpg_methylation_matrix_aa_template: vmr-analysis/{region}/_m/cpg/chr_{chrom}/cpg_meth.phen
 cpg_methylation_matrix_all_individuals_template: vmr-analysis/all_individuals/{region}/_m/cpg/chr_{chrom}/cpg_meth.phen
 cpg_methylation_matrix_ea_template: vmr-analysis/all_individuals/{region}/_m/cpg/chr_{chrom}/cpg_meth.phen
-residualized_cpg_methylation_matrix_template: vmr-analysis/{region}/_m/cpg/chr_{chrom}/res_cpg_meth.phen
-residualized_cpg_methylation_matrix_all_individuals_template: vmr-analysis/all_individuals/{region}/_m/cpg/chr_{chrom}/res_cpg_meth.phen
 cpg_samples_aa_template: vmr-analysis/{region}/_m/samples.txt
 cpg_samples_all_individuals_template: vmr-analysis/all_individuals/{region}/_m/samples.txt
 
@@ -143,12 +142,11 @@ data_dictionary:
   script_dir: inputs/data_dictionary/_h
   output_dir: inputs/data_dictionary/_m
 
-meqtl_validation_root: meqtl-validation
 config_dir: config
 
 # Schizophrenia-risk application (prespecified; not methylation-defined).
 # The v2 module is 09_schizophrenia_risk_application; the legacy Phase 7 tree is
-# retained for reference only (MIGRATION_MANIFEST.tsv). The legacy index-SNP TSV
+# retired 2026-10-03 and survives at legacy_recovery_tag (MIGRATION_MANIFEST.tsv). The legacy index-SNP TSV
 # is a generated legacy artifact, so v2 reads the published .xls directly
 # (09_schizophrenia_risk_application/_h/01_define_scz_loci.R, via readxl).
 schizophrenia_gwas:
@@ -156,13 +154,12 @@ schizophrenia_gwas:
   pgc3_index_snp_xls: /projects/b1213/resources/gwas/pgc3/fine_mapped_loci/_m/primaryGWAS_indexSNP.xls
   pgc3_sumstats_hg19: /projects/b1213/resources/gwas/PGC/SCZ/PGC3/PGC3_SCZ_wave3.european.autosome.public.v3.vcf.tsv.gz
   module_root: 09_schizophrenia_risk_application
-  legacy_module_root: meqtl-validation/08_schizophrenia_risk_application
 
 support_files:
   repeat_masker: inputs/supportfiles/_m/repeat-masker-hg38.gz
   repeat_masker_line_l1: inputs/supportfiles/_m/repeat-masker.LINE_L1.hg38.bed.gz
   hg38_to_hg19_chain: inputs/supportfiles/_m/hg38ToHg19.over.chain
-  hg19_to_hg38_chain: meqtl-validation/03_external_meqtl_validation/_m/support/hg19ToHg38.over.chain.gz
+  hg19_to_hg38_chain: inputs/supportfiles/_m/hg19ToHg38.over.chain.gz
   blacklist_hg38: inputs/supportfiles/_m/hg38-blacklist.v2.bed.gz
   segmental_duplications_hg38: inputs/supportfiles/_m/genomicSuperDups.hg38.bed.gz
   umap_k24_bw: inputs/supportfiles/_m/k24.Umap.MultiTrackMappability.bw
@@ -170,11 +167,8 @@ support_files:
   common_snp_proximity_windows: inputs/supportfiles/_m/common_snp_windows_pm150bp.hg38.bed.gz
   annotation_asset_manifest: inputs/supportfiles/_m/annotation_asset_manifest.tsv
 
-# Per-CpG coverage is extracted from staff-repo stats.rda BSobj (getCoverage)
-cpg_coverage:
-  source: stats.rda_BSobj
-  staff_stats_template: vmr-analysis/{region}/_m/cpg/chr_{chrom}/stats.rda
-  staff_stats_aa_template: vmr-analysis/{region}/_m/cpg/chr_{chrom}/stats.rda
-  staff_stats_all_individuals_template: vmr-analysis/all_individuals/{region}/_m/cpg/chr_{chrom}/stats.rda
-  min_coverage: 5
-  output_template: meqtl-validation/01_cpg_meqtl_mapping/{region}/_m/prepared/cpg_coverage.chr{chrom}.tsv
+# Legacy v1 analysis trees (vmr-analysis/, meqtl-validation/, ...) were removed
+# from the working tree on 2026-10-03 and archived off-repo; their tracked files
+# survive at this annotated tag. Readers that still need a legacy file -- only
+# 01_vmr_catalog/_h/04_turnover.R does -- read it with `git show <tag>:<path>`.
+legacy_recovery_tag: v1-legacy-final
