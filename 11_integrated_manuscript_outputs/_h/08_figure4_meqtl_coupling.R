@@ -20,12 +20,17 @@
 ## Module 05 is CONVERGENT evidence, not independent replication: the meQTLs
 ## are mapped in the same donors as the score (AGENTS.md 7.5).
 ##
-## PSI is not uniform and the panel must not let it look uniform: strong in
-## caudate (227 coupled VMRs), thin in DLPFC (24) and null in hippocampus (7).
-## `n_coupled` is therefore printed, not hidden in a caption.
-##
-## The ABC modality is underpowered (312 tested VMRs, 19 coupled, q 0.07-0.32)
-## and is NOT a claim. It is excluded from the panel and kept in source data.
+## Which coupling tests render is read from Module 07, not typed here. A test
+## renders when Module 07 put it in the FDR family (`in_fdr_family`); anything
+## else stays in source data with Module 07's own `fdr_exclusion_reason`. That
+## is how expression_abc is handled: it falls under the locked min_vmrs_tested
+## power floor in every region, so it is outside the family and is not a claim.
+## Until 2026-10-03 this header instead named ABC and quoted its counts, and
+## described PSI as "strong in caudate, thin in DLPFC, null in hippocampus" --
+## a reading Module 07's PSI identifier-join repair withdrew as an artefact
+## (tsc-AA-*-20260925-b: splicing coupling holds in all three regions). Counts
+## typed into a builder go stale exactly that way, so `n_coupled` is printed
+## from the table and nothing here restates it.
 ##
 ## Usage:
 ##   Rscript 08_figure4_meqtl_coupling.R --cohort AA --run-id fig-all-YYYYMMDD
@@ -152,9 +157,20 @@ PREDICTOR_LABELS <- c(local_genetic_control = "Local genetic control",
                       meqtl_proportion      = "meQTL proportion",
                       any_meqtl_support     = "Any meQTL support")
 
-## ABC is underpowered and is not a claim (AGENTS.md 7.6): kept in source data,
-## kept out of the panel.
-cp <- coupling[modality %in% names(MODALITY_LABELS)]
+## Module 07's FDR family decides what renders (AGENTS.md 7.6). A family member
+## with no label here is a new modality this figure has not been taught to
+## draw, which must stop the build rather than silently vanish.
+coupling[, in_family := in_fdr_family %in% c(TRUE, "TRUE")]
+cp <- coupling[in_family == TRUE]
+unlabelled <- setdiff(unique(cp$modality), names(MODALITY_LABELS))
+if (length(unlabelled)) {
+    stop("Module 07 FDR-family modality with no Figure 4 label: ",
+         paste(unlabelled, collapse = ", "))
+}
+excluded <- unique(coupling[in_family == FALSE,
+                            .(region, modality, n_vmrs_modality, n_coupled,
+                              fdr_exclusion_reason)])
+fam_size <- unique(coupling[in_family == TRUE, .(region, fdr_family_size)])
 cp[, `:=`(lo = estimate - 1.96 * se, hi = estimate + 1.96 * se,
           mod = factor(MODALITY_LABELS[modality], levels = unname(MODALITY_LABELS)),
           pred = factor(PREDICTOR_LABELS[predictor],
@@ -175,9 +191,9 @@ pC <- ggplot(cp, aes(estimate, pred, colour = region)) +
 
 ## ------------------------------- d. how many VMRs each estimate rests on
 ##
-## The denominators, on the same figure as the estimates. PSI is strong in
-## caudate, thin in DLPFC and null in hippocampus, and a forest plot alone
-## hides that.
+## The denominators, on the same figure as the estimates: a forest plot alone
+## hides how many coupled VMRs each estimate rests on, and those counts differ
+## several-fold between modalities and regions.
 den <- unique(cp[, .(region, mod, n, n_coupled)])
 den[, frac := n_coupled / n]
 
@@ -218,9 +234,16 @@ sd(bm[, .(region, model, term, estimate, se, z, p, n_vmrs, dispersion,
    "panel_b", "05: results/burden-primary-model.tsv",
    "term == 'local_snp_contribution_score_z'; convergent evidence, not independent replication")
 sd(coupling[, .(region, modality, predictor, n, n_coupled, estimate, se, z, p, q,
-                covariates)],
+                in_fdr_family, fdr_exclusion_reason, fdr_family_size, covariates)],
    "panel_c", "07: results/coupling-tests.tsv",
-   "all modalities INCLUDING expression_abc, which is underpowered (n=312, 19 coupled) and is excluded from the rendered panel and is not a claim")
+   paste0("all tests; rendered = in_fdr_family. Outside the family and not a claim: ",
+          paste(sprintf("%s %s (%d VMRs, %d coupled; %s)", excluded$region,
+                        excluded$modality, as.integer(excluded$n_vmrs_modality),
+                        as.integer(excluded$n_coupled), excluded$fdr_exclusion_reason),
+                collapse = "; "),
+          ". FDR family size per region: ",
+          paste(sprintf("%s %d", fam_size$region, as.integer(fam_size$fdr_family_size)),
+                collapse = ", ")))
 sd(den, "panel_d", "07: results/coupling-tests.tsv",
    "coupled-VMR counts and tested universe per modality x region")
 sd(cdec, "coupling_decision", "07: results/coupling-decision.tsv",
