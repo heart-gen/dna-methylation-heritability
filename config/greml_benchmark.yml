@@ -1,0 +1,144 @@
+# GCTA-GREML simulation benchmark (02b_greml_simulation_benchmark)
+#
+# Question: how well does a classical REML estimator recover ABSOLUTE local SNP
+# heritability at this cohort's donor counts and real cis-window LD? This is
+# independent evidence on AGENTS.md 7.2's retirement of absolute locus PVE, from
+# an estimator that is not elastic net. It is a port of the legacy
+# simulation-analysis/gcta/ benchmark (PI decision 2026-10-03), NOT the
+# observed-score cross-check: that cross-check was closed, not migrated.
+#
+# Boundaries (enforced by _h/greml_functions.R::assert_greml_interpretation):
+#   * every phenotype is simulated; no observed methylation locus is estimated,
+#     so no observed-locus PVE can come out of this module (AGENTS.md 3, 7.2);
+#   * it reads nothing from and writes nothing to 02_local_genetic_variance/ --
+#     Module 02's runs, score and decision are untouched;
+#   * recovery is reported continuously (bias, RMSE, coverage, boundary rate,
+#     Spearman). There is no heritable/non-heritable class and no 0.1 cut; the
+#     legacy correlation script's Heritable/Non-heritable/Low prediction split
+#     is not ported.
+#
+# pi_locked is false until the PI signs the scenario grid and the REML mode.
+# Smoke runs pass --allow-unlocked.
+
+pi_locked: false
+locked_on: null
+locked_by: null
+
+module: 02b_greml_simulation_benchmark
+module_tag: greml
+
+gcta:
+  # bioconda gcta 1.94.1, installed into the genomics env 2026-10-03 (the
+  # legacy launchers used `module load gcta/1.94.0`; v2 never touches the
+  # module system). assert_gcta_pin() stops on any other version.
+  binary: /gpfs/projects/p32505/opt/envs/genomics/bin/gcta64
+  version: "1.94.1"
+  reml_maxit: 100
+  # Messages with which GCTA stops when the REML estimator itself fails on a
+  # phenotype. Those are estimator outcomes -- counted, reported as a rate, and
+  # reconciled as qc_failed -- not computational failures. Any other non-zero
+  # exit is a failure and stops the run (AGENTS.md 9).
+  estimation_failure_patterns:
+    - "the information matrix is not invertible"
+    - "Log-likelihood not converged"
+    - "not converged"
+    - "is not positive definite"
+    - "the variance-covariance matrix V is not invertible"
+
+# REML modes, applied to BOTH arms so the arms are comparable.
+#
+# PROPOSED for the PI lock, from a 2026-10-03 prototype on one real DLPFC
+# locus (n = 118, 3,428 cis SNPs; 3 h2 values x 3 replicates):
+#   * unconstrained AI-REML (GCTA default algorithm + --reml-no-constrain)
+#     diverged in 7 of 9 fits -- V(e) went negative and the information
+#     matrix became singular;
+#   * unconstrained Fisher scoring (--reml-alg 1) converged in 9 of 9 and
+#     returned negative estimates where the truth was 0, which is what an
+#     unbiased estimator must be allowed to do;
+#   * constrained AI-REML (GCTA's default, and v1's setting) converged in 9 of
+#     9 but piles estimates onto the 0 boundary.
+# The unbounded estimate is primary for the same reason Module 02 ranks on its
+# unbounded estimate: clipping at zero destroys information at low h2.
+reml_modes:
+  - id: unconstrained_fisher
+    role: primary
+    constrained: false
+    args: ["--reml-no-constrain", "--reml-alg", "1"]
+  - id: constrained_ai
+    role: secondary_v1_setting
+    constrained: true
+    args: []
+
+seeds:
+  # Seeds are seed_for(namespace, cell, unit, replicate). A fixed namespace,
+  # not the run ID, so a superseding run draws the same loci and phenotypes and
+  # differs only by what changed.
+  namespace: 02b-greml-benchmark-20261003
+
+# ------------------------------------------------------------------- arm 1
+# Faithful port of simulation-analysis/gcta/_h/ (step_1a/1b/1c, 01.stratify_LD.R,
+# 02.summary.py). Labelled out of regime, for two reasons the README states:
+#   * genotypes are AR(1) Toeplitz LD (inputs/simulated-data/_h/
+#     01.simulated-data.py:31). AR(1) LD decays exponentially and its effective
+#     SNP count runs far above real cis-windows; Module 02's own AR(1) grid gave
+#     low-PVE conclusions that reversed on real genotypes;
+#   * GREML-LDMS fits four genome-wide LD-stratified GRMs to a signal confined
+#     to a 1-Mb window.
+arm1:
+  id: ar1_out_of_regime
+  run_cohort: sim
+  run_region: ar1
+  inputs_root: inputs/simulated-data/_m
+  sample_sizes: [100, 150, 200, 250, 500, 1000, 5000, 10000]
+  n_phenotypes: 1000
+  chromosomes: 22
+  ld_score_region_kb: 200        # v1 step_1a.sh: --ld-score-region 200
+  n_ld_strata: 4                 # v1 01.stratify_LD.R quartile groups
+  covariates: none               # v1 step_1c.sh fitted none
+  # Truth: the realized simulated h2 (simulated_heritability); the target the
+  # generator aimed at is carried alongside.
+  truth_column: simulated_heritability
+  target_column: target_heritability
+  phenotypes_per_task: 25
+  smoke:
+    sample_sizes: [100, 150]
+    n_phenotypes: 10
+
+# ------------------------------------------------------------------- arm 2
+# Real AA cis-window genotypes from the accepted Module 01 catalog runs, with
+# only the phenotype simulated -- through the same two 00_shared/locus_io.R
+# helpers Module 02's observed-regime grid used, so the window, SNP QC, donor
+# alignment and covariates are the locked ones by construction.
+arm2:
+  id: observed_AA_cis
+  cohort: AA
+  regions: [caudate, dlpfc, hippocampus]
+  upstream: 01_vmr_catalog
+  # Loci are drawn from VMRs whose cis window holds >= thresholds.yml
+  # cis.min_cis_variants variants BEFORE QC (counted from the .bim), stratified
+  # by quartile of that count. A drawn locus that fails the post-QC count in
+  # load_observed_locus() is reconciled as qc_failed and recorded.
+  locus_strata: 4
+  loci_per_stratum: 50
+  # Identical to Module 02's locked observed-regime grid
+  # (02_local_genetic_variance/config/observed-regime-20260822.tsv), so the two
+  # estimators were characterised on the same scenario axes.
+  h2_values: [0, 0.05, 0.1, 0.2, 0.4, 0.6, 0.8, 0.95]
+  architectures: [sparse, oligogenic, polygenic]
+  replicates_per_cell: 2
+  loci_per_task: 10
+  smoke:
+    loci_per_stratum: 1
+    replicates_per_cell: 1
+
+summaries:
+  bootstrap_n: 1000
+
+interpretation:
+  simulated_phenotypes_only: true
+  observed_locus_estimation_allowed: false
+  absolute_pve_interpretation_allowed_for_observed_loci: false
+  heritability_class_allowed: false
+  reopens_module_02: false
+  # Arm 1 is out of regime; its numbers describe the AR(1) design only.
+  arm1_transfers_to_cohort: false
