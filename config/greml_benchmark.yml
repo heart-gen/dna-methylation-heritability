@@ -48,6 +48,20 @@ gcta:
     - "not converged"
     - "is not positive definite"
     - "the variance-covariance matrix V is not invertible"
+    # Added 2026-10-03 after the first production attempt
+    # (greml-AA-*-20261003, superseded): constrained AI-REML stops with this
+    # when the fit pins V(G) at its bound -- the boundary pile-up the
+    # constrained mode is known for, an estimator outcome. 144 of 57,600 fits,
+    # all in the constrained (secondary) mode.
+    - "more than half of the variance components are constrained"
+  # A REML that diverges can crash GCTA rather than stop it: in the same attempt
+  # three constrained-mode fits segfaulted (exit 139) after V(e) climbed to
+  # ~1e54 in the iteration log. A crash is reconciled as an estimation failure
+  # ONLY with both kinds of evidence -- one of these exit codes AND an iteration
+  # value at or above this magnitude in GCTA's own log. Any other crash stays a
+  # computational failure and stops the run (AGENTS.md 9).
+  divergence_crash_exit_codes: [134, 136, 139]
+  divergence_magnitude: 1.0e+10
 
 # REML modes, applied to BOTH arms so the arms are comparable.
 #

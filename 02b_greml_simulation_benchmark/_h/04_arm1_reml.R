@@ -41,7 +41,8 @@ for (k in seq(t$pheno_from, t$pheno_to)) for (i in seq_len(nrow(modes))) {
                     "--mpheno", k, "--reml-maxit", cfg$gcta$reml_maxit, margs),
                   out, threads = threads)
     cl <- classify_reml(r$exit, paste0(out, ".hsq"), r$log,
-                        unlist(cfg$gcta$estimation_failure_patterns))
+                        unlist(cfg$gcta$estimation_failure_patterns),
+                        reml_divergence_rule(cfg))
     st[[length(st) + 1L]] <- data.table(unit = unit, status = cl$status, reason = cl$reason)
     if (cl$status == "completed") {
         rows[[length(rows) + 1L]] <- cbind(

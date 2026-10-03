@@ -94,7 +94,7 @@ run_gcta <- function(bin, args, out_prefix, threads = 1L) {
     invisible(list(exit = st, log = log))
 }
 
-classify_reml <- function(exit, hsq, log, failure_patterns) {
+classify_reml <- function(exit, hsq, log, failure_patterns, divergence = NULL) {
     if (identical(as.integer(exit), 0L) && file.exists(hsq)) {
         return(list(status = "completed", reason = NA_character_))
     }
@@ -106,10 +106,30 @@ classify_reml <- function(exit, hsq, log, failure_patterns) {
                         reason = paste0("reml_estimation_failure: ", p)))
         }
     }
+    ## A diverging REML can crash GCTA instead of stopping it. Reconciled as an
+    ## estimator outcome only when the exit code is a crash code AND GCTA's own
+    ## iteration log shows the divergence; config/greml_benchmark.yml records
+    ## the attempt that showed this.
+    if (!is.null(divergence) &&
+        as.integer(exit) %in% as.integer(unlist(divergence$exit_codes))) {
+        nums <- suppressWarnings(as.numeric(
+            regmatches(txt, gregexpr("-?[0-9]+\\.?[0-9]*(e[+-]?[0-9]+)?", txt))[[1]]))
+        if (any(abs(nums) >= as.numeric(divergence$magnitude), na.rm = TRUE)) {
+            return(list(status = "qc_failed",
+                        reason = paste0("reml_estimation_failure: diverged, then gcta exit ",
+                                        exit)))
+        }
+    }
     tail_txt <- utils::tail(strsplit(txt, "\n")[[1]], 3)
     list(status = "failed",
          reason = paste0("gcta_exit_", exit, ": ",
                          paste(tail_txt, collapse = " | ")))
+}
+
+## The divergence rule's two settings, from config.
+reml_divergence_rule <- function(cfg) {
+    list(exit_codes = cfg$gcta$divergence_crash_exit_codes,
+         magnitude = cfg$gcta$divergence_magnitude)
 }
 
 ## Parse a GCTA .hsq into one row. Handles single-GRM ("V(G)/Vp") and
