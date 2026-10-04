@@ -20,12 +20,14 @@
 # on average), and whether cis-GREML estimates rank VMRs in agreement with the
 # Module 02 score (ordering), each with a delete-one-chromosome jackknife CI.
 #
-# pi_locked is false until the PI signs the design. Smoke runs pass
-# --allow-unlocked.
+# PI-locked 2026-10-04 as written, including the Fisher-scoring convergence
+# sensitivity. The DLPFC smoke run (cgs-AA-dlpfc-smoke-20261003, 60 VMRs)
+# reconciled 120/120 units, matched Module 02's SNP set on every fitted VMR and
+# passed 6/6 gate criteria; its numbers are a pipeline check, not results.
 
-pi_locked: false
-locked_on: null
-locked_by: null
+pi_locked: true
+locked_on: 2026-10-04
+locked_by: Kynon J.M. Benjamin
 
 module: 02c_cis_greml_sensitivity
 module_tag: cgs
