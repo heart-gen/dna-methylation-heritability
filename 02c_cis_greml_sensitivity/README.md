@@ -1,6 +1,6 @@
 # 02c_cis_greml_sensitivity — does conventional cis-GREML support Module 02's ordering in the real data?
 
-**Status: implemented 2026-10-03; config not yet PI-locked; no accepted run.**
+**Status: implemented 2026-10-03; config PI-locked 2026-10-04 as written; no accepted run yet.**
 
 ## Question, and how it differs from 02b
 
