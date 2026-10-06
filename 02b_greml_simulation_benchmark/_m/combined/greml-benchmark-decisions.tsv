@@ -1,0 +1,5 @@
+run_id	arm	cohort	region	decision	gate_criteria_passed	gcta_version	smoke_run	citable
+greml-sim-ar1-20261003	ar1_out_of_regime	sim	ar1	PASS_GREML_BENCHMARK_QC	6/6	1.94.1	FALSE	TRUE
+greml-AA-caudate-20261003-a	observed_AA_cis	AA	caudate	PASS_GREML_BENCHMARK_QC	6/6	1.94.1	FALSE	TRUE
+greml-AA-dlpfc-20261003-a	observed_AA_cis	AA	dlpfc	PASS_GREML_BENCHMARK_QC	6/6	1.94.1	FALSE	TRUE
+greml-AA-hippocampus-20261003-a	observed_AA_cis	AA	hippocampus	PASS_GREML_BENCHMARK_QC	6/6	1.94.1	FALSE	TRUE
