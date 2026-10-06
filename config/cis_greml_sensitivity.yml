@@ -25,8 +25,9 @@
 # reconciled 120/120 units, matched Module 02's SNP set on every fitted VMR and
 # passed 6/6 gate criteria; its numbers are a pipeline check, not results.
 #
-# Amended 2026-10-06 (PI), reconciliation only: gcta.divergence_gated_patterns
-# below. No estimator, mode, window, covariate or summary setting changed.
+# Amended 2026-10-06 (PI), reconciliation only, twice: gcta.divergence_gated_patterns
+# and gcta.degenerate_se_is_estimation_failure below. No estimator, mode,
+# window, covariate or summary setting changed.
 
 pi_locked: true
 locked_on: 2026-10-04
@@ -68,6 +69,16 @@ gcta:
   divergence_gated_patterns:
     - "the X^t * V^-1 * X matrix is not invertible"
   divergence_relative_magnitude: 1.0e+6
+  # Amended 2026-10-06 (PI), second amendment. The rerun cgs-AA-*-20261006
+  # (passed 6/6, superseded) counted as converged GCTA fits whose .hsq gives
+  # h2 SE 0 or none: 49/20/15 FUSION and 9/4/2 Fisher fits (caudate/DLPFC/
+  # hippocampus) of ~9-11k each, with FUSION estimates from -128.7 to +5.2.
+  # A zero or undefined SE means the information matrix was degenerate where
+  # GCTA stopped, so the estimate is not a REML optimum; such a fit is an
+  # estimator outcome (qc_failed), not a converged fit. Spearman ordering was
+  # unchanged by it; the existence mean was not (hippocampus FUSION 0.288 vs
+  # 0.303 without them, one -128.7 fit driving a spurious decile-3 dip).
+  degenerate_se_is_estimation_failure: true
 
 # Locus model. Every item is Module 02's, so the two estimators see the same
 # data; 01_fit_cis_greml.R asserts the per-VMR SNP count equals Module 02's
