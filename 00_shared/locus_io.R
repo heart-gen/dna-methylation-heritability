@@ -258,6 +258,19 @@ load_observed_locus <- function(task, cohort, vmr_run_dir, min_cis_variants,
     )
 }
 
+## Division that returns NA instead of Inf or NaN when the denominator is
+## degenerate. simulate_phenotype_on_observed_genotype() below calls it, but
+## until 2026-10-03 it was defined only in 02_local_genetic_variance/_h/
+## 00_functions.R, so this shared helper worked only for callers that had
+## sourced Module 02's private functions first; any other module died with
+## "could not find function". The body is byte-identical to Module 02's copy,
+## which still redefines it when Module 02 sources its own functions, so
+## Module 02's behaviour cannot change.
+safe_ratio <- function(numerator, denominator) {
+    if (!is.finite(denominator) || abs(denominator) <= 1e-12) return(NA_real_)
+    numerator / denominator
+}
+
 ## Replace a locus's observed phenotype with one simulated at a known true PVE,
 ## holding the real genotype fixed. This is the only difference between the
 ## observed-regime grid and production Stage 01.
