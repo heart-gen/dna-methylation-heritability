@@ -72,16 +72,55 @@ classify_reml <- function(exit, hsq, log, failure_patterns, divergence = NULL) {
                                         exit)))
         }
     }
+    ## A diverging REML can also end in an ordinary GCTA error whose wording
+    ## does not say so ("X^t * V^-1 * X is not invertible" also fires on a
+    ## collinear covariate design). Such a message is an estimator outcome only
+    ## when GCTA's own iteration trace shows a variance component that ran away
+    ## from its EM starting value; a design fault stops before any iteration
+    ## and so stays "failed". Opt-in: absent keys leave the rule off.
+    gated <- unlist(divergence$gated_patterns)
+    if (length(gated)) {
+        hit <- gated[vapply(gated, grepl, logical(1), x = txt, fixed = TRUE)]
+        ratio <- reml_trace_divergence(txt)
+        if (length(hit) && is.finite(ratio) &&
+            ratio >= as.numeric(divergence$relative_magnitude)) {
+            return(list(status = "qc_failed",
+                        reason = sprintf("reml_estimation_failure: diverged (max |V| %.2g x EM prior Vp), then: %s",
+                                         ratio, hit[[1]])))
+        }
+    }
     tail_txt <- utils::tail(strsplit(txt, "\n")[[1]], 3)
     list(status = "failed",
          reason = paste0("gcta_exit_", exit, ": ",
                          paste(tail_txt, collapse = " | ")))
 }
 
-## The divergence rule's two settings, from config.
+## Largest |variance component| in GCTA's REML iteration table, as a multiple
+## of the summed EM-REML prior ("Updated prior values: ..."). NA when the log
+## has no prior or no iteration rows, i.e. GCTA stopped before iterating.
+reml_trace_divergence <- function(txt) {
+    lines <- strsplit(txt, "\n", fixed = TRUE)[[1]]
+    pl <- grep("^Updated prior values:", lines, value = TRUE)
+    if (!length(pl)) return(NA_real_)
+    prior <- sum(abs(suppressWarnings(as.numeric(
+        strsplit(trimws(sub("^Updated prior values:", "", pl[[1]])), "[[:space:]]+")[[1]]))))
+    hdr <- grep("^Iter\\.", lines)
+    if (!length(hdr) || !is.finite(prior) || prior <= 0) return(NA_real_)
+    it <- grep("^[0-9]+\t", lines[(hdr[[1]] + 1L):length(lines)], value = TRUE)
+    if (!length(it)) return(NA_real_)
+    v <- unlist(lapply(strsplit(it, "\t", fixed = TRUE), function(f)
+        suppressWarnings(as.numeric(f[-(1:2)]))))
+    if (!any(is.finite(v))) return(NA_real_)
+    max(abs(v), na.rm = TRUE) / prior
+}
+
+## The divergence rules' settings, from config. The gated-pattern keys are
+## optional; a config without them gets the crash-code rule only.
 reml_divergence_rule <- function(cfg) {
     list(exit_codes = cfg$gcta$divergence_crash_exit_codes,
-         magnitude = cfg$gcta$divergence_magnitude)
+         magnitude = cfg$gcta$divergence_magnitude,
+         gated_patterns = cfg$gcta$divergence_gated_patterns,
+         relative_magnitude = cfg$gcta$divergence_relative_magnitude)
 }
 
 ## Parse a GCTA .hsq into one row. Handles single-GRM ("V(G)/Vp") and
