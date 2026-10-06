@@ -92,10 +92,11 @@ a factual record of which files carry one, not as a blocker. Two notes:
 
 ## Still open before submission
 
-**Module 11's accepted run predates the reaccepted upstreams.** SD14 points at
-`fig-all-20260922-c` until the 2026-10-03 rebuild is signed; then its row moves
-to the new run. SD15 (Module 02b) and SD16 (Module 02c) are `ready`: both modules were accepted
-on 2026-10-06 and their `_m/combined/` tables are tracked.
+Nothing on the provenance side. SD14 moved to the rebuilt Module 11 run
+`fig-all-20261006-b` on its acceptance (2026-10-06). SD15 (Module 02b) and SD16
+(Module 02c) are `ready`: both modules were accepted on 2026-10-06 and their
+`_m/combined/` tables are tracked. The distribution ledger in the manuscript
+repository still needs the SD15 and SD16 rows.
 
 ## Relationship to the manuscript repository
 
