@@ -178,6 +178,7 @@ New v2 work lives in numbered modules at the **repository root**:
 │   └── tests/
 ├── 01_vmr_catalog/
 ├── 02_local_genetic_variance/
+├── 02b_greml_simulation_benchmark/
 ├── 03_local_snp_prediction/
 ├── 04_repeat_repressive_architecture/
 ├── 05_cpg_meqtl_burden/
@@ -284,6 +285,8 @@ Analyses must run in this order:
 
 1. `01_vmr_catalog`
 2. `02_local_genetic_variance`
+   - `02b_greml_simulation_benchmark` (depends on 01 only; simulated phenotypes;
+     runs beside 02 and never reads or writes it)
 3. `03_local_snp_prediction`
 4. `04_repeat_repressive_architecture`
 5. `05_cpg_meqtl_burden`
