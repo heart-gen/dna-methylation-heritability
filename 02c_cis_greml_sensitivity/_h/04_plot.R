@@ -25,14 +25,24 @@ save_both <- function(p, stem, w, h) {
 }
 theme_set(theme_bw(base_size = 9))
 d <- vmr[module02_eligible == TRUE & converged == TRUE]
+## Unconstrained REML leaves a few finite but wild estimates; a data-driven
+## axis lets one of them flatten every other point. Zoom to a fixed window
+## (the smooth still uses every fit) and count what falls outside it.
+ywin <- c(-1, 2)
+off <- d[h2_hat < ywin[1] | h2_hat > ywin[2], .N, by = reml_mode]
 p1 <- ggplot(d, aes(local_snp_contribution_score, h2_hat)) +
     geom_hline(yintercept = 0, colour = "grey60") +
     geom_point(size = 0.25, alpha = 0.2) +
     geom_smooth(method = "loess", formula = y ~ x, se = FALSE, linewidth = 0.5) +
+    coord_cartesian(ylim = ywin) +
     facet_wrap(~ reml_mode) +
     labs(x = "Module 02 local SNP contribution score (percentile)",
          y = "cis-GREML estimate (not reportable per VMR)",
-         title = sprintf("%s, %s", man[["cohort"]], man[["region"]]))
+         title = sprintf("%s, %s", man[["cohort"]], man[["region"]]),
+         caption = if (nrow(off)) paste0("Outside the y window [", ywin[1], ", ", ywin[2],
+                                         "], not drawn: ",
+                                         paste0(off$reml_mode, " ", off$N, collapse = "; "))
+                   else NULL)
 save_both(p1, "cis_greml_vs_score", 8, 4)
 p2 <- ggplot(pf, aes(score_decile, estimate, colour = reml_mode)) +
     geom_hline(yintercept = 0, colour = "grey60") +
