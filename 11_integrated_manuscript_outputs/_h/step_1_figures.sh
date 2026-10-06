@@ -78,9 +78,10 @@ run_r "$HERE/09_figure5_gwas_architecture.R" --cohort AA --run-id "$RUN_ID"
 log_message "Region and donor-group generalization (Module 08) -- AA"
 run_r "$HERE/06_figure_region_donor_generalization.R" --cohort AA --run-id "$RUN_ID"
 
-# S-LDSC (null), aging (NOT_SUPPORTED), environmental (exploratory), and the
-# schizophrenia locus detail displaced from Figure 5.
-log_message "Supplementary figures (Modules 06, 09, 09b, 10) -- AA"
+# S-LDSC (null), aging, environmental (exploratory), the GREML simulation
+# benchmark, the real-data cis-GREML sensitivity, and the schizophrenia locus detail displaced from Figure 5. No
+# verdict is named here: each panel derives its reading from its run.
+log_message "Supplementary figures (Modules 02b, 02c, 06, 09, 09b, 10) -- AA"
 run_r "$HERE/11_supplementary_figures.R" --cohort AA --run-id "$RUN_ID"
 
 # --------------------------------------------------- tables, then the seal
@@ -97,6 +98,11 @@ run_r "$HERE/05_qc_sample_integrity.R" --run-id "$RUN_ID"
 # wrote, so it must come after every figure and before the seal.
 log_message "Manuscript number registry, claim matrix, denominators, manifest"
 run_r "$HERE/10_manuscript_tables.R" --cohort AA --run-id "$RUN_ID"
+
+# AGENTS.md 7.11's Methods and Results summaries. They cite registry keys and
+# quote module claim strings, so they need the registry and claim matrix first.
+log_message "Methods and Results summaries"
+run_r "$HERE/12_methods_results_summaries.R" --cohort AA --run-id "$RUN_ID"
 
 # Writes the provenance manifest, verifies every figure has source data, and
 # seals the run read-only. Must be last.

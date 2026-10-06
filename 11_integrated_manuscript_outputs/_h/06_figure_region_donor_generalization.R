@@ -210,22 +210,51 @@ k <- seq_len(n_qq)
 qq[, `:=`(expected = -log10(ppoints(n_qq)), observed = -log10(delta_p),
           lo = -log10(qbeta(0.975, k, n_qq - k + 1)),
           hi = -log10(qbeta(0.025, k, n_qq - k + 1)))]
-qq[, claimed := as.logical(difference_claimed)]
+## Tier 2 claims only what Module 08's repaired accounting (T22, 2026-09-30)
+## claims: a difference in the PRIMARY claim family that survives the strict
+## conjunction, `difference_claimed_primary_claim_family`. The unfiltered
+## `difference_claimed` also counts rows outside the family (mostly the
+## atac_* breakdown tracks) and is an auditable denominator, not a claim --
+## until 2026-10-03 this panel claimed and labelled all of them. Those rows are
+## still drawn, hollow and unlabelled, so nothing is hidden.
+qq[, claimed := difference_claimed_primary_claim_family %in% c(TRUE, "TRUE")]
+qq[, passes_outside := difference_claimed %in% c(TRUE, "TRUE") & !claimed]
 qq[, label := fifelse(claimed, label_test(outcome, predictor), NA_character_)]
+if (anyNA(qq[claimed == TRUE, label]) ||
+    any(grepl("^NA", qq[claimed == TRUE, label]))) {
+    stop("A tier-2 claim-family difference has no Figure label: ",
+         paste(qq[claimed == TRUE, test_id], collapse = ", "))
+}
 n_claimed <- sum(qq$claimed)
+n_outside <- sum(qq$passes_outside)
 
 pB <- ggplot(qq, aes(expected, observed)) +
     geom_ribbon(aes(ymin = lo, ymax = hi), fill = "grey90") +
     geom_abline(slope = 1, intercept = 0, colour = PAL_NULL, linewidth = 0.35) +
-    geom_point(data = qq[claimed == FALSE], colour = PAL_CHARCOAL, size = 1,
-               alpha = 0.7) +
+    geom_point(data = qq[claimed == FALSE & passes_outside == FALSE],
+               colour = PAL_CHARCOAL, size = 1, alpha = 0.7) +
+    geom_point(data = qq[passes_outside == TRUE], colour = PAL_RUST, size = 1.3,
+               shape = 1) +
     geom_point(data = qq[claimed == TRUE], colour = PAL_RUST, size = 1.8) +
-    geom_text(data = qq[claimed == TRUE], aes(label = label), hjust = 1.08,
-              size = 2.3, colour = PAL_RUST) +
+    ## Since the claim family was repaired (2026-10-03) the claimed difference
+    ## sits mid-curve, with the rows that pass outside the family above and
+    ## right of it, so a label beside the point crossed them or ran off a panel
+    ## edge. The label goes in the empty space above-left of the curve, joined
+    ## to its point by a leader line.
+    geom_segment(data = qq[claimed == TRUE],
+                 aes(x = 0.45, y = observed + 1.15,
+                     xend = expected - 0.04, yend = observed + 0.08),
+                 colour = PAL_RUST, linewidth = 0.3) +
+    geom_text(data = qq[claimed == TRUE],
+              aes(x = 0.05, y = observed + 1.25,
+                  label = sub(" \u00b7 ", "\n\u00b7 ", label, fixed = TRUE)),
+              hjust = 0, vjust = 0, size = 2.3, lineheight = 0.9,
+              colour = PAL_RUST) +
     annotate("text", x = Inf, y = -Inf, hjust = 1.05, vjust = -0.4, size = 2.3,
              colour = PAL_CHARCOAL, lineheight = 0.9,
-             label = sprintf("DLPFC vs hippocampus\n%d tests, %d claimed",
-                             n_qq, n_claimed)) +
+             label = sprintf(paste0("DLPFC vs hippocampus\n%d tests, %d claimed\n",
+                                    "\u25cb %d pass outside the claim family"),
+                             n_qq, n_claimed, n_outside)) +
     scale_x_continuous(limits = c(0, NA), expand = expansion(mult = c(0.02, 0.04))) +
     labs(x = expression(Expected~-log[10]~italic(P)),
          y = expression(Observed~-log[10]~italic(P))) +
@@ -313,9 +342,12 @@ save_figure(figure, FIG, width = FIG_WIDTH_FULL, height = 7.4, fig_dir = fig_dir
 ## under every Module 04 sensitivity set: does the direction hold when
 ## segmental duplications, low mappability, or cell composition are handled
 ## differently. Same encoding as A.
+## The two cell arms are named for their method, as in Figure 3: MuSiC is
+## fitted in every region, scMD only where its integration gate passes.
 SET_LABELS <- c(primary = "Primary", exclude_segdups = "Excl. segdups",
                 high_mappability = "High\nmappability",
-                adjust_cell_composition = "Cell-type\nadjusted",
+                adjust_cell_composition = "MuSiC\nadjusted",
+                adjust_cell_composition_scmd = "scMD\nadjusted",
                 low_cell_composition = "Low cell-type\nvariance")
 sens <- merge(tests[, .(test_id, region, estimate, se, p, q)],
               replication[analysis == "repeat_architecture" &
@@ -327,18 +359,39 @@ sens <- encode_state(sens)
 sens[, label := label_test(outcome, predictor)]
 sens[, label := factor(label, levels = rev(unique(
     label[order(is_negative_control, outcome, predictor)])))]
+## An unlabelled set would render as an "NA" facet, which is how the scMD arm
+## first appeared here; refuse it instead.
+unlabelled <- setdiff(unique(sens$analysis_set), names(SET_LABELS))
+if (length(unlabelled) > 0) {
+    stop("Module 08 sensitivity sets with no label: ",
+         paste(unlabelled, collapse = ", "))
+}
 sens[, set := factor(SET_LABELS[analysis_set], levels = SET_LABELS)]
+## A set with no rows for a region was not fitted there. It is not drawn, and
+## the caption names it so its absence cannot be read as a result.
+nf <- sens[, .(missing = setdiff(levels(region), as.character(unique(region)))),
+           by = analysis_set]
+nf_cap <- if (nrow(nf) == 0) NULL else paste0(
+    "Not fitted, so not shown: ",
+    paste(vapply(split(nf$missing, nf$analysis_set), paste, character(1),
+                 collapse = ", "),
+          gsub("\n", " ", SET_LABELS[names(split(nf$missing, nf$analysis_set))],
+               fixed = TRUE),
+          sep = " \u2014 ", collapse = "; "), ".")
 
 pS <- ggplot(sens, aes(region, label)) +
     geom_tile(aes(fill = state), colour = "white", linewidth = 0.6) +
     geom_text(aes(label = fdr_mark, colour = state), size = 3.2, vjust = 0.78) +
-    facet_grid(. ~ set) +
+    facet_grid(. ~ set, scales = "free_x", space = "free_x") +
     scale_fill_manual(values = STATE_FILLS, name = NULL) +
     scale_colour_manual(values = STATE_TEXT, guide = "none") +
     labs(x = NULL, y = NULL,
-         caption = "* FDR < 0.05 within the source module's family") +
+         caption = paste(c("* FDR < 0.05 within the source module's family.", nf_cap),
+                         collapse = "\n")) +
     tile_theme +
-    theme(strip.text.x = element_text(size = 7.5, face = "bold"))
+    ## The scMD facet is one tile wide, so its strip label must be allowed past it.
+    theme(strip.text.x = element_text(size = 7.5, face = "bold"),
+          strip.clip = "off")
 
 save_figure(pS, FIG_S, width = FIG_WIDTH_FULL, height = 3.4, fig_dir = fig_dir)
 
@@ -349,8 +402,11 @@ src <- list(
              "cross-region-tests.tsv + cross-region-replication.tsv",
              "analysis_set == primary & (in_claim_family | is_negative_control)"),
     b = list(qq[, .(test_id, analysis, outcome, predictor, delta, delta_se,
-                    delta_p, delta_q, difference_claimed, expected, observed)],
-             "identified-difference.tsv", "testable == TRUE"),
+                    delta_p, delta_q, in_claim_family, difference_claimed,
+                    difference_claimed_primary_claim_family, claimed,
+                    passes_outside, expected, observed)],
+             "identified-difference.tsv",
+             "testable == TRUE; claimed = difference_claimed_primary_claim_family (the tier-2 claim); passes_outside = difference_claimed outside the claim family, an auditable denominator, not a claim"),
     c = list(ds_pts[, .(arm, region, replicate, mean_r2)],
              "caudate-downsampling-summary.tsv + caudate-downsampling-replicates.tsv",
              "all rows; DLPFC reference on DLPFC loci (no cross-region locus intersection)"),

@@ -120,6 +120,16 @@ elig[, region := as_region(region)]
 ## catalog -- and not on the upstream module 02 run ID. `r2_pred_oof` is a
 ## genotype-to-phenotype quantity and carries no score in it, so the rescore
 ## does not touch it.
+## Module 03 ran in the AA arm and in the donor-group cells all_individuals.AA
+## and all_individuals.EA (AGENTS.md 7.7), never in the pooled all_individuals
+## arm. A cell cannot stand in for it: a cell's r2_pred_oof is estimated in one
+## donor group, while this arm's score ranks all donors together, so the join
+## would put two donor sets in one panel. An arm with no accepted module 03 run
+## in ANY region therefore draws panel b as an explicit "not run" panel. A
+## partial set is still a gate failure and stops in require_accepted_upstream().
+lsp_accepted <- read_accepted_runs("03_local_snp_prediction")
+HAS_LSP <- nrow(lsp_accepted) > 0 && any(lsp_accepted$cohort == cohort)
+
 LSP_RUN <- local({
     cache <- new.env(parent = emptyenv())
     function(r) {
@@ -131,46 +141,52 @@ LSP_RUN <- local({
         cache[[r]]
     }
 })
-lsp_file <- function(r) file.path(
-    V2_ROOT, "03_local_snp_prediction", "_m", "runs", LSP_RUN(r),
-    "results", "combined",
-    sprintf("oof-prediction-%s-%s-vmrs.tsv", cohort, r))
+if (HAS_LSP) {
+    lsp_file <- function(r) file.path(
+        V2_ROOT, "03_local_snp_prediction", "_m", "runs", LSP_RUN(r),
+        "results", "combined",
+        sprintf("oof-prediction-%s-%s-vmrs.tsv", cohort, r))
 
-pred <- rbindlist(lapply(regions, function(r) {
-    d <- fread(lsp_file(r))
-    legacy <- intersect(c("r_squared_cv", "h2_unscaled", "h2_en_calibrated"),
-                        names(d))
-    if (length(legacy) > 0) {
-        stop("Module 03 table for ", r, " carries retired metric(s): ",
-             paste(legacy, collapse = ", "), " (AGENTS.md 3).")
-    }
-    if (!"r2_pred_oof" %in% names(d)) {
-        stop("Module 03 table for ", r, " has no r2_pred_oof column; AGENTS.md ",
-             "7.3 names it as the primary prediction endpoint.")
-    }
-    want <- unique(all_rows[region == r]$vmr_set_id)
-    got <- unique(as.character(d$vmr_set_id))
-    if (!identical(sort(want), sort(got))) {
-        stop("vmr_set_id disagrees between module 02 (", paste(want, collapse = ","),
-             ") and module 03 (", paste(got, collapse = ","), ") for ", r,
-             "; the panel b join would cross VMR catalogs.")
-    }
-    d[, .(vmr_id, region = r, r2_pred_oof)]
-}))
-pred[, region := as_region(region)]
+    pred <- rbindlist(lapply(regions, function(r) {
+        d <- fread(lsp_file(r))
+        legacy <- intersect(c("r_squared_cv", "h2_unscaled", "h2_en_calibrated"),
+                            names(d))
+        if (length(legacy) > 0) {
+            stop("Module 03 table for ", r, " carries retired metric(s): ",
+                 paste(legacy, collapse = ", "), " (AGENTS.md 3).")
+        }
+        if (!"r2_pred_oof" %in% names(d)) {
+            stop("Module 03 table for ", r, " has no r2_pred_oof column; AGENTS.md ",
+                 "7.3 names it as the primary prediction endpoint.")
+        }
+        want <- unique(all_rows[region == r]$vmr_set_id)
+        got <- unique(as.character(d$vmr_set_id))
+        if (!identical(sort(want), sort(got))) {
+            stop("vmr_set_id disagrees between module 02 (", paste(want, collapse = ","),
+                 ") and module 03 (", paste(got, collapse = ","), ") for ", r,
+                 "; the panel b join would cross VMR catalogs.")
+        }
+        d[, .(vmr_id, region = r, r2_pred_oof)]
+    }))
+    pred[, region := as_region(region)]
 
-n_before <- nrow(elig)
-elig <- merge(elig, pred, by = c("vmr_id", "region"), all.x = TRUE)
-if (nrow(elig) != n_before) {
-    stop("Module 03 join changed the eligible row count (", n_before, " -> ",
-         nrow(elig), "); vmr_id is not unique within region.")
+    n_before <- nrow(elig)
+    elig <- merge(elig, pred, by = c("vmr_id", "region"), all.x = TRUE)
+    if (nrow(elig) != n_before) {
+        stop("Module 03 join changed the eligible row count (", n_before, " -> ",
+             nrow(elig), "); vmr_id is not unique within region.")
+    }
+    message("[join] end-to-end OOF prediction matched ",
+            sum(!is.na(elig$r2_pred_oof)), " of ", nrow(elig), " eligible VMRs")
+} else {
+    elig[, r2_pred_oof := NA_real_]
+    message("[join] no accepted module 03 run for the ", cohort, " arm in any ",
+            "region; panel b is drawn as not run")
 }
-message("[join] end-to-end OOF prediction matched ",
-        sum(!is.na(elig$r2_pred_oof)), " of ", nrow(elig), " eligible VMRs")
 
 SCRIPT <- "11_integrated_manuscript_outputs/_h/02_figure2_local_control.R"
 runs_used <- vapply(regions, LGV_RUN, "")
-runs_used_pred <- c(runs_used, vapply(regions, LSP_RUN, ""))
+runs_used_pred <- if (HAS_LSP) c(runs_used, vapply(regions, LSP_RUN, "")) else runs_used
 FILTER <- "local_genetic_control_eligible == TRUE"
 
 ## ------------------------- A. what the rank agrees with, and what it does not
@@ -260,6 +276,21 @@ pB <- ggplot(dec_sum, aes(as.integer(decile), median, colour = region, fill = re
          y = expression(atop("Held-out local SNP prediction",
                              R^2 ~ "(end-to-end out-of-fold)"))) +
     BASE_THEME + NO_TITLES
+
+## The tag stays on a "not run" panel so a reader comparing the two arms finds
+## the same letters in the same places.
+if (!HAS_LSP) {
+    pB <- ggplot() +
+        annotate("text", x = 0.5, y = 0.5, size = 2.5, colour = "grey35",
+                 label = paste0("End-to-end out-of-fold\nprediction was not run\n",
+                                "for the ", cohort, " arm.\n\n",
+                                "Module 03 ran in the AA arm\nand in the donor-group cells,\n",
+                                "which estimate within\none donor group.")) +
+        ## patchwork aligns this panel's plotting area with panel a's wide
+        ## axis labels, so the text must be allowed past its edges.
+        coord_cartesian(xlim = c(0, 1), ylim = c(0, 1), clip = "off") +
+        theme_void()
+}
 
 ## ------------------------------------ C. cross-region rank concordance
 ##
@@ -427,10 +458,12 @@ TBL_PRED <- sprintf(paste("02_local_genetic_variance results/combined/local-gene
                           "+ 03_local_snp_prediction results/combined/oof-prediction-%s-{region}-vmrs.tsv"),
                     cohort, cohort)
 sd(conc, "panel_a", TBL, FILTER)
-sd(dec_sum, "panel_b", TBL_PRED,
-   paste(FILTER, "; deciles of local_snp_contribution_score; outcome is",
-         "r2_pred_oof joined on vmr_id; negative values retained (AGENTS.md 7.3)"),
-   runs = runs_used_pred)
+if (HAS_LSP) {
+    sd(dec_sum, "panel_b", TBL_PRED,
+       paste(FILTER, "; deciles of local_snp_contribution_score; outcome is",
+             "r2_pred_oof joined on vmr_id; negative values retained (AGENTS.md 7.3)"),
+       runs = runs_used_pred)
+}
 sd(pairs_dt, "panel_c", TBL,
    paste(FILTER, "; loci matched across regions by widest genomic overlap"))
 sd(ctx_sum, "panel_d",

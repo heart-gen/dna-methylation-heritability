@@ -2,11 +2,24 @@
 
 Consumes only accepted immutable upstream runs and produces every manuscript number, table, and figure.
 
-**Status: Figures 1-5, the supplementary figures, Table 1, the cohort QC
-panels and every AGENTS.md §7.11 product are implemented. Built as
-`fig-all-20260922-c` and accepted 2026-09-22 (see Accepted runs below).**
+**Status (2026-10-06): accepted as `fig-all-20261006-b`.** The run cites 50
+upstream runs: every module 01-10 at its current accepted run, including 02b
+and 02c, plus Module 01's QC refresh. It replaces `fig-all-20260922-c`, which
+predated the reacceptance of Modules 03-10, and several of whose captions stated
+readings those reruns overturned (see **The 2026-10-03 rebuild** below).
 
-That run is the first one a reader can reproduce from the run itself. It
+Three runs were superseded on the way, all recorded in `DEPRECATED_RUNS.tsv`:
+
+- `fig-all-20260922-c`: the previous accepted run, now stale against its upstreams.
+- `fig-all-20261006`: never sealed. It stopped at Figure 2 for the
+  `all_individuals` arm, which has no Module 03 run (see **Which prediction
+  number panel b carries**).
+- `fig-all-20261006-a`: sealed and passed every automated check. Review of the
+  rendered figures then found an unlabelled "NA" facet in the Module 08
+  sensitivity supplement and two partly hidden in-panel labels (see the
+  2026-10-06 entries below).
+
+`fig-all-20260922-c` was the first run a reader can reproduce from the run itself. It
 carries a `code/` snapshot of `_h/` and `config/` (33 files), records
 `git_dirty = false` against the commit that contains the builders, checksums
 every file it holds, and seals all of them. Earlier builds did none of that:
@@ -67,32 +80,41 @@ three are properties of Module 11 rather than oversights:
 
 | run_id | cohort | region | vmr_set_id | accepted_on | accepted_by | decision | notes |
 |---|---|---|---|---|---|---|---|
-| fig-all-20260922-c | all | crossregion | see `tables/exclusions-and-denominators.tsv` (6 cells: arm × region) | 2026-09-22 | Kynon J.M. Benjamin | ACCEPTED_MANUSCRIPT_OUTPUTS | Built at `efaae6220` with `git_dirty = false` and a `code/` snapshot of `_h/` and `config/` (33 files), so the run is reproducible from itself. 23 figures × PDF/SVG/PNG, 74 panel source tables, 11 tables; 190 files, 188 checksummed, 0 writable (the 2 exclusions are the run's own `manifest.tsv` and `output_checksums.tsv`). 40 upstream runs cited: 34 accepted, 6 Module 01 QC-refresh (`vmrcatqc-*-20260826-a`, the documented exception with no acceptance row of their own), 0 unaccepted. Every PDF has matching panel source data; every figure ≤ 9.5 in tall at 7.09/5.51 in column widths; every PDF carries embedded fonts and a ToUnicode map. `manuscript-number-registry.tsv` has 74 rows and **is** Supplementary Data 14; `analysis-to-claim-matrix.tsv` has 64. **No gate script exists for this module**, so this decision certifies completeness, provenance and the claim constraints asserted at build time — not a computed pass. Figure 5 is trait-general with schizophrenia as a marked example; the SCZ locus detail is `figureS_schizophrenia_application` (PI decision 2026-09-22), which honours Module 09's `scz_application_retention = RETAIN_MAIN_TEXT` without giving one trait a main figure. Supersedes `fig-all-20260920` and `fig-all-20260922{,-a,-b}`, all recorded in `DEPRECATED_RUNS.tsv`. |
+| fig-all-20261006-b | all | crossregion | see `tables/exclusions-and-denominators.tsv` (6 cells: arm × region) | 2026-10-06 | Kynon J. M. Benjamin | ACCEPTED_MANUSCRIPT_OUTPUTS | Built at `607a3049f` with `git_dirty = false` and a `code/` snapshot (38 files). 25 figures × PDF/SVG/PNG, 82 panel source tables, 13 tables; 210 files, 208 checksummed and verified, 0 writable (the 2 exclusions are the run's own `manifest.tsv` and `output_checksums.tsv`). 50 upstream runs cited: 44 accepted (every module 01-10 including 02b and 02c), 6 Module 01 QC-refresh (`vmrcatqc-*-20260826-a`), 0 unaccepted. Every PDF has panel source data, embedded fonts and a ToUnicode map; every figure ≤ 9.19 in tall. `manuscript-number-registry.tsv` (82 rows) **is** Supplementary Data 14; `analysis-to-claim-matrix.tsv` has 71. First run with Figure 2b on Module 03's end-to-end `r2_pred_oof`; the all_individuals arm has no Module 03 run and its panel b says so. First run with `tables/methods-summary.md` and `tables/results-summary.md` (AGENTS.md 7.11). **No gate script exists for this module**, so this decision certifies completeness, provenance and the claim constraints asserted at build time — not a computed pass. Supersedes `fig-all-20260922-c`, `fig-all-20261006` (unsealed) and `fig-all-20261006-a`, all recorded in `DEPRECATED_RUNS.tsv`. |
 
 ## Implemented figures
 
-| Output | Content | Upstream runs |
+Upstream run IDs are **not listed here**. Every builder resolves them through
+`00_shared/gates.R::require_accepted_upstream()` at build time, and each run
+records exactly which it used in `tables/software-and-run-manifest.tsv` and in
+every panel's `source_run_id`. A run-ID column in this README went stale on every
+reacceptance, which is how Figure 2 once shipped on a retired run.
+
+| Output | Content | Owning modules |
 |---|---|---|
-| `figure1_vmr_catalog[_all_individuals][_epic]` | **a** cohort **b** VMRs per chromosome **c** VMR width and CpGs per VMR **d** off-array coverage **e** genomic compartment **f** distance to nearest gene | `vmrcat-*-20260816`, `vmrcatqc-*-20260826-a` |
-| `figure2_local_genetic_control[_all_individuals]` | **a** estimator concordance vs locus geometry **b** held-out local SNP prediction (end-to-end OOF R²) across rank deciles **c** cross-region rank concordance **d** genic context across the rank | `lgv-AA-*-rescore-20260913` (AA), `lgv-all_individuals-*-20260823`, `lsp-AA-*-20260825` (panel b) |
-| `figure3_repeat_repressive_architecture` | **a** the BH family (quiescent, H3K9me3, LINE/L1) **b** complementary contrasts and the H3K27me3 specificity control **c** the five locked analysis sets **d** the continuous gradient | `rra-AA-*-20260906` |
-| `figure4_meqtl_burden_coupling` | **a** meQTL-positive CpG fraction across the rank **b** burden model with distal-null λ **c** coupling by modality and predictor **d** coupled-VMR denominators | `cmb-AA-*-20260825`, `tsc-AA-*-20260902` |
-| `figure5_gwas_architecture_axis` | **a** every trait's axis estimate by GWAS category **b** schizophrenia against its own null distribution **c** psychiatric vs other traits **d** what a trait's depletion tracks | `scz-AA-*-20260918` + stages 17/18 |
-| `figureS_catalog_turnover[...]` | legacy-catalog turnover, **audit only** | as Figure 1 |
-| `figureS_local_control_denominators[...]` | denominators and exclusion reasons | as Figure 2 |
-| `figureS_local_control_audit_unbounded[...]` | unbounded joint estimate, **audit only** | as Figure 2 |
-| `figureS_partitioned_heritability` | S-LDSC across the frozen 8-trait family. **A null**, reported as one | `sldsc-AA-*-20260903` |
-| `figureS_aging_axis` | **a** primary age gradient **b** gating sensitivities, with the verdict derived from the run (see below) | `age-AA-*-20260919` |
-| `figureS_environmental_axis` | stage B proportional gradients, with both acceptance caveats on the panel | `env-AA-*-20260920-a` |
-| `figureS_schizophrenia_application` | **a** the axis depletion **b** locus evidence tiers **c** prioritized loci | `scz-AA-*-20260918` |
-| `figure_region_donor_generalization` + `_sensitivity` | Module 08 tiers | `rdg-AA-crossregion-20260918` |
-| `table1_cohort` (`.tsv`, `.tex`) | donor demographics, both arms x three regions | `vmrcat-*-20260816` |
-| `figureS_ancestry_pcs`, `figureS_sample_integrity` | genotype PCs over 1000 Genomes; cross-region swap screen | `vmrcat-*-20260816` |
+| `figure1_vmr_catalog[_all_individuals][_epic]` | **a** cohort **b** VMRs per chromosome **c** VMR width and CpGs per VMR **d** off-array coverage **e** genomic compartment **f** distance to nearest gene | 01 (+ the 01 QC refresh) |
+| `figure2_local_genetic_control[_all_individuals]` | **a** estimator concordance vs locus geometry **b** held-out local SNP prediction (end-to-end OOF R²) across rank deciles **c** cross-region rank concordance **d** genic context across the rank | 02, 03 |
+| `figure3_repeat_repressive_architecture` | **a** the BH family (quiescent, H3K9me3, LINE/L1) **b** complementary contrasts incl. the BrainScope ATAC union, and the H3K27me3 specificity control **c** the locked analysis sets incl. MuSiC (all regions) and scMD (where fitted) **d** the continuous gradient | 04 |
+| `figure4_meqtl_burden_coupling` | **a** meQTL-positive CpG fraction across the rank **b** burden model with distal-null λ **c** coupling tests in Module 07's FDR family **d** coupled-VMR denominators | 05, 07 |
+| `figure5_gwas_architecture_axis` | **a** every trait's axis estimate by GWAS category **b** schizophrenia against its own null distribution **c** psychiatric vs other traits **d** what a trait's depletion tracks | 09 (+ stages 17/18) |
+| `figure_region_donor_generalization` + `_sensitivity` | Module 08 tiers; tier 2 claims only `difference_claimed_primary_claim_family`; the supplement shows every Module 04 analysis set, with the cell arm split into MuSiC (all regions) and scMD (caudate only) | 08 |
+| `figureS_catalog_turnover[...]` | legacy-catalog turnover, **audit only** | 01 |
+| `figureS_local_control_denominators[...]` | denominators and exclusion reasons | 02 |
+| `figureS_local_control_audit_unbounded[...]` | unbounded joint estimate, **audit only** | 02 |
+| `figureS_greml_benchmark` | GCTA-GREML recovery of absolute local h2 on **simulated** phenotypes: **a** mean estimate and **b** CI coverage on real AA cis-window genotypes, **c** the v1 AR(1) design (out of regime) | 02b |
+| `figureS_cis_greml_sensitivity` | conventional cis-GREML on the **observed** phenotypes against the Module 02 score: **a** mean estimate by score decile, **b** ordering Spearman (score primary; HE and BSLMM descriptive), **c** convergence by decile. Estimator agreement on shared data, not replication; no per-VMR h2 | 02c |
+| `figureS_partitioned_heritability` | S-LDSC τ z of the score conditional on VMR membership (two-annotation model). **A null** | 06 |
+| `figureS_aging_axis` | **a** primary age gradient, signed-test-only where the magnitude gate withholds a proportion **b** gating sensitivities, verdict derived from the run | 09b |
+| `figureS_environmental_axis` | stage B gradients; magnitude gate and the undetermined DLPFC FDR call rendered on the panel | 10 |
+| `figureS_schizophrenia_application` | **a** the axis depletion **b** locus evidence tiers **c** prioritized loci | 09 |
+| `table1_cohort` (`.tsv`, `.tex`) | donor demographics, both arms x three regions | 01 |
+| `figureS_ancestry_pcs`, `figureS_sample_integrity` | genotype PCs over 1000 Genomes; cross-region swap screen | 01 |
 | `manuscript-number-registry.tsv` | every citable number -> panel, run, table, column, filter. **This is Supplementary Data 14** | all of the above |
 | `analysis-to-claim-matrix.tsv` (`.tex`) | claim -> module -> accepted run -> decision token | module READMEs |
-| `exclusions-and-denominators.tsv` | donors, VMRs called, scored, eligible, and why excluded | Modules 01, 02 |
+| `exclusions-and-denominators.tsv` | donors, VMRs called, scored, eligible, and why excluded | 01, 02 |
 | `supplementary-table-index.tsv` | the tracked `_m/combined/` deliverables | all modules |
 | `software-and-run-manifest.tsv` | environment, git commit, upstream run IDs | this run |
+| `results-summary.md`, `methods-summary.md` | AGENTS.md 7.11's manuscript-ready summaries; every number cites its registry key | this run |
 
 AA is the primary arm; `all_individuals` renders from the same builders as the
 sensitivity supplement.
@@ -136,9 +158,13 @@ decision row carries `main_text_retention = NEVER_SUPPLEMENT_ONLY`, and
 AGENTS.md §2.3 forbids exposure results from defining the title, abstract,
 primary groups or main causal interpretation.
 
-Both acceptance caveats are rendered on the panel rather than left to the
-legend: no percentage is formally identifiable (`mean_omega_z` never reaches
-1.96), and the donor bootstrap inflates the ratio's denominator 2.0×-38.5×.
+The caveats are rendered on the panel and read from the accepted
+`env-AA-*-20261003` tables rather than typed: the Fieller magnitude gate's
+`relative_magnitude_reportable` (no family passes, so no percentage may be
+stated), and the PI's ruling that DLPFC nicotine@schizophrenia's FDR call is
+undetermined across bootstrap seeds (rendered "?"). The earlier caption's
+"these p-values may be too small" was removed: T28 measured the ratio-scale
+combined SE as calibrated.
 A negative gradient is never evidence that exposure effects concentrate in
 weakly controlled VMRs — that is the permanent variance-budget limitation
 (AGENTS.md §7.10), and it belongs in the Discussion.
@@ -146,8 +172,11 @@ weakly controlled VMRs — that is the permanent variance-budget limitation
 ### Figure 5 is trait-general, not schizophrenia-specific
 
 The axis depletion is a property of trait-associated loci in general:
-schizophrenia sits at the 16th-33rd percentile of 63 GWAS traits by region and
-psychiatric traits are indistinguishable as a category (Wilcoxon p 0.11-0.96).
+schizophrenia sits mid-distribution among the stage 17 traits in every region,
+and psychiatric traits are indistinguishable as a category. The ranges are read
+from stage 17 under the primary model at build time and printed into the panel
+source data and `results-summary.md`; they are not restated here, because a
+copy here once mixed the two models' ranges.
 Figure 5 therefore shows the **distribution**, with schizophrenia marked in
 place as one trait among the rest, which is what AGENTS.md §7.8 rule 1 and
 §11 require the text to say.
@@ -207,12 +236,11 @@ separates the two standards, and that one is **model-level**.
 label "Held-out R²". The two standards are invisible on that axis, and no panel
 of any figure in that run named an `lsp-*` run, so Module 03 reached the
 manuscript nowhere. Panel b now reads `r2_pred_oof` from the accepted
-`lsp-AA-{region}-20260825` runs, joined on `vmr_id` after asserting that
+Module 03 runs, joined on `vmr_id` after asserting that
 Module 02 and Module 03 agree on `vmr_set_id`; Module 02's `r2_oof` stays in
-panel a, relabelled "Model-level OOF R²". Module 03's runs consumed the
-pre-rescore `lgv-AA-*-20260823` for their locus screen, which is why the
-identity check is on the catalog rather than on the upstream Module 02 run ID --
-`r2_pred_oof` is a genotype-to-phenotype quantity and carries no score in it.
+panel a, relabelled "Model-level OOF R²". The identity check is on the
+catalog rather than on the upstream Module 02 run ID because `r2_pred_oof` is a
+genotype-to-phenotype quantity and carries no score in it.
 
 The substitution raises the top-decile median in all three regions (caudate
 0.870→0.881, DLPFC 0.775→0.794, hippocampus 0.762→0.785). That it is favourable
@@ -224,8 +252,88 @@ quartiles are taken on the raw column, most low-decile loci are negative, and
 the panel's source table now carries `n_r2_negative` and `n_r2_missing` per
 decile so the retention is auditable from the table.
 
-**A new figure run is required for this to reach the manuscript.**
-`fig-all-20260922-c` is sealed and still carries the model-level statistic.
+`fig-all-20260922-c` is sealed and still carries the model-level statistic;
+`fig-all-20261006-b` is the first accepted run with panel b on `r2_pred_oof`.
+
+**The `all_individuals` arm has no panel b endpoint.** Module 03 was run for
+`AA` and for the donor-group cells `all_individuals.AA` / `.EA`, never for the
+pooled `all_individuals` arm. A cell cannot stand in for it: a cell's
+`r2_pred_oof` is estimated in one donor group, while the pooled score ranks
+every donor, so the join would put two donor sets in one panel. When an arm has
+no accepted Module 03 run in any region, panel b is drawn as an explicit "not
+run" panel, keeping the letters aligned with the AA figure, and ships no source
+data. A partial set still stops at `require_accepted_upstream()`. Accepted as is
+by the PI on 2026-10-06; running Module 03 on the pooled arm was not requested.
+
+## The 2026-10-03 rebuild
+
+What changed in the builders, and why each change was needed. In every case the
+fix is the same: a reading the panel stated is now read from the upstream table,
+or the panel stopped claiming something its upstream no longer licenses.
+
+- **Figure 4.** The header and panel d described PSI coupling as "strong in
+  caudate, thin in DLPFC, null in hippocampus" and quoted ABC as "n=312, 19
+  coupled". Module 07's PSI identifier-join repair (`tsc-AA-*-20260925-b`)
+  withdrew the first reading as an artefact -- splicing coupling holds in all
+  three regions -- and both counts were stale. Panel c now renders exactly
+  Module 07's FDR family (`in_fdr_family`) and records each excluded modality
+  with Module 07's own `fdr_exclusion_reason`.
+- **Module 08 figure, panel b.** It claimed and labelled every row with
+  `difference_claimed` -- 39 under the repaired accounting, most of them
+  `atac_*` rows outside the claim family -- and its label lookup lacked those
+  outcomes, so it printed overlapping "NA · held-out R²". Tier 2 now claims
+  `difference_claimed_primary_claim_family` (1: the meQTL-burden gradient), and
+  the other rows are drawn hollow and unlabelled, as Module 08's README requires.
+- **S-LDSC supplement.** It plotted `enrichment`, which for the signed
+  continuous score annotation is a ratio over a signed sum, not a share, and
+  which Module 06 marks `enrichment_interpretable = FALSE`. It now plots the
+  score's τ z conditional on VMR membership, and stops if an uninterpretable
+  enrichment would be drawn. Caption: "no detectable enrichment at this footprint".
+- **Aging supplement.** Panel a now marks regions whose magnitude the Fieller
+  gate withholds as "signed test only" (DLPFC). Panel b no longer prints "the
+  age-responsive low-control VMRs are the arm-sensitive ones": that is the
+  composition qualifier the 2026-10-01 reacceptance retired.
+- **Environmental supplement.** The caption's "no percentage is identifiable"
+  is now read from `relative_magnitude_reportable` (0 of 19), and its "these
+  p-values may be too small" is gone -- T28 found the ratio-scale SE
+  calibrated. DLPFC nicotine@schizophrenia renders "?" rather than "*", because
+  the PI ruled its FDR call undetermined across bootstrap seeds. That ruling had
+  no column upstream, so it is recorded in this module's
+  `config/reporting-constraints.tsv`, snapshotted into each run, and
+  `apply_reporting_constraint()` stops the build if it no longer matches
+  exactly one row.
+- **Figure 3** adds the BrainScope ATAC union to panel b and the scMD arm to
+  panel c where fitted; the seven per-cell-type ATAC tracks go to source data
+  only (a breakdown, not a cell-type identification).
+- **Figure 5** derives its percentile, Wilcoxon and genomic-context ranges from
+  stage 17 under the primary model. The old header mixed the two models' ranges
+  (16th vs 17th percentile).
+- **New:** `figureS_greml_benchmark` (Module 02b),
+  `figureS_cis_greml_sensitivity` (Module 02c, added 2026-10-06 at the PI's
+  request; its Results line sits in section 2 beside the score, since
+  supplementary placement never decides whether a result is reported) and
+  `12_methods_results_summaries.R`.
+
+Three more fixes came out of the 2026-10-06 production builds:
+
+- **Figure 2b, `all_individuals` arm.** The first build stopped there: the
+  review draft had rendered AA only, so nothing had exercised the second arm
+  against the Module 03 join. Panel b is now drawn as "not run" for an arm
+  with no Module 03 run (see above).
+- **Module 08 sensitivity supplement.** Module 08's rerun added the
+  caudate-only `adjust_cell_composition_scmd` set, which the label map lacked,
+  so `fig-all-20261006-a` drew a facet titled "NA". The arms are now named
+  "MuSiC adjusted" and "scMD adjusted" as in Figure 3, an unlabelled set stops
+  the build, and the caption names where scMD was not fitted.
+- **Label placement.** The Module 08 panel b claim label now sits above-left
+  of the curve with a leader line, since the claimed difference is mid-curve
+  after the claim-family repair. The Figure 4b n/λ notes now start right of the
+  zero line. Layout only.
+
+The rebuild was accepted as `fig-all-20261006-b` on 2026-10-06.
+
+`tests/test_caption_literals.py` (gitignored) fails on a result number typed
+into a caption or row filter, and catches the old Figure 4 string.
 
 ## Table 1 and cohort QC (PI decision D3, 2026-08-26)
 
@@ -238,19 +346,16 @@ derived its donor set from `vmr-analysis/all_individuals/{region}/_m/samples.txt
 reads the donor list from the accepted Module 01 run and hard-stops if the count
 disagrees with the locked `design_n` in `config/cohorts.yml`.
 
-### Open finding: the retired blacklist tracks a real QC signal
+### Closed: the readmitted donors (T4)
 
-`config/cohorts.yml` states the legacy blacklists "were never a QC exclusion"
-and existed only to reconcile a stale phenotype file. The cross-region
-integrity screen does not support that reading. Of the 8 donors readmitted by
-retiring the blacklists, **4 are flagged** by the screen (Br1249, Br1693,
-Br1700, Br1927), against 11.7% of all tested donors -- Fisher exact
-p = 0.0064, OR = 9.8.
-
-This is a post-hoc test on an admittedly underpowered screen and is **not**
-grounds for reinstating the blacklist. It is grounds for the PI to look at
-those four donors before submission, because the current v2 position is that
-their exclusion was purely clerical.
+The 2026-09-22 note here reported 4 of the 8 donors readmitted by retiring the
+legacy blacklists as flagged by the cross-region integrity screen, with a Fisher
+p of 0.0064. That table was superseded: in `fig-all-20260922-c` the screen flags
+9 of 120 donors, and 3 of the 8 readmitted donors (Br1927 is not flagged). The
+unit of the test was never prespecified, so no p-value is quoted without its
+unit. **The PI cleared all eight donors on 2026-09-25**; no donor is excluded,
+`vmr_set_id` is unchanged, and the reasoning is in
+`T4_READMITTED_DONOR_ADJUDICATION.md`.
 
 ## Build
 
@@ -283,11 +388,17 @@ needs no edit here when a module supersedes a run.
 `step_1_figures.sh` builds in one order and seals last: both-arm figures, then
 the AA-only Figures 3-5 and supplements, then Table 1 and the QC panels, then
 `10_manuscript_tables.R` (which reads what the figures actually rendered), then
+`12_methods_results_summaries.R` (which cites the registry it built), then
 `03_close_figure_run.R`. The old `step_2_table1_qc.sh` ran *after* the seal, so
 no sealed run ever contained a `tables/` directory; it has been folded in and
 removed.
 
 Both submit wrappers accept `DRY_RUN=1` to print the plan without queueing.
+
+`config/reporting-constraints.tsv` is this module's only configuration: PI
+reporting rulings a panel must honour that no upstream table carries as a
+column. The submit wrapper snapshots it into `code/module_config/` beside the
+`_h/` and repo `config/` snapshots.
 
 `00_figure_theme.R` holds the shared theme, palette, `save_figure()`,
 `write_source_data()`, `sig_stars()`, `scale_fill_log2or()` and `fig_tags()`.
