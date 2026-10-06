@@ -108,9 +108,25 @@ dec <- data.table(
     region_reading = reading,
     region_supported = region_supported,
     primary_estimate = prim$estimate,
-    primary_estimate_meaning = paste0(
-        "proportional change in mean squared age effect (debiased) per SD of ",
-        "local_snp_contribution_score_z"),
+    ## The meaning depends on the relative-magnitude gate (PI 2026-10-02, T28
+    ## decision B). Where the family mean is not separated from zero, the
+    ## estimate is NOT a reportable proportional change and this field must not
+    ## say that it is -- it is a signed, FDR-controlled test of whether the
+    ## squared age effect varies with the score, and the region reading rests on
+    ## that test and not on a magnitude.
+    primary_estimate_meaning = if (isTRUE(prim$relative_magnitude_reportable)) {
+        paste0("proportional change in mean squared age effect (debiased) per ",
+               "SD of local_snp_contribution_score_z")
+    } else {
+        paste0("SIGNED TEST ONLY of whether the debiased squared age effect ",
+               "varies with local_snp_contribution_score_z; the magnitude is ",
+               "NOT reportable as a proportional change because the family mean ",
+               "is not separated from zero at alpha (",
+               prim$relative_magnitude_gate_reason, ", den_z ",
+               signif(prim$relative_magnitude_den_z, 3), ")")
+    },
+    primary_relative_magnitude_reportable = prim$relative_magnitude_reportable,
+    primary_relative_magnitude_den_z = prim$relative_magnitude_den_z,
     primary_se = prim$se,
     primary_ci_lower = prim$ci_lower,
     primary_ci_upper = prim$ci_upper,
