@@ -2,12 +2,22 @@
 
 Consumes only accepted immutable upstream runs and produces every manuscript number, table, and figure.
 
-**Status (2026-10-03): rebuilding on the reaccepted upstreams.** The accepted
-run `fig-all-20260922-c` predates the reacceptance of Modules 03, 04, 05, 06, 07,
-08, 09, 09b and 10, and several of its captions stated readings those reruns
-overturned (see **The 2026-10-03 rebuild** below). It stays the accepted run of
-record until a rebuild is signed; its numbers must not be quoted against the
-current upstreams.
+**Status (2026-10-06): accepted as `fig-all-20261006-b`.** The run cites 50
+upstream runs: every module 01-10 at its current accepted run, including 02b
+and 02c, plus Module 01's QC refresh. It replaces `fig-all-20260922-c`, which
+predated the reacceptance of Modules 03-10, and several of whose captions stated
+readings those reruns overturned (see **The 2026-10-03 rebuild** below).
+
+Three runs were superseded on the way, all recorded in `DEPRECATED_RUNS.tsv`:
+
+- `fig-all-20260922-c`: the previous accepted run, now stale against its upstreams.
+- `fig-all-20261006`: never sealed. It stopped at Figure 2 for the
+  `all_individuals` arm, which has no Module 03 run (see **Which prediction
+  number panel b carries**).
+- `fig-all-20261006-a`: sealed and passed every automated check. Review of the
+  rendered figures then found an unlabelled "NA" facet in the Module 08
+  sensitivity supplement and two partly hidden in-panel labels (see the
+  2026-10-06 entries below).
 
 `fig-all-20260922-c` was the first run a reader can reproduce from the run itself. It
 carries a `code/` snapshot of `_h/` and `config/` (33 files), records
@@ -70,7 +80,7 @@ three are properties of Module 11 rather than oversights:
 
 | run_id | cohort | region | vmr_set_id | accepted_on | accepted_by | decision | notes |
 |---|---|---|---|---|---|---|---|
-| fig-all-20260922-c | all | crossregion | see `tables/exclusions-and-denominators.tsv` (6 cells: arm × region) | 2026-09-22 | Kynon J.M. Benjamin | ACCEPTED_MANUSCRIPT_OUTPUTS | Built at `efaae6220` with `git_dirty = false` and a `code/` snapshot of `_h/` and `config/` (33 files), so the run is reproducible from itself. 23 figures × PDF/SVG/PNG, 74 panel source tables, 11 tables; 190 files, 188 checksummed, 0 writable (the 2 exclusions are the run's own `manifest.tsv` and `output_checksums.tsv`). 40 upstream runs cited: 34 accepted, 6 Module 01 QC-refresh (`vmrcatqc-*-20260826-a`, the documented exception with no acceptance row of their own), 0 unaccepted. Every PDF has matching panel source data; every figure ≤ 9.5 in tall at 7.09/5.51 in column widths; every PDF carries embedded fonts and a ToUnicode map. `manuscript-number-registry.tsv` has 74 rows and **is** Supplementary Data 14; `analysis-to-claim-matrix.tsv` has 64. **No gate script exists for this module**, so this decision certifies completeness, provenance and the claim constraints asserted at build time — not a computed pass. Figure 5 is trait-general with schizophrenia as a marked example; the SCZ locus detail is `figureS_schizophrenia_application` (PI decision 2026-09-22), which honours Module 09's `scz_application_retention = RETAIN_MAIN_TEXT` without giving one trait a main figure. Supersedes `fig-all-20260920` and `fig-all-20260922{,-a,-b}`, all recorded in `DEPRECATED_RUNS.tsv`. |
+| fig-all-20261006-b | all | crossregion | see `tables/exclusions-and-denominators.tsv` (6 cells: arm × region) | 2026-10-06 | Kynon J. M. Benjamin | ACCEPTED_MANUSCRIPT_OUTPUTS | Built at `607a3049f` with `git_dirty = false` and a `code/` snapshot (38 files). 25 figures × PDF/SVG/PNG, 82 panel source tables, 13 tables; 210 files, 208 checksummed and verified, 0 writable (the 2 exclusions are the run's own `manifest.tsv` and `output_checksums.tsv`). 50 upstream runs cited: 44 accepted (every module 01-10 including 02b and 02c), 6 Module 01 QC-refresh (`vmrcatqc-*-20260826-a`), 0 unaccepted. Every PDF has panel source data, embedded fonts and a ToUnicode map; every figure ≤ 9.19 in tall. `manuscript-number-registry.tsv` (82 rows) **is** Supplementary Data 14; `analysis-to-claim-matrix.tsv` has 71. First run with Figure 2b on Module 03's end-to-end `r2_pred_oof`; the all_individuals arm has no Module 03 run and its panel b says so. First run with `tables/methods-summary.md` and `tables/results-summary.md` (AGENTS.md 7.11). **No gate script exists for this module**, so this decision certifies completeness, provenance and the claim constraints asserted at build time — not a computed pass. Supersedes `fig-all-20260922-c`, `fig-all-20261006` (unsealed) and `fig-all-20261006-a`, all recorded in `DEPRECATED_RUNS.tsv`. |
 
 ## Implemented figures
 
@@ -87,7 +97,7 @@ reacceptance, which is how Figure 2 once shipped on a retired run.
 | `figure3_repeat_repressive_architecture` | **a** the BH family (quiescent, H3K9me3, LINE/L1) **b** complementary contrasts incl. the BrainScope ATAC union, and the H3K27me3 specificity control **c** the locked analysis sets incl. MuSiC (all regions) and scMD (where fitted) **d** the continuous gradient | 04 |
 | `figure4_meqtl_burden_coupling` | **a** meQTL-positive CpG fraction across the rank **b** burden model with distal-null λ **c** coupling tests in Module 07's FDR family **d** coupled-VMR denominators | 05, 07 |
 | `figure5_gwas_architecture_axis` | **a** every trait's axis estimate by GWAS category **b** schizophrenia against its own null distribution **c** psychiatric vs other traits **d** what a trait's depletion tracks | 09 (+ stages 17/18) |
-| `figure_region_donor_generalization` + `_sensitivity` | Module 08 tiers; tier 2 claims only `difference_claimed_primary_claim_family` | 08 |
+| `figure_region_donor_generalization` + `_sensitivity` | Module 08 tiers; tier 2 claims only `difference_claimed_primary_claim_family`; the supplement shows every Module 04 analysis set, with the cell arm split into MuSiC (all regions) and scMD (caudate only) | 08 |
 | `figureS_catalog_turnover[...]` | legacy-catalog turnover, **audit only** | 01 |
 | `figureS_local_control_denominators[...]` | denominators and exclusion reasons | 02 |
 | `figureS_local_control_audit_unbounded[...]` | unbounded joint estimate, **audit only** | 02 |
@@ -243,7 +253,17 @@ the panel's source table now carries `n_r2_negative` and `n_r2_missing` per
 decile so the retention is auditable from the table.
 
 `fig-all-20260922-c` is sealed and still carries the model-level statistic;
-the 2026-10-03 rebuild is the first run with panel b on `r2_pred_oof`.
+`fig-all-20261006-b` is the first accepted run with panel b on `r2_pred_oof`.
+
+**The `all_individuals` arm has no panel b endpoint.** Module 03 was run for
+`AA` and for the donor-group cells `all_individuals.AA` / `.EA`, never for the
+pooled `all_individuals` arm. A cell cannot stand in for it: a cell's
+`r2_pred_oof` is estimated in one donor group, while the pooled score ranks
+every donor, so the join would put two donor sets in one panel. When an arm has
+no accepted Module 03 run in any region, panel b is drawn as an explicit "not
+run" panel, keeping the letters aligned with the AA figure, and ships no source
+data. A partial set still stops at `require_accepted_upstream()`. Accepted as is
+by the PI on 2026-10-06; running Module 03 on the pooled arm was not requested.
 
 ## The 2026-10-03 rebuild
 
@@ -293,6 +313,24 @@ or the panel stopped claiming something its upstream no longer licenses.
   request; its Results line sits in section 2 beside the score, since
   supplementary placement never decides whether a result is reported) and
   `12_methods_results_summaries.R`.
+
+Three more fixes came out of the 2026-10-06 production builds:
+
+- **Figure 2b, `all_individuals` arm.** The first build stopped there: the
+  review draft had rendered AA only, so nothing had exercised the second arm
+  against the Module 03 join. Panel b is now drawn as "not run" for an arm
+  with no Module 03 run (see above).
+- **Module 08 sensitivity supplement.** Module 08's rerun added the
+  caudate-only `adjust_cell_composition_scmd` set, which the label map lacked,
+  so `fig-all-20261006-a` drew a facet titled "NA". The arms are now named
+  "MuSiC adjusted" and "scMD adjusted" as in Figure 3, an unlabelled set stops
+  the build, and the caption names where scMD was not fitted.
+- **Label placement.** The Module 08 panel b claim label now sits above-left
+  of the curve with a leader line, since the claimed difference is mid-curve
+  after the claim-family repair. The Figure 4b n/λ notes now start right of the
+  zero line. Layout only.
+
+The rebuild was accepted as `fig-all-20261006-b` on 2026-10-06.
 
 `tests/test_caption_literals.py` (gitignored) fails on a result number typed
 into a caption or row filter, and catches the old Figure 4 string.
