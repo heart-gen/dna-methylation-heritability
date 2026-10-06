@@ -94,8 +94,8 @@ a factual record of which files carry one, not as a blocker. Two notes:
 
 **Module 11's accepted run predates the reaccepted upstreams.** SD14 points at
 `fig-all-20260922-c` until the 2026-10-03 rebuild is signed; then its row moves
-to the new run. **SD15 (Module 02b) is `pending_build`** until its runs are
-accepted and collated.
+to the new run. **SD15 (Module 02b) and SD16 (Module 02c) are `pending_build`** until their
+runs are accepted and collated.
 
 ## Relationship to the manuscript repository
 

@@ -516,6 +516,125 @@ if (file.exists(gm_f)) {
     message("[skip] figureS_greml_benchmark: no ", basename(gm_f))
 }
 
+## ============================== Conventional cis-GREML sensitivity (Module 02c)
+##
+## One cis-window GRM per VMR, GCTA unconstrained (FUSION's formulation), fitted
+## to the REAL phenotypes with Module 02's window, SNP QC and covariates. It
+## asks whether a conventional estimator supports the existence and ORDERING of
+## local genetic control that the Module 02 score reports. Same donors, SNPs and
+## phenotypes as Module 02, so agreement is between estimators on shared data,
+## not replication. No per-VMR h2 is reportable and no VMR is classified by
+## GREML significance (config/cis_greml_sensitivity.yml: interpretation).
+## Regions sit on their own axes; no level is compared across them.
+##
+## Same acceptance rule as 02b: production requires accepted runs; a draft
+## build may read the -UNACCEPTED collation and says so on the panel.
+CGS_MODULE <- "02c_cis_greml_sensitivity"
+ccfg <- load_config("cis_greml_sensitivity")
+cgs_ok <- all(vapply(unlist(ccfg$regions), function(r) !is.null(tryCatch(
+    require_accepted_upstream(CGS_MODULE, ccfg$cohort, r), error = function(e) NULL)),
+    logical(1)))
+if (!cgs_ok && is.null(opts$out_dir)) {
+    stop("02c_cis_greml_sensitivity has no accepted run for every region; ",
+         "the cis-GREML supplement cannot enter a sealed figure run.")
+}
+csuffix <- paste0("-", ccfg$cohort, if (cgs_ok) "" else "-UNACCEPTED")
+ccomb <- file.path(V2_ROOT, CGS_MODULE, "_m", "combined")
+cgs_f <- function(stem) file.path(ccomb, paste0("cis-greml-", stem, csuffix, ".tsv"))
+if (cohort == ccfg$cohort && file.exists(cgs_f("existence"))) {
+    cex <- fread(cgs_f("existence")); cod <- fread(cgs_f("ordering"))
+    cpf <- fread(cgs_f("decile-profile")); csl <- fread(cgs_f("convergence-by-decile"))
+    for (d in list(cex, cod, cpf, csl)) stopifnot(
+        all(d$per_vmr_absolute_h2_reportable %in% c(FALSE, "FALSE")),
+        all(d$greml_significance_class_allowed %in% c(FALSE, "FALSE")),
+        all(d$replaces_module_02_score %in% c(FALSE, "FALSE")))
+    CGS_PRIMARY <- unique(cex[reml_role == "primary", reml_mode])
+    stopifnot(length(CGS_PRIMARY) == 1L)
+    score_col <- ccfg$summaries$score_column
+    for (d in list(cex, cod, cpf, csl)) d[, region := as_region(region)]
+    mode_lab <- function(m) ifelse(m == CGS_PRIMARY, paste0(m, " (primary)"),
+                                   paste0(m, " (convergence sensitivity)"))
+    for (d in list(cpf, csl, cod)) d[, mode := mode_lab(reml_mode)]
+    MODE_COLORS <- setNames(c(PAL_CHARCOAL, PAL_TAN), mode_lab(c(CGS_PRIMARY,
+                                setdiff(unique(cex$reml_mode), CGS_PRIMARY))))
+    cdraft <- if (cgs_ok) "" else "DRAFT: built from UNACCEPTED 02c runs. "
+
+    pC1 <- ggplot(cpf, aes(score_decile, estimate, colour = mode)) +
+        geom_hline(yintercept = 0, colour = PAL_NULL, linewidth = 0.35) +
+        geom_pointrange(aes(ymin = ci_low, ymax = ci_high), size = 0.15, linewidth = 0.35,
+                        position = position_dodge(0.5)) +
+        facet_wrap(~ region, nrow = 1, scales = "free_y") +
+        scale_colour_manual(values = MODE_COLORS, name = NULL) +
+        scale_x_continuous(breaks = c(1, 5, max(cpf$score_decile))) +
+        labs(x = "Module 02 score decile (within region)",
+             y = "Mean cis-GREML estimate\n(jackknife 95% CI)") +
+        BASE_THEME + NO_TITLES + GRID_Y +
+        theme(legend.position = "top", legend.margin = margin(0, 0, -4, 0))
+    ## The score is the primary comparison, so it gets the filled mark.
+    feats <- setdiff(unique(cod$against), score_col)
+    cod[, against_lab := factor(ifelse(against == score_col, "Module 02 score (primary)",
+                                       paste0(against, " (descriptive)")),
+                                levels = c("Module 02 score (primary)",
+                                           paste0(feats, " (descriptive)")))]
+    pC2 <- ggplot(cod, aes(region, estimate, colour = mode, shape = against_lab)) +
+        geom_pointrange(aes(ymin = ci_low, ymax = ci_high), size = 0.25, linewidth = 0.35,
+                        position = position_dodge(0.6)) +
+        scale_colour_manual(values = MODE_COLORS, guide = "none") +
+        scale_shape_manual(values = c(16, 1, 2)[seq_along(levels(cod$against_lab))],
+                           name = NULL) +
+        labs(x = NULL, y = "Spearman with cis-GREML\n(jackknife 95% CI)") +
+        BASE_THEME + NO_TITLES + GRID_Y +
+        theme(legend.position = "top", legend.margin = margin(0, 0, -4, 0))
+    pC3 <- ggplot(csl, aes(score_decile, convergence_rate, colour = mode)) +
+        geom_line(linewidth = 0.4) + geom_point(size = 0.9) +
+        facet_wrap(~ region, nrow = 1) +
+        scale_colour_manual(values = MODE_COLORS, guide = "none") +
+        scale_x_continuous(breaks = c(1, 5, max(csl$score_decile))) +
+        scale_y_continuous(labels = percent_format(accuracy = 1)) +
+        labs(x = "Module 02 score decile (within region)", y = "Converged fits") +
+        BASE_THEME + NO_TITLES + GRID_Y
+
+    ex_p <- cex[reml_mode == CGS_PRIMARY]
+    od_p <- cod[reml_mode == CGS_PRIMARY & against == score_col]
+    CAP_C <- paste(strwrap(paste0(
+        cdraft, "Real VMR phenotypes with Module 02's donors, cis SNPs and covariates: ",
+        "agreement between estimators on shared data, not replication. ",
+        "Existence: the mean primary-mode estimate's jackknife CI excludes zero in ",
+        sum(ex_p$ci_low > 0), " of ", nrow(ex_p), " regions. ",
+        "Ordering: Spearman with the score ",
+        paste(sprintf("%.2f", range(od_p$estimate)), collapse = "-"), " (primary). ",
+        "a: decile means are conditioned on a score built from the same data and are ",
+        "not absolute PVE; each region on its own axis. c: fits that did not converge ",
+        "are excluded from a and b. No VMR is classified by GREML significance."),
+        width = 115), collapse = "\n")
+    pC3 <- pC3 + labs(caption = CAP_C) +
+        theme(plot.caption = element_text(size = 6.5, hjust = 0, colour = "grey35"),
+              plot.caption.position = "plot")
+    SC <- paste0("figureS_cis_greml_sensitivity", arm)
+    save_figure((pC1 / pC2 / pC3) + plot_layout(heights = c(1.1, 0.9, 0.8)) +
+                    fig_tags() & TAG_THEME,
+                SC, width = FIG_WIDTH_FULL, height = 7.6, fig_dir = fig_dir)
+    cruns <- unique(cex$source_run_id)
+    write_source_data(cpf, paste0(SC, "_panel_a"), cruns,
+                      paste0("_m/combined/cis-greml-decile-profile", csuffix, ".tsv"), SCRIPT,
+                      "mean cis-GREML estimate per Module 02 score decile, converged fits, both modes",
+                      data_dir)
+    write_source_data(cod, paste0(SC, "_panel_b"), cruns,
+                      paste0("_m/combined/cis-greml-ordering", csuffix, ".tsv"), SCRIPT,
+                      paste0("Spearman(cis-GREML, ", score_col, ") primary ordering; against ",
+                             "Module 02 features descriptive"), data_dir)
+    write_source_data(csl, paste0(SC, "_panel_c"), cruns,
+                      paste0("_m/combined/cis-greml-convergence-by-decile", csuffix, ".tsv"),
+                      SCRIPT, "converged fraction of Module 02-eligible VMRs per score decile",
+                      data_dir)
+    write_source_data(cex, paste0(SC, "_existence"), cruns,
+                      paste0("_m/combined/cis-greml-existence", csuffix, ".tsv"), SCRIPT,
+                      "mean cis-GREML estimate across eligible converged VMRs, jackknife CI",
+                      data_dir)
+} else {
+    message("[skip] figureS_cis_greml_sensitivity: no ", basename(cgs_f("existence")))
+}
+
 ## ============================================ Schizophrenia (Module 09)
 ##
 ## The schizophrenia locus evidence, displaced here from Figure 5. Module 09's

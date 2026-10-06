@@ -92,7 +92,7 @@ message("[table] manuscript-number-registry.tsv (", nrow(registry), " panels acr
 ## decision that 00_shared/gates.R parses -- rather than retyped here, so the
 ## matrix cannot drift from the gate.
 MODULES <- c("01_vmr_catalog", "01b_estimation_cells", "02_local_genetic_variance",
-             "02b_greml_simulation_benchmark",
+             "02b_greml_simulation_benchmark", "02c_cis_greml_sensitivity",
              "03_local_snp_prediction", "04_repeat_repressive_architecture",
              "05_cpg_meqtl_burden", "06_partitioned_heritability",
              "07_transcription_splicing_coupling", "08_region_donor_generalization",

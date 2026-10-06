@@ -79,9 +79,9 @@ log_message "Region and donor-group generalization (Module 08) -- AA"
 run_r "$HERE/06_figure_region_donor_generalization.R" --cohort AA --run-id "$RUN_ID"
 
 # S-LDSC (null), aging, environmental (exploratory), the GREML simulation
-# benchmark, and the schizophrenia locus detail displaced from Figure 5. No
+# benchmark, the real-data cis-GREML sensitivity, and the schizophrenia locus detail displaced from Figure 5. No
 # verdict is named here: each panel derives its reading from its run.
-log_message "Supplementary figures (Modules 02b, 06, 09, 09b, 10) -- AA"
+log_message "Supplementary figures (Modules 02b, 02c, 06, 09, 09b, 10) -- AA"
 run_r "$HERE/11_supplementary_figures.R" --cohort AA --run-id "$RUN_ID"
 
 # --------------------------------------------------- tables, then the seal

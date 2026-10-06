@@ -92,6 +92,7 @@ reacceptance, which is how Figure 2 once shipped on a retired run.
 | `figureS_local_control_denominators[...]` | denominators and exclusion reasons | 02 |
 | `figureS_local_control_audit_unbounded[...]` | unbounded joint estimate, **audit only** | 02 |
 | `figureS_greml_benchmark` | GCTA-GREML recovery of absolute local h2 on **simulated** phenotypes: **a** mean estimate and **b** CI coverage on real AA cis-window genotypes, **c** the v1 AR(1) design (out of regime) | 02b |
+| `figureS_cis_greml_sensitivity` | conventional cis-GREML on the **observed** phenotypes against the Module 02 score: **a** mean estimate by score decile, **b** ordering Spearman (score primary; HE and BSLMM descriptive), **c** convergence by decile. Estimator agreement on shared data, not replication; no per-VMR h2 | 02c |
 | `figureS_partitioned_heritability` | S-LDSC τ z of the score conditional on VMR membership (two-annotation model). **A null** | 06 |
 | `figureS_aging_axis` | **a** primary age gradient, signed-test-only where the magnitude gate withholds a proportion **b** gating sensitivities, verdict derived from the run | 09b |
 | `figureS_environmental_axis` | stage B gradients; magnitude gate and the undetermined DLPFC FDR call rendered on the panel | 10 |
@@ -287,7 +288,10 @@ or the panel stopped claiming something its upstream no longer licenses.
 - **Figure 5** derives its percentile, Wilcoxon and genomic-context ranges from
   stage 17 under the primary model. The old header mixed the two models' ranges
   (16th vs 17th percentile).
-- **New:** `figureS_greml_benchmark` (Module 02b) and
+- **New:** `figureS_greml_benchmark` (Module 02b),
+  `figureS_cis_greml_sensitivity` (Module 02c, added 2026-10-06 at the PI's
+  request; its Results line sits in section 2 beside the score, since
+  supplementary placement never decides whether a result is reported) and
   `12_methods_results_summaries.R`.
 
 `tests/test_caption_literals.py` (gitignored) fails on a result number typed
