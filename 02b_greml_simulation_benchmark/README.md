@@ -1,6 +1,8 @@
 # 02b_greml_simulation_benchmark — can REML recover absolute local h2 at this cohort's n?
 
-**Status: implemented and PI-locked 2026-10-03; no accepted run yet.**
+**Status: accepted 2026-10-06** (`greml-sim-ar1-20261003`,
+`greml-AA-{caudate,dlpfc,hippocampus}-20261003-a`; see **Results** and
+**Accepted runs**). PI-locked 2026-10-03.
 `config/greml_benchmark.yml` was locked as proposed: the scenario grid below,
 unconstrained Fisher scoring primary, v1's constrained AI-REML secondary.
 
@@ -248,11 +250,88 @@ Environment:
   `module load` is used.
 - Smoke tests are in `tests/test_greml_functions.R` (gitignored, §5.2).
 
+## Results (accepted 2026-10-06)
+
+**Arm 1 reproduces v1 bit for bit.** The v1 setting (constrained AI-REML on four
+LD-stratified genome-wide GRMs) returned estimates for exactly the same 1,201
+phenotypes as v1's `simulation-analysis/gcta/_m/summary/greml_summary.tsv`,
+with identical h2 estimates and SEs. The staff finding is a property of the
+design, not a bug:
+
+| n | v1 fits | v2 constrained fits | v2 unconstrained Fisher fits |
+|---|---|---|---|
+| 100 | 0 | 0 / 1000 | 774 / 1000 |
+| 150 | 1 | 1 | 949 |
+| 200 | 1 | 1 | 991 |
+| 250 | 2 | 2 | 999 |
+| 500 | 18 | 18 | 1000 |
+| 1,000 | 94 | 94 | 1000 |
+| 5,000 | 515 | 515 | 1000 |
+| 10,000 | 570 | 570 | 1000 |
+
+Unconstrained Fisher scoring returns nearly every fit, and at the cohort's n
+those fits are noise:
+- RMSE is 25.1 at n = 100, 2.3 at 1,000 and 0.23 at 10,000.
+- Spearman(truth, estimate) is 0.03 [-0.04, 0.09] at n = 100 and 0.46
+  [0.39, 0.51] at 10,000.
+
+Arm 1 does not transfer to the cohort (`transfers_to_cohort = FALSE`).
+
+**Arm 2, the cohort's regime: unbiased on average, not usable per locus.**
+Primary mode, unconstrained Fisher scoring:
+
+| region | max abs bias | RMSE at h2 0.05-0.1 | 95% CI coverage at h2 = 0 | coverage at h2 >= 0.2 | Spearman(truth, est) |
+|---|---|---|---|---|---|
+| caudate (n = 153) | 0.013 | 0.079-0.096 | 0.72-0.83 | 0.940 (min 0.84) | 0.945 [0.942, 0.948] |
+| DLPFC (n = 118) | 0.010 | 0.098-0.110 | 0.75-0.79 | 0.936 (min 0.84) | 0.932 [0.928, 0.935] |
+| hippocampus (n = 117) | 0.018 | 0.104-0.117 | 0.72-0.75 | 0.935 (min 0.84) | 0.927 [0.922, 0.931] |
+
+- The aggregate and the ordering are recovered.
+- A single locus's estimate is as uncertain as the quantity.
+- At true h2 = 0, the CI misses zero about a quarter of the time.
+
+That is the evidence for 02c's two restrictions: no per-VMR h2, and no
+GREML-significance classes.
+
+- **The Spearman is a ceiling, not the cohort's ordering precision.** Truth is
+  a designed grid spread evenly over 0-0.95. Real VMRs are concentrated at
+  low values, where loci are harder to separate.
+- **v1's constrained setting piles onto the boundary in this regime.** At
+  h2 = 0 it is biased +0.025 to +0.044 and over-covers (0.98-1.00), with up to
+  59% of estimates on the bound. It is reported as the secondary mode.
+
+REML estimation outcomes are counted, not hidden.
+
+| | caudate | DLPFC | hippocampus |
+|---|---|---|---|
+| Fisher | 127 | 176 | 177 |
+| constrained | 55 | 54 | 42 |
+
+Every region also has 48 locus-QC units per mode. Every run has 0
+computational failures.
+
 ## Accepted runs
 
 | run_id | cohort | region | vmr_set_id | accepted_on | accepted_by | decision | notes |
 |---|---|---|---|---|---|---|---|
-| _(none)_ | | | | | | | |
+| greml-sim-ar1-20261003 | sim | ar1 | - | 2026-10-06 | Kynon J. M. Benjamin | PASS_GREML_BENCHMARK_QC | Arm 1, v1 AR(1) design, out of regime. Built at 0ddcdf147, git_dirty false, config_greml_benchmark_sha256 cbc97a3e...; 16,184 units, 0 failed. Constrained AI-REML fits reproduce v1's greml_summary.tsv exactly (same 1,201 phenotypes, identical h2 and SE). Unconstrained Fisher RMSE 25.1 at n = 100 to 0.23 at n = 10,000; Spearman(truth, est) 0.03 at n = 100, 0.46 at 10,000. transfers_to_cohort = FALSE. |
+| greml-AA-caudate-20261003-a | AA | caudate | vmrset-AA-caudate-937a41979978 | 2026-10-06 | Kynon J. M. Benjamin | PASS_GREML_BENCHMARK_QC | Arm 2, real AA cis windows, n = 153. Built at 0ddcdf147, git_dirty false, config sha cbc97a3e...; 19,200 units, 0 failed; 127 Fisher / 55 constrained estimation outcomes. Primary (Fisher): max abs bias 0.013, RMSE 0.079-0.096 at h2 0.05-0.1, coverage 0.72-0.83 at h2 = 0, Spearman 0.945 [0.942, 0.948] on a designed grid (a ceiling). Simulated phenotypes only. |
+| greml-AA-dlpfc-20261003-a | AA | dlpfc | vmrset-AA-dlpfc-856067dfe289 | 2026-10-06 | Kynon J. M. Benjamin | PASS_GREML_BENCHMARK_QC | Arm 2, n = 118. Built at 0ddcdf147; 19,200 units, 0 failed; 176 / 54 estimation outcomes. Max abs bias 0.010, RMSE 0.098-0.110, null coverage 0.75-0.79, Spearman 0.932 [0.928, 0.935]. Simulated phenotypes only. |
+| greml-AA-hippocampus-20261003-a | AA | hippocampus | vmrset-AA-hippocampus-2d907b892215 | 2026-10-06 | Kynon J. M. Benjamin | PASS_GREML_BENCHMARK_QC | Arm 2, n = 117. Built at 0ddcdf147; 19,200 units, 0 failed; 177 / 42 estimation outcomes. Max abs bias 0.018, RMSE 0.104-0.117, null coverage 0.72-0.75, Spearman 0.927 [0.922, 0.931]. Simulated phenotypes only. |
+
+Accepted by the PI on 2026-10-06 (signed `writing-notes/DRAFT_02b_acceptance_20261006.md`).
+
+## Superseded runs
+
+| run_id | reason |
+|---|---|
+| greml-AA-{caudate,dlpfc,hippocampus}-20261003 | First arm 2 attempt at 433f45b55, never sealed. It stopped before summarizing because 147 constrained-mode fits ended in GCTA messages the classifier did not list ("more than half of the variance components are constrained", or a crash after a diverged trace). Commit 0ddcdf147 reconciles both as estimator outcomes, tested against all 147 logs; a crash counts only when GCTA's own log shows a value >= 1e10. The config changed in its failure-pattern list only (7497f958 -> cbc97a3e). |
+| greml-AA-dlpfc-smoke-20261003, greml-sim-ar1-smoke-20261003 | Smoke runs; never intended for acceptance. |
+
+The finalize job's own `.err` log differs from its checksum in every run. It
+is empty when `output_checksums.tsv` is written, and then receives the
+"[run] closed" line, the same pattern as in other modules. Every other file
+verifies.
 
 ## Migrating from
 
