@@ -146,6 +146,24 @@ add("- Held-out local SNP prediction (end-to-end out-of-fold R2, Module 03): ",
     "; in the bottom decile ", per_region(bot, function(r) pv(r$median)),
     ", with ", per_region(bot, function(r) paste0(int(r$n_r2_negative), "/", int(r$n))),
     " negative values retained ", key("figure2_local_genetic_control", "b"), ".")
+if (any(registry$figure == "figureS_cis_greml_sensitivity")) {
+    cex <- src("figureS_cis_greml_sensitivity", "existence")
+    cod <- src("figureS_cis_greml_sensitivity", "panel_b")
+    cpr <- unique(cex[reml_role == "primary", reml_mode])
+    ccfg <- load_config("cis_greml_sensitivity")
+    ce <- cex[reml_mode == cpr]
+    co <- cod[reml_mode == cpr & against == ccfg$summaries$score_column]
+    add("- Conventional cis-GREML on the observed phenotypes (Module 02c, one ",
+        "cis-window GRM per VMR, primary mode `", cpr, "`) ranks VMRs as the score does: ",
+        "Spearman ", per_region(co, function(r) paste0(num(r$estimate), " [", num(r$ci_low),
+                                                      ", ", num(r$ci_high), "], n = ", int(r$n))),
+        " ", key("figureS_cis_greml_sensitivity", "b"), ". The mean estimate's ",
+        "chromosome-jackknife CI excludes zero in ", sum(ce$ci_low > 0), " of ", nrow(ce),
+        " regions ", key("figureS_cis_greml_sensitivity_existence"), "; that is the ",
+        "existence statement, not a level. Same donors, SNPs and phenotypes as Module ",
+        "02, so this is agreement between estimators, not replication; no per-VMR ",
+        "GREML h2 is reported and no VMR is classified by GREML significance.")
+}
 
 ## -------------------------------------------------- 3. repeat / repressive
 add("")
@@ -347,6 +365,17 @@ madd("- Endpoint: `", need_cfg(lgc, "endpoint.score_column"), "`, ",
      int(need_cfg(lgc, "validation.scenarios")), " simulations: relative ordering ",
      need_cfg(lgc, "validation.relative_ordering_gate"), ", absolute PVE ",
      need_cfg(lgc, "validation.absolute_pve_gate"), " (`", need_cfg(lgc, "decision"), "`).")
+ccfg <- load_config("cis_greml_sensitivity")
+madd("- cis-GREML sensitivity (Module 02c): the same window, SNP QC and ",
+     "covariates; one GRM per VMR; GCTA ", need_cfg(ccfg, "gcta.version"), " modes ",
+     paste(vapply(ccfg$reml_modes, function(m) sprintf("`%s` (%s: %s)", m$id, m$role,
+                                                       paste(m$args, collapse = " ")),
+                  character(1)), collapse = "; "),
+     ". Existence = mean estimate over converged eligible VMRs, ordering = ",
+     "Spearman with `", need_cfg(ccfg, "summaries.score_column"), "`, each with a ",
+     "delete-one-chromosome jackknife CI. A GCTA error after a runaway iteration ",
+     "trace, or a fit with h2 SE 0 or undefined, is an estimator outcome, not a ",
+     "converged fit.")
 madd("")
 madd("## Held-out prediction (Module 03)")
 madd("- `", need_cfg(pred, "evaluation_standard"), "`: ", need_cfg(pred, "folds.outer"),

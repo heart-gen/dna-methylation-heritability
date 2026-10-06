@@ -102,6 +102,21 @@ if (!file.exists(file.path(repo_root(), "02b_greml_simulation_benchmark", "_m",
     bad <- c(bad, "02b combined: run _h/10_collate.R without --allow-unaccepted")
 }
 
+## Module 02c: AA x each region. figureS_cis_greml_sensitivity reads its
+## _m/combined/ collation of those runs.
+ccfg <- load_config("cis_greml_sensitivity")
+for (rg in unlist(ccfg$regions)) {
+    r <- tryCatch(require_accepted_upstream("02c_cis_greml_sensitivity", ccfg$cohort, rg)$run_id,
+                  error = function(e) NA_character_)
+    if (is.na(r)) bad <- c(bad, sprintf("02c_cis_greml_sensitivity [%s x %s]", ccfg$cohort, rg))
+    else message(sprintf("  %-36s %-16s %-12s %s", "02c_cis_greml_sensitivity",
+                         ccfg$cohort, rg, r))
+}
+if (!file.exists(file.path(repo_root(), "02c_cis_greml_sensitivity", "_m", "combined",
+                           paste0("cis-greml-existence-", ccfg$cohort, ".tsv")))) {
+    bad <- c(bad, "02c combined: run _h/06_collate.R without --allow-unaccepted")
+}
+
 ## Figure 5 reads the module-level stage 17/18 tables. They carry -UNACCEPTED
 ## until both stages are re-run without --allow-unlocked.
 sfx <- file.path(repo_root(), "09_schizophrenia_risk_application", "_m", "combined")
