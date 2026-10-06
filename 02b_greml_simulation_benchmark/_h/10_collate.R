@@ -23,8 +23,11 @@ ids <- vapply(seq_len(nrow(cells)), function(i) {
                   error = function(e) NULL)
     if (!is.null(r)) return(r$run_id)
     if (!allow) stop("No accepted 02b run for ", cells$cohort[i], " x ", cells$region[i])
+    ## Production run IDs only: "smoke" sorts after any date, so a looser
+    ## pattern let the newest-first pick below take a smoke run.
     runs <- list.files(file.path(repo_root(), module, "_m", "runs"),
-                       pattern = sprintf("^greml-%s-%s-", cells$cohort[i], cells$region[i]))
+                       pattern = sprintf("^greml-%s-%s-[0-9]{8}(-[a-z])?$",
+                                         cells$cohort[i], cells$region[i]))
     sealed <- runs[vapply(runs, function(x) run_is_sealed(
         fread(file.path(run_dir_for(x), "manifest.tsv"), colClasses = "character")),
         logical(1))]

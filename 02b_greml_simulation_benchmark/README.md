@@ -129,6 +129,62 @@ These modes come from a 2026-10-03 prototype on one real DLPFC locus
 In the smoke tests, the primary mode converged in 19 of 20 null fits, with mean
 estimate 0.014.
 
+## Why v1's GREML failed at small n, and why the cis-window arm does not
+
+The v1 benchmark (`simulation-analysis/gcta/`) was the staff analysis that found
+GREML failing or performing very badly at limited sample sizes. That result is
+real, and arm 1 reproduces it. The v1 summary, joined to the simulation truth:
+
+| n | fits that returned anything (of 1,000) | median SE of h2 | estimates at 0 or 1 | Spearman(truth, estimate) |
+|---|---|---|---|---|
+| 150 | 1 | 15.0 | 100% | -- |
+| 250 | 2 | 9.6 | 50% | -- |
+| 500 | 18 | 4.7 | 56% | 0.02 |
+| 1,000 | 94 | 2.4 | 54% | -0.20 |
+| 5,000 | 515 | 0.46 | 9% | 0.35 |
+| 10,000 | 570 | 0.23 | 2% | 0.57 |
+
+The missing fits are constrained REML stopping at the 0/1 bound. The arm 1
+smoke run at n = 100 and 150 reproduced this: 0 of 20 constrained fits finished,
+and unconstrained estimates ran from -42 to +54 with SEs of 8-29.
+
+**The cause is information, not the estimator.** GREML's information comes from
+the spread of the GRM's off-diagonal entries. For unrelated people,
+SE(h2) is approximately sqrt(2) / (n x SD of the off-diagonal GRM entries).
+
+- **Genome-wide GRM.** Tens of thousands of effectively independent segments
+  make the off-diagonal SD tiny (about 0.0045), so SE is about 316/n: roughly 3
+  at n = 100 and 0.3 at n = 1,000. Splitting it into four LD-stratified
+  components makes this worse.
+- **Cis-window GRM.** For one real DLPFC locus (3,428 SNPs, n = 118), LD leaves
+  about 48 effective segments. The off-diagonal SD is 0.145, so the predicted SE
+  is about 0.08. Arm 2's measured RMSE (0.08-0.12 at true h2 0.05-0.1) matches.
+
+v1 had two further handicaps:
+
+- It was misspecified. The GRM spreads the genetic signal over 7.7M SNPs while
+  the signal comes from 1-5 SNPs in one 1-Mb window.
+- Its AR(1) LD is out of regime for real cis windows.
+
+**What arm 2 does and does not show.**
+
+- The cis-window estimator is unbiased on average, and it orders a wide range of
+  true h2 well.
+- Per locus, though, at the h2 most VMRs sit at, its error is as large as the
+  quantity, and its CI under-covers at h2 = 0.
+- Arm 2 is also a best case:
+  - the GRM is built from exactly the causal SNPs' window;
+  - the noise is Gaussian;
+  - the realized h2 is fixed exactly;
+  - there is no measurement error;
+  - covariates are exactly linear.
+
+So v1's conclusion still holds for per-VMR absolute values. It does not extend
+to cis-window REML as such, which is how FUSION-style analyses screen
+cis-heritability at a few hundred samples. Whether conventional cis-GREML
+supports Module 02's ordering on the **real** phenotypes is the separate question
+asked by `02c_cis_greml_sensitivity`.
+
 ## Metrics
 
 All metrics are against the **realized** simulated h2, per cell (arm 1: n × mode;
