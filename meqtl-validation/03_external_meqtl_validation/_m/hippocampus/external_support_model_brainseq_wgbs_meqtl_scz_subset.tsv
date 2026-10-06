@@ -1,2 +1,0 @@
-model	n_vmrs	error	region	resource_id	analysis_role	preferred_region	assay_universe_complete
-not_estimable	23	external tested-negative assay universe unavailable; positive-control overlap only	hippocampus	brainseq_wgbs_meqtl_scz_subset	exploratory	dlpfc	False
