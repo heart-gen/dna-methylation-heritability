@@ -48,6 +48,16 @@ run_gcta <- function(bin, args, out_prefix, threads = 1L) {
 
 classify_reml <- function(exit, hsq, log, failure_patterns, divergence = NULL) {
     if (identical(as.integer(exit), 0L) && file.exists(hsq)) {
+        ## GCTA can write an .hsq whose h2 SE is 0 or absent: the information
+        ## matrix was degenerate at the stopping point, so the estimate is not
+        ## a REML optimum (02c saw values down to -128). Opt-in.
+        if (isTRUE(divergence$degenerate_se_is_failure)) {
+            se <- parse_hsq(hsq)$h2_se
+            if (!is.finite(se) || se <= 0) {
+                return(list(status = "qc_failed",
+                            reason = "reml_estimation_failure: degenerate fit (h2 SE 0 or undefined)"))
+            }
+        }
         return(list(status = "completed", reason = NA_character_))
     }
     txt <- if (file.exists(log)) paste(readLines(log, warn = FALSE),
@@ -114,13 +124,15 @@ reml_trace_divergence <- function(txt) {
     max(abs(v), na.rm = TRUE) / prior
 }
 
-## The divergence rules' settings, from config. The gated-pattern keys are
-## optional; a config without them gets the crash-code rule only.
+## The estimator-outcome rules' settings, from config. The gated-pattern and
+## degenerate-SE keys are optional; a config without them gets the crash-code
+## rule only.
 reml_divergence_rule <- function(cfg) {
     list(exit_codes = cfg$gcta$divergence_crash_exit_codes,
          magnitude = cfg$gcta$divergence_magnitude,
          gated_patterns = cfg$gcta$divergence_gated_patterns,
-         relative_magnitude = cfg$gcta$divergence_relative_magnitude)
+         relative_magnitude = cfg$gcta$divergence_relative_magnitude,
+         degenerate_se_is_failure = cfg$gcta$degenerate_se_is_estimation_failure)
 }
 
 ## Parse a GCTA .hsq into one row. Handles single-GRM ("V(G)/Vp") and
