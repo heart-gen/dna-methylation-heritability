@@ -24,6 +24,9 @@
 # sensitivity. The DLPFC smoke run (cgs-AA-dlpfc-smoke-20261003, 60 VMRs)
 # reconciled 120/120 units, matched Module 02's SNP set on every fitted VMR and
 # passed 6/6 gate criteria; its numbers are a pipeline check, not results.
+#
+# Amended 2026-10-06 (PI), reconciliation only: gcta.divergence_gated_patterns
+# below. No estimator, mode, window, covariate or summary setting changed.
 
 pi_locked: true
 locked_on: 2026-10-04
@@ -51,6 +54,20 @@ gcta:
     - "more than half of the variance components are constrained"
   divergence_crash_exit_codes: [134, 136, 139]
   divergence_magnitude: 1.0e+10
+  # Amended 2026-10-06 (PI). The first production attempt
+  # (cgs-AA-*-20261004, unsealed) had 6 primary-mode fits of ~29,000 -- 3
+  # caudate, 1 DLPFC, 2 hippocampus -- end in GCTA exit 1 with this message
+  # after AI-REML diverged: the iteration traces peaked at a variance
+  # component 2.9e9 to 4.2e13 times the EM starting Vp, and Fisher scoring
+  # converged on all six VMRs. The same covariate design fitted every other
+  # VMR in each region, so the message was not a design fault. It counts as
+  # an estimator outcome ONLY when the trace shows that runaway
+  # (00_shared/gcta.R::reml_trace_divergence); a collinear design stops
+  # before iterating and still reconciles as a computational failure. The
+  # 1e6 threshold sits three orders below the smallest observed ratio.
+  divergence_gated_patterns:
+    - "the X^t * V^-1 * X matrix is not invertible"
+  divergence_relative_magnitude: 1.0e+6
 
 # Locus model. Every item is Module 02's, so the two estimators see the same
 # data; 01_fit_cis_greml.R asserts the per-VMR SNP count equals Module 02's
