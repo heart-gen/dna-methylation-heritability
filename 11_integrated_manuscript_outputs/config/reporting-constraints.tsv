@@ -1,0 +1,2 @@
+constraint_id	module	region	table	key	constraint	decided_on	decided_by	source
+env_dlpfc_nicotine_scz_fdr_undetermined	10_environmental_exploratory	dlpfc	environmental-axis-per-region	nicotine@schizophrenia	fdr_call_undetermined	2026-10-03	PI	10_environmental_exploratory/README.md "DLPFC nicotine@schizophrenia: the FDR call is undetermined at B = 1000" -- q 0.0491-0.0550 across four bootstrap seeds on a bit-identical estimate; report the estimate and interval, and the FDR call as not resolved in either direction

@@ -92,17 +92,11 @@ a factual record of which files carry one, not as a blocker. Two notes:
 
 ## Still open before submission
 
-**Module 10 is sealed but unaccepted.** SD13's tables all carry
-`citable = FALSE`. The Zenodo record is versioned and public, so nothing from
-`env-AA-*-20260920-a` should go on it before the acceptance rows exist.
-
-**Module 11 has no accepted run.** SD14 is `pending_build`, and Figures 1-2 were
-last built on run IDs retired on 2026-09-17.
-
-**Resolved 2026-09-20:** the retired v1 elastic-net calibration outputs
-(`02_local_genetic_variance/_m/combined/calibrated-local-h2-all-cells.tsv` and
-`observed-run-qc-all-cells.tsv`) are untracked from git and gitignored under
-AGENTS.md §3. They remain on Quest for audit and are recoverable from history.
+Nothing on the provenance side. SD14 moved to the rebuilt Module 11 run
+`fig-all-20261006-b` on its acceptance (2026-10-06). SD15 (Module 02b) and SD16
+(Module 02c) are `ready`: both modules were accepted on 2026-10-06 and their
+`_m/combined/` tables are tracked. The distribution ledger in the manuscript
+repository still needs the SD15 and SD16 rows.
 
 ## Relationship to the manuscript repository
 

@@ -42,7 +42,8 @@ A figure run of this module additionally carries three directories:
   actually renders. Each carries `source_run_id`, `source_table`,
   `source_script` and `row_filter`, which is the AGENTS.md §7.11 contract.
   `03_close_figure_run.R` refuses to seal a run in which any figure lacks one.
-- `tables/` — Table 1 and its booktabs fragment, the manuscript number
+- `tables/` — Table 1 and its booktabs fragment, `results-summary.md` and
+  `methods-summary.md` (AGENTS.md 7.11's summaries), the manuscript number
   registry, the analysis-to-claim matrix, the exclusions/denominator table, the
   supplementary-table index and the software/run manifest.
 

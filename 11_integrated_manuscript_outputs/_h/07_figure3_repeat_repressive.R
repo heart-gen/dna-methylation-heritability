@@ -2,27 +2,30 @@
 ##
 ## AGENTS.md 11 assigns Figure 3 "LINE/L1, H3K9me3, quiescent chromatin,
 ## mappability, and cell sensitivities". Module 04 is the owning analysis
-## (AGENTS.md 7.4) and its accepted runs are rra-AA-{region}-20260906.
+## (AGENTS.md 7.4); its accepted run IDs are resolved at build time.
 ##
 ## Panels, in rendered order
 ##   a  the BH family: H3K9me3, LINE/L1, quiescent, three regions
-##   b  complementary contrasts (accessible, H3K27ac) and the H3K27me3
-##      specificity control -- the compartments that run the OTHER way
-##   c  the five locked analysis sets, so a reader sees the sensitivities
-##      rather than being told they passed
+##   b  complementary contrasts (accessible, H3K27ac, the BrainScope ATAC
+##      union) and the H3K27me3 specificity control -- the compartments that
+##      run the OTHER way
+##   c  the locked analysis sets, so a reader sees the sensitivities rather
+##      than being told they passed
 ##   d  the continuous gradient behind panel a, across score deciles
 ##
 ## WHAT THIS FIGURE MAY AND MAY NOT SAY
-## The permitted claim per outcome is read from the run at build time and
-## asserted, not restated from memory. As accepted on 2026-09-08:
-##   quiescent_frac  shared across all three regions (3/3)
-##   h3k9me3_frac    BELOW the gate (2/3); suggestive in dlpfc + hippocampus
-##                   only, and never described as shared
-##   line_l1_frac    supported in both ELIGIBLE regions (dlpfc, hippocampus).
-##                   Caudate is set aside as technically confounded -- it is
-##                   NOT a null result and NOT a failure to replicate, and it
-##                   is excluded from the 2/2 denominator. It renders in
-##                   PAL_NULL with an explicit "set aside" mark.
+## The permitted claim per outcome is read from the run's
+## interpretation-claims.tsv at build time and asserted below; this header
+## does not restate the counts, because a header that did went stale when
+## Module 04 was reaccepted. Three properties the guards enforce:
+##   * H3K9me3 is below the shared gate and is never drawn as shared;
+##   * quiescent chromatin is shared across all regions it is required in;
+##   * LINE/L1 in caudate is SET ASIDE as technically confounded -- not a
+##     null, not a failure to replicate, outside the claim denominator -- and
+##     renders in PAL_NULL with an explicit mark.
+## The seven BrainScope per-cell-type ATAC tracks are a breakdown, not a
+## cell-type identification (AGENTS.md 2.3): they are carried in source data,
+## outside every FDR family, and not rendered.
 ## Caudate is batch-confounded throughout (AGENTS.md 8.1), so no caudate-vs-
 ## other-region difference anywhere in this figure is attributable to region.
 ## Overlap is overlap: no activity, expression or retrotransposition claim
@@ -127,6 +130,7 @@ OUTCOME_LABELS <- c(
     h3k9me3_frac    = "H3K9me3",
     line_l1_frac    = "LINE/L1",
     accessible_frac = "Accessible",
+    atac_union_frac = "ATAC (union)",
     h3k27ac_frac    = "H3K27ac",
     h3k27me3_frac   = "H3K27me3",
     bivalent_frac   = "Bivalent")
@@ -138,7 +142,8 @@ SET_LABELS <- c(
     primary                 = "Primary",
     high_mappability        = "High mappability",
     exclude_segdups         = "No segdups",
-    adjust_cell_composition = "Cell adjusted",
+    adjust_cell_composition = "MuSiC adjusted",
+    adjust_cell_composition_scmd = "scMD adjusted",
     low_cell_composition    = "Low cell content")
 
 prep <- function(dt) {
@@ -186,16 +191,20 @@ pA <- ggplot(prim, aes(estimate, label, colour = region, alpha = !set_aside)) +
           plot.caption = element_text(size = 6.5, hjust = 0, colour = "grey35"))
 
 ## ---------------------------------- b. complementary contrasts and controls
-OTHER <- c("accessible_frac", "h3k27ac_frac", "h3k27me3_frac", "bivalent_frac")
+OTHER <- c("accessible_frac", "atac_union_frac", "h3k27ac_frac", "h3k27me3_frac",
+           "bivalent_frac")
 oth <- prep(assoc[analysis_set == "primary" & predictor == PREDICTOR &
                   outcome %in% OTHER])
 ## Short, because these strips are rendered horizontally beside a facet that
 ## can be one row tall. The full role names are in the panel's source data and
 ## the caption.
 ROLE_LABELS <- c(complementary_contrast = "Contrast",
+                 complementary_contrast_independent_assay = "Contrast",
                  specificity_control    = "Control",
                  descriptive            = "Descriptive")
-oth[, role := factor(ROLE_LABELS[outcome_role], levels = unname(ROLE_LABELS))]
+oth[, role := factor(ROLE_LABELS[outcome_role], levels = unique(unname(ROLE_LABELS)))]
+if (anyNA(oth$role)) stop("Unlabelled Module 04 outcome_role in panel b: ",
+                          paste(unique(oth[is.na(role), outcome_role]), collapse = ", "))
 
 pB <- ggplot(oth, aes(estimate, label, colour = region)) +
     geom_vline(xintercept = 0, colour = PAL_NULL, linewidth = 0.35) +
@@ -222,6 +231,18 @@ pB <- ggplot(oth, aes(estimate, label, colour = region)) +
 sens <- prep(assoc[predictor == PREDICTOR & outcome %in% BH_FAMILY])
 sens[, set := factor(SET_LABELS[analysis_set], levels = unname(SET_LABELS))]
 sens <- sens[!is.na(set)]
+## An arm Module 04 did not fit in a region (scMD: its integration gate passes
+## in caudate only) is not a null and is not drawn; it is named in the caption,
+## read from `arm_fitted`, so its absence cannot be mistaken for a result.
+sens[, fitted := !(arm_fitted %in% c(FALSE, "FALSE")) & n_fitted > 0]
+nf <- unique(sens[fitted == FALSE, .(set, region)])
+nf_cap <- if (nrow(nf) == 0) NULL else paste0(
+    "Not fitted, so not shown: ",
+    paste(vapply(split(as.character(nf$region), as.character(nf$set)),
+                 paste, character(1), collapse = ", "),
+          names(split(as.character(nf$region), as.character(nf$set))),
+          sep = " \u2014 ", collapse = "; "), ".")
+sens <- sens[fitted == TRUE]
 sens[, set_aside := outcome == "line_l1_frac" & as.character(region) ==
          REGION_LABELS[[SET_ASIDE]]]
 
@@ -234,8 +255,10 @@ pC <- ggplot(sens, aes(estimate, set, colour = region, alpha = !set_aside)) +
     scale_colour_manual(values = REGION_COLORS, guide = "none") +
     scale_alpha_manual(values = c(`FALSE` = 0.35, `TRUE` = 1), guide = "none") +
     scale_y_discrete(limits = rev) +
-    labs(x = "Association with local SNP contribution rank (per SD)", y = NULL) +
-    BASE_THEME + NO_TITLES + GRID_Y
+    labs(x = "Association with local SNP contribution rank (per SD)", y = NULL,
+         caption = nf_cap) +
+    BASE_THEME + NO_TITLES + GRID_Y +
+    theme(plot.caption = element_text(size = 6.5, hjust = 0, colour = "grey35"))
 
 ## --------------------------------- d. the continuous gradient behind panel a
 ##
@@ -306,6 +329,13 @@ sd(sens[, c(KEEP, "set_aside"), with = FALSE], "panel_c", TBL,
           "analysis sets"))
 sd(grad, "panel_d", "results/vmr-features.tsv",
    "all VMRs with a finite overlap fraction; deciles of local_snp_contribution_score; descriptive proportions, no enrichment test")
+ct <- prep(assoc[analysis_set == "primary" & predictor == PREDICTOR &
+                 outcome_role == "celltype_breakdown_secondary"])
+sd(ct[, KEEP, with = FALSE], "celltype_breakdown", TBL,
+   paste0("analysis_set == 'primary'; outcome_role == 'celltype_breakdown_secondary'; ",
+          "BrainScope per-cell-type ATAC tracks, outside every FDR family and NOT ",
+          "rendered: a breakdown of the union contrast, not a cell-type ",
+          "identification (AGENTS.md 2.3)"))
 sd(claims, "claims", "results/interpretation-claims.tsv",
    "the accepted permitted-claim table, on the caudate gate host")
 

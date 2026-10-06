@@ -150,6 +150,43 @@ sig_stars <- function(q) {
 
 SIG_KEY <- "*** q < 0.001   ** q < 0.01   * q < 0.05"
 
+## PI reporting decisions that a rendered panel must honour but that no
+## upstream table carries as a column -- for example Module 10's ruling that one
+## family's FDR call is undetermined across bootstrap seeds and may not be shown
+## as resolved in either direction. They live in this module's own
+## config/reporting-constraints.tsv (AGENTS.md 5.1: a module config holds only
+## files meaningless outside it), are snapshotted into the run beside _h/, and
+## are read from the snapshot when there is one.
+##
+## Each constraint must match exactly one row of the table it names. Zero means
+## the upstream moved under the decision, more than one means the key is
+## ambiguous; either way the decision can no longer be applied as written, so
+## the build stops rather than rendering past it.
+read_reporting_constraints <- function(run_dir) {
+    snap <- file.path(run_dir, "code", "module_config", "reporting-constraints.tsv")
+    live <- file.path(V2_ROOT, "11_integrated_manuscript_outputs", "config",
+                      "reporting-constraints.tsv")
+    f <- if (file.exists(snap)) snap else live
+    data.table::fread(f, sep = "\t", colClasses = "character")
+}
+
+apply_reporting_constraint <- function(constraints, constraint, table, dt,
+                                       region_col, key) {
+    rows <- constraints[constraints$constraint == constraint &
+                        constraints$table == table]
+    hit <- rep(FALSE, nrow(dt))
+    for (i in seq_len(nrow(rows))) {
+        m <- as.character(dt[[region_col]]) == rows$region[i] & key == rows$key[i]
+        if (sum(m) != 1L) {
+            stop("Reporting constraint ", rows$constraint_id[i], " matches ",
+                 sum(m), " rows of ", table, " (expected exactly 1). The ",
+                 "upstream moved under a PI decision; re-read ", rows$source[i])
+        }
+        hit <- hit | m
+    }
+    hit
+}
+
 #' v1's diverging log2 odds-ratio fill, ported from
 #' annotation/enrichment/_h/02.plot_heatmap.R:76-84.
 #'
