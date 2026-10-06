@@ -40,7 +40,7 @@ legacy_path <- if (cohort == "AA") {
     file.path(V2_ROOT, "vmr-analysis", "all_individuals", region, "_m", "vmr.bed")
 }
 
-## The legacy trees were retired from the working tree on 2026-10-03 and
+## The legacy trees were retired from the working tree on 2026-10-06 and
 ## survive in git history under the recovery tag (config/paths.yml
 ## legacy_recovery_tag). The legacy vmr.bed files were tracked, so a rerun reads
 ## the identical bytes from the tag and the turnover table stays reproducible

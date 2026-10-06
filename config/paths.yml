@@ -25,7 +25,7 @@ region_phenotype_tables:
 
 # AA discovery VMRs (primary Phase 1). all_individuals VMRs available for EA/expanded.
 # Read only by inputs/data_dictionary (an inventory of the legacy data). It
-# resolves inside this repo, so after the 2026-10-03 retirement the inventory
+# resolves inside this repo, so after the 2026-10-06 retirement the inventory
 # records the legacy BED as absent; the file survives at legacy_recovery_tag.
 vmr_bed_template: vmr-analysis/{region}/_m/vmr.bed
 
@@ -146,7 +146,7 @@ config_dir: config
 
 # Schizophrenia-risk application (prespecified; not methylation-defined).
 # The v2 module is 09_schizophrenia_risk_application; the legacy Phase 7 tree is
-# retired 2026-10-03 and survives at legacy_recovery_tag (MIGRATION_MANIFEST.tsv). The legacy index-SNP TSV
+# retired 2026-10-06 and survives at legacy_recovery_tag (MIGRATION_MANIFEST.tsv). The legacy index-SNP TSV
 # is a generated legacy artifact, so v2 reads the published .xls directly
 # (09_schizophrenia_risk_application/_h/01_define_scz_loci.R, via readxl).
 schizophrenia_gwas:

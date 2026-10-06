@@ -102,7 +102,13 @@ Per accepted run, under `_m/runs/{RUN_ID}/`:
 - `vmr/donors_plink.txt` — `--keep` list, in catalog donor order
 - `vmr/sd_cutoffs.tsv` — per-chromosome SD cutoff and counts
 - `cpg/chr_{N}/`, `covs/chr_{N}/`, `pca/chr_{N}/` — per-chromosome intermediates
-- `qc/vmr_turnover.tsv`, `qc/array_coverage.tsv`, `qc/technical_qc.tsv`
+- `qc/vmr_turnover.tsv`, `qc/array_coverage.tsv`, `qc/technical_qc.tsv`.
+  The turnover table compares against the legacy `vmr-analysis/` catalogs,
+  which were retired from the working tree on 2026-10-06. A rerun reads the
+  identical tracked BEDs from the recovery tag (`config/paths.yml`
+  `legacy_recovery_tag`, `v1-legacy-final`) and records the source in
+  `legacy_origin`. The accepted runs read them from disk before the retirement,
+  and their tables are unchanged.
 - `qc/exclusions.tsv` — one row per donor, candidate VMR, chromosome or
   aggregate CpG group that entered and did not survive, with the single rule
   that removed it

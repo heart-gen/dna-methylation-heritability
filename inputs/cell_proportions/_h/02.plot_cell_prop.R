@@ -183,7 +183,7 @@ for (tissue in c("caudate", "dlpfc", "hippocampus")) {
                                         # Get sample list for valid ids
   ## The accepted all_individuals catalog's donor list (same two columns,
   ## BrNum and the genotype FID) -- the legacy vmr-analysis/ lists were
-  ## invalidated by V1 and retired on 2026-10-03.
+  ## invalidated by V1 and retired on 2026-10-06.
   samples_fn <- Sys.glob(here("01_vmr_catalog/_m/runs",
                               paste0("vmrcat-all_individuals-", tissue, "-2026*"),
                               "vmr/donors_plink.txt"))
