@@ -288,24 +288,114 @@ testing:
   axis_covariates:
     [vmr_length, cpg_count, cpg_density, gc_content, mappability,
      mean_methylation, methylation_variance]
-  # PI 2026-09-19. A NON-GATING arm, added with the debiased outcome.
+  # ------------------------------------------------------------------ axis arms
   #
-  # methylation_variance is in the adjustment set above, and holding total
-  # variance fixed is exactly what activates the variance-budget arithmetic in
-  # interpretation.variance_budget_limitation: at a fixed total, a higher genetic
-  # share leaves less non-genetic variance for any exposure to move.
-  # 09b_aging_application faced the same choice and EXCLUDED total variance from
-  # its primary, on the ground that the outcome is part of what is being adjusted
-  # for. This arm drops it and nothing else, so the difference between the two
-  # estimates is attributable to that one covariate.
+  # An arm refits the PRIMARY outcome and the primary estimand with one change to
+  # the adjustment set, on the primary's VMR rows and the primary's bootstrap
+  # draws, so the comparison is paired. Every arm here is NON-GATING: it cannot
+  # promote or demote the primary, it gets its own BH family, and neither
+  # direction is a failure. `axis_covariates` above is the prespecified primary
+  # and is NOT touched by any of this -- no arm changes the primary estimate or
+  # the primary's BH family.
   #
-  # It is a sensitivity, not a second headline: it cannot promote or demote the
-  # primary, it is fitted on the SAME VMR rows and the SAME bootstrap draws as the
-  # primary so the comparison is paired, and it gets its own BH family. Neither
-  # direction is a failure -- the primary stays primary because it is the
-  # prespecified model, and this arm says how much of it the covariate carries.
-  non_gating_axis_arms: [no_methylation_variance]
-  arm_no_methylation_variance_drops: [methylation_variance]
+  # SHAPE NOTE. Until 2026-10-02 this was two flat keys,
+  # `non_gating_axis_arms: [...]` plus `arm_<name>_drops: [...]`, which could only
+  # express a dropped covariate. The cell-composition arm adds one, so the keys
+  # became the `axis_arms` map below -- the same shape 09b_aging_application
+  # already uses at config/aging.yml:axis.arms. A sealed run snapshots its config,
+  # so _h/03_control_axis_test.R reads BOTH shapes and an older run still re-runs.
+  #
+  # WHY NON_GATING AND NOT GATING, which is where 09b puts its cell arm. A gate
+  # exists to decide something. 09b has a per-region reading to decide, so its
+  # cell arm sits in `region_reading.same_n_members` and can veto. Module 10 has
+  # no such decision to make: its gate is a COVERAGE gate (gates: below), a null
+  # axis result is a legitimate outcome that must seal, and
+  # `main_text_retention = NEVER_SUPPLEMENT_ONLY` holds whatever any arm does. An
+  # arm that cannot change an outcome is not a gate, and calling it one would
+  # imply this module has a finding to defend.
+  axis_arms:
+
+    # PI 2026-09-19, carried forward unchanged.
+    #
+    # methylation_variance is in the adjustment set above, and holding total
+    # variance fixed is exactly what activates the variance-budget arithmetic in
+    # interpretation.variance_budget_limitation: at a fixed total, a higher
+    # genetic share leaves less non-genetic variance for any exposure to move.
+    # 09b faced the same choice and EXCLUDED total variance from its primary, on
+    # the ground that the outcome is part of what is being adjusted for. This arm
+    # drops it and nothing else, so the difference between the two estimates is
+    # attributable to that one covariate.
+    #
+    # PI 2026-10-02, closing the open item in the module README: the primary
+    # KEEPS methylation_variance and this stays a sensitivity. Two reasons. The
+    # arm moves the three FDR-surviving families by 0.016-0.048 of their
+    # coefficient on the sealed env-AA-*-20260920-a runs, so promoting it would
+    # change no reading; and the covariate set is prespecified, so swapping the
+    # primary after seeing which way the arm went is exactly the choice
+    # prespecification exists to prevent. The variance-budget limitation is a
+    # permanent Discussion item either way -- it is arithmetic, not a covariate.
+    no_methylation_variance:
+      role: non_gating
+      drop_covariates: [methylation_variance]
+
+    # PI 2026-10-02, closing the open item in the module README.
+    #
+    # Module 10 had NO cell-composition arm, and an earlier revision of the
+    # README wrongly reported one -- it named the no_methylation_variance numbers
+    # as a `cell_composition_r2` arm and concluded the gradient was "not cell
+    # composition restated". The numbers were real; the arm did not exist, so the
+    # conclusion was untested rather than established. Worse, 09b DOES have this
+    # arm, there it is gating, and there the aging gradient FAILS it -- so the
+    # mislabel imported the opposite conclusion from the module next door.
+    #
+    # This arm makes the module answer the question it was wrongly credited with
+    # answering. `cell_composition_r2` is Module 04's per-VMR R-squared of
+    # methylation on cell-composition PCs, the same column 09b's gating arm uses,
+    # so the two modules' sensitivities are directly comparable.
+    #
+    # MODALITY. It is RNA MuSiC in all three regions -- Module 04 records that in
+    # `cell_composition_r2_source` and _h/03_control_axis_test.R verifies it
+    # rather than trusting the name, because the column was DNAm scMD before
+    # Module 04's 2026-09-25 rebuild and a silent modality switch would change
+    # what this arm means. The DNAm scMD modality is the separate
+    # `cell_composition_r2_scmd` arm below.
+    #
+    # REQUIRES rra-AA-*-20260925-a or later: the column does not exist in
+    # rra-AA-*-20260906. Stage 03 stops with the Module 04 run ID named if it is
+    # absent, rather than dropping the arm quietly.
+    cell_composition_r2:
+      role: non_gating
+      add_covariates: [cell_composition_r2]
+      requires_cell_composition_r2_source: rna_music
+
+    # PI 2026-10-02, added after the first 2026-10-02 round came back.
+    #
+    # WHY. The RNA MuSiC arm above attenuates the gradient by about half in
+    # CAUDATE and by at most 5% in DLPFC and hippocampus, and caudate is the one
+    # region where the DNAm scMD integration gate passes. So the question the
+    # MuSiC arm raises is answerable exactly where it is raised: is the caudate
+    # attenuation a property of cell composition, or of the RNA-derived measure
+    # of it? One arm, one region, and it is the only place the comparison exists.
+    #
+    # REGION-CONDITIONAL, and that is a first for this module. AGENTS.md 7.4 and
+    # 7.9 both scope DNAm scMD to "where the integration gate passes", which
+    # Module 04 records per run in `scmd_integration_gate`: PASS in caudate,
+    # FAIL in DLPFC and hippocampus, where `cell_composition_r2_scmd` is empty
+    # for every VMR. An arm that cannot be fitted is SKIPPED, with the reason
+    # recorded on the run, in the arms table and on the decision row -- never
+    # dropped silently. A silently absent sensitivity is the exact failure this
+    # module has already had once, and the coverage gate counts ELIGIBLE arms
+    # rather than declared ones so a skip cannot be mistaken for a pass.
+    #
+    # It does not make the three regions comparable or incomparable: nothing is
+    # gated on any arm here, and AGENTS.md 7.10 emits no cross-region contrast at
+    # all, so a region carrying one more sensitivity than another changes no
+    # reading. What it changes is how well the caudate number is characterised
+    # before anyone cites it.
+    cell_composition_r2_scmd:
+      role: non_gating
+      add_covariates: [cell_composition_r2_scmd]
+      requires_scmd_integration_gate: PASS
   # PI 2026-09-20, replacing relative_scale_min_mean_z.
   #
   # The interpretable quantity is the ratio R = beta / mean(omega) -- "38% less
@@ -361,7 +451,35 @@ testing:
   # family whose primary is null.
   primary_axis_estimand: proportional_gradient_ratio_functional
   absolute_axis_sensitivity: true
-  relative_effect_interval: fieller_informational_not_gating
+  # Superseded 2026-10-02: Fieller now gates the magnitude. See below.
+  relative_effect_interval: fieller_gating_on_magnitude
+  # RELATIVE-MAGNITUDE GATE (PI, 2026-10-02; T28 decision B).
+  # Fieller's denominator-stability condition now GATES whether a proportional
+  # magnitude may be reported at all. It was informational; it gates. What it
+  # gates is the MAGNITUDE and its interval, never the test of nullity -- that
+  # null is identical on both scales, and T28 measured the ratio-scale SE at
+  # type-I 0.038-0.052 against the absolute scale's 0.000-0.003, so gating the
+  # test too would move every family onto the worse of two tests of one
+  # hypothesis. A gated family still reports a signed, FDR-controlled test.
+  #
+  # The gate's covariance is deliberately NOT the bootstrap one. v22 is the
+  # variance of the DENOMINATOR, an absolute-scale quantity where T28 found the
+  # donor bootstrap over-conservative, and the choice flips verdicts at the
+  # 1.96 boundary: 09b's hippocampus primary has den_z 1.93 under a bootstrap
+  # covariance and 3.23 under this one.
+  relative_magnitude_gate: fieller_denominator_stability
+  relative_magnitude_gate_covariance: donor_jackknife_plus_chromosome_block
+  relative_magnitude_gate_gates: magnitude_and_interval_not_nullity_test
+  relative_magnitude_gate_decided_by_pi: 2026-10-02
+  # ABSOLUTE-SCALE LIMITATION (PI, 2026-10-02; T28 decision A, recorded not
+  # repaired). An absolute-scale p from 00_shared/axis_inference.R is not a test
+  # at its stated level: T28 measured a nominal 0.05 test running at 0.000-0.003
+  # with power 0.03-0.20 at a true -0.25 gradient, because the donor bootstrap
+  # inflates the debiased outcome and nothing cancels it when there is no
+  # denominator. No claim rests on it -- every raw-scale family reports p > 0.2
+  # and the absolute gradient is a sensitivity -- so it stays a limitation.
+  absolute_scale_p_is_conservative_not_calibrated: true
+  #
   # A family whose mean omega is at or below zero has no detectable exposure
   # contribution, so the ratio's sign is meaningless and it reports the absolute
   # gradient. That is a definitional boundary at zero, not a tuned threshold.

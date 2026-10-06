@@ -40,6 +40,64 @@
 ## whose bootstrap distribution sits about SE^2 away from the estimate by
 ## construction.
 ##
+## VALIDATED, T28, 2026-10-02. 192 simulation cells x 1,000 replicates, truth
+## constructed from E[omega_v] = b_v' M^-1 b_v / n, noise drawn from a 10-factor
+## model fitted to the fixtures' own residual matrices (their mean pairwise
+## across-VMR residual correlation is 0.017, with a leading donor factor at
+## 7%-21%, so independent per-VMR noise would understate the donor half and did).
+## Type-I error at nominal 0.05, on the RATIO scale, over 16 cells:
+##
+##   OLS over VMR rows        0.077 - 0.225      donor bootstrap alone  0.116 - 0.640
+##   chromosome jackknife     0.056 - 0.165      delete-one-donor alone 0.009 - 0.087
+##   THIS (sum of the two)    0.016 - 0.069      both jackknives summed 0.001 - 0.029
+##
+## So the sum is doing real work and neither half is adequate: at n = 152 the
+## bootstrap alone rejects 62% of true nulls. The arithmetic below is unchanged by
+## T28 and must not be "fixed" toward either half.
+##
+## WHAT T28 DID FIND. The donor bootstrap UNDOES THE DEBIASING: a resample destroys
+## the orthogonality between each VMR's residuals and the design, so each draw
+## credits the term with sum of squares that - df*sigma2 no longer cancels. The
+## bias is additive, regresses on sigma2/n with slope 0.84-2.24, and correlates
+## NEGATIVELY (-0.24 to -0.36) with the true effect. On the ratio it largely
+## cancels in the quotient; on the ABSOLUTE scale it does not, and the resulting
+## SE is grossly over-conservative - a nominal 0.05 test running at 0.000-0.003
+## with power 0.03-0.20 at a true -0.25 gradient. An absolute-scale p from this
+## file is therefore not a test at its stated level. That is a recorded
+## limitation, not a repair (PI, 2026-10-02); see each module's README.
+##
+## CONFIRMED ON THE FULL 192-CELL GRID AND SIGNED, 2026-10-03. The grid was
+## extended with a `no_effect` condition (every b_v exactly zero, so the family
+## mean is zero and no proportional effect exists) and run to 192 cells with zero
+## failures. Ratio-scale maxima over the complete grid:
+##
+##   THIS (se_combined)       type-I 0.027-0.046   min power 0.246-0.685
+##   donor bootstrap alone    type-I 0.282-0.438
+##   chromosome jk alone      type-I 0.060-0.154
+##   delete-one-donor alone   type-I 0.019-0.079
+##   delta-method ratio SE    type-I 0.0006-0.016  min power 0.041
+##
+## Four decisions were put to the PI and signed on 2026-10-03:
+##   D1 ACCEPTED -- the sum above is the ratio-scale inference and does not
+##      change. It is the only variant that is both calibrated and powered; at
+##      the realistic cell (n=152, factor noise) the delta-method alternative
+##      falls to power 0.041 against 0.246. Do not "fix" this toward either half
+##      and do not substitute a delta-method SE.
+##   D2 ACCEPTED -- the absolute-scale columns are over-conservative and are NOT
+##      tests at 0.05. Recorded, not repaired; no absolute-scale variance among
+##      those tested is calibrated.
+##   D3 REJECTED -- the draw-level guard below still admits a bootstrap draw on
+##      the family mean being POSITIVE rather than separated from zero, so a draw
+##      with a denominator of 1e-9 is admitted and contributes an enormous ratio.
+##      The candidate replacement was measured and is worse (power 0.041 against
+##      0.246), so the guard is unchanged and this is a KNOWN CONSERVATISM. The
+##      magnitude gate below bounds the misuse of a near-zero denominator; it does
+##      not remove the inflated draw's effect on the gradient p.
+##   D4 ACCEPTED -- n_bootstrap is not raised in either module's config. For the
+##      quotient of a debiased statistic the series does not converge with B: one
+##      Module 10 family's se_bootstrap GROWS from 0.092 at B=2000 to 0.101 at
+##      B=8000, which is what a heavy-tailed series does.
+##
 ## Provenance: extracted from 09b_aging_application/_h/age_functions.R on
 ## 2026-09-19, arithmetic unchanged, when Module 10 needed the same three
 ## functions. 09b sources this file and keeps only its age-specific parts.
@@ -264,4 +322,101 @@ fieller_ratio_ci <- function(num, den, V, alpha = 0.05) {
     hi <- (-Bq + sqrt(disc)) / (2 * A)
     list(ratio = ratio, ci_lower = min(lo, hi), ci_upper = max(lo, hi),
          estimable = TRUE, reason = NA_character_, den_z = den / sqrt(v22))
+}
+
+## ---------------------------------------------------------------------------
+## THE RELATIVE-MAGNITUDE GATE (PI, 2026-10-02, decision B)
+##
+## Fieller's denominator-stability condition is now the GATE on whether a relative
+## (proportional) effect is estimable at all, replacing the `mean > 0` sign test
+## that chose the reported scale. It was `informational_not_gating`; it gates.
+##
+## WHAT IT GATES, PRECISELY. The MAGNITUDE and its interval -- the percentage. It
+## does NOT gate the test of whether the gradient is zero, because that null is
+## identical on both scales (R = 0 iff beta = 0) and the two scales' variances are
+## not equally trustworthy: T28 measured the ratio-scale combined SE at type-I
+## 0.038-0.052 with power 0.28-0.63 at a true -0.25 gradient, and the
+## absolute-scale SE at 0.000-0.003 with power 0.03-0.20. Gating the test as well
+## would move every family onto the worse of two tests of the same hypothesis and
+## call that a repair. So a family that fails this gate still reports a signed,
+## FDR-controlled test of nullity, and may not report a percentage.
+##
+## WHICH COVARIANCE. v22 is the variance of the DENOMINATOR, an absolute-scale
+## quantity, and the donor bootstrap is over-conservative there (above). Gating on
+## a bootstrap v22 would import that defect into a decision, and it demonstrably
+## does: 09b's hippocampus primary has den_z 1.93 under the bootstrap covariance
+## and 3.23 under a delete-one-donor one, flipping the verdict at 1.96. The gate
+## therefore uses delete-one-donor + delete-one-chromosome, built by
+## delete_one_donor_cov() below and block_jackknife_cov() above.
+##
+## THE GATE'S OWN ERROR RATES, MEASURED BEFORE IT SHIPPED (T28 full grid, 192
+## cells, signed 2026-10-03). Under a `no_effect` condition in which every b_v is
+## exactly zero -- so the true family mean is zero and no proportional effect
+## exists, because the quantity it would be a proportion OF does not exist:
+## false "reportable" 0.0000 at n=152 and 0.0010 at n=48; max q95 den_z <= 1.03
+## against the 1.96 threshold; sensitivity 0.87-1.00 where the mean is well
+## separated; and `design` (per-VMR effects fixed vs redrawn) moves it not at all,
+## correctly. The pinned covariance beats a bootstrap v22 in all 16 cells at both
+## sample sizes at identical false-positive rates, by up to 0.89 of sensitivity.
+## The ratio-scale type-I and power quoted above were the 16-cell read; the full
+## grid gives type-I 0.027-0.046 and power 0.246-0.685 for se_combined, and
+## 0.0006-0.016 / 0.041 for the delta-method alternative.
+## The relative-magnitude gate is read and TYPE-CHECKED, never defaulted. A run
+## whose config does not declare it, or declares a different covariance, must stop
+## rather than quietly report magnitudes the PI's 2026-10-02 decision forbids.
+require_magnitude_gate <- function(cfg_block, where) {
+    g <- cfg_block$relative_magnitude_gate
+    cv <- cfg_block$relative_magnitude_gate_covariance
+    gt <- cfg_block$relative_magnitude_gate_gates
+    if (!identical(g, "fieller_denominator_stability")) {
+        stop(where, ":relative_magnitude_gate must be ",
+             "'fieller_denominator_stability' (PI 2026-10-02), got ",
+             if (is.null(g)) "nothing" else paste0("'", g, "'"))
+    }
+    if (!identical(cv, "donor_jackknife_plus_chromosome_block")) {
+        stop(where, ":relative_magnitude_gate_covariance must be ",
+             "'donor_jackknife_plus_chromosome_block': a bootstrap denominator ",
+             "variance is over-conservative and flips the gate at 1.96 (T28)")
+    }
+    if (!identical(gt, "magnitude_and_interval_not_nullity_test")) {
+        stop(where, ":relative_magnitude_gate_gates must be ",
+             "'magnitude_and_interval_not_nullity_test'")
+    }
+    invisible(TRUE)
+}
+
+relative_magnitude_gate <- function(num, den, V_gate, alpha = 0.05) {
+    fi <- fieller_ratio_ci(num, den, V_gate, alpha)
+    list(reportable = isTRUE(fi$estimable),
+         den_z = fi$den_z,
+         reason = if (isTRUE(fi$estimable)) NA_character_ else fi$reason,
+         ci_lower = fi$ci_lower, ci_upper = fi$ci_upper,
+         covariance = "donor_jackknife_plus_chromosome_block",
+         alpha = alpha)
+}
+
+## Delete-one-donor jackknife covariance of (beta, mean) for the axis functional.
+##
+## The donor-level half with no duplication, which is what the gate needs. The
+## refit is module-specific -- Module 10 refits an exposure term matrix, 09b an age
+## slope -- so the caller supplies `outcome_fn(u)`, returning the per-VMR outcome
+## vector with donor u removed, or NULL where that deletion is not estimable. A
+## deletion that returns NULL is dropped and counted, never imputed.
+delete_one_donor_cov <- function(ax, outcome_fn, n_donors) {
+    th <- matrix(NA_real_, n_donors, 2L)
+    for (u in seq_len(n_donors)) {
+        y <- outcome_fn(u)
+        if (is.null(y)) next
+        th[u, ] <- axis_estimate_joint(ax, y)
+    }
+    ok <- stats::complete.cases(th); k <- sum(ok)
+    if (k < 3L) {
+        v <- matrix(NA_real_, 2L, 2L)
+        dimnames(v) <- list(c("beta", "mean"), c("beta", "mean"))
+        return(list(cov = v, n_used = k, n_donors = n_donors))
+    }
+    c0 <- sweep(th[ok, , drop = FALSE], 2, colMeans(th[ok, , drop = FALSE]))
+    v <- (k - 1) / k * crossprod(c0)
+    dimnames(v) <- list(c("beta", "mean"), c("beta", "mean"))
+    list(cov = v, n_used = k, n_donors = n_donors)
 }

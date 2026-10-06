@@ -94,7 +94,9 @@ printf '3\t02b_combine_associations.R\t%s\n' "$POOL_JOB" >> "$JOBS_TSV"
 
 # 4h, not 1h: the axis stage gained a 2000-draw donor bootstrap on 2026-09-19,
 # which refits every VMR in every draw. Hippocampus (5 families x 9,166 VMRs)
-# takes about 15 minutes; caudate has 9 families and 11,251 VMRs.
+# takes about 15 minutes; caudate has 9 families and 11,251 VMRs. Each declared
+# non-gating arm adds one more refit per draw, so the 2026-10-02 second arm costs
+# roughly another third of the bootstrap; still far inside 4h.
 AXIS_JOB=$(sbatch_step env-axis "afterok:${POOL_JOB}" 2 48G 04:00:00 \
     "${ENV_SRC} && run_r ${RUN_CODE}/03_control_axis_test.R --run-id ${RUN_ID}")
 printf '4\t03_control_axis_test.R\t%s\n' "$AXIS_JOB" >> "$JOBS_TSV"

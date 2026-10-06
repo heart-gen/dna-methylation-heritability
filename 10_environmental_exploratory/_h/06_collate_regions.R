@@ -115,18 +115,70 @@ if (length(unsealed)) {
 smoke <- any(vapply(regions, function(re) identical(mf(re, "smoke_run"), "TRUE"),
                     logical(1)))
 
-## Upstream currency, region by region. A run built on a Module 02 score that is
-## no longer the accepted one is still readable, but a writer needs to know.
+## Upstream currency, region by region, over EVERY upstream the run pinned. A run
+## built on an upstream that is no longer the accepted one is still readable, but
+## a writer needs to know, and `citable` below turns on this.
+##
+## WIDENED 2026-10-02. This checked Module 02 alone, and `00_new_run.R` pins
+## three. The gap was not hypothetical: env-AA-*-20260920-a pinned
+## rra-AA-*-20260906, Module 04 superseded it with rra-AA-*-20260925-a on
+## 2026-09-25, and `upstream_current` went on reporting TRUE on all three rows
+## while `citable` stayed TRUE -- which is exactly the state this column exists
+## to make visible. `require_accepted_upstream()` does no transitive check, so
+## Module 11 would have consumed it silently too.
+UPSTREAM_MODULES <- c(
+    vmr_catalog            = "01_vmr_catalog",
+    local_genetic_variance = "02_local_genetic_variance",
+    repeat_architecture    = "04_repeat_repressive_architecture"
+)
 upstream <- rbindlist(lapply(regions, function(re) {
-    cited <- mf(re, "upstream_local_genetic_variance_run_id")
-    acc <- tryCatch(
-        require_accepted_upstream("02_local_genetic_variance", opts$cohort, re)$run_id,
-        error = function(e) NA_character_)
-    data.table(region = re, run_id = runs[[re]],
-               module_02_cited = cited, module_02_accepted = acc,
-               upstream_current = identical(cited, acc))
-}))
+    per <- lapply(names(UPSTREAM_MODULES), function(key) {
+        cited <- mf(re, paste0("upstream_", key, "_run_id"))
+        acc <- tryCatch(
+            require_accepted_upstream(UPSTREAM_MODULES[[key]], opts$cohort,
+                                      re)$run_id,
+            error = function(e) NA_character_)
+        ## A run that pinned nothing for an upstream cannot be judged stale on
+        ## it; that is a provenance hole, reported as NA rather than as current.
+        list(key = key, cited = cited, accepted = acc,
+             current = if (!nzchar(cited %||% "") || is.na(cited)) NA
+                       else identical(cited, acc))
+    })
+    stale <- vapply(per, function(x) identical(x$current, FALSE), logical(1))
+    unknown <- vapply(per, function(x) is.na(x$current), logical(1))
+    row <- data.table(
+        region = re, run_id = runs[[re]],
+        ## Kept under their original names: these three columns are read by
+        ## `environmental-decision-{cohort}.tsv` consumers written before today.
+        module_02_cited = mf(re, "upstream_local_genetic_variance_run_id"),
+        module_02_accepted = per[[which(names(UPSTREAM_MODULES) ==
+                                        "local_genetic_variance")]]$accepted,
+        n_upstreams_checked = length(per),
+        n_upstreams_stale = sum(stale),
+        n_upstreams_unpinned = sum(unknown),
+        stale_upstreams = if (any(stale)) paste(vapply(per[stale], function(x)
+            sprintf("%s: cited %s, accepted %s", x$key, x$cited, x$accepted),
+            character(1)), collapse = "; ") else NA_character_,
+        upstream_current = !any(stale) && !any(unknown))
+    for (x in per) {
+        data.table::set(row, j = paste0("upstream_", x$key, "_cited"),
+                        value = x$cited)
+        data.table::set(row, j = paste0("upstream_", x$key, "_accepted"),
+                        value = x$accepted)
+        data.table::set(row, j = paste0("upstream_", x$key, "_current"),
+                        value = x$current)
+    }
+    row
+}), fill = TRUE)
 n_stale <- sum(!upstream$upstream_current)
+if (n_stale) {
+    for (i in which(!upstream$upstream_current)) {
+        warning("Run ", upstream$run_id[i], " (", upstream$region[i],
+                ") is not current: ",
+                upstream$stale_upstreams[i] %||% "an upstream is unpinned",
+                call. = FALSE)
+    }
+}
 
 citable <- !allow_unaccepted && !smoke && n_stale == 0L
 prov_cols <- function(dt, re) {
@@ -155,27 +207,47 @@ stack <- function(f, ...) rbindlist(lapply(regions, function(re) {
 axis <- stack("control-axis-test.tsv")
 setorder(axis, region, stratum, primary_fdr, na.last = TRUE)
 
+## The non-gating arms in long form, one row per region x exposure x stratum x
+## arm. Written by stage 03 only when at least one arm is declared, so a run
+## sealed before 2026-10-02 simply contributes nothing here.
+arms_long <- stack("control-axis-arms.tsv")
+if (nrow(arms_long)) setorder(arms_long, region, arm, stratum, fdr, na.last = TRUE)
+
 ## The 81-column run table is not readable by hand. This is a strict COLUMN
 ## SUBSET of it -- no new numbers, nothing recomputed -- holding what a writer
 ## needs to state a result and its two standing caveats.
+## `relative_magnitude_reportable` sits immediately beside `primary_beta` on
+## purpose. A writer reads THIS table, not the 81-column run table, and without
+## the flag here the reading table hands them -0.462 with nothing to say they may
+## not call it a 46% gradient -- which is the one misuse the PI's 2026-10-02 gate
+## exists to stop.
 read_cols <- c("region", "tier", "exposure", "stratum", "n_vmrs_in_axis",
-               "n_donors_refit", "primary_scale", "primary_beta", "primary_se",
+               "n_donors_refit", "primary_scale", "primary_beta",
+               "relative_magnitude_reportable", "relative_magnitude_gate_reason",
+               "relative_magnitude_den_z", "primary_se",
                "primary_ci_lower", "primary_ci_upper", "primary_p", "primary_fdr",
                "absolute_beta", "absolute_p", "absolute_role",
                "mean_omega", "mean_omega_z", "fieller_bounded", "fieller_role",
-               "bootstrap_mean_omega_inflation", "arm_covariates", "arm_beta",
-               "arm_p", "arm_attenuation", "neglog10p_beta", "neglog10p_p",
+               "bootstrap_mean_omega_inflation", "n_axis_arms",
+               "axis_arm_names", "neglog10p_beta", "neglog10p_p",
                "mechanically_biased_toward_hypothesis", "run_id", "citable",
                "built_with_unaccepted_runs")
-axis_reading <- axis[, intersect(read_cols, names(axis)), with = FALSE]
+## Arm columns are selected by PATTERN, not by name, so declaring a new arm in
+## config does not silently drop it out of the reading table -- which is what a
+## fixed list of `arm_beta`/`arm_p`/`arm_attenuation` did when the arms became a
+## map on 2026-10-02.
+arm_read <- grep("^arm_.*_(beta|p|fdr|attenuation|n_vmrs_lost_vs_primary)$",
+                 names(axis), value = TRUE)
+axis_reading <- axis[, c(intersect(read_cols, names(axis)), arm_read),
+                     with = FALSE]
 
 ## ------------------------------------------------------- stage A and the gates
 families <- stack("fdr-families.tsv")
 eligibility <- stack("exposure-eligibility.tsv")
 gates <- stack("gate-checks.tsv")
 decisions <- stack("environmental-decision.tsv")
-decisions <- merge(decisions, upstream[, .(region, module_02_cited,
-                                           module_02_accepted, upstream_current)],
+decisions <- merge(decisions, upstream[, setdiff(names(upstream), "run_id"),
+                                       with = FALSE],
                    by = "region", all.x = TRUE)
 
 ## Only the FDR-surviving per-VMR rows. The full per-VMR table is 11 MB a region
@@ -201,6 +273,9 @@ provenance <- rbindlist(lapply(regions, function(re) data.table(
     n_axis_associations_fdr = as.integer(mf(re, "n_axis_associations_fdr")),
     n_absolute_p_below_alpha = as.integer(mf(re, "n_absolute_p_below_alpha")),
     n_fieller_bounded = as.integer(mf(re, "n_fieller_bounded")),
+    n_relative_magnitude_reportable =
+        as.integer(mf(re, "n_relative_magnitude_reportable")),
+    relative_magnitude_gate = mf(re, "relative_magnitude_gate"),
     max_bootstrap_mean_omega_inflation =
         as.numeric(mf(re, "max_bootstrap_mean_omega_inflation")),
     axis_primary_estimand = mf(re, "primary_axis_estimand"),
@@ -212,7 +287,10 @@ provenance <- rbindlist(lapply(regions, function(re) data.table(
     run_git_commit = mf(re, "git_commit"),
     config_environmental_sha256 = mf(re, "config_environmental_sha256"))))
 provenance <- merge(provenance,
-                    upstream[, .(region, module_02_accepted, upstream_current)],
+                    upstream[, c("region", "module_02_accepted",
+                                 "upstream_current", "n_upstreams_checked",
+                                 "n_upstreams_stale", "n_upstreams_unpinned",
+                                 "stale_upstreams"), with = FALSE],
                     by = "region", all.x = TRUE)
 provenance[, `:=`(
     collated_at = format(Sys.time(), "%Y-%m-%dT%H:%M:%S%z"),
@@ -244,6 +322,7 @@ w <- function(x, stem) {
 }
 w(axis, "environmental-axis-per-region")
 w(axis_reading, "environmental-axis-reading")
+w(arms_long, "environmental-axis-arms")
 w(families, "environmental-fdr-families")
 w(eligibility, "environmental-exposure-eligibility")
 w(gates, "environmental-gate-checks")
@@ -253,9 +332,21 @@ w(provenance, "environmental-collation-provenance")
 
 cat(sprintf("Collated %d region(s) into %s\n", length(regions), out_dir))
 for (re in regions) {
-    cat(sprintf("  %-12s %s  sealed %s  tier %s  upstream_current %s\n",
+    u <- upstream[region == re]
+    cat(sprintf("  %-12s %s  sealed %s  tier %s  upstream_current %s (%d/%d)\n",
                 re, runs[[re]], mf(re, "sealed_at"), tier_of(re),
-                upstream[region == re]$upstream_current))
+                u$upstream_current,
+                u$n_upstreams_checked - u$n_upstreams_stale -
+                    u$n_upstreams_unpinned,
+                u$n_upstreams_checked))
+    if (!isTRUE(u$upstream_current)) {
+        cat("                 stale: ",
+            u$stale_upstreams %||% "an upstream is unpinned", "\n", sep = "")
+    }
+}
+if (nrow(arms_long)) {
+    cat(sprintf("  non-gating arms: %s\n",
+                paste(sort(unique(arms_long$arm)), collapse = ", ")))
 }
 cat(sprintf("  stage B families %d | stage A FDR-surviving VMR-exposure pairs %d\n",
             nrow(axis), nrow(hits)))
