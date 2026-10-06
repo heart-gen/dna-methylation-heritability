@@ -332,9 +332,12 @@ save_figure(figure, FIG, width = FIG_WIDTH_FULL, height = 7.4, fig_dir = fig_dir
 ## under every Module 04 sensitivity set: does the direction hold when
 ## segmental duplications, low mappability, or cell composition are handled
 ## differently. Same encoding as A.
+## The two cell arms are named for their method, as in Figure 3: MuSiC is
+## fitted in every region, scMD only where its integration gate passes.
 SET_LABELS <- c(primary = "Primary", exclude_segdups = "Excl. segdups",
                 high_mappability = "High\nmappability",
-                adjust_cell_composition = "Cell-type\nadjusted",
+                adjust_cell_composition = "MuSiC\nadjusted",
+                adjust_cell_composition_scmd = "scMD\nadjusted",
                 low_cell_composition = "Low cell-type\nvariance")
 sens <- merge(tests[, .(test_id, region, estimate, se, p, q)],
               replication[analysis == "repeat_architecture" &
@@ -346,18 +349,39 @@ sens <- encode_state(sens)
 sens[, label := label_test(outcome, predictor)]
 sens[, label := factor(label, levels = rev(unique(
     label[order(is_negative_control, outcome, predictor)])))]
+## An unlabelled set would render as an "NA" facet, which is how the scMD arm
+## first appeared here; refuse it instead.
+unlabelled <- setdiff(unique(sens$analysis_set), names(SET_LABELS))
+if (length(unlabelled) > 0) {
+    stop("Module 08 sensitivity sets with no label: ",
+         paste(unlabelled, collapse = ", "))
+}
 sens[, set := factor(SET_LABELS[analysis_set], levels = SET_LABELS)]
+## A set with no rows for a region was not fitted there. It is not drawn, and
+## the caption names it so its absence cannot be read as a result.
+nf <- sens[, .(missing = setdiff(levels(region), as.character(unique(region)))),
+           by = analysis_set]
+nf_cap <- if (nrow(nf) == 0) NULL else paste0(
+    "Not fitted, so not shown: ",
+    paste(vapply(split(nf$missing, nf$analysis_set), paste, character(1),
+                 collapse = ", "),
+          gsub("\n", " ", SET_LABELS[names(split(nf$missing, nf$analysis_set))],
+               fixed = TRUE),
+          sep = " \u2014 ", collapse = "; "), ".")
 
 pS <- ggplot(sens, aes(region, label)) +
     geom_tile(aes(fill = state), colour = "white", linewidth = 0.6) +
     geom_text(aes(label = fdr_mark, colour = state), size = 3.2, vjust = 0.78) +
-    facet_grid(. ~ set) +
+    facet_grid(. ~ set, scales = "free_x", space = "free_x") +
     scale_fill_manual(values = STATE_FILLS, name = NULL) +
     scale_colour_manual(values = STATE_TEXT, guide = "none") +
     labs(x = NULL, y = NULL,
-         caption = "* FDR < 0.05 within the source module's family") +
+         caption = paste(c("* FDR < 0.05 within the source module's family.", nf_cap),
+                         collapse = "\n")) +
     tile_theme +
-    theme(strip.text.x = element_text(size = 7.5, face = "bold"))
+    ## The scMD facet is one tile wide, so its strip label must be allowed past it.
+    theme(strip.text.x = element_text(size = 7.5, face = "bold"),
+          strip.clip = "off")
 
 save_figure(pS, FIG_S, width = FIG_WIDTH_FULL, height = 3.4, fig_dir = fig_dir)
 
