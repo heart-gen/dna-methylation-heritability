@@ -236,10 +236,20 @@ pB <- ggplot(qq, aes(expected, observed)) +
     geom_point(data = qq[passes_outside == TRUE], colour = PAL_RUST, size = 1.3,
                shape = 1) +
     geom_point(data = qq[claimed == TRUE], colour = PAL_RUST, size = 1.8) +
-    ## Right of the point: the claimed differences sit at the top of the QQ
-    ## curve, so a left-hanging label runs off the panel edge.
-    geom_text(data = qq[claimed == TRUE], aes(label = label), hjust = -0.12,
-              vjust = 1.2, size = 2.3, colour = PAL_RUST) +
+    ## Since the claim family was repaired (2026-10-03) the claimed difference
+    ## sits mid-curve, with the rows that pass outside the family above and
+    ## right of it, so a label beside the point crossed them or ran off a panel
+    ## edge. The label goes in the empty space above-left of the curve, joined
+    ## to its point by a leader line.
+    geom_segment(data = qq[claimed == TRUE],
+                 aes(x = 0.45, y = observed + 1.15,
+                     xend = expected - 0.04, yend = observed + 0.08),
+                 colour = PAL_RUST, linewidth = 0.3) +
+    geom_text(data = qq[claimed == TRUE],
+              aes(x = 0.05, y = observed + 1.25,
+                  label = sub(" \u00b7 ", "\n\u00b7 ", label, fixed = TRUE)),
+              hjust = 0, vjust = 0, size = 2.3, lineheight = 0.9,
+              colour = PAL_RUST) +
     annotate("text", x = Inf, y = -Inf, hjust = 1.05, vjust = -0.4, size = 2.3,
              colour = PAL_CHARCOAL, lineheight = 0.9,
              label = sprintf(paste0("DLPFC vs hippocampus\n%d tests, %d claimed\n",

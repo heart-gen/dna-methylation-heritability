@@ -140,7 +140,9 @@ pB <- ggplot(bm, aes(estimate, region, colour = region)) +
     geom_vline(xintercept = 0, colour = PAL_NULL, linewidth = 0.35) +
     errorbar_h(aes(xmin = lo, xmax = hi), linewidth = 0.45) +
     geom_point(size = 1.8) +
-    geom_text(aes(label = note), x = -Inf, hjust = -0.06, nudge_y = 0.3,
+    ## Anchored just right of zero: from the panel edge the zero line ran
+    ## through the "n".
+    geom_text(aes(label = note), x = 0, hjust = -0.04, nudge_y = 0.3,
               size = 2.2, colour = "grey35", show.legend = FALSE) +
     scale_colour_manual(values = REGION_COLORS, guide = "none") +
     scale_y_discrete(limits = rev, expand = expansion(add = c(0.5, 0.75))) +
