@@ -174,11 +174,44 @@ rows <- rbindlist(lapply(dg_regions, function(re) {
             stop("Reliability-ceiling table for ", re, " lacks: ",
                  paste(setdiff(need, names(ceil)), collapse = ", "))
         }
+        ## Refuse a stale ceiling, as the combined table above is refused. The
+        ## ceiling sits in _m/combined/, outside any run, so nothing else ties
+        ## it to the runs this run gated on; a ceiling once outlived the
+        ## all_individuals.EA runs it was computed from by three weeks and the
+        ## fraction-of-ceiling carried the retired runs' number into the paper.
+        if (!"run_id" %in% names(ceil)) {
+            stop("Reliability-ceiling table for ", re, " has no run_id column; ",
+                 "it cannot be tied to this run's upstream cells.")
+        }
+        gated <- vapply(cells, function(cl) {
+            key <- paste0("upstream_02_local_genetic_variance_",
+                          gsub("[.]", "_", cl), "_", re)
+            v <- manifest$value[manifest$field == key]
+            if (length(v) != 1L) stop("Run manifest lacks unique field: ", key)
+            as.character(v)
+        }, character(1))
+        if (!setequal(as.character(ceil$run_id), gated)) {
+            stop("Reliability ceiling for ", re, " was computed from ",
+                 paste(ceil$run_id, collapse = ", "), " but this run gated on ",
+                 paste(gated, collapse = ", "),
+                 ". Re-run 02/_h/16_reliability_ceiling.R on the accepted runs.")
+        }
+        ## Same runs is necessary, not sufficient: the ceiling must also have
+        ## been read against the correlation reported here. Stage 16 computes
+        ## it on the loci eligible in both cells, which is this stage's
+        ## comparable set, so the two must agree to rounding.
+        ceil_obs <- as.numeric(ceil$observed_cross_cell_spearman[[1]])
+        if (!is.finite(ceil_obs) || abs(ceil_obs - rho) > 1e-6) {
+            stop("Reliability ceiling for ", re, " was read against Spearman ",
+                 signif(ceil_obs, 6), " but this stage observes ",
+                 signif(rho, 6), ". The ceiling and the observation are not ",
+                 "from the same locus set.")
+        }
         out[, `:=`(
             reliability_ceiling = as.numeric(ceil$ceiling_bslmm[[1]]),
             ceiling_basis = as.character(ceil$ceiling_basis[[1]]),
-            fraction_of_ceiling =
-                as.numeric(ceil$concordance_fraction_of_ceiling_bslmm[[1]]))]
+            ceiling_run_ids = paste(sort(as.character(ceil$run_id)), collapse = ","),
+            fraction_of_ceiling = rho / as.numeric(ceil$ceiling_bslmm[[1]]))]
         ## The ceiling is an upper bound, so observed agreement above it means
         ## the bound was computed from different inputs than the observation.
         if (is.finite(out$reliability_ceiling) &&
