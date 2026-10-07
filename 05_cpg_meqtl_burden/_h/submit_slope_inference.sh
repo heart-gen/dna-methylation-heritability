@@ -4,10 +4,10 @@
 #   ./submit_slope_inference.sh AA
 #
 # Environment:
-#   SMOKE_N=1     smoke run (config smoke_bootstrap_n draws; never sealed)
+#   SMOKE_N=1     smoke run (config smoke_draws_n draws; never sealed)
 #   DRY_RUN=1     open the run and print the job graph, submit nothing
 #
-# Chains: open run + write paired draws -> mapping array (chromosome x draw
+# Chains: open run + write paired delete-d draws -> mapping array (chromosome x draw
 # block) -> per-draw burden counts -> slope inference, which seals the run.
 
 source "$(dirname "${BASH_SOURCE[0]}")/../../00_shared/slurm.sh"
@@ -20,7 +20,7 @@ OPEN_ARGS=""
 if [ -n "${SMOKE_N:-}" ]; then
     OPEN_ARGS="--allow-unlocked"
     [ -n "${CMB_RUN_ID_OVERRIDE:-}" ] && OPEN_ARGS="$OPEN_ARGS --run-id ${CMB_RUN_ID_OVERRIDE}"
-    log_message "SMOKE RUN: smoke_bootstrap_n draws, not sealed"
+    log_message "SMOKE RUN: smoke_draws_n draws, not sealed"
 fi
 
 RUN_ID=$(run_r "${SCRIPT_DIR}/06_slope_inference_new_run.R" \
@@ -34,7 +34,11 @@ mkdir -p "${RUN_DIR}/code" "${RUN_DIR}/logs"
 cp -a "$SCRIPT_DIR" "${RUN_DIR}/code/_h"
 RUN_CODE="${RUN_DIR}/code/_h"
 
-B=$(awk -F'\t' '$1=="bootstrap_n"{print $2}' "${RUN_DIR}/manifest.tsv")
+B=$(awk -F'\t' '$1=="draws_n"{print $2}' "${RUN_DIR}/manifest.tsv")
+if [ -z "$B" ]; then
+    echo "ERROR: ${RUN_DIR}/manifest.tsv has no draws_n" >&2
+    exit 1
+fi
 PER_TASK=$(conda run -p "${V2_ENV_PY}" python -c \
     "import yaml;print(yaml.safe_load(open('${REPO_DIR}/config/meqtl_parameters.yml'))['cross_region_slope_inference']['draws_per_task'])")
 N_BLOCKS=$(( (B + PER_TASK - 1) / PER_TASK ))
@@ -44,8 +48,8 @@ log_message "run ${RUN_ID}: ${B} draws, ${N_BLOCKS} block(s) of ${PER_TASK}, arr
 if [ "${DRY_RUN:-0}" = "1" ]; then
     cat <<GRAPH
 planned job graph for ${RUN_ID}:
-  7   step_7_bootstrap_map.sh   array ${ARRAY_SPEC} (chromosome x draw block)
-  8a  08a_bootstrap_counts.py   afterok:7
+  7   step_7_subsample_map.sh   array ${ARRAY_SPEC} (chromosome x draw block)
+  8a  08a_subsample_counts.py   afterok:7
   8   08_slope_inference.R      afterok:8a (seals unless smoke)
 GRAPH
     exit 0
@@ -53,11 +57,11 @@ fi
 
 JOBS_TSV="${RUN_DIR}/submitted-jobs.tsv"
 printf 'step\tscript\tjob_id\n' > "$JOBS_TSV"
-EXPORT="ALL,CMB_RUN_ID=${RUN_ID},CMB_BOOTSTRAP_N=${B},CMB_DRAWS_PER_TASK=${PER_TASK},V2_RUN_CODE=${RUN_CODE}"
+EXPORT="ALL,CMB_RUN_ID=${RUN_ID},CMB_DRAWS_N=${B},CMB_DRAWS_PER_TASK=${PER_TASK},V2_RUN_CODE=${RUN_CODE}"
 
 MAP_JOB=$(sbatch --parsable --array="${ARRAY_SPEC}%120" --chdir="${RUN_DIR}/logs" \
-    --export="$EXPORT" "${RUN_CODE}/step_7_bootstrap_map.sh")
-printf '7\tstep_7_bootstrap_map.sh\t%s\n' "$MAP_JOB" >> "$JOBS_TSV"
+    --export="$EXPORT" "${RUN_CODE}/step_7_subsample_map.sh")
+printf '7\tstep_7_subsample_map.sh\t%s\n' "$MAP_JOB" >> "$JOBS_TSV"
 
 sbatch_step () {  # name deps cpus mem time command
     sbatch --parsable --dependency="$2" --chdir="${RUN_DIR}/logs" \
@@ -69,9 +73,9 @@ sbatch_step () {  # name deps cpus mem time command
 R_ENV_SRC="source ${REPO_DIR}/00_shared/slurm.sh"
 PY="conda run --no-capture-output -p ${V2_ENV_PY} python"
 
-COUNT_JOB=$(sbatch_step cmb-bootcount "afterok:${MAP_JOB}" 2 32G 04:00:00 \
-    "${R_ENV_SRC} && ${PY} ${RUN_CODE}/08a_bootstrap_counts.py --run-id ${RUN_ID}")
-printf '8a\t08a_bootstrap_counts.py\t%s\n' "$COUNT_JOB" >> "$JOBS_TSV"
+COUNT_JOB=$(sbatch_step cmb-subcount "afterok:${MAP_JOB}" 2 32G 04:00:00 \
+    "${R_ENV_SRC} && ${PY} ${RUN_CODE}/08a_subsample_counts.py --run-id ${RUN_ID}")
+printf '8a\t08a_subsample_counts.py\t%s\n' "$COUNT_JOB" >> "$JOBS_TSV"
 
 INF_JOB=$(sbatch_step cmb-slope "afterok:${COUNT_JOB}" 2 16G 02:00:00 \
     "${R_ENV_SRC} && run_r ${RUN_CODE}/08_slope_inference.R --run-id ${RUN_ID}")

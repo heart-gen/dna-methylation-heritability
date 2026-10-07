@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
-"""Re-map cis-meQTLs on paired donor-bootstrap draws (05_cpg_meqtl_burden).
+"""Re-map cis-meQTLs on paired delete-d donor draws (05_cpg_meqtl_burden).
 
 Usage (inside an array task):
-    python _h/07_bootstrap_map.py --run-id cmb-AA-crossregion-YYYYMMDD \
+    python _h/07_subsample_map.py --run-id cmb-AA-crossregion-YYYYMMDD \
         --chrom 22 --draw-start 1 --draw-end 10
 
 For each contrast region, loads that accepted cell's PREPARED inputs for one
 autosome (phenotype BED, the executed M3a covariates, genotypes) and, for each
-draw, runs the permutation pass of 02_map_cpg_meqtl.py on the drawn donors with
-their multiplicity. Only the per-CpG permutation p-value is kept: that is the
+draw, runs the permutation pass of 02_map_cpg_meqtl.py on the donors the draw
+leaves in. Only the per-CpG permutation p-value is kept: that is the
 CpG-level evidence the burden counts. No q-value is formed here, for the reason
 02_map_cpg_meqtl.py gives -- the FDR family is the whole region, so it is
-applied once per draw by 08a_bootstrap_counts.py.
+applied once per draw by 08a_subsample_counts.py.
 
 What is held fixed, and why. The covariate values (genotype PCs, methylation
 PCs, age, sex, diagnosis) are each donor's values in the accepted cell. The
@@ -22,9 +22,8 @@ donor-sampling variance of the slope GIVEN the locked design, as 09b's bootstrap
 does. Module 02's score is likewise held fixed (it is the predictor, and the
 burden model conditions on it).
 
-A duplicated donor gets a unique column label. tensorqtl aligns genotypes to
-phenotypes by column label, so the duplicate is mapped as a second, identical
-sample -- which is what a bootstrap draw is.
+No donor is ever duplicated. 06_slope_inference_new_run.R says why a bootstrap
+was abandoned; the guard below refuses a draw that would map a donor twice.
 """
 
 from __future__ import annotations
@@ -91,17 +90,18 @@ def main() -> None:
     si = cfg["cross_region_slope_inference"]
     window = int(cfg["cis_window_bp"])
     maf = float(cfg["genotype_qc"]["maf_min"])
-    nperm = int(si["bootstrap_nperm"])
+    nperm = int(si["draw_nperm"])
     seed0 = int(cfg["mapping"]["seed"])
     contrast = man["contrast"].split(",")
 
     from tensorqtl import cis
 
-    draws = pd.read_csv(run_dir / "inputs" / "bootstrap-draws.tsv", sep="\t", dtype={"donor": str})
+    deleted = pd.read_csv(run_dir / "inputs" / "subsample-deletions.tsv", sep="\t",
+                          dtype={"donor": str})
     chrom_label = f"chr{args.chrom}"
     for region in contrast:
         cell_dir = mod / man[f"upstream_cpg_meqtl_burden_{region}"]
-        out_dir = run_dir / "results" / "bootstrap" / region
+        out_dir = run_dir / "results" / "subsample" / region
         out_dir.mkdir(parents=True, exist_ok=True)
         out_f = out_dir / f"{chrom_label}.draws{args.draw_start:04d}-{args.draw_end:04d}.tsv.gz"
         if out_f.exists():
@@ -112,16 +112,17 @@ def main() -> None:
             pd.DataFrame(columns=["draw", "cpg_id", "pval_beta", "pval_perm"]).to_csv(
                 out_f, sep="\t", index=False)
             continue
-        have = set(cell["ids"])
         parts = []
         for b in range(args.draw_start, args.draw_end + 1):
-            picked = [d for d in draws.loc[draws["draw"] == b, "donor"] if d in have]
-            if not picked:
-                raise SystemExit(f"draw {b} holds no {region} donor")
-            lab = [f"{d}__s{k}" for k, d in enumerate(picked)]
-            G = cell["G"][picked].copy(); G.columns = lab
-            ph = cell["ph"][picked].copy(); ph.columns = lab
-            cov = cell["cov"].loc[picked].copy(); cov.index = lab
+            drop = set(deleted.loc[deleted["draw"] == b, "donor"])
+            if not drop:
+                raise SystemExit(f"draw {b} has no deletions; the draw table is incomplete")
+            picked = [d for d in cell["ids"] if d not in drop]
+            if len(set(picked)) != len(picked):
+                raise SystemExit(f"{region} draw {b}: a donor would be mapped twice")
+            G = cell["G"][picked]
+            ph = cell["ph"][picked]
+            cov = cell["cov"].loc[picked]
             # The locked seed offset by draw: each draw gets its own permutation
             # stream, and a rerun of a draw reproduces it exactly.
             res = cis.map_cis(G, cell["V"], ph, cell["pos"], covariates_df=cov,

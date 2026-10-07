@@ -330,33 +330,49 @@ exists, report the two slopes without a heterogeneity claim** (TASKS.md A3).
 
 **How.** A separate cross-region run, `cmb-{cohort}-crossregion-{date}`, reads
 the two accepted cells and leaves them unchanged. The variance is the sum of two
-parts, the construction of `00_shared/axis_inference.R`:
-- **Donor half: a paired donor bootstrap.** Each draw resamples the union of the
-  two regions' donors, stratified by diagnosis. Each region re-maps every tested
-  CpG on its drawn donors and recounts the burden. The model is then refitted
-  with the score, the VMR covariates and the M3a covariate values held fixed.
+parts, as `00_shared/axis_inference.R` sums its donor and VMR halves:
+- **Donor half: a paired delete-d donor jackknife.** Each draw deletes the same
+  24 of the 120 union donors (20%) from both regions. Each region re-maps every
+  tested CpG on the donors it has left and recounts the burden. The model is
+  then refitted with the score, the VMR covariates and the M3a covariate values
+  held fixed. The variance is Shao & Wu's
+  (n − d)/(d·B)·Σ(θ_b − θ̄)². A region's slope ignores donors it lacks, so the
+  union's (n, d) applies to both slopes and to their difference.
 - **VMR half: a joint delete-one-chromosome jackknife** on the accepted
   tables, removing each chromosome from both regions at once.
 
+**Why not a bootstrap.** A paired donor bootstrap was built first. Its smoke run
+called every tested CpG significant at q ≤ 0.05 in every draw:
+- DLPFC: 134k of 134k significant, against 84k in the accepted cell;
+- Storey π0: −0.003, against 0.31;
+- chr22 median CpG p: 3e-4, against 0.0098.
+
+A duplicated donor is duplicated in genotype and phenotype alike. The
+permutation null shuffles the duplicates apart, so the null is too narrow. The
+bootstrap variance came out exactly zero. Drawing distinct donors keeps every
+permutation valid, and stage 08a now stops on any draw whose π0 falls below half
+of draw 0's or whose significant count exceeds draw 0's by more than 10%.
+
 | stage | does |
 |---|---|
-| `_h/06_slope_inference_new_run.R` | gates the two accepted cells, opens the run, writes the paired draws |
-| `_h/07_bootstrap_map.py` (`step_7_bootstrap_map.sh`) | re-maps one autosome for a block of draws in both regions, using the permutation pass only |
-| `_h/08a_bootstrap_counts.py` | per-region Storey q and per-VMR counts for each draw. Draw 0 is the accepted cell's own output and must reproduce every sealed count |
+| `_h/06_slope_inference_new_run.R` | gates the two accepted cells, opens the run, writes the paired deletions |
+| `_h/07_subsample_map.py` (`step_7_subsample_map.sh`) | re-maps one autosome for a block of draws in both regions, using the permutation pass only |
+| `_h/08a_subsample_counts.py` | per-region Storey q and per-VMR counts for each draw. Draw 0 is the accepted cell's own output and must reproduce every sealed count. Stops on a miscalibrated draw |
 | `_h/08_slope_inference.R` | refits the model, checks it reproduces the sealed slope and HC3 SE, combines the two variances, seals |
 | `_h/submit_slope_inference.sh` | the job graph |
 
 Parameters are in `config/meqtl_parameters.yml:cross_region_slope_inference`:
-- 200 draws;
+- 200 draws, each deleting 20% of the union donors;
 - 1,000 permutations per draw, chosen before any draw was mapped on a chr22
   probe whose numbers are recorded there.
 
 **Limits.**
-- T28 validated this variance sum for a debiased squared-effect outcome, not for
-  a significant-CpG count. Its calibration here is unsimulated.
-- A draw with duplicated donors calls more CpGs significant than the original
-  sample, so the bootstrap distribution is shifted. The run reports the shift
-  and uses the bootstrap for its variance only.
+- T28 validated a donor-bootstrap plus chromosome-jackknife sum for a debiased
+  squared-effect outcome. It did not validate this construction for a
+  significant-CpG count, so the calibration here is unsimulated.
+- A draw of 96 donors has less mapping power than the full sample, so the draw
+  slopes are shifted. The run reports the shift and uses the draws for their
+  variance only. The (n − d)/d factor assumes the variance scales as 1/n.
 - The variance is conditional on the locked design.
 - The run makes no heterogeneity claim. Module 08 tier 2 decides.
 
