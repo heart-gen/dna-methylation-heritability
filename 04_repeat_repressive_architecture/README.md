@@ -527,6 +527,60 @@ to seal a claims table that lacks it. The sealed 2026-09-06 manifests keep their
 overstated token; read `interpretation-claims.tsv`, not the token, until the
 rerun.
 
+## Shared vs region-unique VMR split (non-gating, 2026-10-07)
+
+Run `rra-AA-crossregion-20261007` was produced by `_h/09_shared_unique_split.R`
+at commit `a233c4543`. It reads the three accepted `-20260925-a` cells, and its
+rebuilt primary model reproduces all 45 sealed primary fits to 1e-6. A VMR is
+**shared** when it overlaps (≥ 1 bp) a VMR in each of the other two regions.
+Every other VMR is **region-unique**.
+
+| | caudate | DLPFC | hippocampus |
+|---|---:|---:|---:|
+| shared VMRs | 3,370 | 3,409 | 3,417 |
+| region-unique VMRs | 7,881 | 5,842 | 5,749 |
+
+Values are the primary-model coefficient on `local_snp_contribution_score_z`,
+with the chromosome-jackknife p in parentheses.
+
+| outcome | subset | caudate | DLPFC | hippocampus |
+|---|---|---:|---:|---:|
+| quiescent | shared | +0.303 (5.3e-05) | +0.246 (1.0e-04) | +0.292 (4.2e-07) |
+| quiescent | unique | +0.541 (2e-48) | +0.501 (1e-54) | +0.570 (6e-55) |
+| H3K9me3 | shared | −0.140 (0.32) | −0.035 (0.77) | −0.058 (0.54) |
+| H3K9me3 | unique | +0.253 (1.9e-04) | +0.543 (2.8e-12) | +0.436 (1.2e-09) |
+| LINE/L1 | shared | +0.106 (0.20)† | +0.060 (0.49) | +0.093 (0.19) |
+| LINE/L1 | unique | −0.026 (0.71)† | +0.430 (3.4e-15) | +0.455 (3.3e-16) |
+| accessible | shared | −0.289 (4e-11) | −0.189 (1.2e-04) | −0.234 (7.0e-06) |
+| accessible | unique | −0.559 (2e-72) | −0.606 (4e-63) | −0.631 (2e-56) |
+| ATAC union | shared | −0.264 (1.3e-12) | −0.304 (1.3e-10) | −0.255 (8.3e-09) |
+| H3K27ac | shared | −0.205 (3.2e-06) | −0.246 (7.8e-11) | −0.250 (3.8e-07) |
+
+† Caudate LINE/L1 stays set aside from the claim, as in the primary.
+
+The joint-jackknife unique-minus-shared difference for H3K9me3 is +0.39 /
++0.58 / +0.49 (p 0.016 / 3.4e-05 / 1.0e-07). For LINE/L1 in DLPFC and
+hippocampus it is +0.37 / +0.36 (p 7.7e-06 / 2.4e-05).
+
+**Reading.**
+- **Present in shared VMRs in all three regions:** the quiescent enrichment and
+  the depletion from accessible chromatin (DNase, ATAC union, H3K27ac). Their
+  strength there is about half of what it is in region-unique VMRs. These are
+  properties of the VMR set as a whole.
+- **Absent from shared VMRs in every region:** the H3K9me3 association and the
+  DLPFC and hippocampus LINE/L1 associations. Region-unique VMRs carry all
+  three, and the gap survives the joint jackknife.
+
+This run cannot separate two readings:
+1. Genetically controlled LINE/L1 and H3K9me3 methylation is genuinely
+   region-restricted.
+2. Region-unique VMRs are enriched for loci whose calling, coverage or score is
+   sensitive to local sequence.
+
+Neither reading changes a gate. The Figure 3 sentence should not describe the
+LINE/L1 or H3K9me3 association as a property of VMRs common to all three
+regions.
+
 ## QC scripts
 
 `_h/06` and `_h/07` are post-hoc analyses OF sealed runs, not stages of one.
