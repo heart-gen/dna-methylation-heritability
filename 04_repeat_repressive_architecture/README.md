@@ -542,9 +542,15 @@ never read by `03_apply_gates.R`.
 | `_h/07_qc_covariate_attribution.R` | Which single covariate, and does it act the same way in every region? Four passes: `attribution` (add-one / leave-one-out), `correlation` (predictor and outcome vs every covariate), `coverage` (minimum-depth sweep), `set_overlap` (shared vs region-unique VMRs). `--outcome` defaults to `line_l1_frac`. |
 
 | `_h/08_matched_measurability.R` | Does the association survive replacing regression adjustment with matching on measurability? Non-gating; part of step 2, writes `descriptive-matched-measurability.tsv` and `descriptive-matched-balance.tsv` into the run. |
+| `_h/09_shared_unique_split.R` | Is each primary association a property of the region's whole VMR set, or carried by the VMRs only that region called? `07`'s `set_overlap` split, made citable: it reads the three accepted cells and refuses to fit unless it reproduces every sealed primary estimate to 1e-6. It then seals its own cross-region run, `rra-{cohort}-crossregion-{date}`. Each subset gets HC3 and chromosome-jackknife SEs; the unique-minus-shared difference uses a joint jackknife. Non-gating: it changes no claim, q or decision token. |
 
 Read `06` and `07` as decompositions, never as a menu to select an adjustment
 set from.
+
+`06` and `07` select production cells by the pattern
+`rra-AA-(caudate|dlpfc|hippocampus)-YYYYMMDD`. That pattern excludes the
+cross-region split run, and it also excludes the accepted `-20260925-a` cells.
+Pass `--run-id` to `06` to target an accepted cell.
 
 ## Contract
 
