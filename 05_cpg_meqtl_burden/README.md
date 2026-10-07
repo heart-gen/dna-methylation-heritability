@@ -315,6 +315,51 @@ positive-only resources cannot supply a tested negative, so a CpG's absence
 from a public list is not evidence against an meQTL there, and the recovery
 contrast it reports is a floor rather than an estimate.
 
+## Donor-robust inference for the DLPFC–hippocampus slope (2026-10-07)
+
+**Why.** Module 08 tier 2 reads the burden slope as differing between DLPFC
+(2.094) and hippocampus (2.367): z −3.63, q 0.0038. That test uses
+√(se²+se²) over the VMR-level HC3 SEs this module reports, and its calibration
+is unknown in both directions:
+- HC3 treats every VMR as independent, which makes it anti-conservative.
+- The independence form ignores the 115 donors the two regions share, which
+  makes it conservative.
+
+§7.5 requires donor-robust inference. **Until a sealed run of this pipeline
+exists, report the two slopes without a heterogeneity claim** (TASKS.md A3).
+
+**How.** A separate cross-region run, `cmb-{cohort}-crossregion-{date}`, reads
+the two accepted cells and leaves them unchanged. The variance is the sum of two
+parts, the construction of `00_shared/axis_inference.R`:
+- **Donor half: a paired donor bootstrap.** Each draw resamples the union of the
+  two regions' donors, stratified by diagnosis. Each region re-maps every tested
+  CpG on its drawn donors and recounts the burden. The model is then refitted
+  with the score, the VMR covariates and the M3a covariate values held fixed.
+- **VMR half: a joint delete-one-chromosome jackknife** on the accepted
+  tables, removing each chromosome from both regions at once.
+
+| stage | does |
+|---|---|
+| `_h/06_slope_inference_new_run.R` | gates the two accepted cells, opens the run, writes the paired draws |
+| `_h/07_bootstrap_map.py` (`step_7_bootstrap_map.sh`) | re-maps one autosome for a block of draws in both regions, using the permutation pass only |
+| `_h/08a_bootstrap_counts.py` | per-region Storey q and per-VMR counts for each draw. Draw 0 is the accepted cell's own output and must reproduce every sealed count |
+| `_h/08_slope_inference.R` | refits the model, checks it reproduces the sealed slope and HC3 SE, combines the two variances, seals |
+| `_h/submit_slope_inference.sh` | the job graph |
+
+Parameters are in `config/meqtl_parameters.yml:cross_region_slope_inference`:
+- 200 draws;
+- 1,000 permutations per draw, chosen before any draw was mapped on a chr22
+  probe whose numbers are recorded there.
+
+**Limits.**
+- T28 validated this variance sum for a debiased squared-effect outcome, not for
+  a significant-CpG count. Its calibration here is unsimulated.
+- A draw with duplicated donors calls more CpGs significant than the original
+  sample, so the bootstrap distribution is shifted. The run reports the shift
+  and uses the bootstrap for its variance only.
+- The variance is conditional on the locked design.
+- The run makes no heterogeneity claim. Module 08 tier 2 decides.
+
 ## Contract
 
 This module follows: `_h/` holds code, `_m/` holds generated
