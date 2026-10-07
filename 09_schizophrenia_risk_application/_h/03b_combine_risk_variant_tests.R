@@ -79,8 +79,14 @@ fwrite(pairs, file.path(run_dir, "results", "risk-variant-cpg-tests.tsv.gz"),
        sep = "\t", compress = "gzip")
 
 ## Locus-level support: the unit the retention criterion and the prioritization
-## rule are both stated in.
+## rule are both stated in. One row per LOCUS, not per index SNP: 42 PGC3 loci
+## carry two index SNPs, and grouping on index_snp as well gave those loci two
+## rows here, which every merge on locus_id downstream then duplicated
+## (locus-evidence.tsv had 629-631 rows for 612 loci). The index SNPs that
+## contributed tested pairs are kept as a list instead.
 locus <- pairs[, .(
+    index_snps_tested = paste(sort(unique(index_snp)), collapse = ";"),
+    n_index_snps_tested = uniqueN(index_snp),
     n_risk_variants_tested = uniqueN(risk_variant_id),
     n_cpgs_tested = uniqueN(cpg_id),
     n_vmrs_tested = uniqueN(vmr_id),
@@ -91,7 +97,11 @@ locus <- pairs[, .(
     min_qvalue = min(qvalue, na.rm = TRUE),
     max_abs_slope = max(abs(slope), na.rm = TRUE),
     has_significant_risk_variant_cpg_meqtl = any(significant)
-), by = .(locus_id, index_snp, chrom)]
+), by = .(locus_id, chrom)]
+if (anyDuplicated(locus$locus_id)) {
+    stop("A locus spans more than one chromosome in the pair table: ",
+         paste(unique(locus$locus_id[duplicated(locus$locus_id)]), collapse = ", "))
+}
 setorder(locus, min_qvalue, locus_id)
 write_atomic(locus, file.path(run_dir, "results", "locus-meqtl-support.tsv"))
 

@@ -61,6 +61,25 @@ gtex <- read_or_empty("gtex-support.tsv")
 coloc <- read_or_empty("coloc-locus-gate-eligible.tsv")
 links <- fread(file.path(run_dir, "results", "locus-vmr-links.tsv"))
 
+## Every table merged below is keyed on locus_id. A table with two rows for one
+## locus silently duplicates that locus in locus-evidence.tsv and in the ranked
+## list, and every count read off them is inflated -- which is how 42
+## two-index-SNP loci were once counted twice. Refuse it here.
+for (nm in c("scz-loci.tsv", "locus-meqtl-support.tsv", "locus-coupling.tsv",
+             "gtex-support.tsv", "coloc-locus-gate-eligible.tsv")) {
+    tbl <- switch(nm, "scz-loci.tsv" = loci,
+                  "locus-meqtl-support.tsv" = support,
+                  "locus-coupling.tsv" = coupling,
+                  "gtex-support.tsv" = gtex,
+                  "coloc-locus-gate-eligible.tsv" = coloc)
+    if (nrow(tbl) && anyDuplicated(tbl$locus_id)) {
+        stop(nm, " has more than one row for locus ",
+             paste(head(unique(tbl$locus_id[duplicated(tbl$locus_id)]), 10),
+                   collapse = ", "),
+             ". Locus-level tables must be one row per locus_id.")
+    }
+}
+
 ## Ranking key 1, computed here from the linked VMRs so it is reproducible from
 ## a single table rather than from a filter applied in an earlier script.
 axis <- links[, .(max_abs_local_snp_contribution_score_z =
