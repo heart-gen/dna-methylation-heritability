@@ -36,7 +36,7 @@ def load_paths() -> dict:
         "project_root": str(PROJECT_ROOT),
         "staff_project_root": "/projects/b1213/users/alexis/projects/dna-methylation-heritability",
         "regions": ["caudate", "dlpfc", "hippocampus"],
-        "phenotype_table": "sample_summary/_m/phenotype_data.tsv",
+        "phenotype_table": "inputs/phenotypes/_m/phenotype_data.tsv",
         "vmr_bed_template": "vmr-analysis/{region}/_m/vmr.bed",
         "local_predictability_summary_template": (
             "heritability/elastic_net_model/all_individuals/{region}/_m/"

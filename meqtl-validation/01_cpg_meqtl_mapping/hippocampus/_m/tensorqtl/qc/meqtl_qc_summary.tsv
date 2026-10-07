@@ -1,2 +1,0 @@
-region	n_phenotypes_tested	n_significant_fdr	fdr_threshold	lambda_gc	median_pval	cis_qtl_path
-hippocampus	154600	54898	0.05	3.9070966844661195	0.182459	/projects/b1213/users/kynon/projects/dna-methylation-heritability/meqtl-validation/01_cpg_meqtl_mapping/hippocampus/_m/tensorqtl/cpg_meqtl_hippocampus.cis_qtl.txt.gz

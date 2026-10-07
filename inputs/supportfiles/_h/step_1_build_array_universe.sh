@@ -37,7 +37,7 @@ source "$_ROOT/00_shared/slurm.sh"
 
 # liftOver and the hg19->hg38 chain are the only external dependencies.
 require_exec "/projects/p32505/opt/envs/genomics/bin/liftOver"
-require_file "$REPO_DIR/meqtl-validation/03_external_meqtl_validation/_m/support/hg19ToHg38.over.chain.gz"
+require_file "$REPO_DIR/inputs/supportfiles/_m/hg19ToHg38.over.chain.gz"
 
 log_job_info
 log_message "**** Building ${PLATFORM} probe universe ****"

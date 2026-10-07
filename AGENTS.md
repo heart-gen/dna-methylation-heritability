@@ -30,6 +30,12 @@ Before changing code, read these files completely when available:
 Some revision notes may exist only on Quest. If a required note is unavailable,
 record that fact and do not invent missing decisions.
 
+The v1 trees were retired on 2026-10-06 (5.3), so the six required files under
+`calibrated-simulation-analysis/` and `meqtl-validation/` are no longer in the
+working tree. Read them from the recovery tag, e.g.
+`git show v1-legacy-final:meqtl-validation/ANALYSIS_SUMMARY_meqtl_validation.md`.
+The `writing-notes/` files are unaffected.
+
 ## 2. Manuscript identity
 
 ### 2.1 Working biological thesis
@@ -247,6 +253,16 @@ Rules:
 Do not perform a single destructive repository-wide move. Build and validate
 the v2 modules incrementally while retaining legacy material only for the
 temporary comparison period described in Section 3.
+
+**Retired 2026-10-06.** Every `MIGRATION_MANIFEST.tsv` row was closed first
+(`retirement_status = retired_20261006:v1-legacy-final`). The ten v1 trees were
+then removed from the working tree. Tracked files are recoverable from the
+annotated tag `v1-legacy-final`. The whole trees, untracked outputs included,
+are archived at
+`/projects/b1213/users/kynon/archive/dna-methylation-heritability-v1-20261003/`,
+listed by subtree in `legacy_v1_archive_inventory.tsv`. Section 3's second stage
+is therefore done; the mapping table below is kept as the record of where each
+tree went.
 
 `MIGRATION_MANIFEST.tsv` must contain:
 

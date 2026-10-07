@@ -1,6 +1,7 @@
 # DNA Methylation Heritability in the Human Brain
 
-Analysis code for the manuscript:
+Analysis code for the manuscript. The citation below is the v1 preprint; the
+revision reframes it (see Overview) and its title will change:
 
 > **Local SNP-explained methylation variation reveals genetically anchored and
 > exposure-associated methylation architecture in the human brain**
@@ -25,64 +26,64 @@ https://doi.org/10.5281/zenodo.20547606.
 
 ## Overview
 
-This repository contains the full analysis pipeline used to partition
-variably methylated regions (VMRs) by SNP-explained variation in 168 admixed
-Black American adults across three brain regions: the caudate nucleus,
-dorsolateral prefrontal cortex (DLPFC), and hippocampus. Analyses distinguish
-genetically anchored methylation (concentrated in repressive chromatin and
-repeat-rich regions) from exposure-associated methylation (enriched in
-gene-proximal, accessible chromatin).
+This repository contains the analysis pipeline for a study of how local genetic
+variation organizes interindividual DNA methylation variability across the
+caudate nucleus, dorsolateral prefrontal cortex (DLPFC) and hippocampus, using
+whole-genome bisulfite sequencing in admixed Black American adults. Local
+genetic control is treated as a continuous, within-region relative rank of local
+SNP contribution to variably methylated region (VMR) methylation; it is related
+to repeat-rich and repressive chromatin, CpG meQTL burden, transcription and
+splicing coupling, and trait-associated GWAS loci. Low local genetic control is
+not read as evidence of environmental determination.
 
 ---
 
 ## Repository Structure
 
-### Active revision (v2)
-
-The revision is organized as numbered modules that run in dependency order.
-See `MIGRATION_MANIFEST.tsv` for how each legacy directory maps onto them.
+The analysis is organized as numbered modules that run in dependency order
+(AGENTS.md 6). Each module records its accepted runs under **Accepted runs** in
+its own README; that table, not this one, is the record of what may be cited.
 
 | Directory | Description |
 |---|---|
-| `00_shared/` | Shared library: config, donor identity/alignment, chromosome ordering, run provenance |
+| `00_shared/` | Shared library: config, donor identity/alignment, chromosome ordering, run provenance, acceptance gates |
 | `01_vmr_catalog/` | Corrected VMR discovery and per-VMR methylation phenotypes |
-| `02_local_genetic_variance/` | `h2_en_calibrated` — primary quantitative endpoint |
-| `03_local_snp_prediction/` | Held-out local SNP prediction (secondary endpoint) |
+| `01b_estimation_cells/` | Donor-group and donor-count estimation cells on a pooled-discovery catalog |
+| `02_local_genetic_variance/` | Relative local SNP contribution score (`local_snp_contribution_score`) -- the primary endpoint; absolute locus PVE is retired |
+| `02b_greml_simulation_benchmark/` | GCTA-GREML recovery of absolute local h2 on simulated phenotypes; reads nothing from 02 |
+| `02c_cis_greml_sensitivity/` | Conventional cis-GREML on the observed phenotypes against the 02 score: existence and ordering only, no per-VMR h2 |
+| `03_local_snp_prediction/` | End-to-end out-of-fold local SNP prediction (secondary endpoint) |
 | `04_repeat_repressive_architecture/` | Repeat-rich and repressive compartments (primary biology) |
 | `05_cpg_meqtl_burden/` | CpG cis-meQTL burden gradient |
-| `06_partitioned_heritability/` | S-LDSC partitioned heritability on the continuous local SNP contribution score |
+| `06_partitioned_heritability/` | S-LDSC on the continuous score, conditional on VMR membership |
 | `07_transcription_splicing_coupling/` | Expression and splicing coupling |
-| `08_region_donor_generalization/` | Cross-region and donor-group generalization |
-| `09_schizophrenia_risk_application/` | Schizophrenia-risk application |
+| `08_region_donor_generalization/` | Tiered cross-region and donor-group generalization |
+| `09_schizophrenia_risk_application/` | Schizophrenia-risk application and the GWAS negative-control collection |
+| `09b_aging_application/` | Age-associated methylation differences along the axis |
 | `10_environmental_exploratory/` | Exploratory exposure associations (supplement only) |
-| `11_integrated_manuscript_outputs/` | Manuscript tables, figures, and number registry |
-| `config/` | Shared configuration for the above |
-
-Modules 01, 02, 04, 05, 06 and 07 have accepted runs. Module 03 is implemented
-and smoke-verified but has no accepted run. Module 09 is implemented with no
-accepted run. Module 08 is scaffolded only. Module 10 has Figures 1–2 and
-Table 1 implemented. Each module is gated on its upstream module recording a
-passing acceptance gate.
-
-### Legacy directories
-
-Retained for old-versus-new comparison during the revision, and retired only once
-`MIGRATION_MANIFEST.tsv` records a validated v2 replacement. **Results in these
-trees are not valid for scientific use** — see `writing-notes/PIPELINE_AUDIT.md`,
-in particular defect V1 (donor row misalignment invalidating every VMR set) and
-E1 (`r_squared_cv` is an in-sample fit, not prediction accuracy).
-
-| Directory | Description |
-|---|---|
-| `vmr-analysis/` | Legacy VMR identification → `01_vmr_catalog/` |
-| `calibrated-simulation-analysis/` | Calibrated variance estimator → `02_local_genetic_variance/` |
-| `local-snp-prediction/` | Legacy elastic-net prediction → `03_local_snp_prediction/` |
-| `meqtl-validation/` | CpG meQTL mapping, burden, repeat/cell sensitivities, Phase 7 → modules 04–09 |
-| `environmental-analysis/` | Environmental proxy associations → `10_environmental_exploratory/` (exposure scan only; the `h2_category` grouping is withdrawn, not migrated) |
-| `simulation-analysis/` | Validation simulations and method comparisons |
-| `sensitivity-analysis/` | Stacked/Venn/Sankey figures (withdrawn; depend on `r_squared_cv > 0.75`) |
-| `qc_analysis/` | Quality control and replication cohort analysis |
+| `11_integrated_manuscript_outputs/` | Figures, tables, number registry, Methods/Results summaries |
+| `config/` | Shared, PI-locked configuration |
 | `inputs/` | Reference files and input data (not distributed; see Data Availability) |
+| `supplementary_data/` | The deposition list: every Supplementary Data item and the accepted run that produced it |
+
+### Retired v1 trees
+
+The v1 analysis directories (`vmr-analysis/`, `calibrated-simulation-analysis/`,
+`local-snp-prediction/`, `meqtl-validation/`, `environmental-analysis/`,
+`simulation-analysis/`, `sensitivity-analysis/`, `qc_analysis/`,
+`sample_summary/`, and the untracked `simulation-analysis.bak/`) were removed
+from the working tree on 2026-10-06, after every row of `MIGRATION_MANIFEST.tsv`
+was closed: a validated v2 replacement, a withdrawal, or a recorded PI decision
+not to migrate. Their tracked files are recoverable from the annotated tag
+**`v1-legacy-final`** (`git show v1-legacy-final:<path>`). The whole trees,
+untracked outputs included, were moved to
+`/projects/b1213/users/kynon/archive/dna-methylation-heritability-v1-20261003/`;
+`legacy_v1_archive_inventory.tsv` summarizes them by subtree, and the full
+per-file inventory (path, bytes, SHA-256, tracked flag) is in the archive's
+`_inventory/`. **Results in those trees are
+not valid for scientific use** -- see `writing-notes/PIPELINE_AUDIT.md`, in
+particular defects V1 (donor row misalignment invalidating every VMR set) and E1
+(`r_squared_cv` is an in-sample fit, not prediction accuracy).
 
 ---
 

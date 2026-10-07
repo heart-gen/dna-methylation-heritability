@@ -51,8 +51,7 @@ spec <- PLATFORMS[[platform]]
 support_dir <- file.path(V2_ROOT, "inputs", "supportfiles", "_m")
 out_path <- file.path(support_dir, spec$out)
 
-CHAIN <- file.path(V2_ROOT, "meqtl-validation", "03_external_meqtl_validation",
-                   "_m", "support", "hg19ToHg38.over.chain.gz")
+CHAIN <- file.path(support_dir, "hg19ToHg38.over.chain.gz")
 LIFTOVER <- "/projects/p32505/opt/envs/genomics/bin/liftOver"
 
 for (dep in c(CHAIN, LIFTOVER)) {

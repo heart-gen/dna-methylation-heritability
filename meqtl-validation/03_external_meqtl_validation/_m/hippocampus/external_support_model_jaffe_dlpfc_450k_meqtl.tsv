@@ -1,6 +1,0 @@
-model	n_vmrs	n_supported_vmrs	mean_external_support	covariates	coef_predictability	se_predictability	pval_predictability	converged	region	resource_id	analysis_role	preferred_region	assay_universe_complete
-unadjusted	2725	1748	0.6414678899082569	local_predictability	0.6662514033197958	0.08121475775390298	2.333408493358636e-16	True	hippocampus	jaffe_dlpfc_450k_meqtl	secondary_cross_region	dlpfc	True
-adjusted_minimal	2725	1748	0.6414678899082569	local_predictability,n_cpgs_annotated	0.6538727499008082	0.08081311882802085	5.909390425961202e-16	True	hippocampus	jaffe_dlpfc_450k_meqtl	secondary_cross_region	dlpfc	True
-adjusted_technical	2534	1628	0.6424625098658248	local_predictability,n_cpgs_annotated,average_cpg_coverage,mean_cpg_variance,length,umap_k24_mean,line_l1_frac,segdup_frac	0.6580897628522516	0.08586324697408211	1.7967739968543396e-14	True	hippocampus	jaffe_dlpfc_450k_meqtl	secondary_cross_region	dlpfc	True
-binomial_cpg_proportion_secondary	2725	1748	0.6414678899082569	local_predictability,n_cpgs_annotated	0.7450795507788022	0.09241310791569748	7.475723763751311e-16	True	hippocampus	jaffe_dlpfc_450k_meqtl	secondary_cross_region	dlpfc	True
-descriptive	2725	1748	0.6414678899082569		nan	nan	nan	True	hippocampus	jaffe_dlpfc_450k_meqtl	secondary_cross_region	dlpfc	True

@@ -1,3 +1,0 @@
-resource_id	region	model	coef_predictability	pval_predictability	supports_gradient
-jaffe_dlpfc_450k_meqtl	dlpfc	adjusted_minimal	0.6764819028580954	6.460197479191939e-13	True
-schulz_hippocampus_array_meqtl	hippocampus	adjusted_minimal	0.4847590444780457	1.3471838570270705e-22	True

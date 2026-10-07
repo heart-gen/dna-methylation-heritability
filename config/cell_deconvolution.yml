@@ -50,7 +50,7 @@ validation:
   fraction_sum_tolerance: 1.0e-6
 
 paths:
-  phenotype_table: sample_summary/_m/phenotype_data.tsv
+  phenotype_table: inputs/phenotypes/_m/phenotype_data.tsv
   hdf5_bsseq_template: inputs/wgbs-data/combined/_m/{region}_bsseq_h5se
   output_root: inputs/cell_proportions/_m
   reference_dir: inputs/cell_proportions/_m/reference
@@ -59,7 +59,7 @@ paths:
   dnam_wgbs_work_template: inputs/cell_proportions/_m/dnam_scmd_wgbs_reference/{region}
   dnam_wgbs_proportions_template: inputs/cell_proportions/_m/dnam-scmd-wgbs-reference-proportions-{region}.tsv
   rna_proportions_template: inputs/cell_proportions/_m/music-proportions-{region}.tsv
-  hg19_to_hg38_chain: meqtl-validation/03_external_meqtl_validation/_m/support/hg19ToHg38.over.chain.gz
+  hg19_to_hg38_chain: inputs/supportfiles/_m/hg19ToHg38.over.chain.gz
   blacklist_hg38: inputs/supportfiles/_m/hg38-blacklist.v2.bed.gz
   ct_snps_hg38: inputs/supportfiles/_m/libd_CT_snps_at_cpg.hg38.bed.gz
 

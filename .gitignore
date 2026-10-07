@@ -81,19 +81,11 @@ protected_data/*
 protected-data/*
 protected-data/
 *.h5
-simulation-analysis.bak/
 __pycache__/
 
 # Recreated by inputs/cell_proportions/_h/step_3_reference.sh
 inputs/cell_proportions/_m/reference/R_libs/
 inputs/cell_proportions/_m/conda_env/
-
-# Rebuilt manuscript Supplementary Data archives and staging files
-meqtl-validation/12_supplementary_data/_m/
-
-# Immutable, reproducible Phase 2 estimator-comparison run products
-meqtl-validation/02_vmr_meqtl_burden/_m/predictor-comparison-runs/
-meqtl-validation/02_vmr_meqtl_burden/_m/predictor-followup-runs/
 
 # Downloaded reference signal tracks (k24 mappability is ~1.9 GB)
 *.bw
@@ -103,16 +95,6 @@ meqtl-validation/02_vmr_meqtl_burden/_m/predictor-followup-runs/
 *tensorqtl*.log
 cpg_tensorqtl.*.log
 
-# Deterministic per-chromosome intermediates from
-# 01_cpg_meqtl_mapping step_2 (cpg_vmr_map) and step_6 (cpg_coverage).
-# 528 files / 240 MB, fully regenerable; dropped from tracking 2026-08-15.
-# NOTE: only the chr-split bulk is ignored. The covariate model definitions in
-# the same directory (covariates_M*.txt, incl. the locked M3a_primary, plus
-# latent factors and coverage summaries) stay tracked -- they are the analysis
-# design, not intermediates.
-meqtl-validation/01_cpg_meqtl_mapping/*/_m/prepared/**/cpg_vmr_map.chr*.tsv
-meqtl-validation/01_cpg_meqtl_mapping/*/_m/prepared/**/cpg_coverage.chr*.tsv
-
 # Machine-local Claude settings
 .claude/settings.local.json
 
@@ -120,9 +102,6 @@ meqtl-validation/01_cpg_meqtl_mapping/*/_m/prepared/**/cpg_coverage.chr*.tsv
 # These live in the manuscript repo, not here. See task #12.
 /AJHG_SUBMISSION_READINESS.md
 /analysis_strategy.md
-meqtl-validation/REPAIR_V2.md
-meqtl-validation/**/PHASE3_DIAGNOSIS.md
-meqtl-validation/**/ANALYSIS_SUMMARY*.md
 
 # Scratch / secondary workspace
 /pilot/
@@ -161,7 +140,6 @@ writing-notes/
 # acceptance results are readable from a clone.
 ![0-9][0-9]*_*/_m/README.md
 !02_local_genetic_variance/_m/calibration_frozen/*.tsv
-local-snp-prediction/oof_diagnostic/
 settings.json
 settings.local.json
 
@@ -203,3 +181,18 @@ settings.local.json
 #   cp .git/lfs/objects/f9/82/f982746e... <path>              # calibrated-local-h2
 02_local_genetic_variance/_m/combined/calibrated-local-h2-all-cells.tsv
 02_local_genetic_variance/_m/combined/observed-run-qc-all-cells.tsv
+
+# Retired v1 trees (2026-10-06). Tracked files are at tag v1-legacy-final; the
+# whole trees, untracked outputs included, are archived at
+# /projects/b1213/users/kynon/archive/dna-methylation-heritability-v1-20261003/
+# (legacy_v1_archive_inventory.tsv). Ignored so a stray copy cannot be re-added.
+/vmr-analysis/
+/calibrated-simulation-analysis/
+/local-snp-prediction/
+/meqtl-validation/
+/environmental-analysis/
+/sensitivity-analysis/
+/simulation-analysis/
+/simulation-analysis.bak/
+/qc_analysis/
+/sample_summary/

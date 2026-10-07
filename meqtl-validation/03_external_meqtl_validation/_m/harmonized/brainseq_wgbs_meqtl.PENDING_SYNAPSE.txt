@@ -1,4 +1,0 @@
-Full BrainSeq WGBS cis-meQTL catalogs are on Synapse syn25992404 (PsychENCODE / DOI 10.7303/syn25992404).
-Current ~/.synapseConfig token is invalid (SynapseAuthenticationError).
-Interim harmonized file: brainseq_wgbs_meqtl_scz_subset.hg38.tsv.gz (Nature SCZ-risk SNP–CpG tables only; not genome-wide).
-After refreshing the Synapse token, re-download full results into raw/brainseq_wgbs_meqtl/synapse/ and extend this script.

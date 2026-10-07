@@ -181,7 +181,15 @@ pheno_file_path <- here("inputs/phenotypes/_m/phenotypes-all.tsv")
 for (tissue in c("caudate", "dlpfc", "hippocampus")) {
 
                                         # Get sample list for valid ids
-  samples_fn <- here("vmr-analysis/all_individuals/", paste0(tissue), "_m/samples.txt")
+  ## The accepted all_individuals catalog's donor list (same two columns,
+  ## BrNum and the genotype FID) -- the legacy vmr-analysis/ lists were
+  ## invalidated by V1 and retired on 2026-10-06.
+  samples_fn <- Sys.glob(here("01_vmr_catalog/_m/runs",
+                              paste0("vmrcat-all_individuals-", tissue, "-2026*"),
+                              "vmr/donors_plink.txt"))
+  if (length(samples_fn) != 1)
+    stop("Expected one all_individuals catalog run for ", tissue, ", found ",
+         length(samples_fn))
   samples <- fread(samples_fn, header = F, col.names = c("brnum", "FID")) %>%
     mutate(region = tissue)
 
