@@ -54,10 +54,11 @@ test.
 Every other tier-2 row keeps its upstream SE. Those SEs carry the same
 limitation, but no donor-robust refit exists for them.
 
-**What this does to the accepted run.** It cannot be changed in place. A rerun
-on this code, after `cmb-AA-crossregion-20261007` is accepted, is expected to
-report **0** primary claim-family differences. Until then, do not quote the
-accepted run's one difference as regional heterogeneity.
+**What this did to the accepted run.** It could not be changed in place. The
+rerun `rdg-AA-crossregion-20261008`, accepted 2026-10-08, reports **0** primary
+claim-family differences, with the counts the smoke run predicted (39 to 37 rows
+across all arms, the ATAC row's q 0.0493 to 0.0506). Do not quote the
+2026-09-30 run's difference as regional heterogeneity.
 
 A smoke run (`V2_SMOKE_DONOR_ROBUST_RUN=cmb-AA-crossregion-20261007`, deleted
 after inspection) confirms this:
@@ -227,9 +228,19 @@ A run of this module spans all three regions, so `region` is the literal
 
 | run_id | cohort | region | vmr_set_id | accepted_on | accepted_by | decision | notes |
 |---|---|---|---|---|---|---|---|
-| rdg-AA-crossregion-20260930 | AA | crossregion | see manifest vmr_set_id_{caudate,dlpfc,hippocampus} | 2026-09-30 | Kynon J. Benjamin | PASS_REGION_DONOR_GENERALIZATION_QC | 10/10 gate criteria; 14 outputs; built at 975054f3f, git_dirty false, smoke_run FALSE. Consumes rra-AA-*-20260925-a, cmb-AA-*-20260924, tsc-AA-*-20260925-b, lsp-AA-*-20260925-a. First run with all four tier-accounting repairs (T20-T22, merged in #117), so its tier-1 and tier-2 counts are not comparable to any earlier run's. Tier 1: **13 of 13** prespecified claim-family tests replicate in all 3 regions, **13 strict**; denominators 374 tests across all analysis_sets, 74 primary, 13 in the claim family; 4 covariate terms and 3 underpowered Module 07 tests (`expression_abc`, below its locked min_vmrs_tested of 500) excluded from the family rather than counted in it; direction judged on nominally supported regions only; both specificity controls run opposite the claim family, none tracks it; no strict conjunction is vacuous. Tier 2: **1** primary claim-family dlpfc-minus-hippocampus difference survives strict conjunction (meqtl_burden quasibinomial score_z: dlpfc 2.094 vs hippocampus 2.367, delta -0.273, z -3.63, q 0.0038), against 39 rows surviving the statistical conjunction across all analysis_sets and roles and 9 in the primary arm -- the difference between those numbers is accounting, not evidence, and all 39 remain in the table. This difference is NOT the one the 2026-09-18 run reported: that run's single difference was the underpowered `expression_abc` arm, which the corrected claim-family filter excludes, and the `meqtl_burden` difference was p 0.64 on the older Module 05 estimates. See "### Superseded". 374 caudate rows retained descriptive-only. Tier 3: primary within-caudate paired delta on 11,335 shared loci, A = 0.1432 (block-jackknife 95% CI 0.1317-0.1548 over 22 chromosome blocks, reported not gated), all 3 replicates same direction, range 0.0032, gap_closed 0.9923; reading donor_count_is_a_plausible_major_contributor; lower-boundary mass rises 0.6247 to 0.6444 (+2.0 pts), recorded as estimator resolution and excluded from the 0.10 threshold. Donor-group axis: concordance only, rho 0.8146/0.7527/0.7589 for caudate/dlpfc/hippocampus = 85.3%/88.9%/88.0% of the analytic reliability ceiling (0.9546/0.8485/0.8635); no ancestry effect claim. Caudate remains batch-confounded; residual excess may NOT be called biological. |
+| rdg-AA-crossregion-20261008 | AA | crossregion | see manifest vmr_set_id_{caudate,dlpfc,hippocampus} | 2026-10-08 | Kynon J. Benjamin | PASS_REGION_DONOR_GENERALIZATION_QC | 10/10 gate criteria; 14 outputs; built at 03a4de5c1, git_dirty false, smoke_run FALSE. Same upstreams as rdg-AA-crossregion-20260930 plus the tier-2 donor-robust SE source cmb-AA-crossregion-20261007 (Module 05, accepted 2026-10-08). Tier 1, tier 3 and tier 4 outputs are byte-identical to the 2026-09-30 run. Tier 1: 13 of 13 prespecified claim-family tests replicate in all 3 regions, 13 strict; 374 tests, 74 primary, 13 in the claim family; both specificity controls run opposite the claim family. Tier 2: **0** primary claim-family dlpfc-minus-hippocampus differences. The meqtl_burden score_z delta -0.273 now carries the donor-robust SE 0.204 (HC3 independence form 0.075), p 0.18, q 0.36, so the 2026-09-30 run's one difference is withdrawn; 37 rows survive the statistical conjunction across all arms (8 in the primary arm, all ATAC outcomes outside the claim family), and all remain in the table. Every other tier-2 row keeps its upstream SE, which ignores the 115 shared donors and between-VMR correlation; no donor-robust refit exists for them. Tier 3: within-caudate paired delta A = 0.1432 (block-jackknife 95% CI 0.1317-0.1548), 3 replicates agree, gap_closed 0.9923; reading donor_count_is_a_plausible_major_contributor. Donor-group axis: concordance only, rho 0.8146/0.7527/0.7589 = 85.3%/88.7%/87.9% of the reliability ceiling (0.9546/0.8483/0.8635, now from lgv-all_individuals.EA-*-20260917); no ancestry effect claim. Caudate remains batch-confounded; residual excess may NOT be called biological. |
 
 ### Superseded
+
+`rdg-AA-crossregion-20260930` (accepted 2026-09-30, superseded 2026-10-08). Its
+one tier-2 difference (meqtl_burden, z -3.63, q 0.0038) rested on Module 05's
+VMR-level HC3 SEs combined as if the two regions were independent. On the
+donor-robust SE from `cmb-AA-crossregion-20261007` the same delta is p 0.18, so
+**do not quote a DLPFC-hippocampus difference in meQTL-burden slope**. Its
+reliability ceilings for DLPFC and hippocampus were computed from retired EA
+runs (fixed in #127); its rho values stand. Tiers 1, 3 and 4 are byte-identical in
+the replacement. `rdg-AA-crossregion-20261007`, built between the two, was never
+accepted.
 
 `rdg-AA-crossregion-20260918` (accepted 2026-09-18, superseded 2026-09-30).
 Superseded on two independent counts, and its tier-1 and tier-2 counts should not
