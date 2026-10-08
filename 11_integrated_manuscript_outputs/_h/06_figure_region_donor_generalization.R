@@ -250,10 +250,16 @@ pB <- ggplot(qq, aes(expected, observed)) +
                   label = sub(" \u00b7 ", "\n\u00b7 ", label, fixed = TRUE)),
               hjust = 0, vjust = 0, size = 2.3, lineheight = 0.9,
               colour = PAL_RUST) +
-    annotate("text", x = Inf, y = -Inf, hjust = 1.05, vjust = -0.4, size = 2.3,
+    ## With no claimed difference the upper-left corner is empty and the count
+    ## goes there; bottom-right sat on the near-origin points. A claimed
+    ## difference's label owns the upper-left, so the count then moves back.
+    annotate("text", x = if (n_claimed == 0) -Inf else Inf,
+             y = if (n_claimed == 0) Inf else -Inf,
+             hjust = if (n_claimed == 0) -0.05 else 1.05,
+             vjust = if (n_claimed == 0) 1.1 else -0.4, size = 2.3,
              colour = PAL_CHARCOAL, lineheight = 0.9,
              label = sprintf(paste0("DLPFC vs hippocampus\n%d tests, %d claimed\n",
-                                    "\u25cb %d pass outside the claim family"),
+                                    "\u25cb %d pass outside\nthe claim family"),
                              n_qq, n_claimed, n_outside)) +
     scale_x_continuous(limits = c(0, NA), expand = expansion(mult = c(0.02, 0.04))) +
     labs(x = expression(Expected~-log[10]~italic(P)),
