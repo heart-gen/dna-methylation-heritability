@@ -418,6 +418,49 @@ Submit with `_h/submit_ea_targeted.sh`. `SMOKE_N=1` runs a smoke and
   sharing, not evidence of distinct variants.
 - The GWAS loci come from European-ancestry summary statistics (§7.8 rule 2).
 
+**Result: `scz-all_individuals.EA-crossregion-20261008`** (sealed 2026-10-08
+00:54 at `4671edb22`, clean tree, 5/5 jobs). In every region the pooled
+methylation equals the AA primary's at every target CpG (max abs diff 0).
+
+| region | locus (index SNP) | AA lead p | EA n | EA lead p | reading |
+|---|---|---:|---:|---:|---|
+| caudate | 73 (rs12883788) | 1.4e-03 | 129 | 0.52 | opposite sign |
+| caudate | 276 (rs7681616) | 1.0e-07 | 129 | **1.2e-10** | reproduces (Bonferroni) |
+| caudate | 432 (rs6537239) | 1.8e-06 | 129 | **1.9e-07** | reproduces (Bonferroni) |
+| caudate | 163 (rs6504163) | 2.6e-03 | 129 | 0.074 | same sign, not nominal |
+| caudate | 198 (rs11862968) | 2.3e-03 | 129 | 0.0062 | reproduces (nominal) |
+| DLPFC | 490 (rs8009804) | 1.2e-08 | 55 | 0.012 | reproduces (nominal) |
+| DLPFC | 493 (rs61928076) | 1.8e-03 | 55 | 0.40 | same sign, not nominal |
+| DLPFC | 544 (rs13331198) | 1.4e-27 | 55 | **2.6e-08** | reproduces (Bonferroni) |
+| DLPFC | 283 (rs3909258) | 1.7e-03 | 55 | 0.48 | opposite sign |
+| DLPFC | 136 (rs4766428) | 2.4e-03 | 55 | 0.61 | same sign, not nominal |
+| hippocampus | 441 (rs139139) | 1.3e-03 | 60 | 0.13 | same sign, not nominal |
+| hippocampus | 264 (rs2241033) | 7.6e-04 | 60 | **1.5e-05** | reproduces (Bonferroni) |
+| hippocampus | 118 (rs72974238) | 9.1e-04 | 60 | 0.053 | same sign, not nominal |
+| hippocampus | 136 (rs4766428) | 1.6e-03 | — | — | not testable: variant absent from pooled pfile |
+| hippocampus | 198 (rs11862968) | 1.4e-03 | 60 | 0.055 | same sign, not nominal |
+
+- **Lead pairs:** 14 of 15 are testable and 12 of the 14 keep the AA sign.
+  6 reproduce at p < 0.05, and 4 survive Bonferroni over the 14 (α 0.0036).
+  The two opposite-sign leads (caudate 73, DLPFC 283) had the weakest AA
+  support (p ~1e-3), and none of their nominated pairs keeps the AA sign in EA.
+- **All nominated pairs:** 1,053 of 1,140 tested keep the AA sign (92%).
+- **The strongest AA loci reproduce**, among them the DLPFC hero locus
+  rs13331198 (p 2.6e-8 in 55 donors) and caudate 276 and 432. Loci with AA
+  p ~1e-3 mostly keep the sign without reaching p < 0.05, which is what these
+  cell sizes predict.
+- **Coloc** ran on the two strongest eligible loci, both in caudate. Four more
+  were eligible but over `max_loci`. Neither reaches PP4 0.8:
+  - locus 432: PP3 0.78, PP4 0.003 (1,753 shared variants);
+  - locus 276: PP3 0.99, PP4 0.010 (1,635 shared variants).
+
+  In both, the EA meQTL peak (p 1e-53 and 1e-28) sits about 30 kb and 64 kb
+  from the locus's lead risk variant. The index SNP's own p in the accepted run's PGC3 European slice
+  is only 8.6e-7 at locus 276. Read this as no support for a shared single
+  causal variant, given a weak GWAS side, not as evidence of distinct
+  variants. Coloc is not a gate.
+- Concordance only: the EA slopes are not compared with the AA slopes.
+
 ## Upstream currency
 
 **Resolved 2026-10-01.** The accepted runs consume the current acceptance of
