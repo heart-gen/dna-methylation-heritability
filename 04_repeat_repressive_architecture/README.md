@@ -581,6 +581,81 @@ Neither reading changes a gate. The Figure 3 sentence should not describe the
 LINE/L1 or H3K9me3 association as a property of VMRs common to all three
 regions.
 
+## LINE/L1 subfamily resolution (non-gating, 2026-10-07)
+
+**Why.** §7.4 lists, as a high-value extension, separating LINE/L1 by subfamily,
+comparing young L1HS/L1PA with older L1M, and distinguishing full-length from
+truncated elements. `repeat_annotations.yml:repeatmasker.l1_subfamily_definitions`
+has been `null` since 2026-08-23. The PI asked for it on 2026-10-07.
+
+**Definitions** are in `config/l1_subfamilies.yml` (`pi_locked`). They were
+fixed before any subfamily association was fitted; only element counts were
+looked at. The file is separate so that `repeat_annotations.yml` keeps the hash
+the accepted cells recorded.
+- **Age**, by RepeatMasker subfamily name, first match wins:
+  - young `^(L1HS|L1PA[0-9])`;
+  - old `^L1M`;
+  - intermediate, every other `^L1` (L1P1-5, L1PB*, L1PREC2). It is fitted
+    but kept out of the young-vs-old contrast.
+- **Full-length:** the subfamily consensus is ≥ 5.5 kb, and the element's
+  alignment covers ≥ 90% of it.
+- **Retains 5′ end:** the alignment starts within the first 100 bp of the
+  consensus. Descriptive only.
+- **Contrasts**, each a difference of slopes on the same VMRs with a joint
+  chromosome jackknife: young − old, full-length − fragment, and young
+  full-length − young fragment. The last separates completeness from age,
+  because 8,249 of the 9,247 full-length elements are young.
+
+**Asset.** `inputs/supportfiles/_h/02_build_l1_subfamily_asset.py` reads UCSC
+hg38 `rmsk.txt.gz` (sha256 pinned in the config) and writes
+`repeat-masker.LINE_L1.subfamily.hg38.tsv.gz`: 989,683 elements in 127
+subfamilies. It first proves the UCSC table is the one the project assets came
+from, by sorted MD5 of the six-column projection against
+`repeat-masker-hg38.gz` and of the LINE/L1 subset against
+`repeat-masker.LINE_L1.hg38.bed.gz`. Both match
+(`_m/l1-subfamily-asset-report.tsv`). Consensus coordinates are
+strand-dependent in the UCSC table, and the builder reads them that way.
+
+| | elements | full-length | fragment |
+|---|---:|---:|---:|
+| young | 130,658 | 8,249 | 122,409 |
+| intermediate | 57,051 | 558 | 56,493 |
+| old | 801,974 | 440 | 801,534 |
+
+**Stage.** `_h/10_l1_subfamily.R --cohort AA` reads the three accepted cells
+and fits each class fraction with the primary model in the four analysis
+sets. Two guards must pass before anything is written:
+- **Partition guard:** for every VMR, the young, intermediate and old fractions
+  must sum to the sealed `line_l1_frac` to 1e-12.
+- **Reproduction guard:** the rebuilt model must reproduce the sealed
+  `line_l1_frac` primary fit to 1e-6.
+
+An outcome is fitted in an analysis set only if at least 100 VMRs overlap the
+class there. Otherwise the row is written as `insufficient_overlap` with no
+estimate. The run is `rra-{cohort}-crossregion-{date}`, the same token as the
+shared/unique split; the manifest's `sensitivity =
+line_l1_subfamily_resolution` tells them apart.
+
+**Reading rule**, fixed before fitting. A contrast is read as `consistent` only
+if all three conditions hold:
+- in the primary set, its joint-jackknife p < 0.05 in both DLPFC and
+  hippocampus;
+- the sign is the same in both regions;
+- the high-mappability estimate keeps that sign in both.
+
+Caudate is fitted and shown but set aside, as caudate `line_l1_frac` is (§8.1).
+A contrast whose high-mappability arm falls under the overlap floor reads
+`not_evaluable_high_mappability`, never `consistent`.
+
+**Limits.**
+- Overlap does not show activity, expression or retrotransposition.
+- Full-length is not retrotransposition competence, since there is no ORF
+  integrity check; `retrotransposition_competent_list` stays `null`.
+- The UCSC table does not link the two pieces of an element split by an
+  insertion, so the full-length class is conservative.
+- Young L1 is the least mappable sequence in the genome, which is why the
+  high-mappability arm is in the reading rule.
+
 ## QC scripts
 
 `_h/06` and `_h/07` are post-hoc analyses OF sealed runs, not stages of one.
@@ -597,13 +672,14 @@ never read by `03_apply_gates.R`.
 
 | `_h/08_matched_measurability.R` | Does the association survive replacing regression adjustment with matching on measurability? Non-gating; part of step 2, writes `descriptive-matched-measurability.tsv` and `descriptive-matched-balance.tsv` into the run. |
 | `_h/09_shared_unique_split.R` | Is each primary association a property of the region's whole VMR set, or carried by the VMRs only that region called? `07`'s `set_overlap` split, made citable: it reads the three accepted cells and refuses to fit unless it reproduces every sealed primary estimate to 1e-6. It then seals its own cross-region run, `rra-{cohort}-crossregion-{date}`. Each subset gets HC3 and chromosome-jackknife SEs; the unique-minus-shared difference uses a joint jackknife. Non-gating: it changes no claim, q or decision token. |
+| `_h/10_l1_subfamily.R` | Does the LINE/L1 association differ between young L1HS/L1PA and old L1M elements, or between full-length elements and fragments? Reads the three accepted cells, refuses to fit unless the age classes partition `line_l1_frac` (1e-12) and the rebuilt model reproduces its sealed fit (1e-6), then seals `rra-{cohort}-crossregion-{date}`. Non-gating and outside the BH family; see the section above. |
 
 Read `06` and `07` as decompositions, never as a menu to select an adjustment
 set from.
 
 `06` and `07` select production cells by the pattern
 `rra-AA-(caudate|dlpfc|hippocampus)-YYYYMMDD`. That pattern excludes the
-cross-region split run, and it also excludes the accepted `-20260925-a` cells.
+cross-region runs (the split and the L1 subfamily stage), and it also excludes the accepted `-20260925-a` cells.
 Pass `--run-id` to `06` to target an accepted cell.
 
 ## Contract
