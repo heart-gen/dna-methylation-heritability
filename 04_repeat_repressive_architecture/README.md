@@ -785,6 +785,19 @@ Provenance: `vmrcat-AA-{region}-20260816` -> `lgv-AA-{region}-rescore-20260913` 
 `lsp-AA-{region}-20260925-a` -> this run, sealed 2026-09-25T23:09 at commit
 `d61f83b4c`, `git_dirty = false`, `smoke_run = FALSE`.
 
+### Accepted non-gating sensitivity runs
+
+These runs read the three accepted cells above and change no claim, q-value or
+decision token. They are recorded here, under their own heading, because
+`read_accepted_runs()` allows one accepted run per cohort x region and both are
+`AA x crossregion`. Nothing downstream gates on them, and Module 11's
+analysis-to-claim matrix does not list them. Each run's manifest field
+`sensitivity` says which analysis it is.
+
+| run_id | sensitivity | upstream | sealed | accepted_on | accepted_by | notes |
+|---|---|---|---|---|---|---|
+| rra-AA-crossregion-20261007 | shared_vs_region_unique_vmrs | rra-AA-{caudate,dlpfc,hippocampus}-20260925-a | 2026-10-07T14:58 at a233c4543, git_dirty false | 2026-10-08 | Kynon J.M. Benjamin | Reproduces all 45 sealed primary fits to 1e-6. Quiescent enrichment and accessible-chromatin depletion are present in shared VMRs in all three regions, at about half the strength they have in region-unique VMRs. The H3K9me3 and the DLPFC/hippocampus LINE/L1 associations are absent from shared VMRs and carried by region-unique ones; the unique minus shared gap survives the joint jackknife (H3K9me3 p 0.016 / 3.4e-05 / 1.0e-07; LINE/L1 p 7.7e-06 / 2.4e-05). The run cannot separate region-restricted biology from region-unique VMRs being more sequence-sensitive. Figure 3 must not call LINE/L1 or H3K9me3 a property of VMRs common to all regions. |
+
 ### The ATAC contrast, added 2026-09-25 (T8 and T11)
 
 These runs are the first to carry the BrainScope ATAC CRE tracks: one published
