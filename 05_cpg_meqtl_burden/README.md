@@ -376,6 +376,36 @@ Parameters are in `config/meqtl_parameters.yml:cross_region_slope_inference`:
 - The variance is conditional on the locked design.
 - The run makes no heterogeneity claim. Module 08 tier 2 decides.
 
+**Result: `cmb-AA-crossregion-20261007`** (sealed 2026-10-07, commit
+`9386252bf`, clean tree, 442/442 jobs completed). Decision token
+`SLOPE_DIFFERENCE_CI_INCLUDES_ZERO`.
+
+| | DLPFC | hippocampus | difference |
+|---|---|---|---|
+| slope (accepted cell, reproduced exactly) | 2.094 | 2.367 | −0.273 |
+| HC3 SE (sealed) | 0.051 | 0.056 | 0.075 (Module 08's independence form) |
+| donor delete-d SE | 0.123 | 0.155 | 0.182 |
+| chromosome-jackknife SE | 0.102 | 0.061 | 0.091 |
+| combined SE | 0.160 | 0.167 | **0.204** |
+| 95% interval | 1.78 to 2.41 | 2.04 to 2.69 | **−0.67 to 0.13** |
+
+- The difference is z −1.34, p 0.18. The donor-robust SE of the difference is
+  2.7 times the SE behind Module 08's z −3.63, and each region's is about 3
+  times its HC3 SE.
+- The donor half dominates. Draw slopes correlate only 0.16 between regions, so
+  the 115 shared donors buy little pairing.
+- Both slopes stay clearly positive: the within-region gradient is not in
+  question, only the difference between regions.
+- Draw 0 reproduced every sealed count. Across the 200 draws per region, π0
+  ran 0.25–0.37 and the significant-CpG count 74k–86k, so the miscalibration
+  guard never fired. The draws shift the mean difference by −0.014 against the
+  full-sample estimate.
+
+What follows for the manuscript: report the two slopes and this interval, and
+do not write that the burden slope differs between DLPFC and hippocampus.
+Module 08 still computes its tier-2 z from the HC3 independence form; changing
+it to read this run is a Module 08 change and rerun, not done here.
+
 ## Contract
 
 This module follows: `_h/` holds code, `_m/` holds generated
