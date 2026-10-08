@@ -625,8 +625,13 @@ strand-dependent in the UCSC table, and the builder reads them that way.
 **Stage.** `_h/10_l1_subfamily.R --cohort AA` reads the three accepted cells
 and fits each class fraction with the primary model in the four analysis
 sets. Two guards must pass before anything is written:
-- **Partition guard:** for every VMR, the young, intermediate and old fractions
-  must sum to the sealed `line_l1_frac` to 1e-12.
+- **Partition guard:** every element falls in exactly one age class, and for
+  every VMR the union of the classes, recomputed from the subfamily asset, must
+  reproduce the sealed `line_l1_frac` to 1e-12. The class fractions themselves
+  can sum to slightly more than `line_l1_frac` where elements of two classes
+  overlap, as with a young L1 inserted into an old one (up to 0.08 of a VMR's
+  span; `l1-subfamily-partition-check.tsv`). The config comment that says they
+  sum exactly is imprecise; the guard is on the union.
 - **Reproduction guard:** the rebuilt model must reproduce the sealed
   `line_l1_frac` primary fit to 1e-6.
 
@@ -655,6 +660,58 @@ A contrast whose high-mappability arm falls under the overlap floor reads
   insertion, so the full-length class is conservative.
 - Young L1 is the least mappable sequence in the genome, which is why the
   high-mappability arm is in the reading rule.
+
+**Result: `rra-AA-crossregion-20261007-a`** (sealed 2026-10-07 at `b924291e3`,
+clean tree, host run). The union check passed to 5.6e-16 and the model
+reproduction to ≤ 4.4e-16 in all three regions. All three contrasts read
+`not_consistent`.
+
+Values are the coefficient on `local_snp_contribution_score_z`, with the
+chromosome-jackknife p and the number of VMRs overlapping the class.
+
+| outcome | DLPFC | hippocampus | caudate (set aside) |
+|---|---|---|---|
+| old L1M | +0.372 (7e-16; 954) | +0.403 (3e-11; 997) | +0.314 (1e-04; 1,224) |
+| young L1HS/L1PA | +0.285 (0.008; 360) | +0.296 (0.006; 357) | −0.251 (0.003; 497) |
+| intermediate | +0.207 (0.3; 122) | +0.122 (0.5; 119) | +0.284 (0.2; 157) |
+| fragment | +0.334 (5e-13; 1,239) | +0.363 (3e-17; 1,279) | +0.121 (0.04; 1,519) |
+| full-length | +0.316 (0.1; 114) | +0.236 (0.2; 113) | −0.084 (0.4; 183) |
+| retains 5′ end | +0.504 (0.01; 155) | +0.523 (1e-04; 155) | +0.111 (0.4; 228) |
+| old L1M, high mappability | +0.322 (3e-07; 482) | +0.357 (1e-06; 504) | +0.197 (0.04; 640) |
+| young, high mappability | not fitted (56) | not fitted (56) | not fitted (98) |
+
+| contrast (joint jackknife) | DLPFC | hippocampus | caudate (set aside) |
+|---|---|---|---|
+| young − old | −0.086 (p 0.40) | −0.107 (p 0.36) | −0.564 (p 1.1e-05) |
+| full-length − fragment | −0.019 (p 0.93) | −0.126 (p 0.49) | −0.205 (p 0.12) |
+| young full-length − young fragment | +0.095 (p 0.75) | −0.064 (p 0.79) | −0.064 (p 0.71) |
+
+**Reading.**
+- **In DLPFC and hippocampus the LINE/L1 association is not specific to young
+  or to full-length elements.** Old L1M and young L1HS/L1PA both rise with the
+  score, at slopes that do not differ. Old L1M overlaps about 2.7 times as many
+  VMRs and carries most of the precision. It is also the only class that can
+  be tested under high mappability, and it survives there.
+- **Young L1 cannot be tested for mappability robustness.** Only 56 VMRs per
+  region overlap young L1 after the high-mappability restriction, under the
+  100 floor. Its primary estimate therefore stays unverified against the
+  mapping artefact the restriction exists to catch. Full-length and
+  5′-retaining classes overlap 8-53 VMRs there in DLPFC and hippocampus and are
+  untestable too.
+- **Full-length versus fragment is underpowered, not null.** About 114 VMRs
+  overlap a full-length element in each region, and the full-length slope's
+  jackknife SE is 0.2. The 5′-retaining class is nominally significant in
+  both regions but is not a prespecified contrast.
+- **Caudate is set aside, but its split is informative about the collapse.**
+  Caudate `line_l1_frac` is null (+0.016) because a positive old-L1M slope
+  (+0.314) and a negative young-L1 slope (−0.251) cancel. DLPFC and hippocampus
+  show no such sign split. Caudate is sequencing batch 3 (§8.1), and young L1 is
+  the least mappable class, so this is consistent with the batch acting through
+  mappability-sensitive sequence. It cannot be read as regional biology.
+- Nothing here licenses a statement about activity, expression or
+  retrotransposition. The main-text LINE/L1 sentence is unchanged. At most it
+  can add that the association is carried mainly by old L1M sequence and does
+  not distinguish young from old elements.
 
 ## QC scripts
 
