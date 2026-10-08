@@ -522,19 +522,25 @@ interpretation:
     powered to detect only large effects of common exposures.
   # PI 2026-09-19. A LIMITATION for the discussion, not a task: no analysis in
   # this module can remove it, and none is planned.
+  # Wording set by the PI 2026-10-07, replacing the earlier "because the
+  # variance budget is fixed" reading, which presented a limitation as a
+  # conclusion. The reason the two possibilities cannot be separated is
+  # unchanged: the axis contrast holds total methylation variance fixed
+  # (methylation_variance is an axis covariate), so a VMR with lower local
+  # genetic contribution necessarily keeps more residual variance. The
+  # quantity that would separate them -- an exposure effect relative to each
+  # VMR's non-genetic variance -- needs an absolute local-PVE estimate, which is
+  # retired (absolute_pve_interpretation_allowed = FALSE on every row).
+  # Debiasing removes the statistical half of the problem, the SE inflation; it
+  # cannot remove the arithmetic half. The manuscript names this end of the axis
+  # the "active, low-local-genetic-control regime", never "exposure-associated"
+  # or "environmentally controlled".
   variance_budget_limitation: >
-    The axis contrast holds total methylation variance fixed
-    (methylation_variance is an axis covariate), so a VMR higher on the
-    local-genetic-control axis necessarily has less non-genetic variance left for
-    any exposure to move. A negative gradient is therefore close to
-    arithmetically expected wherever a real exposure effect exists, and it is not
-    evidence that exposure effects are concentrated at the low-control end. The
-    quantity that would separate the two -- an exposure effect expressed relative
-    to each VMR's non-genetic variance -- cannot be formed here, because its
-    denominator requires an absolute local-PVE estimate and retired
-    that quantity (absolute_pve_interpretation_allowed = FALSE on every row).
-    Debiasing the outcome removes the statistical half of the problem, the SE
-    inflation; it does not and cannot remove the arithmetic half.
+    An unresolved question is whether active, low-local-control VMRs are
+    genuinely more responsive to environmental or other non-genetic influences.
+    The present study cannot distinguish that possibility from the larger
+    residual variance that necessarily remains when local genetic contribution
+    is lower.
   cross_region_rationale: >
     Caudate is sequencing batch 3 and region is perfectly confounded with batch.
     A single-region result is unexposed to that confound; a
