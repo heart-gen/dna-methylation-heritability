@@ -311,10 +311,24 @@ add("- Environmental exposures (Module 10; exploratory supplement only): ",
     ". A negative gradient is not evidence that exposure effects concentrate in ",
     "weakly controlled VMRs (variance budget, AGENTS.md 7.10).")
 ss <- src("figureS_partitioned_heritability", "panel_a")
-add("- Partitioned heritability (Module 06): ", sum(ss$tau_q < 0.05, na.rm = TRUE),
-    " of ", nrow(ss), " trait x region tests reach q < 0.05 ",
+sb <- src("figureS_partitioned_heritability", "panel_b")
+sb_cg <- sb[role == "positive_control_primary" & trait == "scz"]
+sb_vm <- sb[role == "vmr_membership_standalone" & trait == "scz"]
+sb_vm[, region := as.character(region)]
+add("- Partitioned heritability (Module 06): ",
+    sum(ss[trait_class == "brain"]$tau_q < 0.05, na.rm = TRUE), " of ",
+    nrow(ss[trait_class == "brain"]), " brain-trait x region tests and ",
+    sum(ss[trait_class != "brain"]$tau_q < 0.05, na.rm = TRUE), " of ",
+    nrow(ss[trait_class != "brain"]), " non-brain control tests reach q < 0.05 ",
     key("figureS_partitioned_heritability", "a"),
-    "; write \"no detectable enrichment at this footprint\".")
+    ". Positive control (non-gating): neuronal CG-DMRs show ",
+    num(sb_cg$enrichment, 1), "-fold schizophrenia enrichment (q ",
+    pv(sb_cg$q_bh_within_annotation), ") through the same pipeline, while the ",
+    "VMR annotations' upper 95% bounds are ",
+    per_region(sb_vm, function(r) num(r$enrichment_upper95, 1)), " ",
+    key("figureS_partitioned_heritability", "b"),
+    "; write \"no detectable enrichment, and enrichment of the magnitude seen ",
+    "for neuronal CG-DMRs is excluded\".")
 if (any(registry$figure == "figureS_greml_benchmark")) {
     ga2 <- src("figureS_greml_benchmark", "panel_a")
     gsp <- src("figureS_greml_benchmark", "spearman")

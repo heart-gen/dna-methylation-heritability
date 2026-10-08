@@ -7,7 +7,8 @@
 ## including where the claim is "no effect".
 ##
 ## Figures written here
-##   figureS_partitioned_heritability   Module 06, sldsc-AA-*-20260903
+##   figureS_partitioned_heritability   Module 06, the accepted cells plus the
+##                                      accepted non-gating positive control
 ##   figureS_aging_axis                 Module 09b, age-AA-*-20260919
 ##   figureS_environmental_axis         Module 10, env-AA-*-20260920-a
 ##
@@ -47,8 +48,8 @@ by_region <- function(fun) rbindlist(lapply(regions, function(r) {
 
 ## ===================================================== S-LDSC (Module 06)
 ##
-## The accepted result is a NULL under the two-annotation model
-## (sldsc-AA-*-20260925): tau of LOCAL_SNP_CONTRIBUTION_Z is estimated
+## The accepted result is a NULL under the two-annotation model: tau of
+## LOCAL_SNP_CONTRIBUTION_Z is estimated
 ## CONDITIONAL on VMR_TESTED, so it is the within-VMR gradient, and no trait
 ## reaches q < 0.05 in any cell.
 ##
@@ -58,9 +59,12 @@ by_region <- function(fun) rbindlist(lapply(regions, function(r) {
 ## those rows enrichment_interpretable = FALSE. The guard below stops the build
 ## if an uninterpretable enrichment would be drawn.
 ##
-## Module 06's writing rule: "no detectable enrichment at this footprint",
-## never "no enrichment" -- the annotation is small and the module has no
-## positive control, so a null cannot be told from a power null.
+## Module 06's writing rule: "no detectable enrichment, and enrichment of the
+## magnitude seen for neuronal CG-DMRs is excluded", never "no enrichment".
+## Panel b is the positive control that licenses the second half: the accepted
+## non-gating run that puts published neuronal CG-DMRs through the same
+## pipeline beside each region's VMR membership refitted alone. Until it was
+## accepted (2026-10-08) the caption said there was no positive control.
 SLDSC <- vapply(regions, function(r)
     require_accepted_upstream("06_partitioned_heritability", cohort, r)$run_id,
     character(1))
@@ -92,33 +96,148 @@ met[, class := factor(fifelse(trait_class == "brain", "Brain", "Non-brain contro
 met[, trait_label := sub("\\s*--\\s*non-brain negative control$", "", trait_label)]
 ord <- met[, .(m = mean(tau_z)), by = trait_label][order(-m)]
 met[, trait_label := factor(trait_label, levels = ord$trait_label)]
-n_sig <- met[, sum(tau_q < 0.05, na.rm = TRUE)]
 n_traits <- uniqueN(met$trait_label)
 
-pS1 <- ggplot(met, aes(tau_z, trait_label, colour = region)) +
+## Brain and control traits are counted apart. A control reaching q < 0.05
+## (CAD in one cell) is a reason a brain hit could not be called brain-specific,
+## not evidence of brain enrichment, so one pooled count would misread it.
+n_sig_brain <- met[class == "Brain", sum(tau_q < 0.05, na.rm = TRUE)]
+n_brain     <- met[class == "Brain", .N]
+n_sig_ctrl  <- met[class != "Brain", sum(tau_q < 0.05, na.rm = TRUE)]
+n_ctrl      <- met[class != "Brain", .N]
+
+## One legend for both panels. Panel a's regions are the VMR series of panel b,
+## so both map the same five series through identical scales; panel a draws no
+## key and patchwork collects panel b's above the whole figure. Two legends of
+## different heights pushed panel b's axis out of line with panel a's.
+SERIES <- c(cg_reg = "NeuN+ CG-DMRs, between regions",
+            cg_pn  = "NeuN+ vs NeuN\u2212 CG-DMRs",
+            setNames(paste0("VMRs, ", REGION_LABELS), paste0("vmr_", names(REGION_LABELS))))
+SERIES_COLORS <- setNames(c(PAL_CHARCOAL, "grey55", unname(REGION_COLORS)), unname(SERIES))
+SERIES_SHAPES <- setNames(c(17, 15, 16, 16, 16), unname(SERIES))
+series_scales <- list(
+    scale_colour_manual(values = SERIES_COLORS, limits = unname(SERIES), name = NULL),
+    scale_shape_manual(values = SERIES_SHAPES, limits = unname(SERIES), name = NULL),
+    ## Column-major, so the two CG-DMR keys share a column and the long labels
+    ## never sit side by side; row-major ran the key off the right edge.
+    guides(colour = guide_legend(nrow = 2, byrow = FALSE),
+           shape = guide_legend(nrow = 2, byrow = FALSE)))
+met[, series := factor(SERIES[paste0("vmr_", names(REGION_LABELS)[as.integer(region)])],
+                       levels = unname(SERIES))]
+
+pS1a <- ggplot(met, aes(tau_z, trait_label, colour = series, shape = series)) +
     geom_vline(xintercept = 0, colour = PAL_NULL, linewidth = 0.35) +
     geom_vline(xintercept = c(-1.96, 1.96), colour = PAL_NULL, linewidth = 0.3,
                linetype = 2) +
     geom_point(size = 1.6, position = position_dodge(width = 0.6)) +
-    facet_grid(class ~ ., scales = "free_y", space = "free_y", switch = "y") +
-    scale_colour_manual(values = REGION_COLORS, name = NULL) +
-    labs(x = "S-LDSC \u03c4 z, score | VMR membership",
-         y = NULL,
-         caption = paste(strwrap(paste0(
-             "Prespecified ", n_traits, "-trait family, EUR LD scores, two-annotation ",
-             "model. ", n_sig, " of ", nrow(met), " tests reach q < 0.05: no detectable ",
-             "enrichment at this footprint. The annotation is small and there is no ",
-             "positive control, so this null is not distinguishable from a power null. ",
-             "Dashed lines: |z| = 1.96 (nominal)."), width = 115), collapse = "\n")) +
+    facet_grid(class ~ ., scales = "free_y", space = "free_y") +
+    series_scales + guides(colour = "none", shape = "none") +
+    labs(x = "\u03c4 z, score | VMR membership", y = NULL) +
     BASE_THEME + NO_TITLES + GRID_Y +
-    theme(legend.position = "top", legend.margin = margin(0, 0, -4, 0),
-          strip.placement = "outside",
-          strip.text.y.left = element_text(angle = 0, face = "bold", size = 8),
-          plot.caption = element_text(size = 6.5, hjust = 0, colour = "grey35"),
-          plot.caption.position = "plot")
+    theme(strip.text.y = element_blank())
+
+## ---------------------------------- b. positive control (non-gating, accepted)
+##
+## Resolved from the README's non-gating subsection, never from a run-ID
+## template, and checked against panel a: the benchmark must have read exactly
+## the cells drawn there, or its VMR rows describe a different annotation (the
+## 2026-10-07 run read the liftover-inflated 2026-09-25 cells).
+ext_acc <- read_accepted_nongating_runs("06_partitioned_heritability")
+want_cohort <- cohort
+ext_acc <- ext_acc[section == "Accepted non-gating positive control" &
+                   cohort == want_cohort]
+if (nrow(ext_acc) != 1L) {
+    stop("Expected one accepted Module 06 positive-control run for ", cohort,
+         ", found ", nrow(ext_acc), ".")
+}
+EXT <- ext_acc$run_id
+ext_run <- file.path(V2_ROOT, "06_partitioned_heritability", "_m", "runs", EXT)
+ext_man <- fread(file.path(ext_run, "manifest.tsv"), header = TRUE)
+ext_mf  <- setNames(as.character(ext_man$value), ext_man$field)
+if (!identical(ext_mf[["gating"]], "FALSE")) {
+    stop(EXT, " does not carry gating = FALSE; this panel is drawn as non-gating.")
+}
+ext_up <- vapply(regions, function(r)
+    ext_mf[[paste0("upstream_partitioned_heritability_", r)]], character(1))
+if (!identical(unname(ext_up), unname(SLDSC))) {
+    stop(EXT, " read ", paste(ext_up, collapse = ", "), " but panel a draws ",
+         paste(SLDSC, collapse = ", "), ". Rerun the benchmark on the accepted cells.")
+}
+
+ext <- fread(file.path(ext_run, "results", "external-annotation-metrics.tsv"))
+ext <- ext[role %in% c("positive_control_primary", "positive_control_secondary",
+                       "vmr_membership_standalone")]
+if (nrow(ext) != 5L * n_traits) {
+    stop(EXT, ": expected ", 5L * n_traits, " annotation x trait rows, found ",
+         nrow(ext), ".")
+}
+ext[, region := fifelse(role == "vmr_membership_standalone",
+                        tolower(sub("^VMR_TESTED_", "", annotation)), NA_character_)]
+ext[, series := factor(SERIES[fcase(role == "positive_control_primary", "cg_reg",
+                                    role == "positive_control_secondary", "cg_pn",
+                                    default = paste0("vmr_", region))],
+                       levels = unname(SERIES))]
+if (anyNA(ext$series)) stop(EXT, ": an annotation has no panel b series label.")
+ext[, class := factor(fifelse(trait_class == "brain", "Brain", "Non-brain control"),
+                      levels = levels(met$class))]
+ext[, trait_label := sub("\\s*--\\s*non-brain negative control$", "", trait_label)]
+if (!setequal(unique(ext$trait_label), levels(met$trait_label))) {
+    stop(EXT, ": trait labels differ from panel a's.")
+}
+ext[, trait_label := factor(trait_label, levels = levels(met$trait_label))]
+
+
+pS1b <- ggplot(ext, aes(tau_z, trait_label, colour = series, shape = series)) +
+    geom_vline(xintercept = 0, colour = PAL_NULL, linewidth = 0.35) +
+    geom_vline(xintercept = c(-1.96, 1.96), colour = PAL_NULL, linewidth = 0.3,
+               linetype = 2) +
+    geom_point(size = 1.5, position = position_dodge(width = 0.75)) +
+    facet_grid(class ~ ., scales = "free_y", space = "free_y",
+               labeller = as_labeller(c(Brain = "Brain",
+                                        `Non-brain control` = "Non-brain\ncontrol"))) +
+    series_scales +
+    labs(x = "\u03c4 z, annotation alone", y = NULL) +
+    BASE_THEME + NO_TITLES + GRID_Y +
+    theme(axis.text.y = element_blank(), axis.ticks.y = element_blank(),
+          strip.text.y = element_text(angle = -90, face = "bold", size = 7.5,
+                                      lineheight = 0.9))
+
+## The magnitude sentence is computed, and worded from the comparison it makes:
+## the CG-DMR schizophrenia enrichment against each VMR row's upper 95% bound.
+cg  <- ext[role == "positive_control_primary" & trait == "scz"]
+vmr <- ext[role == "vmr_membership_standalone" & trait == "scz"][order(series)]
+vmr[, ub := enrichment + 1.96 * enrichment_se]
+smaller <- cg$prop_snps < min(ext[role == "vmr_membership_standalone", prop_snps])
+excluded <- all(vmr$ub < cg$enrichment)
+cap_b <- paste0(
+    "b, the accepted non-gating positive control: each annotation enters alone on ",
+    "the same baseline model, LD scores and GWAS files. Neuronal CG-DMRs between ",
+    "regions cover ", signif(100 * cg$prop_snps, 2), "% of common SNPs",
+    if (smaller) ", fewer than any VMR annotation," else ",",
+    " and show ", signif(cg$enrichment, 3), "-fold schizophrenia enrichment (q ",
+    signif(cg$q_bh_within_annotation, 2), "). VMR upper 95% bounds: ",
+    paste(sprintf("%.1f", vmr$ub), collapse = " / "), " (",
+    paste(REGION_LABELS, collapse = " / "), "), so enrichment of that magnitude is ",
+    if (excluded) "excluded." else "NOT excluded.",
+    " q is BH across traits within an annotation, descriptive only.")
+
+cap_all <- paste(strwrap(paste0(
+    "a, prespecified ", n_traits, "-trait family, EUR LD scores, two-annotation model. ",
+    n_sig_brain, " of ", n_brain, " brain-trait and ", n_sig_ctrl, " of ", n_ctrl,
+    " non-brain control tests reach q < 0.05. ", cap_b,
+    " Dashed lines: |z| = 1.96 (nominal)."), width = 125), collapse = "\n")
 
 S1 <- paste0("figureS_partitioned_heritability", arm)
-save_figure(pS1, S1, width = FIG_WIDTH_FULL, height = 4.2, fig_dir = fig_dir)
+save_figure((pS1a | pS1b) + plot_layout(widths = c(1, 1), guides = "collect") +
+                fig_tags(caption = cap_all,
+                         theme = theme(plot.caption = element_text(
+                             size = 6.5, hjust = 0, colour = "grey35"),
+                             plot.caption.position = "plot")) & TAG_THEME &
+                theme(legend.position = "top", legend.margin = margin(0, 0, -2, 0),
+                      legend.text = element_text(size = 7.5),
+                      legend.key.width = grid::unit(8, "pt"),
+                      legend.justification = "center"),
+            S1, width = FIG_WIDTH_FULL, height = 4.6, fig_dir = fig_dir)
 write_source_data(met[, .(region, trait_label, trait_class, annotation_name,
                           annotation_role, is_primary_hypothesis,
                           enrichment_interpretable, tau, tau_se, tau_z, tau_p,
@@ -127,8 +246,22 @@ write_source_data(met[, .(region, trait_label, trait_class, annotation_name,
                   paste0(S1, "_panel_a"), unname(SLDSC),
                   "results/sldsc-metrics.tsv", SCRIPT,
                   paste0("is_primary_hypothesis (LOCAL_SNP_CONTRIBUTION_Z, tau conditional on VMR_TESTED); ",
-                         n_sig, " of ", nrow(met),
-                         " q < 0.05; enrichment omitted because enrichment_interpretable = FALSE"),
+                         n_sig_brain, " of ", n_brain, " brain and ", n_sig_ctrl, " of ",
+                         n_ctrl, " control tests q < 0.05; enrichment omitted because ",
+                         "enrichment_interpretable = FALSE"),
+                  data_dir)
+write_source_data(ext[, .(series, annotation, role, region, trait, trait_label,
+                          trait_class, prop_snps, prop_h2, prop_h2_se, enrichment,
+                          enrichment_se, enrichment_p,
+                          enrichment_upper95 = enrichment + 1.96 * enrichment_se,
+                          tau, tau_se, tau_z, tau_p_two_sided, tau_star, tau_star_se,
+                          q_bh_within_annotation, total_h2, total_h2_se,
+                          ld_reference_arm, gating)],
+                  paste0(S1, "_panel_b"), EXT,
+                  "results/external-annotation-metrics.tsv", SCRIPT,
+                  paste0("roles positive_control_primary, positive_control_secondary, ",
+                         "vmr_membership_standalone; gating = FALSE; accepted under ",
+                         "'Accepted non-gating positive control'"),
                   data_dir)
 
 ## ===================================================== Aging (Module 09b)
