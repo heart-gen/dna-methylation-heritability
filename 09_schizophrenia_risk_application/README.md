@@ -348,6 +348,76 @@ non-significance, and hippocampus -0.538 (q 1.8e-04) becomes -0.114 (q 0.435). O
 the MuSiC covariate, composition-sensitivity does not track axis depletion in any
 region. This is the same modality switch that moved Module 09b's gating arm.
 
+### Targeted white-American check of the illustrative loci (stages 19-22, non-gating)
+
+**Why.** The PI asked on 2026-10-07 for a targeted white-American (EA) check of
+the prespecified illustrative loci, with four conditions:
+- test the same risk SNPs, proxies and CpGs nominated in the primary, at a
+  nominal p;
+- if effects are strong and directions reproduce, treat that as support;
+- run a European-LD-matched coloc where one or two loci have enough signal;
+- coloc success is not a manuscript gate.
+
+This is not an EA meQTL map (T25) and not a test of a donor-group difference.
+
+**Design** (`config/scz_ea_targeted.yml`, `pi_locked`, fixed before any EA
+association was computed):
+- **Loci:** `prioritized == TRUE` in each accepted region run
+  (`scz-AA-{region}-20261001`). That is up to 5 per region, 15 locus × region
+  targets in all, each tested in that region's EA donors only.
+- **Pairs:** every risk-variant → CpG pair at those loci that was significant
+  in the AA primary (1,150 pairs), with the same variant and CpG IDs. The lead
+  pair of a locus is its minimum-AA-p pair and carries the locus reading.
+- **Donors:** the EA estimation cells (`estcell-all_individuals.EA-{region}-20260910`):
+  129 caudate, 55 DLPFC, 60 hippocampus.
+- **Methylation:** the pooled catalog's raw CpG matrix. Stage 20 first proves
+  it equals the AA primary's tested methylation for the AA donors at every
+  target CpG.
+- **Model:** the locked M3a, re-estimated inside the EA donors.
+  - snpPC1-5 come from `plink2 --pca` on the EA donors over the cell's pruned
+    variant set.
+  - methPC1-5 come from the locked latent-factor recipe.
+  - The statistic is tensorqtl's nominal t, with df = n − 2 − k.
+  - Genotype QC is the locked meQTL QC (MAF 0.05, missingness 0.05, HWE 1e-6),
+    evaluated in the EA donors.
+- **Alleles:** the AA and pooled pfiles share variant IDs, but some variants
+  have REF and ALT swapped between them. Stage 20 classifies every variant as
+  same, swapped, different or absent. It flips swapped dosages to the AA ALT
+  allele, so every EA slope is on the AA allele, and reports different and
+  absent variants as untestable.
+
+**Reading rule.** A locus **reproduces** if its lead pair is testable in EA,
+has the AA sign, and has nominal p < 0.05. Also reported:
+- Bonferroni over the testable lead pairs;
+- per locus, the fraction of all nominated pairs with the AA sign, and with
+  the AA sign and p < 0.05.
+
+**Coloc** (`coloc.abf`, gating = FALSE): PGC3 European GWAS (the accepted run's
+own slice) × an EA cis scan of the lead CpG, ±500 kb. This is the LD-matched
+pairing the AA meQTL arm could never be. A locus is eligible only if it
+reproduces and the lead CpG's EA cis minimum p is ≤ 1e-5. At most 2 loci are
+run, strongest first, each with ≥ 100 shared variants. Priors are as in the
+primary.
+
+| Stage | Script | Purpose |
+| --- | --- | --- |
+| 19 | `19_ea_targeted_new_run.R` | Open `scz-all_individuals.EA-crossregion-{date}`; collect targets from the accepted AA runs |
+| 20 | `20_ea_targeted_test.py` | Per region: EA donors, within-EA PCs, methPCs, variant QC and allele harmonization, pair tests, and cis scans for reproducing lead CpGs |
+| 21 | `21_ea_coloc.R` | Eligibility and `coloc.abf` (coloc env) |
+| 22 | `22_ea_targeted_summarize.R` | Apply the reading rule; delete per-region genotype working files; seal |
+
+Submit with `_h/submit_ea_targeted.sh`. `SMOKE_N=1` runs a smoke and
+`DRY_RUN=1` prints the job graph.
+
+**Interpretation constraints**, carried in the run:
+- Concordance only (§7.7). EA and AA magnitudes are never contrasted.
+- A non-replication is not evidence of an ancestry-specific effect: the DLPFC
+  and hippocampus EA cells hold 55 and 60 donors.
+- Module 09's two decisions and the retention criteria are untouched.
+- A coloc PP4 below threshold in 55-129 donors is weak evidence against
+  sharing, not evidence of distinct variants.
+- The GWAS loci come from European-ancestry summary statistics (§7.8 rule 2).
+
 ## Upstream currency
 
 **Resolved 2026-10-01.** The accepted runs consume the current acceptance of
@@ -389,6 +459,10 @@ needs an EA CpG meQTL map, not an EA score. The arm therefore stays
 `CROSS_ANCESTRY_LD_UNMATCHED` and exploratory, and flipping
 `colocalization.arms.meqtl.{qtl_ancestry,gate_eligible}` would assert a matching
 that does not exist.
+
+Stages 19-22 (above) run `coloc.abf` for at most two reproducing loci against
+a targeted EA cis scan. That is LD-matched for those loci only. It is not an EA
+meQTL map and leaves this arm as it is.
 
 ## Accepted runs
 
