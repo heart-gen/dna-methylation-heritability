@@ -63,6 +63,33 @@ for (mod in region_upstreams) {
     }
 }
 
+## ------------------------------- tier 2: donor-robust SE sources (2026-10-08)
+##
+## Where config names an upstream cross-region run that supplies a donor-robust
+## SE for a tier-2 contrast, that run is gated like any other upstream. It is
+## kept out of `accepted`, whose rows are per region and carry one vmr_set_id
+## each; a cross-region run spans two. A smoke run may name an unaccepted run
+## through V2_SMOKE_DONOR_ROBUST_RUN, and only a smoke run.
+dr_sources <- config_get(cfg, "identified_difference.donor_robust_se")
+dr_runs <- list()
+for (src in dr_sources) {
+    row <- require_accepted_upstream(src$module, cohort, src$region,
+                                     allow_unaccepted = allow_unlocked)
+    if (is.na(row$run_id)) {
+        smoke_id <- Sys.getenv("V2_SMOKE_DONOR_ROBUST_RUN", "")
+        if (!nzchar(smoke_id)) {
+            stop("No accepted ", src$module, " run for ", cohort, " x ",
+                 src$region, ", and V2_SMOKE_DONOR_ROBUST_RUN is unset.")
+        }
+        row$run_id <- smoke_id
+    }
+    for (f in c(src$difference_file, src$per_region_file)) {
+        p <- file.path(V2_ROOT, src$module, "_m", "runs", row$run_id, f)
+        if (!file.exists(p)) stop("Donor-robust source file missing: ", p)
+    }
+    dr_runs[[paste(src$module, src$region, sep = "|")]] <- row
+}
+
 ## One locus set across the whole region axis, or "replication across regions"
 ## is comparing different loci that happen to share an ID scheme. Each region
 ## has its OWN vmr_set_id by construction (discovery is per region), so the
@@ -236,7 +263,8 @@ run <- new_run(
             paste0("vmr_set_id_", regions)),
         flatten(accepted, "upstream_"),
         flatten(cell_runs, "upstream_"),
-        flatten(ds_runs, "upstream_")
+        flatten(ds_runs, "upstream_"),
+        flatten(dr_runs, "upstream_")
     ))
 
 dir.create(file.path(run$dir, "results"), recursive = TRUE,

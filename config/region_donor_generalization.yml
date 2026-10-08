@@ -81,6 +81,27 @@ identified_difference:
   require_strict_conjunction: true
   alpha: 0.05
   fdr_method: BH
+  # Donor-robust SEs (added 2026-10-08, TASKS A3). By default a tier-2 delta's
+  # SE is sqrt(se_a^2 + se_b^2) over the upstream per-region SEs, which for
+  # Module 05 are VMR-level HC3: they ignore between-VMR correlation and the
+  # 115 donors the two regions share. Where an accepted upstream cross-region
+  # run supplies a donor-robust SE for the SAME refitted model, stage 02 uses
+  # it instead, for the delta and for the per-region magnitude and nominal
+  # checks, and refuses unless that run reproduces both region estimates.
+  # Stage 00 gates each source with require_accepted_upstream(module, cohort,
+  # region), so production cannot run until the source run is accepted.
+  donor_robust_se:
+    - analysis: meqtl_burden
+      analysis_set: primary
+      outcome: quasibinomial_continuous_local_snp_contribution_score
+      predictor: local_snp_contribution_score_z
+      module: 05_cpg_meqtl_burden
+      region: crossregion
+      difference_file: results/slope-difference.tsv
+      per_region_file: results/slope-per-region.tsv
+      # The source refits the accepted model; its estimates must match the
+      # stage-01 estimates to this tolerance or the source is a different model.
+      reproduction_tolerance: 1.0e-9
 
 # ------------------------- tier 3: caudate donor-count sensitivity (n = 118)
 # Tests Module 03's untested attribution of the caudate excess to donor count.

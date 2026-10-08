@@ -20,6 +20,55 @@ Tier 3 is the one axis that needed new upstream compute rather than assembly:
 had to be sealed **and accepted** before this module would open a run. All nine
 are accepted (2026-09-18).
 
+## Tier 2's one difference rested on VMR-level SEs (2026-10-08)
+
+The accepted run's only tier-2 difference is the `meqtl_burden` score_z slope:
+DLPFC 2.094 against hippocampus 2.367, delta −0.273, z −3.63. Its SE is the
+square root of the sum of the two regions' Module 05 SEs, and those are
+VMR-level HC3. HC3 treats the ~9,000 VMRs in a region as independent, and it
+ignores the 115 donors the two regions share.
+
+`cmb-AA-crossregion-20261007` (Module 05, TASKS A3) refits the same model with a
+paired delete-d donor jackknife plus a joint chromosome jackknife.
+- Both region estimates reproduce exactly.
+- Each region's SE is about 3× its HC3 SE.
+- The difference's SE is 0.204 against 0.075.
+
+On that SE the difference is z −1.34, p 0.18. The two regions' slopes agree.
+
+**The fix:** `identified_difference.donor_robust_se` in
+`config/region_donor_generalization.yml` names a source by module, region and
+test.
+- Stage 00 gates the source with `require_accepted_upstream()`, so production
+  cannot use it until the PI accepts it. Only a smoke run may name an
+  unaccepted source, through `V2_SMOKE_DONOR_ROBUST_RUN`.
+- Stage 02 refuses a source that does not reproduce both stage-01 estimates to
+  1e-9. When it accepts one, the source's SEs replace the HC3 ones in three
+  places:
+  - the delta;
+  - the per-region magnitude check;
+  - the both-nominal check.
+- `identified-difference.tsv` keeps the old SE as `delta_se_hc3_independent`,
+  and `delta_se_source` names where each row's SE came from.
+
+Every other tier-2 row keeps its upstream SE. Those SEs carry the same
+limitation, but no donor-robust refit exists for them.
+
+**What this does to the accepted run.** It cannot be changed in place. A rerun
+on this code, after `cmb-AA-crossregion-20261007` is accepted, is expected to
+report **0** primary claim-family differences. Until then, do not quote the
+accepted run's one difference as regional heterogeneity.
+
+A smoke run (`V2_SMOKE_DONOR_ROBUST_RUN=cmb-AA-crossregion-20261007`, deleted
+after inspection) confirms this:
+- The meQTL row gets SE 0.204, p 0.18 and `difference_claimed = FALSE`.
+- The primary claim-family count goes from 1 to 0.
+- The all-rows count goes from 39 to 37. BH runs over all 314 testable pairs, so
+  the meQTL row's higher p moves other rows' q. One secondary row
+  (`repeat_architecture` × `high_mappability` × `atac_opc_frac` × `r2_pred_oof_z`)
+  goes from q 0.0493 to 0.0506 and loses its claim.
+- No other row changes, and the gate passes 10 of 10.
+
 ## The accepted run now rests on superseded upstreams
 
 **Added 2026-09-27.** Four of `rdg-AA-crossregion-20260918`'s upstreams were
@@ -235,7 +284,7 @@ exposed the four defects; see the section above. Nothing in it is citable.
 
 | stage | tier | writes |
 |---|---|---|
-| `00_new_run.R` | — | `results/tiers.tsv`; gates all 30 region-axis + 18 cell + 9 tier-3 upstreams and pins their run IDs |
+| `00_new_run.R` | — | `results/tiers.tsv`; gates all 30 region-axis + 18 cell + 9 tier-3 upstreams, plus each tier-2 donor-robust SE source, and pins their run IDs |
 | `01_cross_region_replication.R` | 1 | `cross-region-{tests,replication,rank-agreement,summary}.tsv` |
 | `02_identified_difference.R` | 2 and 4 | `identified-difference{,-summary}.tsv`, `descriptive-confounded-regions.tsv` |
 | `03_donor_group_concordance.R` | donor group | `donor-group-concordance.tsv` |
