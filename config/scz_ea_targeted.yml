@@ -1,0 +1,115 @@
+# Targeted white-American (EA) check of the prespecified schizophrenia
+# illustrative loci (Module 09 stages 19-22).
+#
+# PI direction 2026-10-07 (Kynon J.M. Benjamin): "draft a targeted
+# white-American analysis of the few prespecified SCZ illustrative loci. For
+# perhaps 2-5 loci, test the same risk SNP/proxies and the same CpGs that were
+# nominated in the primary analysis (nominal p-value). If the effects are strong
+# and directions reproduce, that is useful support. If one or two loci have
+# enough signal for a European-LD-matched coloc, run it there. But successful
+# coloc should not be a manuscript gate."
+#
+# WHAT IT IS. A targeted directional check, not an EA meQTL map (that remains
+# task T25, a separate PI decision) and not a test of an ancestry difference.
+# AGENTS.md 7.7 / config/analysis_thresholds.yml:donor_group lock donor-group
+# inference to concordance only, and config/schizophrenia.yml forbids
+# `ancestry_specific_scz_methylation`. So the only quantities reported are an
+# EA effect's sign relative to the AA effect and its nominal p. EA effect sizes
+# are shown but never contrasted with AA ones, and a non-replication is NOT
+# evidence of an ancestry-specific effect: the EA cells are 129 / 55 / 60 donors
+# against 153 / 118 / 117 AA.
+#
+# NOT A GATE. Module 09's two locked decisions are untouched. Coloc here is
+# exploratory support: `gating: false`, never part of scz_application_retention.
+#
+# Fixed before any EA association was computed.
+
+pi_locked: true
+
+# The prespecified illustrative loci: prioritized == TRUE in each accepted
+# region's results/prioritized-loci.tsv (config/schizophrenia.yml:
+# prioritization, max 5 per region, ranked_composite_v1). Each region's loci are
+# tested in that region's EA donors only.
+accepted_runs:
+  caudate: scz-AA-caudate-20261001
+  dlpfc: scz-AA-dlpfc-20261001
+  hippocampus: scz-AA-hippocampus-20261001
+
+# The pairs: every risk-variant -> CpG pair at those loci that was significant
+# in the AA primary (results/risk-variant-cpg-tests.tsv.gz, significant ==
+# TRUE; its own BH family). Same variant IDs and the same CpG IDs. The AA and
+# pooled pfiles share variant IDs, but REF/ALT is swapped for some; stage 20
+# classifies each variant (same / swapped / different / absent) and flips
+# swapped dosages so every EA slope is on the AA ALT allele.
+pair_source: significant_in_aa_primary
+
+# The lead pair of a locus is its minimum-AA-p significant pair, tie-broken by
+# variant then CpG ID. It carries the locus-level reading.
+
+estimation_cells:
+  caudate: estcell-all_individuals.EA-caudate-20260910
+  dlpfc: estcell-all_individuals.EA-dlpfc-20260910
+  hippocampus: estcell-all_individuals.EA-hippocampus-20260910
+# CpG methylation for EA donors: the accepted all_individuals Module 01 catalog
+# (genome-wide cpg_meth.phen, raw, untransformed -- the source Module 05 uses).
+# Stage 20 first proves the matrix agrees with the AA primary's tested
+# methylation for the AA donors at every target CpG.
+catalog_runs:
+  caudate: vmrcat-all_individuals-caudate-20260816
+  dlpfc: vmrcat-all_individuals-dlpfc-20260816
+  hippocampus: vmrcat-all_individuals-hippocampus-20260816
+# The AA Module 05 runs, for the tested-CpG set the latent factors are drawn from.
+meqtl_runs:
+  caudate: cmb-AA-caudate-20260924
+  dlpfc: cmb-AA-dlpfc-20260924
+  hippocampus: cmb-AA-hippocampus-20260924
+
+# The model is the locked primary meQTL model, M3a
+# (config/covariates.yml:primary_meqtl), re-estimated INSIDE the EA donors:
+#   agedeath + sex + primarydx + snpPC1-5 + methPC1-5
+#   - snpPC1-5: within-EA genotype PCs (plink2 --pca on the EA donors and the
+#     estimation cell's own LD-pruned variant set). Pooled PCs mostly separate
+#     the donor groups and are near-constant within one (01b README).
+#     The estimation cells carry 3 PCs (estimation_cells.genotype_pcs) for the
+#     VMR-level models; the meQTL lock names 5, and the lock is what is matched.
+#   - methPC1-5: config/covariates.yml:latent_factor_recipe (same seed,
+#     subsample size, M0 residualization, SVD and sign rule) applied to the EA
+#     donors over the AA run's tested CpG set.
+# Association is tensorqtl's nominal statistic computed directly: dosage and
+# phenotype residualized on the covariates plus intercept, t from their
+# correlation with df = n - 2 - n_covariates.
+ancestry_pcs: 5
+genotype_qc:
+  # The locked meQTL genotype QC, evaluated in the EA donors of the region.
+  maf_min: 0.05
+  missingness_max: 0.05
+  hwe_p_min: 1.0e-6
+
+# Reading rule, fixed before any EA association was computed.
+reading_rule:
+  # A locus "reproduces" if its lead pair is testable in EA, has the AA sign,
+  # and nominal p < alpha.
+  alpha: 0.05
+  # Also reported, descriptively: Bonferroni over the testable lead pairs, and,
+  # over ALL nominated pairs of a locus, the fraction with the AA sign and the
+  # fraction with nominal p < alpha and the AA sign.
+
+coloc:
+  gating: false
+  # A locus is coloc-eligible only if its lead CpG has an EA cis signal strong
+  # enough to support a single-causal-variant model: minimum EA nominal p over
+  # the window at or below this value, AND the locus reproduces. At most
+  # max_loci, strongest first.
+  eligibility_min_p: 1.0e-5
+  max_loci: 2
+  method: coloc.abf
+  window_bp: 500000
+  # Priors and evaluability as config/schizophrenia.yml:colocalization.
+  p1: 1.0e-4
+  p2: 1.0e-4
+  p12: 1.0e-5
+  pp4_threshold: 0.8
+  min_variants_shared: 100
+  # GWAS side: the accepted run's own PGC3 European slice
+  # (gwas/gwas-sumstats-hg38.tsv.gz). EA meQTL x European GWAS is the
+  # LD-matched pairing the AA meQTL arm could never be.

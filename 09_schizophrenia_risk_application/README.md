@@ -348,6 +348,119 @@ non-significance, and hippocampus -0.538 (q 1.8e-04) becomes -0.114 (q 0.435). O
 the MuSiC covariate, composition-sensitivity does not track axis depletion in any
 region. This is the same modality switch that moved Module 09b's gating arm.
 
+### Targeted white-American check of the illustrative loci (stages 19-22, non-gating)
+
+**Why.** The PI asked on 2026-10-07 for a targeted white-American (EA) check of
+the prespecified illustrative loci, with four conditions:
+- test the same risk SNPs, proxies and CpGs nominated in the primary, at a
+  nominal p;
+- if effects are strong and directions reproduce, treat that as support;
+- run a European-LD-matched coloc where one or two loci have enough signal;
+- coloc success is not a manuscript gate.
+
+This is not an EA meQTL map (T25) and not a test of a donor-group difference.
+
+**Design** (`config/scz_ea_targeted.yml`, `pi_locked`, fixed before any EA
+association was computed):
+- **Loci:** `prioritized == TRUE` in each accepted region run
+  (`scz-AA-{region}-20261001`). That is up to 5 per region, 15 locus × region
+  targets in all, each tested in that region's EA donors only.
+- **Pairs:** every risk-variant → CpG pair at those loci that was significant
+  in the AA primary (1,150 pairs), with the same variant and CpG IDs. The lead
+  pair of a locus is its minimum-AA-p pair and carries the locus reading.
+- **Donors:** the EA estimation cells (`estcell-all_individuals.EA-{region}-20260910`):
+  129 caudate, 55 DLPFC, 60 hippocampus.
+- **Methylation:** the pooled catalog's raw CpG matrix. Stage 20 first proves
+  it equals the AA primary's tested methylation for the AA donors at every
+  target CpG.
+- **Model:** the locked M3a, re-estimated inside the EA donors.
+  - snpPC1-5 come from `plink2 --pca` on the EA donors over the cell's pruned
+    variant set.
+  - methPC1-5 come from the locked latent-factor recipe.
+  - The statistic is tensorqtl's nominal t, with df = n − 2 − k.
+  - Genotype QC is the locked meQTL QC (MAF 0.05, missingness 0.05, HWE 1e-6),
+    evaluated in the EA donors.
+- **Alleles:** the AA and pooled pfiles share variant IDs, but some variants
+  have REF and ALT swapped between them. Stage 20 classifies every variant as
+  same, swapped, different or absent. It flips swapped dosages to the AA ALT
+  allele, so every EA slope is on the AA allele, and reports different and
+  absent variants as untestable.
+
+**Reading rule.** A locus **reproduces** if its lead pair is testable in EA,
+has the AA sign, and has nominal p < 0.05. Also reported:
+- Bonferroni over the testable lead pairs;
+- per locus, the fraction of all nominated pairs with the AA sign, and with
+  the AA sign and p < 0.05.
+
+**Coloc** (`coloc.abf`, gating = FALSE): PGC3 European GWAS (the accepted run's
+own slice) × an EA cis scan of the lead CpG, ±500 kb. This is the LD-matched
+pairing the AA meQTL arm could never be. A locus is eligible only if it
+reproduces and the lead CpG's EA cis minimum p is ≤ 1e-5. At most 2 loci are
+run, strongest first, each with ≥ 100 shared variants. Priors are as in the
+primary.
+
+| Stage | Script | Purpose |
+| --- | --- | --- |
+| 19 | `19_ea_targeted_new_run.R` | Open `scz-all_individuals.EA-crossregion-{date}`; collect targets from the accepted AA runs |
+| 20 | `20_ea_targeted_test.py` | Per region: EA donors, within-EA PCs, methPCs, variant QC and allele harmonization, pair tests, and cis scans for reproducing lead CpGs |
+| 21 | `21_ea_coloc.R` | Eligibility and `coloc.abf` (coloc env) |
+| 22 | `22_ea_targeted_summarize.R` | Apply the reading rule; delete per-region genotype working files; seal |
+
+Submit with `_h/submit_ea_targeted.sh`. `SMOKE_N=1` runs a smoke and
+`DRY_RUN=1` prints the job graph.
+
+**Interpretation constraints**, carried in the run:
+- Concordance only (§7.7). EA and AA magnitudes are never contrasted.
+- A non-replication is not evidence of an ancestry-specific effect: the DLPFC
+  and hippocampus EA cells hold 55 and 60 donors.
+- Module 09's two decisions and the retention criteria are untouched.
+- A coloc PP4 below threshold in 55-129 donors is weak evidence against
+  sharing, not evidence of distinct variants.
+- The GWAS loci come from European-ancestry summary statistics (§7.8 rule 2).
+
+**Result: `scz-all_individuals.EA-crossregion-20261008`** (sealed 2026-10-08
+00:54 at `4671edb22`, clean tree, 5/5 jobs). In every region the pooled
+methylation equals the AA primary's at every target CpG (max abs diff 0).
+
+| region | locus (index SNP) | AA lead p | EA n | EA lead p | reading |
+|---|---|---:|---:|---:|---|
+| caudate | 73 (rs12883788) | 1.4e-03 | 129 | 0.52 | opposite sign |
+| caudate | 276 (rs7681616) | 1.0e-07 | 129 | **1.2e-10** | reproduces (Bonferroni) |
+| caudate | 432 (rs6537239) | 1.8e-06 | 129 | **1.9e-07** | reproduces (Bonferroni) |
+| caudate | 163 (rs6504163) | 2.6e-03 | 129 | 0.074 | same sign, not nominal |
+| caudate | 198 (rs11862968) | 2.3e-03 | 129 | 0.0062 | reproduces (nominal) |
+| DLPFC | 490 (rs8009804) | 1.2e-08 | 55 | 0.012 | reproduces (nominal) |
+| DLPFC | 493 (rs61928076) | 1.8e-03 | 55 | 0.40 | same sign, not nominal |
+| DLPFC | 544 (rs13331198) | 1.4e-27 | 55 | **2.6e-08** | reproduces (Bonferroni) |
+| DLPFC | 283 (rs3909258) | 1.7e-03 | 55 | 0.48 | opposite sign |
+| DLPFC | 136 (rs4766428) | 2.4e-03 | 55 | 0.61 | same sign, not nominal |
+| hippocampus | 441 (rs139139) | 1.3e-03 | 60 | 0.13 | same sign, not nominal |
+| hippocampus | 264 (rs2241033) | 7.6e-04 | 60 | **1.5e-05** | reproduces (Bonferroni) |
+| hippocampus | 118 (rs72974238) | 9.1e-04 | 60 | 0.053 | same sign, not nominal |
+| hippocampus | 136 (rs4766428) | 1.6e-03 | — | — | not testable: variant absent from pooled pfile |
+| hippocampus | 198 (rs11862968) | 1.4e-03 | 60 | 0.055 | same sign, not nominal |
+
+- **Lead pairs:** 14 of 15 are testable and 12 of the 14 keep the AA sign.
+  6 reproduce at p < 0.05, and 4 survive Bonferroni over the 14 (α 0.0036).
+  The two opposite-sign leads (caudate 73, DLPFC 283) had the weakest AA
+  support (p ~1e-3), and none of their nominated pairs keeps the AA sign in EA.
+- **All nominated pairs:** 1,053 of 1,140 tested keep the AA sign (92%).
+- **The strongest AA loci reproduce**, among them the DLPFC hero locus
+  rs13331198 (p 2.6e-8 in 55 donors) and caudate 276 and 432. Loci with AA
+  p ~1e-3 mostly keep the sign without reaching p < 0.05, which is what these
+  cell sizes predict.
+- **Coloc** ran on the two strongest eligible loci, both in caudate. Four more
+  were eligible but over `max_loci`. Neither reaches PP4 0.8:
+  - locus 432: PP3 0.78, PP4 0.003 (1,753 shared variants);
+  - locus 276: PP3 0.99, PP4 0.010 (1,635 shared variants).
+
+  In both, the EA meQTL peak (p 1e-53 and 1e-28) sits about 30 kb and 64 kb
+  from the locus's lead risk variant. The index SNP's own p in the accepted run's PGC3 European slice
+  is only 8.6e-7 at locus 276. Read this as no support for a shared single
+  causal variant, given a weak GWAS side, not as evidence of distinct
+  variants. Coloc is not a gate.
+- Concordance only: the EA slopes are not compared with the AA slopes.
+
 ## Upstream currency
 
 **Resolved 2026-10-01.** The accepted runs consume the current acceptance of
@@ -390,6 +503,10 @@ needs an EA CpG meQTL map, not an EA score. The arm therefore stays
 `colocalization.arms.meqtl.{qtl_ancestry,gate_eligible}` would assert a matching
 that does not exist.
 
+Stages 19-22 (above) run `coloc.abf` for at most two reproducing loci against
+a targeted EA cis scan. That is LD-matched for those loci only. It is not an EA
+meQTL map and leaves this arm as it is.
+
 ## Accepted runs
 
 | run_id | cohort | region | vmr_set_id | accepted_on | accepted_by | decision | notes |
@@ -397,6 +514,16 @@ that does not exist.
 | scz-AA-caudate-20261001 | AA | caudate | vmrset-AA-caudate-937a41979978 | 2026-10-01 | Kynon J. Benjamin | PASS_SCZ_APPLICATION_QC | Built at 644054e01, git_dirty false, smoke_run FALSE, on vmrcat-AA-caudate-20260816, lgv-AA-caudate-rescore-20260913, rra-AA-caudate-20260925-a, cmb-AA-caudate-20260924, sldsc-AA-caudate-20260925, tsc-AA-caudate-20260925-b and rdg-AA-crossregion-20260930; 106,067 output files, failures "". 2,654 VMRs linked to 522 of 612 published loci; 363,164 pairs tested in the single `scz_risk_variant_cpg_pairs_per_region` family, 27,470 significant; **94** loci with CpG-meQTL support. Axis significant, `lower_in_scz_linked`: Wilcoxon mean score_z difference -0.283 (q 8.0e-37), adjusted logistic log-odds **-0.226** per SD (SE 0.026, q 4.2e-18, adjusted for vmr_length, cpg_count, gc_content, mappability) -- **byte-identical to the superseded run**, since the axis reads Modules 01 and 02 only. 145 loci with transcriptional coupling. 70 ancestry-matched loci evaluated for colocalization, **267** claimable, coloc_claim_permitted TRUE, 19,046 cross-ancestry regions retained exploratory-only. 5 prioritized loci (rule ranked_composite_v1), 4 with GTEx support; the set is loci 73/276/432/163/198 and 3 of the superseded 5 are retained -- see "### The five prioritized loci are illustrative, and churn". Integration: 1 of 5 annotations claimable (quiescent chromatin -0.088, q 2.2e-20), **0 enriched**, all claimable annotations DEPLETED, so integration_supports_repressive_architecture_link FALSE. Decision 1 **CAUDATE_MAGNITUDE_CLAIM_NOT_SUPPORTED** -- criterion `caudate_not_sample_size_artifact` reads FAIL_SAMPLE_SIZE_ARTIFACT off rdg-AA-crossregion-20260930 tier 3 (`donor_count_is_a_plausible_major_contributor`); retention-criteria.tsv is byte-identical to the superseded run. Decision 2 PENDING_CROSS_REGION -- a per-region run cannot resolve it. Upstream `sldsc_supports_brain_enrichment = FALSE` carried from Module 06. Caudate is batch-confounded (AGENTS.md 8.1); the residual excess may not be called biological, and permitted wording is "caudate magnitude attenuates after n-matching", never "inflated" or "biased". |
 | scz-AA-dlpfc-20261001 | AA | dlpfc | vmrset-AA-dlpfc-856067dfe289 | 2026-10-01 | Kynon J. Benjamin | PASS_SCZ_APPLICATION_QC | Built at 644054e01, git_dirty false, smoke_run FALSE, on vmrcat-AA-dlpfc-20260816, lgv-AA-dlpfc-rescore-20260913, rra-AA-dlpfc-20260925-a, cmb-AA-dlpfc-20260924, sldsc-AA-dlpfc-20260925, tsc-AA-dlpfc-20260925-b; 81,569 output files, failures "". 2,063 VMRs linked to 565 of 612 published loci; 225,527 pairs tested, 12,547 significant; **64** loci with CpG-meQTL support. Axis significant, `lower_in_scz_linked`: Wilcoxon -0.166 (q 6.6e-11), adjusted logistic log-odds **-0.161** per SD (SE 0.026, q 1.3e-09) -- byte-identical to the superseded run. 100 loci with transcriptional coupling. 42 ancestry-matched loci evaluated, **190** claimable, 8,945 cross-ancestry exploratory. 5 prioritized loci, 4 with GTEx support; loci 490/493/544/283/136, 3 of the superseded 5 retained. **`rs13331198` (locus 544) is prioritized here at rank 3** -- the only region where either legacy hero locus passes corrected prioritization (AGENTS.md §8). Integration: 3 of 5 claimable -- quiescent chromatin -0.086 (q 6.0e-14), LINE/L1 -0.017 (q 3.2e-04), H3K9me3 -0.012 (q 0.032) -- **0 enriched**, all three DEPLETED, integration_supports_repressive_architecture_link FALSE. This is the only region where LINE/L1 is claimable, and the sign is DEPLETION in SCZ-linked VMRs -- a different quantity from Module 04's LINE/L1 enrichment along the control axis, which this does not speak to either way. Nothing here licenses a repeat statement about schizophrenia, and a single claimable region could not support one in any case. Decision 1 NOT_APPLICABLE_NON_CAUDATE_REGION. Decision 2 PENDING_CROSS_REGION. Upstream `sldsc_supports_brain_enrichment = FALSE`. |
 | scz-AA-hippocampus-20261001 | AA | hippocampus | vmrset-AA-hippocampus-2d907b892215 | 2026-10-01 | Kynon J. Benjamin | PASS_SCZ_APPLICATION_QC | Built at 644054e01, git_dirty false, smoke_run FALSE, on vmrcat-AA-hippocampus-20260816, lgv-AA-hippocampus-rescore-20260913, rra-AA-hippocampus-20260925-a, cmb-AA-hippocampus-20260924, sldsc-AA-hippocampus-20260925, tsc-AA-hippocampus-20260925-b; 71,159 output files, failures "". 2,017 VMRs linked to 560 of 612 published loci; 216,837 pairs tested, **10,056** significant -- **down from 12,204 in the superseded run, the only region where the meQTL evidence weakened**; 64 loci with CpG-meQTL support, unchanged. Axis significant, `lower_in_scz_linked`: Wilcoxon -0.164 (q 1.7e-10), adjusted logistic log-odds **-0.160** per SD (SE 0.027, q 2.0e-09) -- byte-identical to the superseded run. 78 loci with transcriptional coupling, up from 66. 40 ancestry-matched loci evaluated, **192** claimable, 9,509 cross-ancestry exploratory. 5 prioritized loci, **4 with GTEx support, down from 5 of 5**: loci 441/264/118/136/198, 4 of the superseded 5 retained. The new rank-1 locus 441 (rs139139) carries no GTEx support and max PP4 0.015, and entered because the Module 05 hard filter admitted it while the old rank-1 locus 164 (rs11076631) left the eligible pool; read it as an illustrative locus, not a lead. Integration: 2 of 5 claimable -- quiescent chromatin -0.057 (q 5.1e-07), H3K9me3 -0.015 (q 0.021) -- 0 enriched, both DEPLETED, integration_supports_repressive_architecture_link FALSE; LINE/L1 is not claimable here (-0.008, q 0.080). Decision 1 NOT_APPLICABLE_NON_CAUDATE_REGION. Decision 2 PENDING_CROSS_REGION. Upstream `sldsc_supports_brain_enrichment = FALSE`. |
+
+### Accepted non-gating check
+
+Recorded under its own heading, not in the table above. The run is a
+concordance-only qualification of the illustrative loci (AGENTS.md 7.7), it
+feeds neither Module 09 decision, and nothing downstream gates on it.
+
+| run_id | cohort | region | upstream | sealed | accepted_on | accepted_by | notes |
+|---|---|---|---|---|---|---|---|
+| scz-all_individuals.EA-crossregion-20261008 | all_individuals.EA | crossregion | scz-AA-{caudate,dlpfc,hippocampus}-20261001; estcell-all_individuals.EA-{region}-20260910; vmrcat-all_individuals-{region}-20260816 | 2026-10-08T00:54 at 4671edb22, git_dirty false, 5/5 jobs | 2026-10-08 | Kynon J. Benjamin | Config config/scz_ea_targeted.yml, pi_locked before any EA association was computed. EA donors 129 / 55 / 60. Pooled methylation equals the AA primary at every target CpG. Lead pairs: 14 of 15 testable (hippocampus 136 variant absent from the pooled pfile); 12 keep the AA sign, 6 nominal, 4 Bonferroni (caudate 276 and 432, DLPFC 544 rs13331198 p 2.6e-8, hippocampus 264). All pairs: 1,053 of 1,140 same sign. Two opposite-sign leads are the weakest AA loci (p about 1e-3). Coloc (not a gate) on caudate 432 and 276: PP4 0.003 / 0.010, PP3 0.78 / 0.99, with a weak European GWAS side. Concordance only; no EA vs AA magnitude or ancestry claim. |
 
 ### Superseded
 
