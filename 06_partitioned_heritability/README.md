@@ -68,6 +68,10 @@ separate issue should run the same pipeline on an annotation of comparable
 footprint known to be enriched for brain traits (Roadmap brain DHS or H3K4me3).
 Correcting the estimand does not remove that limitation.
 
+**Being addressed (2026-10-07):** stages 10-13 run a published brain WGBS
+annotation of comparable footprint through this pipeline. See **Positive
+control: external annotations** below.
+
 ## Why this module exists
 
 `config/analysis_thresholds.yml` names `adds_nothing_beyond_nonsignificant_sldsc`
@@ -174,6 +178,68 @@ brain-relevant traits concentrates in this annotation" is not a testable claim,
 because a continuous annotation covering gene-rich, SNP-dense regions could
 enrich for any polygenic trait. The controls are in the FDR family, not outside
 it.
+
+## Positive control: external annotations (stages 10-13, non-gating)
+
+**Why.** The accepted null (`sldsc_supports_brain_enrichment = FALSE`) is "no
+detectable enrichment at this footprint", and the module had no positive
+control to separate it from a power null. The PI asked on 2026-10-07 for the
+published neuronal CG-DMRs to be run "through exactly the same S-LDSC pipeline,
+baseline model, reference LD, and GWAS summary statistics as the
+genetic-control VMR annotation". DLPFC neuronal H3K27ac was named as a
+secondary control.
+
+**Annotations** (`config/sldsc_external_annotations.yml`, `pi_locked`):
+
+| name | source | intervals | role |
+|---|---|---:|---|
+| `RIZZARDI_CGDMR_NEUNPOS_REGIONS` | Rizzardi 2019 `CG-DMRs.pos.bb`: CG-DMRs between brain regions in NeuN+ nuclei, WGBS | 13,074 (11.9 Mb) | primary positive control |
+| `RIZZARDI_CGDMR_NEUNPOS_VS_NEG` | Rizzardi 2019 `CG-DMRs.pos_vs_neg.bb`: NeuN+ vs NeuN− CG-DMRs | 100,875 (70.0 Mb) | secondary |
+| `PSYCHENCODE_NEUNPOS_H3K27AC_DLPFC` | Girdhar 2018, Synapse syn9998643 | — | **not covered**: NRGR controlled access, no copy on Quest |
+| `VMR_TESTED_<REGION>` | the accepted run's own `annotation-hg19.bed` | per region | like-for-like comparator |
+
+`inputs/supportfiles/_h/03_build_rizzardi_dmr_asset.py` downloads each bigBed,
+checks its SHA-256 against the config, converts it to a merged autosomal hg19
+BED, and checks the interval count.
+
+**What is identical, and what is not.**
+- **Identical, read rather than restated:** baselineLD v2.2, the LD reference,
+  weights, frq files, print-snps and `ld_wind_cm`. They all come from
+  `config/partitioned_heritability.yml` at the accepted `ld_reference_arm`.
+- **Identical GWAS:** the 8 frozen traits. Stage 10 proves the three accepted
+  cells' munged `.sumstats.gz` files have identical decompressed content, then
+  copies them.
+- **Different, by design:** each external annotation enters alone, as one
+  binary annotation on top of baselineLD. The accepted VMR model carries two
+  annotations (membership and score). So each region's VMR membership is
+  refitted alone here as `VMR_TESTED_<REGION>`, the like-for-like row. The
+  accepted two-annotation rows sit beside it unchanged.
+
+**Reported per annotation × trait:** proportion of SNPs, proportion of h2,
+enrichment, its SE and p, τ with SE and two-sided p, and τ\* (Gazal 2017:
+τ·sd(a)·M/h2g over reference SNPs with MAF ≥ 5%) with SE. BH q is computed
+across the 8 traits within each annotation, for description only.
+
+| Stage | Script | Purpose |
+|---|---|---|
+| 10 | `_h/10_external_new_run.R` | Open `sldsc-{cohort}-external-{date}`; check the accepted runs and sumstats identity; stage the annotation BEDs. |
+| 11 | `_h/11_external_ldscores.sh` (+ `11a_external_make_annot.py`) | Array 1–22: thin annot and LD scores for each annotation. |
+| 12 | `_h/12_external_partition_h2.py` | One S-LDSC regression per annotation × trait; metrics including τ\*. |
+| 13 | `_h/13_external_summarize.R` | Refuse a partial grid; add the accepted rows; descriptive BH; seal. |
+
+Submit with `_h/submit_external_annotations.sh <cohort>`. `SMOKE_N=1`,
+`SMOKE_CHROMS` and `SMOKE_TRAITS` restrict a smoke run, and `DRY_RUN=1` prints
+the job graph.
+
+**Reading, fixed before the production run:**
+- If a Rizzardi annotation is enriched for the brain traits and the standalone
+  VMR annotation is not, the pipeline can detect enrichment at this footprint,
+  and the VMR null is not a pure power null.
+- If neither is enriched, the VMR null stays "no detectable enrichment at this
+  footprint".
+
+Either way the accepted decision is unchanged. Every row carries
+`gating = FALSE`.
 
 ## Acceptance gate
 
