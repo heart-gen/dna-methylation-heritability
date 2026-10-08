@@ -1,0 +1,26 @@
+field	value
+rmsk_source_url	https://hgdownload.soe.ucsc.edu/goldenPath/hg38/database/rmsk.txt.gz
+rmsk_last_modified	2022-10-19T06:39:32Z
+rmsk_sha256	db60e6aa7ac175f8f5465cd01b48b550e67e1fb0fd828608d8343481867bb276
+sorted_md5_rmsk_six_column	dbb7df355f00dc6a3719616f85672547
+sorted_md5_project_asset	dbb7df355f00dc6a3719616f85672547
+sorted_md5_rmsk_l1_subset	3f40b2ac472a7b0986b3d074db9a4e98
+sorted_md5_project_l1_asset	3f40b2ac472a7b0986b3d074db9a4e98
+n_l1_elements	989683
+n_subfamilies	127
+consensus_length_rule	modal (repEnd + bases-left-after) per repName
+n_subfamilies_consensus_below_min	12
+subfamilies_consensus_below_min	L1M4a1,L1M4a2,L1M6B,L1M8,L1MC5a,L1ME3Cz,L1ME3G,L1ME4b,L1ME4c,L1MEh,L1MEi,L1MEj
+output_sha256	753ce6f5259937eb317cb2e6dac7cd60ee95839ace23c17dd9b8768acd6dbf40
+n_elements.intermediate.fragment	56493
+bp.intermediate.fragment	42828288
+n_elements.intermediate.full_length	558
+bp.intermediate.full_length	3385064
+n_elements.old.fragment	801534
+bp.old.fragment	330151799
+n_elements.old.full_length	440
+bp.old.full_length	2768288
+n_elements.young.fragment	122409
+bp.young.fragment	112402046
+n_elements.young.full_length	8249
+bp.young.full_length	50324466
