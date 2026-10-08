@@ -152,7 +152,7 @@ targeted robustness check rather than a parallel screen.
 |---|---|---|
 | 00 | `_h/00_new_run.R` | Mint the run ID; gate on the accepted Module 02 run; freeze the trait family. |
 | 01 | `_h/01_build_annotation.R` | Build the continuous hg38 annotation BED. |
-| 02 | `_h/02_liftover_annotation.py` | hg38 → hg19, with every dropped interval recorded. |
+| 02 | `_h/02_liftover_annotation.py` | hg38 → hg19, with every dropped interval recorded; drops a VMR whose lifted width changes more than `liftover_max_span_ratio` (2×). |
 | 03 | `_h/03_make_annot.py` | Map membership + score onto reference SNPs (thin-annot, two columns). |
 | 05 | `_h/05_compute_ldscores.sh` | Array 1–22: annotation + LD scores per chromosome; `05a` checks the annotation set that reached them. |
 | 04 | `_h/04_munge_sumstats.py` | Munge the frozen trait list to LDSC format. |
@@ -165,6 +165,42 @@ Submit one cell with
 `_h/submit_partitioned_heritability.sh <cohort> <region>`; `DRY_RUN=1` prints
 the job graph, `SMOKE_N=1` permits unaccepted upstreams, and `SMOKE_CHROMS`
 restricts the LD-score array.
+
+## Liftover span guard (added 2026-10-08)
+
+Stage 02 lifts each VMR's two ends separately with pyliftover. If the ends land
+in different chain blocks, the "lifted" interval covers everything between
+them. Nothing checked for this until 2026-10-08, and the accepted 2026-09-25
+cells carry these intervals:
+
+| region | hg38 VMR | hg38 width | hg19 width |
+|---|---|---:|---:|
+| caudate | chr8:144270354-144271615 | 1,261 | 170,346 |
+| caudate | chr8:141737779-141738438 | 659 | 71,818 |
+| DLPFC | chr8:141737835-141738448 | 613 | 71,772 |
+| DLPFC | chr1:228556705-228556858 | 153 | 4,615 |
+| DLPFC | chr14:106345434-106350667 | 5,233 | 19,472 |
+| hippocampus | chr1:148679673-148679757 | 84 | **24,596,960** |
+| hippocampus | chr8:141737805-141738448 | 643 | 71,802 |
+| hippocampus | chr1:228556520-228556858 | 338 | 4,800 |
+
+The hippocampus chr1 VMR lifts across the centromere to chr1:120.6-145.2 Mb,
+which holds 3,978 reference SNPs. All of them entered both of that cell's
+annotations, the membership one and the score one.
+
+Stage 02 now drops a VMR whose hg19 width is more than
+`liftover_max_span_ratio` (2) times larger or smaller than its hg38 width. It
+records each one in `excluded/liftover-span-changed.tsv` and counts them in
+`liftover-summary.tsv`.
+- **Where 2 sits:** in the accepted cells the largest within-block change is
+  1.49× (an indel-sized 493 bp), and the smallest cross-block change is 3.72×.
+- **Smoke test:** `tests/test-liftover-span-guard.py` reruns stage 02 on each
+  accepted cell's hg38 annotation. Exactly the listed VMRs drop, and every other
+  hg19 interval is identical.
+- **Module 04 is not affected.** Its rtracklayer liftover keeps only VMRs that
+  lift to a single interval.
+
+The three cells are rerun with the guard (see Accepted runs).
 
 ## Negative controls
 

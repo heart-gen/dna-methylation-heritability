@@ -11,6 +11,17 @@ pi_locked: true
 genome_build_source: hg38          # Module 02 / Module 01 coordinates
 genome_build_ldsc: hg19            # LDSC reference panels are hg19
 liftover_chain: inputs/supportfiles/_m/hg38ToHg19.over.chain
+# Added 2026-10-08. 02_liftover_annotation.py lifts each VMR's two ends
+# separately, so a VMR whose ends fall in different chain blocks lifts to an
+# interval spanning whatever lies between them. In the 2026-09-25 cells one
+# 84 bp hippocampus VMR became 24.6 Mb across the chr1 centromere (3,978
+# reference SNPs), and ~650 bp chr8 VMRs became 72-170 kb in all three regions.
+# A lifted interval whose width is more than this factor larger or smaller than
+# its hg38 width is dropped and recorded as span_changed_after_lift. Within one
+# chain block the width changes only by small indels. In the 2026-09-25 cells
+# the largest such change is 1.49x (1,010 -> 1,503 bp) and the smallest
+# cross-block one is 3.72x, so 2 sits in the gap: 2-3 VMRs per region drop.
+liftover_max_span_ratio: 2.0
 
 # ---------------------------------------------------------------- annotation
 annotation:
