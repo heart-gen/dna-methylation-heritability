@@ -186,8 +186,9 @@ detectable enrichment at this footprint", and the module had no positive
 control to separate it from a power null. The PI asked on 2026-10-07 for the
 published neuronal CG-DMRs to be run "through exactly the same S-LDSC pipeline,
 baseline model, reference LD, and GWAS summary statistics as the
-genetic-control VMR annotation". DLPFC neuronal H3K27ac was named as a
-secondary control.
+genetic-control VMR annotation". DLPFC neuronal H3K27ac was named as an
+optional secondary control. Its peaks (Girdhar 2018, Synapse syn9998643) are
+under NRGR controlled access, so the PI dropped it on 2026-10-08.
 
 **Annotations** (`config/sldsc_external_annotations.yml`, `pi_locked`):
 
@@ -195,7 +196,6 @@ secondary control.
 |---|---|---:|---|
 | `RIZZARDI_CGDMR_NEUNPOS_REGIONS` | Rizzardi 2019 `CG-DMRs.pos.bb`: CG-DMRs between brain regions in NeuN+ nuclei, WGBS | 13,074 (11.9 Mb) | primary positive control |
 | `RIZZARDI_CGDMR_NEUNPOS_VS_NEG` | Rizzardi 2019 `CG-DMRs.pos_vs_neg.bb`: NeuN+ vs NeuN− CG-DMRs | 100,875 (70.0 Mb) | secondary |
-| `PSYCHENCODE_NEUNPOS_H3K27AC_DLPFC` | Girdhar 2018, Synapse syn9998643 | — | **not covered**: NRGR controlled access, no copy on Quest |
 | `VMR_TESTED_<REGION>` | the accepted run's own `annotation-hg19.bed` | per region | like-for-like comparator |
 
 `inputs/supportfiles/_h/03_build_rizzardi_dmr_asset.py` downloads each bigBed,
@@ -244,8 +244,8 @@ Either way the accepted decision is unchanged. Every row carries
 **Result: `sldsc-AA-external-20261007`** (sealed 2026-10-08 00:38 at `999c3f1c3`,
 clean tree, 63/63 jobs, 40 regressions). Munged sumstats were identical across
 the three accepted cells for all 8 traits. The staged Rizzardi BEDs are
-byte-identical to the asset content. `PSYCHENCODE_NEUNPOS_H3K27AC_DLPFC` is
-recorded as not covered.
+byte-identical to the asset content. This run predates dropping the H3K27ac
+control, so it still lists `PSYCHENCODE_NEUNPOS_H3K27AC_DLPFC` as not covered.
 
 | annotation | % common SNPs | SCZ enrichment (SE; p) | SCZ τ\* (SE) | BIP enrichment (p) | smoking enrichment (p) | asthma | CAD |
 |---|---:|---|---|---|---|---|---|

@@ -88,9 +88,12 @@ def main() -> None:
             else:
                 merged.append([c, s, e])
         out = root / a["bed"]
-        with gzip.open(out, "wt") as fh:
+        # mtime=0 keeps the gzip header fixed, so a rebuild is byte-identical
+        # and its SHA-256 can be pinned.
+        with open(out, "wb") as raw, \
+                gzip.GzipFile(fileobj=raw, mode="wb", mtime=0, filename="") as gz:
             for c, s, e in merged:
-                fh.write(f"{c}\t{s}\t{e}\n")
+                gz.write(f"{c}\t{s}\t{e}\n".encode())
         report.append((a["name"], "ready", len(rows), len(auto), len(merged),
                        sum(e - s for _, s, e in merged), sha256(out)))
 

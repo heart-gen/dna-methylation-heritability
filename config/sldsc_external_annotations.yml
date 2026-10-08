@@ -5,7 +5,9 @@
 # "through exactly the same S-LDSC pipeline, baseline model, reference LD, and
 # GWAS summary statistics as the genetic-control VMR annotation", and report
 # proportion of SNPs, proportion of h2, enrichment, tau and standardized tau,
-# SE and p. Secondary control: DLPFC neuronal H3K27ac (PsychENCODE/CommonMind).
+# SE and p. A secondary control, DLPFC neuronal H3K27ac (Girdhar 2018,
+# PsychENCODE/CMC), was named as optional; its peaks are under NRGR controlled
+# access, and the PI dropped it on 2026-10-08.
 #
 # WHY. The module README records, since 2026-09-25, that the accepted VMR
 # result is "no detectable enrichment at this footprint" and that the module
@@ -61,18 +63,6 @@ annotations:
     expected_n_intervals: 100875
     build: hg19
     bed: inputs/supportfiles/_m/rizzardi2019-cgdmr-neunpos-vs-neg.hg19.bed.gz
-  # Secondary control named by the PI. Girdhar et al. 2018 (Nat Neurosci
-  # 21:1126) NeuN+ H3K27ac peaks are deposited at Synapse syn9998643 under NRGR
-  # CONTROLLED ACCESS, and no copy exists on Quest (searched 2026-10-07). Stage 10
-  # skips an annotation whose status is not `ready` and records why, so the run
-  # cannot quietly present itself as covering it.
-  - name: PSYCHENCODE_NEUNPOS_H3K27AC_DLPFC
-    role: secondary_control
-    label: DLPFC NeuN+ H3K27ac peaks (Girdhar 2018, PsychENCODE/CMC)
-    source_url: https://www.synapse.org/#!Synapse:syn9998643
-    status: pending_access
-    build: hg19
-    bed: null
 
 # The standalone refit of each region's VMR membership annotation. Built from
 # the accepted run's annotation/annotation-hg19.bed (every lifted, eligible VMR
