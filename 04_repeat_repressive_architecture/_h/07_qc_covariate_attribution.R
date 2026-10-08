@@ -188,7 +188,7 @@ OUTCOME <- if (length(args) >= 2 && args[1] == "--outcome") args[2] else
     "line_l1_frac"
 
 runs_dir <- file.path(repo_root(), MODULE, "_m", "runs")
-run_ids <- grep("^rra-AA-[a-z]+-[0-9]{8}$",
+run_ids <- grep("^rra-AA-(caudate|dlpfc|hippocampus)-[0-9]{8}$",
                 list.dirs(runs_dir, recursive = FALSE, full.names = FALSE),
                 value = TRUE)
 if (length(run_ids) == 0) stop("no production run ids resolved under ", runs_dir)
