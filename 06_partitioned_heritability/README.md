@@ -200,13 +200,13 @@ records each one in `excluded/liftover-span-changed.tsv` and counts them in
 - **Module 04 is not affected.** Its rtracklayer liftover keeps only VMRs that
   lift to a single interval.
 
-### Rerun with the guard (2026-10-08, not yet accepted)
+### Rerun with the guard (2026-10-08, accepted 2026-10-08)
 
 `sldsc-AA-{caudate,dlpfc,hippocampus}-20261008` were sealed 2026-10-08 at
 `8a8630d2a`, with `git_dirty false`. All three return `PASS_PARTITIONED_H2_QC`,
 with 8 of 8 traits completed and the same upstream `lgv-AA-{region}-rescore-20260913`.
-They are not in the accepted table below. Accepting them, and withdrawing the
-2026-09-25 cells, is a PI act.
+The PI accepted them on 2026-10-08, replacing the 2026-09-25 cells (see Accepted
+runs and Superseded runs below).
 
 | region | VMRs dropped by the guard | membership SNPs (MAF ≥ 5%), before → after | brain FDR hits | control FDR hits |
 |---|---:|---:|---:|---:|
@@ -266,29 +266,32 @@ For each cohort-by-region cell, acceptance requires:
 ## Accepted runs
 
 `tau_conditional_on_vmr_membership = TRUE` in all three cells, so the reported tau
-**is** the within-VMR gradient this module defines as its estimand. That is the
-difference from the 2026-09-08 acceptances, and it is why this null is reportable
-where theirs was not.
+**is** the within-VMR gradient this module defines as its estimand. These cells
+replace the 2026-09-25 acceptances, whose hippocampus annotation carried one
+liftover-inflated interval (see "Liftover span guard").
 
-The scientific result is null and that is a legitimate outcome: 0 of 6 brain
-traits and 0 of 2 prespecified non-brain controls are FDR-significant on the score
-annotation, in every region. `sldsc_supports_brain_enrichment = FALSE`. All 8
-declared traits completed Stage 06 (a partial family is refused) and 7 of 8 have
-total observed-scale h2 distinguishable from zero. EUR LD scores (`eur_primary`);
-the annotation is a genomic feature, not a donor-group LD claim. The AFR
-sensitivity arm is not part of this acceptance.
+The scientific result for brain traits is null, which is a legitimate outcome:
+0 of 6 brain traits are FDR-significant on the score annotation in any region, and
+`sldsc_supports_brain_enrichment = FALSE` everywhere. One prespecified non-brain
+control is significant: CAD in hippocampus (tau z 3.05, q 0.018). It does not repeat
+in caudate (0.72) or DLPFC (0.81). It is reported, not explained away, and it means
+a future brain-trait hit on this annotation could not be called brain-specific
+without beating the controls in the same cell. All 8 declared traits completed
+Stage 06, and 7 of 8 have total observed-scale h2 distinguishable from zero. EUR LD
+scores (`eur_primary`). The AFR sensitivity arm is not part of this acceptance.
 
 | run_id | cohort | region | vmr_set_id | accepted_on | accepted_by | decision | notes |
 |---|---|---|---|---|---|---|---|
-| sldsc-AA-caudate-20260925 | AA | caudate | vmrset-AA-caudate-937a41979978 | 2026-09-25 | Kynon J.M. Benjamin | PASS_PARTITIONED_H2_QC | Interpretable null: 0/6 brain and 0/2 control traits FDR-significant; 8/8 traits completed, 7/8 with interpretable total h2; tau conditional on VMR membership |
-| sldsc-AA-dlpfc-20260925 | AA | dlpfc | vmrset-AA-dlpfc-856067dfe289 | 2026-09-25 | Kynon J.M. Benjamin | PASS_PARTITIONED_H2_QC | Interpretable null, same frozen 8-trait family; tau conditional on VMR membership |
-| sldsc-AA-hippocampus-20260925 | AA | hippocampus | vmrset-AA-hippocampus-2d907b892215 | 2026-09-25 | Kynon J.M. Benjamin | PASS_PARTITIONED_H2_QC | Interpretable null, same frozen 8-trait family; tau conditional on VMR membership |
+| sldsc-AA-caudate-20261008 | AA | caudate | vmrset-AA-caudate-937a41979978 | 2026-10-08 | Kynon J.M. Benjamin | PASS_PARTITIONED_H2_QC | Span-guard rerun: 2 VMRs dropped (hg19 span changed more than 2x), membership SNPs 41,875 to 41,871. 0/6 brain and 0/2 control traits FDR-significant; every tau z within 0.03 of the 2026-09-25 cell. 8/8 traits completed, 7/8 with interpretable total h2; tau conditional on VMR membership |
+| sldsc-AA-dlpfc-20261008 | AA | dlpfc | vmrset-AA-dlpfc-856067dfe289 | 2026-10-08 | Kynon J.M. Benjamin | PASS_PARTITIONED_H2_QC | Span-guard rerun: 3 VMRs dropped, membership SNPs 30,239 to 30,216. 0/6 brain and 0/2 control traits FDR-significant; every tau z within 0.03 of the 2026-09-25 cell; tau conditional on VMR membership |
+| sldsc-AA-hippocampus-20261008 | AA | hippocampus | vmrset-AA-hippocampus-2d907b892215 | 2026-10-08 | Kynon J.M. Benjamin | PASS_PARTITIONED_H2_QC | Span-guard rerun: 3 VMRs dropped, including the 84 bp VMR lifted to 24.6 Mb; membership SNPs 31,822 to 30,511 (4.1%). 0/6 brain FDR-significant; 1/2 control: CAD tau z 3.05, q 0.018. Every trait's tau moved from the 2026-09-25 cell (SCZ z 1.45 to 0.82), which was an artifact of the one interval; tau conditional on VMR membership |
 
 Provenance: `lgv-AA-{region}-rescore-20260913` -> this run, sealed
-2026-09-25T13:21-13:29 at commit `881093065`, `smoke_run = FALSE`,
+2026-10-08T07:54-07:56 at commit `8a8630d2a`, `git_dirty = false`,
+`smoke_run = FALSE`, 102/102 SLURM jobs completed,
 `absolute_pve_interpretation_allowed = FALSE`, `fdr_family = traits_within_cell`
 over `LOCAL_SNP_CONTRIBUTION_Z` only, with the membership tau reported separately
-and carrying no q-value.
+and carrying no q-value. `liftover_max_span_ratio = 2.0`.
 
 ### What this null does and does not license
 
@@ -338,6 +341,15 @@ the live config; no rerun is required for that reason alone, because no key the
 model reads changed.
 
 ### Superseded runs
+
+`sldsc-AA-{caudate,dlpfc,hippocampus}-20260925` (accepted 2026-09-25, superseded
+2026-10-08). Stage 02 lifted each VMR's two ends separately and never checked the
+lifted span, so 2-3 VMRs per cell became much wider in hg19. The worst was the
+hippocampus VMR chr1:148679673-148679757 (84 bp), which became 24.6 Mb across the
+centromere and put 3,978 reference SNPs into both annotations. Caudate and DLPFC
+are numerically unchanged by the fix. Every hippocampus tau moved, so **do not cite
+the 2026-09-25 hippocampus tau values**. The module decision
+(`sldsc_supports_brain_enrichment = FALSE`) is the same in both sets.
 
 `sldsc-AA-{caudate,dlpfc,hippocampus}-20260903` (accepted 2026-09-08, withdrawn
 2026-09-23). Computationally sound, but produced by the **one-annotation** model:
