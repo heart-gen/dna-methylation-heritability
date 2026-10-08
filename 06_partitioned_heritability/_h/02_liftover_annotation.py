@@ -15,6 +15,13 @@ value column, and the quintile split are all banned by AGENTS.md 3).
 Unlike the legacy script, a VMR whose interval does not survive liftover is
 written to excluded/ with a reason rather than silently dropped: the annotation
 denominator has to be reconstructable.
+
+The two ends are lifted separately, so an interval is only faithful if its ends
+stayed in one chain block. A lifted width more than `liftover_max_span_ratio`
+times larger or smaller than the hg38 width means they did not: the interval
+would cover whatever lies between two blocks (one 84 bp VMR became 24.6 Mb
+across the chr1 centromere before this guard). Such a VMR is dropped as
+span_changed_after_lift.
 """
 from __future__ import annotations
 
@@ -71,6 +78,9 @@ def main() -> None:
     _src = _snap if _snap.exists() else root / "config" / "partitioned_heritability.yml"
     cfg = yaml.safe_load(_src.read_text())
     chain = root / cfg["liftover_chain"]
+    max_ratio = float(cfg["liftover_max_span_ratio"])
+    if not max_ratio > 1.0:
+        raise SystemExit("liftover_max_span_ratio must be > 1")
     if not chain.exists():
         raise SystemExit(f"Liftover chain not found: {chain}")
 
@@ -81,7 +91,7 @@ def main() -> None:
 
     lo = LiftOver(str(chain))
 
-    rows, dropped = [], []
+    rows, dropped, span_changed = [], [], []
     for chrom, start, end, score in df.itertuples(index=False, name=None):
         a = lift(lo, chrom, start)
         b = lift(lo, chrom, end)
@@ -102,6 +112,12 @@ def main() -> None:
         if lo_pos >= hi_pos:
             dropped.append((chrom, start, end, score, "degenerate_after_lift"))
             continue
+        w38, w19 = int(end) - int(start), hi_pos - lo_pos
+        if w19 > max_ratio * w38 or w19 * max_ratio < w38:
+            dropped.append((chrom, start, end, score, "span_changed_after_lift"))
+            span_changed.append((chrom, start, end, new_chrom, lo_pos, hi_pos,
+                                 w38, w19, w19 / w38))
+            continue
         rows.append((new_chrom, lo_pos, hi_pos, score))
 
     out = pd.DataFrame(rows, columns=["chrom", "start", "end", "score"])
@@ -114,6 +130,13 @@ def main() -> None:
     dst = run_dir / "annotation" / "annotation-hg19.bed"
     out.to_csv(dst, sep="\t", header=False, index=False)
 
+    if span_changed:
+        pd.DataFrame(span_changed,
+                     columns=["chrom", "start", "end", "chrom_hg19", "start_hg19",
+                              "end_hg19", "width_hg38", "width_hg19",
+                              "width_ratio"]).to_csv(
+            run_dir / "excluded" / "liftover-span-changed.tsv", sep="\t",
+            index=False)
     if dropped:
         pd.DataFrame(dropped,
                      columns=["chrom", "start", "end", "score", "reason"]).to_csv(
@@ -125,6 +148,9 @@ def main() -> None:
         "n_hg38": n_in,
         "n_hg19": len(out),
         "n_dropped": len(dropped),
+        "n_dropped_span_changed": len(span_changed),
+        "max_span_ratio": max_ratio,
+        "max_width_hg19": int((out["end"] - out["start"]).max()),
         "fraction_dropped": frac,
         "max_allowed_fraction_dropped": max_missing,
         "score_sd_hg19": float(out["score"].std()),
