@@ -307,25 +307,26 @@ the job graph.
 Either way the accepted decision is unchanged. Every row carries
 `gating = FALSE`.
 
-**Result: `sldsc-AA-external-20261007`** (sealed 2026-10-08 00:38 at `999c3f1c3`,
-clean tree, 63/63 jobs, 40 regressions). Munged sumstats were identical across
-the three accepted cells for all 8 traits. The staged Rizzardi BEDs are
-byte-identical to the asset content. This run predates dropping the H3K27ac
-control, so it still lists `PSYCHENCODE_NEUNPOS_H3K27AC_DLPFC` as not covered.
+**Result: `sldsc-AA-external-20261008`** (sealed 2026-10-08 16:17 at `c0daa121a`,
+clean tree, 42/42 jobs, 40 regressions). It reads the span-guard cells
+`sldsc-AA-{caudate,dlpfc,hippocampus}-20261008`. Munged sumstats were identical
+across the three cells for all 8 traits. The staged Rizzardi BEDs are
+byte-identical to the asset content and to the 2026-10-07 run's, and no
+annotation is listed as not covered.
 
 | annotation | % common SNPs | SCZ enrichment (SE; p) | SCZ τ\* (SE) | BIP enrichment (p) | smoking enrichment (p) | asthma | CAD |
 |---|---:|---|---|---|---|---|---|
 | NeuN+ between-region CG-DMRs | 0.41 | **16.3 (2.85; 3.4e-07)** | 0.894 (0.184) | **15.3 (5.4e-04)** | **7.6 (3.2e-05)** | −13.2 (0.23) | −6.6 (0.026) |
 | NeuN+ vs NeuN− CG-DMRs | 2.45 | **6.23 (0.88; 2.1e-08)** | 0.665 (0.146) | **6.72 (2.8e-09)** | **6.11 (3.8e-08)** | 0.28 (0.87) | 2.29 (0.45) |
-| VMR membership, caudate (standalone) | 0.70 | 1.26 (0.83; 0.75) | 0.098 (0.071) | 0.42 (0.59) | 0.30 (0.31) | −1.94 (0.58) | 0.79 (0.90) |
-| VMR membership, DLPFC (standalone) | 0.51 | 0.03 (0.93; 0.30) | −0.013 (0.069) | −0.93 (0.11) | 1.02 (0.99) | −8.2 (0.12) | 0.31 (0.75) |
-| VMR membership, hippocampus (standalone) | 0.53 | −0.61 (1.06; 0.13) | −0.068 (0.079) | −1.44 (0.011) | 0.64 (0.69) | 11.7 (0.60) | −0.57 (0.26) |
+| VMR membership, caudate (standalone) | 0.70 | 1.25 (0.82; 0.76) | 0.097 (0.071) | 0.43 (0.59) | 0.29 (0.30) | −1.91 (0.58) | 0.80 (0.91) |
+| VMR membership, DLPFC (standalone) | 0.51 | 0.01 (0.94; 0.29) | −0.015 (0.069) | −0.92 (0.11) | 1.00 (1.00) | −8.2 (0.12) | 0.33 (0.76) |
+| VMR membership, hippocampus (standalone) | 0.51 | 0.13 (0.98; 0.38) | −0.010 (0.072) | −1.10 (0.091) | 1.31 (0.73) | −8.7 (0.11) | −0.07 (0.60) |
 
 Every metric is in `results/external-annotation-metrics.tsv`: proportion of
 SNPs, proportion of h2 and its SE, enrichment with SE and p, τ with SE and
 two-sided p, τ\* with SE, and descriptive BH q. The accepted two-annotation VMR
 rows are in `results/vmr-membership-accepted-metrics.tsv`. They agree with the
-standalone ones; SCZ is 1.76 / −0.04 / −0.09.
+standalone ones; SCZ is 1.75 / −0.06 / −0.21.
 
 **Reading.**
 - **The pipeline detects enrichment at this footprint.** The NeuN+
@@ -335,31 +336,38 @@ standalone ones; SCZ is 1.76 / −0.04 / −0.09.
   and MDD are not enriched; for MDD the SE is too wide to say anything.
   Neither non-brain control is positively enriched.
 - **So the VMR null is not a pure power null.** The standalone VMR SCZ
-  enrichment's upper 95% bound is 2.9 / 1.9 / 1.5. That excludes anything near
+  enrichment's upper 95% bound is 2.9 / 1.8 / 2.0. That excludes anything near
   the neuronal CG-DMRs' 16-fold, and even their 6-fold NeuN+ vs NeuN− level.
   Write: "no detectable enrichment, and enrichment of the magnitude seen for
   neuronal CG-DMRs is excluded". Do not write "no enrichment".
+- No VMR row is FDR-significant for any trait; the smallest within-annotation
+  q is 0.45.
 - The comparison is between annotations, not a test of a difference. The
   Rizzardi DMRs were defined from neuronal versus glial and between-region
   contrasts, a different selection rule from population variability.
 - The accepted decision (`sldsc_supports_brain_enrichment = FALSE`) is
   unchanged.
 
-**Defect found while reading this run (affects the accepted cells).**
-`_h/02_liftover_annotation.py` lifts each VMR's start and end separately and
-never checks the lifted span. In the accepted runs, 2-3 VMRs per region grow by
-more than 2-fold:
-- **The worst is hippocampus `chr1:148679673-148679757`.** In hg38 it is
-  84 bp; lifted to hg19 it spans chr1:120,612,168-145,209,128, which is 24.6 Mb
-  across the centromere. That interval holds 3,978 reference SNPs, so it puts
-  thousands of non-VMR SNPs into `VMR_TESTED_HIPPOCAMPUS` and into the accepted
-  `sldsc-AA-hippocampus-20260925` annotation, with that VMR's score.
-- The others are chr8 VMRs of about 650 bp that become 72-170 kb (all three
-  regions). The rest are under 20 kb.
-- The fix is a span-ratio guard that drops and records such intervals. That is
-  a Module 06 code change and a rerun of the three cells, in a separate issue.
-- Being a null, the result is unlikely to move. But the hippocampus annotation
-  as accepted is not the VMR set it is described as.
+**What changed from `sldsc-AA-external-20261007`.** That run read the
+2026-09-25 cells, whose liftover had no span check:
+- **The worst case was hippocampus `chr1:148679673-148679757`.** In hg38 it is
+  84 bp; `_h/02_liftover_annotation.py`, lifting start and end separately, put
+  it at chr1:120,612,168-145,209,128 in hg19, which is 24.6 Mb across the
+  centromere and 3,978 reference SNPs. The others were chr8 VMRs of about
+  650 bp that became 72-170 kb.
+- `8a8630d2a` added `liftover_max_span_ratio = 2.0`, which drops and records
+  such intervals. The three cells were rerun as `-20261008`.
+- The cells dropped 2 / 3 / 3 VMRs, which removes 2 / 1 / 2 intervals from the
+  merged annotations staged here. Hippocampus goes from
+  31.3 Mb to 6.7 Mb, caudate from 8.66 to 8.42 Mb and DLPFC from 6.63 to
+  6.53 Mb.
+- The Rizzardi rows are identical to the last digit. The caudate and DLPFC VMR
+  rows move in the third significant figure. Hippocampus moves more, as
+  expected. Its SCZ enrichment goes from −0.61 to 0.13, and its nominal BIP
+  p 0.011 becomes 0.091. Asthma goes from 11.7 to −8.7, both with wide SEs.
+  No reading changes.
+- The 2026-10-07 run also listed `PSYCHENCODE_NEUNPOS_H3K27AC_DLPFC` as not
+  covered. That control has since been dropped from the config.
 
 ## Acceptance gate
 
