@@ -200,7 +200,37 @@ records each one in `excluded/liftover-span-changed.tsv` and counts them in
 - **Module 04 is not affected.** Its rtracklayer liftover keeps only VMRs that
   lift to a single interval.
 
-The three cells are rerun with the guard (see Accepted runs).
+### Rerun with the guard (2026-10-08, not yet accepted)
+
+`sldsc-AA-{caudate,dlpfc,hippocampus}-20261008` were sealed 2026-10-08 at
+`8a8630d2a`, with `git_dirty false`. All three return `PASS_PARTITIONED_H2_QC`,
+with 8 of 8 traits completed and the same upstream `lgv-AA-{region}-rescore-20260913`.
+They are not in the accepted table below. Accepting them, and withdrawing the
+2026-09-25 cells, is a PI act.
+
+| region | VMRs dropped by the guard | membership SNPs (MAF ≥ 5%), before → after | brain FDR hits | control FDR hits |
+|---|---:|---:|---:|---:|
+| caudate | 2 | 41,875 → 41,871 | 0 / 6 | 0 / 2 |
+| DLPFC | 3 | 30,239 → 30,216 | 0 / 6 | 0 / 2 |
+| hippocampus | 3 | 31,822 → 30,511 | 0 / 6 | **1 / 2 (CAD)** |
+
+- **Caudate and DLPFC barely move.** No trait's tau z changes by more than 0.03.
+- **Hippocampus changes for every trait.** The single 24.6 Mb interval made up
+  4.1% of the membership annotation's reference SNPs. With it removed:
+  - SCZ tau z goes from 1.45 to 0.82;
+  - asthma goes from −2.67 (q 0.06) to −1.00;
+  - CAD goes from 0.18 to 3.05 (tau p 0.0023, q 0.018).
+
+  So the 2026-09-25 hippocampus tau values are artifacts of one mis-lifted
+  interval, not estimates with noise.
+- **The module result is unchanged.** `sldsc_supports_brain_enrichment = FALSE`
+  in every cell, and no brain trait reaches FDR anywhere.
+- **The CAD result is a prespecified non-brain control reaching FDR in one cell.**
+  It is not repeated in caudate (tau z 0.72) or DLPFC (0.81). The gate does not
+  act on a control result, and this one is reported, not explained away. It
+  weakens one reading in particular: a future brain-trait hit on this
+  annotation could not be called brain-specific without beating the controls in
+  the same cell.
 
 ## Negative controls
 
