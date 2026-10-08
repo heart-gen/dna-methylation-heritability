@@ -20,7 +20,7 @@
 # WHAT IS IDENTICAL, and is read rather than restated so it cannot drift:
 #   - the model, LD reference, weights, frq files, print-snps and ld_wind_cm
 #     come from config/partitioned_heritability.yml at ld_reference_arm, the
-#     same block the accepted sldsc-AA-*-20260925 runs used;
+#     same block the accepted runs named in accepted_vmr_runs used;
 #   - the GWAS set is the frozen 8-trait family of that file, and the munged
 #     .sumstats.gz files are taken from the accepted runs after stage 10 proves
 #     the three cells' copies have identical content.
@@ -39,10 +39,12 @@
 pi_locked: true
 
 model_source: config/partitioned_heritability.yml
+# The span-guard cells, accepted 2026-10-08. The 2026-09-25 cells carried a
+# liftover-inflated hippocampus interval, so their VMR rows are not comparable.
 accepted_vmr_runs:
-  caudate: sldsc-AA-caudate-20260925
-  dlpfc: sldsc-AA-dlpfc-20260925
-  hippocampus: sldsc-AA-hippocampus-20260925
+  caudate: sldsc-AA-caudate-20261008
+  dlpfc: sldsc-AA-dlpfc-20261008
+  hippocampus: sldsc-AA-hippocampus-20261008
 
 annotations:
   - name: RIZZARDI_CGDMR_NEUNPOS_REGIONS

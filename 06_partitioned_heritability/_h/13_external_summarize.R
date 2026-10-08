@@ -94,7 +94,8 @@ skipped <- listing[status != "ready"]
 writeLines(c(
     "Interpretation constraints carried by this run:",
     "  - NON-GATING. The accepted Module 06 decision (sldsc_supports_brain_enrichment",
-    "    = FALSE, sldsc-AA-*-20260925) is unchanged. This run is the positive control",
+    paste0("    = FALSE, ", paste(unlist(ext$accepted_vmr_runs), collapse = ", "),
+           ") is unchanged. This run is the positive control"),
     "    that run lacked: same baseline model, LD reference, weights, frq and munged",
     "    GWAS files; each annotation enters alone on top of baselineLD v2.2.",
     "  - Reading: if a Rizzardi NeuN+ CG-DMR annotation of comparable footprint is",
