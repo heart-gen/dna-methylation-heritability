@@ -62,15 +62,12 @@ See `writing-notes/ISSUE_06_two_annotation_model.md` for the full argument.
 
 ### Not fixed by this, and still open
 
-The annotation covers ~0.6% of SNPs and the module has **no positive control**, so
-a null cannot be distinguished from a power null whatever the estimand. A
-separate issue should run the same pipeline on an annotation of comparable
-footprint known to be enriched for brain traits (Roadmap brain DHS or H3K4me3).
-Correcting the estimand does not remove that limitation.
-
-**Being addressed (2026-10-07):** stages 10-13 run a published brain WGBS
-annotation of comparable footprint through this pipeline. See **Positive
-control: external annotations** below.
+The annotation covers ~0.6% of SNPs, so on its own a null could not be
+distinguished from a power null. **Addressed 2026-10-08:** the accepted positive
+control `sldsc-AA-external-20261008` runs neuronal CG-DMRs of smaller footprint
+through the same pipeline and detects them (SCZ 16-fold). The VMR null therefore
+excludes enrichment of that magnitude. See **Positive control: external
+annotations** below. Correcting the estimand did not do this; the benchmark did.
 
 ## Why this module exists
 
@@ -421,6 +418,16 @@ Provenance: `lgv-AA-{region}-rescore-20260913` -> this run, sealed
 over `LOCAL_SNP_CONTRIBUTION_Z` only, with the membership tau reported separately
 and carrying no q-value. `liftover_max_span_ratio = 2.0`.
 
+### Accepted non-gating positive control
+
+Recorded under its own heading, not in the table above. The run benchmarks the
+pipeline's power at this footprint; it changes no cell's decision and nothing
+downstream gates on it.
+
+| run_id | cohort | upstream | sealed | accepted_on | accepted_by | notes |
+|---|---|---|---|---|---|---|
+| sldsc-AA-external-20261008 | AA | sldsc-AA-{caudate,dlpfc,hippocampus}-20261008 | 2026-10-08T16:17 at c0daa121a, git_dirty false, 42/42 jobs | 2026-10-08 | Kynon J.M. Benjamin | Config config/sldsc_external_annotations.yml, pi_locked. Same baselineLD v2.2, EUR LD, weights and munged GWAS as the cells (24/24 identity checks). Each annotation enters alone. Rizzardi NeuN+ between-region CG-DMRs (0.41% of SNPs): SCZ 16.3-fold, q 2.7e-6; BIP 15.3-fold, q 1.5e-3; smoking 7.6-fold. NeuN+ vs NeuN- (2.45%): SCZ 6.2, BIP 6.7, smoking 6.1, all q ≤ 1e-7. Standalone VMR membership: no trait FDR-significant in any region (smallest q 0.45); SCZ enrichment 1.25 / 0.01 / 0.13, upper 95% bound 2.9 / 1.8 / 2.0. The VMR null is therefore not a pure power null; enrichment of the neuronal CG-DMR magnitude is excluded. Comparison between annotations, not a test of a difference. Supersedes the unaccepted sldsc-AA-external-20261007, which read the 2026-09-25 cells. |
+
 ### What this null does and does not license
 
 It **does** let Module 09's `adds_nothing_beyond_nonsignificant_sldsc` criterion
@@ -430,12 +437,12 @@ criterion is `pi_judgment_not_gated`: no Module 09 decision is computed from it,
 so this unblocks a judgement the PI can now make, not a gate that was failing.
 
 It does **not** establish that common-variant heritability is unenriched in these
-VMRs. The limitation recorded under **Not fixed by this, and still open** is
-unchanged by the estimand repair: the annotation covers ~0.6% of SNPs and the
-module still has **no positive control**, so a null cannot be distinguished from a
-power null. Write it as "no detectable enrichment at this footprint", never as
-"no enrichment". A separate issue should run the same pipeline on an annotation of
-comparable footprint known to be enriched for brain traits.
+VMRs. The positive control (`sldsc-AA-external-20261008`) shows the pipeline
+detects neuronal CG-DMRs at a smaller footprint, so the null is not a pure power
+null, and the VMR upper 95% bounds (2.9 / 1.8 / 2.0 for SCZ) exclude enrichment of
+the neuronal CG-DMR magnitude. Smaller enrichment is not excluded. Write "no
+detectable enrichment, and enrichment of the magnitude seen for neuronal CG-DMRs
+is excluded", never "no enrichment".
 
 ### The estimand is now declared, not only implemented (2026-09-27)
 
