@@ -403,8 +403,8 @@ Parameters are in `config/meqtl_parameters.yml:cross_region_slope_inference`:
 
 What follows for the manuscript: report the two slopes and this interval, and
 do not write that the burden slope differs between DLPFC and hippocampus.
-Module 08 still computes its tier-2 z from the HC3 independence form; changing
-it to read this run is a Module 08 change and rerun, not done here.
+Module 08 tier 2 reads this run's SE from `fix/rdg-tier2-donor-robust-se` onward;
+its rerun follows this acceptance.
 
 ## Contract
 
@@ -416,6 +416,12 @@ smoke checks. Configuration lives in `config/` at the repository root.
 
 **Current.** Accepted 2026-09-25 by the PI. These are the runs a downstream
 production run must consume.
+
+`cmb-AA-crossregion-20261007` (accepted 2026-10-08) is not a fourth burden cell.
+It refits the dlpfc and hippocampus cells' primary model to give a donor-robust SE
+for the difference between their slopes, which Module 08 tier 2 reads. It occupies
+the `AA × crossregion` cell, so a second cross-region Module 05 run would need the
+first retired.
 
 `00_shared/gates.R::read_accepted_runs()` parses the table below and stops at the
 first `###` heading, so **only this table is the acceptance record** and the two
@@ -442,6 +448,7 @@ run reads back.
 | cmb-AA-caudate-20260924     | AA     | caudate     | vmrset-AA-caudate-937a41979978     | lgv-AA-caudate-rescore-20260913     | 2026-09-24T11:20:05  | 2026-09-25  | Kynon J.M. Benjamin | PASS_CPG_MEQTL_BURDEN_QC | 8/8 criteria; locked M3a verified on 22 chromosome files; distal-null lambda 1.137; n_vmrs 11,142 |
 | cmb-AA-dlpfc-20260924       | AA     | dlpfc       | vmrset-AA-dlpfc-856067dfe289       | lgv-AA-dlpfc-rescore-20260913       | 2026-09-24T11:33:49  | 2026-09-25  | Kynon J.M. Benjamin | PASS_CPG_MEQTL_BURDEN_QC | 8/8 criteria; locked M3a verified; distal-null lambda 1.142 -- the one region where lambda ROSE; n_vmrs 9,134 |
 | cmb-AA-hippocampus-20260924 | AA     | hippocampus | vmrset-AA-hippocampus-2d907b892215 | lgv-AA-hippocampus-rescore-20260913 | 2026-09-24T11:54:46  | 2026-09-25  | Kynon J.M. Benjamin | PASS_CPG_MEQTL_BURDEN_QC | 8/8 criteria; locked M3a verified; distal-null lambda 1.135; n_vmrs 9,053                 |
+| cmb-AA-crossregion-20261007 | AA     | crossregion | per region: see cmb-AA-{dlpfc,hippocampus}-20260924 | n/a (reads cmb-AA-dlpfc-20260924, cmb-AA-hippocampus-20260924) | 2026-10-07T23:41:57  | 2026-10-08  | Kynon J.M. Benjamin | SLOPE_DIFFERENCE_CI_INCLUDES_ZERO | Donor-robust inference for the DLPFC minus hippocampus burden slope (TASKS A3). Paired delete-d donor jackknife (200 draws, 24 of 120 union donors, 115 shared) plus joint chromosome jackknife over 22 blocks. Reproduces both accepted slopes exactly. delta -0.273, SE 0.204 (HC3 independence form 0.075), z -1.34, p 0.18, 95% -0.67 to 0.13. Per-region SE about 3x HC3; both slopes remain positive (DLPFC 1.78-2.41, hippocampus 2.04-2.69). No heterogeneity claim. Built at 9386252bf, git_dirty false, smoke_run FALSE, 442/442 jobs. Consumed by Module 08 tier 2 (identified_difference.donor_robust_se). Not simulation-validated for a significant-CpG count outcome. |
 
 All three are convergent evidence, not independent replication, and all three
 carry the cell-composition constraint in
