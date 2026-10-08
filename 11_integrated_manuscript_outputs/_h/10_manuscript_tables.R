@@ -111,6 +111,22 @@ claims <- rbindlist(lapply(MODULES, function(m) {
     d <- a[, ..keep]
     d[, module := m][]
 }), fill = TRUE)
+claims[, gating := TRUE]
+
+## Non-gating runs the PI accepted under their own subsection (a sensitivity
+## split, a concordance check, a positive control). They license what their
+## notes say and decide nothing, so they are listed with gating = FALSE and the
+## subsection heading in place of a decision token.
+nongating <- rbindlist(lapply(MODULES, function(m) {
+    a <- tryCatch(read_accepted_nongating_runs(m), error = function(e) data.table())
+    if (nrow(a) == 0) return(NULL)
+    keep <- intersect(c("run_id", "cohort", "region", "accepted_on", "notes", "section"),
+                      names(a))
+    d <- a[, ..keep]
+    setnames(d, "section", "decision")
+    d[, `:=`(module = m, gating = FALSE)][]
+}), fill = TRUE)
+claims <- rbind(claims, nongating, fill = TRUE)
 setcolorder(claims, "module")
 
 ## Module 04 additionally emits the permitted-claim string per outcome, which
@@ -127,8 +143,9 @@ write_atomic(claims, file.path(table_dir, "analysis-to-claim-matrix.tsv"))
 if (nrow(rra) > 0) {
     write_atomic(rra, file.path(table_dir, "permitted-claims-repeat-chromatin.tsv"))
 }
-message("[table] analysis-to-claim-matrix.tsv (", nrow(claims), " accepted runs across ",
-        length(MODULES), " modules)")
+message("[table] analysis-to-claim-matrix.tsv (", sum(claims$gating), " gating and ",
+        sum(!claims$gating), " non-gating accepted runs across ", length(MODULES),
+        " modules)")
 
 ## ============================================ 3. exclusions and denominators
 ##

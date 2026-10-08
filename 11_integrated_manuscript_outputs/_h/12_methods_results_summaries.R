@@ -84,7 +84,7 @@ need_cfg <- function(cfg, path) {
     v
 }
 decision_of <- function(mod) {
-    d <- unique(claims$decision[claims$module == mod])
+    d <- unique(claims$decision[claims$module == mod & claims$gating %in% c(TRUE, "TRUE")])
     paste(d[!is.na(d)], collapse = " / ")
 }
 
@@ -400,9 +400,12 @@ madd("- Caudate is sequencing batch 3 and DLPFC/hippocampus are batches 1-2, so 
 madd("")
 madd("## Accepted upstream runs")
 for (m in unique(claims$module)) {
-    d <- claims[module == m & !is.na(run_id)]
+    d <- claims[module == m & !is.na(run_id) & gating %in% c(TRUE, "TRUE")]
     madd("- `", m, "`: ", if (nrow(d)) paste(sprintf("`%s`", d$run_id), collapse = ", ")
          else "no accepted run", if (nrow(d)) paste0(" -- `", paste(unique(d$decision), collapse = " / "), "`") else "")
+    ng <- claims[module == m & !is.na(run_id) & gating %in% c(FALSE, "FALSE")]
+    if (nrow(ng)) madd("  - non-gating: ", paste(sprintf("`%s` (%s)", ng$run_id, ng$decision),
+                                                  collapse = ", "))
 }
 
 ## ============================================================ guard + write
