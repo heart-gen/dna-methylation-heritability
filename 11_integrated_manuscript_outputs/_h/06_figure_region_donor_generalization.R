@@ -215,7 +215,12 @@ pA <- ggplot(cells, aes(region, label)) +
     geom_text(data = gate_marks, mapping = aes(region, label, label = gate),
               size = 2.3, colour = PAL_CHARCOAL, inherit.aes = FALSE) +
     facet_grid(family ~ ., scales = "free_y", space = "free_y") +
-    scale_fill_manual(values = STATE_FILLS, name = NULL) +
+    ## Short key labels: the full ones ran past panel a's width at the top.
+    scale_fill_manual(values = STATE_FILLS, name = NULL,
+                      labels = c("Positive, P < 0.05" = "+, P < 0.05",
+                                 "Positive, n.s." = "+, n.s.",
+                                 "Negative, n.s." = "\u2212, n.s.",
+                                 "Negative, P < 0.05" = "\u2212, P < 0.05")) +
     scale_colour_manual(values = STATE_TEXT, guide = "none") +
     scale_x_discrete(limits = c(REGION_ORDER, "Replicated", "Module 04\ngate")) +
     labs(x = NULL, y = NULL, caption = MARK_KEY) +
