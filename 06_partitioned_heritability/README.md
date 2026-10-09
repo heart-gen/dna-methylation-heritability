@@ -62,11 +62,12 @@ See `writing-notes/ISSUE_06_two_annotation_model.md` for the full argument.
 
 ### Not fixed by this, and still open
 
-The annotation covers ~0.6% of SNPs and the module has **no positive control**, so
-a null cannot be distinguished from a power null whatever the estimand. A
-separate issue should run the same pipeline on an annotation of comparable
-footprint known to be enriched for brain traits (Roadmap brain DHS or H3K4me3).
-Correcting the estimand does not remove that limitation.
+The annotation covers ~0.6% of SNPs, so on its own a null could not be
+distinguished from a power null. **Addressed 2026-10-08:** the accepted positive
+control `sldsc-AA-external-20261008` runs neuronal CG-DMRs of smaller footprint
+through the same pipeline and detects them (SCZ 16-fold). The VMR null therefore
+excludes enrichment of that magnitude. See **Positive control: external
+annotations** below. Correcting the estimand did not do this; the benchmark did.
 
 ## Why this module exists
 
@@ -241,6 +242,130 @@ because a continuous annotation covering gene-rich, SNP-dense regions could
 enrich for any polygenic trait. The controls are in the FDR family, not outside
 it.
 
+## Positive control: external annotations (stages 10-13, non-gating)
+
+**Why.** The accepted null (`sldsc_supports_brain_enrichment = FALSE`) is "no
+detectable enrichment at this footprint", and the module had no positive
+control to separate it from a power null. The PI asked on 2026-10-07 for the
+published neuronal CG-DMRs to be run "through exactly the same S-LDSC pipeline,
+baseline model, reference LD, and GWAS summary statistics as the
+genetic-control VMR annotation". DLPFC neuronal H3K27ac was named as an
+optional secondary control. Its peaks (Girdhar 2018, Synapse syn9998643) are
+under NRGR controlled access, so the PI dropped it on 2026-10-08.
+
+**Annotations** (`config/sldsc_external_annotations.yml`, `pi_locked`):
+
+| name | source | intervals | role |
+|---|---|---:|---|
+| `RIZZARDI_CGDMR_NEUNPOS_REGIONS` | Rizzardi 2019 `CG-DMRs.pos.bb`: CG-DMRs between brain regions in NeuN+ nuclei, WGBS | 13,074 (11.9 Mb) | primary positive control |
+| `RIZZARDI_CGDMR_NEUNPOS_VS_NEG` | Rizzardi 2019 `CG-DMRs.pos_vs_neg.bb`: NeuN+ vs NeuN− CG-DMRs | 100,875 (70.0 Mb) | secondary |
+| `VMR_TESTED_<REGION>` | the accepted run's own `annotation-hg19.bed` | per region | like-for-like comparator |
+
+`inputs/supportfiles/_h/03_build_rizzardi_dmr_asset.py` downloads each bigBed,
+checks its SHA-256 against the config, converts it to a merged autosomal hg19
+BED, and checks the interval count.
+
+**What is identical, and what is not.**
+- **Identical, read rather than restated:** baselineLD v2.2, the LD reference,
+  weights, frq files, print-snps and `ld_wind_cm`. They all come from
+  `config/partitioned_heritability.yml` at the accepted `ld_reference_arm`.
+- **Identical GWAS:** the 8 frozen traits. Stage 10 proves the three accepted
+  cells' munged `.sumstats.gz` files have identical decompressed content, then
+  copies them.
+- **Different, by design:** each external annotation enters alone, as one
+  binary annotation on top of baselineLD. The accepted VMR model carries two
+  annotations (membership and score). So each region's VMR membership is
+  refitted alone here as `VMR_TESTED_<REGION>`, the like-for-like row. The
+  accepted two-annotation rows sit beside it unchanged.
+
+**Reported per annotation × trait:** proportion of SNPs, proportion of h2,
+enrichment, its SE and p, τ with SE and two-sided p, and τ\* (Gazal 2017:
+τ·sd(a)·M/h2g over reference SNPs with MAF ≥ 5%) with SE. BH q is computed
+across the 8 traits within each annotation, for description only.
+
+| Stage | Script | Purpose |
+|---|---|---|
+| 10 | `_h/10_external_new_run.R` | Open `sldsc-{cohort}-external-{date}`; check the accepted runs and sumstats identity; stage the annotation BEDs. |
+| 11 | `_h/11_external_ldscores.sh` (+ `11a_external_make_annot.py`) | Array 1–22: thin annot and LD scores for each annotation. |
+| 12 | `_h/12_external_partition_h2.py` | One S-LDSC regression per annotation × trait; metrics including τ\*. |
+| 13 | `_h/13_external_summarize.R` | Refuse a partial grid; add the accepted rows; descriptive BH; seal. |
+
+Submit with `_h/submit_external_annotations.sh <cohort>`. `SMOKE_N=1`,
+`SMOKE_CHROMS` and `SMOKE_TRAITS` restrict a smoke run, and `DRY_RUN=1` prints
+the job graph.
+
+**Reading, fixed before the production run:**
+- If a Rizzardi annotation is enriched for the brain traits and the standalone
+  VMR annotation is not, the pipeline can detect enrichment at this footprint,
+  and the VMR null is not a pure power null.
+- If neither is enriched, the VMR null stays "no detectable enrichment at this
+  footprint".
+
+Either way the accepted decision is unchanged. Every row carries
+`gating = FALSE`.
+
+**Result: `sldsc-AA-external-20261008`** (sealed 2026-10-08 16:17 at `c0daa121a`,
+clean tree, 42/42 jobs, 40 regressions). It reads the span-guard cells
+`sldsc-AA-{caudate,dlpfc,hippocampus}-20261008`. Munged sumstats were identical
+across the three cells for all 8 traits. The staged Rizzardi BEDs are
+byte-identical to the asset content and to the 2026-10-07 run's, and no
+annotation is listed as not covered.
+
+| annotation | % common SNPs | SCZ enrichment (SE; p) | SCZ τ\* (SE) | BIP enrichment (p) | smoking enrichment (p) | asthma | CAD |
+|---|---:|---|---|---|---|---|---|
+| NeuN+ between-region CG-DMRs | 0.41 | **16.3 (2.85; 3.4e-07)** | 0.894 (0.184) | **15.3 (5.4e-04)** | **7.6 (3.2e-05)** | −13.2 (0.23) | −6.6 (0.026) |
+| NeuN+ vs NeuN− CG-DMRs | 2.45 | **6.23 (0.88; 2.1e-08)** | 0.665 (0.146) | **6.72 (2.8e-09)** | **6.11 (3.8e-08)** | 0.28 (0.87) | 2.29 (0.45) |
+| VMR membership, caudate (standalone) | 0.70 | 1.25 (0.82; 0.76) | 0.097 (0.071) | 0.43 (0.59) | 0.29 (0.30) | −1.91 (0.58) | 0.80 (0.91) |
+| VMR membership, DLPFC (standalone) | 0.51 | 0.01 (0.94; 0.29) | −0.015 (0.069) | −0.92 (0.11) | 1.00 (1.00) | −8.2 (0.12) | 0.33 (0.76) |
+| VMR membership, hippocampus (standalone) | 0.51 | 0.13 (0.98; 0.38) | −0.010 (0.072) | −1.10 (0.091) | 1.31 (0.73) | −8.7 (0.11) | −0.07 (0.60) |
+
+Every metric is in `results/external-annotation-metrics.tsv`: proportion of
+SNPs, proportion of h2 and its SE, enrichment with SE and p, τ with SE and
+two-sided p, τ\* with SE, and descriptive BH q. The accepted two-annotation VMR
+rows are in `results/vmr-membership-accepted-metrics.tsv`. They agree with the
+standalone ones; SCZ is 1.75 / −0.06 / −0.21.
+
+**Reading.**
+- **The pipeline detects enrichment at this footprint.** The NeuN+
+  between-region CG-DMRs cover 0.41% of common SNPs, less than any VMR
+  annotation. They carry 6.6% of SCZ h2 (16-fold) and 6.3% of BIP h2. Both
+  q-values are ≤ 1.5e-3, and the result matches the original report. AD, PD
+  and MDD are not enriched; for MDD the SE is too wide to say anything.
+  Neither non-brain control is positively enriched.
+- **So the VMR null is not a pure power null.** The standalone VMR SCZ
+  enrichment's upper 95% bound is 2.9 / 1.8 / 2.0. That excludes anything near
+  the neuronal CG-DMRs' 16-fold, and even their 6-fold NeuN+ vs NeuN− level.
+  Write: "no detectable enrichment, and enrichment of the magnitude seen for
+  neuronal CG-DMRs is excluded". Do not write "no enrichment".
+- No VMR row is FDR-significant for any trait; the smallest within-annotation
+  q is 0.45.
+- The comparison is between annotations, not a test of a difference. The
+  Rizzardi DMRs were defined from neuronal versus glial and between-region
+  contrasts, a different selection rule from population variability.
+- The accepted decision (`sldsc_supports_brain_enrichment = FALSE`) is
+  unchanged.
+
+**What changed from `sldsc-AA-external-20261007`.** That run read the
+2026-09-25 cells, whose liftover had no span check:
+- **The worst case was hippocampus `chr1:148679673-148679757`.** In hg38 it is
+  84 bp; `_h/02_liftover_annotation.py`, lifting start and end separately, put
+  it at chr1:120,612,168-145,209,128 in hg19, which is 24.6 Mb across the
+  centromere and 3,978 reference SNPs. The others were chr8 VMRs of about
+  650 bp that became 72-170 kb.
+- `8a8630d2a` added `liftover_max_span_ratio = 2.0`, which drops and records
+  such intervals. The three cells were rerun as `-20261008`.
+- The cells dropped 2 / 3 / 3 VMRs, which removes 2 / 1 / 2 intervals from the
+  merged annotations staged here. Hippocampus goes from
+  31.3 Mb to 6.7 Mb, caudate from 8.66 to 8.42 Mb and DLPFC from 6.63 to
+  6.53 Mb.
+- The Rizzardi rows are identical to the last digit. The caudate and DLPFC VMR
+  rows move in the third significant figure. Hippocampus moves more, as
+  expected. Its SCZ enrichment goes from −0.61 to 0.13, and its nominal BIP
+  p 0.011 becomes 0.091. Asthma goes from 11.7 to −8.7, both with wide SEs.
+  No reading changes.
+- The 2026-10-07 run also listed `PSYCHENCODE_NEUNPOS_H3K27AC_DLPFC` as not
+  covered. That control has since been dropped from the config.
+
 ## Acceptance gate
 
 For each cohort-by-region cell, acceptance requires:
@@ -293,6 +418,16 @@ Provenance: `lgv-AA-{region}-rescore-20260913` -> this run, sealed
 over `LOCAL_SNP_CONTRIBUTION_Z` only, with the membership tau reported separately
 and carrying no q-value. `liftover_max_span_ratio = 2.0`.
 
+### Accepted non-gating positive control
+
+Recorded under its own heading, not in the table above. The run benchmarks the
+pipeline's power at this footprint; it changes no cell's decision and nothing
+downstream gates on it.
+
+| run_id | cohort | upstream | sealed | accepted_on | accepted_by | notes |
+|---|---|---|---|---|---|---|
+| sldsc-AA-external-20261008 | AA | sldsc-AA-{caudate,dlpfc,hippocampus}-20261008 | 2026-10-08T16:17 at c0daa121a, git_dirty false, 42/42 jobs | 2026-10-08 | Kynon J.M. Benjamin | Config config/sldsc_external_annotations.yml, pi_locked. Same baselineLD v2.2, EUR LD, weights and munged GWAS as the cells (24/24 identity checks). Each annotation enters alone. Rizzardi NeuN+ between-region CG-DMRs (0.41% of SNPs): SCZ 16.3-fold, q 2.7e-6; BIP 15.3-fold, q 1.5e-3; smoking 7.6-fold. NeuN+ vs NeuN- (2.45%): SCZ 6.2, BIP 6.7, smoking 6.1, all q ≤ 1e-7. Standalone VMR membership: no trait FDR-significant in any region (smallest q 0.45); SCZ enrichment 1.25 / 0.01 / 0.13, upper 95% bound 2.9 / 1.8 / 2.0. The VMR null is therefore not a pure power null; enrichment of the neuronal CG-DMR magnitude is excluded. Comparison between annotations, not a test of a difference. Supersedes the unaccepted sldsc-AA-external-20261007, which read the 2026-09-25 cells. |
+
 ### What this null does and does not license
 
 It **does** let Module 09's `adds_nothing_beyond_nonsignificant_sldsc` criterion
@@ -302,12 +437,12 @@ criterion is `pi_judgment_not_gated`: no Module 09 decision is computed from it,
 so this unblocks a judgement the PI can now make, not a gate that was failing.
 
 It does **not** establish that common-variant heritability is unenriched in these
-VMRs. The limitation recorded under **Not fixed by this, and still open** is
-unchanged by the estimand repair: the annotation covers ~0.6% of SNPs and the
-module still has **no positive control**, so a null cannot be distinguished from a
-power null. Write it as "no detectable enrichment at this footprint", never as
-"no enrichment". A separate issue should run the same pipeline on an annotation of
-comparable footprint known to be enriched for brain traits.
+VMRs. The positive control (`sldsc-AA-external-20261008`) shows the pipeline
+detects neuronal CG-DMRs at a smaller footprint, so the null is not a pure power
+null, and the VMR upper 95% bounds (2.9 / 1.8 / 2.0 for SCZ) exclude enrichment of
+the neuronal CG-DMR magnitude. Smaller enrichment is not excluded. Write "no
+detectable enrichment, and enrichment of the magnitude seen for neuronal CG-DMRs
+is excluded", never "no enrichment".
 
 ### The estimand is now declared, not only implemented (2026-09-27)
 
