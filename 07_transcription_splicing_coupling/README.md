@@ -8,7 +8,7 @@ repaired PSI identifier join and the locked per-modality power floor, and they
 supersede the `-20260902` runs, whose PSI results were withdrawn 2026-09-23 — see
 "The PSI identifier join was broken" below. **Splicing coupling is now a
 three-region result, not a caudate-specific one**, which changes the
-corresponding row of AGENTS.md §8. `expression_abc` is fitted and surfaced but
+corresponding row of the locked analysis plan. `expression_abc` is fitted and surfaced but
 sits **outside the coupling-test FDR family** on power grounds and is not a
 claim; see **The ABC exclusion**.
 Gated on `05_cpg_meqtl_burden` acceptance ("No downstream
@@ -22,9 +22,8 @@ superseded. All three sealed `PASS_TX_COUPLING_QC`. See **Accepted runs**.
 
 `meqtl-validation/06_transcription_splicing_integration/` and `meqtl-validation/09_libd_eqtl_mapping/`.
 
-See `MIGRATION_MANIFEST.tsv` for the legacy paths, their downstream consumers,
-and retirement status. Legacy directories stay in place until their row reads
-`validated_replacement`.
+The legacy v1 trees were retired on 2026-10-06; their tracked files are
+recoverable from the annotated tag `v1-legacy-final`.
 
 ## Scope discipline
 
@@ -170,7 +169,7 @@ Nearest-gene expression supports the permitted claim in all three AA cells, and
 **since the PSI repair so does splicing** -- the pre-repair reading "strong in
 caudate, thin in DLPFC, null in hippocampus" was the identifier-join defect, not
 biology. Splicing coupling is now a three-region result rather than a
-caudate-specific one, which changes the corresponding row of AGENTS.md section 8.
+caudate-specific one, which changes the corresponding row of the locked analysis plan.
 `expression_abc` is excluded from the coupling-test FDR family on power grounds
 and is **not a claim**; see **The ABC exclusion** below. The LIBD eQTL arm is off
 and is not part of this acceptance. PSI completeness filtering must be stated in
@@ -221,7 +220,7 @@ justification as a minimum detectable odds ratio: ABC 4.51 / 5.52 / 7.91 against
 to 6**, at q = 4.25e-02 against a 0.05 threshold (`meqtl_proportion` and
 `any_meqtl_support`, from q = 5.46e-02). They must be written as marginal. This
 is disclosed rather than discovered later: shrinking a BH family raises every
-surviving q-value's neighbours, and AGENTS.md section 10.3 forbids recombining
+surviving q-value's neighbours, and the locked analysis plan forbids recombining
 FDR families after inspection, so the change was made on the locked power floor
 and not on any view of the results.
 

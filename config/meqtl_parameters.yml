@@ -64,7 +64,7 @@ qc_plots_required:
   - positive_control_public_meqtl_overlap
 
 # Genomic-inflation acceptance band, read by 03_vmr_burden.R (a hard gate on the
-# burden) and 04_check_burden.R (a gate criterion). AGENTS.md 7.5 requires
+# burden) and 04_check_burden.R (a gate criterion). the locked analysis plan requires
 # inflation to be resolved before the figure freeze.
 #
 # The statistic is the median chi-square over DISTAL nominal cis pairs only:
@@ -81,7 +81,7 @@ qc_plots_required:
 # Donor-robust inference for the DLPFC-hippocampus burden slope (TASKS.md A3,
 # added 2026-10-07). Read by _h/06-08. Module 08 tier 2 reads the slope as
 # differing between the two regions (2.094 vs 2.367), using an
-# independent-HC3 SE whose calibration is unknown; AGENTS.md 7.5 requires
+# independent-HC3 SE whose calibration is unknown; the locked analysis plan requires
 # donor-robust inference before that difference may be written.
 #
 # Resampling is a PAIRED DELETE-d DONOR JACKKNIFE, not a bootstrap. The smoke

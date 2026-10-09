@@ -34,19 +34,19 @@ at B = 1000; it must not be reported as resolved in either direction. See **The
 Asks whether measured donor exposures associate with VMR methylation, and
 whether that association varies along Module 02's continuous local-genetic-control
 score. Both questions are exploratory and neither may enter the title, abstract,
-primary groups, or main causal interpretation (AGENTS.md §2.3).
+primary groups, or main causal interpretation.
 
 ## Why this module exists, and what it is not
 
 The v1 tree at `environmental-analysis/` is withdrawn — but for one specific
 reason, not because the question was wrong. Every v1 endpoint read exposure
 associations against `h2_category`, built in `00.prepare_data.R` from
-`h2_unscaled` and `r_squared_cv`. Both metrics are retired (AGENTS.md §3), and
+`h2_unscaled` and `r_squared_cv`. Both metrics are retired, and
 the genetically-anchored-vs-exposure-associated binary they encode is banned
-outright (AGENTS.md §2.3). The scan survives; the classification it was read
+outright. The scan survives; the classification it was read
 against does not, and is not migrated.
 
-PI decision 2026-09-10 closes the AGENTS.md §12 bullet "whether exposure
+PI decision 2026-09-10 closes the open question "whether exposure
 analyses remain supplemental or are removed": **retained, as an exploratory
 supplemental module.**
 
@@ -240,7 +240,7 @@ the job graph and submits nothing.
 `meth ~ exposure + age + sex + diagnosis`, built by
 `00_shared/locus_io.R::load_locus_phenotype()` — the same reader
 `load_observed_locus()` uses, so an exposure association conditions on exactly
-what a local-genetic-control estimate conditions on (AGENTS.md §5.3).
+what a local-genetic-control estimate conditions on.
 
 No genotype PCs for the **arms**: population structure is removed upstream by
 residualizing methylation on pooled snpPC1-3 during VMR discovery
@@ -303,7 +303,7 @@ documented here and hoped for:
 #### Region-conditional arms
 
 `cell_composition_r2_scmd` is the module's first region-conditional arm.
-AGENTS.md §7.4 and §7.9 both scope DNAm scMD to "where the integration gate
+The locked analysis plan scopes DNAm scMD to "where the integration gate
 passes", and Module 04 records that per run in `scmd_integration_gate`: **PASS**
 in caudate, with `cell_composition_r2_scmd` populated for all 11,251 VMRs, and
 **FAIL** in DLPFC and hippocampus, where the column is empty for every VMR. The
@@ -356,7 +356,7 @@ assume away:
 
 - **No cross-region contrast.** `config/environmental.yml` sets
   `cross_region_comparison_allowed: false`, because caudate is sequencing batch 3
-  and region is perfectly confounded with batch (AGENTS.md §8.1). Stage 7
+  and region is perfectly confounded with batch. Stage 7
   therefore stacks per-region rows and emits no pooled p, no region-general
   token and no between-region difference. Every row carries
   `cross_region_contrast_emitted = FALSE` and
@@ -376,11 +376,11 @@ assume away:
 ## Interpretation constraints
 
 - A null or negative axis result is **not** evidence that a VMR is
-  environmentally determined (AGENTS.md §2.3).
+  environmentally determined.
 - No heritable/non-heritable groups, no absolute PVE, no legacy metric.
   `forbidden_columns` is checked against every upstream table at runtime.
 - **Region-specific only.** Caudate is sequencing batch 3 and region is
-  perfectly confounded with batch (AGENTS.md §8.1), so no cross-region exposure
+  perfectly confounded with batch, so no cross-region exposure
   contrast is emitted and none is licensed.
 - `antipsychotics` clears the gate **only in caudate, and only inside the
   schizophrenia stratum** (18/46 split, 1.5% missing); in DLPFC and hippocampus
@@ -397,7 +397,7 @@ assume away:
 
 `env-smoke3-AA-caudate-20260910` ran all stages on the accepted upstreams. It is
 a **smoke run and must not be cited**: it was driven stage-by-stage rather than
-through the SLURM chain, so it does not satisfy AGENTS.md §9. It is recorded
+through the SLURM chain, so it does not satisfy the locked analysis plan. It is recorded
 because it establishes that the pipeline works, and because its shape is the
 most informative thing the module has produced.
 
@@ -437,7 +437,7 @@ line up:
 The straightforward reading is that the pooled gradient tracks *diagnosis*, or
 something technical correlated with it, rather than exposure. It is not evidence
 that exposure effects concentrate in low-genetic-control VMRs, and it must not
-be written up as such — that is precisely the inference AGENTS.md §2.3 forbids.
+be written up as such — that is precisely the inference the locked analysis plan forbids.
 The competing mundane explanation, n=65 against n=153, is also not excluded by
 this design.
 
@@ -512,7 +512,7 @@ That inflates its SE and deflates its −log₁₀p, which produces a negative
 coefficient on `score_z` with no exposure biology involved. `09b_aging_application`
 hit the identical problem on 2026-09-19 and rejected every SE-dependent outcome
 (|β|, rank|β|, |t|, −log₁₀p) in favour of the debiased `β̂² − SE²`, with donor
-bootstrap plus block-jackknife variance (AGENTS.md §7.9).
+bootstrap plus block-jackknife variance.
 
 #### What the diagnostic found (2026-09-19, hand-run, `tests/debiased_axis_firstlook/`)
 
@@ -699,7 +699,7 @@ The sentence is recorded machine-readably as
 `interpretation.variance_budget_limitation` in `config/environmental.yml`.
 Stage 06 copies it into the collated tables, so the accepted
 `env-AA-*-20261003` runs still carry the earlier wording until Module 10 is
-next rerun; their numbers are unaffected. AGENTS.md §7.10 still states the
+next rerun; their numbers are unaffected. The locked analysis plan still states the
 arithmetic. The limitation applies equally to §7.9's aging axis, which asks the
 same question with age in place of exposure.
 
@@ -1009,8 +1009,7 @@ Four things this does and does not license:
    to overturn. What it does is tell a writer that the caudate number cannot be
    described as independent of cell composition, where the hippocampus numbers can.
 2. **The between-region difference is not regional biology.** Caudate is AANRI
-   sequencing batch 3 and region is perfectly confounded with batch
-   (AGENTS.md §8.1), so "the arm bites in caudate and not elsewhere" is
+   sequencing batch 3 and region is perfectly confounded with batch, so "the arm bites in caudate and not elsewhere" is
    descriptive only. Caudate is also striatum against two cortical/archicortical
    regions, which is an obvious alternative reading, and this design cannot
    separate the two.
@@ -1042,8 +1041,7 @@ under either.
 
 What this still does not do: it does not demote the primary — the arm is
 non-gating in config and in code — and it does not make the caudate-vs-other-region
-contrast interpretable, because caudate remains sequencing batch 3 (AGENTS.md
-§8.1) and is also striatum against two cortical regions. DLPFC and hippocampus
+contrast interpretable, because caudate remains sequencing batch 3 and is also striatum against two cortical regions. DLPFC and hippocampus
 carry no scMD arm at all, so the comparison simply does not exist there; their
 `arm_status` records `skipped_scmd_integration_gate_fail` on all five families
 each.
@@ -1130,7 +1128,7 @@ where the gate has live consequences, the covariance choice flips the verdict in
 
 ### The four T28 decisions, as signed
 
-T28 (`writing-notes/DRAFT_T28_axis_variance_20261002.md`, signed 2026-10-03)
+T28 (signed 2026-10-03)
 validated this module's inference on 192 simulation cells built to reproduce the
 fixtures' own cross-VMR residual covariance through a 10-factor model.
 
@@ -1198,7 +1196,7 @@ reported as resolved in either direction**.
 ### How the re-runs were verified, and a correction
 
 The acceptance criterion was first stated as bit-identity of every pre-existing
-column. That was wrong and unachievable: AGENTS.md §9 requires deterministic
+column. That was wrong and unachievable: the locked analysis plan requires deterministic
 seeds **derived from the run ID**, so a new run ID necessarily redraws the donor
 bootstrap and every quantity downstream of it moves by Monte Carlo error.
 Demanding bit-identity of those is demanding that the seed policy be violated.
@@ -1258,7 +1256,7 @@ is **not implemented**. Its precondition is met: Module 09 has accepted runs,
 now `scz-AA-{caudate,dlpfc,hippocampus}-20261001`, reaccepted 2026-10-01 after
 the stages 15-18 rerun. (This paragraph cited the superseded `-20260918` runs
 until 2026-10-02.) The design, the mandatory positive control and the collider
-caution are in `writing-notes/exposure_confounding_of_scz_meqtl_strategy.md`.
+caution are in an internal note (`exposure_confounding_of_scz_meqtl_strategy.md`, not distributed).
 
 **PI decision 2026-10-02: deferred past Module 11, not declined.** It is new
 analysis rather than a rerun, it cannot change a main-text claim — §7.10's
@@ -1295,7 +1293,7 @@ arms**.
 
 | run_id | cohort | region | vmr_set_id | accepted_on | accepted_by | decision | notes |
 |---|---|---|---|---|---|---|---|
-| env-AA-caudate-20261003 | AA | caudate | vmrset-AA-caudate-937a41979978 | 2026-10-03 | Kynon J.M. Benjamin | PASS_EXPLORATORY_COVERAGE | Built at 9604a1529, git_dirty false, smoke_run FALSE, no stage given --allow-unlocked; config_environmental_sha256 c89a378c…, shared by all three regions; sealed 2026-10-03, 141 output files. n=153; 11,251 VMRs; 101,259 tested pairs; 6/6 coverage criteria; 22/22 chromosomes, 0 excluded/QC-failed/failed/unaccounted. Pins `rra-AA-caudate-20260925-a`; 3/3 upstreams current, all three identical to the superseded `-20261002-a`. All three arms fitted (`scmd_integration_gate = PASS`). Stage A: 0 FDR-significant VMR x exposure pairs. Stage B: 1 of 9 families survives FDR -- nicotine@all, beta -0.4622, q 0.00799, point estimate bit-identical to both superseded rounds. **No family is reportable as a percentage:** `n_relative_magnitude_reportable = 0` of 9, max relative_magnitude_den_z 0.952 against the 1.96 threshold, gate `fieller_denominator_stability`, covariance `donor_jackknife_plus_chromosome_block` (PI 2026-10-03). mean_omega_z max 0.79; absolute_p > 0.05 in all 9; Fieller unbounded in all 9. **The caudate gradient may NOT be described as independent of cell composition:** RNA MuSiC arm -0.219 (attenuation 0.525, arm q 0.455), DNAm scMD arm -0.164 (attenuation 0.645, arm q 0.832); smoking@all behaves the same (0.435, 0.661). Two assays agree in direction and the DNAm measure removes more. Arms are non-gating and do not demote the primary. `no_methylation_variance` -0.440, q 0.0192. **Donor bootstrap inflates the ratio denominator 5.0x-5.8x**, which T28 established is a readout of bootstrap-half deflation and not evidence the ratio p is too small. Exploratory supplement only (`main_text_retention = NEVER_SUPPLEMENT_ONLY`); the variance-budget limitation (AGENTS.md 7.10) is permanent and a negative beta is never evidence that exposure effects concentrate at weakly controlled VMRs. Caudate is batch-confounded (AGENTS.md 8.1) and is also striatum against two cortical regions, so the between-region difference in arm behaviour is descriptive only. |
+| env-AA-caudate-20261003 | AA | caudate | vmrset-AA-caudate-937a41979978 | 2026-10-03 | Kynon J.M. Benjamin | PASS_EXPLORATORY_COVERAGE | Built at 9604a1529, git_dirty false, smoke_run FALSE, no stage given --allow-unlocked; config_environmental_sha256 c89a378c…, shared by all three regions; sealed 2026-10-03, 141 output files. n=153; 11,251 VMRs; 101,259 tested pairs; 6/6 coverage criteria; 22/22 chromosomes, 0 excluded/QC-failed/failed/unaccounted. Pins `rra-AA-caudate-20260925-a`; 3/3 upstreams current, all three identical to the superseded `-20261002-a`. All three arms fitted (`scmd_integration_gate = PASS`). Stage A: 0 FDR-significant VMR x exposure pairs. Stage B: 1 of 9 families survives FDR -- nicotine@all, beta -0.4622, q 0.00799, point estimate bit-identical to both superseded rounds. **No family is reportable as a percentage:** `n_relative_magnitude_reportable = 0` of 9, max relative_magnitude_den_z 0.952 against the 1.96 threshold, gate `fieller_denominator_stability`, covariance `donor_jackknife_plus_chromosome_block` (PI 2026-10-03). mean_omega_z max 0.79; absolute_p > 0.05 in all 9; Fieller unbounded in all 9. **The caudate gradient may NOT be described as independent of cell composition:** RNA MuSiC arm -0.219 (attenuation 0.525, arm q 0.455), DNAm scMD arm -0.164 (attenuation 0.645, arm q 0.832); smoking@all behaves the same (0.435, 0.661). Two assays agree in direction and the DNAm measure removes more. Arms are non-gating and do not demote the primary. `no_methylation_variance` -0.440, q 0.0192. **Donor bootstrap inflates the ratio denominator 5.0x-5.8x**, which T28 established is a readout of bootstrap-half deflation and not evidence the ratio p is too small. Exploratory supplement only (`main_text_retention = NEVER_SUPPLEMENT_ONLY`); the variance-budget limitation is permanent and a negative beta is never evidence that exposure effects concentrate at weakly controlled VMRs. Caudate is batch-confounded and is also striatum against two cortical regions, so the between-region difference in arm behaviour is descriptive only. |
 | env-AA-dlpfc-20261003 | AA | dlpfc | vmrset-AA-dlpfc-856067dfe289 | 2026-10-03 | Kynon J.M. Benjamin | PASS_EXPLORATORY_COVERAGE | Built at 9604a1529, git_dirty false, smoke_run FALSE, no stage given --allow-unlocked; config_environmental_sha256 c89a378c…, shared by all three regions; sealed 2026-10-03, 141 output files. n=118; 9,251 VMRs; 46,255 tested pairs; 6/6 coverage criteria; 22/22 chromosomes, 0 excluded/QC-failed/failed/unaccounted. Pins `rra-AA-dlpfc-20260925-a`; 3/3 upstreams current, identical to `-20261002-a`. 2 of 3 arms fitted; `cell_composition_r2_scmd` recorded `skipped_scmd_integration_gate_fail` on all 5 families (`scmd_integration_gate = FAIL`). Stage A: 0 FDR-significant pairs. **Stage B: the FDR call is undetermined.** nicotine@schizophrenia is q 0.049638 here against 0.05500 in `-20261002-a`, 0.049137 in `-20261002` and 0.054341 in `-20260920-a`, on a bit-identical point estimate of -0.2666303408 -- four seeds, range 0.0491-0.0550, mean 0.0520, alpha mid-spread. `n_axis_associations_fdr` reads 1 here and 0 in the superseded accepted round, and **its FDR status must not be reported as resolved in either direction** (PI 2026-10-03: report as undetermined, with the estimate and interval; raising B was declined, and so was prespecifying that the family is not read at alpha). The MuSiC arm leaves it unchanged (-0.264, attenuation 0.009); its `no_methylation_variance` arm reaches q 0.0267, which licenses nothing because the arms carry separate BH families and cannot promote a primary. **No family is reportable as a percentage:** 0 of 5, max den_z 0.943; mean_omega_z max 0.77; absolute_p > 0.05 in all 5; Fieller unbounded in all 5. **Bootstrap denominator inflation 3.2x-38.4x**, the largest in the module (marital_status@all). Exploratory supplement only; variance-budget limitation applies. |
 | env-AA-hippocampus-20261003 | AA | hippocampus | vmrset-AA-hippocampus-2d907b892215 | 2026-10-03 | Kynon J.M. Benjamin | PASS_EXPLORATORY_COVERAGE | Built at 9604a1529, git_dirty false, smoke_run FALSE, no stage given --allow-unlocked; config_environmental_sha256 c89a378c…, shared by all three regions; sealed 2026-10-03, 141 output files. n=117; 9,166 VMRs; 45,830 tested pairs; 6/6 coverage criteria; 22/22 chromosomes, 0 excluded/QC-failed/failed/unaccounted. Pins `rra-AA-hippocampus-20260925-a`; 3/3 upstreams current, identical to `-20261002-a`. 2 of 3 arms fitted; `cell_composition_r2_scmd` recorded `skipped_scmd_integration_gate_fail` on all 5 families. Stage A: 12 FDR-significant VMR x exposure pairs (11 nicotine, 1 education) out of ~9,200 tests in 5 families, in the region with the smallest exposed case count -- a supplemental observation, not a finding. Stage B: 2 of 5 families survive FDR -- nicotine@schizophrenia beta -0.4912 q 9.82e-6 and nicotine@all beta -0.3758 q 0.0015, both point-identical to the superseded rounds. **Both survive the RNA MuSiC arm essentially untouched** (attenuation 0.009 and -0.006; arm q 7.7e-6 and 0.00117), so the hippocampus gradient is not cell composition restated -- the opposite of what caudate shows. smoking@all has primary q 0.0555 and cell arm q 0.0462: separate BH families, and a non-gating arm cannot promote a primary. **No family is reportable as a percentage:** 0 of 5, max den_z **1.756** -- the largest in the module and still short of 1.96, so the region with the module's strongest gradient is also the one that comes closest to supporting a magnitude and does not. mean_omega_z max 1.65; absolute_p > 0.05 in all 5; Fieller unbounded in all 5. **Bootstrap denominator inflation 2.0x-4.1x.** Exploratory supplement only; variance-budget limitation applies. |
 
@@ -1320,7 +1318,7 @@ qualify every number in the stage B table and neither is resolved:
    (PI 2026-10-02). The construction is shared with 09b, so a simulation that
    settled it here would have to be redone there; it is one methods-validation
    task spanning both modules, tracked as **T28** in
-   `writing-notes/v2-analysis/TASKS.md` rather than as a rerun of either. It
+   an internal note (`TASKS.md`, not distributed) rather than as a rerun of either. It
    does not block Module 11: the caveat is already carried on every emitted row
    and in every acceptance note, which is what a reader needs in order not to
    over-read these p-values.
@@ -1330,7 +1328,7 @@ permanent and is a Discussion item, not a task: at fixed total variance a higher
 genetic share leaves less non-genetic variance for any exposure to move, so a
 negative gradient is close to arithmetically forced wherever a real effect
 exists. A negative β is never evidence that exposure effects concentrate in
-weakly controlled VMRs (AGENTS.md §2.3).
+weakly controlled VMRs.
 
 This acceptance unblocks `06_collate_regions.R` without
 `--allow-unaccepted-runs`, so `_m/combined/` now carries `citable = TRUE`, and it
@@ -1342,4 +1340,4 @@ supplement: `main_text_retention = NEVER_SUPPLEMENT_ONLY` stands.
 
 `_h/` holds code, `_m/runs/{RUN_ID}/` holds immutable generated output, and
 `tests/` is gitignored hand-run smoke checks. Configuration is shared at
-`config/environmental.yml`, not duplicated here. See AGENTS.md §5.2 and §7.10.
+`config/environmental.yml`, not duplicated here. See the module README and its config.

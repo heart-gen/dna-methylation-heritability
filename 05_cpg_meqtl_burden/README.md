@@ -7,9 +7,9 @@ Asks whether a higher relative local SNP contribution score (`local_snp_contribu
 `cmb-AA-{caudate,dlpfc,hippocampus}-20260924` were mapped under the locked `M3a`
 design and each sealed `PASS_CPG_MEQTL_BURDEN_QC` on 8 of 8 criteria, including
 the new `executed_covariate_design_matches_lock`. They are now the runs a
-downstream production run must consume, which releases the AGENTS.md §6 gate for
+downstream production run must consume, which releases the locked analysis plan gate for
 `07_transcription_splicing_coupling`. The `-20260825` runs remain in
-the **Accepted runs** table marked **superseded**, because AGENTS.md §3 keeps a
+the **Accepted runs** table marked **superseded**, because the locked analysis plan keeps a
 superseded row until every consumer points at the replacement; no new downstream
 production run may consume them.
 
@@ -113,7 +113,7 @@ amended file describes, which their own
 M6d sensitivity is `M3a + dnamCellPC1-3`, so its contrast is an increment over a
 baseline that already carries that structure. This is a bulk-tissue correlation
 between a methylation PC and an RNA-derived proportion estimate: collinearity, not
-a cell type of origin (AGENTS.md §2.3). Every run writes it into
+a cell type of origin. Every run writes it into
 `results/interpretation-constraints.txt`.
 
 ### What the locked model changed in the reported gradient
@@ -139,7 +139,7 @@ table records what the accepted numbers are; it does not decompose why they move
 and no arm was run that would. In particular nothing here licenses a statement
 about how much of the gradient is cell composition: methPC1 is a methylation PC
 correlated with an RNA-derived proportion estimate, the attenuation is not
-decomposed, and a cell type of origin does not follow (AGENTS.md §2.3).
+decomposed, and a cell type of origin does not follow.
 
 **The rerun also corrected the upstream score pointer, and that is a second,
 independent defect.** The `-20260825` runs consumed `lgv-AA-{region}-20260823`,
@@ -260,9 +260,8 @@ batch job if that becomes a nuisance.
 
 `meqtl-validation/01_cpg_meqtl_mapping/` and `meqtl-validation/02_vmr_meqtl_burden/`.
 
-See `MIGRATION_MANIFEST.tsv` for the legacy paths, their downstream consumers,
-and retirement status. Legacy directories stay in place until their row reads
-`validated_replacement`.
+The legacy v1 trees were retired on 2026-10-06; their tracked files are
+recoverable from the annotated tag `v1-legacy-final`.
 
 ## Requirements
 
@@ -439,10 +438,9 @@ Acceptance was held until the cross-region sample-integrity screen was
 adjudicated, because that was the only open item with the reach to invalidate
 these runs: excluding a donor would have re-derived Module 01, changed
 `vmr_set_id`, and taken every module with it. It was closed on 2026-09-25 with no
-donor excluded, so the donor set behind these three runs is final --- see
-`11_integrated_manuscript_outputs/T4_READMITTED_DONOR_ADJUDICATION.md` and the
-affirmation in the `sample_blacklist` comment block of `config/cohorts.yml`, both
-of which land on branch `qc/t4-readmitted-donor-adjudication`. Every other open
+donor excluded, so the donor set behind these three runs is final --- see the
+affirmation in the `sample_blacklist` comment block of `config/cohorts.yml`.
+Every other open
 finding routes through a module this one does not consume, or is metadata that no
 run reads back.
 
@@ -463,7 +461,7 @@ design is verified off disk by the gate.
 
 ### Superseded
 
-Retained per AGENTS.md §3 until every consumer points at the replacement.
+Retained per the locked analysis plan until every consumer points at the replacement.
 **No new downstream production run may consume these.**
 
 | run_id                      | cohort | region      | vmr_set_id                         | upstream_lgv_run_id           | accepted_on | superseded_by               | why superseded                                                                              |

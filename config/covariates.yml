@@ -58,7 +58,7 @@ primary_meqtl:
     residualize_on: M0
     cpg_standardization: zscore_per_cpg
     # The subsample is drawn by INDEX, so the row order of the pooled CpG matrix
-    # decides which CpGs are selected. AGENTS.md 10.1 requires numeric chromosome
+    # decides which CpGs are selected. the locked analysis plan requires numeric chromosome
     # ordering; without this key the recipe is not reproducible from its own
     # description.
     cpg_order: chrom_numeric_then_position
@@ -82,7 +82,7 @@ primary_meqtl:
   # describes the primary scan as cell-composition-free.
   #
   # This is COLLINEARITY between a methylation PC and an RNA-derived proportion
-  # estimate. It does NOT establish a cell type of origin, which AGENTS.md 2.3
+  # estimate. It does NOT establish a cell type of origin, which the locked analysis plan
   # forbids inferring from bulk tissue.
   cell_composition: implicit_in_primary_via_latent_factors
   # The EXPLICIT cell-composition designs -- M5 and M6d below -- remain

@@ -2,14 +2,14 @@
 #
 # Question: how well does a classical REML estimator recover ABSOLUTE local SNP
 # heritability at this cohort's donor counts and real cis-window LD? This is
-# independent evidence on AGENTS.md 7.2's retirement of absolute locus PVE, from
+# independent evidence on the locked analysis plan retirement of absolute locus PVE, from
 # an estimator that is not elastic net. It is a port of the legacy
 # simulation-analysis/gcta/ benchmark (PI decision 2026-10-03), NOT the
 # observed-score cross-check: that cross-check was closed, not migrated.
 #
 # Boundaries (enforced by _h/greml_functions.R::assert_greml_interpretation):
 #   * every phenotype is simulated; no observed methylation locus is estimated,
-#     so no observed-locus PVE can come out of this module (AGENTS.md 3, 7.2);
+#     so no observed-locus PVE can come out of this module;
 #   * it reads nothing from and writes nothing to 02_local_genetic_variance/ --
 #     Module 02's runs, score and decision are untouched;
 #   * recovery is reported continuously (bias, RMSE, coverage, boundary rate,
@@ -41,7 +41,7 @@ gcta:
   # Messages with which GCTA stops when the REML estimator itself fails on a
   # phenotype. Those are estimator outcomes -- counted, reported as a rate, and
   # reconciled as qc_failed -- not computational failures. Any other non-zero
-  # exit is a failure and stops the run (AGENTS.md 9).
+  # exit is a failure and stops the run.
   estimation_failure_patterns:
     - "the information matrix is not invertible"
     - "Log-likelihood not converged"
@@ -59,7 +59,7 @@ gcta:
   # ~1e54 in the iteration log. A crash is reconciled as an estimation failure
   # ONLY with both kinds of evidence -- one of these exit codes AND an iteration
   # value at or above this magnitude in GCTA's own log. Any other crash stays a
-  # computational failure and stops the run (AGENTS.md 9).
+  # computational failure and stops the run.
   divergence_crash_exit_codes: [134, 136, 139]
   divergence_magnitude: 1.0e+10
 

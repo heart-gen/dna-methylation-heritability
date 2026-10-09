@@ -11,7 +11,7 @@ unconstrained Fisher scoring primary, v1's constrained AI-REML secondary.
 How well does a classical REML estimator (GCTA-GREML) recover **absolute**
 local SNP heritability at this cohort's donor counts and real cis-window LD?
 
-AGENTS.md 7.2 retired absolute locus PVE after the frozen elastic-net joint
+The locked analysis plan retired absolute locus PVE after the frozen elastic-net joint
 model failed 6 of 14 absolute-PVE gates while passing the ordering gate. That
 evidence concerns one estimator. This module asks the question of an estimator
 that shares nothing with it. It is a port of the legacy `simulation-analysis/gcta/`
@@ -26,7 +26,7 @@ question, if it is to be asked, is a PI decision and a new analysis.
 ## What it does not do
 
 - **It never estimates an observed methylation locus.** Every phenotype is
-  simulated, so no observed-locus PVE can come out of it (AGENTS.md §3, §7.2).
+  simulated, so no observed-locus PVE can come out of it.
   Every row carries `simulated_phenotypes_only = TRUE` and
   `absolute_pve_interpretation_allowed_for_observed_loci = FALSE`.
 - **It does not reopen Module 02.** It reads nothing from and writes nothing to
@@ -39,7 +39,7 @@ question, if it is to be asked, is a PI decision and a new analysis.
   on 2026-10-03, not migrated.
 - **No classes.** Recovery is reported continuously. The legacy correlation
   script's Heritable / Non-heritable / Low prediction split, defined on a 0.1
-  cut, is not ported (AGENTS.md §2.3, §3).
+  cut, is not ported.
 
 ## Design
 
@@ -319,7 +319,7 @@ computational failures.
 | greml-AA-dlpfc-20261003-a | AA | dlpfc | vmrset-AA-dlpfc-856067dfe289 | 2026-10-06 | Kynon J. M. Benjamin | PASS_GREML_BENCHMARK_QC | Arm 2, n = 118. Built at 0ddcdf147; 19,200 units, 0 failed; 176 / 54 estimation outcomes. Max abs bias 0.010, RMSE 0.098-0.110, null coverage 0.75-0.79, Spearman 0.932 [0.928, 0.935]. Simulated phenotypes only. |
 | greml-AA-hippocampus-20261003-a | AA | hippocampus | vmrset-AA-hippocampus-2d907b892215 | 2026-10-06 | Kynon J. M. Benjamin | PASS_GREML_BENCHMARK_QC | Arm 2, n = 117. Built at 0ddcdf147; 19,200 units, 0 failed; 177 / 42 estimation outcomes. Max abs bias 0.018, RMSE 0.104-0.117, null coverage 0.72-0.75, Spearman 0.927 [0.922, 0.931]. Simulated phenotypes only. |
 
-Accepted by the PI on 2026-10-06 (signed `writing-notes/DRAFT_02b_acceptance_20261006.md`).
+Accepted by the PI on 2026-10-06.
 
 ## Superseded runs
 
@@ -341,10 +341,10 @@ verifies.
   metrics. Its `h2_category` split is withdrawn, and the observed-score
   cross-check is not migrated (PI 2026-10-03).
 
-See `MIGRATION_MANIFEST.tsv`.
+The legacy v1 tree is recoverable from tag `v1-legacy-final`.
 
 ## Contract
 
-This module follows AGENTS.md §5.2: `_h/` holds code, `_m/` holds generated
+This module follows the repository layout: `_h/` holds code, `_m/` holds generated
 output under immutable `runs/{RUN_ID}/` directories, and `tests/` holds
 gitignored smoke checks. Its shared configuration is `config/greml_benchmark.yml`.

@@ -61,7 +61,7 @@ sum, so the ratio is not a share; each emitted row carries
 `m_5_50` column makes it visible: a SNP count for `VMR_TESTED`, a signed sum for
 the score.
 
-See `writing-notes/ISSUE_06_two_annotation_model.md` for the full argument.
+See an internal note (`ISSUE_06_two_annotation_model.md`, not distributed) for the full argument.
 
 ### Not fixed by this, and still open
 
@@ -88,9 +88,8 @@ other module is VMR-level.
 `ldsc_wrapper.py`, `region_heritability.py`, `fdr_correction.py`, and
 `interpreting_sldsc_results.md`.
 
-See `MIGRATION_MANIFEST.tsv` for the legacy paths, their downstream consumers,
-and retirement status. Legacy directories stay in place until their row reads
-`validated_replacement`.
+The legacy v1 trees were retired on 2026-10-06; their tracked files are
+recoverable from the annotated tag `v1-legacy-final`.
 
 ## Endpoint discipline
 
@@ -465,7 +464,7 @@ drifted config before a run directory exists. Both refuse a reordering (the orde
 is positional in the `.annot.gz` and the LD-score columns), a changed role, a
 changed `enrichment_interpretable`, and any move of the FDR family off
 `LOCAL_SNP_CONTRIBUTION_Z` — that last would revise already-computed q-values,
-which AGENTS.md §10.3 forbids.
+which the locked analysis plan forbids.
 
 Both checks **tolerate a config with the keys absent**, so the accepted
 2026-09-25 runs stay reproducible from their own snapshotted config, which

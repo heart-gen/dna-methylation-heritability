@@ -40,8 +40,7 @@ not read as evidence of environmental determination.
 
 ## Repository Structure
 
-The analysis is organized as numbered modules that run in dependency order
-(AGENTS.md 6). Each module records its accepted runs under **Accepted runs** in
+The analysis is organized as numbered modules that run in dependency order. Each module records its accepted runs under **Accepted runs** in
 its own README; that table, not this one, is the record of what may be cited.
 
 | Directory | Description |
@@ -69,21 +68,13 @@ its own README; that table, not this one, is the record of what may be cited.
 ### Retired v1 trees
 
 The v1 analysis directories (`vmr-analysis/`, `calibrated-simulation-analysis/`,
-`local-snp-prediction/`, `meqtl-validation/`, `environmental-analysis/`,
-`simulation-analysis/`, `sensitivity-analysis/`, `qc_analysis/`,
-`sample_summary/`, and the untracked `simulation-analysis.bak/`) were removed
-from the working tree on 2026-10-06, after every row of `MIGRATION_MANIFEST.tsv`
-was closed: a validated v2 replacement, a withdrawal, or a recorded PI decision
-not to migrate. Their tracked files are recoverable from the annotated tag
-**`v1-legacy-final`** (`git show v1-legacy-final:<path>`). The whole trees,
-untracked outputs included, were moved to
-`/projects/b1213/users/kynon/archive/dna-methylation-heritability-v1-20261003/`;
-`legacy_v1_archive_inventory.tsv` summarizes them by subtree, and the full
-per-file inventory (path, bytes, SHA-256, tracked flag) is in the archive's
-`_inventory/`. **Results in those trees are
-not valid for scientific use** -- see `writing-notes/PIPELINE_AUDIT.md`, in
-particular defects V1 (donor row misalignment invalidating every VMR set) and E1
-(`r_squared_cv` is an in-sample fit, not prediction accuracy).
+`local-snp-prediction/`, `meqtl-validation/`, `environmental-analysis/` and
+others) were retired on 2026-10-06 after each had a validated v2 replacement, a
+withdrawal, or a recorded decision not to migrate. Their tracked files are
+recoverable from the annotated tag **`v1-legacy-final`**
+(`git show v1-legacy-final:<path>`). **Results in those trees are not valid for
+scientific use**: the v1 VMR sets carry a donor-row misalignment, and the v1
+`r_squared_cv` is an in-sample fit, not prediction accuracy.
 
 ---
 
@@ -91,10 +82,22 @@ particular defects V1 (donor row misalignment invalidating every VMR set) and E1
 
 Raw genotype and DNA methylation data are available from dbGaP under
 accession [phs000979.v3.p2](https://www.ncbi.nlm.nih.gov/projects/gap/cgi-bin/study.cgi?study_id=phs000979.v3.p2).
+No individual-level methylation, genotype or covariate data are distributed in
+this repository or on Zenodo.
 
-Supplementary processed data (VMR calls, heritability estimates, and
-summary statistics) are available on Zenodo:
-https://doi.org/10.5281/zenodo.20547606.
+Results are distributed in three tiers, recorded file by file in
+`supplementary_data/release_manifest.tsv` and built by
+`supplementary_data/_h/build_release.py`:
+
+| Tier | What | Where |
+|---|---|---|
+| git | Every file the manuscript is written from, up to 15 MB: figure source data, Supplementary Data tables, decision and gate tables, run manifests, the accepted figure run | this repository |
+| Git LFS | The same class of file above 15 MB | this repository (Git LFS) |
+| Zenodo | Reproducibility extras no manuscript text uses (per-run provenance, uncited per-VMR tables, annotations, LD scores), plus a mirror of the two tiers above; one zip per module | [10.5281/zenodo.20547606](https://doi.org/10.5281/zenodo.20547606) |
+
+Bulk intermediates (per-task shards, full nominal meQTL output, coloc region
+shards, copies of public GWAS) are regenerable from each module's `_h/` and are
+not deposited.
 
 ---
 
@@ -105,8 +108,11 @@ https://doi.org/10.5281/zenodo.20547606.
 | R (≥4.4) | Data processing, VMR identification, visualization |
 | Python (≥3.10) | Supporting scripts and data wrangling |
 | [PLINK2](https://www.cog-genomics.org/plink/2.0/) | Genotype extraction and LD-based filtering |
-| [GENBoostGPU](https://github.com/heart-gen/GENBoostGPU) | GPU-accelerated elastic-net SNP heritability estimation |
-| [GCTA](https://yanglab.westlake.edu.cn/software/gcta/) | GREML-based heritability comparison |
+| [glmnet](https://glmnet.stanford.edu/) | Elastic-net local SNP models (Modules 02, 03) |
+| [GCTA](https://yanglab.westlake.edu.cn/software/gcta/) | GREML benchmark and cis-GREML sensitivity (Modules 02b, 02c) |
+| [TensorQTL](https://github.com/broadinstitute/tensorqtl) | CpG cis-meQTL mapping (Module 05) |
+| [LDSC](https://github.com/bulik/ldsc) | Stratified LD score regression (Module 06) |
+| [coloc](https://chr1swallace.github.io/coloc/) / [susieR](https://stephenslab.github.io/susieR/) | Colocalization (Module 09) |
 | Conda | Environment management (`epigenomics` env for R; `genomics` env for liftover) |
 
 Pipeline steps are designed for SLURM-based HPC systems. Submission scripts

@@ -62,7 +62,7 @@ deposit-ready resolves to nothing. Run it before staging an upload.
 | `transform_on_deposit` | ships, but a column must be rewritten when the archive is cut |
 | `audit_only` | retained inside its module for audit; not a reportable quantity |
 | `excluded` | deliberately Quest-only |
-| `superseded` | a v1 output a v2 run replaces; retire per AGENTS.md §3 |
+| `superseded` | a v1 output a v2 run replaces; retire per the locked analysis plan |
 | `external` | not generated here; cite the source instead of redepositing |
 | `blocked_donor_ids` | carries donor identifiers **and is tracked in git** |
 | `blocked_unlocked_config` | produced by a stage whose config is not PI-locked |

@@ -11,7 +11,7 @@ IDs and `vmr_set_id`s downstream modules must cite.
 ## Why this module exists
 
 The VMR sets in `vmr-analysis/` are invalid. From
-`writing-notes/PIPELINE_AUDIT.md`:
+an internal note (`PIPELINE_AUDIT.md`, not distributed):
 
 > **V1 (critical).** `02b.res_var.R::filter_pheno()` reorders the methylation
 > matrix with `match(valid_ids, brain_id)` but subsets the PC design matrix with

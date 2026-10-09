@@ -1,11 +1,11 @@
 # Schizophrenia-risk application (09_schizophrenia_risk_application).
 #
-# Prespecified; do not tune after seeing results (AGENTS.md 12).
+# Prespecified; do not tune after seeing results.
 #
 # Phase 7 already exists at meqtl-validation/08_schizophrenia_risk_application/
 # and its decision file records `retain_main_text_proof_of_application`. That run
 # was conditioned on the legacy predictability metric and the pre-repair VMR sets,
-# so per AGENTS.md 8 every number in it is a hypothesis to retest, not a result
+# so per the locked analysis plan every number in it is a hypothesis to retest, not a result
 # to carry forward. Hero loci rs8048039 and rs13331198 remain CANDIDATES.
 #
 # Framing question (PI 2026-09-18): does regional variation in local genetic
@@ -20,7 +20,7 @@ pi_locked: true
 genome_build: hg38
 
 # Loci are defined from PGC3 independently of any methylation result. This is a
-# design invariant, not a preference (AGENTS.md 7.8, 10.3).
+# design invariant, not a preference.
 locus_definition:
   source: pgc3
   independent_of_methylation: true
@@ -72,11 +72,11 @@ testing:
 # independent_decisions.caudate_magnitude_claim.scope_regions, and the
 # application decision is module-level. Caudate is also the region that can
 # never carry a claim alone (perfectly confounded with sequencing batch,
-# AGENTS.md 8.1), so "primary" must not be read as "most credible".
+# the locked analysis plan), so "primary" must not be read as "most credible".
 primary_region: caudate
 
 retention_criteria:
-  # AGENTS.md 7.8: the main-text application is retained only if the CORRECTED
+  # the locked analysis plan: the main-text application is retained only if the CORRECTED
   # run meets all of these. Recorded here so they are prespecified rather than
   # read off the results.
   #
@@ -154,7 +154,7 @@ independent_decisions:
     region_specific_departure_alpha: 0.05
     # A departure does not veto the region-general claim; it qualifies its scope.
     departure_vetoes_region_general_claim: false
-    # Caudate is perfectly confounded with sequencing batch (AGENTS.md 8.1), so
+    # Caudate is perfectly confounded with sequencing batch, so
     # it may contribute to concordance but can never be the only support.
     independent_of_caudate_magnitude_claim: true
 
@@ -235,7 +235,7 @@ integration:
   high_mappability_min: 0.9
 
 colocalization:
-  # AGENTS.md 7.8 forbids a colocalization CLAIM "unless the corresponding
+  # the locked analysis plan forbids a colocalization CLAIM "unless the corresponding
   # analysis has been run with adequate ancestry-matched LD and passes its own
   # gate". This block is that analysis. Arm A is EUR GWAS x EUR GTEx and is
   # gate-bearing. Arm B is EUR GWAS x AA meQTL: the shared-LD assumption is
