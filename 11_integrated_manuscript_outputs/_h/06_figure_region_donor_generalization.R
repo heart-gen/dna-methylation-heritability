@@ -362,9 +362,10 @@ pD <- ggplot(dg, aes(y = region_lab)) +
           axis.title.x = element_text(size = 8, lineheight = 0.95))
 
 ## ----------------------------------------------------------------- layout
-## free(pD): otherwise its x axis is aligned with panel a's rotated column
-## labels, which left an empty band above panel d's axis title.
-right <- (pB / pC / free(pD)) + plot_layout(heights = c(1, 0.9, 1))
+right <- (pB / pC / pD) + plot_layout(heights = c(1, 0.9, 1))
+## Not freed: free(pA) collapses the heatmap's tiles, and freeing pD inside the
+## nested column errors in patchwork 1.3.2, so panel d keeps a small gap above
+## its axis title.
 figure <- (pA | right) +
     plot_layout(widths = c(0.78, 1)) +
     fig_tags() & TAG_THEME

@@ -395,8 +395,10 @@ STEM <- paste0("figure2_local_genetic_control", arm)
 ## Without panel b the concordance panel spans the full width with three rows,
 ## so its row is shortened rather than left mostly empty.
 ## free(): without it patchwork aligns these panels' axes with panel a's long
-## estimator labels, which left about a fifth of the width empty.
-figure <- (if (HAS_LSP) (pA / (free(pB) | free(pC)) / free(pCtx))
+## estimator labels, which left about a fifth of the width empty. The middle
+## row is freed as a whole: patchwork 1.3.2 errors ("first argument must be a
+## vector") when two freed plots sit side by side in a nested row.
+figure <- (if (HAS_LSP) (pA / free(pB | pC) / free(pCtx))
            else (pA / free(pC) / free(pCtx))) +
     plot_layout(heights = if (HAS_LSP) c(1.25, 1.0, 0.85) else c(1.25, 0.5, 0.85)) +
     fig_tags() & TAG_THEME

@@ -247,7 +247,8 @@ pD <- ggplot(den, aes(region, n_coupled, fill = region)) +
 arm <- if (cohort == "AA") "" else paste0("_", cohort)
 STEM <- paste0("figure4_meqtl_burden_coupling", arm)
 
-figure <- ((free(pA) | pB) + plot_layout(widths = c(1, 0.8))) / pC / free(pD) +
+## free(pA) only: freeing pD as well shrank its panel and clipped its labels.
+figure <- ((free(pA) | pB) + plot_layout(widths = c(1, 0.8))) / pC / pD +
     plot_layout(heights = c(1.0, 0.95, 0.9)) +
     fig_tags() & TAG_THEME
 
