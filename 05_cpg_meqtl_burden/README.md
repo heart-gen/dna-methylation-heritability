@@ -315,6 +315,97 @@ positive-only resources cannot supply a tested negative, so a CpG's absence
 from a public list is not evidence against an meQTL there, and the recovery
 contrast it reports is a floor rather than an estimate.
 
+## Donor-robust inference for the DLPFC–hippocampus slope (2026-10-07)
+
+**Why.** Module 08 tier 2 reads the burden slope as differing between DLPFC
+(2.094) and hippocampus (2.367): z −3.63, q 0.0038. That test uses
+√(se²+se²) over the VMR-level HC3 SEs this module reports, and its calibration
+is unknown in both directions:
+- HC3 treats every VMR as independent, which makes it anti-conservative.
+- The independence form ignores the 115 donors the two regions share, which
+  makes it conservative.
+
+§7.5 requires donor-robust inference. **Until a sealed run of this pipeline
+exists, report the two slopes without a heterogeneity claim** (TASKS.md A3).
+
+**How.** A separate cross-region run, `cmb-{cohort}-crossregion-{date}`, reads
+the two accepted cells and leaves them unchanged. The variance is the sum of two
+parts, as `00_shared/axis_inference.R` sums its donor and VMR halves:
+- **Donor half: a paired delete-d donor jackknife.** Each draw deletes the same
+  24 of the 120 union donors (20%) from both regions. Each region re-maps every
+  tested CpG on the donors it has left and recounts the burden. The model is
+  then refitted with the score, the VMR covariates and the M3a covariate values
+  held fixed. The variance is Shao & Wu's
+  (n − d)/(d·B)·Σ(θ_b − θ̄)². A region's slope ignores donors it lacks, so the
+  union's (n, d) applies to both slopes and to their difference.
+- **VMR half: a joint delete-one-chromosome jackknife** on the accepted
+  tables, removing each chromosome from both regions at once.
+
+**Why not a bootstrap.** A paired donor bootstrap was built first. Its smoke run
+called every tested CpG significant at q ≤ 0.05 in every draw:
+- DLPFC: 134k of 134k significant, against 84k in the accepted cell;
+- Storey π0: −0.003, against 0.31;
+- chr22 median CpG p: 3e-4, against 0.0098.
+
+A duplicated donor is duplicated in genotype and phenotype alike. The
+permutation null shuffles the duplicates apart, so the null is too narrow. The
+bootstrap variance came out exactly zero. Drawing distinct donors keeps every
+permutation valid, and stage 08a now stops on any draw whose π0 falls below half
+of draw 0's or whose significant count exceeds draw 0's by more than 10%.
+
+| stage | does |
+|---|---|
+| `_h/06_slope_inference_new_run.R` | gates the two accepted cells, opens the run, writes the paired deletions |
+| `_h/07_subsample_map.py` (`step_7_subsample_map.sh`) | re-maps one autosome for a block of draws in both regions, using the permutation pass only |
+| `_h/08a_subsample_counts.py` | per-region Storey q and per-VMR counts for each draw. Draw 0 is the accepted cell's own output and must reproduce every sealed count. Stops on a miscalibrated draw |
+| `_h/08_slope_inference.R` | refits the model, checks it reproduces the sealed slope and HC3 SE, combines the two variances, seals |
+| `_h/submit_slope_inference.sh` | the job graph |
+
+Parameters are in `config/meqtl_parameters.yml:cross_region_slope_inference`:
+- 200 draws, each deleting 20% of the union donors;
+- 1,000 permutations per draw, chosen before any draw was mapped on a chr22
+  probe whose numbers are recorded there.
+
+**Limits.**
+- T28 validated a donor-bootstrap plus chromosome-jackknife sum for a debiased
+  squared-effect outcome. It did not validate this construction for a
+  significant-CpG count, so the calibration here is unsimulated.
+- A draw of 96 donors has less mapping power than the full sample, so the draw
+  slopes are shifted. The run reports the shift and uses the draws for their
+  variance only. The (n − d)/d factor assumes the variance scales as 1/n.
+- The variance is conditional on the locked design.
+- The run makes no heterogeneity claim. Module 08 tier 2 decides.
+
+**Result: `cmb-AA-crossregion-20261007`** (sealed 2026-10-07, commit
+`9386252bf`, clean tree, 442/442 jobs completed). Decision token
+`SLOPE_DIFFERENCE_CI_INCLUDES_ZERO`.
+
+| | DLPFC | hippocampus | difference |
+|---|---|---|---|
+| slope (accepted cell, reproduced exactly) | 2.094 | 2.367 | −0.273 |
+| HC3 SE (sealed) | 0.051 | 0.056 | 0.075 (Module 08's independence form) |
+| donor delete-d SE | 0.123 | 0.155 | 0.182 |
+| chromosome-jackknife SE | 0.102 | 0.061 | 0.091 |
+| combined SE | 0.160 | 0.167 | **0.204** |
+| 95% interval | 1.78 to 2.41 | 2.04 to 2.69 | **−0.67 to 0.13** |
+
+- The difference is z −1.34, p 0.18. The donor-robust SE of the difference is
+  2.7 times the SE behind Module 08's z −3.63, and each region's is about 3
+  times its HC3 SE.
+- The donor half dominates. Draw slopes correlate only 0.16 between regions, so
+  the 115 shared donors buy little pairing.
+- Both slopes stay clearly positive: the within-region gradient is not in
+  question, only the difference between regions.
+- Draw 0 reproduced every sealed count. Across the 200 draws per region, π0
+  ran 0.25–0.37 and the significant-CpG count 74k–86k, so the miscalibration
+  guard never fired. The draws shift the mean difference by −0.014 against the
+  full-sample estimate.
+
+What follows for the manuscript: report the two slopes and this interval, and
+do not write that the burden slope differs between DLPFC and hippocampus.
+Module 08 tier 2 reads this run's SE from `fix/rdg-tier2-donor-robust-se` onward;
+its rerun follows this acceptance.
+
 ## Contract
 
 This module follows: `_h/` holds code, `_m/` holds generated
@@ -325,6 +416,12 @@ smoke checks. Configuration lives in `config/` at the repository root.
 
 **Current.** Accepted 2026-09-25 by the PI. These are the runs a downstream
 production run must consume.
+
+`cmb-AA-crossregion-20261007` (accepted 2026-10-08) is not a fourth burden cell.
+It refits the dlpfc and hippocampus cells' primary model to give a donor-robust SE
+for the difference between their slopes, which Module 08 tier 2 reads. It occupies
+the `AA × crossregion` cell, so a second cross-region Module 05 run would need the
+first retired.
 
 `00_shared/gates.R::read_accepted_runs()` parses the table below and stops at the
 first `###` heading, so **only this table is the acceptance record** and the two
@@ -351,6 +448,7 @@ run reads back.
 | cmb-AA-caudate-20260924     | AA     | caudate     | vmrset-AA-caudate-937a41979978     | lgv-AA-caudate-rescore-20260913     | 2026-09-24T11:20:05  | 2026-09-25  | Kynon J.M. Benjamin | PASS_CPG_MEQTL_BURDEN_QC | 8/8 criteria; locked M3a verified on 22 chromosome files; distal-null lambda 1.137; n_vmrs 11,142 |
 | cmb-AA-dlpfc-20260924       | AA     | dlpfc       | vmrset-AA-dlpfc-856067dfe289       | lgv-AA-dlpfc-rescore-20260913       | 2026-09-24T11:33:49  | 2026-09-25  | Kynon J.M. Benjamin | PASS_CPG_MEQTL_BURDEN_QC | 8/8 criteria; locked M3a verified; distal-null lambda 1.142 -- the one region where lambda ROSE; n_vmrs 9,134 |
 | cmb-AA-hippocampus-20260924 | AA     | hippocampus | vmrset-AA-hippocampus-2d907b892215 | lgv-AA-hippocampus-rescore-20260913 | 2026-09-24T11:54:46  | 2026-09-25  | Kynon J.M. Benjamin | PASS_CPG_MEQTL_BURDEN_QC | 8/8 criteria; locked M3a verified; distal-null lambda 1.135; n_vmrs 9,053                 |
+| cmb-AA-crossregion-20261007 | AA     | crossregion | per region: see cmb-AA-{dlpfc,hippocampus}-20260924 | n/a (reads cmb-AA-dlpfc-20260924, cmb-AA-hippocampus-20260924) | 2026-10-07T23:41:57  | 2026-10-08  | Kynon J.M. Benjamin | SLOPE_DIFFERENCE_CI_INCLUDES_ZERO | Donor-robust inference for the DLPFC minus hippocampus burden slope (TASKS A3). Paired delete-d donor jackknife (200 draws, 24 of 120 union donors, 115 shared) plus joint chromosome jackknife over 22 blocks. Reproduces both accepted slopes exactly. delta -0.273, SE 0.204 (HC3 independence form 0.075), z -1.34, p 0.18, 95% -0.67 to 0.13. Per-region SE about 3x HC3; both slopes remain positive (DLPFC 1.78-2.41, hippocampus 2.04-2.69). No heterogeneity claim. Built at 9386252bf, git_dirty false, smoke_run FALSE, 442/442 jobs. Consumed by Module 08 tier 2 (identified_difference.donor_robust_se). Not simulation-validated for a significant-CpG count outcome. |
 
 All three are convergent evidence, not independent replication, and all three
 carry the cell-composition constraint in

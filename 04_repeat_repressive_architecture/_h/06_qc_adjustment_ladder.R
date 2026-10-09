@@ -107,7 +107,7 @@ opts <- commandArgs(trailingOnly = TRUE)
 run_ids <- if (length(opts) >= 2 && opts[1] == "--run-id") opts[2] else {
     dirs <- list.dirs(file.path(repo_root(), MODULE, "_m", "runs"),
                       recursive = FALSE, full.names = FALSE)
-    grep("^rra-AA-[a-z]+-[0-9]{8}$", dirs, value = TRUE)
+    grep("^rra-AA-(caudate|dlpfc|hippocampus)-[0-9]{8}$", dirs, value = TRUE)
 }
 if (length(run_ids) == 0) stop("no run ids resolved")
 

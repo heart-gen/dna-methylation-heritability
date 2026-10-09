@@ -1,0 +1,117 @@
+# LINE/L1 subfamily resolution (Module 04 stage 10).
+#
+# PI direction 2026-10-07 (Kynon J.M. Benjamin): "implement a LINE/L1 subfamily
+# resolution: young L1HS/L1PA versus older L1M; full-length versus fragment, if
+# possible." This realizes the AGENTS.md 7.4 "high-value extension" that
+# config/repeat_annotations.yml:repeatmasker.l1_subfamily_definitions has
+# carried as `null` since 2026-08-23.
+#
+# WHY A SEPARATE FILE. The accepted Module 04 cells record
+# config_repeat_annotations_sha256, and stage 10 refuses to run unless the live
+# repeat_annotations.yml still has that hash -- the guard that makes its
+# reproduction check meaningful. Writing the definitions into that file would
+# change its hash and orphan every accepted cell. They live here instead, and
+# repeat_annotations.yml is untouched.
+#
+# WHAT THIS IS. A NON-GATING secondary breakdown of the line_l1_frac outcome,
+# outside the BH family (still h3k9me3_frac / quiescent_frac / line_l1_frac), so
+# no reported q-value changes. Every row stage 10 writes carries gating = FALSE.
+# The definitions below were fixed before any subfamily association was fitted;
+# only element counts (no VMR overlap, no association) were looked at to check
+# that each class is non-empty.
+
+pi_locked: true
+
+source:
+  # The UCSC table the project asset was cut from. 02_build_l1_subfamily_asset.py
+  # proves identity: the six-column projection must have the same sorted MD5 as
+  # repeat-masker-hg38.gz, and its LINE/L1 subset the same as
+  # repeat-masker.LINE_L1.hg38.bed.gz (both verified 2026-10-07).
+  rmsk_url: https://hgdownload.soe.ucsc.edu/goldenPath/hg38/database/rmsk.txt.gz
+  rmsk_last_modified: "2022-10-19T06:39:32Z"
+  rmsk_sha256: db60e6aa7ac175f8f5465cd01b48b550e67e1fb0fd828608d8343481867bb276
+  project_asset: inputs/supportfiles/_m/repeat-masker-hg38.gz
+  project_l1_asset: inputs/supportfiles/_m/repeat-masker.LINE_L1.hg38.bed.gz
+  subfamily_asset: inputs/supportfiles/_m/repeat-masker.LINE_L1.subfamily.hg38.tsv.gz
+
+# Age classes by RepeatMasker subfamily name, evaluated in order; the first
+# match wins. They PARTITION the L1 asset (every ^L1 repName matches exactly one),
+# so the three age fractions of a VMR sum to its line_l1_frac.
+age_classes:
+  # Primate-specific, youngest: L1HS and L1PA2-L1PA17 (incl. L1PA8A, L1PA15-16).
+  - name: young
+    label: L1HS/L1PA (primate-specific)
+    pattern: "^(L1HS|L1PA[0-9])"
+  # Mammalian-wide, oldest: L1MA/MB/MC/MD/ME and L1M1-8.
+  - name: old
+    label: L1M (mammalian-wide)
+    pattern: "^L1M"
+  # Everything else: L1P1-5, L1PB*, L1PREC2. Primate lineage but older than
+  # L1PA. Fitted and reported, but not part of the young-vs-old contrast.
+  - name: intermediate
+    label: L1P/L1PB/L1PREC (other primate)
+    pattern: "^L1"
+
+# Completeness, from the element's alignment to its subfamily consensus.
+completeness:
+  # Only subfamilies whose consensus is a full-length L1 can host a full-length
+  # element. 12 of 127 hg38 subfamilies have a short (<3 kb, fragment-only)
+  # consensus; every element of those is a fragment by construction.
+  min_consensus_length_bp: 5500
+  # Full-length = the aligned span covers >= 90% of a full-length consensus.
+  full_length_min_consensus_fraction: 0.90
+  # Retains the 5' end (the 5'UTR promoter region) = alignment starts within
+  # the first 100 bp of the consensus. Descriptive only.
+  five_prime_max_consensus_start: 100
+  # KNOWN LIMITATION, recorded before fitting. The UCSC table does not link the
+  # pieces of an element that an insertion split in two (its `id` field is
+  # documented as "best ignored"), so an interrupted full-length element is
+  # counted as two fragments. The full-length class is therefore conservative:
+  # it can miss interrupted elements and never includes a truncated one.
+  # Full-length is NOT retrotransposition competence -- that would need intact
+  # ORF1/ORF2 (e.g. L1Base2), and
+  # repeat_annotations.yml:retrotransposition_competent_list stays null.
+
+# Outcomes: summed-overlap fraction of the VMR span, computed exactly as
+# annotation_io.R::overlap_features() computes line_l1_frac (reduce the class's
+# intervals, sum the intersect width, divide by VMR width).
+outcomes:
+  l1_young_frac:            {age: young}
+  l1_old_frac:              {age: old}
+  l1_intermediate_frac:     {age: intermediate}
+  l1_full_length_frac:      {full_length: true}
+  l1_fragment_frac:         {full_length: false}
+  l1_young_full_length_frac: {age: young, full_length: true}
+  l1_young_fragment_frac:   {age: young, full_length: false}
+  l1_retains_5prime_frac:   {retains_5prime: true}
+
+# Paired contrasts, each a difference of slopes on the same VMRs, tested with
+# the JOINT delete-one-chromosome jackknife (the construction of the
+# shared-vs-unique split, _h/09). The within-young contrast separates
+# completeness from age, because full-length elements are almost all young
+# (8,249 young vs 440 old full-length elements in hg38).
+contrasts:
+  young_minus_old: [l1_young_frac, l1_old_frac]
+  full_length_minus_fragment: [l1_full_length_frac, l1_fragment_frac]
+  young_full_length_minus_young_fragment: [l1_young_full_length_frac, l1_young_fragment_frac]
+
+# Analysis sets, realized exactly as 02_test_association.R realizes them.
+# high_mappability matters most here: young L1 sequence is the least mappable in
+# the genome, so a young-L1 estimate that does not survive it is not evidence.
+analysis_sets: [primary, high_mappability, exclude_segdups, adjust_cell_composition]
+
+# An outcome is fitted in an analysis set only if at least this many VMRs
+# overlap the class there; below it the row is written with
+# note = insufficient_overlap and no estimate.
+min_vmrs_overlapping: 100
+
+# Descriptive reading rule, fixed before fitting. A contrast is read as
+# "consistent" only if, in the primary set, its joint-jackknife p < 0.05 with
+# the same sign in BOTH DLPFC and hippocampus, and the high_mappability estimate
+# keeps that sign in both. Caudate is fitted and shown but set aside, exactly
+# as caudate line_l1_frac is (repeat_annotations.yml:
+# interpretation.technically_confounded_regions).
+reading_rule:
+  alpha: 0.05
+  claim_regions: [dlpfc, hippocampus]
+  require_sign_kept_in: high_mappability
