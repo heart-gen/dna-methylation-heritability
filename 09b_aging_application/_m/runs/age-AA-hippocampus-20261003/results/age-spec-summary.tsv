@@ -1,0 +1,6 @@
+spec	role	fitted	reason	n_donors	n_controls	n_cases	design_terms	df
+primary	primary	TRUE		117	69	48	(Intercept),age,sexM,diagnosisSchizo	113
+controls_only	gating	TRUE		69	69	0	(Intercept),age,sexM	66
+cell_music	gating	TRUE		117	69	48	(Intercept),age,sexM,diagnosisSchizo,music_cellPC1,music_cellPC2,music_cellPC3	110
+cell_scmd	gating	FALSE	scmd_integration_gate_fails_in_region					
+age_ge_25	non_gating	TRUE		109	62	47	(Intercept),age,sexM,diagnosisSchizo	105

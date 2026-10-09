@@ -29,3 +29,10 @@ inputs/brainscope/_m/High_ABC_results_CPM1only_Concise_RK_7_8_21.csv filter=lfs 
 inputs/brainscope/_m/PeakInfoDetailed_210832_OCRs.csv filter=lfs diff=lfs merge=lfs -text
 inputs/supportfiles/_m/repeat-masker-hg38.gz filter=lfs diff=lfs merge=lfs -text
 02_local_genetic_variance/_m/combined/calibrated-local-h2-all-cells.tsv filter=lfs diff=lfs merge=lfs -text
+# >>> release LFS tier (supplementary_data/_h/build_release.py) >>>
+05_cpg_meqtl_burden/_m/runs/cmb-AA-caudate-20260924/results/cpg-meqtl-results.tsv filter=lfs diff=lfs merge=lfs -text
+05_cpg_meqtl_burden/_m/runs/cmb-AA-dlpfc-20260924/results/cpg-meqtl-results.tsv filter=lfs diff=lfs merge=lfs -text
+05_cpg_meqtl_burden/_m/runs/cmb-AA-hippocampus-20260924/results/cpg-meqtl-results.tsv filter=lfs diff=lfs merge=lfs -text
+07_transcription_splicing_coupling/_m/runs/tsc-AA-caudate-20260925-b/results/psi-pair-associations.tsv.gz filter=lfs diff=lfs merge=lfs -text
+10_environmental_exploratory/_m/runs/env-AA-caudate-20261003/results/vmr-exposure-association.tsv filter=lfs diff=lfs merge=lfs -text
+# <<< release LFS tier <<<

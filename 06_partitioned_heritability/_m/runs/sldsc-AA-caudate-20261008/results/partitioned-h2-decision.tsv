@@ -1,0 +1,2 @@
+run_id	cohort	region	decision	smoke_run	ld_reference_arm	n_traits_declared	n_traits_completed	n_traits_h2_interpretable	n_brain_significant	n_control_significant	brain_significant	control_significant	fdr_family	fdr_threshold	annotations_in_model	fdr_family_annotation	tau_conditional_on_vmr_membership	failures	absolute_pve_interpretation_allowed	sldsc_supports_brain_enrichment
+sldsc-AA-caudate-20261008	AA	caudate	PASS_PARTITIONED_H2_QC	FALSE	eur_primary	8	8	7	0	0	""	""	traits_within_cell	0.05	LOCAL_SNP_CONTRIBUTION_Z,VMR_TESTED	LOCAL_SNP_CONTRIBUTION_Z	TRUE	""	FALSE	FALSE

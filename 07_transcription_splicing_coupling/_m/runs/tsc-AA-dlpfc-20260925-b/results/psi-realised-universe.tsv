@@ -1,0 +1,2 @@
+modality	cohort	region	run_id	n_donors	residual_df	n_pairs_declared	n_pairs_tested	n_features_declared	n_features_after_filtering	n_features_tested	n_vmrs_tested	max_na_fraction	feature_namespace	n_sig_pairs	n_vmrs_coupled	fdr_method	fdr_threshold
+psi	AA	dlpfc	tsc-AA-dlpfc-20260925-b	118	103	1887575	184776	555104	55226	55060	8398	0	psi_event_key_v1	112	87	BH	0.05

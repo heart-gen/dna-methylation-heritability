@@ -1,0 +1,2 @@
+cohort	region	vmr_set_id	n_vmr_cpgs	n_vmrs	array_manifest	note
+all_individuals	caudate	vmrset-all_individuals-caudate-cb5519d7d2ad	198055	11463		Array manifest not found at /gpfs/projects/b1213/users/kynon/projects/dna-methylation-heritability/inputs/supportfiles/_m/array_cpg_manifest_hg38.bed.gz; off-array coverage not computed. Generate the manifest before the figure freeze -- AGENTS.md 11 Figure 1 needs this panel.

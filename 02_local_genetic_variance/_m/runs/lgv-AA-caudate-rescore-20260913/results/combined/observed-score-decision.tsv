@@ -1,0 +1,2 @@
+run_id	cohort	region	vmr_set_id	decision	relative_score_authorized	absolute_pve_authorized	expected_vmrs	feature_complete_vmrs	eligible_vmrs	eligible_rate	score_basis	max_tie_fraction	boundary_rate
+lgv-AA-caudate-rescore-20260913	AA	caudate	vmrset-AA-caudate-937a41979978	PASS_RELATIVE_SCORE_OBSERVED_QC	TRUE	FALSE	11530	11343	11251	0.991889270915983	pve_cis_joint_unbounded	8.88809883565905e-05	0.624744467158475

@@ -1,0 +1,2 @@
+modality	cohort	region	run_id	n_donors	residual_df	n_pairs_declared	n_pairs_tested	n_features_declared	n_features_after_filtering	n_features_tested	n_vmrs_tested	max_na_fraction	feature_namespace	n_sig_pairs	n_vmrs_coupled	fdr_method	fdr_threshold
+psi	AA	hippocampus	tsc-AA-hippocampus-20260925-b	117	102	1862381	245823	541939	74382	74111	8412	0	psi_event_key_v1	180	134	BH	0.05

@@ -1,0 +1,2 @@
+region	population	vmr_set_id	n_member_cpgs	n_tested_cpgs	n_excluded_cpgs	n_off_policy_chromosome_cpgs	n_vmrs_with_zero_tested	n_donors
+dlpfc	AA	vmrset-AA-dlpfc-856067dfe289	141086	136923	4163	0	211	118

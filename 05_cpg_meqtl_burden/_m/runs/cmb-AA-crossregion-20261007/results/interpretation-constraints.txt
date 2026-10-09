@@ -1,0 +1,17 @@
+Interpretation constraints carried by this run:
+  - Variance = paired delete-d donor jackknife + joint chromosome
+    jackknife. T28 validated a donor-bootstrap + chromosome-jackknife sum
+    for a debiased squared-effect outcome, NOT this construction for this
+    significant-CpG count; its calibration here is unsimulated.
+  - Each draw maps 96 of 120 union donors, with less power than the
+    full sample, so draw slopes are shifted (subsample_mean_*). The draws
+    are used for their variance only, never for a percentile interval.
+  - A donor bootstrap was abandoned: duplicated donors made the
+    permutation null too narrow and every CpG significant in every draw.
+  - Draw mapping used 1000 permutations (the accepted cells used
+    tensorqtl's default 10,000); see config/meqtl_parameters.yml.
+  - Predictor, VMR covariates and the M3a covariate values are held fixed:
+    the variance is conditional on the locked design.
+  - DLPFC and hippocampus share sequencing batches 1-2, so this contrast is
+    the identified one (AGENTS.md 7.7 tier 2). No heterogeneity claim is
+    made here; Module 08 tier 2 decides.

@@ -1,0 +1,4 @@
+contrast	primary_p_dlpfc	primary_p_hippocampus	primary_sign	high_mappability_fitted	sign_kept_high_mappability	reading
+young_minus_old	0.399429194074061	0.35570999995952		FALSE	FALSE	not_consistent
+full_length_minus_fragment	0.927495438586262	0.485263555320182		FALSE	FALSE	not_consistent
+young_full_length_minus_young_fragment	0.752141679746717	0.794943719337082		FALSE	FALSE	not_consistent

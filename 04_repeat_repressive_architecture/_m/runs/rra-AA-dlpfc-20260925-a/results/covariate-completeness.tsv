@@ -1,0 +1,15 @@
+covariate	n_missing	frac_missing
+vmr_length	0	0
+cpg_count	0	0
+cpg_density	0	0
+gc_content	0	0
+tested_snp_count	0	0
+snp_proximal_frac	0	0
+mappability	37	0.00399956761431197
+segdup_frac	0	0
+problematic_frac	0	0
+mean_methylation	0	0
+methylation_variance	0	0
+wgbs_coverage	0	0
+broad_genomic_annotation	0	0
+cell_composition_r2	0	0

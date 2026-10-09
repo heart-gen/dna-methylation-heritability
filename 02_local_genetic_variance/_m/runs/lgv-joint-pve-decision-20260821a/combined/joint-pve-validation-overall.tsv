@@ -1,0 +1,15 @@
+metric	value
+absolute_mean_bias	0.0869271370947292
+rmse	0.212743256920428
+calibration_interval_coverage	0.954475308641975
+null_type1_error	0.0537037037037037
+spearman_truth_estimate	0.796001812008295
+null_mean_estimated_h2	0.0766752048262248
+low_h2_absolute_mean_bias	0.0346966843268824
+low_h2_rmse	0.0906777713631972
+max_absolute_low_h2_level_bias	0.0766752048262248
+minimum_low_h2_adjacent_mean_difference	0.00385008054561729
+max_absolute_h2_level_bias	0.204887552645639
+complete_feature_rate	1
+computational_failure_rate	0
+reconciliation_rate	1

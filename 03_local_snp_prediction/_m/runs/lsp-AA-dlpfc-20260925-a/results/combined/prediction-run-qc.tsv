@@ -1,0 +1,2 @@
+region	population	cohort	catalog_cohort	expected_vmrs	scored_vmrs	failed_vmrs	median_r2_pred_oof	mean_r2_pred_oof	frac_r2_positive	median_cor2_oof	median_calibration_slope	mean_screening_pass	donor_prediction_counts_equal	complete
+dlpfc	AA	AA	AA	9572	9347	0	-1.04140210943626e-06	0.17462524937691	0.443992724938483	0.109786971663694	1.06824971600936	0.436862910786204	TRUE	TRUE

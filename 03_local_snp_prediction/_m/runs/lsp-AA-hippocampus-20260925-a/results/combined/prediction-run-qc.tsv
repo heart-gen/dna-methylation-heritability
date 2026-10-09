@@ -1,0 +1,2 @@
+region	population	cohort	catalog_cohort	expected_vmrs	scored_vmrs	failed_vmrs	median_r2_pred_oof	mean_r2_pred_oof	frac_r2_positive	median_cor2_oof	median_calibration_slope	mean_screening_pass	donor_prediction_counts_equal	complete
+hippocampus	AA	AA	AA	9497	9272	0	-5.88518830668683e-07	0.1884140314367	0.463761863675582	0.162408093684498	1.104882359619	0.45697772173182	TRUE	TRUE

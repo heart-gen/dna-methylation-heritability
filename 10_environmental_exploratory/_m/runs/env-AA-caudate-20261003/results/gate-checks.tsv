@@ -1,0 +1,7 @@
+check	observed	required	comparison	pass
+eligible_exposures	9	1	>=	TRUE
+tested_vmrs	11251	500	>=	TRUE
+axis_models_fitted	9	1	>=	TRUE
+no_forbidden_columns	0	0	==	TRUE
+fdr_families_match_eligible	9	9	==	TRUE
+eligible_axis_arms_fitted	3	3	==	TRUE

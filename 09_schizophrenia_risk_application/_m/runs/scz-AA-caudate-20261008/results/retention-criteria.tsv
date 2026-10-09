@@ -1,0 +1,6 @@
+criterion	status
+loci_with_cpg_meqtl_support	PASS
+enrichment_along_local_control_axis	PASS_INTERPRETABLE_CONTRAST_DEPLETION
+loci_with_transcriptional_coupling	PASS
+caudate_not_sample_size_artifact	FAIL_SAMPLE_SIZE_ARTIFACT
+loci_with_external_genetic_support	PASS

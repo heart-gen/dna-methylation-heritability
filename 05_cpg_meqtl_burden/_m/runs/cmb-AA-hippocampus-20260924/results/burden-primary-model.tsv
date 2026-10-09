@@ -1,0 +1,6 @@
+model	term	estimate	se	z	p	n_vmrs	dispersion	genomic_inflation_lambda	region	population	vmr_set_id
+quasibinomial_continuous_local_snp_contribution_score	(Intercept)	1.00409231211089	0.414625459841868	2.42168513359945	0.0154487296781595	9053	8.70210128801538	1.13517756460794	hippocampus	AA	vmrset-AA-hippocampus-2d907b892215
+quasibinomial_continuous_local_snp_contribution_score	local_snp_contribution_score_z	2.36667981537895	0.0555228801598914	42.6253070547408	0	9053	8.70210128801538	1.13517756460794	hippocampus	AA	vmrset-AA-hippocampus-2d907b892215
+quasibinomial_continuous_local_snp_contribution_score	log(vmr_length)	-0.0499570285889405	0.0565681650304889	-0.883129734931563	0.377166180101622	9053	8.70210128801538	1.13517756460794	hippocampus	AA	vmrset-AA-hippocampus-2d907b892215
+quasibinomial_continuous_local_snp_contribution_score	cpg_density	3.38193494747061	1.42480070232856	2.37361965216854	0.0176146848450817	9053	8.70210128801538	1.13517756460794	hippocampus	AA	vmrset-AA-hippocampus-2d907b892215
+quasibinomial_continuous_local_snp_contribution_score	mean_methylation	0.134573065921515	0.290065614026905	0.463940086014582	0.642690671923334	9053	8.70210128801538	1.13517756460794	hippocampus	AA	vmrset-AA-hippocampus-2d907b892215

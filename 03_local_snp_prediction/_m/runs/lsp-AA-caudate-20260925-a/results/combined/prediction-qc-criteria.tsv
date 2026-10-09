@@ -1,0 +1,9 @@
+criterion	passed	detail	run_id	region	population	cohort	decision
+reconciliation_complete	TRUE	unaccounted=0 unexpected=0	lsp-AA-caudate-20260925-a	caudate	AA	AA	PASS_OOF_PREDICTION_QC
+zero_computational_failures	TRUE	failed=0 qc_failed=187	lsp-AA-caudate-20260925-a	caudate	AA	AA	PASS_OOF_PREDICTION_QC
+no_banned_legacy_columns	TRUE	none	lsp-AA-caudate-20260925-a	caudate	AA	AA	PASS_OOF_PREDICTION_QC
+leakage_tripwire_not_tripped	TRUE	median_r2_pred_oof=-0.0000 threshold=0.50	lsp-AA-caudate-20260925-a	caudate	AA	AA	PASS_OOF_PREDICTION_QC
+finite_nondegenerate_r2	TRUE	n_finite=11343 sd=0.3208	lsp-AA-caudate-20260925-a	caudate	AA	AA	PASS_OOF_PREDICTION_QC
+negative_r2_retained	TRUE	n_negative=6200 n_exactly_zero=0	lsp-AA-caudate-20260925-a	caudate	AA	AA	PASS_OOF_PREDICTION_QC
+donor_prediction_counts_equal	TRUE	distinct_counts=1	lsp-AA-caudate-20260925-a	caudate	AA	AA	PASS_OOF_PREDICTION_QC
+screen_frequency_recorded	TRUE	mean_screening_pass=0.4486	lsp-AA-caudate-20260925-a	caudate	AA	AA	PASS_OOF_PREDICTION_QC

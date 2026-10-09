@@ -1,0 +1,6 @@
+model	term	estimate	se	z	p	n_vmrs	dispersion	genomic_inflation_lambda	region	population	vmr_set_id
+quasibinomial_continuous_local_snp_contribution_score	(Intercept)	-0.628173164751807	0.386225334819752	-1.62644215207936	0.103855629951006	9134	8.73855687132191	1.14164646923727	dlpfc	AA	vmrset-AA-dlpfc-856067dfe289
+quasibinomial_continuous_local_snp_contribution_score	local_snp_contribution_score_z	2.09361273578233	0.0508592876236328	41.1648065398677	0	9134	8.73855687132191	1.14164646923727	dlpfc	AA	vmrset-AA-dlpfc-856067dfe289
+quasibinomial_continuous_local_snp_contribution_score	log(vmr_length)	0.06217613963161	0.0573309519602717	1.08451259757026	0.278137584486249	9134	8.73855687132191	1.14164646923727	dlpfc	AA	vmrset-AA-dlpfc-856067dfe289
+quasibinomial_continuous_local_snp_contribution_score	cpg_density	7.23848067806947	1.52781288252245	4.73780576199789	2.16044737524549e-06	9134	8.73855687132191	1.14164646923727	dlpfc	AA	vmrset-AA-dlpfc-856067dfe289
+quasibinomial_continuous_local_snp_contribution_score	mean_methylation	1.27804078617934	0.326732869888818	3.91157702196978	9.16954031541389e-05	9134	8.73855687132191	1.14164646923727	dlpfc	AA	vmrset-AA-dlpfc-856067dfe289

@@ -1,0 +1,10 @@
+analysis	region_a	region_b	n_shared	spearman_estimate	direction_agreement	tier
+repeat_architecture	caudate	dlpfc	300	0.912568361870687	0.996666666666667	cross_region_replication
+repeat_architecture	caudate	hippocampus	300	0.922179135323726	0.996666666666667	cross_region_replication
+repeat_architecture	dlpfc	hippocampus	300	0.940257558417316	1	cross_region_replication
+meqtl_burden	caudate	dlpfc	5	0.9	1	cross_region_replication
+meqtl_burden	caudate	hippocampus	5	0.6	0.6	cross_region_replication
+meqtl_burden	dlpfc	hippocampus	5	0.7	0.6	cross_region_replication
+expression_coupling	caudate	dlpfc	9	0.0666666666666667	1	cross_region_replication
+expression_coupling	caudate	hippocampus	9	0.316666666666667	1	cross_region_replication
+expression_coupling	dlpfc	hippocampus	9	0.433333333333333	1	cross_region_replication

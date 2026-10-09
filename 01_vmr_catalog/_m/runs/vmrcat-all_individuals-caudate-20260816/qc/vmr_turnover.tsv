@@ -1,0 +1,2 @@
+cohort	region	vmr_set_id	chromosomes_compared	n_v2	n_legacy_autosomal	n_legacy_sex_chrom_dropped	n_v2_overlapping_legacy	n_v2_novel	n_legacy_lost	jaccard_bp	frac_v2_novel	legacy_path	legacy_status
+all_individuals	caudate	vmrset-all_individuals-caudate-cb5519d7d2ad	chr1,chr10,chr11,chr12,chr13,chr14,chr15,chr16,chr17,chr18,chr19,chr2,chr20,chr21,chr22,chr3,chr4,chr5,chr6,chr7,chr8,chr9	11463	11483	432	8703	2760	2798	0.591405879304504	0.240774666317718	vmr-analysis/all_individuals/caudate/_m/vmr.bed	legacy_invalid_for_prediction_accuracy

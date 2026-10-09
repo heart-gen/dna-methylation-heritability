@@ -1,0 +1,15 @@
+Interpretation constraints carried by this run:
+  - NON-GATING and outside the BH family. No gate, claim, q-value or decision
+    token of the accepted cells changes.
+  - Overlap is overlap. Young or full-length L1 overlap does not show activity,
+    expression or retrotransposition, and full-length is not retrotransposition
+    competence (no ORF integrity check).
+  - Young L1 sequence is the least mappable in the genome. A young-L1 estimate
+    that loses its sign under high_mappability is not evidence.
+  - Full-length is conservative: elements split by an insertion are counted as
+    fragments (config/l1_subfamilies.yml:completeness).
+  - Caudate is fitted and shown but set aside from any claim, as caudate
+    line_l1_frac is (batch 3; AGENTS.md 8.1).
+  - Contrasts are differences of slopes on the same VMRs, tested with the JOINT
+    chromosome jackknife. 'consistent' in l1-subfamily-reading.tsv is a
+    descriptive reading rule fixed in config before fitting, not a gate.

@@ -1,0 +1,2 @@
+model	n_high	n_low	median_prop_sig_high	median_prop_sig_low	p	note
+top_bottom_quartiles_SECONDARY	2284	2265	1	0	0	secondary relative contrast only; quartile boundaries are not biological or absolute-PVE cutoffs

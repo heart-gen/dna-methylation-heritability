@@ -1,0 +1,2 @@
+modality	cohort	region	run_id	n_donors	residual_df	n_pairs_declared	n_pairs_tested	n_features_declared	n_features_after_filtering	n_features_tested	n_vmrs_tested	max_na_fraction	feature_namespace	n_sig_pairs	n_vmrs_coupled	fdr_method	fdr_threshold
+expression_abc	AA	dlpfc	tsc-AA-dlpfc-20260925-b	118	103	635	482	573	443	443	256	0	gene_id_v1	15	15	BH	0.05

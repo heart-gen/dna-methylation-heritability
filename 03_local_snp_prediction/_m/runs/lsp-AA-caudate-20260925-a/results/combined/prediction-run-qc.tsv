@@ -1,0 +1,2 @@
+region	population	cohort	catalog_cohort	expected_vmrs	scored_vmrs	failed_vmrs	median_r2_pred_oof	mean_r2_pred_oof	frac_r2_positive	median_cor2_oof	median_calibration_slope	mean_screening_pass	donor_prediction_counts_equal	complete
+caudate	AA	AA	AA	11530	11343	0	-4.03464229803419e-07	0.203944962080725	0.453407387816274	0.142082548704094	1.08574174481704	0.448578634486502	TRUE	TRUE

@@ -1,0 +1,95 @@
+08_region_donor_generalization -- rdg-AA-crossregion-20261008
+
+Every result in this run carries exactly one tier. The tier is the only
+interpretation the result supports. results/tiers.tsv is the table.
+
+TIER 1, cross-region replication -- the primary deliverable. Read it as
+robustness of the genetic-control architecture across technical AND
+regional contexts. Brain region is perfectly confounded with sequencing
+batch (AGENTS.md 8.1), so a successful replication is more compelling for
+crossing that boundary. Do NOT write that the confounding strengthens a
+result: it does nothing for the interpretability of a difference.
+
+TIER 2, DLPFC vs hippocampus -- the only identified region difference.
+Both regions sit inside batches 1-2, so this contrast does not cross the
+batch boundary. Differences are claimed only under strict conjunction.
+
+TIER 3, caudate at n=118 -- licenses whether donor count explains the
+caudate excess, and NOTHING more. A surviving residual is not biological.
+Caudate remains batch-confounded whatever the downsampling shows, so
+'not donor count' never becomes 'therefore region'.
+
+  TIER 3 PRIMARY ENDPOINT (PI 2026-09-18). The primary result is the
+  WITHIN-CAUDATE change on the identical shared caudate locus set: full
+  n=153 against each n=118 replicate, paired on locus. Both terms are the
+  same region and the same loci, so no cross-region reference enters it.
+
+  THE THREE LOCKED CRITERIA (PI 2026-09-18). (i) and (ii) are the primary
+  and are evaluated on the shared caudate loci alone; (iii) is separate.
+    (i)   all three replicates attenuate in the same direction;
+    (ii)  mean relative attenuation A >= 0.10, where
+          A = mean_r (R2_full - R2_n118,r) / R2_full;
+    (iii) gap_closed >= 0.50 -- SEPARATE, and the only criterion that
+          licenses calling donor count a plausible major contributor to the
+          caudate-DLPFC difference specifically.
+  None of these is a significance cutoff. 0.10 on the replicate spread is an
+  AGREEMENT TOLERANCE, 0.10 on A is a MAGNITUDE requirement, and 0.50 is an
+  INTERPRETIVE threshold. An effect-size criterion was chosen over a paired
+  test deliberately: with ~11k paired loci a trivial attenuation would be
+  'significant' and would still say nothing about whether donor count
+  matters.
+
+  UNCERTAINTY ON A IS REPORTED, NOT GATED. A delete-one-chromosome weighted
+  block jackknife gives its CI; loci within a chromosome are not
+  independent, so the block is the chromosome. Statistical significance is
+  deliberately not a further hard gate for this tier.
+
+  THE GAP RATIO IS SECONDARY AND DESCRIPTIVE.
+  fraction_of_excess_closed_by_matching_n equals
+      (mean_r2_full - mean_r2_subset) / (mean_r2_full - dlpfc_reference).
+  The numerator is the primary within-caudate attenuation and is clean.
+  The DENOMINATOR is not: caudate and DLPFC carry DIFFERENT vmr_set_ids, so
+  no cross-region locus intersection exists. The caudate means are
+  restricted to the loci shared by the full run and all replicates; the
+  DLPFC mean is over all DLPFC-scored loci, unrestricted. Selection into
+  the shared set is not random with respect to r2, so the denominator
+  carries an uncontrolled term. Use the ratio ONLY to say how much of the
+  region-level gap the primary attenuation would represent. Do not use it
+  on its own to decide whether donor count explains the excess.
+
+  ESTIMATOR RESOLUTION, NOT BIOLOGY. Module 02's boundary_rate -- the
+  fraction of eligible loci whose unbounded estimate sits at the frozen
+  model's output floor, i.e. loci with no detectable local genetic control
+  -- rises with the draw-down: 0.6247 at n=153 to 0.643-0.646 across the
+  three n=118 replicates, spread 0.0025. In caudate it is entirely the
+  LOWER boundary; there are zero upper-boundary hits in the arm or any
+  replicate. Removing 35 donors therefore pushes about 2.0% more loci below
+  the floor. ANY ATTENUATION AFTER DOWNSAMPLING PARTLY REFLECTS STATISTICAL
+  RESOLUTION RATHER THAN A BIOLOGICAL CHANGE, and must be reported that
+  way. The per-replicate numbers are on the tier-3 output rows.
+
+  This shift is reported ALONGSIDE the attenuation and is NEVER folded into
+  the 0.10 threshold: A is computed on prediction r2 alone and carries no
+  boundary-rate correction. That is what keeps overall prediction
+  attenuation distinguishable from the accompanying loss of estimator
+  resolution, rather than silently mixing the two into one number.
+
+TIER 4, caudate vs other regions -- descriptive only. Fitted, written and
+surfaced in dedicated columns; supports no claim. Retained because readers
+will ask.
+
+DONOR-GROUP AXIS -- concordance only. The reportable quantity is ORDERING
+AGREEMENT between all_individuals.AA and all_individuals.EA on the shared
+pooled-discovery locus set, read against the analytic reliability ceiling.
+No pooled rank, no pooled r2, no cross-cell score difference, and no
+ancestry attribution: the cells differ in n, MAF spectrum, LD and SNP
+availability, and AGENTS.md 7.7 requires all of those be eliminated first.
+Do NOT contrast AA against all_individuals -- those are nested.
+
+Donor-group language: AA = 'Black American', EA = 'non-Hispanic white
+American'.
+
+Gate decision: PASS_REGION_DONOR_GENERALIZATION_QC (10/10 criteria).
+This gate certifies tiering and interpretation constraints, not a positive
+finding. Sealing is not acceptance; nothing here is citable until the PI
+records this run in the module README (AGENTS.md 6).
