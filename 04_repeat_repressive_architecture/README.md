@@ -790,8 +790,9 @@ Provenance: `vmrcat-AA-{region}-20260816` -> `lgv-AA-{region}-rescore-20260913` 
 These runs read the three accepted cells above and change no claim, q-value or
 decision token. They are recorded here, under their own heading, because
 `read_accepted_runs()` allows one accepted run per cohort x region and both are
-`AA x crossregion`. Nothing downstream gates on them, and Module 11's
-analysis-to-claim matrix does not list them. Each run's manifest field
+`AA x crossregion`. Nothing downstream gates on them. Module 11's
+analysis-to-claim matrix lists them with `gating = FALSE` (since `322ad6156`),
+so they are cited but never decide a claim. Each run's manifest field
 `sensitivity` says which analysis it is.
 
 | run_id | sensitivity | upstream | sealed | accepted_on | accepted_by | notes |

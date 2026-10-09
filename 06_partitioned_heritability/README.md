@@ -6,9 +6,12 @@ stratified LD score regression. The estimand is a **within-VMR gradient**: among
 the tested VMR universe, do higher-scoring loci carry more heritability than
 lower-scoring ones?
 
-**Status: accepted (AA, 2026-09-25). The two-annotation estimand is implemented and
-the result is an interpretable null.** The three 2026-09-08 acceptances answered a
-different question and are superseded; see **Estimand** and **Accepted runs**.
+**Status: accepted (AA, 2026-10-08: `sldsc-AA-{caudate,dlpfc,hippocampus}-20261008`,
+the liftover span-guard cells, plus the non-gating external positive control
+`sldsc-AA-external-20261008`). The two-annotation estimand is implemented and the
+result is an interpretable, bounded null.** The 2026-09-25 cells (one
+liftover-inflated hippocampus interval) and the 2026-09-08 acceptances (a different
+question) are superseded; see **Estimand** and **Accepted runs**.
 Module 02's accepted runs for the AA cells are now the `lgv-AA-{region}-rescore-20260913`
 rescores, which supersede `lgv-*-20260823`.
 

@@ -290,12 +290,15 @@ methylation. The two quantities are therefore not independent measurements of
 local genetic control -- they are two summaries of one covariance structure.
 
 A large, highly significant coefficient is expected by construction and is
-**not** evidence of external validity. The production runs give
-`local_snp_contribution_score_z` beta = 2.42 / 2.45 / 2.49 (caudate / DLPFC /
-hippocampus) at z = 39.4 / 35.0 / 36.6. The defensible reading of that result
-is internal consistency: three regions, mapped independently of one another,
-agree on the effect size to within 3%. The magnitude of z is a property of the
-design, not a finding, and must not be reported as one.
+**not** evidence of external validity. The accepted runs (`cmb-AA-*-20260924`)
+give `local_snp_contribution_score_z` beta = 2.084 / 2.094 / 2.367 (caudate /
+DLPFC / hippocampus) at z = 42.70 / 41.16 / 42.63. The defensible reading of
+that result is internal consistency: three regions, mapped independently of one
+another, agree in direction. Caudate and DLPFC agree to within 0.5%; hippocampus
+is about 13% higher. The donor-robust DLPFC-hippocampus contrast
+(`cmb-AA-crossregion-20261007`, delta -0.273, SE 0.204, p 0.18) does not
+distinguish the two, so no regional difference is claimed. The magnitude of z is
+a property of the design, not a finding, and must not be reported as one.
 
 What this module therefore does and does not license:
 

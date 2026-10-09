@@ -4,8 +4,10 @@ Establishes what **reproduces** across brain regions, which regional difference
 is actually **identified**, and what the donor-group and matched-subset
 contrasts can support.
 
-**Status: accepted (AA, 2026-09-18), and its upstreams have since moved — see
-"The accepted run now rests on superseded upstreams" below.**
+**Status: accepted (AA, 2026-10-08: `rdg-AA-crossregion-20261008`, gate 10/10,
+0 primary claim-family tier-2 differences once the meQTL-slope contrast reads the
+donor-robust SE).** The history below records the 2026-09-18 acceptance and the
+reruns that superseded it; the current run is the one in **Accepted runs**.
 `rdg-AA-crossregion-20260918` passed the gate and is recorded under **Accepted
 runs**; criterion 10 was added the next day and it passes retrospectively. The
 blocking upstreams were satisfied when it opened —
@@ -295,7 +297,7 @@ exposed the four defects; see the section above. Nothing in it is citable.
 
 | stage | tier | writes |
 |---|---|---|
-| `00_new_run.R` | — | `results/tiers.tsv`; gates all 30 region-axis + 18 cell + 9 tier-3 upstreams, plus each tier-2 donor-robust SE source, and pins their run IDs |
+| `00_new_run.R` | — | `results/tiers.tsv`; gates all 18 region-axis (Modules 01, 02, 03, 04, 05, 07 x 3 regions) + 18 cell + 9 tier-3 upstreams, plus each tier-2 donor-robust SE source, and pins their run IDs |
 | `01_cross_region_replication.R` | 1 | `cross-region-{tests,replication,rank-agreement,summary}.tsv` |
 | `02_identified_difference.R` | 2 and 4 | `identified-difference{,-summary}.tsv`, `descriptive-confounded-regions.tsv` |
 | `03_donor_group_concordance.R` | donor group | `donor-group-concordance.tsv` |

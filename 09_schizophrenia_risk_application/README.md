@@ -199,10 +199,11 @@ resolved.**
   (OR 0.833) is `pooled_is_descriptive_only = TRUE` with an anticonservative SE:
   100 of 168 donors appear in all three regions.
 - stage 16: the axis contrast survives n-matching in all three caudate n=118
-  replicates, direction preserved 3/3, all FDR-significant; abs(log-odds) changes
-  by **+5.8%** on average (range +1.9% to +8.2%) -- the matched replicates are
-  slightly stronger, not weaker -- against tier 3's 14.3% attenuation of the
-  prediction magnitude, which is a different quantity.
+  replicates, direction preserved 3/3, all FDR-significant; abs(log-odds)
+  attenuates by **5.8%** on average (range 1.9% to 8.2%; -0.2257 full against
+  -0.207 / -0.221 / -0.209 matched) -- the matched replicates are slightly
+  weaker, not stronger -- against tier 3's 14.3% attenuation of the prediction
+  magnitude, which is a different quantity.
 - stages 17 and 18 regenerated (job 8189349). Stage 17 is identical to the digit.
   Stage 18 moved on Module 04's reacceptance; see "### Locus architecture".
 
