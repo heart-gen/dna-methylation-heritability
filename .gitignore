@@ -196,3 +196,7 @@ settings.local.json
 /simulation-analysis.bak/
 /qc_analysis/
 /sample_summary/
+
+# Local-only archive: planning notes and project-management ledgers that were
+# untracked for the public release. Nothing in the pipeline reads them.
+/_archive/
