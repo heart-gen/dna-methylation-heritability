@@ -805,9 +805,9 @@ if (cohort == ccfg$cohort && file.exists(cgs_f("existence"))) {
 ## The direction is a DEPLETION: SCZ-linked VMRs sit LOWER on the axis in all
 ## three regions. It is never rendered as an enrichment (AGENTS.md 7.8).
 SCZR <- vapply(regions, function(r)
-    require_accepted_upstream("09_schizophrenia_risk_application", cohort, r)$run_id,
+    require_accepted_upstream("09_schizophrenia_gwas_loci", cohort, r)$run_id,
     character(1))
-scz_dir <- function(r) file.path(V2_ROOT, "09_schizophrenia_risk_application",
+scz_dir <- function(r) file.path(V2_ROOT, "09_schizophrenia_gwas_loci",
                                  "_m", "runs", SCZR[[r]], "results")
 
 axt <- by_region(function(r) fread(file.path(scz_dir(r), "architecture-axis-tests.tsv")))

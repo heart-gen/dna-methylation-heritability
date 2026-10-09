@@ -272,7 +272,7 @@ add("- Donor-group ordering agreement (concordance only): Spearman ",
 add("")
 add("## 6. GWAS loci and the local genetic-control axis")
 add("")
-add("Module 09 decision: `", decision_of("09_schizophrenia_risk_application"), "`.")
+add("Module 09 decision: `", decision_of("09_schizophrenia_gwas_loci"), "`.")
 f5b <- src("figure5_gwas_architecture_axis", "panel_b")
 f5c <- src("figure5_gwas_architecture_axis", "panel_c")
 add("- VMRs near trait-associated GWAS loci sit lower on the axis, and ",

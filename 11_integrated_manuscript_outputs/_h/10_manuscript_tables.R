@@ -96,7 +96,7 @@ MODULES <- c("01_vmr_catalog", "01b_estimation_cells", "02_local_genetic_varianc
              "03_local_snp_prediction", "04_repeat_repressive_architecture",
              "05_cpg_meqtl_burden", "06_partitioned_heritability",
              "07_transcription_splicing_coupling", "08_region_donor_generalization",
-             "09_schizophrenia_risk_application", "09b_aging_application",
+             "09_schizophrenia_gwas_loci", "09b_aging_application",
              "10_environmental_exploratory")
 
 claims <- rbindlist(lapply(MODULES, function(m) {
@@ -142,7 +142,7 @@ FIGURE_PLACEMENT <- c(
     "06_partitioned_heritability" = "supplementary_figure",
     "07_transcription_splicing_coupling" = "main",
     "08_region_donor_generalization" = "main",
-    "09_schizophrenia_risk_application" = "main",
+    "09_schizophrenia_gwas_loci" = "main",
     "09b_aging_application" = config_get(load_config("aging"),
                                          "interpretation.manuscript_placement.placement"),
     "10_environmental_exploratory" = "supplementary_figure")

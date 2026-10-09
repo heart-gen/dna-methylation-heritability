@@ -149,16 +149,16 @@ data_dictionary:
 
 config_dir: config
 
-# Schizophrenia-risk application (prespecified; not methylation-defined).
-# The v2 module is 09_schizophrenia_risk_application; the legacy Phase 7 tree is
+# Schizophrenia GWAS loci (prespecified; not methylation-defined).
+# The v2 module is 09_schizophrenia_gwas_loci; the legacy Phase 7 tree is
 # retired 2026-10-06 and survives at legacy_recovery_tag (MIGRATION_MANIFEST.tsv). The legacy index-SNP TSV
 # is a generated legacy artifact, so v2 reads the published .xls directly
-# (09_schizophrenia_risk_application/_h/01_define_scz_loci.R, via readxl).
+# (09_schizophrenia_gwas_loci/_h/01_define_scz_loci.R, via readxl).
 schizophrenia_gwas:
   pgc3_loci_hg38: /projects/b1213/resources/gwas/pgc3/fine_mapped_loci/to_hg38/_m/gwas_loci_hg38.tsv
   pgc3_index_snp_xls: /projects/b1213/resources/gwas/pgc3/fine_mapped_loci/_m/primaryGWAS_indexSNP.xls
   pgc3_sumstats_hg19: /projects/b1213/resources/gwas/PGC/SCZ/PGC3/PGC3_SCZ_wave3.european.autosome.public.v3.vcf.tsv.gz
-  module_root: 09_schizophrenia_risk_application
+  module_root: 09_schizophrenia_gwas_loci
 
 support_files:
   repeat_masker: inputs/supportfiles/_m/repeat-masker-hg38.gz

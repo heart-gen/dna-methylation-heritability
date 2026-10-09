@@ -567,7 +567,7 @@ scz_meqtl_stability_extension:
   status: planned_not_commissioned
   # Precondition. Met 2026-09-19, when the three Module 09 runs were
   # accepted; commissioning remains a PI decision.
-  requires_accepted_upstream: 09_schizophrenia_risk_application
+  requires_accepted_upstream: 09_schizophrenia_gwas_loci
   upstream_precondition_met_on: 2026-09-19
   # What it protects. Module 09's main-text claim is decision 2, the
   # region-general association (config/schizophrenia.yml:independent_decisions),

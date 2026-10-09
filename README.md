@@ -57,7 +57,7 @@ its own README; that table, not this one, is the record of what may be cited.
 | `06_partitioned_heritability/` | S-LDSC on the continuous score, conditional on VMR membership |
 | `07_transcription_splicing_coupling/` | Expression and splicing coupling |
 | `08_region_donor_generalization/` | Tiered cross-region and donor-group generalization |
-| `09_schizophrenia_risk_application/` | Schizophrenia-risk application and the GWAS negative-control collection |
+| `09_schizophrenia_gwas_loci/` | Schizophrenia GWAS loci on the local-genetic-control axis, and the GWAS negative-control collection |
 | `09b_aging_application/` | Age-associated methylation differences along the axis |
 | `10_environmental_exploratory/` | Exploratory exposure associations (supplement only) |
 | `11_integrated_manuscript_outputs/` | Figures, tables, number registry, Methods/Results summaries |

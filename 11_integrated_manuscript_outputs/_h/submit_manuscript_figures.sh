@@ -59,7 +59,7 @@ need <- list(
     "05_cpg_meqtl_burden"                = "AA",
     "06_partitioned_heritability"        = "AA",
     "07_transcription_splicing_coupling" = "AA",
-    "09_schizophrenia_risk_application"  = "AA",
+    "09_schizophrenia_gwas_loci"  = "AA",
     "09b_aging_application"              = "AA",
     "10_environmental_exploratory"       = "AA")
 
@@ -119,7 +119,7 @@ if (!file.exists(file.path(repo_root(), "02c_cis_greml_sensitivity", "_m", "comb
 
 ## Figure 5 reads the module-level stage 17/18 tables. They carry -UNACCEPTED
 ## until both stages are re-run without --allow-unlocked.
-sfx <- file.path(repo_root(), "09_schizophrenia_risk_application", "_m", "combined")
+sfx <- file.path(repo_root(), "09_schizophrenia_gwas_loci", "_m", "combined")
 for (f in c("scz-negative-control-summary-AA.tsv",
             "scz-locus-architecture-axis-link-AA.tsv")) {
     if (!file.exists(file.path(sfx, f))) {

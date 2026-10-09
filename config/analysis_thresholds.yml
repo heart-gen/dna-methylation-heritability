@@ -83,7 +83,7 @@ phase7_scz:
   v1_analyses: [1, 2, 3, 4, 6_light]
   # Colocalization left `deferred` while no ancestry-matched QTL resource was
   # wired up. PI decision 2026-09-09: it is authorised and implemented in
-  # 09_schizophrenia_risk_application under its own gate, using PGC3 European
+  # 09_schizophrenia_gwas_loci under its own gate, using PGC3 European
   # summary statistics against GTEx v11 European brain eQTL/sQTL. The
   # cross-ancestry EUR-GWAS x AA-meQTL arm stays exploratory and gate-ineligible.
   # See config/schizophrenia.yml:colocalization.

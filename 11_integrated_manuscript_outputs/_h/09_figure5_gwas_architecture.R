@@ -73,16 +73,16 @@ SCRIPT <- "11_integrated_manuscript_outputs/_h/09_figure5_gwas_architecture.R"
 ## and write _m/combined/. Resolving the per-region runs through the gate is
 ## still what certifies the tables were built on accepted input.
 SCZ <- vapply(regions, function(r)
-    require_accepted_upstream("09_schizophrenia_risk_application", cohort, r)$run_id,
+    require_accepted_upstream("09_schizophrenia_gwas_loci", cohort, r)$run_id,
     character(1))
-comb <- file.path(V2_ROOT, "09_schizophrenia_risk_application", "_m", "combined")
+comb <- file.path(V2_ROOT, "09_schizophrenia_gwas_loci", "_m", "combined")
 
 need <- function(f) {
     p <- file.path(comb, f)
     if (!file.exists(p)) {
         stop("Missing ", f, ". Stages 17/18 must be re-run WITHOUT ",
              "--allow-unlocked so their output is citable: ",
-             "sbatch 09_schizophrenia_risk_application/_h/step_9_negative_controls.sh")
+             "sbatch 09_schizophrenia_gwas_loci/_h/step_9_negative_controls.sh")
     }
     fread(p)
 }
