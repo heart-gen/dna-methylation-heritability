@@ -2,7 +2,11 @@
 
 Consumes only accepted immutable upstream runs and produces every manuscript number, table, and figure.
 
-**Status (2026-10-08): accepted as `fig-all-20261008`.** The run cites 51
+**Status (2026-10-09): accepted as `fig-all-20261009-b`** (close-out rebuild; see
+the Accepted runs row). The paragraph below describes `fig-all-20261008`, which it
+replaces.
+
+**Previously (2026-10-08): accepted as `fig-all-20261008`.** The run cites 51
 upstream runs: every module 01-10 at its current accepted run, including 02b
 and 02c, Module 01's QC refresh, and Module 06's accepted non-gating positive
 control. It replaces `fig-all-20261006-b`. That run predated three
@@ -86,7 +90,7 @@ three are properties of Module 11 rather than oversights:
 
 | run_id | cohort | region | vmr_set_id | accepted_on | accepted_by | decision | notes |
 |---|---|---|---|---|---|---|---|
-| fig-all-20261008 | all | crossregion | see `tables/exclusions-and-denominators.tsv` (6 cells: arm × region) | 2026-10-08 | Kynon J. M. Benjamin | ACCEPTED_MANUSCRIPT_OUTPUTS | Built at `47f75d034` with `git_dirty = false` and a `code/` snapshot (39 files). 25 figures × PDF/SVG/PNG, 83 panel source tables, 13 tables; 212 files, 210 checksummed and verified, 0 writable (the 2 exclusions are the run's own `manifest.tsv` and `output_checksums.tsv`). 51 upstream runs cited: 44 accepted gating runs (every module 01-10 including 02b and 02c), 1 accepted non-gating run (`sldsc-AA-external-20261008`), 6 Module 01 QC-refresh (`vmrcatqc-*-20260826-a`), 0 unaccepted. Every PDF has panel source data, embedded fonts and a ToUnicode map; every figure ≤ 9.2 in tall. `manuscript-number-registry.tsv` (83 rows) **is** Supplementary Data 14; `analysis-to-claim-matrix.tsv` has 76, including 4 non-gating runs marked `gating = FALSE`. Against `fig-all-20261006-b`: the region/donor figure reads `rdg-AA-crossregion-20261008` (tier 2 now 0 claimed differences; ceilings from the current EA runs), the S-LDSC supplement reads the span-guard cells and gains panel b, the accepted positive control. Every other panel's plotted data is unchanged. **No gate script exists for this module**, so this decision certifies completeness, provenance and the claim constraints asserted at build time — not a computed pass. Supersedes `fig-all-20261006-b`. |
+| fig-all-20261009-b | all | crossregion | see `tables/exclusions-and-denominators.tsv` (6 cells: arm × region) | 2026-10-09 | closeout-20261008 (seal clean; PI review pending) | ACCEPTED_MANUSCRIPT_OUTPUTS | Built at `4e4f21811` with `git_dirty = false` and a `code/` snapshot (39 files); 25 figures, 83 source tables, 52 upstream runs. Replaces fig-all-20261008: Module 09 reads the de-duplicated `scz-AA-*-20261008` (supplement panel b 90/64/63, 145/100/78, 174/174/173; five distinct prioritized loci per region), Figure 1 reads the F14 QC refresh `vmrcatqc-*-20261008-a` (3' UTR reachable), Figure 4b draws donor-robust intervals, the ancestry panel uses the 1000 Genomes projection (N1), and the 2026-10-07 audit's figure defects are fixed (in-panel prose moved to `tables/figure-legend-notes.tsv`). Every PNG viewed, both arms. `fig-all-20261009` (failed in Figure 2, unsealed) and `fig-all-20261009-a` (sealed; RDG key clipped) were never accepted. |
 
 ## Implemented figures
 
