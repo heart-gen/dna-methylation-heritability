@@ -2,15 +2,21 @@
 
 Consumes only accepted immutable upstream runs and produces every manuscript number, table, and figure.
 
-**Status (2026-10-06): accepted as `fig-all-20261006-b`.** The run cites 50
+**Status (2026-10-08): accepted as `fig-all-20261008`.** The run cites 51
 upstream runs: every module 01-10 at its current accepted run, including 02b
-and 02c, plus Module 01's QC refresh. It replaces `fig-all-20260922-c`, which
-predated the reacceptance of Modules 03-10, and several of whose captions stated
-readings those reruns overturned (see **The 2026-10-03 rebuild** below).
+and 02c, Module 01's QC refresh, and Module 06's accepted non-gating positive
+control. It replaces `fig-all-20261006-b`. That run predated three
+acceptances: the donor-robust tier-2 SE in Module 08, which withdrew the one
+tier-2 difference; the span-guard S-LDSC cells; and the external positive
+control, which the S-LDSC supplement now shows as panel b.
 
-Three runs were superseded on the way, all recorded in `DEPRECATED_RUNS.tsv`:
+Four runs were superseded on the way, all recorded in `DEPRECATED_RUNS.tsv`:
 
-- `fig-all-20260922-c`: the previous accepted run, now stale against its upstreams.
+- `fig-all-20261006-b`: accepted 2026-10-06, superseded 2026-10-08. Its tier-2
+  panel claimed a DLPFC-hippocampus difference in meQTL-burden slope that the
+  donor-robust SE withdrew, and its S-LDSC caption said there was no positive
+  control. Do not cite either.
+- `fig-all-20260922-c`: the accepted run before `fig-all-20261006-b`, now stale against its upstreams.
 - `fig-all-20261006`: never sealed. It stopped at Figure 2 for the
   `all_individuals` arm, which has no Module 03 run (see **Which prediction
   number panel b carries**).
@@ -80,7 +86,7 @@ three are properties of Module 11 rather than oversights:
 
 | run_id | cohort | region | vmr_set_id | accepted_on | accepted_by | decision | notes |
 |---|---|---|---|---|---|---|---|
-| fig-all-20261006-b | all | crossregion | see `tables/exclusions-and-denominators.tsv` (6 cells: arm × region) | 2026-10-06 | Kynon J. M. Benjamin | ACCEPTED_MANUSCRIPT_OUTPUTS | Built at `607a3049f` with `git_dirty = false` and a `code/` snapshot (38 files). 25 figures × PDF/SVG/PNG, 82 panel source tables, 13 tables; 210 files, 208 checksummed and verified, 0 writable (the 2 exclusions are the run's own `manifest.tsv` and `output_checksums.tsv`). 50 upstream runs cited: 44 accepted (every module 01-10 including 02b and 02c), 6 Module 01 QC-refresh (`vmrcatqc-*-20260826-a`), 0 unaccepted. Every PDF has panel source data, embedded fonts and a ToUnicode map; every figure ≤ 9.19 in tall. `manuscript-number-registry.tsv` (82 rows) **is** Supplementary Data 14; `analysis-to-claim-matrix.tsv` has 71. First run with Figure 2b on Module 03's end-to-end `r2_pred_oof`; the all_individuals arm has no Module 03 run and its panel b says so. First run with `tables/methods-summary.md` and `tables/results-summary.md` (AGENTS.md 7.11). **No gate script exists for this module**, so this decision certifies completeness, provenance and the claim constraints asserted at build time — not a computed pass. Supersedes `fig-all-20260922-c`, `fig-all-20261006` (unsealed) and `fig-all-20261006-a`, all recorded in `DEPRECATED_RUNS.tsv`. |
+| fig-all-20261008 | all | crossregion | see `tables/exclusions-and-denominators.tsv` (6 cells: arm × region) | 2026-10-08 | Kynon J. M. Benjamin | ACCEPTED_MANUSCRIPT_OUTPUTS | Built at `47f75d034` with `git_dirty = false` and a `code/` snapshot (39 files). 25 figures × PDF/SVG/PNG, 83 panel source tables, 13 tables; 212 files, 210 checksummed and verified, 0 writable (the 2 exclusions are the run's own `manifest.tsv` and `output_checksums.tsv`). 51 upstream runs cited: 44 accepted gating runs (every module 01-10 including 02b and 02c), 1 accepted non-gating run (`sldsc-AA-external-20261008`), 6 Module 01 QC-refresh (`vmrcatqc-*-20260826-a`), 0 unaccepted. Every PDF has panel source data, embedded fonts and a ToUnicode map; every figure ≤ 9.2 in tall. `manuscript-number-registry.tsv` (83 rows) **is** Supplementary Data 14; `analysis-to-claim-matrix.tsv` has 76, including 4 non-gating runs marked `gating = FALSE`. Against `fig-all-20261006-b`: the region/donor figure reads `rdg-AA-crossregion-20261008` (tier 2 now 0 claimed differences; ceilings from the current EA runs), the S-LDSC supplement reads the span-guard cells and gains panel b, the accepted positive control. Every other panel's plotted data is unchanged. **No gate script exists for this module**, so this decision certifies completeness, provenance and the claim constraints asserted at build time — not a computed pass. Supersedes `fig-all-20261006-b`. |
 
 ## Implemented figures
 

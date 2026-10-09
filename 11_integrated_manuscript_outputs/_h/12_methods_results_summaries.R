@@ -84,7 +84,7 @@ need_cfg <- function(cfg, path) {
     v
 }
 decision_of <- function(mod) {
-    d <- unique(claims$decision[claims$module == mod])
+    d <- unique(claims$decision[claims$module == mod & claims$gating %in% c(TRUE, "TRUE")])
     paste(d[!is.na(d)], collapse = " / ")
 }
 
@@ -311,10 +311,24 @@ add("- Environmental exposures (Module 10; exploratory supplement only): ",
     ". A negative gradient is not evidence that exposure effects concentrate in ",
     "weakly controlled VMRs (variance budget, AGENTS.md 7.10).")
 ss <- src("figureS_partitioned_heritability", "panel_a")
-add("- Partitioned heritability (Module 06): ", sum(ss$tau_q < 0.05, na.rm = TRUE),
-    " of ", nrow(ss), " trait x region tests reach q < 0.05 ",
+sb <- src("figureS_partitioned_heritability", "panel_b")
+sb_cg <- sb[role == "positive_control_primary" & trait == "scz"]
+sb_vm <- sb[role == "vmr_membership_standalone" & trait == "scz"]
+sb_vm[, region := as.character(region)]
+add("- Partitioned heritability (Module 06): ",
+    sum(ss[trait_class == "brain"]$tau_q < 0.05, na.rm = TRUE), " of ",
+    nrow(ss[trait_class == "brain"]), " brain-trait x region tests and ",
+    sum(ss[trait_class != "brain"]$tau_q < 0.05, na.rm = TRUE), " of ",
+    nrow(ss[trait_class != "brain"]), " non-brain control tests reach q < 0.05 ",
     key("figureS_partitioned_heritability", "a"),
-    "; write \"no detectable enrichment at this footprint\".")
+    ". Positive control (non-gating): neuronal CG-DMRs show ",
+    num(sb_cg$enrichment, 1), "-fold schizophrenia enrichment (q ",
+    pv(sb_cg$q_bh_within_annotation), ") through the same pipeline, while the ",
+    "VMR annotations' upper 95% bounds are ",
+    per_region(sb_vm, function(r) num(r$enrichment_upper95, 1)), " ",
+    key("figureS_partitioned_heritability", "b"),
+    "; write \"no detectable enrichment, and enrichment of the magnitude seen ",
+    "for neuronal CG-DMRs is excluded\".")
 if (any(registry$figure == "figureS_greml_benchmark")) {
     ga2 <- src("figureS_greml_benchmark", "panel_a")
     gsp <- src("figureS_greml_benchmark", "spearman")
@@ -400,9 +414,12 @@ madd("- Caudate is sequencing batch 3 and DLPFC/hippocampus are batches 1-2, so 
 madd("")
 madd("## Accepted upstream runs")
 for (m in unique(claims$module)) {
-    d <- claims[module == m & !is.na(run_id)]
+    d <- claims[module == m & !is.na(run_id) & gating %in% c(TRUE, "TRUE")]
     madd("- `", m, "`: ", if (nrow(d)) paste(sprintf("`%s`", d$run_id), collapse = ", ")
          else "no accepted run", if (nrow(d)) paste0(" -- `", paste(unique(d$decision), collapse = " / "), "`") else "")
+    ng <- claims[module == m & !is.na(run_id) & gating %in% c(FALSE, "FALSE")]
+    if (nrow(ng)) madd("  - non-gating: ", paste(sprintf("`%s` (%s)", ng$run_id, ng$decision),
+                                                  collapse = ", "))
 }
 
 ## ============================================================ guard + write

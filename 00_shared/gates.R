@@ -21,7 +21,13 @@
 #'
 #' A README whose table is still `_(none)_` yields zero rows, which is the
 #' correct answer -- nothing has been accepted.
-read_accepted_runs <- function(module_root, root = repo_root()) {
+#'
+#' @param heading the section whose first table is read. The default is the
+#'   gating table; read_accepted_nongating_runs() passes the headings of the
+#'   non-gating subsections, which sit under their own heading precisely so
+#'   this default never sees them.
+read_accepted_runs <- function(module_root, root = repo_root(),
+                               heading = "Accepted runs") {
     readme <- file.path(root, module_root, "README.md")
     if (!file.exists(readme)) {
         stop("No README for module '", module_root, "': ", readme)
@@ -30,9 +36,9 @@ read_accepted_runs <- function(module_root, root = repo_root()) {
 
     ## Take the table under the "Accepted runs" heading, and only that one --
     ## these READMEs contain several other markdown tables.
-    start <- grep("^#+\\s*Accepted runs", lines, ignore.case = TRUE)
+    start <- grep(paste0("^#+\\s*", heading), lines, ignore.case = TRUE)
     if (length(start) == 0) {
-        stop("README for '", module_root, "' has no 'Accepted runs' section. ",
+        stop("README for '", module_root, "' has no '", heading, "' section. ",
              "AGENTS.md 6 requires the acceptance gate be recorded there.")
     }
     tail_lines <- lines[(start[1] + 1):length(lines)]
@@ -67,6 +73,28 @@ read_accepted_runs <- function(module_root, root = repo_root()) {
         header))
     dt <- dt[!grepl("^_?\\(?none\\)?_?$", dt[[1]], ignore.case = TRUE)]
     dt[]
+}
+
+#' Read every "Accepted non-gating ..." subsection of a module README.
+#'
+#' Non-gating runs (a sensitivity split, a concordance check, a positive
+#' control) are accepted by the PI like any other run, but they are recorded
+#' under their own heading so require_accepted_upstream() never resolves one as
+#' a cell's run. A consumer that cites one reads it here instead. Returns one
+#' row per run with the subsection heading in `section`, or zero rows.
+read_accepted_nongating_runs <- function(module_root, root = repo_root()) {
+    readme <- file.path(root, module_root, "README.md")
+    if (!file.exists(readme)) {
+        stop("No README for module '", module_root, "': ", readme)
+    }
+    heads <- grep("^#+\\s*Accepted non-gating", readLines(readme, warn = FALSE),
+                  ignore.case = TRUE, value = TRUE)
+    heads <- unique(trimws(sub("^#+\\s*", "", heads)))
+    data.table::rbindlist(lapply(heads, function(h) {
+        d <- read_accepted_runs(module_root, root = root, heading = h)
+        if (nrow(d) == 0) return(NULL)
+        d[, section := h][]
+    }), fill = TRUE)
 }
 
 #' Require that an upstream module has accepted a run for this cohort x region.
