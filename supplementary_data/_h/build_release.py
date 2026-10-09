@@ -54,6 +54,9 @@ REGIONS = ("caudate", "dlpfc", "hippocampus")
 # Individual-level data, by path segment or extension. Checked first.
 INDIVIDUAL_SEGMENTS = {"cpg", "plink_format", "covs", "phenotypes", "geno_stage",
                        "tested_meth", "pca"}
+# Donor lists that pair a BrNum with its array barcode. The barcode is stripped
+# before any release (PI decision 2026-09-20), so these files stay on Quest.
+INDIVIDUAL_NAMES = {"donors_plink.txt"}
 INDIVIDUAL_EXT = (".pgen", ".pvar", ".psam", ".bim", ".fam", ".phen", ".covar",
                   ".qcovar", ".grm.bin", ".grm.N.bin", ".grm.id", ".bgen", ".vcf",
                   ".vcf.gz")
@@ -135,7 +138,8 @@ def walk(run_dir, pruned):
 
 
 def is_individual(path, segs):
-    if INDIVIDUAL_SEGMENTS & set(segs) or path.endswith(INDIVIDUAL_EXT):
+    if INDIVIDUAL_SEGMENTS & set(segs) or path.endswith(INDIVIDUAL_EXT) or \
+            os.path.basename(path) in INDIVIDUAL_NAMES:
         return True
     if path.endswith(".bed") and os.path.exists(path[:-4] + ".bim"):
         return True  # a PLINK genotype .bed, not an interval BED
@@ -214,6 +218,30 @@ def plan():
     sd = sd_files()
 
     rows = []
+    # The tracked _m/combined/ deliverables are manuscript files already in git;
+    # they are listed so the Zenodo zips mirror them too.
+    for rel in run(["git", "ls-files", "--", "*/_m/combined/*"]).stdout.split("\n"):
+        if not rel or not os.path.isfile(os.path.join(ROOT, rel)):
+            continue
+        size = os.path.getsize(os.path.join(ROOT, rel))
+        rows.append({"module": rel.split("/")[0], "run_id": "combined",
+                     "run_kind": "combined", "path": rel, "bytes": str(size),
+                     "tier": "git" if size <= GIT_MAX else "lfs",
+                     "reason": "cross-region deliverable (_m/combined)",
+                     "sd": ",".join(sorted(sd.get(rel, ()), key=int))})
+    # Supplementary Data that lives outside module runs (inputs/cell_proportions)
+    # is tracked already; list it so the Zenodo mirror carries it.
+    listed = {r["path"] for r in rows}
+    tracked_all = set(run(["git", "ls-files"]).stdout.split("\n"))
+    for rel in sorted(sd):
+        if "/_m/runs/" in rel or rel in listed or rel not in tracked_all:
+            continue
+        size = os.path.getsize(os.path.join(ROOT, rel))
+        rows.append({"module": rel.split("/")[0], "run_id": "tracked",
+                     "run_kind": "tracked", "path": rel, "bytes": str(size),
+                     "tier": "git" if size <= GIT_MAX else "lfs",
+                     "reason": "Supplementary Data " + ",".join(sorted(sd[rel], key=int)),
+                     "sd": ",".join(sorted(sd[rel], key=int))})
     for mod, rid, gating, kind in runs_:
         rd = os.path.join(ROOT, mod, "_m", "runs", rid)
         pruned = []
@@ -238,10 +266,10 @@ def plan():
 
             if is_individual(p, segs):
                 tier, why = "none", "individual-level data (dbGaP phs000979)"
-            elif manuscript:
-                tier = "git" if size <= GIT_MAX else "lfs"
             elif name.endswith(".svg"):
                 tier, why = "none", "SVG duplicate of a PDF/PNG figure"
+            elif manuscript:
+                tier = "git" if size <= GIT_MAX else "lfs"
             elif (top in ZENODO_SEGMENTS or not segs) and name.endswith(ZENODO_EXT) \
                     and size <= ZENODO_FILE_MAX:
                 tier, why = "zenodo", "reproducibility extra (no manuscript text uses it)"
