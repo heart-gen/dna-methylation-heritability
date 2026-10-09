@@ -669,25 +669,39 @@ This is not a task. No analysis in this module can remove it, and none is
 planned. It is the paragraph to carry into PI summaries and into the manuscript
 Discussion wherever the Stage B gradient is mentioned:
 
-> The axis contrast holds each VMR's total methylation variance fixed, so a VMR
-> higher on the local-genetic-control axis has, by construction, less non-genetic
-> variance left for any exposure to move. A negative gradient is therefore close
-> to arithmetically expected wherever a real exposure effect exists, and it is
-> not evidence that exposure effects are concentrated among VMRs with weaker
-> local genetic control. Separating the two readings would require expressing
-> each exposure effect relative to that VMR's non-genetic variance, and that
-> denominator is an absolute local-PVE estimate — a quantity this project
-> retired, because its simulation calibration passed for relative ordering and
-> failed for absolute PVE. Debiasing the outcome removes the statistical half of
-> the problem, the SE inflation that makes a high-control VMR look less
-> exposure-responsive than it is; it cannot remove the arithmetic half. The
-> gradient is therefore reported in absolute units, as a description of where
-> exposure-associated variance sits along the axis, and never as evidence that a
-> VMR is environmentally determined.
+> An unresolved question is whether active, low-local-control VMRs are
+> genuinely more responsive to environmental or other non-genetic influences.
+> The present study cannot distinguish that possibility from the larger residual
+> variance that necessarily remains when local genetic contribution is lower.
 
-Recorded machine-readably as `interpretation.variance_budget_limitation` in
-`config/environmental.yml`, and in AGENTS.md §7.10. It applies equally to §7.9's
-aging axis, which asks the same question with age in place of exposure.
+That wording was set by the PI on 2026-10-07. It replaced an earlier version
+that explained the gradient away "because the variance budget is fixed", which
+stated the limitation as if it were the answer. Call this end of the axis the
+**active, low-local-genetic-control regime**, never "exposure-associated" or
+"environmentally controlled" (§2.3).
+
+Why the two possibilities cannot be separated is unchanged:
+- The axis contrast holds each VMR's total methylation variance fixed, so a VMR
+  with lower local genetic contribution necessarily keeps more residual
+  variance for any exposure to move.
+- Separating the two would require expressing each exposure effect relative to
+  that VMR's non-genetic variance. That denominator is an absolute local-PVE
+  estimate, which this project retired because its calibration passed for
+  relative ordering and failed for absolute PVE.
+- Debiasing the outcome removes the statistical half of the problem, the SE
+  inflation. It cannot remove the arithmetic half.
+
+So the gradient is reported in absolute units, as a description of where
+exposure-associated variance sits along the axis. It is never evidence that a
+VMR is environmentally determined.
+
+The sentence is recorded machine-readably as
+`interpretation.variance_budget_limitation` in `config/environmental.yml`.
+Stage 06 copies it into the collated tables, so the accepted
+`env-AA-*-20261003` runs still carry the earlier wording until Module 10 is
+next rerun; their numbers are unaffected. AGENTS.md §7.10 still states the
+arithmetic. The limitation applies equally to §7.9's aging axis, which asks the
+same question with age in place of exposure.
 
 **This raised one PI item, closed 2026-10-02: the primary keeps
 `methylation_variance`, and dropping it stays a sensitivity.**
