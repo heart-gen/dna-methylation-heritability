@@ -213,9 +213,9 @@ p <- ggplot(plot_dt, aes(comparison, r, colour = comparison)) +
               linewidth = 0.25) +
     geom_point(size = 0.7, alpha = 0.75) +
     facet_wrap(~ pair, nrow = 1) +
-    scale_colour_manual(values = c("Same donor" = PAL_BLUE,
+    scale_colour_manual(values = c("Same donor" = PAL_CHARCOAL,
                                    "Mean other donor" = PAL_NULL,
-                                   "Best other donor" = PAL_RUST),
+                                   "Best other donor" = PAL_ALT),
                         guide = "none") +
     labs(x = NULL,
          y = paste0("Cross-region correlation (chr", chrom, ", ",

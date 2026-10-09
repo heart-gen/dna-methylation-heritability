@@ -129,6 +129,28 @@ nongating <- rbindlist(lapply(MODULES, function(m) {
 claims <- rbind(claims, nongating, fill = TRUE)
 setcolorder(claims, "module")
 
+## Where each module's figure sits, and the rule that every result is reported
+## in the main text whatever its figure placement (config/aging.yml
+## manuscript_placement.rule, project-wide). The placement is read from the
+## figure each module feeds: a `figureS_` stem is supplementary. 09b's comes
+## from its locked config, so a PI change there reaches the matrix.
+FIGURE_PLACEMENT <- c(
+    "01_vmr_catalog" = "main", "01b_estimation_cells" = "none",
+    "02_local_genetic_variance" = "main", "02b_greml_simulation_benchmark" = "supplementary_figure",
+    "02c_cis_greml_sensitivity" = "supplementary_figure", "03_local_snp_prediction" = "main",
+    "04_repeat_repressive_architecture" = "main", "05_cpg_meqtl_burden" = "main",
+    "06_partitioned_heritability" = "supplementary_figure",
+    "07_transcription_splicing_coupling" = "main",
+    "08_region_donor_generalization" = "main",
+    "09_schizophrenia_risk_application" = "main",
+    "09b_aging_application" = config_get(load_config("aging"),
+                                         "interpretation.manuscript_placement.placement"),
+    "10_environmental_exploratory" = "supplementary_figure")
+stopifnot(all(MODULES %in% names(FIGURE_PLACEMENT)),
+          !anyNA(FIGURE_PLACEMENT))
+claims[, figure_placement := unname(FIGURE_PLACEMENT[module])]
+claims[, main_text_report := gating & figure_placement != "none"]
+
 ## Module 04 additionally emits the permitted-claim string per outcome, which
 ## is the sentence the manuscript may write. It lives on the gate host.
 rra <- tryCatch({
@@ -194,12 +216,25 @@ message("[table] exclusions-and-denominators.tsv (", nrow(denom), " arm x region
 ##
 ## The tracked _m/combined/ deliverables a journal would receive.
 ## `-UNACCEPTED` is excluded BY PATTERN, not by hand: those are outputs of a
-## stage whose config is not PI-locked and may not be cited (AGENTS.md 6).
+## stage whose config is not PI-locked and may not be cited.
+##
+## Only files git tracks are listed. The directory also holds gitignored retired
+## outputs (calibrated-local-h2-all-cells.tsv carries h2_en_calibrated), and
+## listing whatever happened to be on disk put one of them in the index. A file
+## the supplementary-data manifest marks superseded or audit_only is dropped too.
+tracked <- git_run(V2_ROOT, c("ls-files", "--", shQuote("*/_m/combined/*.tsv")))
+if (is.null(tracked) || length(tracked) == 0L || !is.null(attr(tracked, "status")))
+    stop("git ls-files failed; the index cannot tell tracked from stray files")
+sd_manifest <- fread(file.path(V2_ROOT, "supplementary_data",
+                               "supplementary_data_manifest.tsv"))
+withheld <- sd_manifest[status %in% c("superseded", "audit_only"), location]
 comb <- rbindlist(lapply(MODULES, function(m) {
     d <- file.path(V2_ROOT, m, "_m", "combined")
     if (!dir.exists(d)) return(NULL)
     f <- list.files(d, pattern = "\\.tsv$", full.names = TRUE, recursive = FALSE)
     f <- f[!grepl("-UNACCEPTED|-UNLOCKED", basename(f))]
+    rel <- file.path(m, "_m", "combined", basename(f))
+    f <- f[rel %in% tracked & !(rel %in% withheld)]
     if (length(f) == 0) return(NULL)
     data.table(module = m, file = basename(f),
                path = file.path(m, "_m", "combined", basename(f)),

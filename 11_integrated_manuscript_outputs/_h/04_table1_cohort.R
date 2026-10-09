@@ -10,8 +10,7 @@
 ## invalidated, and it honoured the legacy sample blacklists that v2 retired.
 ## Eight donors (Br1249 Br1303 Br1371 Br1552 Br1693 Br1700 Br1883 Br1927) are
 ## therefore missing from the published table but present in v2. The table is
-## not merely unmigrated; it reports the wrong cohort. See config/cohorts.yml
-## and MIGRATION_MANIFEST.tsv.
+## not merely unmigrated; it reports the wrong cohort. See config/cohorts.yml.
 ##
 ## The donor set here is read from the ACCEPTED Module 01 catalog runs
 ## (vmr/donors_plink.txt), never from a phenotype file, so the table can only
@@ -24,7 +23,7 @@
 ## Outputs
 ##   tables/table1_cohort.tsv        long-form, one row per statistic
 ##   tables/table1_cohort.tex        booktabs fragment, both arms
-##   figures/figureS_ancestry_pcs    snpPC1/2, donors over 1000 Genomes
+##   figures/figureS_ancestry_pcs    donors projected into the 1000 Genomes PCA
 ##
 ## Usage:
 ##   Rscript 04_table1_cohort.R --run-id fig-all-20260827
@@ -192,44 +191,60 @@ message("[table] table1_cohort.tsv + .tex (", nrow(table1), " statistic rows)")
 ##
 ## Confirms the recorded donor group against genotype, with 1000 Genomes as the
 ## external frame of reference. This is a QC panel, not an ancestry-biology
-## claim: AGENTS.md 2.3 forbids attributing differences to ancestry-specific
-## biology, and nothing downstream consumes this figure.
+## claim, and nothing downstream consumes this figure.
+##
+## Both panels must share one PCA basis. The cohort's own snpPC1/2 come from a
+## PCA of the cohort alone, so overlaying them on a 1000 Genomes PCA (as an
+## earlier build did) placed white American donors beside AFR. The inputs stage
+## inputs/ancestry_pca/_h/step_1_project_1kgp.sh fits the PCA on 1000 Genomes
+## and scores reference samples and donors with the same allele weights.
 
-ref_pc  <- fread(paths$reference_1kgp$eigenvec)
-setnames(ref_pc, c("IID", paste0("snpPC", 1:10))[seq_len(ncol(ref_pc))])
+proj_file <- file.path(V2_ROOT, paths$ancestry_projection$projected_pcs)
+if (!file.exists(proj_file))
+    stop("projected PCs not found: ", proj_file,
+         " (run inputs/ancestry_pca/_h/step_1_project_1kgp.sh)")
+proj <- fread(proj_file, colClasses = list(character = c("source", "id")))
+
+ref_pop <- fread(paths$reference_1kgp$sample_panel, fill = TRUE)
 ## The panel file carries trailing empty header fields; name only what fread
 ## actually returns rather than letting it fill.
-ref_pop <- fread(paths$reference_1kgp$sample_panel, fill = TRUE)
 setnames(ref_pop, seq_len(4L), c("IID", "pop", "super_pop", "gender"))
-ref <- merge(ref_pc[, .(IID, snpPC1, snpPC2)], ref_pop[, .(IID, super_pop)],
-             by = "IID")
+ref <- merge(proj[source == "1000 Genomes", .(IID = id, PC1, PC2)],
+             ref_pop[, .(IID, super_pop)], by = "IID")
+if (nrow(ref) < 2500L)
+    stop("only ", nrow(ref), " 1000 Genomes samples matched the panel file")
 
 ## One point per donor (not per donor x region), from the widest arm.
 wide_arm <- if ("all_individuals" %in% arms) "all_individuals" else arms[1]
-donor_pc <- unique(dt[arm == wide_arm, .(brnum, race, snpPC1, snpPC2)])
-donor_pc <- donor_pc[!is.na(snpPC1)]
+donor_grp <- unique(dt[arm == wide_arm, .(brnum, race)])
+donor_pc  <- merge(donor_grp, proj[source == "this study", .(brnum = id, PC1, PC2)],
+                   by = "brnum")
+n_missing <- nrow(donor_grp) - nrow(donor_pc)
+if (n_missing > 0L)
+    message("[ancestry] ", n_missing, " accepted donors have no projected PCs")
 
 pcs <- ggplot() +
-    geom_point(data = ref, aes(snpPC1, snpPC2, colour = super_pop),
+    geom_point(data = ref, aes(PC1, PC2, colour = super_pop),
                size = 0.6, alpha = 0.45) +
-    geom_point(data = donor_pc, aes(snpPC1, snpPC2, shape = race),
+    geom_point(data = donor_pc, aes(PC1, PC2, shape = race),
                colour = PAL_CHARCOAL, size = 1.5, stroke = 0.5, fill = NA) +
     scale_colour_brewer(palette = "Set2", name = "1000 Genomes") +
     scale_shape_manual(values = c(21, 24), name = "This study") +
-    labs(x = "Genotype PC1", y = "Genotype PC2") +
+    labs(x = "PC1 (1000 Genomes basis)", y = "PC2 (1000 Genomes basis)") +
     BASE_THEME + NO_TITLES
 
 save_figure(pcs, "figureS_ancestry_pcs", FIG_WIDTH_THREEQ, 3.4, fig_dir)
 write_source_data(
-    rbind(ref[, .(source = "1000 Genomes", group = super_pop, snpPC1, snpPC2)],
+    rbind(ref[, .(source = "1000 Genomes", group = super_pop, PC1, PC2)],
           donor_pc[, .(source = "this study", group = as.character(race),
-                       snpPC1, snpPC2)]),
+                       PC1, PC2)]),
     "figureS_ancestry_pcs",
     source_run_id = vapply(regions, function(r) CATALOG_RUN(wide_arm, r), ""),
-    source_table  = "phenotypes-all.tsv snpPC1-2 + 1kGP-pc.eigenvec",
+    source_table  = paste0(paths$ancestry_projection$projected_pcs,
+                           " (1000 Genomes PCA; both panels scored with its allele weights)"),
     script        = SCRIPT,
     filter_desc   = paste0("unique donors in the accepted ", wide_arm,
-                           " catalog runs with non-missing genotype PCs"),
+                           " catalog runs with projected PCs; 1000 Genomes samples in the panel file"),
     data_dir      = data_dir)
 
 message("[10] Table 1 and ancestry panel written to ", run_dir)

@@ -22,12 +22,19 @@ if (!dir.exists(run_dir)) stop("Run directory not found: ", run_dir)
 figs <- list.files(file.path(run_dir, "figures"), pattern = "\\.(pdf|png)$")
 srcs <- list.files(file.path(run_dir, "source_data"), pattern = "\\.tsv$")
 if (length(figs) == 0) stop("No figures in ", run_dir)
-if (length(srcs) == 0) stop("No source-data tables; AGENTS.md 7.9 requires one per panel.")
+if (length(srcs) == 0) stop("No source-data tables; every panel requires one.")
 
 ## Every PDF must have a source-data table sharing its figure stem, or a panel
 ## has shipped without traceable numbers.
+## Each table is attributed to the LONGEST figure stem it extends (followed by
+## "_" or "."). A plain prefix match let `figure2_local_genetic_control_all_
+## individuals_panel_a` satisfy `figure2_local_genetic_control` (D11).
 stems <- unique(sub("\\.pdf$", "", grep("\\.pdf$", figs, value = TRUE)))
-missing <- Filter(function(st) !any(startsWith(srcs, st)), stems)
+owner <- vapply(srcs, function(f) {
+    hit <- stems[startsWith(f, paste0(stems, "_")) | f == paste0(stems, ".tsv")]
+    if (length(hit) == 0) NA_character_ else hit[which.max(nchar(hit))]
+}, character(1))
+missing <- setdiff(stems, owner)
 if (length(missing) > 0) {
     ## Fatal, not a warning. AGENTS.md 7.11 requires every panel to record its
     ## source run ID, table, script and filter, and Supplementary Data 14 IS
@@ -35,7 +42,7 @@ if (length(missing) > 0) {
     ## cannot be traced, and a warning in a SLURM log is not a gate.
     stop("Figures without a matching source-data table: ",
          paste(missing, collapse = ", "),
-         ". Every figure must ship its panel source data (AGENTS.md 7.11).")
+         ". Every figure must ship its panel source data.")
 }
 
 upstream <- unique(unlist(lapply(file.path(run_dir, "source_data", srcs), function(f) {
@@ -68,19 +75,24 @@ write_manifest(run_dir, c(list(
     git_commit   = git_commit(V2_ROOT),
     git_dirty    = git_dirty(V2_ROOT),
     code_snapshot = if (has_code) "code/_h + code/config" else NA_character_,
+    ## all.files: a dotfile in the snapshot was on disk but not counted (N7).
     n_code_files = if (has_code)
-        length(list.files(code_dir, recursive = TRUE)) else 0L,
+        length(list.files(code_dir, recursive = TRUE, all.files = TRUE,
+                          no.. = TRUE)) else 0L,
     r_version    = paste(R.version$major, R.version$minor, sep = "."),
     conda_prefix = Sys.getenv("CONDA_PREFIX", NA_character_),
     hostname     = Sys.info()[["nodename"]],
     slurm_job_id = Sys.getenv("SLURM_JOB_ID", NA_character_),
-    n_figures    = length(figs),
+    ## Distinct figures, not files: each figure ships as PDF + PNG (+ SVG),
+    ## and "50" read as fifty figures (D10).
+    n_figures    = length(stems),
+    n_figure_files = length(figs),
     n_source_tables = length(srcs),
     upstream_runs = paste(sort(upstream), collapse = ";")),
     cfg_sha))
 
 close_run(run)
-message("[done] sealed ", run_dir, " (", length(figs), " figure files, ",
+message("[done] sealed ", run_dir, " (", length(stems), " figures, ", length(figs), " figure files, ",
         length(srcs), " source tables)")
 
 #### Reproducibility information ####

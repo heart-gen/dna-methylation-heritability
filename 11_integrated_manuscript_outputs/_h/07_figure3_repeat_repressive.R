@@ -87,7 +87,7 @@ banned <- intersect(c("h2_en_calibrated", "r_squared_cv", "h2_unscaled"),
                     names(assoc))
 if (length(banned) > 0) {
     stop("Retired quantity in the Module 04 contract: ",
-         paste(banned, collapse = ", "), " (AGENTS.md 3).")
+         paste(banned, collapse = ", "), ".")
 }
 if (!setequal(unique(assoc$region), regions)) {
     stop("association-results-all-regions.tsv covers ",
@@ -183,6 +183,9 @@ STATUS_SHAPES <- c(supported = 16, below_gate = 21, set_aside = 16)
 STATUS_ALPHA  <- c(supported = 1, below_gate = 1, set_aside = 0.35)
 STATUS_LINES  <- c(supported = "solid", below_gate = "22", set_aside = "22")
 
+FIG3 <- paste0("figure3_repeat_repressive_architecture",
+               if (cohort == "AA") "" else paste0("_", cohort))
+
 ## -------------------------------------------- a. the BH family, three regions
 prim <- assoc[analysis_set == "primary" & predictor == PREDICTOR &
               outcome %in% BH_FAMILY]
@@ -208,24 +211,26 @@ pA <- ggplot(prim, aes(estimate, label, colour = region, group = region,
     errorbar_h(aes(xmin = lo, xmax = hi), position = DODGE, linewidth = 0.42) +
     geom_point(aes(shape = status), size = 1.6, fill = "white", stroke = 0.6,
                position = DODGE) +
-    geom_text(aes(label = stars), position = DODGE,
-              hjust = -0.35, vjust = 0.75, size = 2.8, show.legend = FALSE) +
+    ## Stars sit past the upper interval end, never on the interval line.
+    geom_text(aes(x = hi, label = stars), position = DODGE,
+              hjust = -0.25, vjust = 0.75, size = 2.8, show.legend = FALSE) +
     geom_text(aes(label = mark), position = DODGE, colour = PAL_CHARCOAL,
               alpha = 1, size = 3.0, show.legend = FALSE) +
     scale_colour_manual(values = REGION_COLORS, name = NULL) +
     scale_shape_manual(values = STATUS_SHAPES, guide = "none") +
     scale_alpha_manual(values = STATUS_ALPHA, guide = "none") +
+    scale_x_continuous(expand = expansion(mult = c(0.04, 0.10))) +
     labs(x = "Association with local SNP contribution rank (per SD)", y = NULL,
-         caption = paste0(
-             "\u25cb fails a locked sensitivity in this region: estimated, not ",
-             "counted toward the claim, not starred.\n",
-             "\u2715 set aside: technically confounded, excluded from the ",
-             "claim denominator \u2014 not a null result.\n",
-             "Stars: primary-model q, shown only where the region passes ",
-             "its gate.\n", SIG_KEY)) +
-    BASE_THEME + NO_TITLES + GRID_Y +
-    theme(legend.position = "top", legend.margin = margin(0, 0, -4, 0),
-          plot.caption = element_text(size = 6.5, hjust = 0, colour = "grey35"))
+         caption = paste0("\u25cb fails a locked sensitivity   \u2715 set aside   ",
+                          SIG_KEY)) +
+    BASE_THEME + NO_TITLES + GRID_Y + KEY_THEME +
+    theme(legend.position = "top", legend.margin = margin(0, 0, -4, 0))
+legend_note(run_dir, FIG3, "a", paste0(
+    "Open circle: the outcome fails a locked sensitivity in this region; it is ",
+    "estimated, not counted toward the claim, and not starred. Cross: set aside ",
+    "as technically confounded and excluded from the claim denominator; not a ",
+    "null result. Stars give the primary-model q and are shown only where the ",
+    "region passes its gate."))
 
 ## ---------------------------------- b. complementary contrasts and controls
 OTHER <- c("accessible_frac", "atac_union_frac", "h3k27ac_frac", "h3k27me3_frac",
@@ -253,16 +258,14 @@ pB <- ggplot(oth, aes(estimate, label, colour = region)) +
     ## control" needs when set vertically.
     facet_grid(role ~ ., scales = "free_y", space = "free_y", switch = "y") +
     scale_colour_manual(values = REGION_COLORS, guide = "none") +
-    labs(x = "Association with local SNP contribution rank (per SD)", y = NULL,
-         caption = paste0(
-             "Outside the BH family of panel a; these do not share its error ",
-             "rate.\nContrast = complementary contrast; Control = specificity ",
-             "control.")) +
+    labs(x = "Association with local SNP contribution rank (per SD)", y = NULL) +
     BASE_THEME + NO_TITLES + GRID_Y +
     theme(strip.placement = "outside",
           strip.text.y.left = element_text(angle = 0, face = "bold", size = 8),
-          plot.caption = element_text(size = 6.5, hjust = 0, colour = "grey35"),
           plot.margin = margin(5, 10, 5, 8))
+legend_note(run_dir, FIG3, "b", paste0(
+    "Outcomes outside the BH family of panel a; they do not share its error ",
+    "rate. Contrast, complementary contrast; Control, specificity control."))
 
 ## ------------------------------------------- c. the five locked analysis sets
 sens <- prep(assoc[predictor == PREDICTOR & outcome %in% BH_FAMILY])
@@ -292,10 +295,11 @@ pC <- ggplot(sens, aes(estimate, set, colour = region, alpha = !set_aside)) +
     scale_colour_manual(values = REGION_COLORS, guide = "none") +
     scale_alpha_manual(values = c(`FALSE` = 0.35, `TRUE` = 1), guide = "none") +
     scale_y_discrete(limits = rev) +
-    labs(x = "Association with local SNP contribution rank (per SD)", y = NULL,
-         caption = nf_cap) +
-    BASE_THEME + NO_TITLES + GRID_Y +
-    theme(plot.caption = element_text(size = 6.5, hjust = 0, colour = "grey35"))
+    labs(x = "Association with local SNP contribution rank (per SD)", y = NULL) +
+    BASE_THEME + NO_TITLES + GRID_Y
+legend_note(run_dir, FIG3, "c", paste(
+    "The BH-family outcomes under each locked analysis set; faded, set aside.",
+    if (is.null(nf_cap)) "" else nf_cap))
 
 ## --------------------------------- d. the continuous gradient behind panel a
 ##
@@ -339,19 +343,20 @@ pD <- ggplot(grad, aes(as.integer(decile), mean_frac, colour = region,
     scale_x_continuous(breaks = c(1, 5, 10)) +
     scale_y_continuous(labels = percent_format(accuracy = 1)) +
     labs(x = "Decile of local SNP contribution rank",
-         y = "VMR overlap",
-         caption = paste0(
-             "Descriptive proportions; encoding as in panel a. Dashed, open: ",
-             "fails a locked sensitivity in that region.\nDashed, faded: set ",
-             "aside (caudate LINE/L1). Neither is counted toward the claim.")) +
-    BASE_THEME + NO_TITLES +
-    theme(plot.caption = element_text(size = 6.5, hjust = 0, colour = "grey35"))
+         y = "VMR overlap") +
+    BASE_THEME + NO_TITLES
+legend_note(run_dir, FIG3, "d", paste0(
+    "Descriptive proportions by decile, encoded as in panel a. Dashed with open ",
+    "points: fails a locked sensitivity in that region. Dashed and faded: set ",
+    "aside (caudate LINE/L1). Neither is counted toward the claim."))
 
 ## ------------------------------------------------------------------ assemble
 arm <- if (cohort == "AA") "" else paste0("_", cohort)
-STEM <- paste0("figure3_repeat_repressive_architecture", arm)
+STEM <- FIG3
 
-figure <- (pA / pB / pC / pD) +
+## free(): panel b's left-hand role strips otherwise set the axis column for
+## every panel and leave a, c and d with a wide empty margin.
+figure <- (free(pA) / pB / free(pC) / free(pD)) +
     plot_layout(heights = c(0.95, 1.15, 1.0, 0.85)) +
     fig_tags() & TAG_THEME
 
@@ -394,7 +399,7 @@ sd(ct[, KEEP, with = FALSE], "celltype_breakdown", TBL,
    paste0("analysis_set == 'primary'; outcome_role == 'celltype_breakdown_secondary'; ",
           "BrainScope per-cell-type ATAC tracks, outside every FDR family and NOT ",
           "rendered: a breakdown of the union contrast, not a cell-type ",
-          "identification (AGENTS.md 2.3)"))
+          "identification"))
 sd(claims, "claims", "results/interpretation-claims.tsv",
    "the accepted permitted-claim table, on the caudate gate host")
 

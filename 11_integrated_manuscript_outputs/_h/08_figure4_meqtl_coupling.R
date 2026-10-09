@@ -85,7 +85,7 @@ for (nm in c("burden", "bmodel", "coupling")) {
                         names(get(nm)))
     if (length(banned) > 0) {
         stop("Retired quantity in ", nm, ": ", paste(banned, collapse = ", "),
-             " (AGENTS.md 3).")
+             ".")
     }
 }
 if (!all(bdec$decision == "PASS_CPG_MEQTL_BURDEN_QC")) {
@@ -95,7 +95,7 @@ if (!all(bdec$decision == "PASS_CPG_MEQTL_BURDEN_QC")) {
 ## emits a mediation-flavoured term this figure must stop rather than render it.
 if (any(grepl("mediat", names(coupling), ignore.case = TRUE)) ||
     any(grepl("mediat", coupling$modality, ignore.case = TRUE))) {
-    stop("Module 07 emitted a mediation term; AGENTS.md 7.6 forbids that claim.")
+    stop("Module 07 emitted a mediation term; that claim is not licensed.")
 }
 
 for (d in list(burden, bmodel, coupling)) d[, region := as_region(region)]
@@ -126,7 +126,24 @@ pA <- ggplot(bd, aes(as.integer(decile), frac, colour = region)) +
 ## -------------------------------- b. the burden model, and its inflation QC
 bm <- bmodel[term == "local_snp_contribution_score_z"]
 stopifnot(nrow(bm) == length(regions))
-bm[, `:=`(lo = estimate - 1.96 * se, hi = estimate + 1.96 * se)]
+
+## Intervals are DONOR-ROBUST where one exists. The sealed per-region SE is
+## VMR-level HC3, which ignores between-VMR correlation within a donor sample
+## and is about 3x too narrow; cmb-AA-crossregion-20261007 refits the same model
+## with a donor delete-d plus chromosome jackknife for DLPFC and hippocampus and
+## must reproduce the sealed estimates. Caudate has no donor-robust SE and keeps
+## its HC3 interval, drawn dashed, so the two kinds are never read as one.
+CMB_X <- require_accepted_upstream("05_cpg_meqtl_burden", cohort, "crossregion")$run_id
+spr <- fread(file.path(V2_ROOT, "05_cpg_meqtl_burden", "_m", "runs", CMB_X,
+                       "results", "slope-per-region.tsv"))
+spr[, region := as_region(region)]
+bm <- merge(bm, spr[, .(region, est_dr = estimate, se_donor_robust)],
+            by = "region", all.x = TRUE)
+stopifnot(bm[!is.na(est_dr), all(abs(est_dr - estimate) < 1e-9)])
+bm[, interval := fifelse(is.na(se_donor_robust), "HC3 (no donor-robust SE)",
+                         "donor-robust")]
+bm[, se_plot := fifelse(is.na(se_donor_robust), se, se_donor_robust)]
+bm[, `:=`(lo = estimate - 1.96 * se_plot, hi = estimate + 1.96 * se_plot)]
 ## Denominator and inflation ride INSIDE the panel, anchored to the left edge.
 ## Anchored to the estimate they overflowed the half-width column, and a prose
 ## caption did the same -- at 6.5 pt in ~3.2 in only about 55 characters fit,
@@ -138,19 +155,31 @@ bm[, note := paste0("n = ", label_comma()(n_vmrs),
 
 pB <- ggplot(bm, aes(estimate, region, colour = region)) +
     geom_vline(xintercept = 0, colour = PAL_NULL, linewidth = 0.35) +
-    errorbar_h(aes(xmin = lo, xmax = hi), linewidth = 0.45) +
+    errorbar_h(aes(xmin = lo, xmax = hi, linetype = interval), linewidth = 0.45) +
     geom_point(size = 1.8) +
     ## Anchored just right of zero: from the panel edge the zero line ran
     ## through the "n".
     geom_text(aes(label = note), x = 0, hjust = -0.04, nudge_y = 0.3,
               size = 2.2, colour = "grey35", show.legend = FALSE) +
     scale_colour_manual(values = REGION_COLORS, guide = "none") +
+    scale_linetype_manual(values = c("donor-robust" = "solid",
+                                     "HC3 (no donor-robust SE)" = "22"),
+                          guide = "none") +
     scale_y_discrete(limits = rev, expand = expansion(add = c(0.5, 0.75))) +
     scale_x_continuous(expand = expansion(mult = c(0.04, 0.10))) +
     labs(x = "meQTL burden per SD of rank\n(quasibinomial)", y = NULL,
-         caption = "\u03bb = distal-null genomic inflation") +
-    BASE_THEME + NO_TITLES + GRID_Y +
-    theme(plot.caption = element_text(size = 6.5, hjust = 0, colour = "grey35"))
+         caption = "\u03bb: distal-null inflation \u00b7 dashed: HC3") +
+    BASE_THEME + NO_TITLES + GRID_Y + KEY_THEME
+legend_note(run_dir, paste0("figure4_meqtl_burden_coupling",
+                            if (cohort == "AA") "" else paste0("_", cohort)), "b",
+            paste0("Quasibinomial burden slope per SD of the local SNP contribution ",
+                   "rank with 95% intervals. DLPFC and hippocampus intervals are ",
+                   "donor-robust (donor delete-d plus chromosome jackknife, ", CMB_X,
+                   "); the caudate interval is VMR-level HC3 (dashed), which ignores ",
+                   "between-VMR correlation and is narrower than a donor-robust ",
+                   "interval would be. The DLPFC-hippocampus difference is not ",
+                   "significant, so no regional difference is claimed. Internal meQTL ",
+                   "mapping is convergent evidence, not independent replication."))
 
 ## ------------------------------------------- c. transcription/splicing coupling
 MODALITY_LABELS <- c(expression_nearest_gene = "Expression\n(nearest gene)",
@@ -184,10 +213,12 @@ pC <- ggplot(cp, aes(estimate, pred, colour = region)) +
     errorbar_h(aes(xmin = lo, xmax = hi),
                position = position_dodge(width = 0.68), linewidth = 0.42) +
     geom_point(size = 1.5, position = position_dodge(width = 0.68)) +
-    geom_text(aes(label = stars), position = position_dodge(width = 0.68),
-              hjust = -0.35, vjust = 0.75, size = 2.6, show.legend = FALSE) +
+    geom_text(aes(x = hi, label = stars), position = position_dodge(width = 0.68),
+              hjust = -0.25, vjust = 0.75, size = 2.6, show.legend = FALSE) +
     facet_wrap(~ mod, nrow = 1, scales = "free_x") +
     scale_colour_manual(values = REGION_COLORS, guide = "none") +
+    ## Room past the largest upper interval for its stars.
+    scale_x_continuous(expand = expansion(mult = c(0.04, 0.14))) +
     labs(x = "Coupling log-odds per SD of predictor", y = NULL) +
     BASE_THEME + NO_TITLES + GRID_Y
 
@@ -216,7 +247,7 @@ pD <- ggplot(den, aes(region, n_coupled, fill = region)) +
 arm <- if (cohort == "AA") "" else paste0("_", cohort)
 STEM <- paste0("figure4_meqtl_burden_coupling", arm)
 
-figure <- ((pA | pB) + plot_layout(widths = c(1, 0.8))) / pC / pD +
+figure <- ((free(pA) | pB) + plot_layout(widths = c(1, 0.8))) / pC / free(pD) +
     plot_layout(heights = c(1.0, 0.95, 0.9)) +
     fig_tags() & TAG_THEME
 
@@ -224,17 +255,20 @@ save_figure(figure, STEM, width = FIG_WIDTH_FULL, height = 7.6,
             fig_dir = fig_dir)
 
 ## ---------------------------------------------------------- source data
-runs_used <- c(unname(CMB), unname(TSC))
+runs_used <- c(unname(CMB), CMB_X, unname(TSC))
 sd <- function(dt, nm, tbl, filt) {
     write_source_data(dt, paste0(STEM, "_", nm), runs_used, tbl, SCRIPT,
                       filt, data_dir)
 }
 sd(bd, "panel_a", "05: results/vmr-meqtl-burden.tsv",
    "n_tested_cpgs > 0; deciles of local_snp_contribution_score; fraction is summed sig CpGs over summed TESTED CpGs")
-sd(bm[, .(region, model, term, estimate, se, z, p, n_vmrs, dispersion,
-          genomic_inflation_lambda)],
-   "panel_b", "05: results/burden-primary-model.tsv",
-   "term == 'local_snp_contribution_score_z'; convergent evidence, not independent replication")
+sd(bm[, .(region, model, term, estimate, se_hc3 = se, se_donor_robust, interval,
+          lo, hi, z, p, n_vmrs, dispersion, genomic_inflation_lambda)],
+   "panel_b", paste0("05: results/burden-primary-model.tsv + ", CMB_X,
+                     " results/slope-per-region.tsv"),
+   paste0("term == 'local_snp_contribution_score_z'; lo/hi = estimate +/- 1.96 x ",
+          "donor-robust SE where available, else HC3; convergent evidence, not ",
+          "independent replication"))
 sd(coupling[, .(region, modality, predictor, n, n_coupled, estimate, se, z, p, q,
                 in_fdr_family, fdr_exclusion_reason, fdr_family_size, covariates)],
    "panel_c", "07: results/coupling-tests.tsv",
