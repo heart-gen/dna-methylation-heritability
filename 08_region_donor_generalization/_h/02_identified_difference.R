@@ -86,6 +86,13 @@ if (!nrow(tests)) stop("Stage 01 produced no tests; run it first")
 ## 09b_aging_application/_h/05_cross_region_concordance.R implements one for the
 ## same pair. Replacing this z is a scope change, not a bug fix, and the earlier
 ## claim of independence in this comment was simply wrong.
+##
+## That "conservative" reading only holds if the per-region SEs are right. For
+## Module 05 they are VMR-level HC3, which ignore between-VMR correlation; its
+## donor-robust run (paired delete-d donor jackknife + chromosome jackknife)
+## puts each region's SE about 3x higher and the difference's 2.7x higher. So
+## where config names a donor-robust source, that SE replaces this one (below).
+
 ## Keyed the same way Stage 01 keys: analysis_set distinguishes Module 04's
 ## primary fit from its four sensitivities, and omitting it would collapse five
 ## distinct tests into one cell of the cast.
@@ -118,6 +125,51 @@ for (col in c(ea, eb, sa, sb)) {
 
 wide[, delta := get(ea) - get(eb)]
 wide[, delta_se := sqrt(get(sa)^2 + get(sb)^2)]
+wide[, delta_se_hc3_independent := delta_se]
+wide[, delta_se_source := "independent_regions_upstream_se"]
+## The per-region SE and p behind the magnitude and both-nominal checks; the
+## upstream values unless a donor-robust source replaces them.
+wide[, `:=`(check_se_a = get(sa), check_se_b = get(sb),
+            check_p_a = get(paste0("p_", a)), check_p_b = get(paste0("p_", b)))]
+
+## ------------------------------------------- donor-robust SEs (2026-10-08)
+##
+## Each source refits the accepted model on the same VMRs, so it must reproduce
+## both stage-01 estimates; a source that does not is a different model and is
+## refused rather than mixed in.
+for (src in config_get(cfg, "identified_difference.donor_robust_se")) {
+    run_id <- mval(paste0("upstream_", gsub("[|.]", "_",
+                                             paste(src$module, src$region, sep = "|"))))
+    src_dir <- file.path(V2_ROOT, src$module, "_m", "runs", run_id)
+    dd <- fread(file.path(src_dir, src$difference_file))
+    dd <- dd[region_a == a & region_b == b]
+    pr <- fread(file.path(src_dir, src$per_region_file))
+    if (nrow(dd) != 1L || !all(c(a, b) %in% pr$region)) {
+        stop("Donor-robust source ", run_id, " has no single ", a, " minus ", b,
+             " row, or lacks a per-region row")
+    }
+    idx <- wide[, which(analysis == src$analysis & analysis_set == src$analysis_set &
+                            outcome == src$outcome & predictor == src$predictor)]
+    if (length(idx) != 1L) {
+        stop("Donor-robust source for ", src$analysis, "/", src$predictor,
+             " matches ", length(idx), " tier-2 rows; it must match exactly one")
+    }
+    tol <- as.numeric(src$reproduction_tolerance)
+    off <- c(abs(wide[[ea]][idx] - dd$estimate_a), abs(wide[[eb]][idx] - dd$estimate_b),
+             abs(wide[[ea]][idx] - pr[region == a, estimate]),
+             abs(wide[[eb]][idx] - pr[region == b, estimate]))
+    if (any(!is.finite(off)) || max(off) > tol) {
+        stop("Donor-robust source ", run_id, " does not reproduce the stage-01 ",
+             "estimates (max abs diff ", signif(max(off), 3), " > ", tol, ")")
+    }
+    pz <- function(est, se) 2 * stats::pnorm(-abs(est / se))
+    set(wide, idx, "delta_se", dd$se)
+    set(wide, idx, "delta_se_source", paste0("donor_robust:", run_id))
+    set(wide, idx, "check_se_a", pr[region == a, se_donor_robust])
+    set(wide, idx, "check_se_b", pr[region == b, se_donor_robust])
+    set(wide, idx, "check_p_a", pz(pr[region == a, estimate], pr[region == a, se_donor_robust]))
+    set(wide, idx, "check_p_b", pz(pr[region == b, estimate], pr[region == b, se_donor_robust]))
+}
 wide[, delta_z := fifelse(is.finite(delta_se) & delta_se > 0,
                           delta / delta_se, NA_real_)]
 wide[, delta_p := 2 * stats::pnorm(-abs(delta_z))]
@@ -146,11 +198,10 @@ wide[testable == TRUE, delta_q := stats::p.adjust(delta_p, method = fdr_method)]
 ## writing-notes/WGBS_BATCH_REGION_CONFOUNDING.md and 07/README.md:107 already
 ## say about that outcome independently.
 wide[, sens_fdr_significant := is.finite(delta_q) & delta_q < alpha]
-wide[, sens_both_nominal := is.finite(get(paste0("p_", a))) &
-         is.finite(get(paste0("p_", b))) &
-         (get(paste0("p_", a)) < 0.05 & get(paste0("p_", b)) < 0.05)]
+wide[, sens_both_nominal := is.finite(check_p_a) & is.finite(check_p_b) &
+         (check_p_a < 0.05 & check_p_b < 0.05)]
 wide[, sens_direction_opposed := sign(get(ea)) != sign(get(eb))]
-wide[, sens_magnitude := abs(delta) > pmax(get(sa), get(sb))]
+wide[, sens_magnitude := abs(delta) > pmax(check_se_a, check_se_b)]
 
 sens_cols <- c("sens_fdr_significant", "sens_both_nominal", "sens_magnitude")
 wide[, n_sensitivities_passed := rowSums(
@@ -216,6 +267,7 @@ summary_dt <- data.table(
     n_pairs = nrow(wide),
     n_testable = wide[testable == TRUE, .N],
     n_fdr_significant = wide[sens_fdr_significant == TRUE, .N],
+    n_donor_robust_se = wide[startsWith(delta_se_source, "donor_robust:"), .N],
     ## Every row that survived the statistical conjunction, all analysis_sets and
     ## all roles. Reported so the headline's denominator is auditable, never as the
     ## headline itself.
