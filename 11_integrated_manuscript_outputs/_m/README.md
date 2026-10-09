@@ -1,25 +1,26 @@
 # 11_integrated_manuscript_outputs/_m — generated output only
 
 Nothing in this directory is written by hand. Every file here is produced by a
-script in `11_integrated_manuscript_outputs/_h/` from locked configuration and declared inputs
-(AGENTS.md §5.2).
+script in `11_integrated_manuscript_outputs/_h/` from locked configuration and declared inputs.
 
-## What is tracked in Git
+## What is tracked, and where the rest lives
 
-- This README.
-- Small provenance files a script asserts against at runtime, where they exist
-  (for example `02_local_genetic_variance/_m/calibration_frozen/`).
-- `combined/`: the cross-region summary tables, built from accepted runs. These
-  are the module's deliverable -- the decision rows, the concordance tables, and
-  the per-VMR result tables a journal would ask for as Supplementary Data -- so
-  the numbers behind a claim are readable from a clone without re-running SLURM.
-  Two things under `combined/` are not tracked: outputs of a stage whose config
-  is not PI-locked, which carry `-UNACCEPTED` in the filename and may not be
-  cited, and bulk external reference data such as the public GWAS summary
-  statistics under `09_schizophrenia_risk_application`.
+Files are tiered by `supplementary_data/_h/build_release.py`, and every file of
+every accepted run is listed with its tier in `supplementary_data/release_manifest.tsv`:
 
-Everything else — `runs/`, matrices, PLINK output, figures, logs — is
-gitignored and lives on Quest.
+- **git**: this README; `combined/` (the cross-region deliverables built from
+  accepted runs, except `-UNACCEPTED` outputs and bulk external reference data);
+  small provenance files a script asserts against at runtime; and, from the
+  accepted runs, every file the manuscript is written from (figure source
+  tables, Supplementary Data tables, decision and gate tables, `manifest.tsv`)
+  that is 15 MB or smaller. Those run files are added with `git add -f`, since
+  `runs/` itself stays gitignored.
+- **Git LFS**: the same class of manuscript file above 15 MB.
+- **Zenodo** (one zip per module, DOI 10.5281/zenodo.20547606): reproducibility
+  extras no manuscript text uses, plus a mirror of the two tiers above.
+- **Not distributed**: individual-level data (methylation matrices, genotypes,
+  covariates; dbGaP phs000979) and bulk intermediates (per-task shards, logs,
+  full nominal output), which are regenerable from `_h/` and stay on Quest.
 
 ## Run directories
 
@@ -40,10 +41,10 @@ A figure run of this module additionally carries three directories:
 - `source_data/` — one table per rendered panel, named
   `<figure stem>_panel_<tag>.tsv` where `<tag>` is the letter patchwork
   actually renders. Each carries `source_run_id`, `source_table`,
-  `source_script` and `row_filter`, which is the AGENTS.md §7.11 contract.
+  `source_script` and `row_filter`, which is the locked analysis plan contract.
   `03_close_figure_run.R` refuses to seal a run in which any figure lacks one.
 - `tables/` — Table 1 and its booktabs fragment, `results-summary.md` and
-  `methods-summary.md` (AGENTS.md 7.11's summaries), the manuscript number
+  `methods-summary.md`, the manuscript number
   registry, the analysis-to-claim matrix, the exclusions/denominator table, the
   supplementary-table index and the software/run manifest.
 

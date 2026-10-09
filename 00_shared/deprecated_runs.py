@@ -301,7 +301,8 @@ def main():
     # `deprecated_on` to today on every surviving row. Rows are keyed on
     # (module, run_id), because run IDs were only ever unique in practice.
     previous = {}
-    out = os.path.join(REPO, "DEPRECATED_RUNS.tsv")
+    # Kept locally under the gitignored _archive/, not in the public tree.
+    out = os.path.join(REPO, "_archive", "project-management", "DEPRECATED_RUNS.tsv")
     if os.path.exists(out):
         with open(out, encoding="utf-8") as fh:
             head = fh.readline().rstrip("\n").split("\t")
