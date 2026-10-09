@@ -101,7 +101,7 @@ all_rows <- rbindlist(lapply(regions, function(r) {
 banned <- intersect(c("h2_en_calibrated", "positive_signal"), names(all_rows))
 if (length(banned) > 0) {
     stop("Retired quantity present in the module 02 contract: ",
-         paste(banned, collapse = ", "), " (AGENTS.md 3).")
+         paste(banned, collapse = ", "), ".")
 }
 stopifnot(all(all_rows$absolute_pve_interpretation_allowed == FALSE))
 stopifnot(all(all_rows$local_snp_contribution_score_basis == "pve_cis_joint_unbounded"))
@@ -153,11 +153,11 @@ if (HAS_LSP) {
                             names(d))
         if (length(legacy) > 0) {
             stop("Module 03 table for ", r, " carries retired metric(s): ",
-                 paste(legacy, collapse = ", "), " (AGENTS.md 3).")
+                 paste(legacy, collapse = ", "), ".")
         }
         if (!"r2_pred_oof" %in% names(d)) {
-            stop("Module 03 table for ", r, " has no r2_pred_oof column; AGENTS.md ",
-                 "7.3 names it as the primary prediction endpoint.")
+            stop("Module 03 table for ", r, " has no r2_pred_oof column; it is ",
+                 "the primary prediction endpoint.")
         }
         want <- unique(all_rows[region == r]$vmr_set_id)
         got <- unique(as.character(d$vmr_set_id))
@@ -277,20 +277,11 @@ pB <- ggplot(dec_sum, aes(as.integer(decile), median, colour = region, fill = re
                              R^2 ~ "(end-to-end out-of-fold)"))) +
     BASE_THEME + NO_TITLES
 
-## The tag stays on a "not run" panel so a reader comparing the two arms finds
-## the same letters in the same places.
-if (!HAS_LSP) {
-    pB <- ggplot() +
-        annotate("text", x = 0.5, y = 0.5, size = 2.5, colour = "grey35",
-                 label = paste0("End-to-end out-of-fold\nprediction was not run\n",
-                                "for the ", cohort, " arm.\n\n",
-                                "Module 03 ran in the AA arm\nand in the donor-group cells,\n",
-                                "which estimate within\none donor group.")) +
-        ## patchwork aligns this panel's plotting area with panel a's wide
-        ## axis labels, so the text must be allowed past its edges.
-        coord_cartesian(xlim = c(0, 1), ylim = c(0, 1), clip = "off") +
-        theme_void()
-}
+## Module 03 runs in the AA arm and in the donor-group cells only. Where it did
+## not run, the panel is dropped and the layout closes up; a text-only
+## placeholder panel explained the absence inside the figure, which is the
+## legend's job.
+if (!HAS_LSP) pB <- NULL
 
 ## ------------------------------------ C. cross-region rank concordance
 ##
@@ -324,7 +315,7 @@ pairs_dt[, pair := factor(pair, levels = rev(pair))]
 pC <- ggplot(pairs_dt, aes(rho, pair)) +
     errorbar_h(aes(xmin = lo, xmax = hi),
                colour = PAL_CHARCOAL, linewidth = 0.45) +
-    geom_point(size = 1.8, colour = PAL_RUST) +
+    geom_point(size = 1.8, colour = PAL_CHARCOAL) +
     geom_text(aes(x = 0.02, label = paste0("n = ", label_comma()(n))),
               hjust = 0, nudge_y = 0.28, size = 2.4, colour = "grey35") +
     scale_x_continuous(limits = c(0, 1), breaks = seq(0, 1, 0.25)) +
@@ -393,7 +384,7 @@ pDenom <- ggplot(excl_long, aes(region, n, fill = status)) +
                       name = NULL) +
     scale_y_continuous(labels = label_number(scale_cut = cut_short_scale()),
                        expand = expansion(mult = c(0, 0.14))) +
-    labs(x = NULL, y = "VMRs tested") +
+    labs(x = NULL, y = "VMRs scored (eligible + excluded)") +
     BASE_THEME + NO_TITLES +
     theme(legend.position = "top", legend.margin = margin(0, 0, -4, 0),
           axis.text.x = element_text(angle = 35, hjust = 1))
@@ -401,16 +392,30 @@ pDenom <- ggplot(excl_long, aes(region, n, fill = status)) +
 ## ------------------------------------------------------------------ assemble
 arm <- if (cohort == "AA") "" else paste0("_", cohort)
 STEM <- paste0("figure2_local_genetic_control", arm)
-figure <- (pA / (pB | pC) / pCtx) +
-    plot_layout(heights = c(1.25, 1.0, 0.85)) +
+## Without panel b the concordance panel spans the full width with three rows,
+## so its row is shortened rather than left mostly empty.
+## free(): without it patchwork aligns these panels' axes with panel a's long
+## estimator labels, which left about a fifth of the width empty. The middle
+## row is freed as a whole: patchwork 1.3.2 errors ("first argument must be a
+## vector") when two freed plots sit side by side in a nested row.
+figure <- (if (HAS_LSP) (pA / free(pB | pC) / free(pCtx))
+           else (pA / free(pC) / free(pCtx))) +
+    plot_layout(heights = if (HAS_LSP) c(1.25, 1.0, 0.85) else c(1.25, 0.5, 0.85)) +
     fig_tags() & TAG_THEME
+## Rendered tags: with panel b dropped, c and d move up one letter.
+TAG <- if (HAS_LSP) c(pA = "a", pB = "b", pC = "c", pCtx = "d") else
+    c(pA = "a", pC = "b", pCtx = "c")
+if (!HAS_LSP) legend_note(run_dir, STEM, "all", paste(
+    "End-to-end out-of-fold prediction (Module 03) was run in the Black American",
+    "arm and in the donor-group cells, not in the all-donors arm, so this arm's",
+    "figure has no prediction panel."))
 
-save_figure(figure, STEM, width = FIG_WIDTH_FULL, height = 8.2,
+save_figure(figure, STEM, width = FIG_WIDTH_FULL, height = if (HAS_LSP) 8.2 else 7.2,
             fig_dir = fig_dir)
 
 ## ------------------------------- supplement: denominators and exclusions
 DENOM_STEM <- paste0("figureS_local_control_denominators", arm)
-save_figure(pDenom + fig_tags() & TAG_THEME, DENOM_STEM,
+save_figure(pDenom, DENOM_STEM,
             width = FIG_WIDTH_THREEQ, height = 3.4, fig_dir = fig_dir)
 
 ## --------------------------------------------------- supplement: audit only
@@ -423,16 +428,19 @@ pS <- ggplot(elig, aes(pve_cis_joint_unbounded, colour = region)) +
     geom_vline(xintercept = 0, colour = PAL_NULL, linewidth = 0.35,
                linetype = "dashed") +
     scale_colour_manual(values = REGION_COLORS, name = NULL) +
-    labs(x = paste("Unbounded joint estimate (audit only; NOT interpretable as",
-                   "\nabsolute variance explained -- module 02 failed its absolute-PVE gate)"),
-         y = "Density") +
+    labs(x = "Unbounded joint estimate (audit only)", y = "Density") +
     BASE_THEME + NO_TITLES + theme(legend.position = "top")
+legend_note(run_dir, paste0("figureS_local_control_audit_unbounded", arm), "a", paste(
+    "Distribution of the unbounded joint estimate on which the rank is built,",
+    "shown as a diagnostic only. It is not interpretable as absolute variance",
+    "explained: Module 02 failed its absolute-PVE gate, and nothing downstream",
+    "uses it."))
 
 save_figure(pS, paste0("figureS_local_control_audit_unbounded", arm),
             width = FIG_WIDTH_THREEQ, height = 3.4, fig_dir = fig_dir)
 
 ## ---------------------------------------------------------- source data
-## Panel names follow the RENDERED tag: pA -> a, pB -> b, pC -> c, pCtx -> d.
+## Panel names follow the RENDERED tag (TAG, above).
 sd <- function(dt, nm, tbl, filt, runs = runs_used) {
     write_source_data(dt, paste0(STEM, "_", nm),
                       runs, tbl, SCRIPT, filt, data_dir)
@@ -457,16 +465,16 @@ TBL <- sprintf("results/combined/local-genetic-control-%s-{region}-vmrs.tsv", co
 TBL_PRED <- sprintf(paste("02_local_genetic_variance results/combined/local-genetic-control-%s-{region}-vmrs.tsv",
                           "+ 03_local_snp_prediction results/combined/oof-prediction-%s-{region}-vmrs.tsv"),
                     cohort, cohort)
-sd(conc, "panel_a", TBL, FILTER)
+sd(conc, paste0("panel_", TAG[["pA"]]), TBL, FILTER)
 if (HAS_LSP) {
-    sd(dec_sum, "panel_b", TBL_PRED,
+    sd(dec_sum, paste0("panel_", TAG[["pB"]]), TBL_PRED,
        paste(FILTER, "; deciles of local_snp_contribution_score; outcome is",
-             "r2_pred_oof joined on vmr_id; negative values retained (AGENTS.md 7.3)"),
+             "r2_pred_oof joined on vmr_id; negative values retained"),
        runs = runs_used_pred)
 }
-sd(pairs_dt, "panel_c", TBL,
+sd(pairs_dt, paste0("panel_", TAG[["pC"]]), TBL,
    paste(FILTER, "; loci matched across regions by widest genomic overlap"))
-sd(ctx_sum, "panel_d",
+sd(ctx_sum, paste0("panel_", TAG[["pCtx"]]),
    paste(TBL, "+ 01_vmr_catalog qc/distance_to_nearest_gene.tsv"),
    paste(FILTER, "; joined on vmr_id; descriptive proportions, no enrichment test"))
 sd_denom(excl_long, "panel_a", TBL, "all rows; eligibility as recorded upstream")

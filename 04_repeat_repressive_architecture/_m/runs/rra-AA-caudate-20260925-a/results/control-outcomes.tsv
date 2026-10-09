@@ -1,0 +1,37 @@
+outcome	role	region	estimate	p	p_directional	expected_direction	supports_expectation
+h3k27me3_frac	specificity_control	caudate	-0.112304702478723	0.00240673214802464	0.00240673214802464		TRUE
+h3k27me3_frac	specificity_control	dlpfc	-0.07453112801377	0.0120134753939482	0.0120134753939482		TRUE
+h3k27me3_frac	specificity_control	hippocampus	-0.134841388578983	2.70577619944358e-06	2.70577619944358e-06		TRUE
+bivalent_frac	descriptive	caudate	-0.194141060867946	0.0135409077730685	0.0135409077730685		TRUE
+bivalent_frac	descriptive	dlpfc	-0.169398862443271	0.0419564597978512	0.0419564597978512		TRUE
+bivalent_frac	descriptive	hippocampus	-0.33805695029817	9.4519868708765e-09	9.4519868708765e-09		TRUE
+accessible_frac	complementary_contrast	caudate	-0.43656688409352	6.14451828305948e-70	3.07225914152974e-70	negative	TRUE
+accessible_frac	complementary_contrast	dlpfc	-0.430736791857362	1.0328409476861e-67	5.1642047384305e-68	negative	TRUE
+accessible_frac	complementary_contrast	hippocampus	-0.44933595140342	7.01347612714512e-74	3.50673806357256e-74	negative	TRUE
+h3k27ac_frac	complementary_contrast	caudate	-0.42565466008186	4.39915073330724e-58	2.19957536665362e-58	negative	TRUE
+h3k27ac_frac	complementary_contrast	dlpfc	-0.502910060817394	1.18706684796651e-81	5.93533423983255e-82	negative	TRUE
+h3k27ac_frac	complementary_contrast	hippocampus	-0.468089946292716	1.091215432361e-71	5.456077161805e-72	negative	TRUE
+atac_union_frac	complementary_contrast_independent_assay	caudate	-0.387285765754922	2.40217349453614e-56	1.20108674726807e-56	negative	TRUE
+atac_union_frac	complementary_contrast_independent_assay	dlpfc	-0.495784826851489	4.53440291583103e-108	2.26720145791552e-108	negative	TRUE
+atac_union_frac	complementary_contrast_independent_assay	hippocampus	-0.433497450983311	2.83449739411395e-81	1.41724869705697e-81	negative	TRUE
+atac_astro_frac	celltype_breakdown_secondary	caudate	-0.297381999325888	3.29182231659341e-35	1.6459111582967e-35	negative	TRUE
+atac_astro_frac	celltype_breakdown_secondary	dlpfc	-0.441028430761424	4.5123917125367e-77	2.25619585626835e-77	negative	TRUE
+atac_astro_frac	celltype_breakdown_secondary	hippocampus	-0.424358369348788	1.76762668369398e-66	8.8381334184699e-67	negative	TRUE
+atac_endo_frac	celltype_breakdown_secondary	caudate	-0.314043538792644	2.61028234488595e-38	1.30514117244298e-38	negative	TRUE
+atac_endo_frac	celltype_breakdown_secondary	dlpfc	-0.317370840248315	2.31258676545375e-36	1.15629338272688e-36	negative	TRUE
+atac_endo_frac	celltype_breakdown_secondary	hippocampus	-0.304397859232808	3.56313099587037e-31	1.78156549793519e-31	negative	TRUE
+atac_exc_frac	celltype_breakdown_secondary	caudate	-0.255156758443535	4.87559435283843e-27	2.43779717641922e-27	negative	TRUE
+atac_exc_frac	celltype_breakdown_secondary	dlpfc	-0.347300223110942	4.19387094969111e-53	2.09693547484556e-53	negative	TRUE
+atac_exc_frac	celltype_breakdown_secondary	hippocampus	-0.230976094204207	4.45412589911341e-22	2.22706294955671e-22	negative	TRUE
+atac_inh_frac	celltype_breakdown_secondary	caudate	-0.313003564096429	6.34602595528498e-39	3.17301297764249e-39	negative	TRUE
+atac_inh_frac	celltype_breakdown_secondary	dlpfc	-0.368076042716817	2.05539827988538e-55	1.02769913994269e-55	negative	TRUE
+atac_inh_frac	celltype_breakdown_secondary	hippocampus	-0.309115300611759	1.99261445753077e-35	9.96307228765385e-36	negative	TRUE
+atac_micro_frac	celltype_breakdown_secondary	caudate	-0.227038667532417	2.07060695889983e-17	1.03530347944992e-17	negative	TRUE
+atac_micro_frac	celltype_breakdown_secondary	dlpfc	-0.230020712575622	3.07645569916903e-18	1.53822784958452e-18	negative	TRUE
+atac_micro_frac	celltype_breakdown_secondary	hippocampus	-0.189340527812736	3.78253687871075e-12	1.89126843935538e-12	negative	TRUE
+atac_opc_frac	celltype_breakdown_secondary	caudate	-0.382228025263637	2.53838047973213e-57	1.26919023986607e-57	negative	TRUE
+atac_opc_frac	celltype_breakdown_secondary	dlpfc	-0.441663955806087	1.12777933489555e-75	5.63889667447775e-76	negative	TRUE
+atac_opc_frac	celltype_breakdown_secondary	hippocampus	-0.442907071163063	4.6608868537361e-71	2.33044342686805e-71	negative	TRUE
+atac_oligo_frac	celltype_breakdown_secondary	caudate	-0.377660350887913	8.00095247094844e-55	4.00047623547422e-55	negative	TRUE
+atac_oligo_frac	celltype_breakdown_secondary	dlpfc	-0.422023192864842	7.12914275863272e-68	3.56457137931636e-68	negative	TRUE
+atac_oligo_frac	celltype_breakdown_secondary	hippocampus	-0.418164026095442	4.44565555198929e-62	2.22282777599465e-62	negative	TRUE

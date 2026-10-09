@@ -1,0 +1,9 @@
+criterion	passed	detail	run_id	region	population	decision
+chromosome_reconciliation_complete	TRUE	unaccounted=0 unexpected=0	cmb-AA-hippocampus-20260924	hippocampus	AA	PASS_CPG_MEQTL_BURDEN_QC
+cpg_accounting_balances	TRUE	prepared=140134 tested=137293 untested=2841 unaccounted=0	cmb-AA-hippocampus-20260924	hippocampus	AA	PASS_CPG_MEQTL_BURDEN_QC
+tested_reported_separately	TRUE	prepared_but_untested=2841	cmb-AA-hippocampus-20260924	hippocampus	AA	PASS_CPG_MEQTL_BURDEN_QC
+burden_fraction_in_unit_interval	TRUE	range=[0.000, 1.000]	cmb-AA-hippocampus-20260924	hippocampus	AA	PASS_CPG_MEQTL_BURDEN_QC
+genomic_inflation_reported	TRUE	lambda=1.135	cmb-AA-hippocampus-20260924	hippocampus	AA	PASS_CPG_MEQTL_BURDEN_QC
+genomic_inflation_resolved	TRUE	lambda=1.135 (allowed 0.9-1.15)	cmb-AA-hippocampus-20260924	hippocampus	AA	PASS_CPG_MEQTL_BURDEN_QC
+continuous_predictor_is_primary	TRUE	local_snp_contribution_score_z	cmb-AA-hippocampus-20260924	hippocampus	AA	PASS_CPG_MEQTL_BURDEN_QC
+executed_covariate_design_matches_lock	TRUE	M3a over 22 chromosome file(s): agedeath+sex+primarydx+snpPC1+snpPC2+snpPC3+snpPC4+snpPC5+methPC1+methPC2+methPC3+methPC4+methPC5	cmb-AA-hippocampus-20260924	hippocampus	AA	PASS_CPG_MEQTL_BURDEN_QC

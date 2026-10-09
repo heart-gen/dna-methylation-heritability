@@ -1,0 +1,2 @@
+run_id	cohort	region	fdr_family	fdr_method	fdr_alpha	n_chromosomes_with_pairs	n_loci_tested	n_loci_with_significant_meqtl	n_pairs_tested	n_pairs_significant	n_vmrs_with_significant_meqtl	smoke_run
+scz-AA-dlpfc-20261008	AA	dlpfc	scz_risk_variant_cpg_pairs_per_region	BH	0.05	22	400	64	225527	12547	79	FALSE

@@ -221,15 +221,16 @@ cap_b <- paste0(
     if (excluded) "excluded." else "NOT excluded.",
     " q is BH across traits within an annotation, descriptive only.")
 
-cap_all <- paste(strwrap(paste0(
-    "a, prespecified ", n_traits, "-trait family, EUR LD scores, two-annotation model. ",
-    n_sig_brain, " of ", n_brain, " brain-trait and ", n_sig_ctrl, " of ", n_ctrl,
-    " non-brain control tests reach q < 0.05. ", cap_b,
-    " Dashed lines: |z| = 1.96 (nominal)."), width = 125), collapse = "\n")
-
 S1 <- paste0("figureS_partitioned_heritability", arm)
+legend_note(run_dir, S1, "a", paste0(
+    "Prespecified ", n_traits, "-trait family, EUR LD scores, two-annotation model ",
+    "(tau of the score conditional on VMR membership). ", n_sig_brain, " of ",
+    n_brain, " brain-trait and ", n_sig_ctrl, " of ", n_ctrl, " non-brain control ",
+    "tests reach q < 0.05. Dashed lines, |z| = 1.96 (nominal)."))
+legend_note(run_dir, S1, "b", sub("^b, ", "", cap_b))
+
 save_figure((pS1a | pS1b) + plot_layout(widths = c(1, 1), guides = "collect") +
-                fig_tags(caption = cap_all,
+                fig_tags(caption = "Dashed lines: |z| = 1.96",
                          theme = theme(plot.caption = element_text(
                              size = 6.5, hjust = 0, colour = "grey35"),
                              plot.caption.position = "plot")) & TAG_THEME &
@@ -324,15 +325,18 @@ pA1 <- ggplot(per, aes(primary_estimate, region, colour = region)) +
               colour = "grey35") +
     scale_colour_manual(values = REGION_COLORS, guide = "none") +
     scale_y_discrete(limits = rev, expand = expansion(add = c(0.5, 0.8))) +
-    labs(x = "Primary gradient per SD of rank", y = NULL,
-         caption = paste(strwrap(paste0(
-             "Gradient in the debiased squared age effect, ratio scale. ",
-             "Cross-sectional design: age-associated differences, never change ",
-             "with age. \"Signed test only\": the magnitude gate withholds a ",
-             "proportional reading (", sum(!per$mag_ok), " of ", nrow(per),
-             " regions)."), width = 78), collapse = "\n")) +
-    BASE_THEME + NO_TITLES + GRID_Y +
-    theme(plot.caption = element_text(size = 6.5, hjust = 0, colour = "grey35"))
+    labs(x = "Primary gradient per SD of rank", y = NULL) +
+    BASE_THEME + NO_TITLES + GRID_Y
+S2 <- paste0("figureS_aging_axis", arm)
+## Decision tokens are humanized for the legend; the raw tokens stay in the
+## source data, where a reader checks them.
+humanize <- function(x) gsub("_", " ", tolower(x), fixed = TRUE)
+legend_note(run_dir, S2, "a", paste0(
+    "Gradient in the debiased squared age effect along the local SNP ",
+    "contribution rank, ratio scale, with 95% intervals. Cross-sectional design: ",
+    "age-associated differences, never change with age. Signed test only: the ",
+    "magnitude gate withholds a proportional reading (", sum(!per$mag_ok), " of ",
+    nrow(per), " regions)."))
 
 ## The arm that removes the gradient gets the same visual weight as the primary.
 MEMBER_LABELS <- c(controls_only = "Controls only",
@@ -355,11 +359,11 @@ not_fitted <- gat[!(fitted %in% c(TRUE, "TRUE"))]
 nf_reason <- if ("reason" %in% names(not_fitted))
     as.character(not_fitted$reason) else rep(NA_character_, nrow(not_fitted))
 nf_note <- if (nrow(not_fitted) == 0) "" else paste0(
-    "\nNot fitted, so not shown: ",
+    "Not fitted, so not shown: ",
     paste(sprintf("%s in %s%s", MEMBER_LABELS[not_fitted$member],
                   as.character(not_fitted$region),
                   ifelse(is.na(nf_reason) | !nzchar(nf_reason), "",
-                         paste0(" (", nf_reason, ")"))),
+                         paste0(" (", humanize(nf_reason), ")"))),
           collapse = "; "), ".")
 gat_fit <- gat[fitted %in% c(TRUE, "TRUE")]
 
@@ -393,12 +397,12 @@ support_note <- if (length(supported) == 0)
 ## A derived caption has no fixed length, so it is wrapped to the panel rather
 ## than hand-broken. The hard-coded one could carry its own newlines because
 ## nobody expected it to change.
-CAP_B <- paste(unlist(lapply(
-    c(paste0("Cross-region token: ", XR_TOKEN, ". ", support_note),
-      fail_note,
-      sub("^\n", "", nf_note)),
-    function(s) if (!nzchar(s)) NULL else strwrap(s, width = 78))),
-    collapse = "\n")
+CAP_B <- paste(c(paste0("Gating sensitivities under strict conjunction; cross ",
+                        "marks an arm that removes the gradient. Cross-region ",
+                        "reading: ", humanize(XR_TOKEN), ". ", support_note),
+                 fail_note, nf_note)[nzchar(c("x", fail_note, nf_note))],
+               collapse = " ")
+legend_note(run_dir, S2, "b", CAP_B)
 
 pA2 <- ggplot(gat_fit, aes(estimate, mlab, colour = region,
                            shape = survives)) +
@@ -408,12 +412,12 @@ pA2 <- ggplot(gat_fit, aes(estimate, mlab, colour = region,
     scale_shape_manual(values = c(`TRUE` = 16, `FALSE` = 4),
                        labels = c(`TRUE` = "survives", `FALSE` = "fails"),
                        name = NULL) +
-    labs(x = "Gating-sensitivity estimate", y = NULL, caption = CAP_B) +
+    labs(x = "Gating-sensitivity estimate", y = NULL) +
     BASE_THEME + NO_TITLES + GRID_Y +
     theme(legend.position = "top", legend.margin = margin(0, 0, -4, 0),
-          plot.caption = element_text(size = 6.5, hjust = 0, colour = "grey35"))
+          legend.text = element_text(size = 7),
+          legend.key.width = grid::unit(8, "pt"))
 
-S2 <- paste0("figureS_aging_axis", arm)
 save_figure((pA1 / pA2) + plot_layout(heights = c(0.8, 1)) + fig_tags() & TAG_THEME,
             S2, width = FIG_WIDTH_THREEQ, height = 6.0, fig_dir = fig_dir)
 write_source_data(per, paste0(S2, "_panel_a"), unname(AGE),
@@ -428,7 +432,7 @@ write_source_data(per, paste0(S2, "_panel_a"), unname(AGE),
 gat_sd <- merge(gat,
                 per[, .(region, region_reading, region_supported)],
                 by = "region", all.x = TRUE)
-gat_sd[, `:=`(cross_region_token = XR_TOKEN, caption_rendered = CAP_B)]
+gat_sd[, `:=`(cross_region_token = XR_TOKEN, legend_note = CAP_B)]
 write_source_data(gat_sd, paste0(S2, "_panel_b"), unname(AGE),
                   "results/gating-sensitivities.tsv + _m/combined/aging-cross-region-decision-{cohort}.tsv",
                   SCRIPT,
@@ -436,7 +440,7 @@ write_source_data(gat_sd, paste0(S2, "_panel_b"), unname(AGE),
                   data_dir)
 write_source_data(qrt, paste0(S2, "_quartiles"), unname(AGE),
                   "results/axis-quartile-summary.tsv", SCRIPT,
-                  "secondary quartile contrast; the continuous model is primary (AGENTS.md 7.2)",
+                  "secondary quartile contrast; the continuous model is primary",
                   data_dir)
 
 ## =============================================== Environmental (Module 10)
@@ -478,7 +482,13 @@ if (env_ok) {
     n_reportable <- sum(eax$relative_magnitude_reportable %in% c(TRUE, "TRUE"))
     max_den_z <- max(as.numeric(eax$relative_magnitude_den_z), na.rm = TRUE)
     eax[, region := as_region(region)]
-    eax[, fam := paste0(exposure, " @ ", stratum)]
+    ## Readable family labels: "nicotine @ all" was a code identifier.
+    STRATUM_LABELS <- c(all = "all donors", schizophrenia = "schizophrenia cases")
+    eax[, fam := paste0(toupper(substr(gsub("_", " ", exposure), 1, 1)),
+                        substring(gsub("_", " ", exposure), 2), " (",
+                        fifelse(stratum %in% names(STRATUM_LABELS),
+                                STRATUM_LABELS[stratum], gsub("_", " ", stratum)),
+                        ")")]
     ## Ratio-scale families only: a `raw` family has mean(omega) <= 0, so no
     ## ratio exists and its estimate is not on the same scale.
     rel <- eax[primary_scale != "raw"]
@@ -500,40 +510,40 @@ if (env_ok) {
 
     ## Derived, so of no fixed length: wrapped to the panel, never hand-broken
     ## (ggplot does not wrap captions; the unwrapped draft ran off the page).
-    CAP_E <- paste(unlist(lapply(c(
+    CAP_E <- paste(
         paste0("Exploratory supplement; x axis clipped to [", LIM[1], ", ", LIM[2],
-               "], estimates outside it printed in full. ", SIG_KEY,
-               "   ? FDR call undetermined across bootstrap seeds."),
+               "], estimates outside it printed in full. Stars give the FDR call; ",
+               "? marks a call that is undetermined across bootstrap seeds."),
         if (n_reportable == 0L) paste0(
             "Signed gradients only: no family passes the relative-magnitude gate (0 of ",
             n_fam, "; max denominator z = ", sprintf("%.2f", max_den_z),
             "), so no percentage may be attached to any estimate.")
         else paste0(n_reportable, " of ", n_fam, " families pass the relative-magnitude ",
                     "gate; only those may be stated as a percentage."),
-        paste0("A negative gradient is NOT evidence that exposure effects concentrate ",
-               "in weakly controlled VMRs (variance budget, AGENTS.md 7.10).")),
-        strwrap, width = 120)), collapse = "\n")
+        paste0("Whether active, low-local-control VMRs respond more to non-genetic ",
+               "influences cannot be distinguished from the larger residual variance ",
+               "that remains when local genetic contribution is lower."))
 
     pE <- ggplot(rel, aes(primary_beta, fam, colour = region)) +
         geom_vline(xintercept = 0, colour = PAL_NULL, linewidth = 0.35) +
         errorbar_h(aes(xmin = primary_ci_lower, xmax = primary_ci_upper),
                    position = position_dodge(width = 0.72), linewidth = 0.4) +
         geom_point(size = 1.5, position = position_dodge(width = 0.72)) +
-        geom_text(aes(label = stars), position = position_dodge(width = 0.72),
-                  hjust = -0.4, vjust = 0.75, size = 2.5, show.legend = FALSE) +
+        geom_text(aes(x = pmin(primary_ci_upper, LIM[2]), label = stars),
+                  position = position_dodge(width = 0.72),
+                  hjust = -0.25, vjust = 0.75, size = 2.5, show.legend = FALSE) +
         geom_text(data = rel[offscale == TRUE], aes(label = off_lab),
                   x = LIM[1], hjust = -0.03, vjust = -0.9, size = 2.0,
                   show.legend = FALSE) +
         coord_cartesian(xlim = LIM) +
         scale_colour_manual(values = REGION_COLORS, name = NULL) +
         labs(x = "Proportional gradient in exposure-explained variance per SD of rank",
-             y = NULL,
-             caption = CAP_E) +
-        BASE_THEME + NO_TITLES + GRID_Y +
-        theme(legend.position = "top", legend.margin = margin(0, 0, -4, 0),
-              plot.caption = element_text(size = 6.5, hjust = 0, colour = "grey35"))
+             y = NULL, caption = paste0(SIG_KEY, "   ? undetermined")) +
+        BASE_THEME + NO_TITLES + GRID_Y + KEY_THEME +
+        theme(legend.position = "top", legend.margin = margin(0, 0, -4, 0))
 
     S3 <- paste0("figureS_environmental_axis", arm)
+    legend_note(run_dir, S3, "a", CAP_E)
     save_figure(pE, S3, width = FIG_WIDTH_FULL, height = 4.0, fig_dir = fig_dir)
     write_source_data(eax, paste0(S3, "_panel_a"),
                       unique(eax$run_id),
@@ -588,13 +598,19 @@ if (file.exists(gm_f)) {
     a1 <- gm[cell_type == "simulated_n"]
     a2[, region := as_region(cell)]
     draft_note <- if (greml_ok) "" else "DRAFT: built from UNACCEPTED 02b runs. "
+    ## Readable labels: facets and modes were rendered as code identifiers.
+    cap1 <- function(x) paste0(toupper(substr(x, 1, 1)), substring(x, 2))
+    a2[, architecture := cap1(gsub("_", " ", architecture))]
+    REML_LABELS <- c(constrained_ai = "Constrained (AI-REML)",
+                     unconstrained_fisher = "Unconstrained (Fisher scoring)")
+    H2_SIM <- expression("Simulated local"~italic(h)^2)
 
     pG1 <- ggplot(a2, aes(h2_nominal, mean_estimate, colour = region)) +
         geom_abline(slope = 1, intercept = 0, colour = PAL_NULL, linewidth = 0.35) +
         geom_line(linewidth = 0.45) + geom_point(size = 1.1) +
         facet_wrap(~ architecture, nrow = 1) +
         scale_colour_manual(values = REGION_COLORS, name = NULL) +
-        labs(x = "Simulated local h2", y = "Mean REML estimate") +
+        labs(x = H2_SIM, y = "Mean REML estimate") +
         BASE_THEME + NO_TITLES + GRID_Y +
         theme(legend.position = "top", legend.margin = margin(0, 0, -4, 0))
     pG2 <- ggplot(a2, aes(h2_nominal, coverage95, colour = region)) +
@@ -603,29 +619,34 @@ if (file.exists(gm_f)) {
         facet_wrap(~ architecture, nrow = 1) +
         scale_colour_manual(values = REGION_COLORS, guide = "none") +
         scale_y_continuous(labels = percent_format(accuracy = 1)) +
-        labs(x = "Simulated local h2", y = "95% CI coverage") +
+        labs(x = H2_SIM, y = "95% CI coverage") +
         BASE_THEME + NO_TITLES + GRID_Y
     pG3 <- if (nrow(a1)) ggplot(a1, aes(as.numeric(cell), bias, colour = reml_mode)) +
         geom_hline(yintercept = 0, colour = PAL_NULL, linewidth = 0.35) +
         geom_line(linewidth = 0.45) + geom_point(size = 1.1) +
         scale_x_log10() +
-        scale_colour_manual(values = c(PAL_BLUE, PAL_TAN), name = NULL) +
+        scale_colour_manual(values = c(constrained_ai = PAL_CHARCOAL,
+                                       unconstrained_fisher = PAL_ALT),
+                            labels = REML_LABELS, name = NULL) +
         labs(x = "Simulated sample size (log scale)", y = "Mean bias") +
         BASE_THEME + NO_TITLES + GRID_Y +
         theme(legend.position = "top", legend.margin = margin(0, 0, -4, 0))
     else NULL
-    CAP_G <- paste(strwrap(paste0(
-        draft_note, "Simulated phenotypes only; no observed locus is estimated. ",
-        "a-b: real AA cis-window genotypes at each region's design n, primary mode ",
-        PRIMARY_REML, ".", if (!is.null(pG3)) paste0(
-            " c: the v1 AR(1) design, out of regime for real cis-windows; it does ",
-            "not transfer to the cohort.") else ""), width = 115), collapse = "\n")
-    cap_theme <- theme(plot.caption = element_text(size = 6.5, hjust = 0, colour = "grey35"),
-                       plot.caption.position = "plot")
-    ## The caption rides the last panel, whichever that is.
-    if (is.null(pG3)) pG2 <- pG2 + labs(caption = CAP_G) + cap_theme
-    else pG3 <- pG3 + labs(caption = CAP_G) + cap_theme
     SG <- paste0("figureS_greml_benchmark", arm)
+    legend_note(run_dir, SG, "a-b", paste0(
+        "Simulated phenotypes only; no observed locus is estimated. Real AA ",
+        "cis-window genotypes at each region's design n; primary REML mode ",
+        REML_LABELS[[PRIMARY_REML]], ". Panel b, coverage of the 95% interval."))
+    if (!is.null(pG3)) legend_note(run_dir, SG, "c", paste(
+        "The v1 AR(1) design, out of regime for real cis-windows; it does not",
+        "transfer to the cohort."))
+    ## A draft build keeps one visible line saying so; a sealed run never has it.
+    if (nzchar(draft_note)) {
+        cap_theme <- theme(plot.caption = element_text(size = 6.5, hjust = 0,
+                                                       colour = "grey35"))
+        if (is.null(pG3)) pG2 <- pG2 + labs(caption = draft_note) + cap_theme
+        else pG3 <- pG3 + labs(caption = draft_note) + cap_theme
+    }
     gfig <- if (is.null(pG3)) (pG1 / pG2) else (pG1 / pG2 / pG3)
     save_figure(gfig + fig_tags() & TAG_THEME, SG, width = FIG_WIDTH_FULL,
                 height = if (is.null(pG3)) 5.0 else 7.4, fig_dir = fig_dir)
@@ -685,10 +706,16 @@ if (cohort == ccfg$cohort && file.exists(cgs_f("existence"))) {
     stopifnot(length(CGS_PRIMARY) == 1L)
     score_col <- ccfg$summaries$score_column
     for (d in list(cex, cod, cpf, csl)) d[, region := as_region(region)]
-    mode_lab <- function(m) ifelse(m == CGS_PRIMARY, paste0(m, " (primary)"),
-                                   paste0(m, " (convergence sensitivity)"))
+    ## Readable names: these rendered as code identifiers.
+    ESTIMATOR_LABELS <- c(fusion_unconstrained = "REML, FUSION",
+                          fisher_unconstrained = "REML, Fisher scoring",
+                          he_h2 = "HE-regression h\u00b2", bslmm_pve = "BSLMM PVE")
+    est_lab <- function(m) ifelse(m %in% names(ESTIMATOR_LABELS),
+                                  ESTIMATOR_LABELS[m], gsub("_", " ", m))
+    mode_lab <- function(m) ifelse(m == CGS_PRIMARY, paste0(est_lab(m), " (primary)"),
+                                   paste0(est_lab(m), " (sensitivity)"))
     for (d in list(cpf, csl, cod)) d[, mode := mode_lab(reml_mode)]
-    MODE_COLORS <- setNames(c(PAL_CHARCOAL, PAL_TAN), mode_lab(c(CGS_PRIMARY,
+    MODE_COLORS <- setNames(c(PAL_CHARCOAL, PAL_ALT), mode_lab(c(CGS_PRIMARY,
                                 setdiff(unique(cex$reml_mode), CGS_PRIMARY))))
     cdraft <- if (cgs_ok) "" else "DRAFT: built from UNACCEPTED 02c runs. "
 
@@ -706,9 +733,9 @@ if (cohort == ccfg$cohort && file.exists(cgs_f("existence"))) {
     ## The score is the primary comparison, so it gets the filled mark.
     feats <- setdiff(unique(cod$against), score_col)
     cod[, against_lab := factor(ifelse(against == score_col, "Module 02 score (primary)",
-                                       paste0(against, " (descriptive)")),
+                                       paste0(est_lab(against), " (descriptive)")),
                                 levels = c("Module 02 score (primary)",
-                                           paste0(feats, " (descriptive)")))]
+                                           paste0(est_lab(feats), " (descriptive)")))]
     pC2 <- ggplot(cod, aes(region, estimate, colour = mode, shape = against_lab)) +
         geom_pointrange(aes(ymin = ci_low, ymax = ci_high), size = 0.25, linewidth = 0.35,
                         position = position_dodge(0.6)) +
@@ -729,8 +756,8 @@ if (cohort == ccfg$cohort && file.exists(cgs_f("existence"))) {
 
     ex_p <- cex[reml_mode == CGS_PRIMARY]
     od_p <- cod[reml_mode == CGS_PRIMARY & against == score_col]
-    CAP_C <- paste(strwrap(paste0(
-        cdraft, "Real VMR phenotypes with Module 02's donors, cis SNPs and covariates: ",
+    CAP_C <- paste0(
+        "Real VMR phenotypes with Module 02's donors, cis SNPs and covariates: ",
         "agreement between estimators on shared data, not replication. ",
         "Existence: the mean primary-mode estimate's jackknife CI excludes zero in ",
         sum(ex_p$ci_low > 0), " of ", nrow(ex_p), " regions. ",
@@ -738,12 +765,10 @@ if (cohort == ccfg$cohort && file.exists(cgs_f("existence"))) {
         paste(sprintf("%.2f", range(od_p$estimate)), collapse = "-"), " (primary). ",
         "a: decile means are conditioned on a score built from the same data and are ",
         "not absolute PVE; each region on its own axis. c: fits that did not converge ",
-        "are excluded from a and b. No VMR is classified by GREML significance."),
-        width = 115), collapse = "\n")
-    pC3 <- pC3 + labs(caption = CAP_C) +
-        theme(plot.caption = element_text(size = 6.5, hjust = 0, colour = "grey35"),
-              plot.caption.position = "plot")
+        "are excluded from a and b. No VMR is classified by GREML significance.")
     SC <- paste0("figureS_cis_greml_sensitivity", arm)
+    legend_note(run_dir, SC, "a-c", CAP_C)
+    if (nzchar(cdraft)) pC3 <- pC3 + labs(caption = cdraft) + KEY_THEME
     save_figure((pC1 / pC2 / pC3) + plot_layout(heights = c(1.1, 0.9, 0.8)) +
                     fig_tags() & TAG_THEME,
                 SC, width = FIG_WIDTH_FULL, height = 7.6, fig_dir = fig_dir)
@@ -787,6 +812,11 @@ scz_dir <- function(r) file.path(V2_ROOT, "09_schizophrenia_risk_application",
 
 axt <- by_region(function(r) fread(file.path(scz_dir(r), "architecture-axis-tests.tsv")))
 lev <- by_region(function(r) fread(file.path(scz_dir(r), "locus-evidence.tsv")))
+## One row per locus. Loci with two index SNPs were once counted twice (A2),
+## inflating every count in panel b and duplicating a locus in panel c.
+dup <- lev[, .N, by = .(region, locus_id)][N > 1L]
+if (nrow(dup)) stop("locus-evidence.tsv repeats ", nrow(dup), " locus x region rows; ",
+                    "rerun Module 09 on the de-duplicating combine stage.")
 
 ## The result is a depletion in every region. If that ever flips, this figure's
 ## axis labels and caption are wrong.
@@ -798,13 +828,22 @@ if (!all(prim$direction == "lower_in_scz_linked")) {
 }
 if (any(grepl("enrich", prim$contrast_label, ignore.case = TRUE) &
         !grepl("DEPLETION", prim$contrast_label))) {
-    stop("Module 09 emitted an enrichment framing; AGENTS.md 7.8 forbids it.")
+    stop("Module 09 emitted an enrichment framing; it is not licensed.")
 }
 prim[, region := as_region(region)]
 lev[, region := as_region(region)]
 
-pZ1 <- ggplot(prim, aes(estimate, region, colour = region)) +
+## The Wilcoxon mean difference has no standard error, so the panel draws the
+## covariate-adjusted logistic log-odds (the estimate the README and stage 16
+## report) with its 95% interval; the Wilcoxon row stays in the source data.
+adj <- axt[predictor == "local_snp_contribution_score_z" & model == "logistic_adjusted"]
+stopifnot(nrow(adj) == length(regions), all(adj$direction == "lower_in_scz_linked"))
+adj[, region := as_region(region)]
+adj[, `:=`(lo = estimate - 1.96 * std_error, hi = estimate + 1.96 * std_error)]
+
+pZ1 <- ggplot(adj, aes(estimate, region, colour = region)) +
     geom_vline(xintercept = 0, colour = PAL_NULL, linewidth = 0.35) +
+    errorbar_h(aes(xmin = lo, xmax = hi), linewidth = 0.45) +
     geom_point(size = 2.1) +
     geom_text(aes(label = paste0(sig_stars(qvalue), "  n = ",
                                  label_comma()(n_linked), " linked / ",
@@ -813,15 +852,17 @@ pZ1 <- ggplot(prim, aes(estimate, region, colour = region)) +
               colour = "grey35") +
     scale_colour_manual(values = REGION_COLORS, guide = "none") +
     scale_y_discrete(limits = rev, expand = expansion(add = c(0.5, 0.9))) +
-    labs(x = "Mean axis difference, SCZ-linked minus background (score SD)",
-         y = NULL,
-         caption = paste("Negative = SCZ-linked VMRs sit LOWER on the",
-                         "local genetic-control axis. A depletion, never an",
-                         "enrichment.\nThe depletion is trait-general (Fig. 5);",
-                         "schizophrenia is a typical example, not a",
-                         "schizophrenia-specific effect.")) +
-    BASE_THEME + NO_TITLES + GRID_Y +
-    theme(plot.caption = element_text(size = 6.5, hjust = 0, colour = "grey35"))
+    scale_x_continuous(limits = c(min(adj$lo, 0) * 1.1, 0.05)) +
+    labs(x = "Log-odds of SCZ linkage per SD of the local SNP contribution rank",
+         y = NULL) +
+    BASE_THEME + NO_TITLES + GRID_Y
+S4 <- paste0("figureS_schizophrenia_application", arm)
+legend_note(run_dir, S4, "a", paste(
+    "Covariate-adjusted log-odds that a VMR is linked to a schizophrenia-risk",
+    "locus, per SD of the local SNP contribution rank, with 95% intervals;",
+    "adjusted for VMR length, CpG count, GC content and mappability. Negative:",
+    "schizophrenia-linked VMRs sit lower on the local genetic-control axis. The",
+    "depletion is trait-general (Figure 5); schizophrenia is a typical example."))
 
 ## Locus evidence tiers. Counts of loci carrying each independent line of
 ## support, so the reader sees how thin or thick each tier is.
@@ -841,16 +882,16 @@ pZ2 <- ggplot(ev, aes(n_loci, tier, fill = region)) +
               hjust = -0.25, size = 2.2, colour = "black") +
     scale_fill_manual(values = REGION_COLORS, name = NULL) +
     scale_x_continuous(expand = expansion(mult = c(0, 0.16))) +
-    labs(x = "Schizophrenia-risk loci with the evidence type", y = NULL,
-         caption = paste0("Out of ", lev[, .N, by = region][, paste(N, collapse = "/")],
-                          " loci linked to a VMR (caudate/DLPFC/hippocampus).",
-                          "\nGWAS loci defined from European-ancestry summary",
-                          " statistics; the cohort is admixed African American.",
-                          "\nCaudate carries CAUDATE_MAGNITUDE_CLAIM_NOT_SUPPORTED",
-                          " and is batch-confounded.")) +
+    labs(x = "Schizophrenia-risk loci with the evidence type", y = NULL) +
     BASE_THEME + NO_TITLES + GRID_X +
-    theme(legend.position = "top", legend.margin = margin(0, 0, -4, 0),
-          plot.caption = element_text(size = 6.5, hjust = 0, colour = "grey35"))
+    theme(legend.position = "top", legend.margin = margin(0, 0, -4, 0))
+legend_note(run_dir, S4, "b", paste0(
+    "Counts of schizophrenia-risk loci carrying each evidence type, out of ",
+    lev[, uniqueN(locus_id), by = region][, paste(V1, collapse = "/")],
+    " loci linked to a VMR (caudate/DLPFC/hippocampus). GWAS loci were defined ",
+    "from European-ancestry summary statistics; the cohort is admixed African ",
+    "American. The caudate magnitude claim is not supported, and caudate is ",
+    "batch-confounded."))
 
 ## The prioritized loci, as an evidence grid rather than a table of ticks.
 pri <- lev[prioritized %in% c(TRUE, "TRUE")]
@@ -863,28 +904,25 @@ pri_long[, tier := factor(tier, levels = unname(EV))]
 pZ3 <- ggplot(pri_long, aes(tier, locus, fill = has)) +
     geom_tile(colour = "white", linewidth = 0.8) +
     facet_wrap(~ region, nrow = 1, scales = "free_y") +
-    scale_fill_manual(values = c(`TRUE` = PAL_RUST, `FALSE` = "#EFEAE4"),
+    scale_fill_manual(values = c(`TRUE` = PAL_CHARCOAL, `FALSE` = "#EFEAE4"),
                       labels = c(`TRUE` = "present", `FALSE` = "absent"),
                       name = NULL) +
-    labs(x = NULL, y = NULL,
-         caption = paste("Up to five prioritized loci per region under the",
-                         "prespecified ranked composite rule.\nAn elastic-net",
-                         "or index SNP is not a causal variant, and no panel",
-                         "here claims mediation.")) +
+    labs(x = NULL, y = NULL) +
     BASE_THEME + NO_TITLES +
     theme(legend.position = "top", legend.margin = margin(0, 0, -4, 0),
           axis.text.x = element_text(angle = 35, hjust = 1, size = 7),
-          axis.text.y = element_text(size = 7),
-          plot.caption = element_text(size = 6.5, hjust = 0, colour = "grey35"))
-
-S4 <- paste0("figureS_schizophrenia_application", arm)
+          axis.text.y = element_text(size = 7))
+legend_note(run_dir, S4, "c", paste(
+    "Up to five prioritized loci per region under the prespecified ranked",
+    "composite rule. An index SNP is not a causal variant, and no panel claims",
+    "mediation."))
 save_figure((pZ1 / pZ2 / pZ3) + plot_layout(heights = c(0.8, 1.0, 1.15)) +
                 fig_tags() & TAG_THEME,
             S4, width = FIG_WIDTH_FULL, height = 8.6, fig_dir = fig_dir)
 
-write_source_data(prim, paste0(S4, "_panel_a"), unname(SCZR),
+write_source_data(rbind(adj, prim, fill = TRUE), paste0(S4, "_panel_a"), unname(SCZR),
                   "results/architecture-axis-tests.tsv", SCRIPT,
-                  "predictor == 'local_snp_contribution_score_z'; model == 'wilcoxon_rank_sum'; direction is lower_in_scz_linked (a DEPLETION) in all three regions; trait-general, never schizophrenia-specific",
+                  "predictor == 'local_snp_contribution_score_z'; rendered: model == 'logistic_adjusted' (lo/hi = estimate +/- 1.96 SE); the wilcoxon_rank_sum row is the direction check. Direction lower_in_scz_linked (a depletion) in all three regions; trait-general, never schizophrenia-specific",
                   data_dir)
 write_source_data(ev, paste0(S4, "_panel_b"), unname(SCZR),
                   "results/locus-evidence.tsv", SCRIPT,

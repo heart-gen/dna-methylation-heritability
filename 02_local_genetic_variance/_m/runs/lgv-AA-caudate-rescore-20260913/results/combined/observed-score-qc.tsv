@@ -1,0 +1,7 @@
+criterion	observed	rule	threshold	pass	detail
+task_reconciliation_complete	1	equal	1	TRUE	11530 expected; 11530 unique; 0 unaccounted
+zero_computational_failures	0	equal	0	TRUE	0 rows flagged
+within_domain_rate	0.991889270915983	greater_or_equal	0.9	TRUE	11251/11343 complete-feature VMRs eligible
+score_is_nondegenerate	11251	greater_or_equal	2	TRUE	11251 unique values on pve_cis_joint_unbounded; max tie fraction 0.0001; boundary rate 0.6247
+absolute_pve_is_prohibited	0	equal	0	TRUE	absolute_pve_interpretation_allowed must be FALSE for every row
+interpretation_decision_is_locked	1	equal	1	TRUE	PASS_RELATIVE_GENETIC_CONTROL_FAIL_ABSOLUTE_LOCUS_PVE

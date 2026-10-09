@@ -167,7 +167,7 @@ Every run has 0 computational failures.
 | cgs-AA-dlpfc-20261006-a | AA | dlpfc | vmrset-AA-dlpfc-856067dfe289 | 2026-10-06 | Kynon J. M. Benjamin | PASS_CIS_GREML_SENSITIVITY_QC | Built at 7b5b09eb8, same config; upstreams vmrcat-AA-dlpfc-20260816, lgv-AA-dlpfc-rescore-20260913; 19,144 units, 0 failed; SNP set matched on 9,347/9,347. Spearman 0.914 [0.905, 0.922] (n = 8,906), Fisher 0.909. Existence CI [0.264, 0.294], not a level. Agreement between estimators, not replication; no per-VMR h2, no significance classes. |
 | cgs-AA-hippocampus-20261006-a | AA | hippocampus | vmrset-AA-hippocampus-2d907b892215 | 2026-10-06 | Kynon J. M. Benjamin | PASS_CIS_GREML_SENSITIVITY_QC | Built at 7b5b09eb8, same config; upstreams vmrcat-AA-hippocampus-20260816, lgv-AA-hippocampus-rescore-20260913; 18,994 units, 0 failed; SNP set matched on 9,272/9,272. Spearman 0.922 [0.914, 0.929] (n = 8,786), Fisher 0.915. Existence CI [0.288, 0.318], not a level. Agreement between estimators, not replication; no per-VMR h2, no significance classes. |
 
-Accepted by the PI on 2026-10-06 (signed `writing-notes/DRAFT_02c_acceptance_20261006.md`).
+Accepted by the PI on 2026-10-06.
 
 ## Superseded runs
 
@@ -189,6 +189,6 @@ in worktrees from now on.
 
 ## Contract
 
-This module follows AGENTS.md §5.2. Its configuration is
+This module follows the repository layout. Its configuration is
 `config/cis_greml_sensitivity.yml`. It depends on 01 and 02 and reads both
 read-only.

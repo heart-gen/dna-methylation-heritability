@@ -1,0 +1,21 @@
+field	value
+run_id	fig-all-20261009-b
+analysis	integrated_manuscript_outputs
+stage	main_and_supplemental_figures
+git_commit	4e4f21811bcdc9dade8cd71fa3bcb1c7111e0288
+git_dirty	false
+code_snapshot	code/_h + code/config
+n_code_files	39
+r_version	4.4.3
+conda_prefix	/projects/p32505/opt/envs/epigenomics
+hostname	qnode0128
+slurm_job_id	9278074
+n_figures	25
+n_figure_files	50
+n_source_tables	83
+upstream_runs	age-AA-caudate-20261003;age-AA-dlpfc-20261003;age-AA-hippocampus-20261003;cgs-AA-caudate-20261006-a;cgs-AA-dlpfc-20261006-a;cgs-AA-hippocampus-20261006-a;cmb-AA-caudate-20260924;cmb-AA-crossregion-20261007;cmb-AA-dlpfc-20260924;cmb-AA-hippocampus-20260924;env-AA-caudate-20261003;env-AA-dlpfc-20261003;env-AA-hippocampus-20261003;greml-AA-caudate-20261003-a;greml-AA-dlpfc-20261003-a;greml-AA-hippocampus-20261003-a;greml-sim-ar1-20261003;lgv-AA-caudate-rescore-20260913;lgv-AA-dlpfc-rescore-20260913;lgv-AA-hippocampus-rescore-20260913;lgv-all_individuals-caudate-20260823;lgv-all_individuals-dlpfc-20260823;lgv-all_individuals-hippocampus-20260823;lsp-AA-caudate-20260925-a;lsp-AA-dlpfc-20260925-a;lsp-AA-hippocampus-20260925-a;rdg-AA-crossregion-20261008;rra-AA-caudate-20260925-a;rra-AA-dlpfc-20260925-a;rra-AA-hippocampus-20260925-a;scz-AA-caudate-20261008;scz-AA-dlpfc-20261008;scz-AA-hippocampus-20261008;sldsc-AA-caudate-20261008;sldsc-AA-dlpfc-20261008;sldsc-AA-external-20261008;sldsc-AA-hippocampus-20261008;tsc-AA-caudate-20260925-b;tsc-AA-dlpfc-20260925-b;tsc-AA-hippocampus-20260925-b;vmrcat-AA-caudate-20260816;vmrcat-AA-dlpfc-20260816;vmrcat-AA-hippocampus-20260816;vmrcat-all_individuals-caudate-20260816;vmrcat-all_individuals-dlpfc-20260816;vmrcat-all_individuals-hippocampus-20260816;vmrcatqc-AA-caudate-20261008-a;vmrcatqc-AA-dlpfc-20261008-a;vmrcatqc-AA-hippocampus-20261008-a;vmrcatqc-all_individuals-caudate-20261008-a;vmrcatqc-all_individuals-dlpfc-20261008-a;vmrcatqc-all_individuals-hippocampus-20261008-a
+config_cohorts_sha256	f32eb4c9d8db9754b0b2b404561859ec56acdc9fcc2eb28d0dc8aa337a356f8e
+config_paths_sha256	1d6f6e77e8bda2e6d409602a191a053583cf3219715b4f0e137ef00fdbcb1b1b
+config_region_donor_generalization_sha256	60ef8f6c4bbe0c4e3bf80185da617ab7c49635787ac166cf84ecffdfcac4092f
+finished_at	2026-10-09T00:29:04-0500
+n_output_files	211

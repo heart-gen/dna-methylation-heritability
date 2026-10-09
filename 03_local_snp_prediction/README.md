@@ -93,9 +93,8 @@ still applies.
 
 `local-snp-prediction/`, plus the untracked `local-snp-prediction/oof_diagnostic/` that established defect E1.
 
-See `MIGRATION_MANIFEST.tsv` for the legacy paths, their downstream consumers,
-and retirement status. Legacy directories stay in place until their row reads
-`validated_replacement`.
+The legacy v1 trees were retired on 2026-10-06; their tracked files are
+recoverable from the annotated tag `v1-legacy-final`.
 
 ## Why the legacy module cannot be reused
 
@@ -181,7 +180,7 @@ cancellation at 13:30-13:56 that killed 3,019 of 6,121 array tasks across 17+
 nodes with no logs and `ExitCode 0:0`. The combine step correctly refused all
 three cells rather than computing on partial loci ("Reconciliation found 5085
 unaccounted task(s) ... A missing output file is not an explanation"), which is
-AGENTS.md section 9 behaving as designed. Resubmitted as `-20260925-a` with the
+the zero-unexplained-failure rule behaving as designed. Resubmitted as `-20260925-a` with the
 per-array throttle lowered from `%200` to `%66`, after which all three cells
 completed with zero failures.
 
@@ -211,7 +210,7 @@ the same way: every cell with n >= 117 sits at 44.6-44.9%, and only the two
 smallest fall to 34-37%.
 
 None of these numbers licenses a claim that local genetic control of
-methylation differs between donor groups. Per AGENTS.md 7.7 the donor-group
+methylation differs between donor groups. Per the locked analysis plan the donor-group
 result is a statement of **concordance** on a shared locus set, not a
 comparison of per-cell effect sizes, and sample size, MAF, LD and SNP
 availability must be eliminated before any difference is discussed. Where a
@@ -226,7 +225,7 @@ prefix.
 
 ## Donor-group estimation cells
 
-Added 2026-09-10 alongside Module 02 (AGENTS.md §7.7, PI 2026-09-06).
+Added 2026-09-10 alongside Module 02.
 
 `--cohort` takes a **cell token**: a discovery arm (`AA`, `all_individuals`) or
 a donor-group estimation cell (`all_individuals.AA`, `all_individuals.EA`).
@@ -271,7 +270,7 @@ groups would absorb any mean difference between them and report it as accuracy;
 `pooled_r2_emitted = FALSE` is carried on every row. As in Module 02, compare
 ordering — the summary reports Spearman correlation of the two cells' per-locus
 r² — not levels, and eliminate n, MAF, LD and SNP availability before
-attributing any difference to donor group (AGENTS.md §7.7).
+attributing any difference to donor group.
 
 Usage:
 

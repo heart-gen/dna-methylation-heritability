@@ -1,0 +1,11 @@
+criterion	pass	detail	decision
+every_output_carries_exactly_one_tier	TRUE	7 outputs, each exactly one known tier	PASS_REGION_DONOR_GENERALIZATION_QC
+cross_region_replication_computed_for_all_three_regions	TRUE	regions present: caudate,dlpfc,hippocampus; expected: caudate,dlpfc,hippocampus; 374 tests assessed	PASS_REGION_DONOR_GENERALIZATION_QC
+identified_difference_restricted_to_dlpfc_hippocampus	TRUE	contrast: dlpfc minus hippocampus; confounded regions excluded: caudate	PASS_REGION_DONOR_GENERALIZATION_QC
+caudate_downsampling_replicates_complete	TRUE	3 of 3 replicates; reading 'donor_count_is_a_plausible_major_contributor'; batch-confounding flag retained	PASS_REGION_DONOR_GENERALIZATION_QC
+donor_group_policy_is_concordance_only	TRUE	policy 'concordance_only'; ancestry_effect_claim_allowed=FALSE; 3 regions carry it	PASS_REGION_DONOR_GENERALIZATION_QC
+no_pooled_rank_or_pooled_r2_emitted	TRUE	no pooled rank and no pooled r2 in any donor-group output	PASS_REGION_DONOR_GENERALIZATION_QC
+no_cross_region_raw_score_comparison	TRUE	agreement_basis=rank_and_direction	PASS_REGION_DONOR_GENERALIZATION_QC
+confounded_caudate_reported_separately_not_dropped	TRUE	374 caudate rows retained, none supporting a claim	PASS_REGION_DONOR_GENERALIZATION_QC
+reliability_ceiling_attached_to_every_concordance_figure	TRUE	ceilings present for 3 regions; observed agreement at 85.3%/88.7%/87.9% of ceiling	PASS_REGION_DONOR_GENERALIZATION_QC
+cross_region_completeness_nonvacuous	TRUE	314 of 374 tests observed in all 3 regions (flag: 314; summary: 314); 13 claim-family tests complete	PASS_REGION_DONOR_GENERALIZATION_QC

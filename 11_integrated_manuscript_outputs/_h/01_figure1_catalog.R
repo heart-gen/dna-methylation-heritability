@@ -205,7 +205,7 @@ turn_long[, class := factor(class, levels = c("Retained", "Novel in v2",
 pTurn <- ggplot(turn_long, aes(region, n, fill = class)) +
     geom_col(width = 0.8, position = position_dodge(width = 0.8)) +
     scale_fill_manual(values = c(Retained = PAL_CHARCOAL,
-                                 `Novel in v2` = PAL_RUST,
+                                 `Novel in v2` = PAL_ALT,
                                  `Lost from legacy` = PAL_NULL), name = NULL) +
     scale_y_continuous(labels = label_number(scale_cut = cut_short_scale()),
                        expand = expansion(mult = c(0, 0.10))) +
@@ -240,11 +240,16 @@ pG <- ggplot(gdist[distance_to_nearest_gene > 0],
     geom_density(linewidth = 0.5) +
     scale_x_log10(labels = label_number(scale_cut = cut_short_scale())) +
     scale_colour_manual(values = REGION_COLORS, guide = "none") +
-    annotate("text", x = 1, y = Inf, hjust = 0, vjust = 1.6, size = 2.4,
+    annotate("text", x = 1, y = Inf, hjust = 0, vjust = 1.25, size = 2.4,
              colour = "grey35",
-             label = sprintf("%s%% of VMRs lie within a gene body",
-                             paste(sprintf("%.0f", 100 * frac_in_gene$f),
-                                   collapse = "/"))) +
+             ## Each percentage names its region; "59/57/57%" did not say
+             ## which number was which.
+             lineheight = 0.95,
+             label = paste0("Within a gene body:\n",
+                            paste(sprintf("%s %.0f%%",
+                                          as.character(frac_in_gene$region),
+                                          100 * frac_in_gene$f),
+                                  collapse = ", "))) +
     labs(x = "Distance to nearest gene (bp)", y = "Density") +
     BASE_THEME + NO_TITLES
 
@@ -272,7 +277,8 @@ save_figure(figure, STEM, width = FIG_WIDTH_FULL, height = 9.2, fig_dir = fig_di
 ## four turnover figures where there are two results.
 TURN_STEM <- paste0("figureS_catalog_turnover", arm)
 if (platform == "450K") {
-    save_figure(pTurn + fig_tags() & TAG_THEME, TURN_STEM,
+    ## Single panel: no lone "a" tag.
+    save_figure(pTurn, TURN_STEM,
                 width = FIG_WIDTH_THREEQ, height = 3.2, fig_dir = fig_dir)
 }
 
@@ -315,7 +321,7 @@ sd(gdist[, .(n = .N, frac_within_gene = mean(distance_to_nearest_gene == 0),
 if (platform == "450K") {
     write_source_data(turn_long, paste0(TURN_STEM, "_panel_a"), runs_used,
                       "qc/vmr_turnover.tsv", SCRIPT,
-                      "autosomes; legacy is a comparison baseline only (AGENTS.md 8)",
+                      "autosomes; legacy is a comparison baseline only",
                       data_dir)
 }
 

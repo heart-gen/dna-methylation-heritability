@@ -31,7 +31,7 @@ cross_region:
 #
 # `require_interaction_for_ancestry_claim: true` was removed here. It asked for a
 # test this design cannot run and must not run: an interaction term needs a
-# pooled group x genotype model, and AGENTS.md 7.6 forbids comparing the Module
+# pooled group x genotype model, and the locked analysis plan forbids comparing the Module
 # 02 score across cells at any level. The key was unsatisfiable, so it licensed
 # nothing and guarded nothing. The three keys below say the same restriction
 # positively, and unlike the old key they are read and enforced -- see
@@ -50,7 +50,7 @@ cross_region:
 #   ancestry_effect_claim_allowed: whether any observed AA/EA difference may be
 #     attributed to ancestry. FALSE, and not merely pending more data: the cells
 #     differ in n (EA is roughly half of AA per region), MAF spectrum, LD and SNP
-#     availability, and AGENTS.md 7.7 requires all of those be eliminated first.
+#     availability, and the locked analysis plan requires all of those be eliminated first.
 #     Flipping this to true is a PI act that needs the eliminating analysis in
 #     hand, not a config edit.
 donor_group:
@@ -84,8 +84,7 @@ phase7_scz:
   # Colocalization left `deferred` while no ancestry-matched QTL resource was
   # wired up. PI decision 2026-09-09: it is authorised and implemented in
   # 09_schizophrenia_risk_application under its own gate, using PGC3 European
-  # summary statistics against GTEx v11 European brain eQTL/sQTL (AGENTS.md 7.8
-  # permits the claim once the analysis is run with ancestry-matched LD). The
+  # summary statistics against GTEx v11 European brain eQTL/sQTL. The
   # cross-ancestry EUR-GWAS x AA-meQTL arm stays exploratory and gate-ineligible.
   # See config/schizophrenia.yml:colocalization.
   # 5_regional_specificity is no longer deferred: PI 2026-09-18 made "shared or

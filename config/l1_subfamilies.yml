@@ -2,7 +2,7 @@
 #
 # PI direction 2026-10-07 (Kynon J.M. Benjamin): "implement a LINE/L1 subfamily
 # resolution: young L1HS/L1PA versus older L1M; full-length versus fragment, if
-# possible." This realizes the AGENTS.md 7.4 "high-value extension" that
+# possible." This realizes the the locked analysis plan "high-value extension" that
 # config/repeat_annotations.yml:repeatmasker.l1_subfamily_definitions has
 # carried as `null` since 2026-08-23.
 #

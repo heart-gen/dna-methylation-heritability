@@ -73,8 +73,7 @@ defect was found: in the run-retirement cleanup, Module 02 runs were the only
 ones that resisted deletion.
 
 **The repair binds new runs only.** Rewriting the modes of a run that has already
-been closed and cited would itself be a modification after close, which AGENTS.md
-5.2 forbids. Every run sealed before 2026-09-23 outside Module 02 therefore still
+been closed and cited would itself be a modification after close, which the locked analysis plan forbids. Every run sealed before 2026-09-23 outside Module 02 therefore still
 has writable directories. That is a property of those runs, not an outstanding
 repair — treat their immutability as a convention rather than an enforcement, and
 rely on `output_checksums.tsv` to detect a change rather than on the filesystem

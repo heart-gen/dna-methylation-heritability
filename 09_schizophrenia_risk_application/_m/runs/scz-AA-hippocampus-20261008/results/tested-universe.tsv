@@ -1,0 +1,2 @@
+run_id	cohort	region	vmr_set_id	n_loci_published	n_loci_with_linked_vmr	n_vmrs_total	n_vmrs_linked	n_locus_vmr_links	locus_flank_bp	smoke_run
+scz-AA-hippocampus-20261008	AA	hippocampus	vmrset-AA-hippocampus-2d907b892215	612	560	9166	2017	2965	500000	FALSE

@@ -1,0 +1,4 @@
+quartile	n_vmrs	mean_debiased_sq_beta_relative	rms_age_effect_per_decade	frac_gain_with_age	region	run_id	spec	descriptive_only
+bottom_quartile	2292	1.14547244277521	0.00528899927988703	0.606893542757417	hippocampus	age-AA-hippocampus-20261003	primary	TRUE
+middle_50_percent	4582	1.27006407386164	0.00556921521265579	0.634439109559145	hippocampus	age-AA-hippocampus-20261003	primary	TRUE
+top_quartile	2292	0.314635067506621	0.00277194588543011	0.568499127399651	hippocampus	age-AA-hippocampus-20261003	primary	TRUE

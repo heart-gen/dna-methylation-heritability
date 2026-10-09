@@ -2,8 +2,7 @@
 # Prespecified; do not tune after seeing results.
 #
 # This module is NOT a symmetric "shared versus context-dependent" analysis.
-# Brain region is perfectly confounded with sequencing batch (AGENTS.md 8.1;
-# writing-notes/WGBS_BATCH_REGION_CONFOUNDING.md), so replication and difference
+# Brain region is perfectly confounded with sequencing batch, so replication and difference
 # are not two equal findings here. Every output carries exactly one tier, and
 # the tier travels with the result into every table and figure.
 #
@@ -59,7 +58,7 @@ tiers:
 cross_region_replication:
   regions: [caudate, dlpfc, hippocampus]
   cohort: AA
-  # AGENTS.md 7.6 forbids raw score-level comparison ACROSS REGIONS, so
+  # the locked analysis plan forbids raw score-level comparison ACROSS REGIONS, so
   # agreement is measured on directions and ranks, never on levels.
   agreement_basis: rank_and_direction
   min_regions_for_replication: 2
@@ -224,7 +223,7 @@ interpretation:
   technically_confounded_regions:
     all_outcomes: [caudate]
   # Cross-population predictor portability is optional and secondary
-  # (AGENTS.md 7.7); off until the primary axes are accepted.
+  #; off until the primary axes are accepted.
   predictor_portability:
     enabled: false
   required_eliminations_before_ancestry_language:

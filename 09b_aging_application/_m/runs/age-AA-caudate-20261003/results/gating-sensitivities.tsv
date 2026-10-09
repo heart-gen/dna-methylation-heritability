@@ -1,0 +1,5 @@
+member	rule	fitted	survives	estimate	p	reason	fraction_of_primary
+cell_music	sign_and_p	TRUE	TRUE	-0.293730032573867	5.69370749088975e-07		
+cell_scmd	sign_and_p	TRUE	FALSE	-0.24071799151753	0.0551129891041677		
+cell_composition_r2	sign_and_p	TRUE	TRUE	-0.199436422857157	0.000984115240544708		
+controls_only	sign_and_min_fraction_of_primary	TRUE	TRUE	-0.31628850108996	2.58221717557651e-05		1.25674768949668

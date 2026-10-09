@@ -1,0 +1,14 @@
+Interpretation constraints carried by this run:
+  - NON-GATING. The accepted Module 06 decision (sldsc_supports_brain_enrichment
+    = FALSE, sldsc-AA-caudate-20261008, sldsc-AA-dlpfc-20261008, sldsc-AA-hippocampus-20261008) is unchanged. This run is the positive control
+    that run lacked: same baseline model, LD reference, weights, frq and munged
+    GWAS files; each annotation enters alone on top of baselineLD v2.2.
+  - Reading: if a Rizzardi NeuN+ CG-DMR annotation of comparable footprint is
+    enriched for the brain traits and the standalone VMR_TESTED is not, the
+    pipeline can detect enrichment at this footprint and the VMR null is not a
+    pure power null. If neither is, the VMR null stays 'no detectable
+    enrichment at this footprint'.
+  - Enrichment is interpretable for every annotation here: all are binary.
+  - q-values are BH across the 8 traits within an annotation, descriptive only.
+  - EUR LD and EUR-dominated GWAS; the annotations are genomic features, not
+    donor properties (Module 06 README, LD reference and ancestry).

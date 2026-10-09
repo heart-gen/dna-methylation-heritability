@@ -1,0 +1,2 @@
+run_id	cohort	regions	n_criteria	n_passed	decision	gate_certifies	accepted_by	accepted_on
+rdg-AA-crossregion-20261008	AA	caudate,dlpfc,hippocampus	10	10	PASS_REGION_DONOR_GENERALIZATION_QC	tiering and interpretation constraints, not a positive finding		

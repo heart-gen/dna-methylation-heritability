@@ -1,0 +1,2 @@
+tier	contrast	batches	strict_conjunction	n_pairs	n_testable	n_fdr_significant	n_donor_robust_se	n_difference_claimed	n_difference_claimed_primary	n_difference_claimed_primary_claim_family	n_difference_claimed_negative_control	n_claim_family_pairs	alpha	fdr_method	confounded_regions_set_aside	n_descriptive_rows_retained
+identified_difference	dlpfc minus hippocampus	1,2	TRUE	374	314	38	1	37	8	0	0	13	0.05	BH	caudate	374

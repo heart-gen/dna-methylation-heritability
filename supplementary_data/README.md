@@ -37,18 +37,21 @@ deposit-ready resolves to nothing. Run it before staging an upload.
 
 ## Tiering
 
-`_m/runs/` is gitignored, so a run output always answers `no` to `in_git`; only
-`_m/combined/` is tracked. That gives three tiers:
+Every file of every accepted run is assigned a tier by
+`_h/build_release.py`, recorded in `release_manifest.tsv` with the reason:
 
-- **`git+zenodo`** — a cross-region summary in `_m/combined/`. Readable from a
-  clone, and mirrored to Zenodo so the DOI is self-contained.
-- **`zenodo`** — a per-VMR or per-locus table from an accepted run. Too large for
-  git, small enough to deposit, and generally the sufficient statistic for a
-  reported number: without it a reader cannot recompute an FDR or refit an axis
-  model, because the significant subset does not carry the family it was
-  corrected within.
+- **`git+zenodo`** / **`lfs+zenodo`** — a manuscript file: a Supplementary Data
+  table, a figure source table, a decision or gate table, a run manifest, or the
+  accepted figure run. Tracked in this repository (Git LFS above 15 MB, with
+  `git add -f`, since `_m/runs/` stays gitignored) and mirrored in the module's
+  Zenodo zip. A manuscript file is never on Zenodo alone.
+- **`zenodo`** — a reproducibility extra no manuscript text uses; in the
+  module's zip only (`zenodo/zenodo_manifest.tsv`).
 - **`quest`** — bulk intermediates that no claim rests on: full nominal meQTL
   output, per-fold diagnostics, sharded copies of a table deposited whole.
+- Individual-level data is in no tier (dbGaP phs000979).
+
+The `distribution` column below states each row's tiers.
 
 ## Statuses
 
@@ -62,7 +65,7 @@ deposit-ready resolves to nothing. Run it before staging an upload.
 | `transform_on_deposit` | ships, but a column must be rewritten when the archive is cut |
 | `audit_only` | retained inside its module for audit; not a reportable quantity |
 | `excluded` | deliberately Quest-only |
-| `superseded` | a v1 output a v2 run replaces; retire per AGENTS.md §3 |
+| `superseded` | a v1 output a v2 run replaces; retire per the locked analysis plan |
 | `external` | not generated here; cite the source instead of redepositing |
 | `blocked_donor_ids` | carries donor identifiers **and is tracked in git** |
 | `blocked_unlocked_config` | produced by a stage whose config is not PI-locked |

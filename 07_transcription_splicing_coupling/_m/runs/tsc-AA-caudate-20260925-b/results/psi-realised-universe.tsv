@@ -1,0 +1,2 @@
+modality	cohort	region	run_id	n_donors	residual_df	n_pairs_declared	n_pairs_tested	n_features_declared	n_features_after_filtering	n_features_tested	n_vmrs_tested	max_na_fraction	feature_namespace	n_sig_pairs	n_vmrs_coupled	fdr_method	fdr_threshold
+psi	AA	caudate	tsc-AA-caudate-20260925-b	153	138	2415112	353728	519195	72818	72691	10455	0	psi_event_key_v1	419	253	BH	0.05

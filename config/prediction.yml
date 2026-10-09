@@ -35,7 +35,7 @@ elastic_net:
   lambda_rule: lambda.min
 
 screen:
-  # AGENTS.md 7.3 forbids the ordinary-OLS Haseman-Elston p-value as the
+  # the locked analysis plan forbids the ordinary-OLS Haseman-Elston p-value as the
   # production screen without donor-robust or permutation calibration. The lock
   # is therefore HE calibrated by permutation INSIDE the outer-training donors.
   method: he_permutation

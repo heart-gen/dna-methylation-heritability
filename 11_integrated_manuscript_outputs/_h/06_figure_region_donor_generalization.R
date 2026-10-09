@@ -111,7 +111,7 @@ PREDICTOR_LABELS <- c(
     local_genetic_control = "rank",
     any_meqtl_support     = "any meQTL",
     meqtl_proportion      = "meQTL fraction")
-FAMILY_LABELS <- c(repeat_architecture = "Repeat",
+FAMILY_LABELS <- c(repeat_architecture = "Repeat/repressive",
                    meqtl_burden        = "meQTL",
                    expression_coupling = "Coupling",
                    control             = "Control")
@@ -127,14 +127,14 @@ for (nm in c("outcome", "predictor")) {
 }
 
 ## Fill is direction x nominal significance, which every source module
-## defines. FDR is marked separately (*), and only where the source module
+## defines. Purple/orange, not rust/blue: those hues mean caudate and DLPFC. FDR is marked separately (*), and only where the source module
 ## declares an FDR family: Module 04 corrects its primary prespecified tests
 ## only, so most repeat-architecture rows carry q = NA by design, and shading
 ## them "not FDR-significant" would misreport them.
-STATE_FILLS <- c("Positive, P < 0.05" = "#9C4A2C",
-                 "Positive, n.s."     = "#EAD2C2",
-                 "Negative, n.s."     = "#D3E1EA",
-                 "Negative, P < 0.05" = "#2F5F7C")
+STATE_FILLS <- c("Positive, P < 0.05" = PAL_POS,
+                 "Positive, n.s."     = "#D9D3EA",
+                 "Negative, n.s."     = "#F9DDB8",
+                 "Negative, P < 0.05" = "#B35806")
 STATE_TEXT  <- c("Positive, P < 0.05" = "white", "Positive, n.s." = PAL_CHARCOAL,
                  "Negative, n.s." = PAL_CHARCOAL, "Negative, P < 0.05" = "white")
 
@@ -148,7 +148,8 @@ encode_state <- function(d) {
     d
 }
 
-MARK_KEY <- "* FDR < 0.05 within the source module's family   ● replicated   ○ not"
+MARK_KEY <- paste0("* FDR < 0.05 within the source module's family\n",
+                   "● replicated   ○ not   n/N: Module 04 gate, regions passing / required")
 
 tile_theme <- BASE_THEME + NO_TITLES +
     theme(axis.line = element_blank(), axis.ticks = element_blank(),
@@ -187,20 +188,51 @@ rep_marks <- unique(cells[, .(family, label, replicated_strict)])
 rep_marks[, `:=`(region = "Replicated",
                  mark = fifelse(replicated_strict, "●", "○"))]
 
+## Module 04's own gate beside Module 08's replication mark (N5). Module 08
+## replicates DIRECTION across regions; Module 04 asks whether an outcome
+## survives every locked sensitivity in each region. H3K9me3 is replicated here
+## and below Module 04's gate (2 of 3 regions), and only the gate licenses a
+## shared-across-regions claim, so both are shown and neither is collapsed.
+RRA_HOST <- require_accepted_upstream("04_repeat_repressive_architecture",
+                                      cohort, "caudate")$run_id
+m04 <- fread(file.path(V2_ROOT, "04_repeat_repressive_architecture", "_m", "runs",
+                       RRA_HOST, "results", "interpretation-claims.tsv"))
+m04 <- m04[, .(outcome, gate = sprintf("%d/%d", as.integer(regions_surviving),
+                                       as.integer(regions_required)),
+               permitted_claim)]
+gate_marks <- merge(
+    unique(rep_primary[analysis == "repeat_architecture" &
+                       predictor == "local_snp_contribution_score_z" &
+                       is_negative_control == FALSE, .(family, label, outcome)]),
+    m04, by = "outcome")
+gate_marks[, region := "Module 04\ngate"]
+
 pA <- ggplot(cells, aes(region, label)) +
     geom_tile(aes(fill = state), colour = "white", linewidth = 0.7) +
     geom_text(aes(label = fdr_mark, colour = state), size = 3.4, vjust = 0.78) +
     geom_text(data = rep_marks, mapping = aes(region, label, label = mark),
               size = 2.4, colour = PAL_CHARCOAL, inherit.aes = FALSE) +
+    geom_text(data = gate_marks, mapping = aes(region, label, label = gate),
+              size = 2.3, colour = PAL_CHARCOAL, inherit.aes = FALSE) +
     facet_grid(family ~ ., scales = "free_y", space = "free_y") +
-    scale_fill_manual(values = STATE_FILLS, name = NULL) +
+    ## Short key labels: the full ones ran past panel a's width at the top.
+    scale_fill_manual(values = STATE_FILLS, name = NULL,
+                      labels = c("Positive, P < 0.05" = "+, P < 0.05",
+                                 "Positive, n.s." = "+, n.s.",
+                                 "Negative, n.s." = "\u2212, n.s.",
+                                 "Negative, P < 0.05" = "\u2212, P < 0.05")) +
     scale_colour_manual(values = STATE_TEXT, guide = "none") +
-    scale_x_discrete(limits = c(REGION_ORDER, "Replicated")) +
+    scale_x_discrete(limits = c(REGION_ORDER, "Replicated", "Module 04\ngate")) +
     labs(x = NULL, y = NULL, caption = MARK_KEY) +
-    guides(fill = guide_legend(ncol = 1)) +
+    guides(fill = guide_legend(ncol = 2)) +
     tile_theme +
+    ## Legend above the tiles: at the bottom it sat far below a heatmap that is
+    ## shorter than the right-hand column it is laid out against.
     theme(strip.text.y = element_text(angle = -90, size = 7.5),
-          panel.spacing.y = grid::unit(2.5, "pt"))
+          panel.spacing.y = grid::unit(2.5, "pt"),
+          legend.position = "top", legend.margin = margin(0, 0, 2, 0),
+          legend.justification = "left", legend.text = element_text(size = 6.5),
+          plot.caption = element_text(size = 6.5, hjust = 0, colour = PAL_CHARCOAL))
 
 ## ------------------------------- B. tier 2: DLPFC minus hippocampus, QQ plot
 qq <- identified[testable == TRUE & is.finite(delta_p)]
@@ -233,9 +265,9 @@ pB <- ggplot(qq, aes(expected, observed)) +
     geom_abline(slope = 1, intercept = 0, colour = PAL_NULL, linewidth = 0.35) +
     geom_point(data = qq[claimed == FALSE & passes_outside == FALSE],
                colour = PAL_CHARCOAL, size = 1, alpha = 0.7) +
-    geom_point(data = qq[passes_outside == TRUE], colour = PAL_RUST, size = 1.3,
+    geom_point(data = qq[passes_outside == TRUE], colour = PAL_POS, size = 1.3,
                shape = 1) +
-    geom_point(data = qq[claimed == TRUE], colour = PAL_RUST, size = 1.8) +
+    geom_point(data = qq[claimed == TRUE], colour = PAL_POS, size = 1.8) +
     ## Since the claim family was repaired (2026-10-03) the claimed difference
     ## sits mid-curve, with the rows that pass outside the family above and
     ## right of it, so a label beside the point crossed them or ran off a panel
@@ -244,12 +276,12 @@ pB <- ggplot(qq, aes(expected, observed)) +
     geom_segment(data = qq[claimed == TRUE],
                  aes(x = 0.45, y = observed + 1.15,
                      xend = expected - 0.04, yend = observed + 0.08),
-                 colour = PAL_RUST, linewidth = 0.3) +
+                 colour = PAL_POS, linewidth = 0.3) +
     geom_text(data = qq[claimed == TRUE],
               aes(x = 0.05, y = observed + 1.25,
                   label = sub(" \u00b7 ", "\n\u00b7 ", label, fixed = TRUE)),
               hjust = 0, vjust = 0, size = 2.3, lineheight = 0.9,
-              colour = PAL_RUST) +
+              colour = PAL_POS) +
     ## With no claimed difference the upper-left corner is empty and the count
     ## goes there; bottom-right sat on the near-origin points. A claimed
     ## difference's label owns the upper-left, so the count then moves back.
@@ -336,6 +368,9 @@ pD <- ggplot(dg, aes(y = region_lab)) +
 
 ## ----------------------------------------------------------------- layout
 right <- (pB / pC / pD) + plot_layout(heights = c(1, 0.9, 1))
+## Not freed: free(pA) collapses the heatmap's tiles, and freeing pD inside the
+## nested column errors in patchwork 1.3.2, so panel d keeps a small gap above
+## its axis title.
 figure <- (pA | right) +
     plot_layout(widths = c(0.78, 1)) +
     fig_tags() & TAG_THEME
@@ -392,19 +427,37 @@ pS <- ggplot(sens, aes(region, label)) +
     scale_fill_manual(values = STATE_FILLS, name = NULL) +
     scale_colour_manual(values = STATE_TEXT, guide = "none") +
     labs(x = NULL, y = NULL,
-         caption = paste(c("* FDR < 0.05 within the source module's family.", nf_cap),
-                         collapse = "\n")) +
+         caption = "* FDR < 0.05 within the source module's family") +
     tile_theme +
     ## The scMD facet is one tile wide, so its strip label must be allowed past it.
     theme(strip.text.x = element_text(size = 7.5, face = "bold"),
           strip.clip = "off")
 
 save_figure(pS, FIG_S, width = FIG_WIDTH_FULL, height = 3.4, fig_dir = fig_dir)
+legend_note(out_root, FIG_S, "a", paste(
+    "The claim family's repeat and repressive tests and the H3K27me3 control",
+    "under every Module 04 sensitivity set, encoded as in the main figure's panel a.",
+    if (is.null(nf_cap)) "" else nf_cap))
+legend_note(out_root, FIG, "a", paste(
+    "Fill: direction and nominal significance in each region; * marks FDR < 0.05",
+    "within the source module's family. Replicated (filled circle): the strict",
+    "cross-region rule, direction consistent and nominal in at least two regions",
+    "with every sensitivity set agreeing. Module 04 gate: regions in which the",
+    "outcome survives every locked sensitivity, over regions required; only a full",
+    "gate licenses a shared-across-regions statement, so H3K9me3 is replicated in",
+    "direction but below Module 04's gate. Caudate LINE/L1 is set aside in",
+    "Module 04 as technically confounded, so both LINE/L1 tests rest on DLPFC and",
+    "hippocampus."))
 
 ## ------------------------------------------------------------ source data
 src <- list(
-    a = list(cells[, .(family, label, region, estimate, se, z, p, q, state,
-                       fdr_mark, replicated_strict, is_negative_control, test_id)],
+    a = list(merge(cells[, .(family, label, region, estimate, se, z, p, q, state,
+                             fdr_mark, replicated_strict, is_negative_control, test_id)],
+                   rep_primary[, .(test_id, n_regions, n_nominal, n_up_nominal,
+                                   n_down_nominal, n_sensitivity_sets,
+                                   n_sensitivity_replicated)],
+                   by = "test_id")[
+                 , module04_gate := gate_marks$gate[match(label, gate_marks$label)]][],
              "cross-region-tests.tsv + cross-region-replication.tsv",
              "analysis_set == primary & (in_claim_family | is_negative_control)"),
     b = list(qq[, .(test_id, analysis, outcome, predictor, delta, delta_se,

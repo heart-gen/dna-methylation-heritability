@@ -1,5 +1,5 @@
 ## Helpers for the final prespecified joint BSLMM/EN/HE PVE experiment.
-## The estimator family is locked in config/FINAL_JOINT_PVE_STRATEGY.md.
+## The estimator family is locked in config/local_genetic_control.yml.
 
 read_joint_settings <- function(path) {
     tab <- read_tsv(path)

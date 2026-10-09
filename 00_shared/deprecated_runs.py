@@ -92,6 +92,13 @@ def accepted_ids(module):
     `gates.R::read_accepted_runs()`, which is column-validated and correctly
     returns only real rows. The two have opposite failure costs: the gate must
     not admit a bogus acceptance, this must not miss a real one.
+
+    One exception, and only one: rows under a subsection whose heading says
+    the runs are superseded, withdrawn or retired. Module 05 keeps its
+    replaced `cmb-AA-*-20260825` cells in a `### Superseded` table inside this
+    section as a record, and over-collecting them protected 37 GB that the
+    README itself says nothing reads. A heading that names the runs as
+    replaced is an explicit statement, not an inference.
     """
     path = os.path.join(REPO, module, "README.md")
     if not os.path.exists(path):
@@ -102,7 +109,13 @@ def accepted_ids(module):
         return set()
     body = re.split(r"^##\s", parts[1], flags=re.M)[0]
     out = set()
+    replaced = False
     for line in body.splitlines():
+        if line.startswith("#"):
+            replaced = bool(re.search(r"supersed|withdrawn|retired", line, re.I))
+            continue
+        if replaced:
+            continue
         if not line.startswith("|") or set(line) <= set("|- :"):
             continue
         cells = [c.strip() for c in line.strip("|").split("|")]
@@ -194,14 +207,22 @@ def compute_protected(modules):
     # those three classified as `superseded`. They survived the first cleanup
     # tranche only because no successor could be guessed for them, which is a
     # naming heuristic, not knowledge that the project depends on them.
+    #
+    # YAML comments are skipped. A comment that mentions a run ("rdg-...-0918
+    # is accepted, so ...") is history, not a pin, and protecting on it kept
+    # superseded and smoke runs alive and tripped the cleanup stage's guard on
+    # a ledger row it had itself marked deletable.
     for root, _, files in os.walk(os.path.join(REPO, "config")):
         for name in files:
             try:
-                protected |= set(RUN_TOKEN.findall(
-                    open(os.path.join(root, name), encoding="utf-8",
-                         errors="replace").read()))
+                lines = open(os.path.join(root, name), encoding="utf-8",
+                             errors="replace").read().splitlines()
             except OSError:
-                pass
+                continue
+            for ln in lines:
+                if ln.lstrip().startswith("#"):
+                    continue
+                protected |= set(RUN_TOKEN.findall(re.sub(r"\s#.*$", "", ln)))
 
     fig = newest_figure_run(modules)
     if fig:
@@ -273,32 +294,54 @@ def main():
     # marked `deleted:` are preserved verbatim, and a previously recorded
     # `cleanup_status` is kept for any run still on disk so a human decision
     # (`keep`, `hold`, ...) is not reset by re-running the survey.
+    #
+    # The ledger is MERGED, never rebuilt. Rebuilding dropped every prior row
+    # whose run had left disk without a `deleted:` status (the `archived:` v1
+    # rows), dropped rows whose run had since become protected, and reset
+    # `deprecated_on` to today on every surviving row. Rows are keyed on
+    # (module, run_id), because run IDs were only ever unique in practice.
     previous = {}
-    out = os.path.join(REPO, "DEPRECATED_RUNS.tsv")
+    # Kept locally under the gitignored _archive/, not in the public tree.
+    out = os.path.join(REPO, "_archive", "project-management", "DEPRECATED_RUNS.tsv")
     if os.path.exists(out):
         with open(out, encoding="utf-8") as fh:
             head = fh.readline().rstrip("\n").split("\t")
             for line in fh:
                 if line.strip():
                     r = dict(zip(head, line.rstrip("\n").split("\t")))
-                    previous[r.get("run_id", "")] = r
+                    previous[(r.get("module", ""), r.get("run_id", ""))] = r
 
-    live = {r["run_id"] for r in rows}
+    live = {(r["module"], r["run_id"]) for r in rows}
     for r in rows:
-        prior = previous.get(r["run_id"], {}).get("cleanup_status", "")
+        prev = previous.get((r["module"], r["run_id"]), {})
+        if prev.get("deprecated_on"):
+            r["deprecated_on"] = prev["deprecated_on"]
+        prior = prev.get("cleanup_status", "")
         if prior and prior != "pending":
             r["cleanup_status"] = prior
-    for rid, r in previous.items():
-        if rid not in live and r.get("cleanup_status", "").startswith("deleted"):
-            rows.append({c: r.get(c, "") for c in cols})
+            if prev.get("reason"):
+                r["reason"] = prev["reason"]
+    today = _dt.date.today().isoformat()
+    for key, r in previous.items():
+        if key in live:
+            continue
+        kept = {c: r.get(c, "") for c in cols}
+        on_disk = os.path.isdir(os.path.join(REPO, r.get("path", "")))
+        if kept["cleanup_status"] == "pending" and on_disk:
+            # Became protected since it was ledgered: keep the row as a
+            # record, but take it out of the cleanup stage's reach.
+            kept["cleanup_status"] = f"protected:{today}"
+        rows.append(kept)
 
     rows.sort(key=lambda r: (r["module"], r["run_id"]))
 
     # Summarise only what is still on disk. The carried-forward `deleted:` rows
     # are history, and counting their bytes here would report space that has
     # already been reclaimed as though it were still waiting to be.
-    pending = [r for r in rows if not r["cleanup_status"].startswith("deleted")]
-    gone = [r for r in rows if r["cleanup_status"].startswith("deleted")]
+    def off_disk(r):
+        return r["cleanup_status"].startswith(("deleted", "archived"))
+    pending = [r for r in rows if not off_disk(r)]
+    gone = [r for r in rows if off_disk(r)]
 
     total = sum(int(r["bytes"]) for r in pending)
     by = {}
@@ -313,7 +356,7 @@ def main():
     print(f"  review_required: {sum(1 for r in pending if r['review_required'] == 'TRUE')}")
     if gone:
         freed = sum(int(r["bytes"]) for r in gone)
-        print(f"  already deleted: {len(gone):4d} dirs  {freed / 1e9:7.2f} GB "
+        print(f"  already removed: {len(gone):4d} dirs  {freed / 1e9:7.2f} GB "
               f"(history, retained in this file)")
     if fig:
         print(f"current figure run protected: {fig}")

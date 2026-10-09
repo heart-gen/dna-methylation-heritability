@@ -1,7 +1,7 @@
 # S-LDSC partitioned heritability on a CONTINUOUS local-genetic-control
 # annotation (Module 06). Prespecified; do not tune after seeing results.
 #
-# AGENTS.md 3 bans the retired v1 form of this analysis, which partitioned VMRs
+# the locked analysis plan bans the retired v1 form of this analysis, which partitioned VMRs
 # into heritable / non-heritable quintiles at a threshold on r_squared_cv. The
 # annotation here is continuous, threshold-free, and carries no absolute PVE.
 # 01_build_annotation.R fails closed if any of those properties is violated.
@@ -45,7 +45,7 @@ annotation:
   # absorb a VMR-versus-genome difference, and tau blurs the within-VMR gradient
   # with a membership effect. With vmr_tested in the model, tau on the score is
   # conditional on membership.
-  # See writing-notes/ISSUE_06_two_annotation_model.md.
+  # See internal note ISSUE_06_two_annotation_model.md (not distributed).
   annotations:
     - name: VMR_TESTED
       role: membership

@@ -1,0 +1,5 @@
+tier	rank	label	licenses	regions	cannot_establish
+cross_region_replication	1	Strongest	Robustness of the genetic-control architecture across technical and regional contexts.	all	""
+identified_difference	2	Identified difference	Genuine regional heterogeneity.	dlpfc,hippocampus	""
+mechanistic_sensitivity	3	Mechanistic sensitivity	Whether donor count explains the caudate excess -- and nothing more.	all	residual excess is biological; region effect independent of batch
+descriptive_only	4	Descriptive only	Nothing. Reported because readers will ask.	caudate	""

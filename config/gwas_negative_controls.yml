@@ -128,7 +128,7 @@ focal_sumstats:
 #     which attenuates a true contrast toward zero rather than inflating it.
 #   AFFECTED. Transferable loci skew gene-dense. Regions detectable in Europeans
 #     and shared across ancestries are the conserved, well-mapped, gene-dense
-#     ones, and low-control VMRs are gene-proximal (AGENTS.md 7.4). Part of the
+#     ones, and low-control VMRs are gene-proximal. Part of the
 #     depletion may therefore be discovery bias that broad genomic context is
 #     too coarse to absorb. Stage 18 is the finer-grained check.
 #
@@ -202,7 +202,7 @@ axis:
 # connects directly to the Module 04 architecture instead of merely qualifying
 # Module 09.
 #
-# Design mirrors 09b (AGENTS.md 7.9): ONE annotation at a time, each fitted with
+# Design mirrors 09b: ONE annotation at a time, each fitted with
 # and without the control score, so an enrichment that is only the axis
 # restated is visible as such. Same glm and same technical covariates as stage
 # 17 model A, so estimates are on one scale.
@@ -232,7 +232,7 @@ locus_architecture:
     # Plus the axis predictor: does the annotation enrichment survive knowing
     # where the VMR sits on the control axis?
     technical_score: [local_snp_contribution_score_z]
-  # AGENTS.md 7.4 requires a high-mappability restriction before any repeat or
+  # the locked analysis plan requires a high-mappability restriction before any repeat or
   # heterochromatin statement. Applied to the annotations where that rule bites;
   # the others are fitted on all eligible VMRs only, to keep the test count down.
   mappability_restricted_arm:
@@ -248,7 +248,7 @@ locus_architecture:
   # annotation. This is the quantity that would tie the two modules together.
   correlate_with_axis_estimate: true
   prohibited:
-    # AGENTS.md 7.4. Overlap is overlap.
+    # the locked analysis plan. Overlap is overlap.
     - retrotransposition_or_activity_claim_from_overlap
     - cell_type_of_origin_from_bulk
     # A trait's loci landing in a compartment says nothing about mechanism.
@@ -282,7 +282,7 @@ interpretation:
     # 2. Ancestry. Say whose GWAS the loci came from, every time the locus set is
     #    described, and locate the limitation on the LOCUS DEFINITION rather than
     #    on the axis: the control score was estimated in the African American
-    #    donors and is a within-cohort rank (AGENTS.md 7.2).
+    #    donors and is a within-cohort rank.
     locus_sets_must_be_labelled_european_ancestry: true
     ancestry_limitation_applies_to: locus_definition_not_the_axis
     required_ancestry_sentence: "GWAS loci were defined from

@@ -12,8 +12,7 @@ end: VMR discovery, cis-genotype extraction, Module 02 and Module 03 all read
 the same arm's pgen and the same arm's donors.
 
 That is the wrong split for the donor-group question. The biologically correct
-design — the one v1 used, and the one the PI locked on 2026-09-06 (AGENTS.md
-§7.7) — separates the two things the arm was conflating:
+design — the one v1 used, and the one the PI locked on 2026-09-06 — separates the two things the arm was conflating:
 
 - **discovery happens once, pooled.** VMRs are called on all individuals, so
   both donor groups are evaluated on one fixed locus set.
@@ -22,7 +21,7 @@ design — the one v1 used, and the one the PI locked on 2026-09-06 (AGENTS.md
   non-Hispanic white American donors, so MAF, LD and effect estimation are
   within-group.
 
-AGENTS.md §7.7 also forbids the alternative: *"Do not contrast `AA` against
+The locked analysis plan also forbids the alternative: *"Do not contrast `AA` against
 `all_individuals`: those are nested, and a set-versus-superset comparison is not
 a donor-group contrast."* The contrast is `all_individuals.AA` against
 `all_individuals.EA`, and only that pair.
@@ -39,7 +38,7 @@ coordinates with `_AA` / `_EA` suffixes
 
 ## Why it is a separate module
 
-Runs are immutable (AGENTS.md §5.2) and the pooled catalogs
+Runs are immutable and the pooled catalogs
 `vmrcat-all_individuals-{region}-20260816` are accepted and **sealed**.
 Per-group genotype extraction cannot be added to them in place. So this module
 reads a sealed Module 01 run and writes a *new* immutable run that satisfies the
@@ -110,7 +109,7 @@ design and that guard is not loosened. Recombination is two explicit stages:
   `_AA` / `_EA` suffixes. **No pooled rank, no cross-cell score difference.**
   The score is a within-cell midrank percentile and
   `config/local_genetic_control.yml` locks `rank_scope: cohort_by_region`; a
-  pooled rank would be exactly the quantity AGENTS.md §7.6 prohibits. Ordering
+  pooled rank would be exactly the quantity the locked analysis plan prohibits. Ordering
   agreement (Spearman, quartile concordance) is what the table supports.
 - `03_local_snp_prediction/_h/07_stack_donor_group_predictions.R` →
   `_m/combined/oof-predictions-per-donor-donor-group-{region}.tsv`, the two
@@ -121,10 +120,10 @@ design and that guard is not loosened. Recombination is two explicit stages:
 ## Interpretation constraints
 
 The two cells differ in sample size (EA is roughly half of AA in each region),
-MAF spectrum, LD structure and SNP availability. AGENTS.md §7.7: *"Do not
+MAF spectrum, LD structure and SNP availability. The locked analysis plan: *"Do not
 attribute differences to ancestry-specific biology without eliminating sample
 size, MAF, LD, SNP availability, assay, covariate, and brain-region
-explanations."* AGENTS.md §7.6 separately forbids raw score-level comparison
+explanations."* The locked analysis plan separately forbids raw score-level comparison
 across cells, so compare **ordering**, never levels.
 
 ## Running it
@@ -142,7 +141,7 @@ submit host — it mints the run ID every later stage needs, and the VMR count i
 copies is what sizes the stage-02 array.
 
 A completed SLURM chain is **not** acceptance. Stage 04 must seal the run and a
-human must record it below (AGENTS.md §6).
+human must record it below.
 
 ## Expected donor counts
 
@@ -213,7 +212,7 @@ the SEALED artifacts rather than trusting Stage 04's in-flight assertions.
 
 `accepted_by` is blank pending PI review. `read_accepted_runs()` does not
 require it, so Modules 02 and 03 will consume these runs; the column records who
-looked at the run, which is a human act (AGENTS.md 6) and not something the
+looked at the run, which is a human act and not something the
 evidence script can supply.
 
 **Passing this gate does not mean a cell can produce a defensible Module 02

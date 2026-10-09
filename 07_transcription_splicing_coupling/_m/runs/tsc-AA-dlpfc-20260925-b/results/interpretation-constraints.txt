@@ -1,0 +1,12 @@
+Interpretation constraints carried by this run:
+  - Tests are VMR-level associations between genetic regulation and the
+    presence of a local transcriptional association. They do not test
+    mediation, and no causal ordering is estimated anywhere in this module.
+  - The tested universe is the prespecified local link set in
+    results/tested-universe.tsv. It is not a transcriptome-wide screen.
+  - Pair-level FDR is applied within one modality within one cell
+    (fdr_family: modality_within_cell).
+  - The internal LIBD eQTL map is NOT used; its genome-wide QC repair is
+    open (meqtl-validation/09_libd_eqtl_mapping/EQTL_DEBUG_TODO.md).
+  - Permitted claim: genetically regulated VMRs are more frequently transcriptionally coupled
+  - Forbidden claim: methylation mediates the genetic effect on expression or splicing

@@ -196,3 +196,20 @@ settings.local.json
 /simulation-analysis.bak/
 /qc_analysis/
 /sample_summary/
+
+# Local-only archive: planning notes and project-management ledgers that were
+# untracked for the public release (2026-10). The two run-cleanup utilities in
+# 00_shared/ read their ledger from _archive/project-management/; nothing else
+# does. AGENTS.md stays at the root for local agents but is not distributed.
+#
+# WARNING: untracking deletes the working-tree copy on any OTHER clone the
+# moment it pulls the commit that untracked these files. Copy AGENTS.md,
+# MIGRATION_MANIFEST.tsv, DEPRECATED_RUNS.tsv, legacy_v1_archive_inventory.tsv
+# and _deleted_run_provenance/ aside before pulling, or restore them from
+# history (git show <commit>^:<path>).
+/_archive/
+/AGENTS.md
+/zenodo/*.zip
+
+# Per-job SLURM logs of the ancestry projection stage.
+/inputs/ancestry_pca/_m/logs/

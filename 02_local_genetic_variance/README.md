@@ -29,9 +29,21 @@ the ranking basis: clipping collapsed 62.7% of loci to one tied value, and the
 2026-08-22 observed-regime grid showed that ordering is recoverable rather
 than noise. See the grid section below.
 
-The lock is [../config/local_genetic_control.yml](../config/local_genetic_control.yml)
-and the scientific strategy is
-[config/RELATIVE_LOCAL_GENETIC_CONTROL_STRATEGY.md](config/RELATIVE_LOCAL_GENETIC_CONTROL_STRATEGY.md).
+The lock is [../config/local_genetic_control.yml](../config/local_genetic_control.yml).
+
+**Why a relative score.** The claim is that brain VMRs vary continuously in their
+relative local SNP contribution, and that stronger relative control can be
+tested against repeat-rich and repressive compartments and orthogonal regulatory
+evidence. It is not a claim that the estimator gives an exact locus-level
+percentage of variance explained: independent validation supported its ordering
+and failed its absolute level, so the endpoint keeps the ordering and
+deliberately discards the absolute spacing. The statistical unit is one eligible
+corrected VMR; the score is built separately within each cohort-by-region cell,
+region-specific models are primary, and cross-region evidence compares
+directions and locked inference, never raw score levels. Eligibility requires
+complete BSLMM, HE and nested-prediction diagnostics, no computational failure,
+a finite frozen-model estimate, and an observed locus inside the expanded
+simulation design domain; excluded loci stay in the output with their reasons.
 
 Allowed uses:
 
@@ -450,7 +462,7 @@ below.
 Exactly one run is accepted per cohort-by-region cell, which is what
 `gates.R:require_accepted_upstream()` enforces: twelve rows, four cells, three
 regions each. With the three `all_individuals.EA` cells accepted on 2026-09-17,
-the donor-group contrast of AGENTS.md 7.7 is satisfiable for the first time:
+the donor-group contrast of the locked analysis plan is satisfiable for the first time:
 `_h/14_combine_donor_group_cells.R` pairs `all_individuals.AA` with
 `all_individuals.EA` on a shared `vmr_set_id`, and never `AA` against
 `all_individuals`, which are nested. The result is a statement about
@@ -675,7 +687,7 @@ session record, and SHA-256 output manifest. See `_m/README.md`.
 
 ## Donor-group estimation cells
 
-Added 2026-09-10 for the donor-group axis (AGENTS.md §7.7, PI 2026-09-06).
+Added 2026-09-10 for the donor-group axis.
 
 Module 02 now runs in two kinds of cell:
 
@@ -719,7 +731,7 @@ Joins the two cells of one region on `vmr_id` into
 suffixed per-cell columns and every locus column asserted identical between
 cells. It refuses two runs that carry different `vmr_set_id`s, and refuses a
 discovery arm outright — contrasting `AA` against `all_individuals` is the
-nested comparison AGENTS.md §7.7 forbids.
+nested comparison the locked analysis plan forbids.
 
 It emits **no pooled rank, no cross-cell score difference and no combined PVE**.
 The score is a within-cell midrank percentile,
@@ -778,8 +790,7 @@ Rscript _h/16_reliability_ceiling.R --region dlpfc \
 ```
 
 It refuses two runs from different discovery catalogs or with different
-`vmr_set_id`, so `AA` versus `all_individuals` cannot be passed to it
-(AGENTS.md §7.7).
+`vmr_set_id`, so `AA` versus `all_individuals` cannot be passed to it.
 
 **These are analytic upper bounds, not measurements**, and the bound must travel
 with the number:

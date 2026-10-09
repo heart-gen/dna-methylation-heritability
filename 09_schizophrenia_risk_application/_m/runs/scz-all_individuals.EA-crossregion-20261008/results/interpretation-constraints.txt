@@ -1,0 +1,16 @@
+Interpretation constraints carried by this run:
+  - NOT A GATE. Module 09's locked decisions are unchanged; coloc here is
+    exploratory support and never part of scz_application_retention.
+  - CONCORDANCE ONLY (AGENTS.md 7.7). An EA effect is read only for its sign
+    relative to the AA effect and its nominal p. EA and AA magnitudes are not
+    contrasted, and a non-replication is not evidence of an ancestry-specific
+    effect: EA cells are 129 / 55 / 60 donors.
+  - The model is the locked M3a, with snpPC1-5 and methPC1-5 re-estimated
+    inside the EA donors.
+  - Loci are the prespecified illustrative loci of the accepted AA runs; pairs
+    are those significant in the AA primary. Nothing was selected on EA data,
+    except coloc eligibility, by a rule fixed in config.
+  - Coloc is PGC3 European x EA meQTL, the LD-matched pairing. coloc.abf assumes
+    one causal variant per trait; small EA n makes a low PP4 weak evidence.
+  - GWAS loci are defined from European-ancestry summary statistics (AGENTS.md
+    7.8 rule 2).

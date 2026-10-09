@@ -54,9 +54,14 @@ BASE_THEME <- theme_classic(base_size = 10, base_family = FIG_FONT) +
         plot.margin      = margin(5, 8, 5, 8)
     )
 
-## Figure-level interpretation belongs in the caption, never inside the panel
-## (AGENTS.md 11 and the manuscript-figures convention).
+## Figure-level interpretation belongs in the legend, never inside the panel
+## (the manuscript-figures convention). Panels carry data plus at most a one-line
+## symbol key; any sentence goes through legend_note() below.
 NO_TITLES <- theme(plot.title = element_blank(), plot.subtitle = element_blank())
+
+## Style for the one-line symbol key a panel may carry as its ggplot caption.
+KEY_THEME <- theme(plot.caption = element_text(size = 6.5, hjust = 0,
+                                               colour = "grey35"))
 
 ## v1's Era B value-axis gridline, which several v1 scripts add and v2 was
 ## pasting inline. Add it to a panel whose reader has to compare magnitudes
@@ -115,6 +120,14 @@ SEQ_RAMP <- c("#F7F3EE", "#D49A72", "#8E4426")
 
 PLATFORM_COLORS <- c("450K" = PAL_TAN, "EPIC" = PAL_CHARCOAL)
 
+## Rust, blue and green MEAN caudate, DLPFC and hippocampus everywhere in the
+## manuscript, so no other contrast may borrow them. A signed quantity uses this
+## purple/orange pair; a two-level non-region contrast uses charcoal against
+## PAL_ALT (or PAL_NULL when one level is a reference).
+PAL_POS <- "#5E4FA2"
+PAL_NEG <- "#E08214"
+PAL_ALT <- "#8C6BB1"
+
 as_region <- function(x) factor(unname(REGION_LABELS[x]), levels = REGION_ORDER)
 
 ## --------------------------------------------------------- upstream run IDs
@@ -131,7 +144,9 @@ as_region <- function(x) factor(unname(REGION_LABELS[x]), levels = REGION_ORDER)
 ## record. Do not add run-ID string templates to a builder.
 
 QC_REFRESH_RUN <- function(cohort, region) {
-    paste0("vmrcatqc-", cohort, "-", region, "-20260826-a")
+    ## 20261008-a: the F14 refresh, which adds the exclusion accounting and the
+    ## chromosome manifest and fixes the unreachable 3' UTR compartment (F14b).
+    paste0("vmrcatqc-", cohort, "-", region, "-20261008-a")
 }
 
 ## -------------------------------------------------------------- statistics
@@ -293,18 +308,53 @@ save_figure <- function(plot_obj, name, width, height, fig_dir, svg = TRUE) {
 ## hexes before plotting, as Figures 1 and 2 already do. If a genuinely dense
 ## layer is unavoidable, say so in the panel's source data.
 
-#' Write a panel's source data with the provenance AGENTS.md 7.11 requires:
-#' every panel must record its source run ID, table, script, and filter.
+#' Collapse embedded line breaks to a space. A label wrapped with "\n" for the
+#' plot used to reach the source TSV verbatim, so 13 records spanned 85 physical
+#' lines and naive tab-separated parsers split them (D8).
+one_line <- function(x) gsub("[[:space:]]*\n[[:space:]]*", " ", x)
+
+#' Write a panel's source data with its provenance: every panel records its
+#' source run ID, table, script, and filter.
 write_source_data <- function(dt, name, source_run_id, source_table, script,
                               filter_desc, data_dir) {
     dir.create(data_dir, recursive = TRUE, showWarnings = FALSE)
     out <- data.table::as.data.table(dt)
+    for (col in names(out)) {
+        v <- out[[col]]
+        if (is.factor(v)) data.table::set(out, j = col,
+                                          value = factor(one_line(as.character(v))))
+        else if (is.character(v)) data.table::set(out, j = col, value = one_line(v))
+    }
     out[, `:=`(source_run_id = paste(unique(source_run_id), collapse = ";"),
-               source_table  = source_table,
+               source_table  = one_line(source_table),
                source_script = script,
-               row_filter    = filter_desc)]
+               row_filter    = one_line(filter_desc))]
     write_atomic(out, file.path(data_dir, paste0(name, ".tsv")))
     invisible(out)
+}
+
+#' Record legend text for a panel instead of printing it inside the figure.
+#'
+#' The guards these sentences carry (set aside, not fitted, magnitude withheld,
+#' locus ancestry) are real, so they are kept -- in
+#' tables/figure-legend-notes.tsv, which the legend writer works from -- while
+#' the panel encodes the same guard in its data (open symbol, fade, cross).
+#' Builders run one after another in a single job, so appending is safe.
+legend_note <- function(run_dir, figure, panel, text) {
+    f <- file.path(run_dir, "tables", "figure-legend-notes.tsv")
+    dir.create(dirname(f), recursive = TRUE, showWarnings = FALSE)
+    row <- data.table::data.table(figure = figure, panel = panel,
+                                  note = one_line(paste(text, collapse = " ")))
+    data.table::fwrite(row, f, sep = "\t", append = file.exists(f),
+                       col.names = !file.exists(f))
+    invisible(row)
+}
+
+#' x position for significance stars: just beyond the upper interval end, so a
+#' star never overprints the interval in the line's own colour.
+star_x <- function(upper, range_frac = 0.03) {
+    pad <- diff(range(upper, na.rm = TRUE)) * range_frac
+    upper + ifelse(is.finite(pad) && pad > 0, pad, 0.01)
 }
 
 #' Name a panel's source data by the tag patchwork will RENDER, not by the R

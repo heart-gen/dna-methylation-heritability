@@ -102,7 +102,7 @@ for (nm in c("traits", "summ", "axlink", "arch")) {
     if ("built_with_unaccepted_runs" %in% names(d) &&
         any(d$built_with_unaccepted_runs %in% c(TRUE, "TRUE"))) {
         stop(nm, " carries built_with_unaccepted_runs = TRUE and may not be ",
-             "cited (AGENTS.md 6).")
+             "cited.")
     }
 }
 
@@ -150,6 +150,9 @@ PRIMARY_MODEL <- PRIMARY_MODEL_ID
 MODEL_LABELS <- c(A_technical = "Technical covariates",
                   B_technical_context = "+ genomic context")
 
+FIG5 <- paste0("figure5_gwas_architecture_axis",
+               if (cohort == "AA") "" else paste0("_", cohort))
+
 ## ------------------------------- a. every trait, grouped by GWAS category
 dist <- traits[in_distribution == TRUE & model == PRIMARY_MODEL &
                is.finite(estimate)]
@@ -173,14 +176,14 @@ pA <- ggplot(dist, aes(estimate, category)) +
     facet_wrap(~ region, nrow = 1) +
     scale_colour_manual(values = REGION_COLORS, guide = "none") +
     labs(x = "Axis estimate: trait-linked VMRs vs background (score SD)",
-         y = NULL,
-         caption = paste0(
-             "One point per trait (n = ", scz$n_traits_in_distribution[1],
-             " traits with 10 or more leads). Dashed line, schizophrenia.\n",
-             "GWAS loci defined from European or European-dominated summary",
-             " statistics.\nExtended MHC excluded for every trait."))  +
-    BASE_THEME + NO_TITLES + GRID_Y +
-    theme(plot.caption = element_text(size = 6.5, hjust = 0, colour = "grey35"))
+         y = NULL, caption = "Dashed line, schizophrenia") +
+    BASE_THEME + NO_TITLES + GRID_Y + KEY_THEME
+legend_note(run_dir, FIG5, "a", paste0(
+    "One point per trait (n = ", scz$n_traits_in_distribution[1], " traits with ",
+    "10 or more lead variants), grouped by GWAS category; dashed line, ",
+    "schizophrenia. GWAS loci were defined from European or European-dominated ",
+    "summary statistics; the methylation cohort is admixed African American. ",
+    "Extended MHC excluded for every trait."))
 
 ## ----------------------------- b. schizophrenia against its own distribution
 pB <- ggplot(scz, aes(y = region)) +
@@ -198,11 +201,11 @@ pB <- ggplot(scz, aes(y = region)) +
               colour = "grey35") +
     scale_colour_manual(values = REGION_COLORS, guide = "none") +
     scale_y_discrete(limits = rev, expand = expansion(add = c(0.5, 0.8))) +
-    labs(x = "Axis estimate (score SD)", y = NULL,
-         caption = paste("Grey bar, trait-distribution IQR;\ntick, its",
-                         "median; point, schizophrenia.")) +
-    BASE_THEME + NO_TITLES + GRID_Y +
-    theme(plot.caption = element_text(size = 6.5, hjust = 0, colour = "grey35"))
+    labs(x = "Axis estimate (score SD)", y = NULL) +
+    BASE_THEME + NO_TITLES + GRID_Y
+legend_note(run_dir, FIG5, "b", paste(
+    "Grey bar, interquartile range of the trait distribution; tick, its median;",
+    "point, schizophrenia, with the share of traits whose estimate is lower."))
 
 ## --------------------------- c. psychiatric traits are not a separate class
 psy <- traits[in_distribution == TRUE & model == PRIMARY_MODEL &
@@ -228,16 +231,16 @@ pC <- ggplot(psy, aes(region, estimate, fill = grp)) +
                  position = position_dodge(width = 0.72)) +
     geom_text(data = wil, aes(x = region, y = Inf, label = lab),
               inherit.aes = FALSE, vjust = 1.5, size = 2.3, colour = "grey35") +
-    scale_fill_manual(values = c(Psychiatric = PAL_TAN, Other = PAL_NULL),
+    scale_fill_manual(values = c(Psychiatric = PAL_ALT, Other = PAL_NULL),
                       name = NULL) +
     ## Headroom so the P label clears the topmost outlier.
     scale_y_continuous(expand = expansion(mult = c(0.05, 0.16))) +
-    labs(x = NULL, y = "Axis estimate (score SD)",
-         caption = paste("Psychiatric = psychiatric-neurologic;",
-                         "Other = all remaining.\nTwo-sided Wilcoxon.")) +
+    labs(x = NULL, y = "Axis estimate (score SD)") +
     BASE_THEME + NO_TITLES + GRID_Y +
-    theme(legend.position = "top", legend.margin = margin(0, 0, -4, 0),
-          plot.caption = element_text(size = 6.5, hjust = 0, colour = "grey35"))
+    theme(legend.position = "top", legend.margin = margin(0, 0, -4, 0))
+legend_note(run_dir, FIG5, "c", paste(
+    "Psychiatric, the psychiatric-neurologic GWAS category; Other, all remaining",
+    "traits. P, two-sided Wilcoxon test of psychiatric against other traits."))
 
 ## ------------------------------------- d. what a trait's depletion tracks
 ANNOT_LABELS <- c(accessible_any = "Accessible", h3k27ac_any = "H3K27ac",
@@ -261,20 +264,21 @@ pD <- ggplot(ax, aes(spearman_rho, alab, colour = region)) +
     scale_colour_manual(values = REGION_COLORS, name = NULL) +
     scale_x_continuous(limits = c(-0.75, 0.75), breaks = seq(-0.5, 0.5, 0.5)) +
     labs(x = "Spearman: trait's axis depletion vs its loci's annotation enrichment",
-         y = NULL,
-         caption = paste0(
-             "No trait reaches q < 0.05 for LINE/L1 ENRICHMENT in any region",
-             " or arm (0 of ", nrow(l1), " tests).\nThe correlation shown is",
-             " inconsistent in sign and does not survive the high-mappability",
-             " arm.\nOverlap is overlap: no activity or retrotransposition",
-             " claim follows."))  +
-    BASE_THEME + NO_TITLES + GRID_Y +
-    theme(legend.position = "top", legend.margin = margin(0, 0, -4, 0),
-          plot.caption = element_text(size = 6.5, hjust = 0, colour = "grey35"))
+         y = NULL, caption = SIG_KEY) +
+    BASE_THEME + NO_TITLES + GRID_Y + KEY_THEME +
+    theme(legend.position = "top", legend.margin = margin(0, 0, -4, 0))
+legend_note(run_dir, FIG5, "d", paste0(
+    "Spearman correlation across traits between a trait's axis depletion and the ",
+    "enrichment of its loci for each annotation, in all VMRs and under the ",
+    "high-mappability restriction. No trait reaches q < 0.05 for LINE/L1 ",
+    "enrichment in any region or arm (0 of ", nrow(l1), " tests); the LINE/L1 ",
+    "correlation is inconsistent in sign and does not survive the ",
+    "high-mappability arm. Overlap only: no activity or retrotransposition claim ",
+    "follows."))
 
 ## ------------------------------------------------------------------ assemble
 arm_sfx <- if (cohort == "AA") "" else paste0("_", cohort)
-STEM <- paste0("figure5_gwas_architecture_axis", arm_sfx)
+STEM <- FIG5
 
 figure <- (pA / ((pB | pC) + plot_layout(widths = c(0.8, 1))) / pD) +
     plot_layout(heights = c(1.25, 0.85, 1.05)) +
@@ -311,7 +315,7 @@ sd(ax[, .(region, annotation, adjustment, arm, n_traits, spearman_rho,
    paste("adjustment == 'technical'; both arms shown.",
          "NO trait reaches q < 0.05 for LINE/L1 enrichment in any region or arm;",
          "the axis-link LINE/L1 correlation is inconsistent in sign and collapses",
-         "under the high-mappability restriction (AGENTS.md 7.8)."))
+         "under the high-mappability restriction."))
 sd(bycat, "category_medians",
    "_m/combined/scz-negative-control-by-category-{cohort}.tsv",
    paste0("category medians for both models; broad genomic context moves the ",

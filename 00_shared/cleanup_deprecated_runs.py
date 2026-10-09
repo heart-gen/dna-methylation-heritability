@@ -82,8 +82,11 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import deprecated_runs as dr  # noqa: E402
 
 REPO = dr.REPO
-LEDGER = os.path.join(REPO, "DEPRECATED_RUNS.tsv")
-PROVENANCE = os.path.join(REPO, "_deleted_run_provenance")
+# The ledger and the provenance archive are project-management records, kept
+# locally under the gitignored _archive/ rather than in the public tree.
+PM_DIR = os.path.join(REPO, "_archive", "project-management")
+LEDGER = os.path.join(PM_DIR, "DEPRECATED_RUNS.tsv")
+PROVENANCE = os.path.join(PM_DIR, "_deleted_run_provenance")
 
 # Files worth keeping after the run itself is gone.
 KEEP = ("manifest.tsv", "output_checksums.tsv")

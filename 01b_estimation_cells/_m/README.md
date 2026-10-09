@@ -2,19 +2,26 @@
 
 Nothing in this directory is written by hand. Every file here is produced by a
 script in `01b_estimation_cells/_h/` from locked configuration and declared
-inputs (AGENTS.md §5.2).
+inputs.
 
-## What is tracked in Git
+## What is tracked, and where the rest lives
 
-- This README.
+Files are tiered by `supplementary_data/_h/build_release.py`, and every file of
+every accepted run is listed with its tier in `supplementary_data/release_manifest.tsv`:
 
-Everything else — `runs/`, PLINK output, logs — is gitignored and lives on
-Quest. A single cell carries roughly 56,000 output files (three PLINK files per
-VMR plus per-task extraction logs), so the run tree is large.
-
-Note the gitignore patterns for module output are `[0-9][0-9]*_*/_m/...`, not
-`[0-9][0-9]_*/_m/...`. This module's directory name has a third character of
-`b`, and the narrower pattern did not match it.
+- **git**: this README; `combined/` (the cross-region deliverables built from
+  accepted runs, except `-UNACCEPTED` outputs and bulk external reference data);
+  small provenance files a script asserts against at runtime; and, from the
+  accepted runs, every file the manuscript is written from (figure source
+  tables, Supplementary Data tables, decision and gate tables, `manifest.tsv`)
+  that is 15 MB or smaller. Those run files are added with `git add -f`, since
+  `runs/` itself stays gitignored.
+- **Git LFS**: the same class of manuscript file above 15 MB.
+- **Zenodo** (one zip per module, DOI 10.5281/zenodo.20547606): reproducibility
+  extras no manuscript text uses, plus a mirror of the two tiers above.
+- **Not distributed**: individual-level data (methylation matrices, genotypes,
+  covariates; dbGaP phs000979) and bulk intermediates (per-task shards, logs,
+  full nominal output), which are regenerable from `_h/` and stay on Quest.
 
 ## Run directories
 
@@ -102,7 +109,7 @@ code version. No VMR, phenotype, genotype or score is re-derived here.
 `PROVENANCE WARNING` when the recorded commit contains no file under the module
 root. It warns rather than stops: whether a `git_dirty` run, or a run whose
 commit lacks its own module's code, should be **refused outright** is a policy
-decision for the PI (AGENTS.md §12), not an agent's to make. Until that is
+decision for the PI, not an agent's to make. Until that is
 decided, check the field before accepting a run.
 
 ## Regenerating a run

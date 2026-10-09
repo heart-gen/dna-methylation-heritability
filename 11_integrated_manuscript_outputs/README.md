@@ -2,7 +2,11 @@
 
 Consumes only accepted immutable upstream runs and produces every manuscript number, table, and figure.
 
-**Status (2026-10-08): accepted as `fig-all-20261008`.** The run cites 51
+**Status (2026-10-09): accepted as `fig-all-20261009-b`** (close-out rebuild; see
+the Accepted runs row). The paragraph below describes `fig-all-20261008`, which it
+replaces.
+
+**Previously (2026-10-08): accepted as `fig-all-20261008`.** The run cites 51
 upstream runs: every module 01-10 at its current accepted run, including 02b
 and 02c, Module 01's QC refresh, and Module 06's accepted non-gating positive
 control. It replaces `fig-all-20261006-b`. That run predated three
@@ -10,7 +14,7 @@ acceptances: the donor-robust tier-2 SE in Module 08, which withdrew the one
 tier-2 difference; the span-guard S-LDSC cells; and the external positive
 control, which the S-LDSC supplement now shows as panel b.
 
-Four runs were superseded on the way, all recorded in `DEPRECATED_RUNS.tsv`:
+Four runs were superseded on the way, all recorded in the run-cleanup ledger (kept locally, not distributed):
 
 - `fig-all-20261006-b`: accepted 2026-10-06, superseded 2026-10-08. Its tier-2
   panel claimed a DLPFC-hippocampus difference in meQTL-burden slope that the
@@ -36,9 +40,9 @@ rebuilds that surfaced two seal defects in `00_shared/runid.R::close_run()` --
 dotfiles escaping both the checksum manifest and the seal, and an unanchored
 exclusion pattern dropping `tables/software-and-run-manifest.tsv` from the
 checksums. All four earlier runs are superseded and recorded in
-`DEPRECATED_RUNS.tsv`, whose first cleanup tranche deleted them on 2026-09-22.
+the run-cleanup ledger, whose first cleanup tranche deleted them on 2026-09-22.
 Their `manifest.tsv` and `output_checksums.tsv` are kept under
-`_deleted_run_provenance/`, so the superseded builds remain auditable and this
+the local deleted-run provenance archive, so the superseded builds remain auditable and this
 README's account of them stays checkable after the directories are gone.
 
 Figures 1-2 were previously built as `fig-all-20260826-a` on `lgv-AA-*-20260823`,
@@ -73,7 +77,7 @@ three are properties of Module 11 rather than oversights:
   downstream gate. It records which figures the manuscript cites, and it is what
   flips Supplementary Data 14 from `pending_acceptance` to `ready`.
 - **There is no gate script, so `decision` is not a computed token.**
-  AGENTS.md §7.11 lists the products this module owes and sets no pass/fail
+  The locked analysis plan lists the products this module owes and sets no pass/fail
   criterion, so `ACCEPTED_MANUSCRIPT_OUTPUTS` records a judgement about
   completeness and provenance. It is deliberately not spelled `PASS_*`: every
   other `PASS_*` in this repository was emitted by a gate stage, and borrowing
@@ -86,7 +90,7 @@ three are properties of Module 11 rather than oversights:
 
 | run_id | cohort | region | vmr_set_id | accepted_on | accepted_by | decision | notes |
 |---|---|---|---|---|---|---|---|
-| fig-all-20261008 | all | crossregion | see `tables/exclusions-and-denominators.tsv` (6 cells: arm × region) | 2026-10-08 | Kynon J. M. Benjamin | ACCEPTED_MANUSCRIPT_OUTPUTS | Built at `47f75d034` with `git_dirty = false` and a `code/` snapshot (39 files). 25 figures × PDF/SVG/PNG, 83 panel source tables, 13 tables; 212 files, 210 checksummed and verified, 0 writable (the 2 exclusions are the run's own `manifest.tsv` and `output_checksums.tsv`). 51 upstream runs cited: 44 accepted gating runs (every module 01-10 including 02b and 02c), 1 accepted non-gating run (`sldsc-AA-external-20261008`), 6 Module 01 QC-refresh (`vmrcatqc-*-20260826-a`), 0 unaccepted. Every PDF has panel source data, embedded fonts and a ToUnicode map; every figure ≤ 9.2 in tall. `manuscript-number-registry.tsv` (83 rows) **is** Supplementary Data 14; `analysis-to-claim-matrix.tsv` has 76, including 4 non-gating runs marked `gating = FALSE`. Against `fig-all-20261006-b`: the region/donor figure reads `rdg-AA-crossregion-20261008` (tier 2 now 0 claimed differences; ceilings from the current EA runs), the S-LDSC supplement reads the span-guard cells and gains panel b, the accepted positive control. Every other panel's plotted data is unchanged. **No gate script exists for this module**, so this decision certifies completeness, provenance and the claim constraints asserted at build time — not a computed pass. Supersedes `fig-all-20261006-b`. |
+| fig-all-20261009-b | all | crossregion | see `tables/exclusions-and-denominators.tsv` (6 cells: arm × region) | 2026-10-09 | closeout-20261008 (seal clean; PI review pending) | ACCEPTED_MANUSCRIPT_OUTPUTS | Built at `4e4f21811` with `git_dirty = false` and a `code/` snapshot (39 files); 25 figures, 83 source tables, 52 upstream runs. Replaces fig-all-20261008: Module 09 reads the de-duplicated `scz-AA-*-20261008` (supplement panel b 90/64/63, 145/100/78, 174/174/173; five distinct prioritized loci per region), Figure 1 reads the F14 QC refresh `vmrcatqc-*-20261008-a` (3' UTR reachable), Figure 4b draws donor-robust intervals, the ancestry panel uses the 1000 Genomes projection (N1), and the 2026-10-07 audit's figure defects are fixed (in-panel prose moved to `tables/figure-legend-notes.tsv`). Every PNG viewed, both arms. `fig-all-20261009` (failed in Figure 2, unsealed) and `fig-all-20261009-a` (sealed; RDG key clipped) were never accepted. |
 
 ## Implemented figures
 
@@ -120,7 +124,7 @@ reacceptance, which is how Figure 2 once shipped on a retired run.
 | `exclusions-and-denominators.tsv` | donors, VMRs called, scored, eligible, and why excluded | 01, 02 |
 | `supplementary-table-index.tsv` | the tracked `_m/combined/` deliverables | all modules |
 | `software-and-run-manifest.tsv` | environment, git commit, upstream run IDs | this run |
-| `results-summary.md`, `methods-summary.md` | AGENTS.md 7.11's manuscript-ready summaries; every number cites its registry key | this run |
+| `results-summary.md`, `methods-summary.md` | manuscript-ready summaries; every number cites its registry key | this run |
 
 AA is the primary arm; `all_individuals` renders from the same builders as the
 sensitivity supplement.
@@ -161,7 +165,7 @@ Built, and wired into the run. `10_environmental_exploratory` was accepted on
 2026-09-20, so `figureS_environmental_axis` renders from the citable
 `_m/combined/` tables. It stays a supplement whatever it shows: the module's
 decision row carries `main_text_retention = NEVER_SUPPLEMENT_ONLY`, and
-AGENTS.md §2.3 forbids exposure results from defining the title, abstract,
+The locked analysis plan forbids exposure results from defining the title, abstract,
 primary groups or main causal interpretation.
 
 The caveats are rendered on the panel and read from the accepted
@@ -172,8 +176,7 @@ undetermined across bootstrap seeds (rendered "?"). The earlier caption's
 "these p-values may be too small" was removed: T28 measured the ratio-scale
 combined SE as calibrated.
 A negative gradient is never evidence that exposure effects concentrate in
-weakly controlled VMRs — that is the permanent variance-budget limitation
-(AGENTS.md §7.10), and it belongs in the Discussion.
+weakly controlled VMRs — that is the permanent variance-budget limitation, and it belongs in the Discussion.
 
 ### Figure 5 is trait-general, not schizophrenia-specific
 
@@ -184,8 +187,7 @@ from stage 17 under the primary model at build time and printed into the panel
 source data and `results-summary.md`; they are not restated here, because a
 copy here once mixed the two models' ranges.
 Figure 5 therefore shows the **distribution**, with schizophrenia marked in
-place as one trait among the rest, which is what AGENTS.md §7.8 rule 1 and
-§11 require the text to say.
+place as one trait among the rest, which is what the locked analysis plan requires the text to say.
 
 **PI decision, 2026-09-22: the GWAS collection is the main-text result and the
 schizophrenia detail is supplemental.** This is the split the build already
@@ -202,7 +204,7 @@ The two decisions are compatible and neither overrides the other:
 `RETAIN_MAIN_TEXT` requires schizophrenia to *appear* in the main text, not to
 *own* a figure. Nothing here withdraws the schizophrenia application, and the
 Module 09 decision row is untouched — an agent must not edit a scientific
-result in `_m/` (AGENTS.md §5.2), and this decision does not call for it.
+result in `_m/`, and this decision does not call for it.
 
 Two constraints the builder asserts at runtime, because both are easy to get
 wrong from memory:
@@ -232,7 +234,7 @@ regions -- rather than the distribution of the score itself.
 
 ### Which prediction number panel b carries (corrected 2026-09-23)
 
-AGENTS.md §7.3 names one primary v2 prediction endpoint: `r2_pred_oof`, the
+The locked analysis plan names one primary v2 prediction endpoint: `r2_pred_oof`, the
 **end-to-end** out-of-fold R² from Module 03, in which the locus screen and the
 residualization are learned inside the outer training donors too. Module 02 also
 emits an `r2_oof` from the nested CV inside its joint-feature elastic net; §4
@@ -360,8 +362,8 @@ p of 0.0064. That table was superseded: in `fig-all-20260922-c` the screen flags
 9 of 120 donors, and 3 of the 8 readmitted donors (Br1927 is not flagged). The
 unit of the test was never prespecified, so no p-value is quoted without its
 unit. **The PI cleared all eight donors on 2026-09-25**; no donor is excluded,
-`vmr_set_id` is unchanged, and the reasoning is in
-`T4_READMITTED_DONOR_ADJUDICATION.md`.
+`vmr_set_id` is unchanged, and the reasoning is recorded in the
+`sample_blacklist` comment block of `config/cohorts.yml`.
 
 ## Build
 
@@ -434,9 +436,8 @@ Four things it settles that the v1 tree did not:
 
 Manuscript figures and consolidated tables currently scattered across `meqtl-validation/12_supplementary_data/` and per-module figure directories.
 
-See `MIGRATION_MANIFEST.tsv` for the legacy paths, their downstream consumers,
-and retirement status. Legacy directories stay in place until their row reads
-`validated_replacement`.
+The legacy v1 trees were retired on 2026-10-06; their tracked files are
+recoverable from the annotated tag `v1-legacy-final`.
 
 ## Products
 
@@ -455,6 +456,6 @@ the exact metric used.
 
 ## Contract
 
-This module follows AGENTS.md §5.2: `_h/` holds code, `_m/` holds generated
+This module follows the repository layout: `_h/` holds code, `_m/` holds generated
 output under immutable `runs/{RUN_ID}/` directories, `tests/` holds gitignored
 smoke checks. Configuration lives in `config/` at the repository root.

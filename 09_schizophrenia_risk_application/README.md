@@ -11,22 +11,20 @@ Every upstream is current (see **Upstream currency**), including
 resolved by stage 15 in `_m/combined/` with `citable = TRUE`. Stages 15 through
 18 were rerun on the accepted runs on 2026-10-01 without `--allow-unlocked`, so
 every `_m/combined/` table is citable. Stages 17 and 18 are post hoc
-sensitivities that **qualify** Module 09's claim and change neither decision
-(AGENTS.md §7.8).
+sensitivities that **qualify** Module 09's claim and change neither decision.
 
 ## Migrating from
 
 `meqtl-validation/08_schizophrenia_risk_application/`, whose Phase 7 decision file records `retain_main_text_proof_of_application`.
 
-See `MIGRATION_MANIFEST.tsv` for the legacy paths, their downstream consumers,
-and retirement status. Legacy directories stay in place until their row reads
-`validated_replacement`.
+The legacy v1 trees were retired on 2026-10-06; their tracked files are
+recoverable from the annotated tag `v1-legacy-final`.
 
 ## That decision does not carry forward
 
 The existing Phase 7 result (31 caudate loci, 361 pairs, 38 VMRs, eight
 TX-coupled VMRs) was conditioned on the legacy predictability metric and
-pre-repair VMR sets. Per AGENTS.md §8 it is a hypothesis to retest. Hero loci
+pre-repair VMR sets. Per the locked analysis plan it is a hypothesis to retest. Hero loci
 `rs8048039` and `rs13331198` remain **candidates**: the prioritization rule in
 `config/schizophrenia.yml` names no locus, and `_h/10_prioritize_loci.R`
 contains none.
@@ -53,7 +51,7 @@ disease relevance. Both are results.
 
 `config/analysis_thresholds.yml:phase7_scz` listed coloc as `deferred` while no
 ancestry-matched QTL resource was wired up. PI decision 2026-09-09 authorised
-it, and AGENTS.md §7.8 permits the claim once the analysis "has been run with
+it, and the locked analysis plan permits the claim once the analysis "has been run with
 adequate ancestry-matched LD and passes its own gate". Two arms:
 
 | Arm | Pair | LD | Status |
@@ -125,7 +123,7 @@ Three constraints that the code enforces and the manuscript must respect:
   pooled p-value — the fixed-effect estimate stage 15 emits is labelled
   descriptive-only and its SE is anticonservative by construction.
 - **Caudate may contribute to concordance but never carry it.** It is perfectly
-  confounded with sequencing batch (AGENTS.md §8.1), hence
+  confounded with sequencing batch, hence
   `axis_requires_support_outside: caudate`.
 - **Attenuation is not bias.** Module 08 tier 3 shows donor count is a plausible
   major contributor to caudate's larger *magnitude*. It does **not** show the
@@ -150,8 +148,7 @@ Colocalization runs in the `coloc` conda env (`00_shared/slurm.sh:run_r_coloc`);
 
 `_h/12_apply_gates.R` writes `results/scz-decision.tsv`. It checks that the
 analysis was **conducted** correctly, not that it produced a positive result: a
-null Phase 7 is a reportable finding (AGENTS.md §7.8 provides for it
-explicitly), and Modules 06 and 07 set the precedent that a reportable null
+null Phase 7 is a reportable finding, and Modules 06 and 07 set the precedent that a reportable null
 seals.
 
 1. Locus definition recorded `methylation_used = FALSE`.
@@ -182,9 +179,9 @@ cannot resolve decision 2 — it writes `PENDING_CROSS_REGION` — so the retent
 answer lives only in `_m/combined/scz-application-decisions-{cohort}.tsv`, from
 stage 15.
 
-**Current state (accepted runs `scz-AA-{region}-20261001`; stages 15-18 rerun
-2026-10-01 without `--allow-unlocked`, `citable = TRUE`): both decisions
-resolved.**
+**Current state (accepted runs `scz-AA-{region}-20261008`, the de-duplicated
+rerun of `-20261001` with identical decisions; stages 15-18 rerun on them
+without `--allow-unlocked`, `citable = TRUE`): both decisions resolved.**
 
 - decision 1 `CAUDATE_MAGNITUDE_CLAIM_NOT_SUPPORTED`, from the caudate run's own
   `retention-criteria.tsv`: tier 3 of `rdg-AA-crossregion-20260930` reads
@@ -199,10 +196,11 @@ resolved.**
   (OR 0.833) is `pooled_is_descriptive_only = TRUE` with an anticonservative SE:
   100 of 168 donors appear in all three regions.
 - stage 16: the axis contrast survives n-matching in all three caudate n=118
-  replicates, direction preserved 3/3, all FDR-significant; abs(log-odds) changes
-  by **+5.8%** on average (range +1.9% to +8.2%) -- the matched replicates are
-  slightly stronger, not weaker -- against tier 3's 14.3% attenuation of the
-  prediction magnitude, which is a different quantity.
+  replicates, direction preserved 3/3, all FDR-significant; abs(log-odds)
+  attenuates by **5.8%** on average (range 1.9% to 8.2%; -0.2257 full against
+  -0.207 / -0.221 / -0.209 matched) -- the matched replicates are slightly
+  weaker, not stronger -- against tier 3's 14.3% attenuation of the prediction
+  magnitude, which is a different quantity.
 - stages 17 and 18 regenerated (job 8189349). Stage 17 is identical to the digit.
   Stage 18 moved on Module 04's reacceptance; see "### Locus architecture".
 
@@ -275,7 +273,7 @@ schizophrenia file, so the ancestry mismatch is not producing the result:
 | PGC3 schizophrenia, multi-ancestry | 280 | −0.223 | −0.152 | −0.162 |
 | PGC bipolar 2024, multi-ancestry | 91 | −0.191 | −0.111 | −0.127 |
 
-**The three writing rules this imposes on the manuscript** are in AGENTS.md §7.8
+**The three writing rules this imposes on the manuscript** are in the locked analysis plan
 and machine-readably under `interpretation.writing_rules` in the config: write
 the depletion as trait-general with schizophrenia as a typical example; name the
 European ancestry of the locus set wherever the locus set is described, locating
@@ -297,7 +295,7 @@ leaves open: what separates the traits that *are* depleted from the ones that ar
 not? `_h/18_locus_architecture.R` fits the same logistic model with one Module 04
 annotation at a time as the predictor of trait linkage, each with and without the
 control score, plus a high-mappability arm (≥0.9) for the repeat and
-heterochromatin annotations as AGENTS.md §7.4 requires. Spec:
+heterochromatin annotations as the locked analysis plan requires. Spec:
 `locus_architecture` in the config. Outputs
 `_m/combined/scz-locus-architecture{,-axis-link,-by-category}-AA.tsv`.
 
@@ -486,7 +484,7 @@ reference epigenome per region — one consortium, one build, one pipeline. Modu
 an independent assay, cohort and pipeline) on 2026-09-25 for exactly this
 robustness question, and `config/gwas_negative_controls.yml:locus_architecture.indicators`
 does not list it. Adding it is a `pi_locked` config amendment, so it is a PI
-decision under AGENTS.md §12 and is not made here. The two limitations recorded
+decision under the locked analysis plan and is not made here. The two limitations recorded
 with that track travel with it: it is the same intervals in all three regions, so
 it cannot support a region-specific statement, and it is a different assay in
 every respect, so read it as "does the correlation survive a change of data
@@ -511,26 +509,34 @@ meQTL map and leaves this arm as it is.
 
 | run_id | cohort | region | vmr_set_id | accepted_on | accepted_by | decision | notes |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| scz-AA-caudate-20261001 | AA | caudate | vmrset-AA-caudate-937a41979978 | 2026-10-01 | Kynon J. Benjamin | PASS_SCZ_APPLICATION_QC | Built at 644054e01, git_dirty false, smoke_run FALSE, on vmrcat-AA-caudate-20260816, lgv-AA-caudate-rescore-20260913, rra-AA-caudate-20260925-a, cmb-AA-caudate-20260924, sldsc-AA-caudate-20260925, tsc-AA-caudate-20260925-b and rdg-AA-crossregion-20260930; 106,067 output files, failures "". 2,654 VMRs linked to 522 of 612 published loci; 363,164 pairs tested in the single `scz_risk_variant_cpg_pairs_per_region` family, 27,470 significant; **94** loci with CpG-meQTL support. Axis significant, `lower_in_scz_linked`: Wilcoxon mean score_z difference -0.283 (q 8.0e-37), adjusted logistic log-odds **-0.226** per SD (SE 0.026, q 4.2e-18, adjusted for vmr_length, cpg_count, gc_content, mappability) -- **byte-identical to the superseded run**, since the axis reads Modules 01 and 02 only. 145 loci with transcriptional coupling. 70 ancestry-matched loci evaluated for colocalization, **267** claimable, coloc_claim_permitted TRUE, 19,046 cross-ancestry regions retained exploratory-only. 5 prioritized loci (rule ranked_composite_v1), 4 with GTEx support; the set is loci 73/276/432/163/198 and 3 of the superseded 5 are retained -- see "### The five prioritized loci are illustrative, and churn". Integration: 1 of 5 annotations claimable (quiescent chromatin -0.088, q 2.2e-20), **0 enriched**, all claimable annotations DEPLETED, so integration_supports_repressive_architecture_link FALSE. Decision 1 **CAUDATE_MAGNITUDE_CLAIM_NOT_SUPPORTED** -- criterion `caudate_not_sample_size_artifact` reads FAIL_SAMPLE_SIZE_ARTIFACT off rdg-AA-crossregion-20260930 tier 3 (`donor_count_is_a_plausible_major_contributor`); retention-criteria.tsv is byte-identical to the superseded run. Decision 2 PENDING_CROSS_REGION -- a per-region run cannot resolve it. Upstream `sldsc_supports_brain_enrichment = FALSE` carried from Module 06. Caudate is batch-confounded (AGENTS.md 8.1); the residual excess may not be called biological, and permitted wording is "caudate magnitude attenuates after n-matching", never "inflated" or "biased". |
-| scz-AA-dlpfc-20261001 | AA | dlpfc | vmrset-AA-dlpfc-856067dfe289 | 2026-10-01 | Kynon J. Benjamin | PASS_SCZ_APPLICATION_QC | Built at 644054e01, git_dirty false, smoke_run FALSE, on vmrcat-AA-dlpfc-20260816, lgv-AA-dlpfc-rescore-20260913, rra-AA-dlpfc-20260925-a, cmb-AA-dlpfc-20260924, sldsc-AA-dlpfc-20260925, tsc-AA-dlpfc-20260925-b; 81,569 output files, failures "". 2,063 VMRs linked to 565 of 612 published loci; 225,527 pairs tested, 12,547 significant; **64** loci with CpG-meQTL support. Axis significant, `lower_in_scz_linked`: Wilcoxon -0.166 (q 6.6e-11), adjusted logistic log-odds **-0.161** per SD (SE 0.026, q 1.3e-09) -- byte-identical to the superseded run. 100 loci with transcriptional coupling. 42 ancestry-matched loci evaluated, **190** claimable, 8,945 cross-ancestry exploratory. 5 prioritized loci, 4 with GTEx support; loci 490/493/544/283/136, 3 of the superseded 5 retained. **`rs13331198` (locus 544) is prioritized here at rank 3** -- the only region where either legacy hero locus passes corrected prioritization (AGENTS.md §8). Integration: 3 of 5 claimable -- quiescent chromatin -0.086 (q 6.0e-14), LINE/L1 -0.017 (q 3.2e-04), H3K9me3 -0.012 (q 0.032) -- **0 enriched**, all three DEPLETED, integration_supports_repressive_architecture_link FALSE. This is the only region where LINE/L1 is claimable, and the sign is DEPLETION in SCZ-linked VMRs -- a different quantity from Module 04's LINE/L1 enrichment along the control axis, which this does not speak to either way. Nothing here licenses a repeat statement about schizophrenia, and a single claimable region could not support one in any case. Decision 1 NOT_APPLICABLE_NON_CAUDATE_REGION. Decision 2 PENDING_CROSS_REGION. Upstream `sldsc_supports_brain_enrichment = FALSE`. |
-| scz-AA-hippocampus-20261001 | AA | hippocampus | vmrset-AA-hippocampus-2d907b892215 | 2026-10-01 | Kynon J. Benjamin | PASS_SCZ_APPLICATION_QC | Built at 644054e01, git_dirty false, smoke_run FALSE, on vmrcat-AA-hippocampus-20260816, lgv-AA-hippocampus-rescore-20260913, rra-AA-hippocampus-20260925-a, cmb-AA-hippocampus-20260924, sldsc-AA-hippocampus-20260925, tsc-AA-hippocampus-20260925-b; 71,159 output files, failures "". 2,017 VMRs linked to 560 of 612 published loci; 216,837 pairs tested, **10,056** significant -- **down from 12,204 in the superseded run, the only region where the meQTL evidence weakened**; 64 loci with CpG-meQTL support, unchanged. Axis significant, `lower_in_scz_linked`: Wilcoxon -0.164 (q 1.7e-10), adjusted logistic log-odds **-0.160** per SD (SE 0.027, q 2.0e-09) -- byte-identical to the superseded run. 78 loci with transcriptional coupling, up from 66. 40 ancestry-matched loci evaluated, **192** claimable, 9,509 cross-ancestry exploratory. 5 prioritized loci, **4 with GTEx support, down from 5 of 5**: loci 441/264/118/136/198, 4 of the superseded 5 retained. The new rank-1 locus 441 (rs139139) carries no GTEx support and max PP4 0.015, and entered because the Module 05 hard filter admitted it while the old rank-1 locus 164 (rs11076631) left the eligible pool; read it as an illustrative locus, not a lead. Integration: 2 of 5 claimable -- quiescent chromatin -0.057 (q 5.1e-07), H3K9me3 -0.015 (q 0.021) -- 0 enriched, both DEPLETED, integration_supports_repressive_architecture_link FALSE; LINE/L1 is not claimable here (-0.008, q 0.080). Decision 1 NOT_APPLICABLE_NON_CAUDATE_REGION. Decision 2 PENDING_CROSS_REGION. Upstream `sldsc_supports_brain_enrichment = FALSE`. |
+| scz-AA-caudate-20261008 | AA | caudate | vmrset-AA-caudate-937a41979978 | 2026-10-08 | closeout-20261008 (gate pass; PI review pending) | PASS_SCZ_APPLICATION_QC | Opened at 85144b874, sealed at ee3791e24 (the seal stamps HEAD; no Module 09 `_h/` code changed between them, and stages read the config snapshot taken at open), git_dirty false, smoke_run FALSE. Rerun of `-20261001` on the de-duplicating combine stage (`4882a443d`, A2): `locus-evidence.tsv` now has one row per locus (612 of 612), where 42 two-index-SNP loci were counted twice. Upstreams as before except `sldsc-AA-caudate-20261008` and rdg-AA-crossregion-20261008 (the accepted successors). Architecture-axis tests, integration tests and retention-criteria.tsv are identical to `-20261001` apart from the run ID, so neither decision moves. 106,076 output files, failures "". 2,654 VMRs linked to 522 of 612 loci; 363,164 pairs tested, 27,470 significant; **90** loci with CpG-meQTL support (was 94); 145 with transcriptional coupling; 174 with GTEx support. Axis `lower_in_scz_linked`, adjusted log-odds -0.226 per SD (SE 0.026, q 4.2e-18). Prioritized loci 276/432/73/198/163 (the same five). Decision 1 CAUDATE_MAGNITUDE_CLAIM_NOT_SUPPORTED. Caudate is batch-confounded. |
+| scz-AA-dlpfc-20261008 | AA | dlpfc | vmrset-AA-dlpfc-856067dfe289 | 2026-10-08 | closeout-20261008 (gate pass; PI review pending) | PASS_SCZ_APPLICATION_QC | Opened at 85144b874, sealed at ee3791e24 (the seal stamps HEAD; no Module 09 `_h/` code changed between them, and stages read the config snapshot taken at open), git_dirty false, smoke_run FALSE. Rerun of `-20261001` on the de-duplicating combine stage (`4882a443d`, A2): `locus-evidence.tsv` now has one row per locus (612 of 612), where 42 two-index-SNP loci were counted twice. Upstreams as before except `sldsc-AA-dlpfc-20261008` and rdg-AA-crossregion-20261008 (the accepted successors). Architecture-axis tests, integration tests and retention-criteria.tsv are identical to `-20261001` apart from the run ID, so neither decision moves. 81,578 output files, failures "". 2,063 VMRs linked; 225,527 pairs tested, 12,547 significant; **64** loci with CpG-meQTL support (unchanged); 100 with transcriptional coupling; 174 with GTEx support. Axis adjusted log-odds -0.161 per SD (SE 0.026, q 1.3e-09). Prioritized loci 544/490/283/493/136 (the same five; `rs13331198` is locus 544). |
+| scz-AA-hippocampus-20261008 | AA | hippocampus | vmrset-AA-hippocampus-2d907b892215 | 2026-10-08 | closeout-20261008 (gate pass; PI review pending) | PASS_SCZ_APPLICATION_QC | Opened at 85144b874, sealed at ee3791e24 (the seal stamps HEAD; no Module 09 `_h/` code changed between them, and stages read the config snapshot taken at open), git_dirty false, smoke_run FALSE. Rerun of `-20261001` on the de-duplicating combine stage (`4882a443d`, A2): `locus-evidence.tsv` now has one row per locus (612 of 612), where 42 two-index-SNP loci were counted twice. Upstreams as before except `sldsc-AA-hippocampus-20261008` and rdg-AA-crossregion-20261008 (the accepted successors). Architecture-axis tests, integration tests and retention-criteria.tsv are identical to `-20261001` apart from the run ID, so neither decision moves. 71,168 output files, failures "". 2,017 VMRs linked; 216,837 pairs tested, 10,056 significant; **63** loci with CpG-meQTL support (was 64); 78 with transcriptional coupling; 173 with GTEx support. Axis adjusted log-odds -0.160 per SD (SE 0.027, q 2.0e-09). Prioritized loci 264/118/441/198/136: five distinct loci, where `-20261001` listed locus 136 twice. |
 
 ### Accepted non-gating check
 
 Recorded under its own heading, not in the table above. The run is a
-concordance-only qualification of the illustrative loci (AGENTS.md 7.7), it
+concordance-only qualification of the illustrative loci, it
 feeds neither Module 09 decision, and nothing downstream gates on it.
 
 | run_id | cohort | region | upstream | sealed | accepted_on | accepted_by | notes |
 |---|---|---|---|---|---|---|---|
-| scz-all_individuals.EA-crossregion-20261008 | all_individuals.EA | crossregion | scz-AA-{caudate,dlpfc,hippocampus}-20261001; estcell-all_individuals.EA-{region}-20260910; vmrcat-all_individuals-{region}-20260816 | 2026-10-08T00:54 at 4671edb22, git_dirty false, 5/5 jobs | 2026-10-08 | Kynon J. Benjamin | Config config/scz_ea_targeted.yml, pi_locked before any EA association was computed. EA donors 129 / 55 / 60. Pooled methylation equals the AA primary at every target CpG. Lead pairs: 14 of 15 testable (hippocampus 136 variant absent from the pooled pfile); 12 keep the AA sign, 6 nominal, 4 Bonferroni (caudate 276 and 432, DLPFC 544 rs13331198 p 2.6e-8, hippocampus 264). All pairs: 1,053 of 1,140 same sign. Two opposite-sign leads are the weakest AA loci (p about 1e-3). Coloc (not a gate) on caudate 432 and 276: PP4 0.003 / 0.010, PP3 0.78 / 0.99, with a weak European GWAS side. Concordance only; no EA vs AA magnitude or ancestry claim. |
+| scz-all_individuals.EA-crossregion-20261008 | all_individuals.EA | crossregion | scz-AA-{caudate,dlpfc,hippocampus}-20261001 (superseded 2026-10-08 by -20261008, whose locus definitions and links are identical); estcell-all_individuals.EA-{region}-20260910; vmrcat-all_individuals-{region}-20260816 | 2026-10-08T00:54 at 4671edb22, git_dirty false, 5/5 jobs | 2026-10-08 | Kynon J. Benjamin | Config config/scz_ea_targeted.yml, pi_locked before any EA association was computed. EA donors 129 / 55 / 60. Pooled methylation equals the AA primary at every target CpG. Lead pairs: 14 of 15 testable (hippocampus 136 variant absent from the pooled pfile); 12 keep the AA sign, 6 nominal, 4 Bonferroni (caudate 276 and 432, DLPFC 544 rs13331198 p 2.6e-8, hippocampus 264). All pairs: 1,053 of 1,140 same sign. Two opposite-sign leads are the weakest AA loci (p about 1e-3). Coloc (not a gate) on caudate 432 and 276: PP4 0.003 / 0.010, PP3 0.78 / 0.99, with a weak European GWAS side. Concordance only; no EA vs AA magnitude or ancestry claim. |
 
 ### Superseded
+
+`scz-AA-{caudate,dlpfc,hippocampus}-20261001` (accepted 2026-10-01, superseded
+2026-10-08). They predate the de-duplicating combine stage, so their
+`locus-evidence.tsv` holds 629/631/631 rows for 612 loci and inflates every
+locus count: meQTL-supported loci 94/64/64 (true 90/64/63), transcriptional
+coupling 151/105/80 (true 145/100/78), GTEx support 189/189/188 (true
+174/174/173). Their axis tests, integration tests and decisions are identical to
+the `-20261008` runs. Quote no locus count from them.
 
 `scz-AA-{caudate,dlpfc,hippocampus}-20260918` (accepted 2026-09-19, superseded
 2026-10-01). Superseded because four upstreams moved, which is the condition
 the section above this table described and which the rerun has now discharged.
-AGENTS.md §6 is not retroactive: the 2026-09-19 acceptance was sound when it was
+The locked analysis plan is not retroactive: the 2026-09-19 acceptance was sound when it was
 made.
 
 **What is safe to carry across, because it is byte-identical in all three
@@ -569,7 +575,7 @@ near-tie: hippocampus ranks 1-6 are 1.7318, 1.7170, 1.7140, 1.7136, 1.7114,
 operated -- hippocampus's old rank-1 locus left the pool, and the surviving order
 is decided at the third decimal place.
 
-AGENTS.md §8's hero-loci retest is answered by these runs. **`rs13331198`
+The locked analysis plan's hero-loci retest is answered by these runs. **`rs13331198`
 survives corrected prioritization in DLPFC only** (rank 3; rank 15 caudate, rank
 12 hippocampus). **`rs8048039` survives in no region** (rank 48 / 53 / 47),
 though it carries meQTL support, GTEx support and max PP4 0.966 in all three; it
@@ -577,6 +583,6 @@ should not be presented as a hero locus.
 
 ## Contract
 
-This module follows AGENTS.md §5.2: `_h/` holds code, `_m/` holds generated
+This module follows the repository layout: `_h/` holds code, `_m/` holds generated
 output under immutable `runs/{RUN_ID}/` directories, `tests/` holds gitignored
 smoke checks. Configuration lives in `config/` at the repository root.

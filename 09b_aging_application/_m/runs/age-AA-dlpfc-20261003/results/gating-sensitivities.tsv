@@ -1,0 +1,5 @@
+member	rule	fitted	survives	estimate	p	reason	fraction_of_primary
+cell_music	sign_and_p	TRUE	TRUE	-0.385678270723404	0.0112096509204003		
+cell_scmd	sign_and_p	FALSE				scmd_integration_gate_fails_in_region	
+cell_composition_r2	sign_and_p	TRUE	TRUE	-0.327081952805376	0.0245837948239204		
+controls_only	sign_and_min_fraction_of_primary	TRUE	TRUE	-0.235896618151449	0.321900319571154		0.719656894692363

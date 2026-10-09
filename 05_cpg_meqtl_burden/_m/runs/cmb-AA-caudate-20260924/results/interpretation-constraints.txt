@@ -1,0 +1,26 @@
+Interpretation constraints carried by this table:
+  - meQTL mapping used the SAME donors as the source estimates. This is
+    convergent evidence, NOT independent replication.
+  - Burden denominators are TESTED CpGs; see excluded-cpgs.tsv and
+    vmrs-without-tested-cpgs.tsv for what is not in them.
+  - Public positive-only meQTL resources cannot provide an external
+    gradient: absence from a positive list is not a tested negative.
+  - The reported genomic inflation lambda is a DISTAL-NULL statistic, not
+    an all-pair lambda. It is computed over cis pairs with |CpG-SNP
+    distance| above the configured distal threshold, where true meQTLs are
+    sparse enough for the null to hold. Proximal cis pairs are enriched for
+    real signal, so lambda > 1 there is expected and is not evidence of
+    confounding. Quoting the distal figure as though it described the whole
+    scan overstates how well calibrated the scan is; quote both.
+  - Genomic inflation lambda = 1.137 (distal_cis_pairs_abs_distance_gt_400000).
+  - All-pair lambda over the same scan = 1.374, on 4,999,984 nominal cis
+    pairs; the distal figure uses 974,972 pairs. Lambda decaying
+    monotonically as the distance floor rises is the signature of signal
+    rather than inflation; see results/qc/genomic-inflation-by-distance.tsv.
+  - The locked primary covariate model (config/covariates.yml: M3a) includes
+    methPC1-5, and methPC1 is largely collinear with this region's estimated
+    cell composition (R2 ~ 0.72 on RNA MuSiC proportions in caudate). The
+    primary meQTL scan is therefore NOT free of cell-composition adjustment,
+    and must not be described as if it were. That is a collinearity between a
+    methylation PC and an RNA-derived proportion estimate; it implies no cell
+    type of origin (AGENTS.md 2.3). See results/latent-factor-provenance.tsv.

@@ -1,0 +1,14 @@
+Interpretation constraints carried by this run:
+  - NON-GATING. No gate, claim, q-value or decision token of the accepted
+    cells changes. The split is a description of where each primary
+    association lives, not a new test of it.
+  - 'Shared' and 'region-unique' describe which loci were CALLED. Region is
+    confounded with sequencing batch for caudate (AGENTS.md 8.1), so a
+    caudate-unique VMR is also batch-3-unique.
+  - Two readings of a gap fit these data and this run cannot separate them:
+    the association is genuinely region-restricted, or region-unique loci are
+    enriched for loci whose calling, coverage or score is sensitive to local
+    sequence. Neither licenses a cell-type or retrotransposition claim.
+  - The difference test is the JOINT chromosome jackknife; the HC3
+    independence SE is a reference and not the test.
+  - Caudate LINE/L1 remains set aside from the claim (set_aside_from_claim).

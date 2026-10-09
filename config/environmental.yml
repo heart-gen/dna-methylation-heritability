@@ -82,7 +82,7 @@ exposures:
       rationale: >
         Downstream of diagnosis, which is in the locus model, so conditioning on
         diagnosis opens a collider path. Descriptive only; see
-        writing-notes/schizophrenia_vmr_sensitivity_strategy.md.
+        internal note schizophrenia_vmr_sensitivity_strategy.md (not distributed).
       strata: [schizophrenia]
       caveat: >
         PI, 2026-09-10: there are ZERO exposed controls (AA: Control 59 FALSE /
@@ -377,7 +377,7 @@ testing:
     # attenuation a property of cell composition, or of the RNA-derived measure
     # of it? One arm, one region, and it is the only place the comparison exists.
     #
-    # REGION-CONDITIONAL, and that is a first for this module. AGENTS.md 7.4 and
+    # REGION-CONDITIONAL, and that is a first for this module. the locked analysis plan and
     # 7.9 both scope DNAm scMD to "where the integration gate passes", which
     # Module 04 records per run in `scmd_integration_gate`: PASS in caudate,
     # FAIL in DLPFC and hippocampus, where `cell_composition_r2_scmd` is empty
@@ -388,7 +388,7 @@ testing:
     # rather than declared ones so a skip cannot be mistaken for a pass.
     #
     # It does not make the three regions comparable or incomparable: nothing is
-    # gated on any arm here, and AGENTS.md 7.10 emits no cross-region contrast at
+    # gated on any arm here, and the locked analysis plan emits no cross-region contrast at
     # all, so a region carrying one more sensitivity than another changes no
     # reading. What it changes is how well the caudate number is characterised
     # before anyone cites it.
@@ -558,7 +558,7 @@ gates:
 # ---------------------------------------------------------------------------
 # NOT IMPLEMENTED and NOT COMMISSIONED. Recorded so the design, and the
 # 2026-09-18 Module 09 framing it must follow, are prespecified before anything
-# is fitted. Design notes: writing-notes/exposure_confounding_of_scz_meqtl_strategy.md.
+# is fitted. Design notes: internal note exposure_confounding_of_scz_meqtl_strategy.md (not distributed).
 #
 # The estimand is the STABILITY of an already well-estimated genetic effect,
 # not detection of an exposure effect, which this cohort cannot power

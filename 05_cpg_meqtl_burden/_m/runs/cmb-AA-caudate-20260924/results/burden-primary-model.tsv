@@ -1,0 +1,6 @@
+model	term	estimate	se	z	p	n_vmrs	dispersion	genomic_inflation_lambda	region	population	vmr_set_id
+quasibinomial_continuous_local_snp_contribution_score	(Intercept)	-0.618055140081042	0.385812139469873	-1.60195876918306	0.109164727265645	11142	10.4464595403157	1.13714249995492	caudate	AA	vmrset-AA-caudate-937a41979978
+quasibinomial_continuous_local_snp_contribution_score	local_snp_contribution_score_z	2.08389632975408	0.0488024544825809	42.7006459377548	0	11142	10.4464595403157	1.13714249995492	caudate	AA	vmrset-AA-caudate-937a41979978
+quasibinomial_continuous_local_snp_contribution_score	log(vmr_length)	0.0583972718616447	0.0527739452847577	1.10655497796393	0.268486381768443	11142	10.4464595403157	1.13714249995492	caudate	AA	vmrset-AA-caudate-937a41979978
+quasibinomial_continuous_local_snp_contribution_score	cpg_density	1.43941036189229	1.42148950602633	1.01260709684453	0.311247868690202	11142	10.4464595403157	1.13714249995492	caudate	AA	vmrset-AA-caudate-937a41979978
+quasibinomial_continuous_local_snp_contribution_score	mean_methylation	1.34445289912294	0.257056434586697	5.23018574222657	1.69339810923479e-07	11142	10.4464595403157	1.13714249995492	caudate	AA	vmrset-AA-caudate-937a41979978

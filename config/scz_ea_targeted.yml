@@ -11,7 +11,7 @@
 #
 # WHAT IT IS. A targeted directional check, not an EA meQTL map (that remains
 # task T25, a separate PI decision) and not a test of an ancestry difference.
-# AGENTS.md 7.7 / config/analysis_thresholds.yml:donor_group lock donor-group
+# the locked analysis plan / config/analysis_thresholds.yml:donor_group lock donor-group
 # inference to concordance only, and config/schizophrenia.yml forbids
 # `ancestry_specific_scz_methylation`. So the only quantities reported are an
 # EA effect's sign relative to the AA effect and its nominal p. EA effect sizes

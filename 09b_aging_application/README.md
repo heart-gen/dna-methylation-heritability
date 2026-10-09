@@ -239,7 +239,7 @@ is an error, never a silent "not scMD". The resolved modality is written to
 so the audit trail names the modality that was actually adjusted for rather than
 the one a constant assumed.
 
-The judgement, since the column is a derived scalar and AGENTS.md §7.4 does ask
+The judgement, since the column is a derived scalar and the locked analysis plan does ask
 for "cell-composition-**associated** methylation properties": the adjective is
 load-bearing. Where the proportions behind the R² do not track composition
 (total-neuron ρ −0.03 DLPFC, −0.10 hippocampus, against 0.72 caudate) it measures
@@ -285,7 +285,7 @@ The stage reads the Module 08 tiers. Caudate's tier is taken from
   - "Context-dependent" is claimed only if the CI excludes zero in both
     `primary` and `cell_music`.
 - **Q3, caudate.** Descriptive tier only. It is fitted and surfaced, and no
-  caudate contrast is emitted (sequencing batch 3, AGENTS.md §8.1).
+  caudate contrast is emitted.
 
 The decision token `aging_axis_association` takes one of these values:
 - `REGION_GENERAL`
@@ -318,8 +318,7 @@ These are carried on every decision row.
   methylation differences", **never** "methylation change with age". Age is
   confounded with birth cohort and survival.
 - No causal, epigenetic-clock or environmental-determination claim. A null
-  result is not evidence that low-control VMRs are environmentally determined
-  (AGENTS.md §2.3), nor the reverse.
+  result is not evidence that low-control VMRs are environmentally determined, nor the reverse.
 - The Module 02 score is never compared across regions. Only unit-free axis
   coefficients are.
 - In DLPFC and hippocampus the only donor-level composition estimate is RNA
@@ -378,7 +377,7 @@ every region, so nothing upstream moved: the round exists to install one gate.
 and `n_chromosome_blocks` are bit-identical to `-20261001` in all three regions,
 all three decision tokens are unchanged, and all three region readings are
 unchanged. Only columns downstream of the donor bootstrap moved, which they must:
-AGENTS.md §9 requires seeds derived from the run ID, so a new run ID necessarily
+The locked analysis plan requires seeds derived from the run ID, so a new run ID necessarily
 redraws them.
 
 ### Why the gate exists
@@ -477,7 +476,7 @@ chromosome-block term is the conservative half of the pin.
 
 ### What T28 settled for this module, and the one caveat it leaves
 
-T28 (`writing-notes/DRAFT_T28_axis_variance_20261002.md`, signed 2026-10-03)
+T28 (signed 2026-10-03)
 validated the inference this module uses. Four decisions were put and recorded:
 
 - **D1 accepted.** The combined donor-bootstrap + delete-one-chromosome
@@ -524,7 +523,7 @@ and a single draw with slightly larger SEs moves most of them together. A sign
 test on them assumes an independence that does not hold; the mean shift in p is
 +0.002.
 
-AGENTS.md §7.9 makes this table descriptive and explicitly outside the region
+The locked analysis plan makes this table descriptive and explicitly outside the region
 reading, so no decision depends on these rows. The consequence is a **writing
 constraint**: do not report a near-threshold annotation as crisply significant
 or crisply non-significant. Unlike the stage-B variance question, raising B
@@ -564,7 +563,7 @@ they replace, and the one reading the rerun changed, are under
 | run_id | cohort | region | vmr_set_id | accepted_on | accepted_by | decision | notes |
 |---|---|---|---|---|---|---|---|
 | age-AA-caudate-20261003 | AA | caudate | vmrset-AA-caudate-937a41979978 | 2026-10-03 | Kynon J. M. Benjamin | PASS_AGING_AXIS_COVERAGE | Built at 9604a1529, git_dirty false, smoke_run FALSE, on vmrcat-AA-caudate-20260816, lgv-AA-caudate-rescore-20260913, rra-AA-caudate-20260925-a, tsc-AA-caudate-20260925-b -- all four upstreams and the vmr_set_id identical to the superseded `-20261001`, so the magnitude gate is the only thing that changed; 153 donors (88 control, 65 case), 11,251 VMRs modelled, 0 non-finite, 0 excluded, B = 1000 with 0 failures, 6/6 gate checks pass. Primary **-0.2517** (SE 0.0703, 95% CI -0.389 to -0.114, p 3.4e-04), hypothesized direction, on 11,204 VMRs over 22 chromosome blocks. `estimate`, `n_vmrs` and `n_chromosome_blocks` are bit-identical to `-20261001`; only bootstrap-derived columns moved. **Magnitude gate: REPORTABLE, den_z 2.842** (`fieller_denominator_stability`, covariance `donor_jackknife_plus_chromosome_block`) -- and not usable, because the region is not supported. Gating arms: controls_only -0.316 (p 2.6e-05, 126% of primary) PASS, cell_music -0.294 (p 5.7e-07) PASS, cell_composition_r2 -0.199 (p 9.8e-04) PASS, **cell_scmd -0.241 (p 0.0551) FAIL** -- the single failing member. Non-gating: methylation_variance -0.276 (p 4.1e-05), high_mappability -0.243 (p 1.6e-04, 8,196 VMRs), chromatin_decomposition -0.244 (p 4.9e-04), age_ge_25 -0.120 (p 0.199). Region reading **PRIMARY_ONLY_FAILS_GATING_SENSITIVITY**, region_supported FALSE. Quartile descriptive: top-control quartile carries 0.188 of the regional mean debiased squared age effect against 1.408 in the bottom quartile. 20 of 56 testable annotation associations at q<0.05 (the 57th row is untestable, fewer than 50 VMRs in the class; the superseded rows each counted one high). scMD integration gate PASS, so cell_scmd is legitimately fitted here and is the only region where it is. cell_composition_r2_source = rna_music. methPC-age max abs(rho) 0.513 at chr_7:PC4. Cross-sectional design; caudate is batch-confounded (descriptive tier) and no causal, clock or environmental-determination reading is licensed. |
-| age-AA-dlpfc-20261003 | AA | dlpfc | vmrset-AA-dlpfc-856067dfe289 | 2026-10-03 | Kynon J. M. Benjamin | PASS_AGING_AXIS_COVERAGE | Built at 9604a1529, git_dirty false, smoke_run FALSE, on vmrcat-AA-dlpfc-20260816, lgv-AA-dlpfc-rescore-20260913, rra-AA-dlpfc-20260925-a, tsc-AA-dlpfc-20260925-b -- all four identical to the superseded `-20261001`; 118 donors (70 control, 48 case), 9,251 VMRs modelled, 0 non-finite, 0 excluded, B = 1000 with 0 failures, 6/6 gate checks pass. Primary **-0.3278** (SE 0.1449, 95% CI -0.612 to -0.044, p 0.0236; p was 0.0279 on the previous seed), hypothesized direction, on 9,214 VMRs over 22 chromosome blocks, bit-identical in estimate to `-20261001`. **Magnitude gate: NOT reportable, den_z 1.114** -- `family_mean_not_separated_from_zero_at_this_level`. `primary_estimate_meaning` therefore reads SIGNED TEST ONLY in the run itself, and **the main-text sentence for this module is a signed statement with the estimate and interval, not a percentage.** The finding is unaffected: the gate withholds the magnitude, not the result. Gating arms, **all fitted members survive**: cell_music -0.386 (p 0.0112) PASS, cell_composition_r2 -0.327 (p 0.0246) PASS, controls_only -0.236 (p 0.322 but 72.0% of the primary, against the locked `reduced_n_min_fraction: 0.5`; its rule is sign_and_min_fraction_of_primary, not significance, because the arm keeps only ~58% of donors) PASS; cell_scmd NOT FITTED, reason scmd_integration_gate_fails_in_region. Non-gating: methylation_variance -0.323 (p 0.0135), high_mappability -0.339 (p 0.0274, 5,702 VMRs), chromatin_decomposition -0.300 (p 0.0311), age_ge_25 -0.307 (p 0.143). Region reading **SUPPORTED_SURVIVES_GATING_SENSITIVITIES**, region_supported TRUE, unchanged from `-20261001`. Quartile descriptive: top quartile 0.237 against bottom 1.648. 13 of 56 testable annotation associations at q<0.05, against 17 in `-20261001`: four rows sat close enough to q = 0.05 that the bootstrap seed decides their call. That table is descriptive and outside the region reading (AGENTS.md 7.9), and the consequence is a writing constraint, not a decision -- see "### Near-threshold rows in the annotation table". scMD integration gate FAIL, cell_composition_r2_source = rna_music. methPC-age max abs(rho) 0.451 at chr_11:PC5. Cross-sectional design; "age-associated methylation differences", never "change with age". |
+| age-AA-dlpfc-20261003 | AA | dlpfc | vmrset-AA-dlpfc-856067dfe289 | 2026-10-03 | Kynon J. M. Benjamin | PASS_AGING_AXIS_COVERAGE | Built at 9604a1529, git_dirty false, smoke_run FALSE, on vmrcat-AA-dlpfc-20260816, lgv-AA-dlpfc-rescore-20260913, rra-AA-dlpfc-20260925-a, tsc-AA-dlpfc-20260925-b -- all four identical to the superseded `-20261001`; 118 donors (70 control, 48 case), 9,251 VMRs modelled, 0 non-finite, 0 excluded, B = 1000 with 0 failures, 6/6 gate checks pass. Primary **-0.3278** (SE 0.1449, 95% CI -0.612 to -0.044, p 0.0236; p was 0.0279 on the previous seed), hypothesized direction, on 9,214 VMRs over 22 chromosome blocks, bit-identical in estimate to `-20261001`. **Magnitude gate: NOT reportable, den_z 1.114** -- `family_mean_not_separated_from_zero_at_this_level`. `primary_estimate_meaning` therefore reads SIGNED TEST ONLY in the run itself, and **the main-text sentence for this module is a signed statement with the estimate and interval, not a percentage.** The finding is unaffected: the gate withholds the magnitude, not the result. Gating arms, **all fitted members survive**: cell_music -0.386 (p 0.0112) PASS, cell_composition_r2 -0.327 (p 0.0246) PASS, controls_only -0.236 (p 0.322 but 72.0% of the primary, against the locked `reduced_n_min_fraction: 0.5`; its rule is sign_and_min_fraction_of_primary, not significance, because the arm keeps only ~58% of donors) PASS; cell_scmd NOT FITTED, reason scmd_integration_gate_fails_in_region. Non-gating: methylation_variance -0.323 (p 0.0135), high_mappability -0.339 (p 0.0274, 5,702 VMRs), chromatin_decomposition -0.300 (p 0.0311), age_ge_25 -0.307 (p 0.143). Region reading **SUPPORTED_SURVIVES_GATING_SENSITIVITIES**, region_supported TRUE, unchanged from `-20261001`. Quartile descriptive: top quartile 0.237 against bottom 1.648. 13 of 56 testable annotation associations at q<0.05, against 17 in `-20261001`: four rows sat close enough to q = 0.05 that the bootstrap seed decides their call. That table is descriptive and outside the region reading, and the consequence is a writing constraint, not a decision -- see "### Near-threshold rows in the annotation table". scMD integration gate FAIL, cell_composition_r2_source = rna_music. methPC-age max abs(rho) 0.451 at chr_11:PC5. Cross-sectional design; "age-associated methylation differences", never "change with age". |
 | age-AA-hippocampus-20261003 | AA | hippocampus | vmrset-AA-hippocampus-2d907b892215 | 2026-10-03 | Kynon J. M. Benjamin | PASS_AGING_AXIS_COVERAGE | Built at 9604a1529, git_dirty false, smoke_run FALSE, on vmrcat-AA-hippocampus-20260816, lgv-AA-hippocampus-rescore-20260913, rra-AA-hippocampus-20260925-a, tsc-AA-hippocampus-20260925-b -- all four identical to the superseded `-20261001`; 117 donors (69 control, 48 case), 9,166 VMRs modelled, 0 non-finite, 0 excluded, B = 1000 with 0 failures, 6/6 gate checks pass. Primary **-0.0977** (SE 0.0900, 95% CI -0.274 to 0.079, **p 0.278, not significant**), hypothesized direction, on 9,134 VMRs over 22 chromosome blocks, bit-identical in estimate to `-20261001`. **Magnitude gate: REPORTABLE, den_z 3.231** -- the strongest-separated denominator in the module, in the region whose gradient is not supported, and the clearest case that the gate and the finding are different questions. This is also where the pinned covariance is load-bearing: on the donor-bootstrap covariance the same row reads den_z 1.931 and would have been called NOT reportable. Gating arms: controls_only -0.243 (p 0.018, 249% of primary) PASS, cell_music -0.139 (p 0.165) FAIL, cell_composition_r2 -0.073 (p 0.414) FAIL; cell_scmd NOT FITTED, scmd_integration_gate_fails_in_region. Non-gating all null: methylation_variance -0.097 (p 0.284), high_mappability -0.017 (p 0.867, 5,776 VMRs), chromatin_decomposition -0.099 (p 0.258), age_ge_25 -0.049 (p 0.633). Region reading **NOT_SUPPORTED**, region_supported FALSE, unchanged. Quartile descriptive: top quartile 0.315 against bottom 1.145, the weakest separation of the three. 20 of 56 testable annotation associations at q<0.05, against 26 in `-20261001`: eight rows are seed-decided at q = 0.05, same writing constraint as DLPFC. methPC-age max abs(rho) **0.641** at chr_17:PC4, the largest of the three regions, so the catalog-scope caveat bites hardest here: a methylation PC removed before VMR calling tracks age, and this catalog therefore under-samples regions whose variability is mostly age-driven. That is a plausible contributor to the null and is not evidence against an age effect. |
 
 **Cross-region (stage 05, rerun 2026-10-03 on the accepted `-20261003` runs):
@@ -598,8 +597,7 @@ an effect size. The two regions share 115 of 118 donors (Jaccard 0.958) and are
 not independent replicates; no pooled p is emitted
 (`pooled_p_emitted = FALSE`).
 
-Q3: caudate stays `descriptive_only` and no caudate contrast is emitted
-(AGENTS.md §8.1). `cross_region_raw_score_comparison_allowed = FALSE`,
+Q3: caudate stays `descriptive_only` and no caudate contrast is emitted. `cross_region_raw_score_comparison_allowed = FALSE`,
 `causal_interpretation_allowed = FALSE`,
 `environmentally_determined_claim_allowed = FALSE`, and
 `cross_sectional_design = TRUE` on the emitted row.
@@ -610,7 +608,7 @@ Q3: caudate stays `descriptive_only` and no caudate contrast is emitted
 
 ### Manuscript placement
 
-**PI decision, 2026-10-01 (Kynon J. Benjamin), closing the AGENTS.md §7.9
+**PI decision, 2026-10-01 (Kynon J. Benjamin), closing the open
 "PI decision after the run" item.** 09b gets a **supplementary figure**, and the
 finding is **reported in the main text**.
 
@@ -654,7 +652,7 @@ should not be quoted again.**
 
 First, their upstreams moved. All three consumed `rra-AA-*-20260906` and
 `tsc-AA-*-20260902`, both replaced by the 2026-09-25 acceptances. Modules 01 and
-02 are unchanged, so the axis predictor is the same one. AGENTS.md §6 is not
+02 are unchanged, so the axis predictor is the same one. The locked analysis plan is not
 retroactive: the 2026-09-19 acceptance was sound when it was made.
 
 Second, and the reason a rerun was needed rather than a pointer, the
@@ -719,4 +717,4 @@ modality that was.
 
 `_h/` holds code, `_m/runs/{RUN_ID}/` holds immutable generated output, and
 `tests/` is gitignored hand-run smoke checks. Configuration is shared at
-`config/aging.yml`. See AGENTS.md §5.2 and §7.9.
+`config/aging.yml`. See the module README and its config.

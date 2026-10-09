@@ -1,7 +1,7 @@
 # Transcription and splicing coupling of VMRs (Module 07). Prespecified; do not
 # tune after seeing results.
 #
-# AGENTS.md 7.6 forbids an unbounded transcriptome-wide fishing analysis: the
+# the locked analysis plan forbids an unbounded transcriptome-wide fishing analysis: the
 # tested universe is the prespecified set of local VMR-to-feature links declared
 # here, and it is written out with every run so the denominator is auditable.
 
@@ -47,7 +47,7 @@ annotation:
 # -------------------------------------------------- pair-level association
 # One linear model per VMR-feature pair: feature ~ VMR methylation + covariates.
 # This is the step that must be RECOMPUTED rather than reused: the legacy link
-# tables are keyed to pre-repair VMRs, and AGENTS.md 6 forbids carrying
+# tables are keyed to pre-repair VMRs, and the locked analysis plan forbids carrying
 # downstream numbers across VMR turnover.
 # Expression normalisation. Declared here rather than left in the script,
 # because the legacy analysis's CPM-vs-RPKM choice materially changed its
@@ -103,7 +103,7 @@ association:
 # ------------------------------------------------------- coupling tests
 # The three primary tests, ported from the legacy
 # 01_meqtl_tx_enrichment.py, with the predictors swapped: legacy used
-# r_squared_cv / h2_category / h2_unscaled, all banned by AGENTS.md 3.
+# r_squared_cv / h2_category / h2_unscaled, all banned by the locked analysis plan.
 coupling:
   outcome: any_sig_fdr             # VMR has >= 1 significant local feature link
   secondary_outcome: n_sig_fdr     # count form, reported beside it
@@ -111,7 +111,7 @@ coupling:
     any_meqtl_support: n_cpgs_with_sig_meqtl_gt0
     meqtl_proportion: proportion_cpgs_with_sig_meqtl
     local_genetic_control: local_snp_contribution_score_z
-  # AGENTS.md 7.6 names these explicitly as required adjustments.
+  # the locked analysis plan names these explicitly as required adjustments.
   covariates:
     - n_features_tested
     - vmr_length
@@ -133,7 +133,7 @@ forbidden_columns:
   - h2_unscaled
   - h2_en_calibrated
 
-# AGENTS.md 7.6. Allowed: "Genetically regulated VMRs are more frequently
+# the locked analysis plan. Allowed: "Genetically regulated VMRs are more frequently
 # transcriptionally coupled." Forbidden: any mediation or causal claim.
 claims:
   allowed: genetically_regulated_vmrs_more_frequently_transcriptionally_coupled

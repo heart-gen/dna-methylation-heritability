@@ -4,14 +4,16 @@ Establishes what **reproduces** across brain regions, which regional difference
 is actually **identified**, and what the donor-group and matched-subset
 contrasts can support.
 
-**Status: accepted (AA, 2026-09-18), and its upstreams have since moved — see
-"The accepted run now rests on superseded upstreams" below.**
+**Status: accepted (AA, 2026-10-08: `rdg-AA-crossregion-20261008`, gate 10/10,
+0 primary claim-family tier-2 differences once the meQTL-slope contrast reads the
+donor-robust SE).** The history below records the 2026-09-18 acceptance and the
+reruns that superseded it; the current run is the one in **Accepted runs**.
 `rdg-AA-crossregion-20260918` passed the gate and is recorded under **Accepted
 runs**; criterion 10 was added the next day and it passes retrospectively. The
 blocking upstreams were satisfied when it opened —
 `04_repeat_repressive_architecture` (`rra-AA-*-20260906`) and
 `05_cpg_meqtl_burden` (`cmb-AA-*-20260825`) both recorded passing acceptance
-gates (AGENTS.md §6) — and the donor-group axis is unblocked by the six accepted
+gates — and the donor-group axis is unblocked by the six accepted
 cell runs in each of `01b_estimation_cells`, `02_local_genetic_variance` and
 `03_local_snp_prediction`.
 
@@ -83,7 +85,7 @@ are no longer the ones a new production run may consume:
 | `05_cpg_meqtl_burden` | `cmb-AA-*-20260825` | `cmb-AA-*-20260924` |
 | `07_transcription_splicing_coupling` | `tsc-AA-*-20260902` | `tsc-AA-*-20260925-b` |
 
-AGENTS.md §6 is not retroactive: the 2026-09-18 acceptance was valid when it was
+The locked analysis plan is not retroactive: the 2026-09-18 acceptance was valid when it was
 made and stays in the table. What follows is narrower and is the operative rule
 here — **no new production run may consume `rdg-AA-crossregion-20260918`**, and
 its tier counts may not be quoted beside numbers from the 2026-09-25 upstreams.
@@ -166,7 +168,7 @@ said fixes 2 and 4 "touch `config/region_donor_generalization.yml`, which is
 `pi_locked`", and that was wrong on the facts: the config declares the tiers, their
 licences, the contrast, `require_strict_conjunction`, `alpha` and `fdr_method`, and
 says nothing about which `analysis_set`s or `outcome_role`s enter a conjunction or
-a count. There is no key to edit. AGENTS.md §12 turns on whether a change is a
+a count. There is no key to edit. The locked analysis plan turns on whether a change is a
 silent scientific decision, not on whether it edits a YAML file, and none of the
 four is: fix 1 reads a flag the source module already publishes, fix 3 stops a
 number with an SE 140× its magnitude from carrying a direction, fix 2's remedy is
@@ -248,7 +250,7 @@ be quoted again.
 
 First, its upstreams moved. It consumed `rra-AA-*-20260906`, `cmb-AA-*-20260825`
 and `tsc-AA-*-20260902`, all three of which were replaced by the 2026-09-24/25
-acceptances. AGENTS.md §6 is not retroactive, so the acceptance was sound when it
+acceptances. The locked analysis plan is not retroactive, so the acceptance was sound when it
 was made; it is the forward use that was already prohibited above.
 
 Second, and the reason a rerun was needed rather than a pointer, its tier counts
@@ -295,7 +297,7 @@ exposed the four defects; see the section above. Nothing in it is citable.
 
 | stage | tier | writes |
 |---|---|---|
-| `00_new_run.R` | — | `results/tiers.tsv`; gates all 30 region-axis + 18 cell + 9 tier-3 upstreams, plus each tier-2 donor-robust SE source, and pins their run IDs |
+| `00_new_run.R` | — | `results/tiers.tsv`; gates all 18 region-axis (Modules 01, 02, 03, 04, 05, 07 x 3 regions) + 18 cell + 9 tier-3 upstreams, plus each tier-2 donor-robust SE source, and pins their run IDs |
 | `01_cross_region_replication.R` | 1 | `cross-region-{tests,replication,rank-agreement,summary}.tsv` |
 | `02_identified_difference.R` | 2 and 4 | `identified-difference{,-summary}.tsv`, `descriptive-confounded-regions.tsv` |
 | `03_donor_group_concordance.R` | donor group | `donor-group-concordance.tsv` |
@@ -337,16 +339,13 @@ be a gate on the conclusion.
 
 Donor-group, cross-region, and downsampling modules: `meqtl-validation/04_cross_region_sharing/`, `05_donor_group_comparison/`, `10_downsampling_caudate/`, `13_vmr_universe_nmatched/`.
 
-See `MIGRATION_MANIFEST.tsv` for the legacy paths, their downstream consumers,
-and retirement status. Legacy directories stay in place until their row reads
-`validated_replacement`.
+The legacy v1 trees were retired on 2026-10-06; their tracked files are
+recoverable from the annotated tag `v1-legacy-final`.
 
 ## Scope, set by the PI 2026-09-06 before implementation
 
 This module is **not** a symmetric "shared versus context-dependent" analysis.
-Brain region is perfectly confounded with sequencing batch (AGENTS.md §8.1;
-`writing-notes/WGBS_BATCH_REGION_CONFOUNDING.md` carries the evidence and the
-full design review), so replication and difference are not two equal findings
+Brain region is perfectly confounded with sequencing batch, so replication and difference are not two equal findings
 here. Every output carries exactly one tier:
 
 | tier | analysis | licenses |
@@ -474,7 +473,7 @@ calling can advantage it.
   `all_individuals.AA` and `all_individuals.EA` from the sealed pooled Module 01
   runs (six accepted runs, 2026-09-10), Modules 02 and 03 have six accepted cell
   runs each (2026-09-17 / 2026-09-18), and both recombination stages have run
-  for all three regions. This axis is unblocked; see AGENTS.md §7.7.
+  for all three regions. This axis is unblocked; see the locked analysis plan.
 - This axis is **not** exposed to the batch confounding: donor groups interleave
   within each region's libraries.
 - Expect unequal n. Report it, and match or downsample as a tier-3 sensitivity
@@ -502,7 +501,7 @@ Prioritize biological generalization of local variance, repeat enrichment, meQTL
 burden, and effect direction. Cross-population predictor portability is optional
 and secondary.
 
-AGENTS.md §7.6 already forbids raw score-level comparison across regions, so the
+The locked analysis plan already forbids raw score-level comparison across regions, so the
 Module 02 score cannot be contrasted across cells at all. The region axis was
 always narrower than the migration sources imply.
 
@@ -513,6 +512,6 @@ explanations. Use donor-group or population language approved by the PI:
 
 ## Contract
 
-This module follows AGENTS.md §5.2: `_h/` holds code, `_m/` holds generated
+This module follows the repository layout: `_h/` holds code, `_m/` holds generated
 output under immutable `runs/{RUN_ID}/` directories, `tests/` holds gitignored
 smoke checks. Configuration lives in `config/` at the repository root.

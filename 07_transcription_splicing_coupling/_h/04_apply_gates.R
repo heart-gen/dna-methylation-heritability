@@ -144,8 +144,8 @@ writeLines(c(
     "  - Pair-level FDR is applied within one modality within one cell",
     paste0("    (fdr_family: ", ts$association$fdr_family, ")."),
     "  - The internal LIBD eQTL map is NOT used. It was closed as not migrated",
-    "    by PI decision 2026-10-03 (MIGRATION_MANIFEST.tsv; the v1 notes are at",
-    "    tag v1-legacy-final, meqtl-validation/09_libd_eqtl_mapping/).",
+    "    by PI decision 2026-10-03 (the v1 notes are at tag v1-legacy-final,",
+    "    meqtl-validation/09_libd_eqtl_mapping/).",
     paste0("  - Permitted claim: ", dec$permitted_claim[1]),
     paste0("  - Forbidden claim: ", dec$forbidden_claim[1])
 ), file.path(run_dir, "results", "interpretation-constraints.txt"))

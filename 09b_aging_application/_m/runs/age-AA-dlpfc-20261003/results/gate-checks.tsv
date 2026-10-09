@@ -1,0 +1,7 @@
+check	observed	required	comparison	pass
+modelled_vmrs	9251	500	>=	TRUE
+nonfinite_vmr_fraction	0	0.01	<=	TRUE
+bootstrap_completed	1000	1000	==	TRUE
+bootstrap_failed_fraction	0	0.01	<=	TRUE
+primary_spec_fitted	1	1	==	TRUE
+no_forbidden_columns	0	0	==	TRUE

@@ -127,7 +127,7 @@ add("## 2. Continuous local SNP control of VMR methylation variability")
 add("")
 add("Module 02 decision: `", decision_of("02_local_genetic_variance"), "`. The ",
     "endpoint is a within-cell relative rank; no absolute locus PVE and no ",
-    "class may be reported (AGENTS.md 7.2).")
+    "class may be reported.")
 den <- src("figureS_local_control_denominators", "panel_a")
 add("- Eligible VMRs: ", per_region(den[status == "Eligible"], function(r) int(r$n)),
     "; excluded: ", per_region(den[status == "Excluded"], function(r) int(r$n)),
@@ -218,14 +218,31 @@ add("")
 add("## 5. Robustness across regions and donor groups")
 add("")
 add("Module 08 decision: `", decision_of("08_region_donor_generalization"),
-    "`. Region is confounded with sequencing batch (AGENTS.md 8.1): caudate ",
+    "`. Region is confounded with sequencing batch: caudate ",
     "differences are descriptive only.")
 ga <- src("figure_region_donor_generalization", "panel_a")
-cf <- unique(ga[is_negative_control %in% c(FALSE, "FALSE"), .(test_id, replicated_strict)])
+cf <- unique(ga[is_negative_control %in% c(FALSE, "FALSE"),
+                .(test_id, label, replicated_strict, n_regions, n_nominal, module04_gate)])
+## The replication rule is direction plus nominal significance in at least two
+## regions, not "every region": an earlier sentence said every region while two
+## LINE/L1 tests rest on DLPFC and hippocampus alone (caudate LINE/L1 is set
+## aside in Module 04). State both counts, and name what is below Module 04's gate.
+n_rep  <- sum(cf$replicated_strict %in% c(TRUE, "TRUE"))
+n_all3 <- sum(as.integer(cf$n_nominal) == 3L)
+partial <- unique(cf[as.integer(n_nominal) < 3L, sub(" \u00b7 .*$", "", label)])
+below <- unique(cf[!is.na(module04_gate) & nzchar(module04_gate) &
+                   vapply(strsplit(module04_gate, "/"), function(x) x[1] != x[2], TRUE),
+                   sub(" \u00b7 .*$", "", label)])
 add("- Tier 1, robustness across technical and regional contexts: ",
-    sum(cf$replicated_strict %in% c(TRUE, "TRUE")), " of ", nrow(cf),
-    " prespecified claim-family tests replicate in every region ",
-    key("figure_region_donor_generalization", "a"), ".")
+    n_rep, " of ", nrow(cf), " prespecified claim-family tests meet the strict ",
+    "replication rule (consistent direction, nominal in at least two regions); ",
+    n_all3, " of ", nrow(cf), " are nominal in all three regions",
+    if (length(partial)) paste0(", and the ", paste(partial, collapse = ", "),
+                                " tests rest on DLPFC and hippocampus") else "",
+    if (length(below)) paste0(". ", paste(below, collapse = ", "),
+                              " replicates in direction but is below Module 04's ",
+                              "gate, so it may not be called shared across regions") else "",
+    " ", key("figure_region_donor_generalization", "a"), ".")
 gb <- src("figure_region_donor_generalization", "panel_b")
 cl2 <- gb[claimed %in% c(TRUE, "TRUE")]
 add("- Tier 2, DLPFC vs hippocampus: ", nrow(cl2), " claim-family difference",
@@ -268,7 +285,7 @@ add("- VMRs near trait-associated GWAS loci sit lower on the axis, and ",
     " ", key("figure5_gwas_architecture_axis", "c"), ".")
 add("- GWAS loci were defined from European-ancestry or European-dominated ",
     "summary statistics; the limitation attaches to the locus definition, ",
-    "not to the axis, which is a within-cohort rank (AGENTS.md 7.8 rule 2).")
+    "not to the axis, which is a within-cohort rank.")
 f5d <- src("figure5_gwas_architecture_axis", "panel_d")
 add("- What a trait's depletion tracks (technical adjustment, axis-link ",
     "Spearman, all-VMR arm): ",
@@ -287,10 +304,14 @@ add("- LINE/L1 licenses no repeat statement here: its axis-link correlation is "
                             " (q ", paste(pv(l1_hm$q), collapse = "/"), ")") else "",
     " ", key("figure5_gwas_architecture_axis", "d"), ".")
 
-## ---------------------------------------------------------- supplements
+## ------------------------------------------------------------- 7. aging
+## PI decision T27 (2026-10-01): the aging result is REPORTED in the main text;
+## only its figure is supplementary. It used to sit under "Supplementary
+## analyses" here, which is the placement the decision rules out.
 add("")
-add("## Supplementary analyses")
+add("## 7. Age-associated methylation differences along the axis")
 add("")
+add("Main-text result; figure placed in the supplement (PI decision T27).")
 sa <- src("figureS_aging_axis", "panel_a")
 add("- Aging (Module 09b; cross-sectional): ",
     per_region(sa, function(r) paste0("`", r$region_reading, "`, ",
@@ -303,13 +324,19 @@ add("- Aging (Module 09b; cross-sectional): ",
     " ", key("figureS_aging_axis", "a"), ". Cross-region token `",
     unique(src("figureS_aging_axis", "panel_b")$cross_region_token), "` ",
     key("figureS_aging_axis", "b"), ". Report as age-associated differences, never change with age.")
+
+## ---------------------------------------------------------- supplements
+add("")
+add("## Supplementary analyses")
+add("")
 se <- src("figureS_environmental_axis", "panel_a")
 add("- Environmental exposures (Module 10; exploratory supplement only): ",
     sum(se$relative_magnitude_reportable %in% c(TRUE, "TRUE")), " of ", nrow(se),
     " families pass the relative-magnitude gate, so no percentage may be stated; ",
     "signed gradients only ", key("figureS_environmental_axis", "a"),
-    ". A negative gradient is not evidence that exposure effects concentrate in ",
-    "weakly controlled VMRs (variance budget, AGENTS.md 7.10).")
+    ". Whether active, low-local-control VMRs respond more to non-genetic ",
+    "influences cannot be distinguished from the larger residual variance that ",
+    "remains when local genetic contribution is lower.")
 ss <- src("figureS_partitioned_heritability", "panel_a")
 sb <- src("figureS_partitioned_heritability", "panel_b")
 sb_cg <- sb[role == "positive_control_primary" & trait == "scz"]
@@ -409,7 +436,7 @@ madd("- Debiased outcomes; variance = donor bootstrap + delete-one-chromosome ",
 madd("")
 madd("## Design constraint")
 madd("- Caudate is sequencing batch 3 and DLPFC/hippocampus are batches 1-2, so ",
-     "region and batch are perfectly confounded (AGENTS.md 8.1). Single-region ",
+     "region and batch are perfectly confounded. Single-region ",
      "results are not exposed; caudate-vs-other differences are descriptive.")
 madd("")
 madd("## Accepted upstream runs")

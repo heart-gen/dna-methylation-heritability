@@ -1,0 +1,39 @@
+Interpretation constraints carried by this run:
+
+  Design invariants
+  - PGC3 loci were defined with no reference to any methylation result;
+    locus-definition-summary.tsv records methylation_used = FALSE.
+  - Risk-variant x CpG tests form their own FDR family (scz_risk_variant_cpg_pairs_per_region); they are never pooled with any other.
+  - Association is tested against the relative local SNP contribution
+    score. Absolute PVE and the legacy predictability metric are banned.
+
+  Colocalization
+  - Claimable ONLY from the ancestry-matched arms (PGC3 European x GTEx v11 European brain), and only while coloc_claim_permitted is TRUE. This run: TRUE.
+  - The CpG meQTL arm is European GWAS against African-American meQTL.
+    coloc assumes both studies share an LD structure and they do not, so
+    every row of that arm is stamped CROSS_ANCESTRY_LD_UNMATCHED and is
+    EXPLORATORY regardless of its PP4. It becomes gate-eligible only when
+    an ancestry-matched meQTL panel exists (config: arms.meqtl).
+  - A shared causal variant is not mediation and implies no causal
+    ordering between methylation and expression.
+  - coloc.susie is a sensitivity check on the single-causal-variant
+    assumption. It never sets a claim and never overturns coloc.abf.
+
+  Direction of effect
+  - Architecture axis: lower_in_scz_linked. This is a DEPLETION: SCZ-linked VMRs sit LOWER on the local-genetic-control axis than the matched background. It satisfies the prespecified criterion as an interpretable contrast, and must NOT be written up as enrichment.
+  - Integration annotations reaching an ENRICHMENT rather than merely a significant difference: 0. Only these support connecting the disease application to the repeat/repressive architecture; significant depletions are a different finding and carry their own wording in integration-enrichment.tsv:claim_wording.
+
+  Region-specific
+  - Caudate is perfectly confounded with sequencing batch (AANRI batch 3). Module 04 withdrew its caudate LINE/L1 claim and its caudate H3K9me3 estimate is GC-entangled; the corresponding integration rows are marked not claimable.
+
+  Open dependencies
+  - caudate_not_sample_size_artifact is FAIL_SAMPLE_SIZE_ARTIFACT. It scopes to caudate ONLY and gates the caudate magnitude claim alone; it does NOT gate the schizophrenia application (PI 2026-09-18).
+  - caudate_magnitude_claim = CAUDATE_MAGNITUDE_CLAIM_NOT_SUPPORTED. Module 08 tier 3 answers this and nothing else. NOT_SUPPORTED means donor count is a plausible major contributor to caudate's larger magnitude -- it does NOT mean the caudate estimate is biased, and must never be written that way.
+  - scz_application_retention = PENDING_CROSS_REGION. PENDING_CROSS_REGION means this run's own criteria are met and the decision now rests on cross-region concordance, which a single region cannot settle: see _m/combined/ from _h/15_cross_region_axis_concordance.R.
+  - Upstream S-LDSC (Module 06) supports brain enrichment: FALSE. config/analysis_thresholds.yml lists adds_nothing_beyond_nonsignificant_sldsc as an omit_or_supplement_if condition.
+
+  Forbidden claims (config/schizophrenia.yml:claims.forbidden)
+  - mediation
+  - causal_variant_from_elastic_net
+  - ancestry_specific_scz_methylation
+  - colocalization_from_the_cross_ancestry_meqtl_arm

@@ -124,7 +124,7 @@ cat(paste(spec$out, out_path,
                   platform, nrow(universe), n_source),
           file.size(out_path), sha256,
           format(Sys.time(), "%Y-%m-%dT%H:%M:%SZ", tz = "UTC"), "ready",
-          sprintf("array probe universe used by 01_vmr_catalog/04_turnover.R to quantify WGBS coverage outside %s-accessible CpGs (AGENTS.md 2.2)", platform),
+          sprintf("array probe universe used by 01_vmr_catalog/04_turnover.R to quantify WGBS coverage outside %s-accessible CpGs", platform),
           sep = "\t"), "\n")
 
 #### Reproducibility information ####

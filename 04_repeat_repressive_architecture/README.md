@@ -40,9 +40,8 @@ stamps `smoke_run = TRUE`.
 
 Repeat and cell-composition modules in `meqtl-validation/07_repeat_mappability_sensitivity/` and `meqtl-validation/11_celltype_compartment_sensitivity/`.
 
-See `MIGRATION_MANIFEST.tsv` for the legacy paths, their downstream consumers,
-and retirement status. Legacy directories stay in place until their row reads
-`validated_replacement`.
+The legacy v1 trees were retired on 2026-10-06; their tracked files are
+recoverable from the annotated tag `v1-legacy-final`.
 
 ## Design
 
@@ -308,7 +307,7 @@ Evidence that the inversion is a library property and not an analysis artifact:
   downstream.
 
 This reaches past Module 04, so it is written up repo-level in
-[`writing-notes/WGBS_BATCH_REGION_CONFOUNDING.md`](../writing-notes/WGBS_BATCH_REGION_CONFOUNDING.md),
+an internal design note (`WGBS_BATCH_REGION_CONFOUNDING.md`, not distributed),
 which carries the per-module exposure assessment and the rules for what a
 cross-region claim may say. Read it before writing any caudate-vs-other-region
 sentence.
@@ -428,7 +427,7 @@ is reflected in the accepted `rra-AA-*-20260906` runs.
 `_h/01_build_features.R` loaded `dnam-scmd-proportions-{region}.tsv`
 unconditionally and no script in the module read RNA MuSiC at all, so the single
 `cell_composition_r2` covariate -- and both gating composition arms built on it
--- were scMD-derived in all three regions. AGENTS.md 7.4 is asymmetric: the RNA
+-- were scMD-derived in all three regions. The locked analysis plan is asymmetric: the RNA
 MuSiC adjustment is required unconditionally, the DNAm scMD adjustment only
 "when the integration gate passes". That gate passes in caudate
 (neuronal rho 0.720, FDR 2e-45) and fails in DLPFC (-0.035, p 0.66) and
@@ -516,7 +515,7 @@ superseded upstreams" -- the fix belongs there, not here.
 begins "below the gate (2/3 regions)", so it was counted as supported and all
 three cells sealed as `GATES_APPLIED_3_OF_3_OUTCOMES_SUPPORTED` when **two**
 outcomes had cleared. The claims table, this README and
-`MIGRATION_MANIFEST.tsv` recorded the correct 2-of-3 throughout; only the token
+the (now archived) migration manifest recorded the correct 2-of-3 throughout; only the token
 was wrong, and it was wrong because it parsed a sentence.
 
 `03_apply_gates.R` now emits the structured verdict -- `gate_supported`
@@ -759,7 +758,7 @@ in the sealed output:
 - the decision token is derived from the structured `gate_supported` column rather
   than parsed from claim prose, so it reads
   `GATES_APPLIED_2_OF_3_OUTCOMES_SUPPORTED` where the 2026-09-08 manifests
-  overstated 3 of 3. The claims table, this README and `MIGRATION_MANIFEST.tsv`
+  overstated 3 of 3. The claims table, this README and the (now archived) migration manifest
   recorded the correct 2 of 3 throughout; only the token was wrong.
 
 Claims licensed, unchanged in substance from 2026-09-08. Written as a list rather
@@ -790,8 +789,9 @@ Provenance: `vmrcat-AA-{region}-20260816` -> `lgv-AA-{region}-rescore-20260913` 
 These runs read the three accepted cells above and change no claim, q-value or
 decision token. They are recorded here, under their own heading, because
 `read_accepted_runs()` allows one accepted run per cohort x region and both are
-`AA x crossregion`. Nothing downstream gates on them, and Module 11's
-analysis-to-claim matrix does not list them. Each run's manifest field
+`AA x crossregion`. Nothing downstream gates on them. Module 11's
+analysis-to-claim matrix lists them with `gating = FALSE` (since `322ad6156`),
+so they are cited but never decide a claim. Each run's manifest field
 `sensitivity` says which analysis it is.
 
 | run_id | sensitivity | upstream | sealed | accepted_on | accepted_by | notes |
