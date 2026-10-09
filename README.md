@@ -43,6 +43,62 @@ not read as evidence of environmental determination.
 The analysis is organized as numbered modules that run in dependency order. Each module records its accepted runs under **Accepted runs** in
 its own README; that table, not this one, is the record of what may be cited.
 
+The numbers give a run order, not a chain. The graph shows what each module
+reads:
+
+```mermaid
+flowchart TD
+    m01["01 VMR catalog"]
+    m01b["01b estimation cells"]
+    m02["02 local SNP contribution score"]
+    m02b["02b GREML simulation benchmark"]
+    m02c["02c cis-GREML sensitivity"]
+    subgraph score["Read the 02 score"]
+        m03["03 local SNP prediction"]
+        m04["04 repeat and repressive architecture"]
+        m05["05 CpG meQTL burden"]
+        m06["06 partitioned heritability"]
+        m07["07 transcription and splicing coupling"]
+        m08["08 region and donor generalization"]
+        m09["09 schizophrenia GWAS loci"]
+        m09b["09b aging"]
+        m10["10 environmental, exploratory"]
+    end
+    m11["11 manuscript figures and tables"]
+
+    m01 --> m01b --> m02
+    m01 --> m02
+    m01 --> m02b
+    m02 --> m02c
+    m02 --> score
+    m03 --> m04
+    m04 --> m08
+    m04 --> m09b
+    m04 --> m10
+    m05 --> m07
+    m07 --> m08
+    m07 --> m09b
+    m06 --> m09
+    m08 --> m09
+    score --> m11
+    m02b --> m11
+    m02c --> m11
+
+    classDef aside stroke-dasharray: 5 5
+    class m02b,m02c,m10 aside
+```
+
+Each arrow is an upstream run ID recorded in an accepted run's `manifest.tsv`.
+Two kinds of arrow are left out to keep the graph readable:
+
+- 01 into the modules that also read 02. Every module except 06 reads the 01
+  catalog directly.
+- Arrows implied by a longer path: 03 also reads 01b; 08 also reads 01b, 03 and
+  05; 09 also reads 04, 05 and 07.
+
+Dashed boxes are the benchmark, sensitivity and exploratory modules. Update the
+graph when a module gains or drops an upstream.
+
 | Directory | Description |
 |---|---|
 | `00_shared/` | Shared library: config, donor identity/alignment, chromosome ordering, run provenance, acceptance gates |
