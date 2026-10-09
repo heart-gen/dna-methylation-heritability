@@ -200,3 +200,6 @@ settings.local.json
 # Local-only archive: planning notes and project-management ledgers that were
 # untracked for the public release. Nothing in the pipeline reads them.
 /_archive/
+
+# Per-job SLURM logs of the ancestry projection stage.
+/inputs/ancestry_pca/_m/logs/

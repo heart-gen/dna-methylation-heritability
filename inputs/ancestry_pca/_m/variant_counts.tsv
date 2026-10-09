@@ -1,0 +1,5 @@
+step	n_variants
+cohort_candidates	5403941
+reference_candidates	4158071
+shared_allele_matched	2990329
+ld_pruned_scored	90339

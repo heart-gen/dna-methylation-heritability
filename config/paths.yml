@@ -79,6 +79,11 @@ reference_1kgp:
   sample_panel: /projects/b1213/resources/1kGP/data_raw/integrated_call_samples_v3.20130502.ALL.panel
   eigenvec: /projects/b1213/resources/1kGP/GRCh38_phased_vcf/_m/1kGP-pc.eigenvec
 
+# Cohort and 1000 Genomes samples scored with one set of 1000 Genomes PCA allele
+# weights (inputs/ancestry_pca/_h/step_1_project_1kgp.sh). Repo-relative.
+ancestry_projection:
+  projected_pcs: inputs/ancestry_pca/_m/projected_pcs.tsv
+
 # Non-residualized CpG matrices live in the staff (Alexis) repo.
 # Primary AA discovery uses the AA-only tree; EA / expanded use all_individuals.
 cpg_methylation_root: /projects/b1213/users/alexis/projects/dna-methylation-heritability
