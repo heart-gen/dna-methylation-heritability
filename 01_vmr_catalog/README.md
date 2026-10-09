@@ -457,7 +457,32 @@ the chr22 smoke run `vmrcat-AA-caudate-20260815-a` is deliberately absent.
 | vmrcat-all_individuals-dlpfc-20260816 | all_individuals | dlpfc | vmrset-all_individuals-dlpfc-e88f46904afb | 2026-08-16 | Kynon J.M. Benjamin | ALL_FIVE_CRITERIA_PASS | 173 donors, 9,374 VMRs; turnover outlier, see forensic audit |
 | vmrcat-all_individuals-hippocampus-20260816 | all_individuals | hippocampus | vmrset-all_individuals-hippocampus-809f8de0db2d | 2026-08-16 | Kynon J.M. Benjamin | ALL_FIVE_CRITERIA_PASS | 177 donors, 9,365 VMRs; sensitivity arm |
 
-## QC refresh runs (`vmrcatqc-*-20260826-a`)
+## QC refresh runs
+
+**Current: `vmrcatqc-{AA,all_individuals}-{caudate,dlpfc,hippocampus}-20261008-a`**
+(sealed 2026-10-08 at `400e2f1a3`, `git_dirty = false`). They re-run QC over the
+same accepted catalogs on the F14 code, so every `vmr_set_id` is unchanged and
+nothing downstream is invalidated. Figure 1 and Figure 2d read them
+(`11_integrated_manuscript_outputs/_h/00_figure_theme.R::QC_REFRESH_RUN`).
+Against the `-20260826-a` refresh they add:
+
+- `qc/genomic_context.tsv` with the F14b fix: `3' UTR` is reachable, and the
+  intervals it gains come out of `Exon` only (table below);
+- `qc/chromosome_policy_manifest.tsv`, one row per chromosome with X and Y
+  dispositions;
+- `qc/exclusion_accounting.tsv`, **partial by construction**: the chromosome
+  row balances, but the donor, CpG and VMR-candidate rows read "upstream ledger
+  fields absent". Those ledgers are written by stages a refresh does not re-run
+  (donor selection, C->T masking, coverage QC, the `min_cpgs` floor), so they
+  exist only after a full Module 01 rerun (~1 TB of intermediates). That rerun
+  was not done for the 2026-10 close-out; the exclusions themselves are
+  unchanged and recorded in each run's SLURM logs.
+
+Six earlier attempts, `vmrcatqc-*-20261008` without the suffix, were sealed
+with `git_dirty = true` (a README edit was uncommitted when they opened) and
+are deprecated; nothing reads them.
+
+### The 2026-08-26 refresh (`vmrcatqc-*-20260826-a`, superseded)
 
 The accepted `vmrcat-*-20260816` runs were sealed before any array probe
 universe existed on disk, so `04_turnover.R` took its silent skip branch and
