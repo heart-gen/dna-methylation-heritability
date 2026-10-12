@@ -24,6 +24,7 @@ source "$REPO_DIR/00_shared/slurm.sh"
 | `chrom.R` | `chrom_order()`, `sort_chunks()`, `verify_fid_iid()`, `sort_genomic()`, `has_ct_mask()` |
 | `runid.R` | `new_run()`, `make_run_id()`, `seed_for()`, `write_atomic()`, `reconcile()`, `close_run()`, `seal_run_dir()` |
 | `slurm.sh` | Repo-root resolution, conda env paths, `log_message()`, `run_r()`, `chrom_size()` |
+| `rank_geometry.R` | Not sourced by `load.R`. `decompose_rank_geometry()` splits the frozen joint estimate into estimator and locus-geometry parts; read by Module 02 Stage 17 and Module 04 `_h/11` |
 
 ## Why this exists
 

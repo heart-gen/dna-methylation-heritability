@@ -1,0 +1,9 @@
+Interpretation constraints carried by this run:
+  - NON-GATING. No gate, claim, q-value or decision token of the accepted
+    cells changes.
+  - geometry_free_rank is a sensitivity predictor built from the frozen
+    joint model's estimator part; it is not a replacement endpoint.
+  - Agreement with the primary shows the associations are not produced by
+    the joint model's geometry terms. It does not exclude other dependence
+    of the estimators themselves on local genotype structure.
+  - Caudate LINE/L1 remains set aside from the claim (set_aside_from_claim).

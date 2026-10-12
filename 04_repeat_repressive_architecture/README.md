@@ -712,6 +712,40 @@ chromosome-jackknife p and the number of VMRs overlapping the class.
   can add that the association is carried mainly by old L1M sequence and does
   not distinguish young from old elements.
 
+## Rank geometry sensitivity (non-gating, 2026-10-12)
+
+Run `rra-AA-crossregion-20261012` was produced by
+`_h/11_rank_geometry_sensitivity.R` at commit `a773ee32e` (`git_dirty =
+false`). It asks whether the chromatin associations could come from the locus
+geometry that Module 02's frozen joint model adds linearly to the rank (log SNP
+count, log effective rank, LD), rather than from the estimator outputs. The
+primary model's adjustment set has `tested_snp_count` but not `p_eff` or LD.
+
+The rebuilt primary model reproduces all 24 sealed primary fits (the family and
+the controls, ATAC cell-type breakdowns excluded) to 1e-6 before any refit.
+Two refits:
+
+- `geometry_free_rank`: the predictor is the rank of the joint estimate with its
+  geometry part removed, computed by `00_shared/rank_geometry.R` from the
+  Module 02 run the cell consumed;
+- `adjust_geometry`: the primary predictor, with `log(num_snps)`, `log(p_eff)`
+  and `ld_metric` added to the adjustment set.
+
+**Result.** Every one of the 48 refits keeps the primary's sign, and none
+changes nominal significance (p < 0.05) relative to the primary. The quiescent,
+accessible, H3K27ac and ATAC-union estimates stay within 0.92-1.07 of the
+primary. H3K9me3 and H3K27me3 grow (up to 1.5x); caudate LINE/L1 stays null and
+set aside. The associations are not produced by the joint model's geometry
+terms. The run does not exclude other dependence of the estimators themselves
+on local genotype structure.
+
+The config guard compares the cells' `config/repeat_annotations.yml` by parsed
+content, not bytes. Commit `912de5d45` edited only comments after the cells were
+sealed, and the cells' recorded commit `d61f83b4c` no longer exists after the
+history rewrite. The stage therefore finds the cells' version by checksum in the
+file's history (`257d95363`) and requires identical settings.
+`config_repeat_annotations_vs_cells` in the manifest records this.
+
 ## QC scripts
 
 `_h/06` and `_h/07` are post-hoc analyses OF sealed runs, not stages of one.
@@ -798,6 +832,7 @@ so they are cited but never decide a claim. Each run's manifest field
 |---|---|---|---|---|---|---|
 | rra-AA-crossregion-20261007 | shared_vs_region_unique_vmrs | rra-AA-{caudate,dlpfc,hippocampus}-20260925-a | 2026-10-07T14:58 at a233c4543, git_dirty false | 2026-10-08 | Kynon J.M. Benjamin | Reproduces all 45 sealed primary fits to 1e-6. Quiescent enrichment and accessible-chromatin depletion are present in shared VMRs in all three regions, at about half the strength they have in region-unique VMRs. The H3K9me3 and the DLPFC/hippocampus LINE/L1 associations are absent from shared VMRs and carried by region-unique ones; the unique minus shared gap survives the joint jackknife (H3K9me3 p 0.016 / 3.4e-05 / 1.0e-07; LINE/L1 p 7.7e-06 / 2.4e-05). The run cannot separate region-restricted biology from region-unique VMRs being more sequence-sensitive. Figure 3 must not call LINE/L1 or H3K9me3 a property of VMRs common to all regions. |
 | rra-AA-crossregion-20261007-a | line_l1_subfamily_resolution | rra-AA-{caudate,dlpfc,hippocampus}-20260925-a; repeat-masker.LINE_L1.subfamily.hg38.tsv.gz | 2026-10-07T23:55 at b924291e3, git_dirty false | 2026-10-08 | Kynon J.M. Benjamin | Definitions in config/l1_subfamilies.yml (pi_locked, fixed before fitting). The union guard passed to 5.6e-16 and the model reproduction to 4.4e-16. DLPFC and hippocampus: old L1M +0.37 / +0.40 (survives high mappability, +0.32 / +0.36), young L1HS/L1PA +0.29 / +0.30, young minus old p 0.40 / 0.36; all three prespecified contrasts read not_consistent. Young L1 is untestable under high mappability (56 VMRs, floor 100). Full-length vs fragment is underpowered (about 114 VMRs). Caudate is set aside: young -0.25 against old +0.31 cancel to its null line_l1_frac. Overlap only; no activity, expression or retrotransposition claim. |
+| rra-AA-crossregion-20261012 | rank_geometry | rra-AA-{caudate,dlpfc,hippocampus}-20260925-a; lgv-AA-{caudate,dlpfc,hippocampus}-rescore-20260913 | 2026-10-12T09:22 at a773ee32e, git_dirty false | 2026-10-12 | Kynon J.M. Benjamin | Reproduces all 24 sealed primary fits to 1e-6. With the geometry-free rank, and with log SNP count, log p_eff and LD added as covariates, all 48 refits keep the primary's sign and nominal significance; quiescent, accessible, H3K27ac and ATAC union stay within 0.92-1.07 of the primary. The rank's chromatin associations are not produced by the joint model's geometry terms. |
 
 ### The ATAC contrast, added 2026-09-25 (T8 and T11)
 

@@ -1,0 +1,9 @@
+Interpretation constraints carried by this run:
+  - NON-GATING. No score, eligibility, gate or claim changes.
+  - The geometry-free rank is a sensitivity predictor built from the frozen
+    model's estimator part. It is not a replacement endpoint and carries no
+    calibration of its own.
+  - The genotype-PC comparison is an upper bound on the effect of the omitted
+    snpPCs: the donor-group cell also used the pooled catalog's genotype QC
+    and CpG coverage filter, and each run carries its own Monte Carlo noise.
+  - Rank correlations compare orderings within a cell, never score levels.

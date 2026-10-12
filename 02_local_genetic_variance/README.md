@@ -477,6 +477,16 @@ every row and the terminal decision
 consume `local_snp_contribution_score` and its percentile rank, never the PVE
 magnitude.
 
+### Accepted non-gating sensitivity runs
+
+These runs read accepted cells above and change no score, eligibility or claim.
+They sit under their own heading so `read_accepted_runs()` never resolves one as
+a cell's run. See "Rank robustness to locus geometry and genotype PCs" below.
+
+| run_id | sensitivity | upstream | sealed | accepted_on | accepted_by | notes |
+|---|---|---|---|---|---|---|
+| lgv-arms-crossregion-20261012 | rank_geometry_and_genotype_pcs | lgv-AA-{caudate,dlpfc,hippocampus}-rescore-20260913; lgv-all_individuals-{caudate,dlpfc,hippocampus}-20260823; lgv-all_individuals.AA-{caudate,dlpfc,hippocampus}-20260913 | 2026-10-12T09:22 at a773ee32e, git_dirty false | 2026-10-12 | Kynon J.M. Benjamin | Geometry terms carry 0.4-0.7% of the estimate's variance; geometry-free rank vs sealed rank Spearman 0.95-0.98 in all six arm cells. Black American rank with vs without three within-group snpPCs, identical donors and VMRs: Spearman 0.973 / 0.969 / 0.968. |
+
 ## Superseded — the three `all_individuals.EA-*-20260911` runs
 
 `lgv-all_individuals.EA-{caudate,dlpfc,hippocampus}-20260911` are sealed and
@@ -823,3 +833,58 @@ back to full `n`. That measures the joint estimator end to end and needs no
 transfer argument, but it costs a full re-estimation per half and at
 `all_individuals.EA × dlpfc` the halves are n=27 and n=28. It has not been run.
 Until it is, the ceiling is a bound and the manuscript must say so.
+
+## Rank robustness to locus geometry and genotype PCs — `_h/17_rank_robustness.R` (non-gating, 2026-10-12)
+
+Run `lgv-arms-crossregion-20261012`, sealed at `a773ee32e` (`git_dirty =
+false`), reads only sealed per-VMR tables and re-estimates nothing. It answers
+two reviewer questions about the rank.
+
+**1. Do the joint model's geometry terms order the VMRs?** The frozen joint model
+enters log `num_snps`, log `p_eff` and `ld_metric` linearly, so they shift a
+VMR's estimate whatever its methylation data. `00_shared/rank_geometry.R` splits
+the sealed `pve_cis_joint_unbounded` into an estimator part and a geometry part
+by OLS on the model's own hinge basis. Three checks stop the run if the basis is
+wrong: the recovery R^2 is 1 in every cell, the recovered geometry coefficients
+are identical across cells (one frozen model), and Stage 04's rank rule
+reproduces the sealed `local_snp_contribution_score_z` (max error 5e-15).
+
+| cell | caudate | DLPFC | hippocampus |
+|---|---:|---:|---:|
+| AA: geometry share of variance | 0.39% | 0.47% | 0.45% |
+| AA: Spearman, sealed vs geometry-free rank | 0.965 | 0.972 | 0.976 |
+| all_individuals: geometry share of variance | 0.54% | 0.69% | 0.68% |
+| all_individuals: Spearman, sealed vs geometry-free rank | 0.949 | 0.962 | 0.964 |
+
+The recovered coefficients are -0.047 (log `num_snps`), +0.061 (log `p_eff`) and
++0.141 (`ld_metric`). The rank's correlation with SNP count (0.22-0.32) is the
+same for the geometry-free rank (0.26-0.31), so it comes through the estimators,
+not the geometry terms. The per-VMR geometry-free rank is written to
+`results/geometry-free-rank.tsv`; Module 04 `_h/11` refits the chromatin models
+on it.
+
+**2. Does omitting genotype PCs move the ordering?** The arm-cell phenotype is
+adjusted for age, sex and diagnosis only (`00_shared/locus_io.R`). The snpPC
+residualization in Module 01 feeds only the CpG variability cutoff; the per-VMR
+phenotype is the smoothed methylation itself. The donor-group cell
+`all_individuals.AA` scores the same donors (ordered donor checksums asserted
+equal) with three within-group snpPCs added. On VMRs with identical coordinates
+in both catalogs:
+
+| region | identical VMRs, both eligible | Spearman, rank z | HE | BSLMM | median SNP ratio |
+|---|---:|---:|---:|---:|---:|
+| caudate | 3,007 | 0.973 | 0.963 | 0.984 | 0.66 |
+| DLPFC | 3,539 | 0.969 | 0.952 | 0.979 | 0.66 |
+| hippocampus | 3,500 | 0.968 | 0.957 | 0.980 | 0.66 |
+
+This is an upper bound on the PC effect. The donor-group cell also used the
+pooled catalog's genotype QC (about two-thirds as many cis SNPs) and its CpG
+coverage filter, and each run carries its own Monte Carlo noise.
+
+The run was made locally in a micromamba environment with R 4.4.3 (the
+`epigenomics` version) and `data.table`, `yaml`, `DelayedArray` and
+`HDF5Array`; `conda_prefix` is therefore empty in its manifest.
+
+```bash
+Rscript 02_local_genetic_variance/_h/17_rank_robustness.R
+```
