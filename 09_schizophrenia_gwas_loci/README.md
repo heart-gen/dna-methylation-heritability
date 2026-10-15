@@ -2,16 +2,16 @@
 
 Asks where VMRs at PGC3 schizophrenia GWAS loci sit on the local-genetic-control axis, and whether the risk variants act on their methylation (meQTL, colocalization, GTEx support). Stage 17 repeats the axis test over 114 GWAS traits and finds the depletion trait-general. Intended for the main text, conditional on surviving corrected VMRs and the new local-genetic-control axis.
 
-**Status: accepted (AA, 2026-10-01); both decisions resolved.** The three
-per-region runs `scz-AA-{caudate,dlpfc,hippocampus}-20261001` are accepted; see
-**Accepted runs**, and "### Superseded" for the `-20260918` runs they replace.
-Every upstream is current (see **Upstream currency**), including
-`rdg-AA-crossregion-20260930` for the Module 08 dependency. Decision 1 is
+**Status: accepted on PGC3's published loci (AA, 2026-10-15; gate pass, PI
+review pending); both decisions resolved, neither moved.** The three per-region
+runs `scz-AA-{caudate,dlpfc,hippocampus}-20261015` use the 282 autosomal PGC3
+published genome-wide significant loci (see **Locus set**). The `-20261008`
+runs on the 612 LD clumps are kept as exploratory records. Decision 1 is
 `CAUDATE_MAGNITUDE_CLAIM_NOT_SUPPORTED` and decision 2 is `RETAIN_MAIN_TEXT`,
 resolved by stage 15 in `_m/combined/` with `citable = TRUE`. Stages 15 through
-18 were rerun on the accepted runs on 2026-10-01 without `--allow-unlocked`, so
-every `_m/combined/` table is citable. Stages 17 and 18 are post hoc
-sensitivities that **qualify** Module 09's claim and change neither decision.
+18 were rerun on the accepted runs on 2026-10-15 without `--allow-unlocked`.
+Stages 17 and 18 are post hoc sensitivities that **qualify** Module 09's claim
+and change neither decision.
 
 ## Migrating from
 
@@ -32,14 +32,15 @@ recoverable from the annotated tag `v1-legacy-final`.
 The existing Phase 7 result (31 caudate loci, 361 pairs, 38 VMRs, eight
 TX-coupled VMRs) was conditioned on the legacy predictability metric and
 pre-repair VMR sets. Per the locked analysis plan it is a hypothesis to retest. Hero loci
-`rs8048039` and `rs13331198` remain **candidates**: the prioritization rule in
+`rs8048039` and `rs13331198` were **candidates**: the prioritization rule in
 `config/schizophrenia.yml` names no locus, and `_h/10_prioritize_loci.R`
-contains none.
+contains none. On the published loci neither survives (see "### The five
+prioritized loci are illustrative, and churn").
 
 ## Preserved design principles
 
 PGC schizophrenia loci are defined independently of methylation results —
-`_h/01_define_scz_loci.R` reads only the published intervals, the published
+`_h/01_define_scz_loci.R` reads only a published PGC3 locus table, the published
 index-SNP table and the public summary statistics, and records
 `methylation_used = FALSE`. Risk-variant×CpG tests keep their own FDR family,
 corrected once over all autosomes in `_h/03b_combine_risk_variant_tests.R`.
@@ -53,6 +54,67 @@ for LINE/L1, H3K9me3, quiescent chromatin, high-mappability repeat intervals,
 and expression/splicing coupling. Positive connects the disease application to
 the repeat/repressive architecture; null presents Phase 7 as a separate proof of
 disease relevance. Both are results.
+
+## Locus set
+
+**Amended 2026-10-15 (PI).** `config/schizophrenia.yml:locus_definition.locus_set`
+names the set a run uses, `00_new_run.R` freezes it into the manifest, and stage
+01 refuses a config snapshot that disagrees.
+
+| set | role | source | loci | what it is |
+|---|---|---|---|---|
+| `pgc3_published_gws` | **primary** | PGC3 Supplementary Table 3 | 287 published, 282 autosomal | PGC3's distinct genomic regions with at least one genome-wide significant SNP in the combined discovery-replication meta-analysis. Merged interval (LD r2 > 0.1 clumps plus 50 kb) and the locus's own index SNPs. IDs `PGC3_001`-`PGC3_287` in published order. |
+| `pgc3_ld_clumps_p1e6` | exploratory | PGC3 Supplementary Table 1 | 624 clumps, 612 autosomal | One interval per p < 1e-6 LD clump, never merged. 311 of the 624 are not genome-wide significant, and the intervals overlap (45 of the 612 hold no index SNP of their own). IDs are row numbers. |
+
+**Why the change.** Until 2026-10-15 every run used the second set and this README
+called it "the published fine-mapped locus intervals". It is neither. The resource
+directory is named `fine_mapped_loci`, but `convert2hg38.py` there builds the
+table from ST1's index-SNP sheet. The 612 do not match the 287 loci PGC3
+reports.
+
+**Lift to hg38.** All 282 autosomal published loci lift. Three interval ends fall
+in sequence deleted from hg38 (PGC3_040 and PGC3_123 beside the chr5 centromere,
+PGC3_112 at the chr16 telomere). Each is walked inward in 1 kb steps to the
+first position that lifts, 30-50 kb here. The shift is in `scz-loci.tsv`
+`end_walked_inward_bp`. The 337 autosomal index SNPs all lift, and each lies
+inside its own locus's hg38 interval. Per-SNP statistics come from ST1. The one
+index SNP missing from ST1 is a top index SNP, and ST3's top-* columns describe
+it. Prioritization rank key 3 is the locus's published combined p (ST3 `top-P`).
+
+**What the set is not.** Both PGC3 tables come from the two-stage analysis: the
+primary meta-analysis (74,776 cases / 101,023 controls; about 80% European, the
+rest East Asian, plus nine African-American and Latino cohorts) and a European
+deCODE replication. So the locus set is predominantly European, not
+European-only. Every per-variant GWAS statistic Module 09 uses (the coloc slice,
+the coloc N) still comes from the European release. Wording:
+`config/gwas_negative_controls.yml:interpretation.writing_rules.module_09_locus_set_ancestry_sentence`.
+The extended MHC is one published locus (PGC3_001, rs140365013) and is kept,
+as it was in the 612.
+
+**Cross-trait comparison uses neither set.** Stage 17 defines every trait's loci,
+schizophrenia included, by one uniform genome-wide significant rule (197 PGC3
+leads). That row, `PGC3_SCZ`, is what the distribution is read against. The
+expansion to other GWAS uses genome-wide significant loci only, and stage 17
+stops on any extracted lead at p >= 5e-8 (all 8,693 leads pass). Per-trait
+published locus tables are not used: 45 of the 114 collection traits are UK
+Biobank scans with none.
+
+**Effect on the accepted result, published loci vs clumps.** Same upstreams; only
+the locus set differs.
+
+| | caudate | dlpfc | hippocampus |
+|---|---|---|---|
+| VMRs linked | 1,927 (2,654) | 1,477 (2,063) | 1,412 (2,017) |
+| loci with a linked VMR | 238 / 282 (522 / 612) | 263 / 282 | 262 / 282 |
+| axis adjusted log-odds per SD | **-0.270** (-0.226), q 2.5e-20 | **-0.231** (-0.161), q 1.7e-14 | **-0.222** (-0.160), q 6.9e-13 |
+| loci with CpG-meQTL support | 55 (90) | 27 (64) | 34 (63) |
+| loci with transcriptional coupling | 68 (145) | 52 (100) | 44 (78) |
+| loci with GTEx support | 100 (174) | 102 (174) | 104 (173) |
+
+The depletion is stronger on the published loci in every region, and caudate is
+no longer a region-specific departure (see **Current state**). Locus counts fall
+because 311 of the clumps were sub-threshold and many of the rest were
+duplicates inside one published locus.
 
 ## Colocalization
 
@@ -186,30 +248,33 @@ cannot resolve decision 2 — it writes `PENDING_CROSS_REGION` — so the retent
 answer lives only in `_m/combined/scz-application-decisions-{cohort}.tsv`, from
 stage 15.
 
-**Current state (accepted runs `scz-AA-{region}-20261008`, the de-duplicated
-rerun of `-20261001` with identical decisions; stages 15-18 rerun on them
-without `--allow-unlocked`, `citable = TRUE`): both decisions resolved.**
+**Current state (accepted runs `scz-AA-{region}-20261015` on PGC3's published
+loci; stages 15-18 rerun on them on 2026-10-15 without `--allow-unlocked`,
+`citable = TRUE`): both decisions resolved, both unchanged from the LD-clump
+runs.**
 
 - decision 1 `CAUDATE_MAGNITUDE_CLAIM_NOT_SUPPORTED`, from the caudate run's own
-  `retention-criteria.tsv`: tier 3 of `rdg-AA-crossregion-20260930` reads
-  `donor_count_is_a_plausible_major_contributor`.
+  `retention-criteria.tsv` (`FAIL_SAMPLE_SIZE_ARTIFACT`): tier 3 of
+  `rdg-AA-crossregion-20261008` reads `donor_count_is_a_plausible_major_contributor`.
 - decision 2 `RETAIN_MAIN_TEXT`, `h1_met = TRUE`. `lower_in_scz_linked` in 3/3
-  regions, FDR-significant in 3/3 (2 outside caudate); one region-specific
-  departure, caudate, by the `magnitude_difference` rule and not a sign reversal
-  (log-odds -0.2257 against -0.1603 pooled, difference -0.0654, p 0.042 by an
-  independent-SE test that is conservative under shared donors), which does not
-  veto the region-general claim. **Heterogeneity across regions is not
-  significant** (Q 4.156, 2 df, p 0.125), and the pooled log-odds -0.183
-  (OR 0.833) is `pooled_is_descriptive_only = TRUE` with an anticonservative SE:
-  100 of 168 donors appear in all three regions.
+  regions, FDR-significant in 3/3 (2 outside caudate). **No region-specific
+  departure.** On the clumps caudate was one, by the `magnitude_difference`
+  rule (p 0.042). On the published loci caudate's -0.2700 against -0.2266 pooled
+  gives a difference of -0.0434, p 0.23; DLPFC p 0.67, hippocampus p 0.43.
+  Heterogeneity is not significant (Q 1.48, 2 df, p 0.48; was Q 4.16, p 0.125).
+  The pooled log-odds -0.242 (OR 0.785) is `pooled_is_descriptive_only = TRUE`
+  with an anticonservative SE: 100 of 168 donors appear in all three regions.
+- integration (stage 15 claimability): SCZ-linked VMRs are depleted of quiescent
+  chromatin in all three regions and of LINE/L1 in DLPFC and hippocampus. H3K9me3
+  is no longer claimable in any region (on the clumps it was in DLPFC and
+  hippocampus, and LINE/L1 in DLPFC only). Cite the annotation and its regions,
+  never "repressive chromatin".
 - stage 16: the axis contrast survives n-matching in all three caudate n=118
   replicates, direction preserved 3/3, all FDR-significant; abs(log-odds)
-  attenuates by **5.8%** on average (range 1.9% to 8.2%; -0.2257 full against
-  -0.207 / -0.221 / -0.209 matched) -- the matched replicates are slightly
-  weaker, not stronger -- against tier 3's 14.3% attenuation of the prediction
-  magnitude, which is a different quantity.
-- stages 17 and 18 regenerated (job 8189349). Stage 17 is identical to the digit.
-  Stage 18 moved on Module 04's reacceptance; see "### Locus architecture".
+  attenuates by **4.2%** on average (range 0.8% to 8.2%; -0.2700 full against
+  -0.248 / -0.260 / -0.268 matched), against tier 3's 14.3% attenuation of the
+  prediction magnitude, which is a different quantity.
+- stages 17 and 18: see "### Negative-control traits" and "### Locus architecture".
 
 Note also that Module 06's accepted S-LDSC result is **null**
 (`sldsc_supports_brain_enrichment = FALSE`), which
@@ -585,7 +650,30 @@ axis is significant with `lower_in_scz_linked` in 3 of 3 regions.
 
 ### The five prioritized loci are illustrative, and churn
 
-Retained from the superseded set: caudate 3 of 5, DLPFC 3 of 5, hippocampus 4 of
+**On the published loci (`-20261015`).** Same rule; eligible pools 55 / 27 / 34
+loci (caudate / DLPFC / hippocampus).
+
+| region | rank 1-5 (index SNP) | carried over from the clump runs |
+|---|---|---|
+| caudate | PGC3_008 (rs2710323), PGC3_056 (rs12883788), PGC3_267 (rs7681616), PGC3_125 (rs6504163), PGC3_166 (rs11862968) | 4: old 73, 276, 163, 198. Old 432 (rs6537239, p 2.4e-7) is not a published locus |
+| dlpfc | PGC3_008 (rs2710323), PGC3_077 (rs2929278), PGC3_065 (rs3770752), PGC3_105 (rs72974238), PGC3_140 (rs2649999) | 0 |
+| hippocampus | PGC3_276 (rs2189336), PGC3_112 (rs11076631), PGC3_105 (rs72974238), PGC3_024 (rs4766428), PGC3_166 (rs11862968) | 3: old 118, 136, 198 |
+
+PGC3_008 (chr3p21, the 5.5 Mb merged locus) leads in caudate and DLPFC. It is
+the published merge of what the clumps split into six overlapping intervals. The near-tie
+persists: ranks 1-6 span 0.019 / 0.039 / 0.011.
+
+**Hero loci on the published set.** **`rs13331198` is not a published
+genome-wide significant locus.** Its discovery p is 5.9e-7, and no published
+interval contains it, so the DLPFC hero locus of the clump runs leaves the
+analysis. Its EA reproduction (p 2.6e-8, below) was a check of a sub-threshold
+locus. **`rs8048039`** is a published index SNP (PGC3_141, p 2.0e-10). It carries
+meQTL support, GTEx support and a claimable colocalization (max PP4 0.966) in all
+three regions but ranks 32 / 24 / 26. It should not be presented as a hero
+locus.
+
+**On the exploratory clumps (`-20261008`), kept for the record.** Retained from
+the superseded set: caudate 3 of 5, DLPFC 3 of 5, hippocampus 4 of
 5. This is expected and is recorded here so that no draft treats the five as a
 stable result.
 
@@ -598,8 +686,8 @@ near-tie: hippocampus ranks 1-6 are 1.7318, 1.7170, 1.7140, 1.7136, 1.7114,
 operated -- hippocampus's old rank-1 locus left the pool, and the surviving order
 is decided at the third decimal place.
 
-The locked analysis plan's hero-loci retest is answered by these runs. **`rs13331198`
-survives corrected prioritization in DLPFC only** (rank 3; rank 15 caudate, rank
+On the clumps, the locked analysis plan's hero-loci retest read: **`rs13331198`
+survived corrected prioritization in DLPFC only** (rank 3; rank 15 caudate, rank
 12 hippocampus). **`rs8048039` survives in no region** (rank 48 / 53 / 47),
 though it carries meQTL support, GTEx support and max PP4 0.966 in all three; it
 should not be presented as a hero locus.
