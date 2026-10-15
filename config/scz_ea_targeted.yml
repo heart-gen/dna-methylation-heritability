@@ -30,10 +30,18 @@ pi_locked: true
 # region's results/prioritized-loci.tsv (config/schizophrenia.yml:
 # prioritization, max 5 per region, ranked_composite_v1). Each region's loci are
 # tested in that region's EA donors only.
+#
+# 2026-10-15: repointed at the published-locus runs. Module 09's locus set
+# changed (config/schizophrenia.yml locus_definition), so the illustrative loci
+# changed too. The design, the reading rule and the coloc rule below are
+# unchanged. They were fixed before any EA association was computed, and no
+# EA association had been computed at the new loci when they were applied.
+# The -20261001 check (scz-all_individuals.EA-crossregion-20261008) was made on
+# the exploratory LD clumps.
 accepted_runs:
-  caudate: scz-AA-caudate-20261001
-  dlpfc: scz-AA-dlpfc-20261001
-  hippocampus: scz-AA-hippocampus-20261001
+  caudate: scz-AA-caudate-20261015
+  dlpfc: scz-AA-dlpfc-20261015
+  hippocampus: scz-AA-hippocampus-20261015
 
 # The pairs: every risk-variant -> CpG pair at those loci that was significant
 # in the AA primary (results/risk-variant-cpg-tests.tsv.gz, significant ==
