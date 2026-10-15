@@ -164,8 +164,13 @@ locus_rule:
   # applies to the published PGC3 intervals (config/schizophrenia.yml
   # locus_definition.locus_flank_bp).
   link_flank_bp: 500000
-  # The extended MHC is excluded for every trait. The PGC3 fine-mapped locus
-  # table Module 09 uses carries no MHC locus, so this keeps the rules aligned.
+  # The extended MHC is excluded for every trait, so no trait's contrast is
+  # driven by its single largest, most gene-dense locus. Correction 2026-10-15:
+  # this line used to say the PGC3 table Module 09 uses carries no MHC locus.
+  # It does. Both the exploratory LD clumps and the published loci
+  # (config/schizophrenia.yml locus_definition) hold one extended-MHC locus,
+  # led by rs140365013. So this rule differs from Module 09's on that one
+  # locus, and the stage 17 rows for the Module 09 linkage keep it.
   exclude_regions_hg38:
     - {chrom: chr6, start: 25000000, end: 34000000}
   autosomes_only: true

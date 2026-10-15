@@ -14,14 +14,18 @@
 ## schizophrenia too, and by refitting every contrast with broad genomic context
 ## as a covariate. Design and reading rules: config/gwas_negative_controls.yml.
 ##
-## Two SCZ rows exist per region and must not be confused:
+## Three SCZ rows exist per region and must not be confused:
 ##   PGC3_SCZ            -- PGC3 under the uniform lead-SNP rule (comparable to
 ##                          every other trait; the row the distribution is read
 ##                          against);
-##   PGC3_SCZ_published  -- the accepted Module 09 linkage (published fine-mapped
-##                          intervals + flank), refitted here only so model B's
-##                          context attenuation is reported on the claim's own
-##                          linkage.
+##   PGC3_SCZ_published  -- the accepted Module 09 linkage (PGC3's published
+##                          genome-wide significant loci + flank), refitted here
+##                          only so model B's context attenuation is reported on
+##                          the claim's own linkage;
+##   PGC3_SCZ_ld_clumps_exploratory
+##                       -- the 612 p < 1e-6 LD clumps the scz-AA-*-20261008
+##                          runs used, reported beside the published row so the
+##                          change of locus set is visible. Exploratory only.
 ##
 ## Module-level: reads the accepted Module 09 runs and their upstreams; writes
 ## _m/combined/. It changes no decision.
@@ -30,6 +34,7 @@ source(file.path(Sys.getenv("V2_REPO_ROOT", "."), "00_shared", "load.R"))
 suppressPackageStartupMessages(library(data.table))
 
 `%||%` <- function(a, b) if (is.null(a)) b else a
+`%|na|%` <- function(a, b) if (is.null(a) || !length(a) || is.na(a[1])) b else a
 MODULE <- "09_schizophrenia_gwas_loci"
 opts <- parse_v2_args(require = "cohort")
 allow_unaccepted <- isTRUE(opts$allow_unlocked)
@@ -112,13 +117,31 @@ clump_leads <- function(f) {
 }
 
 ## ------------------------------------------------------------- per region
+## The exploratory LD-clump runs, by region. They are sealed records named in
+## config/schizophrenia.yml, not accepted cells, so they are read by run ID.
+read_manifest_tsv <- function(run_id) {
+    f <- file.path(module_root, "_m", "runs", run_id, "manifest.tsv")
+    if (!file.exists(f)) stop("No manifest for run ", run_id)
+    fread(f, colClasses = "character")
+}
+clump_runs <- as.character(unlist(scz$locus_definition$locus_sets$pgc3_ld_clumps_p1e6$accepted_runs))
+clump_by_region <- stats::setNames(clump_runs, vapply(clump_runs, function(r) {
+    m <- read_manifest_tsv(r); m$value[m$field == "region"][1]
+}, character(1)))
+
 vmr_tab <- list(); feat_tab <- list(); scz_link <- list(); run_ids <- list()
+clump_link <- list(); locus_sets <- list()
 for (re in regions) {
     r09 <- require_accepted_upstream(MODULE, opts$cohort, re, allow_unaccepted = allow_unaccepted)
     run_ids[[re]] <- r09$run_id
-    man <- fread(file.path(module_root, "_m", "runs", r09$run_id, "manifest.tsv"),
-                 colClasses = "character")
+    man <- read_manifest_tsv(r09$run_id)
     mf <- function(field) man$value[man$field == field][1]
+    ## A run opened before the locus set was recorded used the LD clumps.
+    locus_sets[[re]] <- mf("locus_set") %|na|% "pgc3_ld_clumps_p1e6"
+    if (!allow_unaccepted && !identical(locus_sets[[re]], "pgc3_published_gws")) {
+        stop("Accepted Module 09 run ", r09$run_id, " uses locus set '",
+             locus_sets[[re]], "'; the published-locus arm needs pgc3_published_gws")
+    }
     lgc <- load_local_genetic_control(mf("upstream_local_genetic_variance_run_id"),
                                       region = re, cohort = opts$cohort, eligible_only = TRUE)
     v <- as.data.table(lgc)[, c("vmr_id", "chrom", "start", "end", predictor), with = FALSE]
@@ -137,6 +160,19 @@ for (re in regions) {
     vmr_tab[[re]] <- v
     sl <- fread(file.path(module_root, "_m", "runs", r09$run_id, "results", "vmr-scz-linkage.tsv"))
     scz_link[[re]] <- sl[, .(vmr_id, linked = as.logical(scz_linked))]
+
+    ## The clump run must have scored the same VMR universe, or its row would
+    ## compare two different backgrounds.
+    cr <- clump_by_region[re]
+    if (is.na(cr)) stop("No exploratory LD-clump run for region ", re)
+    cm <- read_manifest_tsv(cr)
+    if (!identical(cm$value[cm$field == "upstream_local_genetic_variance_run_id"][1],
+                   mf("upstream_local_genetic_variance_run_id"))) {
+        stop("Exploratory run ", cr, " scored a different Module 02 run than ",
+             r09$run_id)
+    }
+    cl <- fread(file.path(module_root, "_m", "runs", cr, "results", "vmr-scz-linkage.tsv"))
+    clump_link[[re]] <- cl[, .(vmr_id, linked = as.logical(scz_linked))]
 }
 
 fit_contrast <- function(v, linked) {
@@ -184,19 +220,26 @@ for (i in seq_len(nrow(traits))) {
     }
     if (i %% 10 == 0) message("[17] ", i, "/", nrow(traits), " traits")
 }
-## The claim's own linkage (published PGC3 intervals), for the context arm.
-for (re in regions) {
+## The claim's own linkage (PGC3's published genome-wide significant loci), for
+## the context arm, and the exploratory LD-clump linkage beside it.
+linkage_row <- function(re, link, tag, role, locus_rule) {
     v <- vmr_tab[[re]]
-    lk <- scz_link[[re]]$linked[match(v$vmr_id, scz_link[[re]]$vmr_id)]
+    lk <- link$linked[match(v$vmr_id, link$vmr_id)]
     lk[is.na(lk)] <- FALSE
     res <- fit_contrast(v, lk)
-    res[, `:=`(tag = "PGC3_SCZ_published", role = "scz_published_intervals",
+    res[, `:=`(tag = tag, role = role,
                category = "Psychiatric-neurologic", sample_size = NA_real_, binary = TRUE,
                ancestry = "EUR",
-               region = re, locus_rule = "pgc3_fine_mapped_intervals_plus_flank",
+               region = re, locus_rule = locus_rule,
                n_sig_variants = NA_integer_, n_leads = NA_integer_,
                n_leads_with_vmr = NA_integer_, n_vmrs = nrow(v))]
-    rows[[length(rows) + 1]] <- res
+}
+for (re in regions) {
+    rows[[length(rows) + 1]] <- linkage_row(re, scz_link[[re]], "PGC3_SCZ_published",
+        "scz_published_gws_loci", paste0(locus_sets[[re]], "_plus_flank"))
+    rows[[length(rows) + 1]] <- linkage_row(re, clump_link[[re]],
+        "PGC3_SCZ_ld_clumps_exploratory", "scz_exploratory_ld_clumps",
+        "pgc3_ld_clumps_p1e6_plus_flank")
 }
 all <- rbindlist(rows, fill = TRUE)
 all[, frac_vmrs_linked := n_linked / (n_linked + n_background)]
@@ -216,10 +259,14 @@ summ <- rbindlist(lapply(regions, function(re) rbindlist(lapply(c("A_technical",
     psy <- d[category == "Psychiatric-neurologic"]
     nonpsy <- d[category != "Psychiatric-neurologic"]
     pub <- all[region == re & model == m & tag == "PGC3_SCZ_published"]
+    clu <- all[region == re & model == m & tag == "PGC3_SCZ_ld_clumps_exploratory"]
     data.table(
         region = re, model = m,
         scz_estimate = s$estimate, scz_se = s$se, scz_p = s$p, scz_n_leads = s$n_leads,
         scz_published_estimate = pub$estimate, scz_published_p = pub$p,
+        scz_published_locus_set = locus_sets[[re]],
+        scz_ld_clumps_exploratory_estimate = clu$estimate,
+        scz_ld_clumps_exploratory_p = clu$p,
         n_traits_in_distribution = nrow(d),
         distribution_median = stats::median(d$estimate),
         distribution_q25 = stats::quantile(d$estimate, 0.25),
