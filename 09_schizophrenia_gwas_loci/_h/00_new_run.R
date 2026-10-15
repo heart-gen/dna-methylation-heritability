@@ -52,10 +52,24 @@ if (is.null(scz$prioritization$rule) ||
          "prespecified before results are seen (AGENTS.md 7.8).")
 }
 
+## The locus set is frozen into the manifest here, like the coloc arms below.
+locus_set <- scz$locus_definition$locus_set %||% ""
+set_cfg <- scz$locus_definition$locus_sets[[locus_set]]
+if (is.null(set_cfg)) {
+    stop("locus_definition.locus_set '", locus_set, "' is not one of ",
+         paste(names(scz$locus_definition$locus_sets), collapse = ", "))
+}
+set_file_key <- switch(locus_set, pgc3_published_gws = "loci_xls",
+                       pgc3_ld_clumps_p1e6 = "pgc3_loci_hg38",
+                       stop("No stage 01 reader for locus set '", locus_set, "'"))
+
 ## Prespecified external inputs must exist before a run directory is created.
-for (key in c("pgc3_loci_hg38", "pgc3_index_snp_xls", "pgc3_sumstats_hg19",
-              "liftover_chain_hg19_to_hg38")) {
-    f <- scz$locus_definition[[key]]
+inputs <- c(scz$locus_definition[c("pgc3_index_snp_xls", "pgc3_sumstats_hg19",
+                                   "liftover_chain_hg19_to_hg38")],
+            stats::setNames(list(set_cfg[[set_file_key]]),
+                            paste0(locus_set, ".", set_file_key)))
+for (key in names(inputs)) {
+    f <- inputs[[key]]
     if (is.null(f) || !file.exists(f)) {
         stop("Missing prespecified input '", key, "': ", f %||% "<null>")
     }
@@ -123,6 +137,8 @@ run <- new_run(
         smoke_run = if (allow_unlocked) "TRUE" else "FALSE",
         config_schizophrenia_sha256 = attr(scz, "config_sha256"),
         primary_region = scz$primary_region,
+        locus_set = locus_set,
+        locus_set_role = set_cfg$role,
         fdr_family = scz$testing$fdr_family,
         fdr_alpha = scz$testing$fdr_alpha,
         coloc_arms = paste(arms, collapse = ","),

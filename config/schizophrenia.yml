@@ -24,7 +24,47 @@ genome_build: hg38
 locus_definition:
   source: pgc3
   independent_of_methylation: true
-  pgc3_loci_hg38: /projects/b1213/resources/gwas/pgc3/fine_mapped_loci/to_hg38/_m/gwas_loci_hg38.tsv
+  # Which PGC3 locus set a run uses (PI amendment 2026-10-15). Recorded in the
+  # run manifest by 00_new_run.R; stage 01 is the only stage that reads it.
+  #
+  # Until 2026-10-15 every run used what is now `pgc3_ld_clumps_p1e6`, and the
+  # module called those intervals "published fine-mapped loci". They are not.
+  # They are PGC3 Supplementary Table 1: 624 LD clumps, one per index SNP at
+  # p < 1e-6, never merged into loci. 311 of the 624 are not genome-wide
+  # significant, and the clumps overlap. Dropping chrX left 612. They are kept
+  # as an EXPLORATORY set: the accepted scz-AA-*-20261008 runs used them and are
+  # retained as such, and no claim is made from them.
+  #
+  # The primary set is PGC3's published loci: Supplementary Table 3, "287
+  # distinct genomic regions containing at least one genome-wide significant SNP
+  # from combined discovery-replication meta-analysis". The interval is the
+  # published merged region (merge-LEFT/merge-RIGHT: LD r2 > 0.1 clumps plus a
+  # 50 kb window); its index SNPs are the table's `indices`. Five loci are on
+  # chrX, so 282 are autosomal. The extended MHC is ONE published locus here
+  # and is kept, as it was in the 612.
+  #
+  # Cross-trait comparisons do not use either set. Stage 17 defines every
+  # trait's loci, schizophrenia included, with its own uniform rule
+  # (config/gwas_negative_controls.yml:locus_rule; 197 PGC3 leads).
+  locus_set: pgc3_published_gws
+  locus_sets:
+    pgc3_published_gws:
+      role: primary
+      loci_xls: "/projects/b1213/resources/gwas/pgc3/_m/nature_submission_11.08.2021/Supplementary Tables/Supplementary Table 3 - Combined discovery-replication loci - July 2021.xls"
+      loci_build: hg19
+      n_loci_published: 287
+    pgc3_ld_clumps_p1e6:
+      role: exploratory
+      # One interval per ST1 clump, lifted to hg38 by
+      # /projects/b1213/resources/gwas/pgc3/fine_mapped_loci/to_hg38/_h/convert2hg38.py.
+      pgc3_loci_hg38: /projects/b1213/resources/gwas/pgc3/fine_mapped_loci/to_hg38/_m/gwas_loci_hg38.tsv
+      loci_build: hg38
+      n_loci_published: 624
+      accepted_runs: [scz-AA-caudate-20261008, scz-AA-dlpfc-20261008, scz-AA-hippocampus-20261008]
+  # PGC3 Supplementary Table 1 (624 LD-clump index SNPs, p < 1e-6, hg19). Both
+  # sets take per-SNP position, p-value, odds ratio and alleles from it. 341 of
+  # the 342 published index SNPs are in it; the one that is not is a locus's
+  # top index SNP, and stage 01 takes its statistics from Supplementary Table 3.
   pgc3_index_snp_xls: /projects/b1213/resources/gwas/pgc3/fine_mapped_loci/_m/primaryGWAS_indexSNP.xls
   # Full PGC3 wave-3 European summary statistics, hg19. Lifted to hg38 by
   # stage 01 inside the locus windows only; the same file Module 06 uses.
@@ -200,6 +240,9 @@ prioritization:
         direction: desc
       - column: has_transcriptional_coupling
         direction: desc
+      # The locus's top index-SNP p-value. Under pgc3_published_gws it is the
+      # published combined discovery-replication p (ST3 top-P); under the
+      # exploratory clumps it is the discovery p (ST1).
       - column: pgc3_index_pvalue
         direction: asc
     # Deterministic final tie-break so the output is byte-stable.
