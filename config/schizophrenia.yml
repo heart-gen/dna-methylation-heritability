@@ -43,6 +43,15 @@ locus_definition:
   # chrX, so 282 are autosomal. The extended MHC is ONE published locus here
   # and is kept, as it was in the 612.
   #
+  # Ancestry. Both PGC3 tables come from the two-stage analysis: the primary
+  # meta-analysis (74,776 cases / 101,023 controls; ~80% European, the rest
+  # East Asian, plus 9 African-American and Latino cohorts) and a European
+  # deCODE replication. So the locus set is predominantly European, NOT
+  # European-only. pgc3_sumstats_hg19 below is the European-only release, and
+  # it supplies every per-variant GWAS statistic Module 09 uses. Wording:
+  # config/gwas_negative_controls.yml
+  # interpretation.writing_rules.module_09_locus_set_ancestry_sentence.
+  #
   # Cross-trait comparisons do not use either set. Stage 17 defines every
   # trait's loci, schizophrenia included, with its own uniform rule
   # (config/gwas_negative_controls.yml:locus_rule; 197 PGC3 leads).

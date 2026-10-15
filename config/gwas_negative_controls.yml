@@ -305,6 +305,22 @@ interpretation:
       admixed African American; an ancestry-matched test is not possible because
       the African-ancestry schizophrenia and bipolar releases yield no
       genome-wide significant loci."
+    # Correction 2026-10-15. The sentence above is true of stage 17's uniform
+    # rows, which read the European release. It is NOT true of Module 09's own
+    # locus set, and it was not true of the old one either. PGC3's published
+    # loci (Supplementary Table 3), like the Supplementary Table 1 clumps, come
+    # from the two-stage analysis: the primary meta-analysis (74,776 cases /
+    # 101,023 controls; ~80% European, the rest East Asian, plus 9
+    # African-American and Latino cohorts) and a European deCODE replication.
+    # Module 09's GWAS statistics for colocalization and GTEx support are still
+    # the European release. Where the Module 09 locus set is described, use
+    # this sentence instead.
+    module_09_locus_set_ancestry_sentence: "Schizophrenia loci are PGC3's
+      published genome-wide significant loci, from a predominantly European
+      discovery meta-analysis that also included East Asian, African-American
+      and Latino cohorts, plus a European replication; association statistics
+      for colocalization were taken from the European-ancestry release, while
+      the methylation cohort is admixed African American."
     # 3. Do not report the negative control as a validation of Module 09. It
     #    qualifies the claim. Module 09's decisions are locked and untouched.
     describe_stage_17_as: qualification_not_validation
