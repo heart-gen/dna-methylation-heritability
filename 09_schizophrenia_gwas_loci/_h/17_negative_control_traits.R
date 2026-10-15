@@ -92,10 +92,19 @@ traits[, role := fcase(!is.na(focal_role), focal_role,
 
 ## ------------------------------------------------------------- lead clumping
 excl <- rbindlist(lapply(lr$exclude_regions_hg38, as.data.table))
+gw_p <- as.numeric(lr$genome_wide_p)
+## Every trait's loci are genome-wide significant (PI 2026-10-15): the
+## expansion to other GWAS must never admit a sub-threshold clump, which is
+## what Module 09's own pre-2026-10-15 locus set did. 17a filters at the same
+## threshold; this refuses an extraction that did not.
 clump_leads <- function(f) {
     s <- fread(f, colClasses = list(character = c("chrom", "variant_id")))
     s[, chrom := paste0("chr", sub("^chr", "", chrom))]
     s <- s[is.finite(pvalue) & is.finite(pos)]
+    if (nrow(s) && max(s$pvalue) >= gw_p) {
+        stop(basename(f), " holds ", sum(s$pvalue >= gw_p), " row(s) with p >= ",
+             gw_p, "; rerun _h/17a_extract_gwas_leads.sh")
+    }
     if (isTRUE(lr$autosomes_only)) s <- s[chrom %in% paste0("chr", 1:22)]
     for (i in seq_len(nrow(excl))) {
         s <- s[!(chrom == excl$chrom[i] & pos >= excl$start[i] & pos <= excl$end[i])]
