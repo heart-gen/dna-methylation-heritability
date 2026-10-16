@@ -298,7 +298,7 @@ It changes neither decision.
    traits, one format) and from PGC3 schizophrenia (lifted). `_h/17_negative_control_traits.R`
    then applies **one locus rule to every trait, schizophrenia included**:
    p < 5e-8, greedy distance clumping at 500 kb, extended MHC excluded
-   (the PGC3 fine-mapped table carries no MHC locus), then the Module 09
+   (unlike Module 09's own PGC3 locus sets, which each keep one MHC locus), then the Module 09
    linkage window (±500 kb) and the Module 09 logistic model. SCZ's coefficient
    is read against the other traits' distribution: overall, within category,
    and within traits with a similar lead count (×/÷ 2). `pgc.scz2` and the UKB
@@ -318,8 +318,17 @@ It changes neither decision.
    PGC3 schizophrenia and PGC bipolar releases each yield zero genome-wide
    significant variants at this rule.
 
-Two SCZ rows exist per region: `PGC3_SCZ` (uniform rule; the comparable row)
-and `PGC3_SCZ_published` (the accepted linkage; used only for the context arm).
+Three SCZ rows exist per region:
+- `PGC3_SCZ`: the uniform rule, and the comparable row.
+- `PGC3_SCZ_published`: the accepted linkage, on PGC3's published loci since
+  2026-10-15. Used only for the context arm.
+- `PGC3_SCZ_ld_clumps_exploratory`: the 612-clump linkage of the `-20261008` runs,
+  for the record.
+
+Neither linkage row enters the distribution, and neither may be placed in it:
+their loci are not defined by the rule every other trait uses. Every trait's
+loci, the 197 `PGC3_SCZ` leads included, are genome-wide significant.
+17a keeps only p < 5e-8 rows, and stage 17 stops on any row at or above it.
 Outputs: `_m/combined/scz-negative-control-{traits,summary,by-category,ancestry,leads}-AA.tsv`.
 
 #### Result (2026-09-19): the depletion is trait-general
@@ -335,6 +344,22 @@ lead count. Psychiatric traits are indistinguishable as a category (Wilcoxon
 p 0.18-0.96). Anthropometric traits are the most depleted category in all three
 regions; immune traits show no depletion and trend positive outside caudate.
 Adding broad genomic context moves the SCZ estimate by 1-3%.
+
+**Rerun 2026-10-15 on the published-locus runs.** Every uniform-rule row is
+unchanged to the digit, including `PGC3_SCZ`, all 63 distribution traits and the
+ancestry table, so the reading above stands. The linkage rows:
+
+| region | `PGC3_SCZ` (uniform, 197 leads) | `PGC3_SCZ_published` (282 loci) | clumps (612, exploratory) | context attenuation, published |
+|---|---|---|---|---|
+| caudate | -0.173 | -0.270 | -0.226 | 4.1% |
+| dlpfc | -0.139 | -0.231 | -0.161 | 3.3% |
+| hippocampus | -0.098 | -0.222 | -0.160 | 2.8% |
+
+The published-locus contrast is the strongest of the three in every region. It
+is still not a cross-trait comparison. A published locus is PGC3's merged region
+plus 500 kb, against a 500 kb window around a uniform-rule lead, so the stronger
+number must not be read as schizophrenia standing apart from the other traits.
+That reading is made only on `PGC3_SCZ`, and it remains a typical example.
 
 Both multi-ancestry releases give a **stronger** depletion than the European
 schizophrenia file, so the ancestry mismatch is not producing the result:
