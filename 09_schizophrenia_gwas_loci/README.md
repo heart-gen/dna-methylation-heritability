@@ -396,6 +396,11 @@ heterochromatin annotations as the locked analysis plan requires. Spec:
 `locus_architecture` in the config. Outputs
 `_m/combined/scz-locus-architecture{,-axis-link,-by-category}-AA.tsv`.
 
+Stage 18 reads only the uniform-rule traits, so the 2026-10-15 rerun on the
+published-locus runs changes nothing but the `module_09_run_id` column. All
+6,330 rows otherwise match, and the axis-link and by-category tables are
+byte-identical. The numbers below stand.
+
 The axis contrast is largely reporting whether a trait's loci sit in active or in
 quiescent sequence. Spearman correlation across the 58-62 distribution traits
 between a trait's annotation enrichment and its axis estimate. The primary arm
