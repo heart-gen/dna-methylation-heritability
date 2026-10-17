@@ -885,13 +885,17 @@ pZ2 <- ggplot(ev, aes(n_loci, tier, fill = region)) +
     labs(x = "Schizophrenia-risk loci with the evidence type", y = NULL) +
     BASE_THEME + NO_TITLES + GRID_X +
     theme(legend.position = "top", legend.margin = margin(0, 0, -4, 0))
+## locus-evidence.tsv has one row per tested locus, linked to a VMR or not, so
+## the denominator and the linked count are stated separately.
 legend_note(run_dir, S4, "b", paste0(
     "Counts of schizophrenia-risk loci carrying each evidence type, out of ",
     lev[, uniqueN(locus_id), by = region][, paste(V1, collapse = "/")],
-    " loci linked to a VMR (caudate/DLPFC/hippocampus). GWAS loci were defined ",
-    "from European-ancestry summary statistics; the cohort is admixed African ",
-    "American. The caudate magnitude claim is not supported, and caudate is ",
-    "batch-confounded."))
+    " PGC3 published genome-wide significant loci, of which ",
+    lev[n_linked_vmrs > 0, uniqueN(locus_id), by = region][, paste(V1, collapse = "/")],
+    " are linked to a VMR (caudate/DLPFC/hippocampus). The loci come from a ",
+    "mostly European multi-ancestry GWAS with European replication; the cohort ",
+    "is admixed African American. The caudate magnitude claim is not supported, ",
+    "and caudate is batch-confounded."))
 
 ## The prioritized loci, as an evidence grid rather than a table of ticks.
 pri <- lev[prioritized %in% c(TRUE, "TRUE")]
@@ -926,7 +930,7 @@ write_source_data(rbind(adj, prim, fill = TRUE), paste0(S4, "_panel_a"), unname(
                   data_dir)
 write_source_data(ev, paste0(S4, "_panel_b"), unname(SCZR),
                   "results/locus-evidence.tsv", SCRIPT,
-                  "counts of SCZ-risk loci carrying each evidence type; GWAS loci are European-ancestry; caudate is batch-confounded",
+                  "counts of SCZ-risk loci carrying each evidence type; PGC3 published loci (mostly European multi-ancestry GWAS); caudate is batch-confounded",
                   data_dir)
 write_source_data(pri, paste0(S4, "_panel_c"), unname(SCZR),
                   "results/locus-evidence.tsv", SCRIPT,
