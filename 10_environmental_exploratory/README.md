@@ -1253,9 +1253,10 @@ new one.
 That would remove the leading alternative explanation for Module 09 (smoking is
 72% in cases vs 28% in controls; antipsychotics has zero exposed controls). It
 is **not implemented**. Its precondition is met: Module 09 has accepted runs,
-now `scz-AA-{caudate,dlpfc,hippocampus}-20261001`, reaccepted 2026-10-01 after
-the stages 15-18 rerun. (This paragraph cited the superseded `-20260918` runs
-until 2026-10-02.) The design, the mandatory positive control and the collider
+now `scz-AA-{caudate,dlpfc,hippocampus}-20261015` on PGC3's published loci. Its
+`loci_source` is each accepted run's prioritized loci, so if it is
+commissioned it runs on that run's five per region, not on the clump-era loci
+this paragraph once implied. The design, the mandatory positive control and the collider
 caution are in an internal note (`exposure_confounding_of_scz_meqtl_strategy.md`, not distributed).
 
 **PI decision 2026-10-02: deferred past Module 11, not declined.** It is new
