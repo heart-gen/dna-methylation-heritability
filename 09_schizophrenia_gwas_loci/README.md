@@ -463,10 +463,12 @@ This is not an EA meQTL map (T25) and not a test of a donor-group difference.
 **Design** (`config/scz_ea_targeted.yml`, `pi_locked`, fixed before any EA
 association was computed):
 - **Loci:** `prioritized == TRUE` in each accepted region run
-  (`scz-AA-{region}-20261001`). That is up to 5 per region, 15 locus × region
+  (`scz-AA-{region}-20261015` since the locus-set amendment; first applied to
+  `scz-AA-{region}-20261001`). That is up to 5 per region, 15 locus × region
   targets in all, each tested in that region's EA donors only.
 - **Pairs:** every risk-variant → CpG pair at those loci that was significant
-  in the AA primary (1,150 pairs), with the same variant and CpG IDs. The lead
+  in the AA primary (1,713 pairs at the published loci; 1,150 at the
+  clumps), with the same variant and CpG IDs. The lead
   pair of a locus is its minimum-AA-p pair and carries the locus reading.
 - **Donors:** the EA estimation cells (`estcell-all_individuals.EA-{region}-20260910`):
   129 caudate, 55 DLPFC, 60 hippocampus.
@@ -518,7 +520,81 @@ Submit with `_h/submit_ea_targeted.sh`. `SMOKE_N=1` runs a smoke and
   sharing, not evidence of distinct variants.
 - The GWAS loci come from European-ancestry summary statistics (§7.8 rule 2).
 
-**Result: `scz-all_individuals.EA-crossregion-20261008`** (sealed 2026-10-08
+**Result: `scz-all_individuals.EA-crossregion-20261015`**, on the published
+loci. Opened 2026-10-15 17:18 and sealed 17:34 at `c858d6140`, 5/5 jobs, with
+upstreams `scz-AA-{region}-20261015`. The design, reading rule and coloc rule
+are unchanged from the first check. No EA association had been computed at
+the new loci when they were applied.
+
+The manifest records `git_dirty true`. The dirty files were this README and the
+stage 18 output table, which stage 18 had just rewritten. No code or config
+was dirty: the run's `code/_h` snapshot is identical to `_h/` at `c858d6140`.
+In every region the pooled methylation equals the AA primary's at every target
+CpG (94 / 62 / 53 CpGs, max abs diff 0).
+
+| region | locus (index SNP) | AA lead p | EA n | EA lead p | reading |
+|---|---|---:|---:|---:|---|
+| caudate | PGC3_008 (rs2710323) | 6.7e-12 | 129 | **3.0e-07** | reproduces (Bonferroni) |
+| caudate | PGC3_056 (rs12883788) | 1.4e-03 | 129 | 0.63 | opposite sign |
+| caudate | PGC3_267 (rs7681616) | 1.0e-07 | 129 | **1.1e-10** | reproduces (Bonferroni) |
+| caudate | PGC3_125 (rs6504163) | 2.6e-03 | 129 | 0.092 | same sign, not nominal |
+| caudate | PGC3_166 (rs11862968) | 2.3e-03 | 129 | 0.0060 | reproduces (nominal) |
+| DLPFC | PGC3_008 (rs2710323) | 4.2e-23 | 55 | **1.2e-09** | reproduces (Bonferroni) |
+| DLPFC | PGC3_077 (rs2929278) | 5.9e-04 | — | — | not testable: variant absent from pooled pfile |
+| DLPFC | PGC3_065 (rs3770752) | 1.4e-06 | 55 | **2.9e-08** | reproduces (Bonferroni) |
+| DLPFC | PGC3_105 (rs72974238) | 6.8e-05 | 55 | 0.024 | reproduces (nominal) |
+| DLPFC | PGC3_140 (rs2649999) | 1.1e-03 | 55 | 0.67 | same sign, not nominal |
+| hippocampus | PGC3_276 (rs2189336) | 4.4e-06 | 60 | 0.35 | same sign, not nominal |
+| hippocampus | PGC3_112 (rs11076631) | 7.6e-04 | 60 | **1.5e-05** | reproduces (Bonferroni) |
+| hippocampus | PGC3_105 (rs72974238) | 9.1e-04 | 60 | 0.053 | same sign, not nominal |
+| hippocampus | PGC3_024 (rs4766428) | 1.6e-03 | — | — | not testable: variant absent from pooled pfile |
+| hippocampus | PGC3_166 (rs11862968) | 1.4e-03 | 60 | 0.055 | same sign, not nominal |
+
+- **Lead pairs:** 13 of 15 are testable, and 12 of the 13 keep the AA sign.
+  7 reproduce at p < 0.05, and 5 survive Bonferroni over the 13 (α 0.0038).
+- **All nominated pairs:** 1,432 of 1,684 tested keep the AA sign (85%).
+- **PGC3_008 reproduces in both regions where it ranks first**, with 88%
+  (caudate) and 100% (DLPFC) of its 724 / 408 tested pairs keeping the AA sign
+  at p < 0.05. PGC3_065 is the other DLPFC locus that reproduces at
+  Bonferroni.
+- **The top-ranked hippocampus locus does not reproduce.** PGC3_276 has
+  AA p 4.4e-6 and EA p 0.35. Across its 359 nominated pairs, 64% keep the AA
+  sign and none reaches p < 0.05.
+- **Carried-over loci repeat their earlier readings.** Eight of the 15 targets
+  were already tested on 2026-10-08 under a clump ID, with the same lead pair
+  and the same reading: caudate PGC3_056/267/125/166 (old 73/276/163/198) and
+  hippocampus PGC3_112/105/024/166 (old 264/118/136/198). The hippocampus lead
+  p values are identical. The caudate ones shift slightly (for example
+  PGC3_056 0.52 to 0.63, PGC3_166 0.0062 to 0.0060). Stage 20 runs
+  `plink2 --pca approx` with no `--seed`, so caudate's snpPC3-5 differ between
+  the runs, and the methPCs, residualized on them, differ too. DLPFC and
+  hippocampus differ only by a sign flip of snpPC1, which changes no test.
+  Five of the eight have fewer nominated pairs than before (for example
+  hippocampus PGC3_166, 22 to 17), because the AA significance family changed
+  with the locus set. Caudate PGC3_056 is again the one opposite-sign lead,
+  and again none of its 33 pairs keeps the AA sign. The DLPFC hero locus of
+  the first check (rs13331198) is not a published locus and is no longer a
+  target.
+- **Coloc** ran on the two strongest eligible loci. Five more were eligible
+  but over `max_loci`. Neither reaches PP4 0.8:
+  - caudate PGC3_267: PP3 0.985, PP4 0.010, 1,635 shared variants. This
+    matches the old locus 276 result (PP3 0.99, PP4 0.010) to the precision
+    reported there. The EA meQTL peak (rs11100761, p 7.7e-28)
+    sits 64 kb from the lead risk variant, and the best GWAS p in the window is
+    2.0e-7.
+  - DLPFC PGC3_105: PP3 0.999, PP4 0.0006, 1,854 shared variants. The EA
+    meQTL peak (rs7596864, p 6.9e-16 in 55 donors) sits 115 kb from the lead
+    risk variant (rs11694987).
+
+  Unlike the earlier coloc loci, PGC3_105 has a genome-wide significant GWAS
+  side (best p 8.7e-9), so the weak-GWAS caveat does not cover it. Under the
+  locked reading it is still no support for a shared single causal variant,
+  not evidence of distinct variants. The meQTL side has 55 donors, and
+  `coloc.abf` assumes one causal variant per trait. Coloc is not a gate.
+- Concordance only: the EA slopes are not compared with the AA slopes.
+
+**Earlier result, on the exploratory clumps:
+`scz-all_individuals.EA-crossregion-20261008`** (sealed 2026-10-08
 00:54 at `4671edb22`, clean tree, 5/5 jobs). In every region the pooled
 methylation equals the AA primary's at every target CpG (max abs diff 0).
 
@@ -623,7 +699,8 @@ feeds neither Module 09 decision, and nothing downstream gates on it.
 
 | run_id | cohort | region | upstream | sealed | accepted_on | accepted_by | notes |
 |---|---|---|---|---|---|---|---|
-| scz-all_individuals.EA-crossregion-20261008 | all_individuals.EA | crossregion | scz-AA-{caudate,dlpfc,hippocampus}-20261001 (superseded 2026-10-08 by -20261008, whose locus definitions and links are identical); estcell-all_individuals.EA-{region}-20260910; vmrcat-all_individuals-{region}-20260816 | 2026-10-08T00:54 at 4671edb22, git_dirty false, 5/5 jobs | 2026-10-08 | Kynon J. Benjamin | Config config/scz_ea_targeted.yml, pi_locked before any EA association was computed. EA donors 129 / 55 / 60. Pooled methylation equals the AA primary at every target CpG. Lead pairs: 14 of 15 testable (hippocampus 136 variant absent from the pooled pfile); 12 keep the AA sign, 6 nominal, 4 Bonferroni (caudate 276 and 432, DLPFC 544 rs13331198 p 2.6e-8, hippocampus 264). All pairs: 1,053 of 1,140 same sign. Two opposite-sign leads are the weakest AA loci (p about 1e-3). Coloc (not a gate) on caudate 432 and 276: PP4 0.003 / 0.010, PP3 0.78 / 0.99, with a weak European GWAS side. Concordance only; no EA vs AA magnitude or ancestry claim. |
+| scz-all_individuals.EA-crossregion-20261015 | all_individuals.EA | crossregion | scz-AA-{caudate,dlpfc,hippocampus}-20261015; estcell-all_individuals.EA-{region}-20260910; vmrcat-all_individuals-{region}-20260816 | 2026-10-15T17:34 at c858d6140, git_dirty true (README and the stage 18 output table only; `code/_h` identical to `_h/` at that commit), 5/5 jobs | 2026-10-15 | amendment-20261015 (non-gating; PI review pending) | The same pi_locked config, repointed at the published-locus runs before any EA association was computed at the new loci. Pooled methylation equals the AA primary at every target CpG. Lead pairs: 13 of 15 testable (DLPFC PGC3_077 and hippocampus PGC3_024 absent from the pooled pfile); 12 keep the AA sign, 7 nominal, 5 Bonferroni (caudate PGC3_008 and PGC3_267, DLPFC PGC3_008 and PGC3_065, hippocampus PGC3_112). All pairs: 1,432 of 1,684 same sign. The top-ranked hippocampus locus PGC3_276 does not reproduce (p 0.35). Coloc (not a gate) on caudate PGC3_267 and DLPFC PGC3_105: PP4 0.010 / 0.0006, PP3 0.985 / 0.999. Concordance only; no EA vs AA magnitude or ancestry claim. |
+| scz-all_individuals.EA-crossregion-20261008 | all_individuals.EA | crossregion | **On the exploratory LD clumps.** scz-AA-{caudate,dlpfc,hippocampus}-20261001 (superseded 2026-10-08 by -20261008, whose locus definitions and links are identical); estcell-all_individuals.EA-{region}-20260910; vmrcat-all_individuals-{region}-20260816 | 2026-10-08T00:54 at 4671edb22, git_dirty false, 5/5 jobs | 2026-10-08 | Kynon J. Benjamin | Config config/scz_ea_targeted.yml, pi_locked before any EA association was computed. EA donors 129 / 55 / 60. Pooled methylation equals the AA primary at every target CpG. Lead pairs: 14 of 15 testable (hippocampus 136 variant absent from the pooled pfile); 12 keep the AA sign, 6 nominal, 4 Bonferroni (caudate 276 and 432, DLPFC 544 rs13331198 p 2.6e-8, hippocampus 264). All pairs: 1,053 of 1,140 same sign. Two opposite-sign leads are the weakest AA loci (p about 1e-3). Coloc (not a gate) on caudate 432 and 276: PP4 0.003 / 0.010, PP3 0.78 / 0.99, with a weak European GWAS side. Concordance only; no EA vs AA magnitude or ancestry claim. |
 
 ### Accepted non-gating exploratory runs: PGC3 LD clumps
 
