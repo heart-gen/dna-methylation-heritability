@@ -156,6 +156,16 @@ ancestry:
 # ONE locus rule for every trait. No LD reference is used, so the rule is
 # ancestry-neutral and identical for all traits: genome-wide significant
 # variants are greedily clumped by distance.
+#
+# Genome-wide significant loci only (PI 2026-10-15). Every trait in the
+# expansion, schizophrenia's comparable row (PGC3_SCZ, 197 leads) included,
+# takes its loci from that trait's own published summary statistics at
+# p < genome_wide_p, and stage 17 stops on any row at or above it. Per-trait
+# published locus tables are NOT used: 45 of the 114 collection traits are UK
+# Biobank scans with none, and one rule for all traits is what makes the
+# distribution comparable. Module 09's own claim uses PGC3's published loci
+# instead (config/schizophrenia.yml locus_definition); stage 17 reports that
+# linkage as PGC3_SCZ_published, outside the distribution.
 locus_rule:
   genome_wide_p: 5.0e-8
   # A lead absorbs every significant variant within this distance of it.
@@ -164,8 +174,13 @@ locus_rule:
   # applies to the published PGC3 intervals (config/schizophrenia.yml
   # locus_definition.locus_flank_bp).
   link_flank_bp: 500000
-  # The extended MHC is excluded for every trait. The PGC3 fine-mapped locus
-  # table Module 09 uses carries no MHC locus, so this keeps the rules aligned.
+  # The extended MHC is excluded for every trait, so no trait's contrast is
+  # driven by its single largest, most gene-dense locus. Correction 2026-10-15:
+  # this line used to say the PGC3 table Module 09 uses carries no MHC locus.
+  # It does. Both the exploratory LD clumps and the published loci
+  # (config/schizophrenia.yml locus_definition) hold one extended-MHC locus,
+  # led by rs140365013. So this rule differs from Module 09's on that one
+  # locus, and the stage 17 rows for the Module 09 linkage keep it.
   exclude_regions_hg38:
     - {chrom: chr6, start: 25000000, end: 34000000}
   autosomes_only: true
@@ -290,6 +305,22 @@ interpretation:
       admixed African American; an ancestry-matched test is not possible because
       the African-ancestry schizophrenia and bipolar releases yield no
       genome-wide significant loci."
+    # Correction 2026-10-15. The sentence above is true of stage 17's uniform
+    # rows, which read the European release. It is NOT true of Module 09's own
+    # locus set, and it was not true of the old one either. PGC3's published
+    # loci (Supplementary Table 3), like the Supplementary Table 1 clumps, come
+    # from the two-stage analysis: the primary meta-analysis (74,776 cases /
+    # 101,023 controls; ~80% European, the rest East Asian, plus 9
+    # African-American and Latino cohorts) and a European deCODE replication.
+    # Module 09's GWAS statistics for colocalization and GTEx support are still
+    # the European release. Where the Module 09 locus set is described, use
+    # this sentence instead.
+    module_09_locus_set_ancestry_sentence: "Schizophrenia loci are PGC3's
+      published genome-wide significant loci, from a predominantly European
+      discovery meta-analysis that also included East Asian, African-American
+      and Latino cohorts, plus a European replication; association statistics
+      for colocalization were taken from the European-ancestry release, while
+      the methylation cohort is admixed African American."
     # 3. Do not report the negative control as a validation of Module 09. It
     #    qualifies the claim. Module 09's decisions are locked and untouched.
     describe_stage_17_as: qualification_not_validation

@@ -98,8 +98,10 @@ writeLines(c(
     "    except coloc eligibility, by a rule fixed in config.",
     "  - Coloc is PGC3 European x EA meQTL, the LD-matched pairing. coloc.abf assumes",
     "    one causal variant per trait; small EA n makes a low PP4 weak evidence.",
-    "  - GWAS loci are defined from European-ancestry summary statistics (AGENTS.md",
-    "    7.8 rule 2)."
+    "  - The loci are PGC3's published genome-wide significant loci, from its",
+    "    two-stage analysis (primary GWAS about 80% European, the rest East Asian,",
+    "    African-American and Latino; replication European). The per-variant GWAS",
+    "    statistics used for coloc are the European release (AGENTS.md 7.8 rule 2)."
 ), file.path(res_dir, "interpretation-constraints.txt"))
 writeLines(capture.output(sessionInfo()), file.path(res_dir, "session-info.txt"))
 print(locus_table[, .(region, rank, locus_id, index_snp_prioritized, lead_cpg_id, lead_aa_pval,

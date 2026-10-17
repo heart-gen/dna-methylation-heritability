@@ -2,9 +2,11 @@
 
 Consumes only accepted immutable upstream runs and produces every manuscript number, table, and figure.
 
-**Status (2026-10-09): accepted as `fig-all-20261009-b`** (close-out rebuild; see
-the Accepted runs row). The paragraph below describes `fig-all-20261008`, which it
-replaces.
+**Status: accepted as `fig-all-20261016-a`**, the rebuild on Module 09's
+published-locus runs (see the Accepted runs row). It replaces
+`fig-all-20261009-b`, whose Module 09 panels read the exploratory LD-clump runs.
+The paragraph below describes `fig-all-20261008`, which `fig-all-20261009-b`
+replaced.
 
 **Previously (2026-10-08): accepted as `fig-all-20261008`.** The run cites 51
 upstream runs: every module 01-10 at its current accepted run, including 02b
@@ -90,7 +92,7 @@ three are properties of Module 11 rather than oversights:
 
 | run_id | cohort | region | vmr_set_id | accepted_on | accepted_by | decision | notes |
 |---|---|---|---|---|---|---|---|
-| fig-all-20261009-b | all | crossregion | see `tables/exclusions-and-denominators.tsv` (6 cells: arm × region) | 2026-10-09 | closeout-20261008 (seal clean; PI review pending) | ACCEPTED_MANUSCRIPT_OUTPUTS | Built at `4e4f21811` with `git_dirty = false` and a `code/` snapshot (39 files); 25 figures, 83 source tables, 52 upstream runs. Replaces fig-all-20261008: Module 09 reads the de-duplicated `scz-AA-*-20261008` (supplement panel b 90/64/63, 145/100/78, 174/174/173; five distinct prioritized loci per region), Figure 1 reads the F14 QC refresh `vmrcatqc-*-20261008-a` (3' UTR reachable), Figure 4b draws donor-robust intervals, the ancestry panel uses the 1000 Genomes projection (N1), and the 2026-10-07 audit's figure defects are fixed (in-panel prose moved to `tables/figure-legend-notes.tsv`). Every PNG viewed, both arms. `fig-all-20261009` (failed in Figure 2, unsealed) and `fig-all-20261009-a` (sealed; RDG key clipped) were never accepted. |
+| fig-all-20261016-a | all | crossregion | see `tables/exclusions-and-denominators.tsv` (6 cells: arm × region) | 2026-10-16 | Kynon J. Benjamin | ACCEPTED_MANUSCRIPT_OUTPUTS | Built at `bffc7e9c9` with `git_dirty = false` and a `code/` snapshot (39 files); 25 figures, 83 source tables. Replaces fig-all-20261009-b: Module 09 reads the published-locus runs `scz-AA-*-20261015` and the EA check `scz-all_individuals.EA-crossregion-20261016`. Against fig-all-20261009-b only the Module 09 products moved: the schizophrenia supplement (panel a -0.270/-0.231/-0.222; panel b 55/27/34, 68/52/44, 100/102/104, 32/19/20, out of 282 loci of which 238/263/262 link to a VMR; panel c the published-locus prioritized loci), Figure 5's run ID column and its context note (broad genomic context moves the schizophrenia estimate 2.8-4.1%, was 1.2-3.1%), and the run-level tables (claim matrix, number registry, manifests, summaries). Every other source table is byte-identical. Every PNG viewed, both arms. `fig-all-20261016` (built while an uncommitted supplementary-data manifest edit sat in the tree, so sealed `git_dirty = true`; identical code and inputs) was never accepted. |
 
 ## Implemented figures
 
