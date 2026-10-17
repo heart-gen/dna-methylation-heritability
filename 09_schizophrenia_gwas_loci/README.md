@@ -2,16 +2,17 @@
 
 Asks where VMRs at PGC3 schizophrenia GWAS loci sit on the local-genetic-control axis, and whether the risk variants act on their methylation (meQTL, colocalization, GTEx support). Stage 17 repeats the axis test over 114 GWAS traits and finds the depletion trait-general. Intended for the main text, conditional on surviving corrected VMRs and the new local-genetic-control axis.
 
-**Status: accepted on PGC3's published loci (AA, 2026-10-15; gate pass, PI
-review pending); both decisions resolved, neither moved.** The three per-region
-runs `scz-AA-{caudate,dlpfc,hippocampus}-20261015` use the 282 autosomal PGC3
+**Status: accepted on PGC3's published loci (AA); both decisions resolved,
+neither moved.** The three per-region runs
+`scz-AA-{caudate,dlpfc,hippocampus}-20261015` use the 282 autosomal PGC3
 published genome-wide significant loci (see **Locus set**). The `-20261008`
 runs on the 612 LD clumps are kept as exploratory records. Decision 1 is
 `CAUDATE_MAGNITUDE_CLAIM_NOT_SUPPORTED` and decision 2 is `RETAIN_MAIN_TEXT`,
 resolved by stage 15 in `_m/combined/` with `citable = TRUE`. Stages 15 through
-18 were rerun on the accepted runs on 2026-10-15 without `--allow-unlocked`.
-Stages 17 and 18 are post hoc sensitivities that **qualify** Module 09's claim
-and change neither decision.
+18 are built on the accepted runs without `--allow-unlocked`, the targeted EA
+check is `scz-all_individuals.EA-crossregion-20261016`, and Module 11's figures
+and tables are rebuilt on all of them. Stages 17 and 18 are post hoc
+sensitivities that **qualify** Module 09's claim and change neither decision.
 
 ## Migrating from
 
@@ -57,7 +58,7 @@ disease relevance. Both are results.
 
 ## Locus set
 
-**Amended 2026-10-15 (PI).** `config/schizophrenia.yml:locus_definition.locus_set`
+**PI amendment.** `config/schizophrenia.yml:locus_definition.locus_set`
 names the set a run uses, `00_new_run.R` freezes it into the manifest, and stage
 01 refuses a config snapshot that disagrees.
 
@@ -66,7 +67,7 @@ names the set a run uses, `00_new_run.R` freezes it into the manifest, and stage
 | `pgc3_published_gws` | **primary** | PGC3 Supplementary Table 3 | 287 published, 282 autosomal | PGC3's distinct genomic regions with at least one genome-wide significant SNP in the combined discovery-replication meta-analysis. Merged interval (LD r2 > 0.1 clumps plus 50 kb) and the locus's own index SNPs. IDs `PGC3_001`-`PGC3_287` in published order. |
 | `pgc3_ld_clumps_p1e6` | exploratory | PGC3 Supplementary Table 1 | 624 clumps, 612 autosomal | One interval per p < 1e-6 LD clump, never merged. 311 of the 624 are not genome-wide significant, and the intervals overlap (45 of the 612 hold no index SNP of their own). IDs are row numbers. |
 
-**Why the change.** Until 2026-10-15 every run used the second set and this README
+**Why the change.** Before the amendment every run used the second set and this README
 called it "the published fine-mapped locus intervals". It is neither. The resource
 directory is named `fine_mapped_loci`, but `convert2hg38.py` there builds the
 table from ST1's index-SNP sheet. The 612 do not match the 287 loci PGC3
@@ -86,7 +87,11 @@ primary meta-analysis (74,776 cases / 101,023 controls; about 80% European, the
 rest East Asian, plus nine African-American and Latino cohorts) and a European
 deCODE replication. So the locus set is predominantly European, not
 European-only. Every per-variant GWAS statistic Module 09 uses (the coloc slice,
-the coloc N) still comes from the European release. Wording:
+the coloc N) still comes from the European release. The config's case/control
+counts are that file's own header values, 52,017 / 75,889. The accepted
+per-region runs carry PGC3's core-dataset European count, 53,386 / 77,258,
+which changes no posterior: `coloc.abf` given beta and varbeta for a case-control
+trait uses a fixed prior SD of 0.2 and reads neither N nor s. Wording:
 `config/gwas_negative_controls.yml:interpretation.writing_rules.module_09_locus_set_ancestry_sentence`.
 The extended MHC is one published locus (PGC3_001, rs140365013) and is kept,
 as it was in the 612.
@@ -146,7 +151,7 @@ overturns the primary result.
 | Stage | Script | Purpose |
 | --- | --- | --- |
 | 00 | `00_new_run.R` | Open the run; gate upstreams 01/02/04/05/06/07; assert one shared `vmr_set_id`; freeze the coloc arms |
-| 01 | `01_define_scz_loci.R` | PGC3 intervals + index SNPs, lifted to hg38; GWAS sliced to locus windows (via `slice_gwas_sumstats.sh`) |
+| 01 | `01_define_scz_loci.R` | The manifest's locus set: PGC3 published loci (ST3 intervals and index SNPs, per-SNP statistics from ST1) or the exploratory ST1 clumps; lifted to hg38, unmapped interval ends walked inward; GWAS sliced to locus windows (via `slice_gwas_sumstats.sh`) |
 | 02 | `02_link_loci_to_vmrs.R` | Link loci to corrected VMRs; freeze the tested universe and the background set |
 | 03 | `03_risk_variant_cpg_meqtl.py` | Per autosome: index SNPs + LD proxies × member CpGs, from Module 05's nominal pairs |
 | 03b | `03b_combine_risk_variant_tests.R` | Pool the autosomes; apply the module's own FDR family once |
@@ -164,6 +169,9 @@ overturns the primary result.
 | 14 | `14_finalize_run.R` | Seal: session info, manifest fields, checksums, read-only |
 | 15 | `15_cross_region_axis_concordance.R` | **Module-level, not per-run.** Cross-region axis concordance over the three accepted per-region runs; resolves decision 2; measures donor overlap and upstream freshness. Writes `_m/combined/` |
 | 16 | `16_axis_downsampling_sensitivity.R` | **Module-level.** Repeats the axis contrast in the three `AA.n118r*` caudate cells: does the contrast survive matching n to 118? Writes `_m/combined/` |
+| 17a, 17 | `17a_extract_gwas_leads.sh`, `17_negative_control_traits.R` | **Module-level.** The axis contrast over 114 GWAS traits under one genome-wide significant locus rule; see "### Negative-control traits" |
+| 18 | `18_locus_architecture.R` | **Module-level.** What a trait's depletion tracks; see "### Locus architecture" |
+| 19-22 | `19_ea_targeted_new_run.R` ... `22_ea_targeted_summarize.R` | The targeted EA check of the illustrative loci; see its section |
 
 ## Two independent decisions
 
@@ -249,9 +257,8 @@ answer lives only in `_m/combined/scz-application-decisions-{cohort}.tsv`, from
 stage 15.
 
 **Current state (accepted runs `scz-AA-{region}-20261015` on PGC3's published
-loci; stages 15-18 rerun on them on 2026-10-15 without `--allow-unlocked`,
-`citable = TRUE`): both decisions resolved, both unchanged from the LD-clump
-runs.**
+loci; stages 15-18 built on them without `--allow-unlocked`, `citable = TRUE`):
+both decisions resolved, both unchanged from the LD-clump runs.**
 
 - decision 1 `CAUDATE_MAGNITUDE_CLAIM_NOT_SUPPORTED`, from the caudate run's own
   `retention-criteria.tsv` (`FAIL_SAMPLE_SIZE_ARTIFACT`): tier 3 of
@@ -320,8 +327,8 @@ It changes neither decision.
 
 Three SCZ rows exist per region:
 - `PGC3_SCZ`: the uniform rule, and the comparable row.
-- `PGC3_SCZ_published`: the accepted linkage, on PGC3's published loci since
-  2026-10-15. Used only for the context arm.
+- `PGC3_SCZ_published`: the accepted linkage, on PGC3's published loci. Used
+  only for the context arm.
 - `PGC3_SCZ_ld_clumps_exploratory`: the 612-clump linkage of the `-20261008` runs,
   for the record.
 
@@ -345,7 +352,7 @@ p 0.18-0.96). Anthropometric traits are the most depleted category in all three
 regions; immune traits show no depletion and trend positive outside caudate.
 Adding broad genomic context moves the SCZ estimate by 1-3%.
 
-**Rerun 2026-10-15 on the published-locus runs.** Every uniform-rule row is
+**On the published-locus runs.** Every uniform-rule row is
 unchanged to the digit, including `PGC3_SCZ`, all 63 distribution traits and the
 ancestry table, so the reading above stands. The linkage rows:
 
@@ -396,7 +403,7 @@ heterochromatin annotations as the locked analysis plan requires. Spec:
 `locus_architecture` in the config. Outputs
 `_m/combined/scz-locus-architecture{,-axis-link,-by-category}-AA.tsv`.
 
-Stage 18 reads only the uniform-rule traits, so the 2026-10-15 rerun on the
+Stage 18 reads only the uniform-rule traits, so rebuilding it on the
 published-locus runs changes nothing but the `module_09_run_id` column. All
 6,330 rows otherwise match, and the axis-link and by-category tables are
 byte-identical. The numbers below stand.
@@ -476,8 +483,8 @@ association was computed):
   it equals the AA primary's tested methylation for the AA donors at every
   target CpG.
 - **Model:** the locked M3a, re-estimated inside the EA donors.
-  - snpPC1-5 come from `plink2 --pca` on the EA donors over the cell's pruned
-    variant set.
+  - snpPC1-5 come from `plink2 --pca` (the exact solver) on the EA donors over
+    the cell's pruned variant set.
   - methPC1-5 come from the locked latent-factor recipe.
   - The statistic is tensorqtl's nominal t, with df = n − 2 − k.
   - Genotype QC is the locked meQTL QC (MAF 0.05, missingness 0.05, HWE 1e-6),
@@ -520,35 +527,33 @@ Submit with `_h/submit_ea_targeted.sh`. `SMOKE_N=1` runs a smoke and
   sharing, not evidence of distinct variants.
 - The GWAS loci come from European-ancestry summary statistics (§7.8 rule 2).
 
-**Result: `scz-all_individuals.EA-crossregion-20261015`**, on the published
-loci. Opened 2026-10-15 17:18 and sealed 17:34 at `c858d6140`, 5/5 jobs, with
-upstreams `scz-AA-{region}-20261015`. The design, reading rule and coloc rule
-are unchanged from the first check. No EA association had been computed at
-the new loci when they were applied.
-
-The manifest records `git_dirty true`. The dirty files were this README and the
-stage 18 output table, which stage 18 had just rewritten. No code or config
-was dirty: the run's `code/_h` snapshot is identical to `_h/` at `c858d6140`.
-In every region the pooled methylation equals the AA primary's at every target
-CpG (94 / 62 / 53 CpGs, max abs diff 0).
+**Result: `scz-all_individuals.EA-crossregion-20261016`**, on the published
+loci. Sealed at `aea275a89`, clean tree, 5/5 jobs, with upstreams
+`scz-AA-{region}-20261015`. The design, reading rule and coloc rule are
+unchanged from the first check. No EA association had been computed at the
+new loci when they were applied. Stage 20 computes the genotype PCs with
+plink2's exact solver, so the run reproduces exactly from its inputs (see the
+superseded `-20261015` check below). In every region the pooled methylation
+equals the AA primary's at every target CpG (94 / 62 / 53 CpGs, max abs
+diff 0).
 
 | region | locus (index SNP) | AA lead p | EA n | EA lead p | reading |
 |---|---|---:|---:|---:|---|
-| caudate | PGC3_008 (rs2710323) | 6.7e-12 | 129 | **3.0e-07** | reproduces (Bonferroni) |
-| caudate | PGC3_056 (rs12883788) | 1.4e-03 | 129 | 0.63 | opposite sign |
-| caudate | PGC3_267 (rs7681616) | 1.0e-07 | 129 | **1.1e-10** | reproduces (Bonferroni) |
-| caudate | PGC3_125 (rs6504163) | 2.6e-03 | 129 | 0.092 | same sign, not nominal |
-| caudate | PGC3_166 (rs11862968) | 2.3e-03 | 129 | 0.0060 | reproduces (nominal) |
+| caudate | PGC3_008 (rs2710323) | 6.7e-12 | 129 | **2.3e-07** | reproduces (Bonferroni) |
+| caudate | PGC3_056 (rs12883788) | 1.4e-03 | 129 | 0.53 | opposite sign |
+| caudate | PGC3_267 (rs7681616) | 1.0e-07 | 129 | **1.3e-10** | reproduces (Bonferroni) |
+| caudate | PGC3_125 (rs6504163) | 2.6e-03 | 129 | 0.077 | same sign, not nominal |
+| caudate | PGC3_166 (rs11862968) | 2.3e-03 | 129 | 0.0068 | reproduces (nominal) |
 | DLPFC | PGC3_008 (rs2710323) | 4.2e-23 | 55 | **1.2e-09** | reproduces (Bonferroni) |
 | DLPFC | PGC3_077 (rs2929278) | 5.9e-04 | — | — | not testable: variant absent from pooled pfile |
-| DLPFC | PGC3_065 (rs3770752) | 1.4e-06 | 55 | **2.9e-08** | reproduces (Bonferroni) |
-| DLPFC | PGC3_105 (rs72974238) | 6.8e-05 | 55 | 0.024 | reproduces (nominal) |
-| DLPFC | PGC3_140 (rs2649999) | 1.1e-03 | 55 | 0.67 | same sign, not nominal |
-| hippocampus | PGC3_276 (rs2189336) | 4.4e-06 | 60 | 0.35 | same sign, not nominal |
-| hippocampus | PGC3_112 (rs11076631) | 7.6e-04 | 60 | **1.5e-05** | reproduces (Bonferroni) |
+| DLPFC | PGC3_065 (rs3770752) | 1.4e-06 | 55 | **3.6e-08** | reproduces (Bonferroni) |
+| DLPFC | PGC3_105 (rs72974238) | 6.8e-05 | 55 | 0.021 | reproduces (nominal) |
+| DLPFC | PGC3_140 (rs2649999) | 1.1e-03 | 55 | 0.68 | same sign, not nominal |
+| hippocampus | PGC3_276 (rs2189336) | 4.4e-06 | 60 | 0.37 | same sign, not nominal |
+| hippocampus | PGC3_112 (rs11076631) | 7.6e-04 | 60 | **1.2e-05** | reproduces (Bonferroni) |
 | hippocampus | PGC3_105 (rs72974238) | 9.1e-04 | 60 | 0.053 | same sign, not nominal |
 | hippocampus | PGC3_024 (rs4766428) | 1.6e-03 | — | — | not testable: variant absent from pooled pfile |
-| hippocampus | PGC3_166 (rs11862968) | 1.4e-03 | 60 | 0.055 | same sign, not nominal |
+| hippocampus | PGC3_166 (rs11862968) | 1.4e-03 | 60 | 0.058 | same sign, not nominal |
 
 - **Lead pairs:** 13 of 15 are testable, and 12 of the 13 keep the AA sign.
   7 reproduce at p < 0.05, and 5 survive Bonferroni over the 13 (α 0.0038).
@@ -558,32 +563,28 @@ CpG (94 / 62 / 53 CpGs, max abs diff 0).
   at p < 0.05. PGC3_065 is the other DLPFC locus that reproduces at
   Bonferroni.
 - **The top-ranked hippocampus locus does not reproduce.** PGC3_276 has
-  AA p 4.4e-6 and EA p 0.35. Across its 359 nominated pairs, 64% keep the AA
+  AA p 4.4e-6 and EA p 0.37. Across its 359 nominated pairs, 64% keep the AA
   sign and none reaches p < 0.05.
 - **Carried-over loci repeat their earlier readings.** Eight of the 15 targets
-  were already tested on 2026-10-08 under a clump ID, with the same lead pair
-  and the same reading: caudate PGC3_056/267/125/166 (old 73/276/163/198) and
-  hippocampus PGC3_112/105/024/166 (old 264/118/136/198). The hippocampus lead
-  p values are identical. The caudate ones shift slightly (for example
-  PGC3_056 0.52 to 0.63, PGC3_166 0.0062 to 0.0060). Stage 20 runs
-  `plink2 --pca approx` with no `--seed`, so caudate's snpPC3-5 differ between
-  the runs, and the methPCs, residualized on them, differ too. DLPFC and
-  hippocampus differ only by a sign flip of snpPC1, which changes no test.
-  Five of the eight have fewer nominated pairs than before (for example
-  hippocampus PGC3_166, 22 to 17), because the AA significance family changed
-  with the locus set. Caudate PGC3_056 is again the one opposite-sign lead,
-  and again none of its 33 pairs keeps the AA sign. The DLPFC hero locus of
-  the first check (rs13331198) is not a published locus and is no longer a
-  target.
+  were already tested in the clump check under a clump ID, with the same lead
+  pair and the same reading: caudate PGC3_056/267/125/166 (old 73/276/163/198)
+  and hippocampus PGC3_112/105/024/166 (old 264/118/136/198). Their EA p
+  values move slightly (for example PGC3_056 0.52 to 0.53, PGC3_166 0.0062 to
+  0.0068) because the clump check's genotype PCs came from the unseeded
+  randomized solver. Five of the eight have fewer nominated pairs than before
+  (for example hippocampus PGC3_166, 22 to 17), because the AA significance
+  family changed with the locus set. Caudate PGC3_056 is again the one
+  opposite-sign lead, and again none of its 33 pairs keeps the AA sign. The
+  DLPFC hero locus of the first check (rs13331198) is not a published locus
+  and is no longer a target.
 - **Coloc** ran on the two strongest eligible loci. Five more were eligible
   but over `max_loci`. Neither reaches PP4 0.8:
   - caudate PGC3_267: PP3 0.985, PP4 0.010, 1,635 shared variants. This
     matches the old locus 276 result (PP3 0.99, PP4 0.010) to the precision
-    reported there. The EA meQTL peak (rs11100761, p 7.7e-28)
-    sits 64 kb from the lead risk variant, and the best GWAS p in the window is
-    2.0e-7.
+    reported there. The EA meQTL peak (rs11100761, p 1.1e-27) sits 64 kb from
+    the lead risk variant, and the best GWAS p in the window is 2.0e-7.
   - DLPFC PGC3_105: PP3 0.999, PP4 0.0006, 1,854 shared variants. The EA
-    meQTL peak (rs7596864, p 6.9e-16 in 55 donors) sits 115 kb from the lead
+    meQTL peak (rs7596864, p 8.2e-16 in 55 donors) sits 115 kb from the lead
     risk variant (rs11694987).
 
   Unlike the earlier coloc loci, PGC3_105 has a genome-wide significant GWAS
@@ -596,7 +597,9 @@ CpG (94 / 62 / 53 CpGs, max abs diff 0).
 **Earlier result, on the exploratory clumps:
 `scz-all_individuals.EA-crossregion-20261008`** (sealed 2026-10-08
 00:54 at `4671edb22`, clean tree, 5/5 jobs). In every region the pooled
-methylation equals the AA primary's at every target CpG (max abs diff 0).
+methylation equals the AA primary's at every target CpG (max abs diff 0). Its
+genotype PCs came from plink2's unseeded randomized solver, so its EA p values
+carry small run-to-run noise; no reading depends on it.
 
 | region | locus (index SNP) | AA lead p | EA n | EA lead p | reading |
 |---|---|---:|---:|---:|---|
@@ -639,11 +642,13 @@ methylation equals the AA primary's at every target CpG (max abs diff 0).
 
 ## Upstream currency
 
-**Resolved 2026-10-01.** The accepted runs consume the current acceptance of
-every upstream: `vmrcat-AA-*-20260816`, `lgv-AA-*-rescore-20260913`,
-`rra-AA-*-20260925-a`, `cmb-AA-*-20260924`, `sldsc-AA-*-20260925`,
-`tsc-AA-*-20260925-b`, and `rdg-AA-crossregion-20260930` for the Module 08
+**Current.** The accepted runs consume the current acceptance of every
+upstream: `vmrcat-AA-*-20260816`, `lgv-AA-*-rescore-20260913`,
+`rra-AA-*-20260925-a`, `cmb-AA-*-20260924`, `sldsc-AA-*-20261008`,
+`tsc-AA-*-20260925-b`, and `rdg-AA-crossregion-20261008` for the Module 08
 dependency that `gates.require_module_08_downsampling: true` makes mandatory.
+These are the `-20261008` runs' upstreams unchanged, so the locus set is the
+only difference between the clump runs and the accepted runs.
 
 The four-upstream supersession recorded here from 2026-09-27, and the Module 08
 blocker that made the rerun impossible, are discharged. Module 08's four
@@ -687,9 +692,9 @@ meQTL map and leaves this arm as it is.
 
 | run_id | cohort | region | vmr_set_id | accepted_on | accepted_by | decision | notes |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| scz-AA-caudate-20261015 | AA | caudate | vmrset-AA-caudate-937a41979978 | 2026-10-15 | amendment-20261015 (gate pass; PI review pending) | PASS_SCZ_APPLICATION_QC | Opened at ba83e68f0 (code snapshot), sealed at 7ec1bca97; the two commits between them touch stage 17 and config comments only, and stages read the config snapshot taken at open. git_dirty false, smoke_run FALSE. **Locus set `pgc3_published_gws`** (PI amendment 2026-10-15): PGC3's 287 published genome-wide significant loci, 282 autosomal, all 282 lifted (3 interval ends walked inward 30-50 kb), 337 index SNPs, every one inside its interval. Upstreams identical to the `-20261008` runs, so the locus set is the only change. 111,433 output files, failures "". 1,927 VMRs linked to 238 of 282 loci; 248,988 pairs tested, 17,352 significant; **55** loci with CpG-meQTL support; 68 with transcriptional coupling; 100 with GTEx support; 32 with a claimable colocalization. Axis `lower_in_scz_linked`, adjusted log-odds -0.270 per SD (SE 0.029, q 2.5e-20). Prioritized PGC3_008/056/267/125/166. Decision 1 CAUDATE_MAGNITUDE_CLAIM_NOT_SUPPORTED (criterion FAIL_SAMPLE_SIZE_ARTIFACT, as before). Caudate is batch-confounded. |
-| scz-AA-dlpfc-20261015 | AA | dlpfc | vmrset-AA-dlpfc-856067dfe289 | 2026-10-15 | amendment-20261015 (gate pass; PI review pending) | PASS_SCZ_APPLICATION_QC | Opened at ba83e68f0 (code snapshot), sealed at 7ec1bca97; the two commits between them touch stage 17 and config comments only, and stages read the config snapshot taken at open. git_dirty false, smoke_run FALSE. **Locus set `pgc3_published_gws`** (PI amendment 2026-10-15): PGC3's 287 published genome-wide significant loci, 282 autosomal, all 282 lifted (3 interval ends walked inward 30-50 kb), 337 index SNPs, every one inside its interval. Upstreams identical to the `-20261008` runs, so the locus set is the only change. 59,774 output files, failures "". 1,477 VMRs linked to 263 of 282 loci; 157,598 pairs tested, 4,540 significant; **27** loci with CpG-meQTL support; 52 with transcriptional coupling; 102 with GTEx support; 19 with a claimable colocalization. Axis adjusted log-odds -0.231 per SD (SE 0.030, q 1.7e-14). Prioritized PGC3_008/077/065/105/140. `rs13331198` is not a published locus. |
-| scz-AA-hippocampus-20261015 | AA | hippocampus | vmrset-AA-hippocampus-2d907b892215 | 2026-10-15 | amendment-20261015 (gate pass; PI review pending) | PASS_SCZ_APPLICATION_QC | Opened at ba83e68f0 (code snapshot), sealed at 7ec1bca97; the two commits between them touch stage 17 and config comments only, and stages read the config snapshot taken at open. git_dirty false, smoke_run FALSE. **Locus set `pgc3_published_gws`** (PI amendment 2026-10-15): PGC3's 287 published genome-wide significant loci, 282 autosomal, all 282 lifted (3 interval ends walked inward 30-50 kb), 337 index SNPs, every one inside its interval. Upstreams identical to the `-20261008` runs, so the locus set is the only change. 71,384 output files, failures "". 1,412 VMRs linked to 262 of 282 loci; 148,456 pairs tested, 5,514 significant; **34** loci with CpG-meQTL support; 44 with transcriptional coupling; 104 with GTEx support; 20 with a claimable colocalization. Axis adjusted log-odds -0.222 per SD (SE 0.031, q 6.9e-13). Prioritized PGC3_276/112/105/024/166. |
+| scz-AA-caudate-20261015 | AA | caudate | vmrset-AA-caudate-937a41979978 | 2026-10-15 | Kynon J. Benjamin | PASS_SCZ_APPLICATION_QC | Opened at ba83e68f0 (code snapshot), sealed at 7ec1bca97; the two commits between them touch stage 17 and config comments only, and stages read the config snapshot taken at open. git_dirty false, smoke_run FALSE. **Locus set `pgc3_published_gws`** (PI amendment): PGC3's 287 published genome-wide significant loci, 282 autosomal, all 282 lifted (3 interval ends walked inward 30-50 kb), 337 index SNPs, every one inside its interval. Upstreams identical to the `-20261008` runs, so the locus set is the only change. 111,433 output files, failures "". 1,927 VMRs linked to 238 of 282 loci; 248,988 pairs tested, 17,352 significant; **55** loci with CpG-meQTL support; 68 with transcriptional coupling; 100 with GTEx support; 32 with a claimable colocalization. Axis `lower_in_scz_linked`, adjusted log-odds -0.270 per SD (SE 0.029, q 2.5e-20). Prioritized PGC3_008/056/267/125/166. Decision 1 CAUDATE_MAGNITUDE_CLAIM_NOT_SUPPORTED (criterion FAIL_SAMPLE_SIZE_ARTIFACT, as before). Caudate is batch-confounded. |
+| scz-AA-dlpfc-20261015 | AA | dlpfc | vmrset-AA-dlpfc-856067dfe289 | 2026-10-15 | Kynon J. Benjamin | PASS_SCZ_APPLICATION_QC | Opened at ba83e68f0 (code snapshot), sealed at 7ec1bca97; the two commits between them touch stage 17 and config comments only, and stages read the config snapshot taken at open. git_dirty false, smoke_run FALSE. **Locus set `pgc3_published_gws`** (PI amendment): PGC3's 287 published genome-wide significant loci, 282 autosomal, all 282 lifted (3 interval ends walked inward 30-50 kb), 337 index SNPs, every one inside its interval. Upstreams identical to the `-20261008` runs, so the locus set is the only change. 59,774 output files, failures "". 1,477 VMRs linked to 263 of 282 loci; 157,598 pairs tested, 4,540 significant; **27** loci with CpG-meQTL support; 52 with transcriptional coupling; 102 with GTEx support; 19 with a claimable colocalization. Axis adjusted log-odds -0.231 per SD (SE 0.030, q 1.7e-14). Prioritized PGC3_008/077/065/105/140. `rs13331198` is not a published locus. |
+| scz-AA-hippocampus-20261015 | AA | hippocampus | vmrset-AA-hippocampus-2d907b892215 | 2026-10-15 | Kynon J. Benjamin | PASS_SCZ_APPLICATION_QC | Opened at ba83e68f0 (code snapshot), sealed at 7ec1bca97; the two commits between them touch stage 17 and config comments only, and stages read the config snapshot taken at open. git_dirty false, smoke_run FALSE. **Locus set `pgc3_published_gws`** (PI amendment): PGC3's 287 published genome-wide significant loci, 282 autosomal, all 282 lifted (3 interval ends walked inward 30-50 kb), 337 index SNPs, every one inside its interval. Upstreams identical to the `-20261008` runs, so the locus set is the only change. 71,384 output files, failures "". 1,412 VMRs linked to 262 of 282 loci; 148,456 pairs tested, 5,514 significant; **34** loci with CpG-meQTL support; 44 with transcriptional coupling; 104 with GTEx support; 20 with a claimable colocalization. Axis adjusted log-odds -0.222 per SD (SE 0.031, q 6.9e-13). Prioritized PGC3_276/112/105/024/166. |
 
 ### Accepted non-gating check
 
@@ -699,12 +704,12 @@ feeds neither Module 09 decision, and nothing downstream gates on it.
 
 | run_id | cohort | region | upstream | sealed | accepted_on | accepted_by | notes |
 |---|---|---|---|---|---|---|---|
-| scz-all_individuals.EA-crossregion-20261015 | all_individuals.EA | crossregion | scz-AA-{caudate,dlpfc,hippocampus}-20261015; estcell-all_individuals.EA-{region}-20260910; vmrcat-all_individuals-{region}-20260816 | 2026-10-15T17:34 at c858d6140, git_dirty true (README and the stage 18 output table only; `code/_h` identical to `_h/` at that commit), 5/5 jobs | 2026-10-15 | amendment-20261015 (non-gating; PI review pending) | The same pi_locked config, repointed at the published-locus runs before any EA association was computed at the new loci. Pooled methylation equals the AA primary at every target CpG. Lead pairs: 13 of 15 testable (DLPFC PGC3_077 and hippocampus PGC3_024 absent from the pooled pfile); 12 keep the AA sign, 7 nominal, 5 Bonferroni (caudate PGC3_008 and PGC3_267, DLPFC PGC3_008 and PGC3_065, hippocampus PGC3_112). All pairs: 1,432 of 1,684 same sign. The top-ranked hippocampus locus PGC3_276 does not reproduce (p 0.35). Coloc (not a gate) on caudate PGC3_267 and DLPFC PGC3_105: PP4 0.010 / 0.0006, PP3 0.985 / 0.999. Concordance only; no EA vs AA magnitude or ancestry claim. |
+| scz-all_individuals.EA-crossregion-20261016 | all_individuals.EA | crossregion | scz-AA-{caudate,dlpfc,hippocampus}-20261015; estcell-all_individuals.EA-{region}-20260910; vmrcat-all_individuals-{region}-20260816 | 2026-10-16T22:53 at aea275a89, git_dirty false, 5/5 jobs | 2026-10-16 | Kynon J. Benjamin | The same pi_locked config, repointed at the published-locus runs before any EA association was computed at the new loci; genotype PCs from plink2's exact solver. Pooled methylation equals the AA primary at every target CpG. Lead pairs: 13 of 15 testable (DLPFC PGC3_077 and hippocampus PGC3_024 absent from the pooled pfile); 12 keep the AA sign, 7 nominal, 5 Bonferroni (caudate PGC3_008 and PGC3_267, DLPFC PGC3_008 and PGC3_065, hippocampus PGC3_112). All pairs: 1,432 of 1,684 same sign. The top-ranked hippocampus locus PGC3_276 does not reproduce (p 0.37). Coloc (not a gate) on caudate PGC3_267 and DLPFC PGC3_105: PP4 0.010 / 0.0006, PP3 0.985 / 0.999. Concordance only; no EA vs AA magnitude or ancestry claim. |
 | scz-all_individuals.EA-crossregion-20261008 | all_individuals.EA | crossregion | **On the exploratory LD clumps.** scz-AA-{caudate,dlpfc,hippocampus}-20261001 (superseded 2026-10-08 by -20261008, whose locus definitions and links are identical); estcell-all_individuals.EA-{region}-20260910; vmrcat-all_individuals-{region}-20260816 | 2026-10-08T00:54 at 4671edb22, git_dirty false, 5/5 jobs | 2026-10-08 | Kynon J. Benjamin | Config config/scz_ea_targeted.yml, pi_locked before any EA association was computed. EA donors 129 / 55 / 60. Pooled methylation equals the AA primary at every target CpG. Lead pairs: 14 of 15 testable (hippocampus 136 variant absent from the pooled pfile); 12 keep the AA sign, 6 nominal, 4 Bonferroni (caudate 276 and 432, DLPFC 544 rs13331198 p 2.6e-8, hippocampus 264). All pairs: 1,053 of 1,140 same sign. Two opposite-sign leads are the weakest AA loci (p about 1e-3). Coloc (not a gate) on caudate 432 and 276: PP4 0.003 / 0.010, PP3 0.78 / 0.99, with a weak European GWAS side. Concordance only; no EA vs AA magnitude or ancestry claim. |
 
 ### Accepted non-gating exploratory runs: PGC3 LD clumps
 
-Exploratory since 2026-10-15. These three runs were the accepted cells until the locus
+Exploratory under the locus-set amendment. These three runs were the accepted cells until the locus
 amendment. Their locus set, `pgc3_ld_clumps_p1e6`, is PGC3 Supplementary Table 1: one
 interval per p < 1e-6 LD clump, 612 autosomal, 311 of the 624 not genome-wide
 significant, overlapping, never merged into loci. They stay sealed and citable as an
@@ -714,11 +719,23 @@ their locus IDs (row numbers) do not correspond to the `PGC3_###` IDs.
 
 | run_id | cohort | region | vmr_set_id | accepted_on | accepted_by | decision | notes |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| scz-AA-caudate-20261008 | AA | caudate | vmrset-AA-caudate-937a41979978 | 2026-10-08 | closeout-20261008 (gate pass; PI review pending) | PASS_SCZ_APPLICATION_QC | Opened at 85144b874, sealed at ee3791e24 (the seal stamps HEAD; no Module 09 `_h/` code changed between them, and stages read the config snapshot taken at open), git_dirty false, smoke_run FALSE. Rerun of `-20261001` on the de-duplicating combine stage (`4882a443d`, A2): `locus-evidence.tsv` now has one row per locus (612 of 612), where 42 two-index-SNP loci were counted twice. Upstreams as before except `sldsc-AA-caudate-20261008` and rdg-AA-crossregion-20261008 (the accepted successors). Architecture-axis tests, integration tests and retention-criteria.tsv are identical to `-20261001` apart from the run ID, so neither decision moves. 106,076 output files, failures "". 2,654 VMRs linked to 522 of 612 loci; 363,164 pairs tested, 27,470 significant; **90** loci with CpG-meQTL support (was 94); 145 with transcriptional coupling; 174 with GTEx support. Axis `lower_in_scz_linked`, adjusted log-odds -0.226 per SD (SE 0.026, q 4.2e-18). Prioritized loci 276/432/73/198/163 (the same five). Decision 1 CAUDATE_MAGNITUDE_CLAIM_NOT_SUPPORTED. Caudate is batch-confounded. |
-| scz-AA-dlpfc-20261008 | AA | dlpfc | vmrset-AA-dlpfc-856067dfe289 | 2026-10-08 | closeout-20261008 (gate pass; PI review pending) | PASS_SCZ_APPLICATION_QC | Opened at 85144b874, sealed at ee3791e24 (the seal stamps HEAD; no Module 09 `_h/` code changed between them, and stages read the config snapshot taken at open), git_dirty false, smoke_run FALSE. Rerun of `-20261001` on the de-duplicating combine stage (`4882a443d`, A2): `locus-evidence.tsv` now has one row per locus (612 of 612), where 42 two-index-SNP loci were counted twice. Upstreams as before except `sldsc-AA-dlpfc-20261008` and rdg-AA-crossregion-20261008 (the accepted successors). Architecture-axis tests, integration tests and retention-criteria.tsv are identical to `-20261001` apart from the run ID, so neither decision moves. 81,578 output files, failures "". 2,063 VMRs linked; 225,527 pairs tested, 12,547 significant; **64** loci with CpG-meQTL support (unchanged); 100 with transcriptional coupling; 174 with GTEx support. Axis adjusted log-odds -0.161 per SD (SE 0.026, q 1.3e-09). Prioritized loci 544/490/283/493/136 (the same five; `rs13331198` is locus 544). |
-| scz-AA-hippocampus-20261008 | AA | hippocampus | vmrset-AA-hippocampus-2d907b892215 | 2026-10-08 | closeout-20261008 (gate pass; PI review pending) | PASS_SCZ_APPLICATION_QC | Opened at 85144b874, sealed at ee3791e24 (the seal stamps HEAD; no Module 09 `_h/` code changed between them, and stages read the config snapshot taken at open), git_dirty false, smoke_run FALSE. Rerun of `-20261001` on the de-duplicating combine stage (`4882a443d`, A2): `locus-evidence.tsv` now has one row per locus (612 of 612), where 42 two-index-SNP loci were counted twice. Upstreams as before except `sldsc-AA-hippocampus-20261008` and rdg-AA-crossregion-20261008 (the accepted successors). Architecture-axis tests, integration tests and retention-criteria.tsv are identical to `-20261001` apart from the run ID, so neither decision moves. 71,168 output files, failures "". 2,017 VMRs linked; 216,837 pairs tested, 10,056 significant; **63** loci with CpG-meQTL support (was 64); 78 with transcriptional coupling; 173 with GTEx support. Axis adjusted log-odds -0.160 per SD (SE 0.027, q 2.0e-09). Prioritized loci 264/118/441/198/136: five distinct loci, where `-20261001` listed locus 136 twice. |
+| scz-AA-caudate-20261008 | AA | caudate | vmrset-AA-caudate-937a41979978 | 2026-10-08 | Kynon J. Benjamin | PASS_SCZ_APPLICATION_QC | Opened at 85144b874, sealed at ee3791e24 (the seal stamps HEAD; no Module 09 `_h/` code changed between them, and stages read the config snapshot taken at open), git_dirty false, smoke_run FALSE. Rerun of `-20261001` on the de-duplicating combine stage (`4882a443d`, A2): `locus-evidence.tsv` now has one row per locus (612 of 612), where 42 two-index-SNP loci were counted twice. Upstreams as before except `sldsc-AA-caudate-20261008` and rdg-AA-crossregion-20261008 (the accepted successors). Architecture-axis tests, integration tests and retention-criteria.tsv are identical to `-20261001` apart from the run ID, so neither decision moves. 106,076 output files, failures "". 2,654 VMRs linked to 522 of 612 loci; 363,164 pairs tested, 27,470 significant; **90** loci with CpG-meQTL support (was 94); 145 with transcriptional coupling; 174 with GTEx support. Axis `lower_in_scz_linked`, adjusted log-odds -0.226 per SD (SE 0.026, q 4.2e-18). Prioritized loci 276/432/73/198/163 (the same five). Decision 1 CAUDATE_MAGNITUDE_CLAIM_NOT_SUPPORTED. Caudate is batch-confounded. |
+| scz-AA-dlpfc-20261008 | AA | dlpfc | vmrset-AA-dlpfc-856067dfe289 | 2026-10-08 | Kynon J. Benjamin | PASS_SCZ_APPLICATION_QC | Opened at 85144b874, sealed at ee3791e24 (the seal stamps HEAD; no Module 09 `_h/` code changed between them, and stages read the config snapshot taken at open), git_dirty false, smoke_run FALSE. Rerun of `-20261001` on the de-duplicating combine stage (`4882a443d`, A2): `locus-evidence.tsv` now has one row per locus (612 of 612), where 42 two-index-SNP loci were counted twice. Upstreams as before except `sldsc-AA-dlpfc-20261008` and rdg-AA-crossregion-20261008 (the accepted successors). Architecture-axis tests, integration tests and retention-criteria.tsv are identical to `-20261001` apart from the run ID, so neither decision moves. 81,578 output files, failures "". 2,063 VMRs linked; 225,527 pairs tested, 12,547 significant; **64** loci with CpG-meQTL support (unchanged); 100 with transcriptional coupling; 174 with GTEx support. Axis adjusted log-odds -0.161 per SD (SE 0.026, q 1.3e-09). Prioritized loci 544/490/283/493/136 (the same five; `rs13331198` is locus 544). |
+| scz-AA-hippocampus-20261008 | AA | hippocampus | vmrset-AA-hippocampus-2d907b892215 | 2026-10-08 | Kynon J. Benjamin | PASS_SCZ_APPLICATION_QC | Opened at 85144b874, sealed at ee3791e24 (the seal stamps HEAD; no Module 09 `_h/` code changed between them, and stages read the config snapshot taken at open), git_dirty false, smoke_run FALSE. Rerun of `-20261001` on the de-duplicating combine stage (`4882a443d`, A2): `locus-evidence.tsv` now has one row per locus (612 of 612), where 42 two-index-SNP loci were counted twice. Upstreams as before except `sldsc-AA-hippocampus-20261008` and rdg-AA-crossregion-20261008 (the accepted successors). Architecture-axis tests, integration tests and retention-criteria.tsv are identical to `-20261001` apart from the run ID, so neither decision moves. 71,168 output files, failures "". 2,017 VMRs linked; 216,837 pairs tested, 10,056 significant; **63** loci with CpG-meQTL support (was 64); 78 with transcriptional coupling; 173 with GTEx support. Axis adjusted log-odds -0.160 per SD (SE 0.027, q 2.0e-09). Prioritized loci 264/118/441/198/136: five distinct loci, where `-20261001` listed locus 136 twice. |
 
 ### Superseded
+
+`scz-all_individuals.EA-crossregion-20261015`, the first EA check on the
+published loci, superseded by `-20261016`. Two defects, neither of which
+moves a reading. Stage 20 ran `plink2 --pca approx` with no seed, so its
+genotype PCs, and the methPCs residualized on them, were not reproducible:
+the rerun on identical inputs with the exact solver keeps every lead pair,
+every reading, every count and both coloc results, and moves the EA lead p
+values slightly (caudate PGC3_008 3.0e-7 to 2.3e-7, hippocampus PGC3_276 0.35
+to 0.37). Its run also carried the old ancestry caveat ("European-ancestry
+summary statistics"), which mis-describes the published locus set, and it
+sealed with `git_dirty true` (this README and the stage 18 output table only).
+Quote no EA p value from it.
 
 `scz-AA-{caudate,dlpfc,hippocampus}-20261001` (accepted 2026-10-01, superseded
 2026-10-08). They predate the de-duplicating combine stage, so their
@@ -734,18 +751,23 @@ the section above this table described and which the rerun has now discharged.
 The locked analysis plan is not retroactive: the 2026-09-19 acceptance was sound when it was
 made.
 
-**What is safe to carry across, because it is byte-identical in all three
-regions:** the architecture-axis tests and descriptives, the PGC3 locus
+**From `-20260918` to `-20261001`, what is safe to carry across, because it is
+byte-identical in all three regions:** the architecture-axis tests and descriptives, the PGC3 locus
 definition and index SNPs, the locus-to-VMR links and the VMR linkage table.
 Decision 1's `retention-criteria.tsv` is byte-identical in caudate. So neither
 decision changed, and the two decisions were always the thing at risk.
 
-**What must not be quoted from the superseded runs:** every count that reads
+**What must not be quoted from those superseded runs:** every count that reads
 Module 05 or Module 07 -- pairs significant, loci with CpG-meQTL support, loci
 with transcriptional coupling, ancestry-matched loci evaluated for coloc,
 claimable colocalizations -- and the identity of the five prioritized loci. The
 superseded caudate run also carried `git_dirty true`, so its code state is not
 exactly recoverable from its commit; the accepted runs are clean.
+
+**From the clump runs to the published-locus runs, nothing locus-level carries
+across.** The loci, their IDs, the links, every count and the prioritized loci
+all changed with the locus set. The upstreams did not, and neither did the two
+decisions or any stage 17 uniform-rule row.
 
 One criterion was tested more weakly in the superseded runs than it is now.
 `config/schizophrenia.yml` renamed
@@ -773,8 +795,8 @@ persists: ranks 1-6 span 0.019 / 0.039 / 0.011.
 **Hero loci on the published set.** **`rs13331198` is not a published
 genome-wide significant locus.** Its discovery p is 5.9e-7, and no published
 interval contains it, so the DLPFC hero locus of the clump runs leaves the
-analysis. Its EA reproduction (p 2.6e-8, below) was a check of a sub-threshold
-locus. **`rs8048039`** is a published index SNP (PGC3_141, p 2.0e-10). It carries
+analysis. Its EA reproduction (p 2.6e-8, in the clump check above) was a check of a
+sub-threshold locus. **`rs8048039`** is a published index SNP (PGC3_141, p 2.0e-10). It carries
 meQTL support, GTEx support and a claimable colocalization (max PP4 0.966) in all
 three regions but ranks 32 / 24 / 26. It should not be presented as a hero
 locus.
