@@ -169,11 +169,14 @@ def main() -> None:
     log.append(("n_ea_donors", len(donors)))
 
     # 2. within-EA genotype PCs ----------------------------------------------
+    # Exact PCA, not `approx`. The randomized solver took no --seed, so two runs
+    # on identical inputs gave different caudate snpPC3-5 (and, through M0,
+    # different methPCs). With 55-129 donors the exact solver costs nothing.
     pgen_prefix = str(root / paths["genotype"]["all_individuals"]["pgen"])[: -len(".pgen")]
     n_pc = int(cfg["ancestry_pcs"])
     sh([PLINK2, "--pfile", pgen_prefix, "--keep", str(keep_f), "--no-parents", "--no-sex",
         "--no-pheno", "--extract", str(est / "covs" / "pca" / "prune.prune.in"),
-        "--pca", str(n_pc), "approx", "--threads", args.threads, "--out", str(work / "pca")])
+        "--pca", str(n_pc), "--threads", args.threads, "--out", str(work / "pca")])
     ev = pd.read_csv(work / "pca.eigenvec", sep=r"\s+")
     ev = ev.rename(columns={ev.columns[0]: "FID"}).set_index("FID")
     pcs = ev[[f"PC{i}" for i in range(1, n_pc + 1)]]
