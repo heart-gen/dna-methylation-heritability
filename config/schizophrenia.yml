@@ -84,10 +84,14 @@ locus_definition:
   # config/meqtl_parameters.yml:cis_window_bp, so a risk variant can only be
   # linked to a CpG that Module 05 actually tested it against.
   locus_flank_bp: 500000
-  # PGC3 case/control counts, needed by coloc for a case-control trait.
+  # Case/control counts of the summary-statistics file above, from its own
+  # header (##nCase / ##nControl). These were 53,386 / 77,258, PGC3's count of
+  # European probands in the core dataset, which is not the public European
+  # release. Nothing moved: coloc.abf, given beta and varbeta for a cc trait,
+  # uses a fixed prior SD of 0.2 and reads neither N nor s.
   gwas_type: cc
-  gwas_n_cases: 53386
-  gwas_n_controls: 77258
+  gwas_n_cases: 52017
+  gwas_n_controls: 75889
 
 testing:
   # Risk-variant-CpG tests keep their OWN FDR family. FDR families are never
