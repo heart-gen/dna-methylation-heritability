@@ -329,11 +329,13 @@ pair_loci[, pair := factor(pair, levels = levels(pairs_dt$pair))]
 pairs_dt[, lab := sprintf("ρ = %.2f\nn = %s", rho, label_comma()(n))]
 pC <- ggplot(pair_loci, aes(rank_x, rank_y)) +
     geom_bin2d(bins = 20) +
-    geom_abline(slope = 1, intercept = 0, colour = "white", linewidth = 0.3,
+    geom_abline(slope = 1, intercept = 0, colour = "grey35", linewidth = 0.35,
                 linetype = "22") +
     geom_text(data = pairs_dt, aes(x = 0.03, y = 0.97, label = lab),
               hjust = 0, vjust = 1, size = 2.4, colour = "grey20", lineheight = 0.95) +
-    facet_wrap(~ pair, nrow = 1) +
+    ## Two-line strip: the square facets are too narrow for "X vs Y" on one line.
+    facet_wrap(~ pair, nrow = 1,
+               labeller = as_labeller(function(x) sub(" vs ", " vs\n", x))) +
     scale_fill_gradientn(colours = SEQ_RAMP, name = "VMRs") +
     scale_x_continuous(breaks = c(0, 0.5, 1), expand = expansion(0)) +
     scale_y_continuous(breaks = c(0, 0.5, 1), expand = expansion(0)) +
