@@ -345,7 +345,8 @@ pC <- ggplot(pair_loci, aes(rank_x, rank_y)) +
     theme(legend.position = "right", legend.key.height = unit(0.5, "cm"),
           legend.key.width = unit(0.25, "cm"), panel.spacing.x = unit(6, "pt"))
 arm0 <- if (cohort == "AA") "" else paste0("_", cohort)
-legend_note(run_dir, paste0("figure2_local_genetic_control", arm0), "c", paste(
+legend_note(run_dir, if (cohort == "AA") "figure2_local_genetic_control" else
+                         paste0("figureS_local_genetic_control", arm0), "b", paste(
     "Shared loci (matched across regions by widest genomic overlap) placed by their",
     "within-region percentile rank in each region, as a 2-D density; dashed line,",
     "identity. Spearman rho with the number of matched loci is printed per pair."))
@@ -419,43 +420,48 @@ pDenom <- ggplot(excl_long, aes(region, n, fill = status)) +
 
 ## ------------------------------------------------------------------ assemble
 arm <- if (cohort == "AA") "" else paste0("_", cohort)
-STEM <- paste0("figure2_local_genetic_control", arm)
-## Without panel b the concordance panel spans the full width with three rows,
-## so its row is shortened rather than left mostly empty.
+## The AA figure is the manuscript's Figure 2; the all-donor arm is its
+## supplementary sensitivity companion (Figure S4c), so it is named figureS_.
+STEM <- if (cohort == "AA") "figure2_local_genetic_control" else
+    paste0("figureS_local_genetic_control", arm)
+## Three rows, each panel at full width: a, the concordance density (b) and the
+## genic context (c). The held-out prediction panel is the manuscript's Figure
+## 1b and ships as its own file below, so there is one Figure 2 PDF and no
+## four-panel variant to crop or relabel (2026-10-22; until then this figure
+## carried the prediction panel as b and a "_manuscript" copy re-lettered it).
 ## free(): without it patchwork aligns these panels' axes with panel a's long
-## estimator labels, which left about a fifth of the width empty. The middle
-## row is freed as a whole: patchwork 1.3.2 errors ("first argument must be a
-## vector") when two freed plots sit side by side in a nested row.
-## 2026-10-22: the density panel (fixed aspect, three facets) needs about 2.6x
-## the width of the prediction panel, and a full-height middle row without it.
-figure <- (if (HAS_LSP) (pA / free((pB | pC) + plot_layout(widths = c(1, 2.6))) / free(pCtx))
-           else (pA / free(pC) / free(pCtx))) +
+## estimator labels, which left about a fifth of the width empty.
+figure <- (pA / free(pC) / free(pCtx)) +
     plot_layout(heights = c(1.25, 1.0, 0.85)) +
     fig_tags() & TAG_THEME
-## Rendered tags: with panel b dropped, c and d move up one letter.
-TAG <- if (HAS_LSP) c(pA = "a", pB = "b", pC = "c", pCtx = "d") else
-    c(pA = "a", pC = "b", pCtx = "c")
-if (!HAS_LSP) legend_note(run_dir, STEM, "all", paste(
-    "End-to-end out-of-fold prediction (Module 03) was run in the Black American",
-    "arm and in the donor-group cells, not in the all-donors arm, so this arm's",
-    "figure has no prediction panel."))
+## Rendered tags, the same in both arms.
+TAG <- c(pA = "a", pC = "b", pCtx = "c")
 
-## Manuscript arrangement (2026-10-22). The manuscript's Figure 1b carries the
-## prediction panel, so its Figure 2 is a, c, d of this figure relabelled a, b,
-## c, with the concordance density at full width. Rendered here from the same
-## objects so the manuscript file is a sealed, source-data-backed render and
-## not a crop of this one; its source data is written under its own stem.
-MS_STEM <- paste0("figure2_local_genetic_control_manuscript", arm)
+## The held-out prediction panel: Figure 1b of the manuscript (its panel a is
+## the hand-drawn design schematic, which no run renders). Single panel, no
+## tag; the composite adds the letter. The region legend is its own, since in
+## the four-panel figure it borrowed panel a's.
+PRED_STEM <- paste0("figure1_held_out_prediction", arm)
 if (HAS_LSP) {
-    ms_figure <- (pA / free(pC) / free(pCtx)) +
-        plot_layout(heights = c(1.25, 1.0, 0.85)) +
-        fig_tags() & TAG_THEME
-    save_figure(ms_figure, MS_STEM, width = FIG_WIDTH_FULL, height = 7.6,
+    pred_figure <- pB +
+        scale_colour_manual(values = REGION_COLORS, name = NULL) +
+        guides(fill = "none") +
+        theme(legend.position = "top", legend.margin = margin(0, 0, -4, 0))
+    save_figure(pred_figure, PRED_STEM, width = FIG_WIDTH_SINGLE, height = 3.0,
                 fig_dir = fig_dir)
+    legend_note(run_dir, PRED_STEM, "a", paste(
+        "Median end-to-end out-of-fold R-squared of VMR methylation per decile of",
+        "the local SNP contribution rank, with interquartile bands; every",
+        "phenotype-informed step was learned in training donors only; negative",
+        "values are retained."))
+} else {
+    legend_note(run_dir, STEM, "all", paste(
+        "End-to-end out-of-fold prediction (Module 03) was run in the Black American",
+        "arm and in the donor-group cells, not in the all-donors arm, so this arm",
+        "has no held-out prediction figure."))
 }
 
-save_figure(figure, STEM, width = FIG_WIDTH_FULL, height = if (HAS_LSP) 8.2 else 7.6,
-            fig_dir = fig_dir)
+save_figure(figure, STEM, width = FIG_WIDTH_FULL, height = 7.6, fig_dir = fig_dir)
 
 ## ------------------------------- supplement: denominators and exclusions
 DENOM_STEM <- paste0("figureS_local_control_denominators", arm)
@@ -510,11 +516,14 @@ TBL_PRED <- sprintf(paste("02_local_genetic_variance results/combined/local-gene
                           "+ 03_local_snp_prediction results/combined/oof-prediction-%s-{region}-vmrs.tsv"),
                     cohort, cohort)
 sd(conc, paste0("panel_", TAG[["pA"]]), TBL, FILTER)
+## The prediction panel ships as its own figure (Figure 1b), so its source data
+## is named for that figure.
 if (HAS_LSP) {
-    sd(dec_sum, paste0("panel_", TAG[["pB"]]), TBL_PRED,
-       paste(FILTER, "; deciles of local_snp_contribution_score; outcome is",
-             "r2_pred_oof joined on vmr_id; negative values retained"),
-       runs = runs_used_pred)
+    write_source_data(dec_sum, paste0(PRED_STEM, "_panel_a"), runs_used_pred, TBL_PRED,
+                      SCRIPT,
+                      paste(FILTER, "; deciles of local_snp_contribution_score; outcome is",
+                            "r2_pred_oof joined on vmr_id; negative values retained"),
+                      data_dir)
 }
 sd(pairs_dt[, .(pair, rho, lo, hi, n)], paste0("panel_", TAG[["pC"]]), TBL,
    paste(FILTER, "; loci matched across regions by widest genomic overlap"))
@@ -524,20 +533,6 @@ sd(pair_loci, paste0("panel_", TAG[["pC"]], "_loci"), TBL,
 sd(ctx_sum, paste0("panel_", TAG[["pCtx"]]),
    paste(TBL, "+ 01_vmr_catalog qc/distance_to_nearest_gene.tsv"),
    paste(FILTER, "; joined on vmr_id; descriptive proportions, no enrichment test"))
-## The manuscript arrangement's source data, under its own stem and tags.
-if (HAS_LSP) {
-    sd_ms <- function(dt, nm, tbl, filt) {
-        write_source_data(dt, paste0(MS_STEM, "_", nm), runs_used, tbl, SCRIPT,
-                          filt, data_dir)
-    }
-    sd_ms(conc, "panel_a", TBL, paste(FILTER, "; as figure2 panel a"))
-    sd_ms(pairs_dt[, .(pair, rho, lo, hi, n)], "panel_b", TBL,
-          paste(FILTER, "; as figure2 panel c"))
-    sd_ms(pair_loci, "panel_b_loci", TBL, paste(FILTER, "; as figure2 panel c loci"))
-    sd_ms(ctx_sum, "panel_c",
-          paste(TBL, "+ 01_vmr_catalog qc/distance_to_nearest_gene.tsv"),
-          paste(FILTER, "; as figure2 panel d"))
-}
 sd_denom(excl_long, "panel_a", TBL, "all rows; eligibility as recorded upstream")
 sd_denom(reasons, "panel_a_reasons", TBL, "local_genetic_control_eligible == FALSE")
 sd_supp(elig[, .(n = .N, median = median(pve_cis_joint_unbounded),

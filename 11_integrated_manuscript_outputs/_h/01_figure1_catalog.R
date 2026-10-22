@@ -7,9 +7,11 @@
 ## Panels, in the order patchwork renders them -- the tag a figure SHOWS is
 ## the only panel name this script may use, including in source_data/.
 ##   a  donors and CpGs assayed per region
-##   b  VMRs per chromosome, three regions
+##   b  VMRs per Mb of chromosome, three regions (2026-10-22: was the raw
+##      count, which mostly showed chromosome length)
 ##   c  VMR width and CpGs per VMR
-##   d  WGBS coverage outside array-accessible CpGs   <- the 2.2 contribution
+##   d  WGBS coverage outside array-accessible CpGs, 450K and EPIC side by
+##      side   <- the 2.2 contribution (2026-10-22: was one figure per array)
 ##   e  genomic compartment the VMRs occupy (descriptive, not enrichment)
 ##   f  distance to the nearest gene
 ##
@@ -18,9 +20,14 @@
 ## figure rather than as a seventh panel here. Dropping it is also what brings
 ## the main figure under one journal page.
 ##
+## The AA figure is the manuscript's catalog supplement (Figure S3 since the
+## 2026-10-15 restructure; the manuscript's Figure 1 is the design schematic
+## plus the held-out prediction panel, which 02_figure2_local_control.R writes
+## as figure1_held_out_prediction), so it is named figureS_vmr_catalog; the
+## all-donor arm is figureS_vmr_catalog_all_individuals.
+##
 ## Usage:
 ##   Rscript 01_figure1_catalog.R --cohort AA --run-id fig-all-20260826
-##   Rscript 01_figure1_catalog.R --cohort AA --run-id ID --platform EPIC
 
 source(file.path(Sys.getenv("V2_REPO_ROOT", "."), "00_shared", "load.R"))
 source(file.path(V2_ROOT, "11_integrated_manuscript_outputs", "_h",
@@ -33,8 +40,10 @@ suppressPackageStartupMessages({
 
 opts <- parse_v2_args(require = c("cohort", "run_id"))
 cohort <- opts$cohort
-## 450K in the main figure; EPIC is the stricter supplemental comparator.
-platform <- if (is.null(opts$platform)) "450K" else toupper(opts$platform)
+## Both arrays in one panel: 450K is the comparator the text quotes, EPIC the
+## stricter one. One pass writes both; a second --platform pass used to write a
+## near-duplicate figure under a second figure-1 name.
+PLATFORMS <- c("450K", "EPIC")
 regions <- load_config("cohorts")$regions
 
 module_root <- file.path(V2_ROOT, "11_integrated_manuscript_outputs")
@@ -89,6 +98,23 @@ gdist    <- read_by_region(function(r) fread(file.path(qc_dir(r), "qc", "distanc
 
 for (d in list(vmr, cutoffs, tqc, coverage, turnover, gctx, gdist)) d[, region := as_region(region)]
 
+## Chromosome lengths (GENCODE v47 primary assembly, hg38) for the per-Mb
+## density in panel b. The resource lives on Quest (config/paths.yml
+## chrom_sizes); a local build reads the tracked mirror under inputs/, as
+## 04_table1_cohort.R does for the 1000 Genomes sample panel.
+chrom_file <- load_config("paths")$chrom_sizes
+if (!file.exists(chrom_file)) {
+    local_chrom <- file.path(V2_ROOT, "inputs", "reference_genome", "gencode-v47",
+                             basename(chrom_file))
+    if (!file.exists(local_chrom)) {
+        stop("Chromosome sizes not found at ", chrom_file, " nor at the local mirror ",
+             local_chrom)
+    }
+    message("chrom_sizes: reading local mirror ", local_chrom)
+    chrom_file <- local_chrom
+}
+chrom_len <- fread(chrom_file, header = FALSE, col.names = c("chr", "length_bp"))
+
 SCRIPT <- "11_integrated_manuscript_outputs/_h/01_figure1_catalog.R"
 runs_used <- c(vapply(regions, CATALOG_RUN, ""), vapply(regions, QC_RUN, ""))
 
@@ -121,22 +147,33 @@ pA <- ggplot(design_long, aes(region, value, fill = region)) +
     BASE_THEME + NO_TITLES +
     theme(axis.text.x = element_text(angle = 35, hjust = 1))
 
-## ------------------------------------------- B. VMRs per chromosome, overlaid
+## ------------------------------------- B. VMRs per Mb of chromosome, overlaid
+##
+## Normalized by chromosome length: the raw count tracked chromosome size
+## (chr1 highest, chr21 lowest) and hid the per-chromosome density, which is
+## what distinguishes, say, the gene-dense chr19 and chr17 from chr13.
 chr_levels <- paste0("chr", chrom_order(include_sex = FALSE))
+cutoffs[chrom_len, length_bp := i.length_bp, on = "chr"]
+if (anyNA(cutoffs[chr %in% chr_levels, length_bp])) {
+    stop("No chromosome length for: ",
+         paste(cutoffs[chr %in% chr_levels & is.na(length_bp), unique(chr)], collapse = ", "))
+}
+cutoffs[, vmrs_per_mb := n_vmrs / (length_bp / 1e6)]
 cutoffs[, chr := factor(chr, levels = chr_levels)]
 
-pB <- ggplot(cutoffs[!is.na(chr)], aes(chr, n_vmrs, colour = region, group = region)) +
+pB <- ggplot(cutoffs[!is.na(chr)], aes(chr, vmrs_per_mb, colour = region, group = region)) +
     geom_line(linewidth = 0.45, alpha = 0.85) +
     geom_point(size = 1.15) +
     scale_colour_manual(values = REGION_COLORS, name = NULL) +
     scale_x_discrete(labels = function(x) sub("^chr", "", x)) +
     scale_y_continuous(expand = expansion(mult = c(0.04, 0.10))) +
-    labs(x = "Chromosome", y = "VMRs called") +
+    labs(x = "Chromosome", y = "VMRs called per Mb") +
     BASE_THEME + NO_TITLES +
     ## ggplot2 3.5 split the inside-legend position out of `legend.position`;
     ## the bare c(x, y) form is soft-deprecated in 4.0 (this env runs 4.0.1).
+    ## Upper left: the per-Mb peaks at chr17 and chr19 fill the upper right.
     theme(legend.position = "inside",
-          legend.position.inside = c(0.86, 0.82),
+          legend.position.inside = c(0.12, 0.84),
           legend.background = element_blank(),
           legend.key.height = grid::unit(0.34, "cm"))
 
@@ -157,15 +194,17 @@ pC <- ggplot(shape, aes(value, colour = region)) +
 
 ## ------------------------------------- D. coverage outside array-accessible CpGs
 ##
-## The comparator platform is named on the axis, not only in the caption: the
-## fraction is meaningless without knowing which array it is relative to.
-cov_p <- coverage[array_platform == platform]
-if (nrow(cov_p) == 0) {
-    stop("No array coverage rows for platform ", platform,
+## Both arrays in the panel, named in the legend: the fraction is meaningless
+## without knowing which array it is relative to. Horizontal bars so that the
+## six per-bar percentages have room past the bar ends.
+cov_p <- coverage[array_platform %in% PLATFORMS]
+missing_platform <- setdiff(PLATFORMS, unique(cov_p$array_platform))
+if (length(missing_platform) > 0) {
+    stop("No array coverage rows for platform ", paste(missing_platform, collapse = ", "),
          ". Run 01_vmr_catalog/_h/04b_rerun_array_coverage.R first.")
 }
 
-cov_long <- melt(cov_p, id.vars = "region",
+cov_long <- melt(cov_p, id.vars = c("region", "array_platform"),
                  measure.vars = c("frac_vmr_cpgs_off_array",
                                   "frac_vmrs_invisible_to_array"),
                  variable.name = "metric", value.name = "frac")
@@ -173,19 +212,23 @@ cov_long[, metric := factor(
     metric,
     levels = c("frac_vmr_cpgs_off_array", "frac_vmrs_invisible_to_array"),
     labels = c("CpGs", "VMRs"))]
+cov_long[, array_platform := factor(array_platform, levels = PLATFORMS)]
 
-pD <- ggplot(cov_long, aes(region, frac, fill = region)) +
-    geom_col(width = 0.68) +
+pD <- ggplot(cov_long, aes(frac, factor(region, levels = rev(levels(region))),
+                           fill = array_platform)) +
+    geom_col(width = 0.72, position = position_dodge(width = 0.78)) +
     geom_text(aes(label = percent(frac, accuracy = 0.1)),
-              vjust = -0.35, size = 2.5, colour = "black") +
+              position = position_dodge(width = 0.78),
+              hjust = -0.12, size = 2.2, colour = "black") +
     facet_wrap(~ metric, nrow = 1) +
-    scale_fill_manual(values = REGION_COLORS, guide = "none") +
-    scale_y_continuous(labels = percent_format(accuracy = 1), limits = c(0, 1),
-                       expand = expansion(mult = c(0, 0.12))) +
-    labs(x = NULL,
-         y = paste0("Fraction outside\nIllumina ", platform, " coverage")) +
-    BASE_THEME + NO_TITLES +
-    theme(axis.text.x = element_text(angle = 35, hjust = 1))
+    scale_fill_manual(values = PLATFORM_COLORS, name = NULL) +
+    scale_x_continuous(labels = percent_format(accuracy = 1),
+                       breaks = c(0, 0.5, 1),
+                       expand = expansion(mult = c(0, 0.45))) +
+    labs(x = "Fraction outside Illumina array coverage", y = NULL) +
+    BASE_THEME + NO_TITLES + GRID_X +
+    theme(legend.position = "top", legend.margin = margin(0, 0, -4, 0),
+          panel.spacing.x = unit(12, "pt"))
 
 ## -------------------------------- supplement: catalog turnover (audit only)
 ##
@@ -264,23 +307,17 @@ figure <- (pA / pB / row3 / row4) +
     fig_tags(theme = theme(plot.margin = margin(2, 2, 2, 2))) &
     TAG_THEME
 
-suffix <- if (platform == "450K") "" else paste0("_", tolower(platform))
 arm <- if (cohort == "AA") "" else paste0("_", cohort)
-STEM <- paste0("figure1_vmr_catalog", arm, suffix)
+## Supplementary in both arms (see the header): the catalog is the manuscript's
+## Figure S3, not its Figure 1.
+STEM <- paste0("figureS_vmr_catalog", arm)
 save_figure(figure, STEM, width = FIG_WIDTH_FULL, height = 9.2, fig_dir = fig_dir)
 
-## The turnover audit, as its own supplementary figure.
-##
-## Written on the 450K pass only. Turnover compares v2 VMR calls against the
-## legacy ones and has nothing to do with which array is the comparator, so the
-## EPIC pass was writing a byte-identical second copy under a different name --
-## four turnover figures where there are two results.
+## The turnover audit, as its own supplementary figure. Single panel: no lone
+## "a" tag.
 TURN_STEM <- paste0("figureS_catalog_turnover", arm)
-if (platform == "450K") {
-    ## Single panel: no lone "a" tag.
-    save_figure(pTurn, TURN_STEM,
-                width = FIG_WIDTH_THREEQ, height = 3.2, fig_dir = fig_dir)
-}
+save_figure(pTurn, TURN_STEM,
+            width = FIG_WIDTH_THREEQ, height = 3.2, fig_dir = fig_dir)
 
 ## ---------------------------------------------------------- source data
 ##
@@ -301,13 +338,14 @@ sd <- function(dt, var, tbl, filt) {
 }
 sd(design_long, "pA", "qc/technical_qc.tsv + vmr/vmr_catalog.tsv",
    "is_primary_chrom == TRUE (autosomes; sex chromosomes excluded per V4)")
-sd(cutoffs[!is.na(chr), .(region, chr, n_vmrs, sd_cutoff, n_cpgs_tested)],
-   "pB", "vmr/sd_cutoffs.tsv", "autosomes only")
+sd(cutoffs[!is.na(chr), .(region, chr, n_vmrs, length_bp, vmrs_per_mb, sd_cutoff, n_cpgs_tested)],
+   "pB", "vmr/sd_cutoffs.tsv + GENCODE v47 chromosome_sizes.txt",
+   "autosomes only; vmrs_per_mb = n_vmrs / (length_bp / 1e6)")
 sd(shape[, .(n = .N, median = median(value), q25 = quantile(value, .25),
              q75 = quantile(value, .75)), by = .(region, metric)],
    "pC", "vmr/vmr_catalog.tsv", "all called VMRs; summary of plotted density")
 sd(cov_long, "pD", "qc/array_coverage.tsv",
-   paste0("array_platform == '", platform, "'"))
+   paste0("array_platform in {", paste(PLATFORMS, collapse = ", "), "}"))
 sd(gctx, "pF", "qc/genomic_context.tsv",
    "all called VMRs; compartments assigned by priority, so they partition the catalog")
 sd(gdist[, .(n = .N, frac_within_gene = mean(distance_to_nearest_gene == 0),
@@ -317,15 +355,13 @@ sd(gdist[, .(n = .N, frac_within_gene = mean(distance_to_nearest_gene == 0),
    "all called VMRs; density plotted for distance > 0 only (log axis)")
 
 ## The turnover audit ships as its own figure, so its source data is named for
-## that figure rather than for Figure 1.
-if (platform == "450K") {
-    write_source_data(turn_long, paste0(TURN_STEM, "_panel_a"), runs_used,
-                      "qc/vmr_turnover.tsv", SCRIPT,
-                      "autosomes; legacy is a comparison baseline only",
-                      data_dir)
-}
+## that figure rather than for the catalog figure.
+write_source_data(turn_long, paste0(TURN_STEM, "_panel_a"), runs_used,
+                  "qc/vmr_turnover.tsv", SCRIPT,
+                  "autosomes; legacy is a comparison baseline only",
+                  data_dir)
 
-message("[done] Figure 1 written to ", fig_dir)
+message("[done] catalog figure written to ", fig_dir)
 
 #### Reproducibility information ####
 print("Reproducibility information:")

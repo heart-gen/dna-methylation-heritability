@@ -45,17 +45,13 @@ log_message "**** Building manuscript figures into ${RUN_ID} ****"
 
 # ---------------------------------------------------------------- both arms
 # AA is the primary arm; all_individuals renders from the same builders as the
-# sensitivity supplement. Figure 1 gets a second pass with EPIC as the stricter
-# array comparator.
+# sensitivity supplement. The catalog figure carries both arrays (450K and
+# EPIC) in one panel since 2026-10-22, so there is no second platform pass.
 for COHORT in AA all_individuals; do
-    log_message "Figure 1 (450K) + catalog-turnover supplement -- ${COHORT}"
+    log_message "Catalog figure (both arrays) + catalog-turnover supplement -- ${COHORT}"
     run_r "$HERE/01_figure1_catalog.R" --cohort "$COHORT" --run-id "$RUN_ID"
 
-    log_message "Figure 1 (EPIC supplement) -- ${COHORT}"
-    run_r "$HERE/01_figure1_catalog.R" --cohort "$COHORT" --run-id "$RUN_ID" \
-        --platform EPIC
-
-    log_message "Figure 2 + audit and denominator supplements -- ${COHORT}"
+    log_message "Figure 2, Figure 1b prediction panel, audit and denominator supplements -- ${COHORT}"
     run_r "$HERE/02_figure2_local_control.R" --cohort "$COHORT" --run-id "$RUN_ID"
 done
 
