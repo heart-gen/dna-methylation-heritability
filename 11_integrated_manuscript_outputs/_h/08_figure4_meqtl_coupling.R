@@ -158,14 +158,19 @@ bm[, note := paste0("n = ", label_comma()(n_vmrs),
 ## the model adds one number per region and its interval, which fit in the
 ## empty upper-left of the curve panel. The caudate interval is HC3 and is
 ## marked (dagger) so it is never read as donor-robust.
-bm[, slope_lab := sprintf("%s: %.2f [%.2f, %.2f] per SD%s, \u03bb = %.3f",
+bm[, slope_lab := sprintf("%s: %.2f [%.2f, %.2f] per SD%s",
                           as.character(region), estimate, lo, hi,
-                          fifelse(interval == "donor-robust", "", "\u2020"),
-                          genomic_inflation_lambda)]
+                          fifelse(interval == "donor-robust", "", "\u2020"))]
+## Lambda sits in the empty lower-right corner (the curves saturate at the top
+## by decile 8), so the slope lines stay short of the rising curves.
+bm[, lam_lab := sprintf("\u03bb = %.3f", genomic_inflation_lambda)]
 bm[, ypos := 1.0 - 0.075 * (as.integer(region) - 1)]
+bm[, ypos_lam := 0.50 - 0.075 * (as.integer(region) - 1)]
 pA <- pA +
-    geom_text(data = bm, aes(x = 0.8, y = ypos, label = slope_lab, colour = region),
+    geom_text(data = bm, aes(x = 0.6, y = ypos, label = slope_lab, colour = region),
               hjust = 0, vjust = 1, size = 2.1, show.legend = FALSE) +
+    geom_text(data = bm, aes(x = 10.4, y = ypos_lam, label = lam_lab, colour = region),
+              hjust = 1, vjust = 1, size = 2.1, show.legend = FALSE) +
     labs(caption = "\u2020 VMR-level HC3 interval (no donor-robust SE)") +
     KEY_THEME
 legend_note(run_dir, paste0("figure4_meqtl_burden_coupling",
@@ -228,18 +233,20 @@ pC <- ggplot(cp, aes(estimate, pred, colour = region)) +
 den <- unique(cp[, .(region, mod, n, n_coupled)])
 den[, frac := n_coupled / n]
 
-pD <- ggplot(den, aes(region, n_coupled, fill = region)) +
+## Horizontal bars, modalities stacked: the "n (x% of N)" labels are wider than
+## a vertical bar slot and were clipped at the facet edges.
+pD <- ggplot(den, aes(n_coupled, factor(region, levels = rev(levels(region))), fill = region)) +
     geom_col(width = 0.68) +
-    geom_text(aes(label = paste0(label_comma()(n_coupled), "\n",
+    geom_text(aes(label = paste0(label_comma()(n_coupled), " (",
                                  percent(frac, accuracy = 0.1), " of ",
-                                 label_comma()(n))),
-              vjust = -0.25, size = 2.2, colour = "black", lineheight = 0.95) +
-    facet_wrap(~ mod, nrow = 1) +
+                                 label_comma()(n), ")")),
+              hjust = -0.12, size = 2.2, colour = "black") +
+    facet_wrap(~ mod, ncol = 1, scales = "free_x") +
     scale_fill_manual(values = REGION_COLORS, guide = "none") +
-    scale_y_continuous(expand = expansion(mult = c(0, 0.28))) +
-    labs(x = NULL, y = "Coupled VMRs") +
-    BASE_THEME + NO_TITLES +
-    theme(axis.text.x = element_text(angle = 35, hjust = 1))
+    scale_x_continuous(expand = expansion(mult = c(0, 0.75)),
+                       labels = label_comma()) +
+    labs(x = "Coupled VMRs", y = NULL) +
+    BASE_THEME + NO_TITLES + GRID_X
 
 ## ------------------------------------------------------------------ assemble
 arm <- if (cohort == "AA") "" else paste0("_", cohort)
