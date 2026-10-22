@@ -426,9 +426,11 @@ STEM <- paste0("figure2_local_genetic_control", arm)
 ## estimator labels, which left about a fifth of the width empty. The middle
 ## row is freed as a whole: patchwork 1.3.2 errors ("first argument must be a
 ## vector") when two freed plots sit side by side in a nested row.
-figure <- (if (HAS_LSP) (pA / free(pB | pC) / free(pCtx))
+## 2026-10-22: the density panel (fixed aspect, three facets) needs about 2.6x
+## the width of the prediction panel, and a full-height middle row without it.
+figure <- (if (HAS_LSP) (pA / free((pB | pC) + plot_layout(widths = c(1, 2.6))) / free(pCtx))
            else (pA / free(pC) / free(pCtx))) +
-    plot_layout(heights = if (HAS_LSP) c(1.25, 1.0, 0.85) else c(1.25, 0.5, 0.85)) +
+    plot_layout(heights = c(1.25, 1.0, 0.85)) +
     fig_tags() & TAG_THEME
 ## Rendered tags: with panel b dropped, c and d move up one letter.
 TAG <- if (HAS_LSP) c(pA = "a", pB = "b", pC = "c", pCtx = "d") else
@@ -452,7 +454,7 @@ if (HAS_LSP) {
                 fig_dir = fig_dir)
 }
 
-save_figure(figure, STEM, width = FIG_WIDTH_FULL, height = if (HAS_LSP) 8.2 else 7.2,
+save_figure(figure, STEM, width = FIG_WIDTH_FULL, height = if (HAS_LSP) 8.2 else 7.6,
             fig_dir = fig_dir)
 
 ## ------------------------------- supplement: denominators and exclusions

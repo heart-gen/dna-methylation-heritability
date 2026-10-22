@@ -941,7 +941,7 @@ pAbcB <- ggplot(abc_gene, aes(mean_z, cell_tick, fill = cellf)) +
     geom_boxplot(width = 0.12, outlier.shape = NA, fill = "white", linewidth = 0.3,
                  orientation = "y") +
     scale_fill_manual(values = c(REGION_COLORS, Pooled = PAL_CHARCOAL), guide = "none") +
-    labs(y = NULL, x = "Gene score: mean z of linked VMRs") +
+    labs(y = NULL, x = "Gene score\n(mean z of linked VMRs)") +
     BASE_THEME + NO_TITLES + GRID_X +
     theme(axis.text.y = element_text(size = 7.5, lineheight = 0.9))
 legend_note(run_dir, S5, "b", paste(
