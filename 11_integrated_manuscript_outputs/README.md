@@ -2,11 +2,16 @@
 
 Consumes only accepted immutable upstream runs and produces every manuscript number, table, and figure.
 
-**Status: accepted as `fig-all-20261016-a`**, the rebuild on Module 09's
-published-locus runs (see the Accepted runs row). It replaces
-`fig-all-20261009-b`, whose Module 09 panels read the exploratory LD-clump runs.
-The paragraph below describes `fig-all-20261008`, which `fig-all-20261009-b`
-replaced.
+**Status: accepted as `fig-all-20261022-a`**, the first run built locally
+(R 4.6.1, no SLURM) after the 2026-10-22 re-plots and the Module 07 ABC
+target-gene enrichment (see the Accepted runs row). It replaces
+`fig-all-20261016-a`, whose figure set predates Figure 6, the manuscript
+arrangement of Figure 2 and Figure S12.
+
+**Previously (2026-10-16): accepted as `fig-all-20261016-a`**, the rebuild on
+Module 09's published-locus runs. It replaced `fig-all-20261009-b`, whose
+Module 09 panels read the exploratory LD-clump runs. The paragraph below
+describes `fig-all-20261008`, which `fig-all-20261009-b` replaced.
 
 **Previously (2026-10-08): accepted as `fig-all-20261008`.** The run cites 51
 upstream runs: every module 01-10 at its current accepted run, including 02b
@@ -93,6 +98,7 @@ three are properties of Module 11 rather than oversights:
 | run_id | cohort | region | vmr_set_id | accepted_on | accepted_by | decision | notes |
 |---|---|---|---|---|---|---|---|
 | fig-all-20261016-a | all | crossregion | see `tables/exclusions-and-denominators.tsv` (6 cells: arm × region) | 2026-10-16 | Kynon J. Benjamin | ACCEPTED_MANUSCRIPT_OUTPUTS | Built at `bffc7e9c9` with `git_dirty = false` and a `code/` snapshot (39 files); 25 figures, 83 source tables. Replaces fig-all-20261009-b: Module 09 reads the published-locus runs `scz-AA-*-20261015` and the EA check `scz-all_individuals.EA-crossregion-20261016`. Against fig-all-20261009-b only the Module 09 products moved: the schizophrenia supplement (panel a -0.270/-0.231/-0.222; panel b 55/27/34, 68/52/44, 100/102/104, 32/19/20, out of 282 loci of which 238/263/262 link to a VMR; panel c the published-locus prioritized loci), Figure 5's run ID column and its context note (broad genomic context moves the schizophrenia estimate 2.8-4.1%, was 1.2-3.1%), and the run-level tables (claim matrix, number registry, manifests, summaries). Every other source table is byte-identical. Every PNG viewed, both arms. `fig-all-20261016` (built while an uncommitted supplementary-data manifest edit sat in the tree, so sealed `git_dirty = true`; identical code and inputs) was never accepted. |
+| fig-all-20261022-a | all | crossregion | see `tables/exclusions-and-denominators.tsv` (6 cells: arm × region) | 2026-10-22 | Kynon J. Benjamin | ACCEPTED_MANUSCRIPT_OUTPUTS | Built locally on `quickball` (R 4.6.1, `~/R/library`, no SLURM; the 1000 Genomes panel read from the tracked mirror `inputs/reference_1kgp/`) at `ad86efb4d` with `git_dirty = false` and a `code/` snapshot (40 files); 27 figures, 94 source tables. Replaces fig-all-20261016-a after the 2026-10-22 re-plots: Figure 2 panel c is a 2-D rank density with a full-width manuscript variant (`figure2_local_genetic_control_manuscript`), Figure 3 panel c and Figure 6 panel e are tile matrices, Figure 4 is three panels (slope printed on a, horizontal count bars on b, coupling tests on c), `figure5_gwas_architecture_axis` is retired in favour of `figure6_gwas_nongenetic_axis` (age gradient, exposure gradients, 63-trait axis, schizophrenia vs distribution, chromatin link), `figureS_schizophrenia_application` gains panel d (psychiatric vs other traits), and `figureS_abc_target_enrichment` is new (Module 07 stage 09, exploratory). Against fig-all-20261016-a only the source tables of those figures are new or changed; Table 1, the cross-region QC screen and every other source table are byte-identical. Every PNG viewed, both arms. `fig-all-20261022` (identical inputs and source tables; built at `1c91e8dae`) was never accepted: its four-panel Figure 2 variants squeezed the density panel into a narrow slot and Figure S12 clipped its axis title, fixed in `ad86efb4d`. |
 
 ## Implemented figures
 
