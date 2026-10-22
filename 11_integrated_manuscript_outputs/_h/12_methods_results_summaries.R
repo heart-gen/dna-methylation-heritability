@@ -273,27 +273,27 @@ add("")
 add("## 6. GWAS loci and the local genetic-control axis")
 add("")
 add("Module 09 decision: `", decision_of("09_schizophrenia_gwas_loci"), "`.")
-f5b <- src("figure5_gwas_architecture_axis", "panel_b")
-f5c <- src("figure5_gwas_architecture_axis", "panel_c")
+f5b <- src("figure6_gwas_nongenetic_axis", "panel_d")
+f5c <- src("figureS_schizophrenia_application", "panel_d")
 add("- VMRs near trait-associated GWAS loci sit lower on the axis, and ",
     "schizophrenia is a typical example: its percentile among ",
     unique(f5b$n_traits_in_distribution), " traits is ",
     per_region(f5b, function(r) pct(r$scz_percentile_in_distribution, 0)),
-    " ", key("figure5_gwas_architecture_axis", "b"),
+    " ", key("figure6_gwas_nongenetic_axis", "d"),
     "; psychiatric vs other traits, Wilcoxon p ",
     per_region(f5c, function(r) pv(r$psychiatric_vs_other_wilcoxon_p)),
-    " ", key("figure5_gwas_architecture_axis", "c"), ".")
+    " ", key("figureS_schizophrenia_application", "d"), ".")
 add("- GWAS loci were defined from European-ancestry or European-dominated ",
     "summary statistics; the limitation attaches to the locus definition, ",
     "not to the axis, which is a within-cohort rank.")
-f5d <- src("figure5_gwas_architecture_axis", "panel_d")
+f5d <- src("figure6_gwas_nongenetic_axis", "panel_e")
 add("- What a trait's depletion tracks (technical adjustment, axis-link ",
     "Spearman, all-VMR arm): ",
     paste(vapply(split(f5d[arm == "all_vmrs"], f5d[arm == "all_vmrs"]$annotation),
                  function(d) paste0(d$annotation[1], " ",
                                     per_region(d, function(r) num(r$spearman_rho))),
                  character(1)), collapse = "; "),
-    " ", key("figure5_gwas_architecture_axis", "d"), ".")
+    " ", key("figure6_gwas_nongenetic_axis", "e"), ".")
 l1 <- f5d[arm == "all_vmrs" & grepl("line_l1", annotation)]
 l1_hm <- f5d[arm == "high_mappability" & grepl("line_l1", annotation)]
 add("- LINE/L1 licenses no repeat statement here: its axis-link correlation is ",
@@ -302,7 +302,7 @@ add("- LINE/L1 licenses no repeat statement here: its axis-link correlation is "
     if (nrow(l1_hm)) paste0(" and under the high-mappability restriction reads ",
                             per_region(l1_hm, function(r) num(r$spearman_rho)),
                             " (q ", paste(pv(l1_hm$q), collapse = "/"), ")") else "",
-    " ", key("figure5_gwas_architecture_axis", "d"), ".")
+    " ", key("figure6_gwas_nongenetic_axis", "e"), ".")
 
 ## ------------------------------------------------------------- 7. aging
 ## PI decision T27 (2026-10-01): the aging result is REPORTED in the main text;

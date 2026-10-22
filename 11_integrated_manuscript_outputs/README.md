@@ -108,7 +108,7 @@ reacceptance, which is how Figure 2 once shipped on a retired run.
 | `figure2_local_genetic_control[_all_individuals]` | **a** estimator concordance vs locus geometry **b** held-out local SNP prediction (end-to-end OOF R²) across rank deciles **c** cross-region rank concordance **d** genic context across the rank | 02, 03 |
 | `figure3_repeat_repressive_architecture` | **a** the BH family (quiescent, H3K9me3, LINE/L1) **b** complementary contrasts incl. the BrainScope ATAC union, and the H3K27me3 specificity control **c** the locked analysis sets incl. MuSiC (all regions) and scMD (where fitted) **d** the continuous gradient | 04 |
 | `figure4_meqtl_burden_coupling` | **a** meQTL-positive CpG fraction across the rank **b** burden model with distal-null λ **c** coupling tests in Module 07's FDR family **d** coupled-VMR denominators | 05, 07 |
-| `figure5_gwas_architecture_axis` | **a** every trait's axis estimate by GWAS category **b** schizophrenia against its own null distribution **c** psychiatric vs other traits **d** what a trait's depletion tracks | 09 (+ stages 17/18) |
+| `figure6_gwas_nongenetic_axis` | the low end of the axis: **a** age gradient per region (shared with `figureS_aging_axis` a) **b** exposure gradients, every eligible family (shared with `figureS_environmental_axis`) **c** every trait's axis estimate by GWAS category **d** schizophrenia against its own null distribution **e** what a trait's depletion tracks (axis-link Spearman, both mappability arms). Was `figure5_gwas_architecture_axis` until 2026-10-22 | 09b, 10, 09 |
 | `figure_region_donor_generalization` + `_sensitivity` | Module 08 tiers; tier 2 claims only `difference_claimed_primary_claim_family`; the supplement shows every Module 04 analysis set, with the cell arm split into MuSiC (all regions) and scMD (caudate only) | 08 |
 | `figureS_catalog_turnover[...]` | legacy-catalog turnover, **audit only** | 01 |
 | `figureS_local_control_denominators[...]` | denominators and exclusion reasons | 02 |
@@ -118,7 +118,7 @@ reacceptance, which is how Figure 2 once shipped on a retired run.
 | `figureS_partitioned_heritability` | S-LDSC τ z of the score conditional on VMR membership (two-annotation model). **A null** | 06 |
 | `figureS_aging_axis` | **a** primary age gradient, signed-test-only where the magnitude gate withholds a proportion **b** gating sensitivities, verdict derived from the run | 09b |
 | `figureS_environmental_axis` | stage B gradients; magnitude gate and the undetermined DLPFC FDR call rendered on the panel | 10 |
-| `figureS_schizophrenia_application` | **a** the axis depletion **b** locus evidence tiers **c** prioritized loci | 09 |
+| `figureS_schizophrenia_application` | **a** the axis depletion **b** locus evidence tiers **c** prioritized loci **d** psychiatric vs other traits (displaced from the main figure 2026-10-22) | 09 |
 | `table1_cohort` (`.tsv`, `.tex`) | donor demographics, both arms x three regions | 01 |
 | `figureS_ancestry_pcs`, `figureS_sample_integrity` | genotype PCs over 1000 Genomes; cross-region swap screen | 01 |
 | `manuscript-number-registry.tsv` | every citable number -> panel, run, table, column, filter. **This is Supplementary Data 14** | all of the above |

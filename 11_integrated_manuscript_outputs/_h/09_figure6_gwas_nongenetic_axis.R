@@ -1,4 +1,14 @@
-#### 11 / Figure 5: GWAS loci and the local genetic-control axis ####
+#### 11 / Figure 6: the low end of the axis -- age, exposures, GWAS loci ####
+##
+## Figure 6 reads the LOW end of the local genetic-control axis. Three
+## analyses that are run separately agree on where their signal sits: VMRs
+## with weaker local genetic control carry larger age-associated methylation
+## differences (Module 09b), larger exposure-explained variance (Module 10,
+## exploratory), and more of the VMRs near complex-trait GWAS loci (Module 09
+## stages 17/18). Until 2026-10-22 this was Figure 5, GWAS only, and the age
+## and exposure gradients had no main-text panel while their Results sections
+## did; the two gradients now open the figure and the psychiatric-vs-other
+## contrast moved to figureS_schizophrenia_application d.
 ##
 ## The axis depletion is TRAIT-GENERAL. Module 09 stage 17 ran the identical
 ## locus -> VMR -> axis contrast over the harmonized GWAS collection under one
@@ -9,7 +19,7 @@
 ## are not restated here, because a header that quoted them mixed the two
 ## models' ranges (16th vs 17th percentile) and drifted from AGENTS.md 7.8.
 ##
-## So the main figure is the DISTRIBUTION, not schizophrenia. AGENTS.md 7.8
+## So the GWAS panels show the DISTRIBUTION, not schizophrenia. AGENTS.md 7.8
 ## rule 1 and 11 both require the depletion be written as a property of
 ## trait-associated loci with schizophrenia as a typical example, and a figure
 ## that gave SCZ its own panels would contradict the text it illustrates. The
@@ -17,22 +27,32 @@
 ## colocalization -- is figureS_schizophrenia_application.
 ##
 ## Module 09's decision 2 is scz_application_retention = RETAIN_MAIN_TEXT, and
-## that is honoured: schizophrenia appears in panels a, b and c as a marked
+## that is honoured: schizophrenia appears in panels c and d as a marked
 ## example among the other traits, never as a privileged encoding.
 ##
 ## Panels, in rendered order
-##   a  every trait's axis estimate, grouped by GWAS category, three regions,
+##   a  the age gradient per region (shared with figureS_aging_axis a, whose
+##      panel b keeps the gating sensitivities)
+##   b  the exposure gradients, every eligible family (shared with
+##      figureS_environmental_axis)
+##   c  every trait's axis estimate, grouped by GWAS category, three regions,
 ##      with schizophrenia marked in place
-##   b  schizophrenia against the null distribution it belongs to
-##   c  psychiatric vs other traits -- indistinguishable as a category
-##   d  the mechanism: what a trait's depletion actually tracks
+##   d  schizophrenia against the null distribution it belongs to
+##   e  the mechanism: what a trait's depletion actually tracks
 ##
 ## WHAT THIS FIGURE MAY NOT SAY
+##  - the age panel is cross-sectional: age-associated differences, never
+##    change with age; where the magnitude gate withholds a proportional
+##    reading the panel says "signed test only" (AGENTS.md 7.11);
+##  - the exposure panel is exploratory and signed-only: no family passes the
+##    relative-magnitude gate, so no percentage may be attached, and whether
+##    low-control VMRs respond more to non-genetic influence cannot be told
+##    apart from their larger residual variance;
 ##  - never "schizophrenia-specific" (AGENTS.md 7.8 rule 1);
 ##  - never a repeat result. NO trait reaches q < 0.05 for LINE/L1 enrichment
 ##    in any region or arm; the LINE/L1 axis-link correlation is inconsistent
 ##    in sign across regions and collapses under the high-mappability
-##    restriction, so panel d shows BOTH arms rather than the headline one;
+##    restriction, so panel e shows BOTH arms rather than the headline one;
 ##  - the GWAS collection is European or European-dominated while the cohort is
 ##    admixed African American. The limitation attaches to the LOCUS
 ##    DEFINITION, not to the axis, which is a within-cohort rank;
@@ -42,13 +62,15 @@
 ##  - caudate is batch-confounded (AGENTS.md 8.1).
 ##
 ## Usage:
-##   Rscript 09_figure5_gwas_architecture.R --cohort AA --run-id fig-all-YYYYMMDD
-##   Rscript 09_figure5_gwas_architecture.R --cohort AA --run-id smoke \
+##   Rscript 09_figure6_gwas_nongenetic_axis.R --cohort AA --run-id fig-all-YYYYMMDD
+##   Rscript 09_figure6_gwas_nongenetic_axis.R --cohort AA --run-id smoke \
 ##       --out-dir /path/to/draft
 
 source(file.path(Sys.getenv("V2_REPO_ROOT", "."), "00_shared", "load.R"))
 source(file.path(V2_ROOT, "11_integrated_manuscript_outputs", "_h",
                  "00_figure_theme.R"))
+source(file.path(V2_ROOT, "11_integrated_manuscript_outputs", "_h",
+                 "00_nongenetic_panels.R"))
 
 suppressPackageStartupMessages({
     library(patchwork)
@@ -65,7 +87,7 @@ run_dir  <- if (!is.null(opts$out_dir)) opts$out_dir else
 fig_dir  <- file.path(run_dir, "figures")
 data_dir <- file.path(run_dir, "source_data")
 
-SCRIPT <- "11_integrated_manuscript_outputs/_h/09_figure5_gwas_architecture.R"
+SCRIPT <- "11_integrated_manuscript_outputs/_h/09_figure6_gwas_nongenetic_axis.R"
 
 ## ------------------------------------------------------------- upstream
 ##
@@ -92,6 +114,12 @@ bycat   <- need(sprintf("scz-negative-control-by-category-%s.tsv", cohort))
 axlink  <- need(sprintf("scz-locus-architecture-axis-link-%s.tsv", cohort))
 arch    <- need(sprintf("scz-locus-architecture-%s.tsv", cohort))
 
+## The age and exposure panels resolve their own upstreams and carry their own
+## guards (00_nongenetic_panels.R). A main figure cannot be assembled without
+## them, so the exposure loader is not asked to skip.
+age <- load_aging(cohort, regions)
+env <- load_environmental(cohort, regions, run_dir, skip_if_unaccepted = FALSE)
+
 ## -------------------------------------------------------------- guards
 ##
 ## An -UNACCEPTED file may never reach a figure (AGENTS.md 6), and the files
@@ -112,7 +140,7 @@ for (nm in c("traits", "summ", "axlink", "arch")) {
 ## framing); the quoted ranges are the PRIMARY model's, as AGENTS.md 7.8 quotes.
 PCT <- summ[, range(scz_percentile_in_distribution, na.rm = TRUE)]
 WIL <- summ[, min(psychiatric_vs_other_wilcoxon_p, na.rm = TRUE)]
-PRIMARY_MODEL_ID <- "A_technical"
+PRIMARY_MODEL_ID <- STAGE17_PRIMARY_MODEL
 sp <- summ[model == PRIMARY_MODEL_ID]
 if (nrow(sp) != length(regions)) stop("stage 17 summary lacks the primary model in every region")
 fmt_range <- function(x, f) paste(f(min(x)), f(max(x)), sep = "-")
@@ -122,7 +150,7 @@ CTX_TXT <- fmt_range(100 * abs(sp$scz_context_attenuation), function(v) sprintf(
 N_TRAITS <- unique(sp$n_traits_in_distribution)
 if (WIL < 0.05) {
     stop("Psychiatric traits now separate from the rest (min Wilcoxon p = ",
-         signif(WIL, 3), "). Figure 5 is built on their being ",
+         signif(WIL, 3), "). Figure 6 is built on their being ",
          "indistinguishable; re-read stage 17 before rebuilding.")
 }
 if (PCT[1] < 0.02) {
@@ -134,13 +162,13 @@ if (PCT[1] < 0.02) {
 ## NO trait may reach q < 0.05 for LINE/L1 ENRICHMENT, in any region or arm.
 ## This is the per-trait annotation test, NOT the axis-link Spearman -- the
 ## axis-link correlation does have nominally significant LINE/L1 rows in the
-## all_vmrs arm, in inconsistent directions, which is exactly why panel d shows
+## all_vmrs arm, in inconsistent directions, which is exactly why panel e shows
 ## the high-mappability arm beside it.
 l1 <- arch[annotation %like% "line_l1" & !(skipped %in% c(TRUE, "TRUE"))]
 if (any(l1$q < 0.05, na.rm = TRUE)) {
-    stop("A trait now reaches q < 0.05 for LINE/L1 enrichment (", 
+    stop("A trait now reaches q < 0.05 for LINE/L1 enrichment (",
          sum(l1$q < 0.05, na.rm = TRUE), " of ", nrow(l1), " tests). ",
-         "Panel d is captioned on there being none; re-read stage 18.")
+         "Panel e is captioned on there being none; re-read stage 18.")
 }
 message("[guard] SCZ percentile ", paste(round(PCT, 3), collapse = "-"),
         "; psychiatric-vs-other Wilcoxon p >= ", signif(WIL, 2),
@@ -150,10 +178,20 @@ PRIMARY_MODEL <- PRIMARY_MODEL_ID
 MODEL_LABELS <- c(A_technical = "Technical covariates",
                   B_technical_context = "+ genomic context")
 
-FIG5 <- paste0("figure5_gwas_architecture_axis",
+FIG6 <- paste0("figure6_gwas_nongenetic_axis",
                if (cohort == "AA") "" else paste0("_", cohort))
 
-## ------------------------------- a. every trait, grouped by GWAS category
+## ------------------------------------------------- a. the age gradient
+age_panel <- panel_aging_primary(age$per)
+pAge <- age_panel$plot
+legend_note(run_dir, FIG6, "a", paste(
+    age_panel$note, "Gating sensitivities are in figureS_aging_axis b."))
+
+## ------------------------------------------- b. the exposure gradients
+pEnv <- panel_environmental(env$rel, env$LIM, legend = FALSE)
+legend_note(run_dir, FIG6, "b", env$cap)
+
+## ------------------------------- c. every trait, grouped by GWAS category
 dist <- traits[in_distribution == TRUE & model == PRIMARY_MODEL &
                is.finite(estimate)]
 dist[, region := as_region(region)]
@@ -174,18 +212,21 @@ pA <- ggplot(dist, aes(estimate, category)) +
                colour = PAL_CHARCOAL, linetype = "dashed", linewidth = 0.4) +
     geom_point(aes(colour = region), size = 0.85, alpha = 0.75) +
     facet_wrap(~ region, nrow = 1) +
-    scale_colour_manual(values = REGION_COLORS, guide = "none") +
+    ## This panel carries the figure's one region key (see assembly), drawn at
+    ## a readable size rather than the 0.85 pt of its own points.
+    scale_colour_manual(values = REGION_COLORS, name = NULL) +
+    guides(colour = guide_legend(override.aes = list(size = 1.8, alpha = 1))) +
     labs(x = "Axis estimate: trait-linked VMRs vs background (score SD)",
          y = NULL, caption = "Dashed line, schizophrenia") +
     BASE_THEME + NO_TITLES + GRID_Y + KEY_THEME
-legend_note(run_dir, FIG5, "a", paste0(
+legend_note(run_dir, FIG6, "c", paste0(
     "One point per trait (n = ", scz$n_traits_in_distribution[1], " traits with ",
     "10 or more lead variants), grouped by GWAS category; dashed line, ",
     "schizophrenia. GWAS loci were defined from European or European-dominated ",
     "summary statistics; the methylation cohort is admixed African American. ",
     "Extended MHC excluded for every trait."))
 
-## ----------------------------- b. schizophrenia against its own distribution
+## ----------------------------- d. schizophrenia against its own distribution
 pB <- ggplot(scz, aes(y = region)) +
     geom_vline(xintercept = 0, colour = PAL_NULL, linewidth = 0.35) +
     errorbar_h(aes(xmin = distribution_q25, xmax = distribution_q75),
@@ -203,46 +244,13 @@ pB <- ggplot(scz, aes(y = region)) +
     scale_y_discrete(limits = rev, expand = expansion(add = c(0.5, 0.8))) +
     labs(x = "Axis estimate (score SD)", y = NULL) +
     BASE_THEME + NO_TITLES + GRID_Y
-legend_note(run_dir, FIG5, "b", paste(
+legend_note(run_dir, FIG6, "d", paste(
     "Grey bar, interquartile range of the trait distribution; tick, its median;",
-    "point, schizophrenia, with the share of traits whose estimate is lower."))
+    "point, schizophrenia, with the share of traits whose estimate is lower.",
+    "Psychiatric and other traits are contrasted in",
+    "figureS_schizophrenia_application d."))
 
-## --------------------------- c. psychiatric traits are not a separate class
-psy <- traits[in_distribution == TRUE & model == PRIMARY_MODEL &
-              is.finite(estimate)]
-## Short labels: "Psychiatric-neurologic" and "All other traits" overlapped at
-## this panel's width and squeezed the facet strips into "ppocamp". The full
-## grouping is in the caption and the source data.
-psy[, grp := fifelse(category == "Psychiatric-neurologic",
-                     "Psychiatric", "Other")]
-psy[, grp := factor(grp, levels = c("Psychiatric", "Other"))]
-psy[, region := as_region(region)]
-wil <- summ[model == PRIMARY_MODEL, .(region, psychiatric_vs_other_wilcoxon_p)]
-wil[, region := as_region(region)]
-wil[, lab := paste0("P = ", signif(psychiatric_vs_other_wilcoxon_p, 2))]
-
-## Region on x, group as fill, and NO facets. Faceting by region gave each
-## panel about 1.2 in for two category labels and a strip, so the labels
-## collided and "Hippocampus" was clipped to "ppocampu". One panel also puts
-## the two groups side by side within a region, which is the comparison.
-pC <- ggplot(psy, aes(region, estimate, fill = grp)) +
-    geom_hline(yintercept = 0, colour = PAL_NULL, linewidth = 0.35) +
-    geom_boxplot(width = 0.62, outlier.size = 0.4, linewidth = 0.3,
-                 position = position_dodge(width = 0.72)) +
-    geom_text(data = wil, aes(x = region, y = Inf, label = lab),
-              inherit.aes = FALSE, vjust = 1.5, size = 2.3, colour = "grey35") +
-    scale_fill_manual(values = c(Psychiatric = PAL_ALT, Other = PAL_NULL),
-                      name = NULL) +
-    ## Headroom so the P label clears the topmost outlier.
-    scale_y_continuous(expand = expansion(mult = c(0.05, 0.16))) +
-    labs(x = NULL, y = "Axis estimate (score SD)") +
-    BASE_THEME + NO_TITLES + GRID_Y +
-    theme(legend.position = "top", legend.margin = margin(0, 0, -4, 0))
-legend_note(run_dir, FIG5, "c", paste(
-    "Psychiatric, the psychiatric-neurologic GWAS category; Other, all remaining",
-    "traits. P, two-sided Wilcoxon test of psychiatric against other traits."))
-
-## ------------------------------------- d. what a trait's depletion tracks
+## ------------------------------------- e. what a trait's depletion tracks
 ANNOT_LABELS <- c(accessible_any = "Accessible", h3k27ac_any = "H3K27ac",
                   bivalent_any = "Bivalent", h3k27me3_any = "H3K27me3",
                   h3k9me3_any = "H3K9me3", quiescent_any = "Quiescent",
@@ -261,13 +269,13 @@ pD <- ggplot(ax, aes(spearman_rho, alab, colour = region)) +
     geom_text(aes(label = stars), position = position_dodge(width = 0.66),
               hjust = -0.4, vjust = 0.75, size = 2.5, show.legend = FALSE) +
     facet_wrap(~ armf, nrow = 1) +
-    scale_colour_manual(values = REGION_COLORS, name = NULL) +
+    scale_colour_manual(values = REGION_COLORS, guide = "none") +
     scale_x_continuous(limits = c(-0.75, 0.75), breaks = seq(-0.5, 0.5, 0.5)) +
-    labs(x = "Spearman: trait's axis depletion vs its loci's annotation enrichment",
+    ## Two lines: at panel e's width the one-line title was clipped.
+    labs(x = "Spearman: trait's axis depletion vs\nits loci's annotation enrichment",
          y = NULL, caption = SIG_KEY) +
-    BASE_THEME + NO_TITLES + GRID_Y + KEY_THEME +
-    theme(legend.position = "top", legend.margin = margin(0, 0, -4, 0))
-legend_note(run_dir, FIG5, "d", paste0(
+    BASE_THEME + NO_TITLES + GRID_Y + KEY_THEME
+legend_note(run_dir, FIG6, "e", paste0(
     "Spearman correlation across traits between a trait's axis depletion and the ",
     "enrichment of its loci for each annotation, in all VMRs and under the ",
     "high-mappability restriction. No trait reaches q < 0.05 for LINE/L1 ",
@@ -277,14 +285,23 @@ legend_note(run_dir, FIG5, "d", paste0(
     "follows."))
 
 ## ------------------------------------------------------------------ assemble
-arm_sfx <- if (cohort == "AA") "" else paste0("_", cohort)
-STEM <- FIG5
+##
+## One region legend for the whole figure. patchwork lifts a collected guide
+## to the figure top only from a direct child of the top-level layout, and the
+## half-width rows have to stay nested to keep their widths, so the key is
+## carried by panel c (its own row); b and e are built without one, and a and
+## d encode region on their own axes.
+STEM <- FIG6
 
-figure <- (pA / ((pB | pC) + plot_layout(widths = c(0.8, 1))) / pD) +
-    plot_layout(heights = c(1.25, 0.85, 1.05)) +
-    fig_tags() & TAG_THEME
+figure <- (
+    ((pAge | pEnv) + plot_layout(widths = c(0.8, 1.2))) /
+    pA /
+    ((pB | pD) + plot_layout(widths = c(0.7, 1.3)))
+) + plot_layout(heights = c(0.9, 1.25, 0.95), guides = "collect") +
+    fig_tags() & TAG_THEME &
+    theme(legend.position = "top", legend.margin = margin(0, 0, -4, 0))
 
-save_figure(figure, STEM, width = FIG_WIDTH_FULL, height = 9.0,
+save_figure(figure, STEM, width = FIG_WIDTH_FULL, height = 9.4,
             fig_dir = fig_dir)
 
 ## ---------------------------------------------------------- source data
@@ -298,20 +315,29 @@ ANC <- paste("GWAS loci defined from European or European-dominated summary",
              "The limitation attaches to the locus definition, not to the axis,",
              "which is a within-cohort rank. Extended MHC excluded for every trait.")
 
+write_source_data(age$per, paste0(STEM, "_panel_a"), age$runs,
+                  "_m/combined/aging-per-region-{cohort}.tsv", SCRIPT,
+                  paste("accepted per-region rows; cross-sectional design; causal",
+                        "interpretation not allowed; the gating sensitivities are",
+                        "figureS_aging_axis b"),
+                  data_dir)
+write_source_data(env$eax, paste0(STEM, "_panel_b"), env$runs,
+                  "_m/combined/environmental-axis-per-region-{cohort}.tsv", SCRIPT,
+                  paste("all stage B families; the rendered panel shows ratio-scale",
+                        "families only, because a `raw` family has mean(omega) <= 0",
+                        "and no ratio exists; exploratory, signed gradients only"),
+                  data_dir)
 sd(dist[, .(region, model, tag, category, role, n_leads, n_linked, n_background,
             estimate, se, p, q)],
-   "panel_a", "_m/combined/scz-negative-control-traits-{cohort}.tsv",
+   "panel_c", "_m/combined/scz-negative-control-traits-{cohort}.tsv",
    paste("in_distribution == TRUE; model ==", PRIMARY_MODEL, ".", ANC))
-sd(scz, "panel_b", "_m/combined/scz-negative-control-summary-{cohort}.tsv",
+sd(scz, "panel_d", "_m/combined/scz-negative-control-summary-{cohort}.tsv",
    paste("model ==", PRIMARY_MODEL,
          "; schizophrenia read against the trait distribution it belongs to.",
          "Trait-general: SCZ is a typical example, never schizophrenia-specific."))
-sd(wil, "panel_c", "_m/combined/scz-negative-control-summary-{cohort}.tsv",
-   paste("model ==", PRIMARY_MODEL,
-         "; psychiatric vs all other traits, two-sided Wilcoxon rank-sum"))
 sd(ax[, .(region, annotation, adjustment, arm, n_traits, spearman_rho,
           spearman_p, q, median_annotation_estimate, interpretation)],
-   "panel_d", "_m/combined/scz-locus-architecture-axis-link-{cohort}.tsv",
+   "panel_e", "_m/combined/scz-locus-architecture-axis-link-{cohort}.tsv",
    paste("adjustment == 'technical'; both arms shown.",
          "NO trait reaches q < 0.05 for LINE/L1 enrichment in any region or arm;",
          "the axis-link LINE/L1 correlation is inconsistent in sign and collapses",
@@ -327,7 +353,7 @@ sd(summ, "trait_distribution_summary",
           "psychiatric-vs-other Wilcoxon p is ", WIL_TXT, "; stages 17/18 QUALIFY ",
           "Module 09 and change neither of its decisions"))
 
-message("[done] Figure 5 written to ", fig_dir)
+message("[done] Figure 6 written to ", fig_dir)
 
 #### Reproducibility information ####
 print("Reproducibility information:")

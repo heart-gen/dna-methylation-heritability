@@ -8,6 +8,8 @@ computational failures, and the PI accepted all three on 2026-10-03, so
 seven earlier rounds, including the previously accepted `-20261002-a`; see
 **Superseded runs**.
 
+**PI amendment 2026-10-22: the stage B gradient panel enters main Figure 6b.** The results were strong enough to show in the main text even though they are not definitive: the panel is the one `figureS_environmental_axis` draws (shared builder `11/_h/00_nongenetic_panels.R`), that supplementary figure stays as the full-family view, and every reporting rule below is unchanged -- exploratory, signed gradients only, no percentage, the DLPFC call undetermined, and no entry into the title, abstract or primary groups. `exploratory_supplement_only` stays TRUE in the tables because it governs the claims, not the panel's placement.
+
 **No family in any region may be reported as a percentage, and that is now
 enforced rather than advised.** The 2026-10-03 round installs the Fieller
 magnitude gate (T28 decision B, PI 2026-10-03) and

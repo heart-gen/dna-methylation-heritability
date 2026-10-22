@@ -9,8 +9,8 @@
 ## Figures written here
 ##   figureS_partitioned_heritability   Module 06, the accepted cells plus the
 ##                                      accepted non-gating positive control
-##   figureS_aging_axis                 Module 09b, age-AA-*-20260919
-##   figureS_environmental_axis         Module 10, env-AA-*-20260920-a
+##   figureS_aging_axis                 Module 09b; panel a shared with Figure 6a
+##   figureS_environmental_axis         Module 10; shared with Figure 6b
 ##
 ## Each is written independently, so one blocked upstream does not stop the
 ## others.
@@ -23,6 +23,8 @@
 source(file.path(Sys.getenv("V2_REPO_ROOT", "."), "00_shared", "load.R"))
 source(file.path(V2_ROOT, "11_integrated_manuscript_outputs", "_h",
                  "00_figure_theme.R"))
+source(file.path(V2_ROOT, "11_integrated_manuscript_outputs", "_h",
+                 "00_nongenetic_panels.R"))
 
 suppressPackageStartupMessages({
     library(patchwork)
@@ -272,71 +274,20 @@ write_source_data(ext[, .(series, annotation, role, region, trait, trait_label,
 ## sensitivity arms get a PANEL rather than a footnote, and the figure must
 ## not be readable as a clean aging result whatever the arms do.
 ##
-## The VERDICT -- the cross-region token, which regions are supported, which
-## arms fail -- is read out of the run's own decision tables below and never
-## written into a string here. A caption that states a per-region verdict as
-## prose goes stale silently the next time the verdict changes, and this one
-## did: it asserted "removes the gradient in every region, which is why the
-## cross-region token is NOT_SUPPORTED" while the module 09b scMD-gate
-## correction was in flight. AGENTS.md 7.11 wants a panel's numbers traceable
-## to a run, table, script and filter; a hard-coded claim is none of those.
-AGE <- vapply(regions, function(r)
-    require_accepted_upstream("09b_aging_application", cohort, r)$run_id,
-    character(1))
-age_dir <- function(r) file.path(V2_ROOT, "09b_aging_application", "_m",
-                                 "runs", AGE[[r]], "results")
+## The primary-gradient panel is shared with Figure 6a (00_nongenetic_panels.R),
+## which also carries the loader, its guards and the verdict tokens that used
+## to sit inline here. Panel b, the gating sensitivities, is this figure's own.
+age <- load_aging(cohort, regions)
+AGE <- age$runs; per <- age$per; gat <- age$gat; qrt <- age$qrt
+XR_TOKEN <- age$token
 
-per <- fread(file.path(V2_ROOT, "09b_aging_application", "_m", "combined",
-                       sprintf("aging-per-region-%s.tsv", cohort)))
-gat <- by_region(function(r) fread(file.path(age_dir(r), "gating-sensitivities.tsv")))
-qrt <- by_region(function(r) fread(file.path(age_dir(r), "axis-quartile-summary.tsv")))
-
-## The stage-05 cross-region decision row, which is where the token lives.
-xr <- fread(file.path(V2_ROOT, "09b_aging_application", "_m", "combined",
-                      sprintf("aging-cross-region-decision-%s.tsv", cohort)))
-if (nrow(xr) != 1L) {
-    stop("Expected one aging cross-region decision row for ", cohort,
-         ", found ", nrow(xr))
-}
-XR_TOKEN <- as.character(xr$aging_axis_association)
-if (!nzchar(XR_TOKEN) || is.na(XR_TOKEN)) {
-    stop("Aging cross-region decision carries no aging_axis_association token.")
-}
-
-stopifnot(all(per$cross_sectional_design %in% c(TRUE, "TRUE")))
-stopifnot(all(per$causal_interpretation_allowed %in% c(FALSE, "FALSE")))
-## The 2026-10-03 magnitude gate (T28 decision B): a region whose family mean
-## is not separated from zero reports a SIGNED TEST only, never a proportional
-## change. The label says which, from the run's own column, so a reader cannot
-## take the point estimate of a gated region as a percentage.
-per[, mag_ok := primary_relative_magnitude_reportable %in% c(TRUE, "TRUE")]
-per[, p_lab := paste0("P = ", signif(primary_p, 2),
-                      fifelse(mag_ok, "", " \u00b7 signed test only"))]
-per[, region := as_region(region)]
-gat[, region := as_region(region)]
-
-pA1 <- ggplot(per, aes(primary_estimate, region, colour = region)) +
-    geom_vline(xintercept = 0, colour = PAL_NULL, linewidth = 0.35) +
-    errorbar_h(aes(xmin = primary_ci_lower, xmax = primary_ci_upper),
-               linewidth = 0.45) +
-    geom_point(size = 1.8) +
-    geom_text(aes(label = p_lab),
-              x = Inf, hjust = 1.05, vjust = -1.0, size = 2.2,
-              colour = "grey35") +
-    scale_colour_manual(values = REGION_COLORS, guide = "none") +
-    scale_y_discrete(limits = rev, expand = expansion(add = c(0.5, 0.8))) +
-    labs(x = "Primary gradient per SD of rank", y = NULL) +
-    BASE_THEME + NO_TITLES + GRID_Y
+age_primary <- panel_aging_primary(per)
+pA1 <- age_primary$plot
 S2 <- paste0("figureS_aging_axis", arm)
 ## Decision tokens are humanized for the legend; the raw tokens stay in the
 ## source data, where a reader checks them.
 humanize <- function(x) gsub("_", " ", tolower(x), fixed = TRUE)
-legend_note(run_dir, S2, "a", paste0(
-    "Gradient in the debiased squared age effect along the local SNP ",
-    "contribution rank, ratio scale, with 95% intervals. Cross-sectional design: ",
-    "age-associated differences, never change with age. Signed test only: the ",
-    "magnitude gate withholds a proportional reading (", sum(!per$mag_ok), " of ",
-    nrow(per), " regions)."))
+legend_note(run_dir, S2, "a", age_primary$note)
 
 ## The arm that removes the gradient gets the same visual weight as the primary.
 MEMBER_LABELS <- c(controls_only = "Controls only",
@@ -445,118 +396,30 @@ write_source_data(qrt, paste0(S2, "_quartiles"), unname(AGE),
 
 ## =============================================== Environmental (Module 10)
 ##
-## Exploratory, supplement-only, and gated on acceptance (AGENTS.md 6). If the
-## acceptance rows are not in the Module 10 README this block is SKIPPED with a
-## message rather than failing the run -- the other supplements do not depend
-## on it.
-env_ok <- tryCatch({
-    invisible(vapply(regions, function(r)
-        require_accepted_upstream("10_environmental_exploratory", cohort, r)$run_id,
-        character(1)))
-    TRUE
-}, error = function(e) {
-    message("[skip] figureS_environmental_axis: ", conditionMessage(e))
-    FALSE
-})
+## Exploratory and gated on acceptance (AGENTS.md 6). If the acceptance rows
+## are not in the Module 10 README this block is SKIPPED with a message rather
+## than failing the run -- the other supplements do not depend on it. The
+## panel is shared with Figure 6b (00_nongenetic_panels.R), which carries the
+## loader, its guards and the derived caption.
+env <- load_environmental(cohort, regions, run_dir, skip_if_unaccepted = TRUE)
 
-if (env_ok) {
-    ecomb <- file.path(V2_ROOT, "10_environmental_exploratory", "_m", "combined")
-    eax <- fread(file.path(ecomb, sprintf("environmental-axis-per-region-%s.tsv", cohort)))
-    ever <- fread(file.path(ecomb, sprintf("environmental-vmr-associations-fdr-%s.tsv", cohort)))
-
-    if (!all(eax$citable %in% c(TRUE, "TRUE"))) {
-        stop("Module 10's collated tables still carry citable = FALSE. ",
-             "Re-run 10/_h/06_collate_regions.R WITHOUT --allow-unaccepted-runs.")
-    }
-    stopifnot(all(eax$exploratory_supplement_only %in% c(TRUE, "TRUE")))
-    stopifnot(all(eax$environmentally_determined_claim_allowed %in% c(FALSE, "FALSE")))
-
-    ## PI 2026-10-03: one family's FDR call is undetermined across bootstrap
-    ## seeds and must not be drawn as resolved either way. Matched before the
-    ## region labels are prettified, against the raw region token.
-    eax[, fdr_call_undetermined := apply_reporting_constraint(
-        read_reporting_constraints(run_dir), "fdr_call_undetermined",
-        "environmental-axis-per-region", eax, "region",
-        paste0(eax$exposure, "@", eax$stratum))]
-    n_fam <- nrow(eax)
-    n_reportable <- sum(eax$relative_magnitude_reportable %in% c(TRUE, "TRUE"))
-    max_den_z <- max(as.numeric(eax$relative_magnitude_den_z), na.rm = TRUE)
-    eax[, region := as_region(region)]
-    ## Readable family labels: "nicotine @ all" was a code identifier.
-    STRATUM_LABELS <- c(all = "all donors", schizophrenia = "schizophrenia cases")
-    eax[, fam := paste0(toupper(substr(gsub("_", " ", exposure), 1, 1)),
-                        substring(gsub("_", " ", exposure), 2), " (",
-                        fifelse(stratum %in% names(STRATUM_LABELS),
-                                STRATUM_LABELS[stratum], gsub("_", " ", stratum)),
-                        ")")]
-    ## Ratio-scale families only: a `raw` family has mean(omega) <= 0, so no
-    ## ratio exists and its estimate is not on the same scale.
-    rel <- eax[primary_scale != "raw"]
-    rel[, fam := factor(fam, levels = unique(rel[order(primary_beta), fam]))]
-    rel[, stars := data.table::fifelse(fdr_call_undetermined, "?",
-                                       sig_stars(primary_fdr))]
-
-    ## One null family (dlpfc marital_status, the family the retired
-    ## relative-scale guard was written for) has a point estimate near -2.4 and
-    ## an interval wider than the rest of the figure put together. On a common
-    ## scale it squeezes the three FDR-surviving families into a sliver. The
-    ## window below is STATED, and anything outside it is drawn at the boundary
-    ## with its real numbers printed, so nothing is hidden by the clip.
-    LIM <- c(-1.3, 0.7)
-    rel[, offscale := primary_ci_lower < LIM[1] | primary_ci_upper > LIM[2] |
-            primary_beta < LIM[1] | primary_beta > LIM[2]]
-    rel[, off_lab := sprintf("%.2f [%.2f, %.2f]", primary_beta,
-                             primary_ci_lower, primary_ci_upper)]
-
-    ## Derived, so of no fixed length: wrapped to the panel, never hand-broken
-    ## (ggplot does not wrap captions; the unwrapped draft ran off the page).
-    CAP_E <- paste(
-        paste0("Exploratory supplement; x axis clipped to [", LIM[1], ", ", LIM[2],
-               "], estimates outside it printed in full. Stars give the FDR call; ",
-               "? marks a call that is undetermined across bootstrap seeds."),
-        if (n_reportable == 0L) paste0(
-            "Signed gradients only: no family passes the relative-magnitude gate (0 of ",
-            n_fam, "; max denominator z = ", sprintf("%.2f", max_den_z),
-            "), so no percentage may be attached to any estimate.")
-        else paste0(n_reportable, " of ", n_fam, " families pass the relative-magnitude ",
-                    "gate; only those may be stated as a percentage."),
-        paste0("Whether active, low-local-control VMRs respond more to non-genetic ",
-               "influences cannot be distinguished from the larger residual variance ",
-               "that remains when local genetic contribution is lower."))
-
-    pE <- ggplot(rel, aes(primary_beta, fam, colour = region)) +
-        geom_vline(xintercept = 0, colour = PAL_NULL, linewidth = 0.35) +
-        errorbar_h(aes(xmin = primary_ci_lower, xmax = primary_ci_upper),
-                   position = position_dodge(width = 0.72), linewidth = 0.4) +
-        geom_point(size = 1.5, position = position_dodge(width = 0.72)) +
-        geom_text(aes(x = pmin(primary_ci_upper, LIM[2]), label = stars),
-                  position = position_dodge(width = 0.72),
-                  hjust = -0.25, vjust = 0.75, size = 2.5, show.legend = FALSE) +
-        geom_text(data = rel[offscale == TRUE], aes(label = off_lab),
-                  x = LIM[1], hjust = -0.03, vjust = -0.9, size = 2.0,
-                  show.legend = FALSE) +
-        coord_cartesian(xlim = LIM) +
-        scale_colour_manual(values = REGION_COLORS, name = NULL) +
-        labs(x = "Proportional gradient in exposure-explained variance per SD of rank",
-             y = NULL, caption = paste0(SIG_KEY, "   ? undetermined")) +
-        BASE_THEME + NO_TITLES + GRID_Y + KEY_THEME +
-        theme(legend.position = "top", legend.margin = margin(0, 0, -4, 0))
-
+if (env$ok) {
+    pE <- panel_environmental(env$rel, env$LIM)
     S3 <- paste0("figureS_environmental_axis", arm)
-    legend_note(run_dir, S3, "a", CAP_E)
+    legend_note(run_dir, S3, "a", env$cap)
     save_figure(pE, S3, width = FIG_WIDTH_FULL, height = 4.0, fig_dir = fig_dir)
-    write_source_data(eax, paste0(S3, "_panel_a"),
-                      unique(eax$run_id),
+    write_source_data(env$eax, paste0(S3, "_panel_a"),
+                      env$runs,
                       "_m/combined/environmental-axis-per-region-{cohort}.tsv",
                       SCRIPT,
                       "all stage B families; the rendered panel shows ratio-scale families only, because a `raw` family has mean(omega) <= 0 and no ratio exists",
                       data_dir)
-    write_source_data(ever, paste0(S3, "_stage_a"),
-                      unique(eax$run_id),
+    write_source_data(env$ever, paste0(S3, "_stage_a"),
+                      env$runs,
                       "_m/combined/environmental-vmr-associations-fdr-{cohort}.tsv",
                       SCRIPT,
                       paste0("stage A FDR-surviving VMR x exposure pairs (",
-                             paste(sprintf("%d %s", as.integer(table(factor(ever$region, levels = regions))),
+                             paste(sprintf("%d %s", as.integer(table(factor(env$ever$region, levels = regions))),
                                            regions), collapse = " / "), ")"),
                       data_dir)
 }
@@ -920,9 +783,35 @@ legend_note(run_dir, S4, "c", paste(
     "Up to five prioritized loci per region under the prespecified ranked",
     "composite rule. An index SNP is not a causal variant, and no panel claims",
     "mediation."))
-save_figure((pZ1 / pZ2 / pZ3) + plot_layout(heights = c(0.8, 1.0, 1.15)) +
+## d. psychiatric vs other traits, displaced from the main figure on
+## 2026-10-22 when Figure 6 took the age and exposure gradients. The stage-17
+## tables are module-level (_m/combined/); the per-region runs resolved above
+## are what certifies they were built on accepted input, and the unaccepted
+## flag is checked rather than assumed (AGENTS.md 6).
+comb17 <- file.path(V2_ROOT, "09_schizophrenia_gwas_loci", "_m", "combined")
+stage17 <- function(f) {
+    p <- file.path(comb17, f)
+    if (!file.exists(p)) {
+        stop("Missing ", f, ". Stage 17 must be re-run WITHOUT --allow-unlocked: ",
+             "sbatch 09_schizophrenia_gwas_loci/_h/step_9_negative_controls.sh")
+    }
+    d <- fread(p)
+    if ("built_with_unaccepted_runs" %in% names(d) &&
+        any(d$built_with_unaccepted_runs %in% c(TRUE, "TRUE"))) {
+        stop(f, " carries built_with_unaccepted_runs = TRUE and may not be cited.")
+    }
+    d
+}
+traits17 <- stage17(sprintf("scz-negative-control-traits-%s.tsv", cohort))
+summ17   <- stage17(sprintf("scz-negative-control-summary-%s.tsv", cohort))
+psy <- panel_psychiatric_vs_other(traits17, summ17, STAGE17_PRIMARY_MODEL)
+pZ4 <- psy$plot
+legend_note(run_dir, S4, "d", paste(
+    psy$note, "Schizophrenia's place in the full trait distribution is Figure 6d."))
+
+save_figure((pZ1 / pZ2 / pZ3 / pZ4) + plot_layout(heights = c(0.7, 0.9, 1.1, 0.75)) +
                 fig_tags() & TAG_THEME,
-            S4, width = FIG_WIDTH_FULL, height = 8.6, fig_dir = fig_dir)
+            S4, width = FIG_WIDTH_FULL, height = 9.2, fig_dir = fig_dir)
 
 write_source_data(rbind(adj, prim, fill = TRUE), paste0(S4, "_panel_a"), unname(SCZR),
                   "results/architecture-axis-tests.tsv", SCRIPT,
@@ -935,6 +824,12 @@ write_source_data(ev, paste0(S4, "_panel_b"), unname(SCZR),
 write_source_data(pri, paste0(S4, "_panel_c"), unname(SCZR),
                   "results/locus-evidence.tsv", SCRIPT,
                   "prioritized == TRUE; prespecified ranked composite rule, at most five loci per region",
+                  data_dir)
+write_source_data(psy$wil, paste0(S4, "_panel_d"), unname(SCZR),
+                  "_m/combined/scz-negative-control-summary-{cohort}.tsv", SCRIPT,
+                  paste("model ==", STAGE17_PRIMARY_MODEL,
+                        "; psychiatric vs all other traits, two-sided Wilcoxon rank-sum;",
+                        "displaced from the main figure 2026-10-22"),
                   data_dir)
 
 message("[done] supplementary figures written to ", fig_dir)

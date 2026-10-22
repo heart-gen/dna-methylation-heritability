@@ -70,8 +70,8 @@ run_r "$HERE/07_figure3_repeat_repressive.R" --cohort AA --run-id "$RUN_ID"
 log_message "Figure 4: meQTL burden and coupling (Modules 05, 07) -- AA"
 run_r "$HERE/08_figure4_meqtl_coupling.R" --cohort AA --run-id "$RUN_ID"
 
-log_message "Figure 5: trait-general GWAS architecture (Module 09 stages 17/18) -- AA"
-run_r "$HERE/09_figure5_gwas_architecture.R" --cohort AA --run-id "$RUN_ID"
+log_message "Figure 6: age, exposure and GWAS gradients (Modules 09b, 10, 09 stages 17/18) -- AA"
+run_r "$HERE/09_figure6_gwas_nongenetic_axis.R" --cohort AA --run-id "$RUN_ID"
 
 # Module 08 is AA-only and spans all three regions; the builder resolves the
 # accepted crossregion run itself.

@@ -13,6 +13,8 @@ built from a deconvolution invalid in two of three regions; Module 04's
 Placement is settled: **supplementary figure, reported in the main text**
 (PI, 2026-10-01; see "### Manuscript placement").
 
+**PI amendment 2026-10-22: the primary age-gradient panel enters main Figure 6a.** The results were strong enough to show in the main text even though they are not definitive: the panel is the one `figureS_aging_axis` a draws (shared builder `11/_h/00_nongenetic_panels.R`), that supplementary figure stays as the home of the gating sensitivities (its panel b), and every reporting rule below is unchanged -- cross-sectional, age-associated differences never change with age, DLPFC a signed test only, `SINGLE_NONCAUDATE_REGION` as the cross-region token. The 2026-10-01 placement decision is superseded for the primary panel only.
+
 **The signed test and the magnitude are now licensed separately, and no region
 carries both.** The 2026-10-03 round adds a Fieller denominator-stability gate
 (T28 decision B, PI 2026-10-03): a *proportional* magnitude may be reported only
