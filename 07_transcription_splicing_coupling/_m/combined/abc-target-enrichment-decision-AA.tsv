@@ -1,0 +1,11 @@
+cell	collection	n_sets_tested	n_sets_q_lt_alpha	n_sets_higher	n_sets_lower	min_q	n_genes_universe	n_vmrs_universe	reading	cohort	citable	exploratory_supplement_only	post_hoc_addition	causal_claim_allowed	stage
+caudate	GO biological process	487	0	0	0	0.12174391280436	734	352	NO_SET_SEPARATED_ALONG_GRADIENT	AA	TRUE	TRUE	TRUE	FALSE	07_transcription_splicing_coupling/_h/09_abc_target_enrichment.R
+caudate	KEGG	2	1	0	1	0.0283985800709965	734	352	SETS_SEPARATED_ALONG_GRADIENT_EXPLORATORY	AA	TRUE	TRUE	TRUE	FALSE	07_transcription_splicing_coupling/_h/09_abc_target_enrichment.R
+caudate	Reactome	64	0	0	0	0.406379681015949	734	352	NO_SET_SEPARATED_ALONG_GRADIENT	AA	TRUE	TRUE	TRUE	FALSE	07_transcription_splicing_coupling/_h/09_abc_target_enrichment.R
+dlpfc	GO biological process	383	1	0	1	0.0382980850957452	569	283	SETS_SEPARATED_ALONG_GRADIENT_EXPLORATORY	AA	TRUE	TRUE	TRUE	FALSE	07_transcription_splicing_coupling/_h/09_abc_target_enrichment.R
+dlpfc	Reactome	41	0	0	0	0.174241287935603	569	283	NO_SET_SEPARATED_ALONG_GRADIENT	AA	TRUE	TRUE	TRUE	FALSE	07_transcription_splicing_coupling/_h/09_abc_target_enrichment.R
+hippocampus	GO biological process	350	0	0	0	0.975337596756526	580	286	NO_SET_SEPARATED_ALONG_GRADIENT	AA	TRUE	TRUE	TRUE	FALSE	07_transcription_splicing_coupling/_h/09_abc_target_enrichment.R
+hippocampus	Reactome	45	0	0	0	0.399355032248388	580	286	NO_SET_SEPARATED_ALONG_GRADIENT	AA	TRUE	TRUE	TRUE	FALSE	07_transcription_splicing_coupling/_h/09_abc_target_enrichment.R
+pooled	GO biological process	769	24	0	24	0.0349527978146547	1142	921	SETS_SEPARATED_ALONG_GRADIENT_EXPLORATORY	AA	TRUE	TRUE	TRUE	FALSE	07_transcription_splicing_coupling/_h/09_abc_target_enrichment.R
+pooled	KEGG	9	0	0	0	0.103944802759862	1142	921	NO_SET_SEPARATED_ALONG_GRADIENT	AA	TRUE	TRUE	TRUE	FALSE	07_transcription_splicing_coupling/_h/09_abc_target_enrichment.R
+pooled	Reactome	118	0	0	0	0.212389380530973	1142	921	NO_SET_SEPARATED_ALONG_GRADIENT	AA	TRUE	TRUE	TRUE	FALSE	07_transcription_splicing_coupling/_h/09_abc_target_enrichment.R

@@ -153,33 +153,31 @@ bm[, `:=`(lo = estimate - 1.96 * se_plot, hi = estimate + 1.96 * se_plot)]
 bm[, note := paste0("n = ", label_comma()(n_vmrs),
                     "   \u03bb = ", sprintf("%.3f", genomic_inflation_lambda))]
 
-pB <- ggplot(bm, aes(estimate, region, colour = region)) +
-    geom_vline(xintercept = 0, colour = PAL_NULL, linewidth = 0.35) +
-    errorbar_h(aes(xmin = lo, xmax = hi, linetype = interval), linewidth = 0.45) +
-    geom_point(size = 1.8) +
-    ## Anchored just right of zero: from the panel edge the zero line ran
-    ## through the "n".
-    geom_text(aes(label = note), x = 0, hjust = -0.04, nudge_y = 0.3,
-              size = 2.2, colour = "grey35", show.legend = FALSE) +
-    scale_colour_manual(values = REGION_COLORS, guide = "none") +
-    scale_linetype_manual(values = c("donor-robust" = "solid",
-                                     "HC3 (no donor-robust SE)" = "22"),
-                          guide = "none") +
-    scale_y_discrete(limits = rev, expand = expansion(add = c(0.5, 0.75))) +
-    scale_x_continuous(expand = expansion(mult = c(0.04, 0.10))) +
-    labs(x = "meQTL burden per SD of rank\n(quasibinomial)", y = NULL,
-         caption = "\u03bb: distal-null inflation \u00b7 dashed: HC3") +
-    BASE_THEME + NO_TITLES + GRID_Y + KEY_THEME
+## 2026-10-22: the slope is printed on panel a rather than drawn as a
+## three-point forest beside it. The decile curve already shows the gradient;
+## the model adds one number per region and its interval, which fit in the
+## empty upper-left of the curve panel. The caudate interval is HC3 and is
+## marked (dagger) so it is never read as donor-robust.
+bm[, slope_lab := sprintf("%s: %.2f [%.2f, %.2f] per SD%s, \u03bb = %.3f",
+                          as.character(region), estimate, lo, hi,
+                          fifelse(interval == "donor-robust", "", "\u2020"),
+                          genomic_inflation_lambda)]
+bm[, ypos := 1.0 - 0.075 * (as.integer(region) - 1)]
+pA <- pA +
+    geom_text(data = bm, aes(x = 0.8, y = ypos, label = slope_lab, colour = region),
+              hjust = 0, vjust = 1, size = 2.1, show.legend = FALSE) +
+    labs(caption = "\u2020 VMR-level HC3 interval (no donor-robust SE)") +
+    KEY_THEME
 legend_note(run_dir, paste0("figure4_meqtl_burden_coupling",
-                            if (cohort == "AA") "" else paste0("_", cohort)), "b",
-            paste0("Quasibinomial burden slope per SD of the local SNP contribution ",
-                   "rank with 95% intervals. DLPFC and hippocampus intervals are ",
-                   "donor-robust (donor delete-d plus chromosome jackknife, ", CMB_X,
-                   "); the caudate interval is VMR-level HC3 (dashed), which ignores ",
-                   "between-VMR correlation and is narrower than a donor-robust ",
-                   "interval would be. The DLPFC-hippocampus difference is not ",
-                   "significant, so no regional difference is claimed. Internal meQTL ",
-                   "mapping is convergent evidence, not independent replication."))
+                            if (cohort == "AA") "" else paste0("_", cohort)), "a",
+            paste0("Printed: the quasibinomial burden slope per SD of the local SNP ",
+                   "contribution rank with 95% intervals. DLPFC and hippocampus ",
+                   "intervals are donor-robust (donor delete-d plus chromosome ",
+                   "jackknife, ", CMB_X, "); the caudate interval (dagger) is VMR-level ",
+                   "HC3, which ignores between-VMR correlation and is narrower than a ",
+                   "donor-robust interval would be. The DLPFC-hippocampus difference is ",
+                   "not significant, so no regional difference is claimed. Internal ",
+                   "meQTL mapping is convergent evidence, not independent replication."))
 
 ## ------------------------------------------- c. transcription/splicing coupling
 MODALITY_LABELS <- c(expression_nearest_gene = "Expression\n(nearest gene)",
@@ -247,12 +245,14 @@ pD <- ggplot(den, aes(region, n_coupled, fill = region)) +
 arm <- if (cohort == "AA") "" else paste0("_", cohort)
 STEM <- paste0("figure4_meqtl_burden_coupling", arm)
 
-## free(pA) only: freeing pD as well shrank its panel and clipped its labels.
-figure <- ((free(pA) | pB) + plot_layout(widths = c(1, 0.8))) / pC / pD +
-    plot_layout(heights = c(1.0, 0.95, 0.9)) +
+## 2026-10-22: three panels. The burden slope now rides on panel a, the
+## coupled-VMR counts (bars) sit beside it as b, and the coupling tests take
+## the full-width row as c. Tags follow this order.
+figure <- ((free(pA) | pD) + plot_layout(widths = c(1, 1))) / pC +
+    plot_layout(heights = c(1.0, 0.95)) +
     fig_tags() & TAG_THEME
 
-save_figure(figure, STEM, width = FIG_WIDTH_FULL, height = 7.6,
+save_figure(figure, STEM, width = FIG_WIDTH_FULL, height = 5.6,
             fig_dir = fig_dir)
 
 ## ---------------------------------------------------------- source data
@@ -265,7 +265,7 @@ sd(bd, "panel_a", "05: results/vmr-meqtl-burden.tsv",
    "n_tested_cpgs > 0; deciles of local_snp_contribution_score; fraction is summed sig CpGs over summed TESTED CpGs")
 sd(bm[, .(region, model, term, estimate, se_hc3 = se, se_donor_robust, interval,
           lo, hi, z, p, n_vmrs, dispersion, genomic_inflation_lambda)],
-   "panel_b", paste0("05: results/burden-primary-model.tsv + ", CMB_X,
+   "panel_a_slopes", paste0("05: results/burden-primary-model.tsv + ", CMB_X,
                      " results/slope-per-region.tsv"),
    paste0("term == 'local_snp_contribution_score_z'; lo/hi = estimate +/- 1.96 x ",
           "donor-robust SE where available, else HC3; convergent evidence, not ",
@@ -281,7 +281,7 @@ sd(coupling[, .(region, modality, predictor, n, n_coupled, estimate, se, z, p, q
           ". FDR family size per region: ",
           paste(sprintf("%s %d", fam_size$region, as.integer(fam_size$fdr_family_size)),
                 collapse = ", ")))
-sd(den, "panel_d", "07: results/coupling-tests.tsv",
+sd(den, "panel_b", "07: results/coupling-tests.tsv",
    "coupled-VMR counts and tested universe per modality x region")
 sd(cdec, "coupling_decision", "07: results/coupling-decision.tsv",
    "the accepted Module 07 decision row")

@@ -155,3 +155,60 @@ gates:
   # A modality where nothing is significant cannot support a coupling claim,
   # but it is a reportable null, not a run failure.
   require_any_significant_link: false
+
+# ------------------------------------------------ ABC target-gene enrichment
+# PI amendment 2026-10-22 (Kynon J.M. Benjamin). v1 asked which pathways the
+# target genes of VMR-overlapping ABC enhancers fell into, split by heritable /
+# non-heritable class; v2 dropped it with the classes. This block adds the
+# rank-based form to Module 07 as stage 09: each ABC target gene is scored by
+# the mean standardized relative local genetic influence (z) of the VMRs that
+# sit in its linked enhancers, and gene sets are tested for where they fall
+# along that gradient. Prespecified here BEFORE the stage was first run; the
+# module-level output is exploratory and supplement-only, and `pi_locked` above
+# covers this block.
+abc_target_enrichment:
+  enabled: true
+  # The VMR side is the accepted, scored (eligible) VMR set of each cell; the
+  # enhancer side is the same BrainScope ABC file as the expression_abc modality.
+  # No expression filter: a target gene enters the universe whether or not it
+  # was quantified in the RNA-seq assay, because the question is about the
+  # genes the enhancers point at, not about coupling.
+  link_source: inputs/brainscope/_m/High_ABC_results_CPM1only_Concise_RK_7_8_21.csv
+  vmr_score: local_snp_contribution_score_z
+  gene_statistic: mean_z            # mean z over a gene's linked VMRs
+  min_vmrs_per_gene: 1
+  # Competitive test on the gene universe of ABC-linked genes. The null is a
+  # permutation of VMR scores among VMRs (within region), which keeps the
+  # link structure, so genes that share an enhancer VMR and therefore share a
+  # score are handled correctly; a gene-level permutation would not be.
+  test: vmr_permutation
+  statistic: mean_gene_z_in_set
+  n_permutations: 20000
+  seed: 20261022
+  # Secondary, for readers who expect it: fgsea multilevel on the same ranked
+  # gene list. Reported beside the primary; ties from shared VMRs are recorded.
+  secondary_fgsea: true
+  gene_sets:                        # MSigDB via msigdbr, matched on Ensembl ID
+    - collection: C5
+      subcollection: GO:BP
+      label: GO biological process
+    - collection: C2
+      subcollection: CP:REACTOME
+      label: Reactome
+    - collection: C2
+      subcollection: CP:KEGG_LEGACY
+      label: KEGG
+  min_set_size: 10                  # within the ABC-linked universe
+  max_set_size: 500
+  fdr_method: BH
+  fdr_family: collection_within_cell
+  fdr_threshold: 0.05
+  cells: [caudate, dlpfc, hippocampus, pooled]   # pooled: all three link sets, permuted within region
+  claims:
+    allowed: abc_target_gene_sets_differ_in_position_along_the_gradient
+    forbidden:
+      - methylation_mediates_genetic_effect_on_expression
+      - enhancer_activity_or_target_gene_regulation_claims
+      - causal_or_colocalization_claims
+  exploratory_supplement_only: true
+  post_hoc_addition: true

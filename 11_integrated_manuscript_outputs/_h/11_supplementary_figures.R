@@ -832,6 +832,149 @@ write_source_data(psy$wil, paste0(S4, "_panel_d"), unname(SCZR),
                         "displaced from the main figure 2026-10-22"),
                   data_dir)
 
+## ================================ ABC target-gene enrichment (Module 07 stage 09)
+##
+## PI amendment 2026-10-22: the v1 pathway question for ABC enhancer target
+## genes, restored in rank form (07/_h/09_abc_target_enrichment.R). Module-level,
+## post-acceptance and exploratory: every row carries exploratory_supplement_only
+## = TRUE and causal_claim_allowed = FALSE, and this figure says nothing a row
+## does not. The provenance table must name exactly the accepted Module 07 runs
+## this build resolves, or the collation was made against other runs.
+S5 <- paste0("figureS_abc_target_enrichment", arm)
+TSC <- vapply(regions, function(r)
+    require_accepted_upstream("07_transcription_splicing_coupling", cohort, r)$run_id,
+    character(1))
+abc_dir <- file.path(V2_ROOT, "07_transcription_splicing_coupling", "_m", "combined")
+abc_need <- function(f) {
+    p <- file.path(abc_dir, f)
+    if (!file.exists(p)) stop("Module 07 stage 09 output missing: ", p,
+                              " (run 07/_h/09_abc_target_enrichment.R --cohort ", cohort, ")")
+    fread(p)
+}
+abc_enr  <- abc_need(sprintf("abc-target-enrichment-%s.tsv", cohort))
+abc_gene <- abc_need(sprintf("abc-target-gene-scores-%s.tsv", cohort))
+abc_prov <- abc_need(sprintf("abc-target-enrichment-provenance-%s.tsv", cohort))
+abc_dec  <- abc_need(sprintf("abc-target-enrichment-decision-%s.tsv", cohort))
+stopifnot(all(abc_enr$citable %in% c(TRUE, "TRUE")),
+          all(abc_enr$exploratory_supplement_only %in% c(TRUE, "TRUE")),
+          all(abc_enr$causal_claim_allowed %in% c(FALSE, "FALSE")))
+prov_runs <- strsplit(abc_prov[field == "source_07_runs", value], ";", fixed = TRUE)[[1]]
+if (!setequal(prov_runs, unname(TSC))) {
+    stop("Stage 09 collation reads ", paste(prov_runs, collapse = ";"),
+         " but the accepted Module 07 runs are ", paste(unname(TSC), collapse = ";"))
+}
+ABC_ALPHA <- as.numeric(load_config("transcription_splicing")$abc_target_enrichment$fdr_threshold)
+
+CELL_LABELS <- c(caudate = "Caudate", dlpfc = "DLPFC", hippocampus = "Hippocampus",
+                 pooled = "Pooled")
+abc_enr[, cellf := factor(CELL_LABELS[cell], levels = unname(CELL_LABELS))]
+abc_gene[, cellf := factor(CELL_LABELS[cell], levels = unname(CELL_LABELS))]
+
+## ------------------------------------- a. the sets separated in any cell
+## Rows: every set with q < alpha in at least one cell; columns: the cells.
+## A set absent from a cell (outside the 10-500 size window there) is a blank
+## tile, not a null. Printed stars carry q; fill carries the signed shift.
+hit_sets <- unique(abc_enr[q_bh < ABC_ALPHA, .(collection, gs_name)])
+if (nrow(hit_sets) == 0) {
+    hm <- abc_enr[cell == "pooled"][order(p_perm)][1:min(.N, 20), .(collection, gs_name)]
+    hm_note <- "No set reaches q < alpha in any cell; the 20 lowest pooled p-values are shown."
+} else {
+    hm <- hit_sets
+    hm_note <- sprintf("Rows are the %d sets with q < %s in at least one cell.", nrow(hm), ABC_ALPHA)
+}
+pretty_set <- function(x) {
+    x <- sub("^(GOBP|REACTOME|KEGG)_", "", x)
+    x <- tolower(gsub("_", " ", x))
+    x <- sub("^dna ", "DNA ", x); x <- gsub(" dna ", " DNA ", x)
+    x <- gsub("g1 s", "G1/S", x); x <- gsub("mapk", "MAPK", x)
+    paste0(toupper(substr(x, 1, 1)), substring(x, 2))
+}
+hmd <- merge(abc_enr, hm, by = c("collection", "gs_name"))
+ord <- hmd[cell == "pooled"][order(delta_z), gs_name]
+ord <- c(ord, setdiff(unique(hmd$gs_name), ord))
+## GO:BP is the bulk of the rows, so only the other collections are named.
+coll_sfx <- function(coll) fifelse(coll == "GO biological process", "", paste0(" (", coll, ")"))
+hmd[, set_lab := factor(paste0(pretty_set(gs_name), coll_sfx(collection)),
+                        levels = paste0(pretty_set(ord),
+                                        coll_sfx(hm[match(ord, gs_name), collection])))]
+hmd[, stars := sig_stars(q_bh)]
+LIM_ABC <- max(0.3, ceiling(max(abs(hmd$delta_z), na.rm = TRUE) * 10) / 10)
+pAbcA <- ggplot(hmd, aes(cellf, set_lab, fill = delta_z)) +
+    geom_tile(colour = "white", linewidth = 0.6) +
+    geom_text(aes(label = stars), size = 2.4, colour = "grey15", vjust = 0.8) +
+    scale_fill_gradient2(low = "#2166AC", mid = "white", high = "#B2182B",
+                         midpoint = 0, limits = c(-LIM_ABC, LIM_ABC), oob = scales::squish,
+                         name = "Set mean z\nminus universe", breaks = scales::pretty_breaks(n = 4)) +
+    scale_x_discrete(expand = expansion(0), drop = FALSE) +
+    labs(x = NULL, y = NULL, caption = SIG_KEY) +
+    BASE_THEME + NO_TITLES + KEY_THEME +
+    theme(panel.grid = element_blank(), axis.line = element_blank(),
+          axis.ticks = element_blank(), axis.text.y = element_text(size = 6.5),
+          legend.position = "right", legend.key.height = unit(0.5, "cm"),
+          legend.key.width = unit(0.25, "cm"),
+          axis.text.x = element_text(angle = 35, hjust = 1))
+legend_note(run_dir, S5, "a", paste(
+    "ABC target genes scored by the mean standardized relative local genetic",
+    "influence of the VMRs in their linked enhancers; each MSigDB set (GO biological",
+    "process, Reactome, KEGG; 10-500 genes within the ABC-linked universe) is tested",
+    "for where its genes fall on that gradient against a null that permutes VMR",
+    "scores with the VMR-to-gene links fixed, BH within collection within cell.",
+    "Fill, the set's mean gene score minus the universe mean (negative: toward",
+    "weaker local genetic influence); stars, q; blank, set outside the size window",
+    "in that cell.", hm_note,
+    "Exploratory and supplement-only; overlap of a VMR with a called enhancer is",
+    "not an activity, regulation or mediation claim."))
+
+## ------------------------------------- b. the gene scores behind the test
+## The universe size rides on the tick label, not as a text layer: at this
+## panel width four "n = " labels at one height collided.
+gn <- abc_gene[, .(n = .N), by = cellf][order(cellf)]
+gn[, tick := paste0(as.character(cellf), "\nn = ", label_comma()(n))]
+abc_gene[, cell_tick := factor(gn$tick[match(cellf, gn$cellf)], levels = gn$tick)]
+## Horizontal, so the four two-line cell labels sit on the y axis instead
+## of colliding along a 2.5-inch x axis.
+abc_gene[, cell_tick := factor(cell_tick, levels = rev(levels(cell_tick)))]
+pAbcB <- ggplot(abc_gene, aes(mean_z, cell_tick, fill = cellf)) +
+    geom_vline(xintercept = 0, colour = PAL_NULL, linewidth = 0.35) +
+    geom_violin(colour = NA, alpha = 0.85, width = 0.8, scale = "width",
+                orientation = "y") +
+    geom_boxplot(width = 0.12, outlier.shape = NA, fill = "white", linewidth = 0.3,
+                 orientation = "y") +
+    scale_fill_manual(values = c(REGION_COLORS, Pooled = PAL_CHARCOAL), guide = "none") +
+    labs(y = NULL, x = "Gene score: mean z of linked VMRs") +
+    BASE_THEME + NO_TITLES + GRID_X +
+    theme(axis.text.y = element_text(size = 7.5, lineheight = 0.9))
+legend_note(run_dir, S5, "b", paste(
+    "Distribution of the gene scores in each cell with the number of ABC-linked",
+    "genes (the enrichment universe). Pooled: the three regions' links together,",
+    "with the null permuted within region."))
+
+save_figure((pAbcA | pAbcB) + plot_layout(widths = c(1.3, 1)) +
+                fig_tags() & TAG_THEME,
+            S5, width = FIG_WIDTH_FULL, height = max(4.2, 1.6 + 0.16 * nrow(hm)),
+            fig_dir = fig_dir)
+
+write_source_data(hmd[, .(cell, collection, gs_name, n_genes_in_set, n_genes_universe,
+                          mean_z_in_set, mean_z_universe, delta_z, p_perm, q_bh,
+                          fgsea_nes, fgsea_q_bh, fgsea_tie_fraction)],
+                  paste0(S5, "_panel_a"), unname(TSC),
+                  "07: _m/combined/abc-target-enrichment-{cohort}.tsv", SCRIPT,
+                  paste0("sets with q_bh < ", ABC_ALPHA, " in any cell, all cells; ",
+                         "primary = VMR-permutation test; fgsea is secondary and ",
+                         "tie-affected; exploratory_supplement_only"),
+                  data_dir)
+write_source_data(abc_gene[, .(cell, gene_id, gene_name, n_vmrs_linked, n_regions_linked,
+                               mean_z, max_z)],
+                  paste0(S5, "_panel_b"), unname(TSC),
+                  "07: _m/combined/abc-target-gene-scores-{cohort}.tsv", SCRIPT,
+                  "all ABC-linked genes per cell", data_dir)
+write_source_data(abc_dec[, .(cell, collection, n_sets_tested, n_sets_q_lt_alpha,
+                              n_sets_higher, n_sets_lower, min_q, n_genes_universe,
+                              n_vmrs_universe, reading)],
+                  paste0(S5, "_decision"), unname(TSC),
+                  "07: _m/combined/abc-target-enrichment-decision-{cohort}.tsv", SCRIPT,
+                  "per cell x collection counts", data_dir)
+
 message("[done] supplementary figures written to ", fig_dir)
 
 #### Reproducibility information ####

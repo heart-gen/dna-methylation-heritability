@@ -205,7 +205,20 @@ if (!file.exists(proj_file))
          " (run inputs/ancestry_pca/_h/step_1_project_1kgp.sh)")
 proj <- fread(proj_file, colClasses = list(character = c("source", "id")))
 
-ref_pop <- fread(paths$reference_1kgp$sample_panel, fill = TRUE)
+## The panel is configured at its absolute Quest path. A local (non-Quest)
+## build keeps a verbatim copy under inputs/reference_1kgp/ and falls back to
+## it; the file is a fixed public 1000 Genomes release, so either copy is the
+## same table. Which one was read is logged.
+panel_file <- paths$reference_1kgp$sample_panel
+if (!file.exists(panel_file)) {
+    local_panel <- file.path(V2_ROOT, "inputs", "reference_1kgp", basename(panel_file))
+    if (!file.exists(local_panel))
+        stop("1000 Genomes sample panel not found at ", panel_file,
+             " nor at its local mirror ", local_panel)
+    message("reference_1kgp sample panel: reading local mirror ", local_panel)
+    panel_file <- local_panel
+}
+ref_pop <- fread(panel_file, fill = TRUE)
 ## The panel file carries trailing empty header fields; name only what fread
 ## actually returns rather than letting it fill.
 setnames(ref_pop, seq_len(4L), c("IID", "pop", "super_pop", "gender"))

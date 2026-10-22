@@ -48,6 +48,7 @@ Forbidden: "Methylation mediates the genetic effect on expression or splicing."
 | 04 | `_h/04_apply_gates.R` | Acceptance gate and interpretation constraints. |
 | 05 | `_h/05_plot.py` | Figures. |
 | 06 | `_h/06_finalize_run.R` | Seal the run (sealing is not acceptance). |
+| 09 | `_h/09_abc_target_enrichment.R` | Module-level, post-acceptance (PI amendment 2026-10-22): rank-based gene-set enrichment of ABC target genes along the gradient; writes `_m/combined/abc-target-*`. Exploratory, supplement-only. |
 
 Submit one cell with `_h/submit_transcription_splicing.sh <cohort> <region>`;
 `DRY_RUN=1` prints the job graph, `SMOKE_N=1` permits unaccepted upstreams.
@@ -223,6 +224,49 @@ is disclosed rather than discovered later: shrinking a BH family raises every
 surviving q-value's neighbours, and the locked analysis plan forbids recombining
 FDR families after inspection, so the change was made on the locked power floor
 and not on any view of the results.
+
+### ABC target-gene enrichment along the gradient (PI amendment 2026-10-22)
+
+**PI decision (Kynon J.M. Benjamin, 2026-10-22): the v1 pathway question for ABC
+target genes was an oversight in v2 and is restored to this module in rank form.**
+v1 mapped intergenic VMRs to BrainScope ABC target genes and ran GO/KEGG
+enrichment on the heritable versus non-heritable target lists; v2 retired the
+classes and the question went with them. Stage 09
+(`_h/09_abc_target_enrichment.R`, config block `abc_target_enrichment`, written
+before the stage was first run) scores every ABC target gene by the mean
+standardized relative local genetic influence (z) of the VMRs sitting in its
+linked enhancers, and tests each MSigDB set (GO:BP, Reactome, KEGG legacy; 10-500
+genes within the ABC-linked universe) for where its genes fall on that gradient.
+The primary test permutes VMR scores among the cell's scored VMRs with the
+VMR -> gene links held fixed (20,000 permutations, seed 20261022), because genes
+sharing an enhancer VMR share a score and a gene-level null would understate the
+variance; BH is applied within collection within cell. fgsea multilevel on the
+same ranked list is reported beside it as a secondary and is not the call: 52-55%
+of gene statistics are tied through shared VMRs, which fgsea handles poorly.
+
+It is module-level and post-acceptance: it reads the accepted `tsc-AA-*-20260925-b`
+runs and their accepted Module 02 upstreams (one shared `vmr_set_id` per cell),
+writes `_m/combined/abc-target-{enrichment,gene-scores,links,enrichment-decision,
+enrichment-provenance}-AA.tsv`, and changes no decision in this README. No RNA-seq
+enters it, and it is not the `expression_abc` coupling modality: the universe is
+every gene the enhancers point at (734 / 569 / 580 genes from 352 / 283 / 286
+VMRs in caudate / DLPFC / hippocampus; 1,142 genes pooled), whether or not the
+gene was quantified. Every output row carries `exploratory_supplement_only = TRUE`,
+`post_hoc_addition = TRUE` and `causal_claim_allowed = FALSE`. Permitted reading:
+ABC target-gene sets differ in position along the gradient. Forbidden: mediation,
+enhancer activity, target-gene regulation, or any causal claim; a VMR inside a
+called enhancer is overlap.
+
+First run, 2026-10-22, local R 4.6.1 (msigdbr 26.1.1): within single regions no
+set is separated at q < 0.05 in any collection with a meaningful family (the
+caudate KEGG family holds two sets; DLPFC GO:BP has one set, response to
+oxidative stress, q = 0.038). In the pooled cell 24 of 769 GO:BP sets sit LOWER
+on the gradient (q < 0.05; apoptotic signalling, response to oxidative stress,
+negative regulation of cell communication, DNA-repair regulation, G1/S
+transition, proliferation regulation), none higher; no Reactome or KEGG set does.
+That is the direction the chromatin results predict for an enhancer-anchored
+gene universe (the weaker-influence end is the active, gene-proximal end), and it
+is reported as such, in a supplementary figure only.
 
 ### Two config proposals, closed 2026-09-27 without changing the lock
 

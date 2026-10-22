@@ -1,0 +1,22 @@
+field	value
+stage	07_transcription_splicing_coupling/_h/09_abc_target_enrichment.R
+cohort	AA
+run_date	2026-10-22T13:06:04-0500
+source_07_runs	tsc-AA-caudate-20260925-b;tsc-AA-dlpfc-20260925-b;tsc-AA-hippocampus-20260925-b
+source_02_runs	lgv-AA-caudate-rescore-20260913;lgv-AA-dlpfc-rescore-20260913;lgv-AA-hippocampus-rescore-20260913
+vmr_set_ids	vmrset-AA-caudate-937a41979978;vmrset-AA-dlpfc-856067dfe289;vmrset-AA-hippocampus-2d907b892215
+abc_link_source	inputs/brainscope/_m/High_ABC_results_CPM1only_Concise_RK_7_8_21.csv
+abc_link_source_sha256	d133e21b3caee61cfef51cb0017232c111522c3c9dec0454ca49dcdc0b2d29c4
+config_sha256	3771b0111d1c367795ff5e0571c74e83a1345900b340c85b3c54147dc2b5fd5b
+msigdbr_version	26.1.1
+msigdb_db_version	2026.1.Hs
+n_permutations	20000
+seed	20261022
+gene_sets	C5/GO:BP;C2/CP:REACTOME;C2/CP:KEGG_LEGACY
+min_set_size	10
+max_set_size	500
+fdr	BH collection_within_cell 0.05
+git_commit	03b41e6e003fac839f1bc5c9b364901c8c6c01d1
+git_dirty	true
+r_version	R version 4.6.1 (2026-06-24)
+citable	TRUE

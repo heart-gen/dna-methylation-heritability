@@ -263,18 +263,26 @@ ax[, alab := factor(ANNOT_LABELS[annotation], levels = rev(unname(ANNOT_LABELS))
 ax[, armf := factor(ARM_LABELS[arm], levels = unname(ARM_LABELS))]
 ax[, stars := sig_stars(q)]
 
-pD <- ggplot(ax, aes(spearman_rho, alab, colour = region)) +
-    geom_vline(xintercept = 0, colour = PAL_NULL, linewidth = 0.35) +
-    geom_point(size = 1.5, position = position_dodge(width = 0.66)) +
-    geom_text(aes(label = stars), position = position_dodge(width = 0.66),
-              hjust = -0.4, vjust = 0.75, size = 2.5, show.legend = FALSE) +
+## 2026-10-22: a tile matrix (annotation x region, one facet per arm) rather
+## than a dodged dot plot. The reading is a sign pattern -- active marks
+## negative, repressive marks positive, LINE/L1 nowhere -- and a diverging
+## fill shows that pattern as two colour blocks; the dots needed the reader
+## to sort fifteen points per facet by colour first. Stars carry q.
+pD <- ggplot(ax, aes(region, alab, fill = spearman_rho)) +
+    geom_tile(colour = "white", linewidth = 0.6) +
+    geom_text(aes(label = stars), size = 2.6, colour = "grey15", vjust = 0.8,
+              show.legend = FALSE) +
     facet_wrap(~ armf, nrow = 1) +
-    scale_colour_manual(values = REGION_COLORS, guide = "none") +
-    scale_x_continuous(limits = c(-0.75, 0.75), breaks = seq(-0.5, 0.5, 0.5)) +
-    ## Two lines: at panel e's width the one-line title was clipped.
-    labs(x = "Spearman: trait's axis depletion vs\nits loci's annotation enrichment",
-         y = NULL, caption = SIG_KEY) +
-    BASE_THEME + NO_TITLES + GRID_Y + KEY_THEME
+    scale_fill_gradient2(low = "#2166AC", mid = "white", high = "#B2182B",
+                         midpoint = 0, limits = c(-0.75, 0.75), oob = scales::squish,
+                         name = "Spearman ρ", breaks = c(-0.5, 0, 0.5)) +
+    scale_x_discrete(expand = expansion(0)) +
+    labs(x = NULL, y = NULL, caption = SIG_KEY) +
+    BASE_THEME + NO_TITLES + KEY_THEME +
+    theme(panel.grid = element_blank(), axis.line = element_blank(),
+          axis.ticks = element_blank(), legend.key.width = unit(0.9, "cm"),
+          legend.key.height = unit(0.25, "cm"),
+          axis.text.x = element_text(angle = 35, hjust = 1))
 legend_note(run_dir, FIG6, "e", paste0(
     "Spearman correlation across traits between a trait's axis depletion and the ",
     "enrichment of its loci for each annotation, in all VMRs and under the ",

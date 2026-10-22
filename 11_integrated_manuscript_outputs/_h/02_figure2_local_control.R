@@ -303,24 +303,50 @@ pair_concordance <- function(r1, r2) {
     dt <- unique(dt, by = "si")
     s <- spearman_ci(a$local_snp_contribution_score[dt$qi],
                      b$local_snp_contribution_score[dt$si])
-    data.table(pair = paste(REGION_LABELS[[r1]], "vs", REGION_LABELS[[r2]]),
-               rho = s$rho, lo = s$lo, hi = s$hi, n = s$n)
+    pair <- paste(REGION_LABELS[[r1]], "vs", REGION_LABELS[[r2]])
+    list(summary = data.table(pair = pair, rho = s$rho, lo = s$lo, hi = s$hi, n = s$n),
+         ## The matched loci themselves, for the density panel: the rank of
+         ## each shared locus in both regions.
+         loci = data.table(pair = pair,
+                           region_x = REGION_LABELS[[r1]], region_y = REGION_LABELS[[r2]],
+                           vmr_id_x = a$vmr_id[dt$qi], vmr_id_y = b$vmr_id[dt$si],
+                           rank_x = a$local_snp_contribution_score[dt$qi],
+                           rank_y = b$local_snp_contribution_score[dt$si]))
 }
-pairs_dt <- rbindlist(list(
-    pair_concordance("caudate", "dlpfc"),
-    pair_concordance("caudate", "hippocampus"),
-    pair_concordance("dlpfc", "hippocampus")))
-pairs_dt[, pair := factor(pair, levels = rev(pair))]
+pairs_l <- list(pair_concordance("caudate", "dlpfc"),
+                pair_concordance("caudate", "hippocampus"),
+                pair_concordance("dlpfc", "hippocampus"))
+pairs_dt <- rbindlist(lapply(pairs_l, `[[`, "summary"))
+pair_loci <- rbindlist(lapply(pairs_l, `[[`, "loci"))
+pairs_dt[, pair := factor(pair, levels = pair)]
+pair_loci[, pair := factor(pair, levels = levels(pairs_dt$pair))]
 
-pC <- ggplot(pairs_dt, aes(rho, pair)) +
-    errorbar_h(aes(xmin = lo, xmax = hi),
-               colour = PAL_CHARCOAL, linewidth = 0.45) +
-    geom_point(size = 1.8, colour = PAL_CHARCOAL) +
-    geom_text(aes(x = 0.02, label = paste0("n = ", label_comma()(n))),
-              hjust = 0, nudge_y = 0.28, size = 2.4, colour = "grey35") +
-    scale_x_continuous(limits = c(0, 1), breaks = seq(0, 1, 0.25)) +
-    labs(x = "Rank concordance in shared VMRs", y = NULL) +
-    BASE_THEME + NO_TITLES
+## 2026-10-22: three summary points at rho 0.88-0.90 showed the agreement
+## without showing it. The panel now draws the matched loci as a 2-D density
+## of within-region rank against within-region rank, one facet per pair, with
+## rho and n printed; the concordance is the diagonal ridge. Bins are 20 x 20
+## on the percentile scale, so each cell is a 5 x 5 percentile window.
+pairs_dt[, lab := sprintf("ρ = %.2f\nn = %s", rho, label_comma()(n))]
+pC <- ggplot(pair_loci, aes(rank_x, rank_y)) +
+    geom_bin2d(bins = 20) +
+    geom_abline(slope = 1, intercept = 0, colour = "white", linewidth = 0.3,
+                linetype = "22") +
+    geom_text(data = pairs_dt, aes(x = 0.03, y = 0.97, label = lab),
+              hjust = 0, vjust = 1, size = 2.4, colour = "grey20", lineheight = 0.95) +
+    facet_wrap(~ pair, nrow = 1) +
+    scale_fill_gradientn(colours = SEQ_RAMP, name = "VMRs") +
+    scale_x_continuous(breaks = c(0, 0.5, 1), expand = expansion(0)) +
+    scale_y_continuous(breaks = c(0, 0.5, 1), expand = expansion(0)) +
+    coord_fixed() +
+    labs(x = "Rank, first region", y = "Rank, second region") +
+    BASE_THEME + NO_TITLES +
+    theme(legend.position = "right", legend.key.height = unit(0.5, "cm"),
+          legend.key.width = unit(0.25, "cm"), panel.spacing.x = unit(6, "pt"))
+arm0 <- if (cohort == "AA") "" else paste0("_", cohort)
+legend_note(run_dir, paste0("figure2_local_genetic_control", arm0), "c", paste(
+    "Shared loci (matched across regions by widest genomic overlap) placed by their",
+    "within-region percentile rank in each region, as a 2-D density; dashed line,",
+    "identity. Spearman rho with the number of matched loci is printed per pair."))
 
 ## ------------------------------- D. genic context across the rank
 ##
@@ -410,6 +436,20 @@ if (!HAS_LSP) legend_note(run_dir, STEM, "all", paste(
     "arm and in the donor-group cells, not in the all-donors arm, so this arm's",
     "figure has no prediction panel."))
 
+## Manuscript arrangement (2026-10-22). The manuscript's Figure 1b carries the
+## prediction panel, so its Figure 2 is a, c, d of this figure relabelled a, b,
+## c, with the concordance density at full width. Rendered here from the same
+## objects so the manuscript file is a sealed, source-data-backed render and
+## not a crop of this one; its source data is written under its own stem.
+MS_STEM <- paste0("figure2_local_genetic_control_manuscript", arm)
+if (HAS_LSP) {
+    ms_figure <- (pA / free(pC) / free(pCtx)) +
+        plot_layout(heights = c(1.25, 1.0, 0.85)) +
+        fig_tags() & TAG_THEME
+    save_figure(ms_figure, MS_STEM, width = FIG_WIDTH_FULL, height = 7.6,
+                fig_dir = fig_dir)
+}
+
 save_figure(figure, STEM, width = FIG_WIDTH_FULL, height = if (HAS_LSP) 8.2 else 7.2,
             fig_dir = fig_dir)
 
@@ -472,11 +512,28 @@ if (HAS_LSP) {
              "r2_pred_oof joined on vmr_id; negative values retained"),
        runs = runs_used_pred)
 }
-sd(pairs_dt, paste0("panel_", TAG[["pC"]]), TBL,
+sd(pairs_dt[, .(pair, rho, lo, hi, n)], paste0("panel_", TAG[["pC"]]), TBL,
    paste(FILTER, "; loci matched across regions by widest genomic overlap"))
+sd(pair_loci, paste0("panel_", TAG[["pC"]], "_loci"), TBL,
+   paste(FILTER, "; the matched loci drawn in the 2-D density, with each one's",
+         "within-region percentile rank in both regions"))
 sd(ctx_sum, paste0("panel_", TAG[["pCtx"]]),
    paste(TBL, "+ 01_vmr_catalog qc/distance_to_nearest_gene.tsv"),
    paste(FILTER, "; joined on vmr_id; descriptive proportions, no enrichment test"))
+## The manuscript arrangement's source data, under its own stem and tags.
+if (HAS_LSP) {
+    sd_ms <- function(dt, nm, tbl, filt) {
+        write_source_data(dt, paste0(MS_STEM, "_", nm), runs_used, tbl, SCRIPT,
+                          filt, data_dir)
+    }
+    sd_ms(conc, "panel_a", TBL, paste(FILTER, "; as figure2 panel a"))
+    sd_ms(pairs_dt[, .(pair, rho, lo, hi, n)], "panel_b", TBL,
+          paste(FILTER, "; as figure2 panel c"))
+    sd_ms(pair_loci, "panel_b_loci", TBL, paste(FILTER, "; as figure2 panel c loci"))
+    sd_ms(ctx_sum, "panel_c",
+          paste(TBL, "+ 01_vmr_catalog qc/distance_to_nearest_gene.tsv"),
+          paste(FILTER, "; as figure2 panel d"))
+}
 sd_denom(excl_long, "panel_a", TBL, "all rows; eligibility as recorded upstream")
 sd_denom(reasons, "panel_a_reasons", TBL, "local_genetic_control_eligible == FALSE")
 sd_supp(elig[, .(n = .N, median = median(pve_cis_joint_unbounded),

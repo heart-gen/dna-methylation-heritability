@@ -286,19 +286,35 @@ sens <- sens[fitted == TRUE]
 sens[, set_aside := outcome == "line_l1_frac" & as.character(region) ==
          REGION_LABELS[[SET_ASIDE]]]
 
-pC <- ggplot(sens, aes(estimate, set, colour = region, alpha = !set_aside)) +
-    geom_vline(xintercept = 0, colour = PAL_NULL, linewidth = 0.35) +
-    errorbar_h(aes(xmin = lo, xmax = hi),
-               position = position_dodge(width = 0.66), linewidth = 0.36) +
-    geom_point(size = 1.25, position = position_dodge(width = 0.66)) +
+## 2026-10-22: drawn as a matrix rather than a third forest. Five sets x three
+## regions x three outcomes is a grid, and the question the panel answers --
+## does any arm move an estimate -- is read down a column of tiles faster than
+## across fifteen dodged intervals. The estimate is printed in each tile and
+## set in bold where its 95% interval excludes zero; the intervals themselves
+## are in the source data and in panel a for the primary set.
+sens[, est_lab := sprintf("%.2f", estimate)]
+sens[, excl0 := is.finite(lo) & is.finite(hi) & (lo > 0 | hi < 0)]
+LIM3 <- max(0.3, ceiling(max(abs(sens$estimate), na.rm = TRUE) * 10) / 10)
+pC <- ggplot(sens, aes(region, set, fill = estimate, alpha = !set_aside)) +
+    geom_tile(colour = "white", linewidth = 0.6) +
+    geom_text(aes(label = est_lab, fontface = fifelse(excl0, "bold", "plain")),
+              size = 2.3, colour = "grey15", show.legend = FALSE) +
     facet_wrap(~ flab, nrow = 1) +
-    scale_colour_manual(values = REGION_COLORS, guide = "none") +
+    scale_fill_gradient2(low = "#2166AC", mid = "white", high = "#B2182B",
+                         midpoint = 0, limits = c(-LIM3, LIM3), oob = scales::squish,
+                         name = "Per SD", breaks = scales::pretty_breaks(n = 4)) +
     scale_alpha_manual(values = c(`FALSE` = 0.35, `TRUE` = 1), guide = "none") +
     scale_y_discrete(limits = rev) +
-    labs(x = "Association with local SNP contribution rank (per SD)", y = NULL) +
-    BASE_THEME + NO_TITLES + GRID_Y
+    scale_x_discrete(expand = expansion(0)) +
+    labs(x = NULL, y = NULL) +
+    BASE_THEME + NO_TITLES +
+    theme(legend.position = "right", legend.key.height = unit(0.45, "cm"),
+          legend.key.width = unit(0.25, "cm"), panel.grid = element_blank(),
+          axis.line = element_blank(), axis.ticks = element_blank(),
+          axis.text.x = element_text(angle = 35, hjust = 1))
 legend_note(run_dir, FIG3, "c", paste(
-    "The BH-family outcomes under each locked analysis set; faded, set aside.",
+    "The BH-family outcomes under each locked analysis set, as association per SD",
+    "(tile fill and printed value; bold, 95% interval excludes zero); faded, set aside.",
     if (is.null(nf_cap)) "" else nf_cap))
 
 ## --------------------------------- d. the continuous gradient behind panel a
@@ -357,10 +373,10 @@ STEM <- FIG3
 ## free(): panel b's left-hand role strips otherwise set the axis column for
 ## every panel and leave a, c and d with a wide empty margin.
 figure <- (free(pA) / pB / free(pC) / free(pD)) +
-    plot_layout(heights = c(0.95, 1.15, 1.0, 0.85)) +
+    plot_layout(heights = c(0.95, 1.15, 0.8, 0.85)) +
     fig_tags() & TAG_THEME
 
-save_figure(figure, STEM, width = FIG_WIDTH_FULL, height = 8.9,
+save_figure(figure, STEM, width = FIG_WIDTH_FULL, height = 8.5,
             fig_dir = fig_dir)
 
 ## ---------------------------------------------------------- source data
