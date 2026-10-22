@@ -2,11 +2,18 @@
 
 Consumes only accepted immutable upstream runs and produces every manuscript number, table, and figure.
 
-**Status: accepted as `fig-all-20261022-a`**, the first run built locally
-(R 4.6.1, no SLURM) after the 2026-10-22 re-plots and the Module 07 ABC
-target-gene enrichment (see the Accepted runs row). It replaces
-`fig-all-20261016-a`, whose figure set predates Figure 6, the manuscript
-arrangement of Figure 2 and Figure S12.
+**Status: accepted as `fig-all-20261022-b`**, built locally (R 4.6.1, no
+SLURM) after the figure-file consolidation of 2026-10-22: one PDF per
+manuscript main figure, the held-out prediction panel as its own
+`figure1_held_out_prediction`, the catalog as `figureS_vmr_catalog` with
+VMRs per Mb and both arrays in one panel, and every all-donor variant under a
+`figureS_` name (see the Accepted runs row). It replaces `fig-all-20261022-a`,
+which shipped three Figure 2 files and four Figure 1 catalog files.
+
+**Previously (2026-10-22, earlier): accepted as `fig-all-20261022-a`**, the
+first run built locally after the 2026-10-22 re-plots and the Module 07 ABC
+target-gene enrichment. It replaced `fig-all-20261016-a`, whose figure set
+predates Figure 6, the manuscript arrangement of Figure 2 and Figure S12.
 
 **Previously (2026-10-16): accepted as `fig-all-20261016-a`**, the rebuild on
 Module 09's published-locus runs. It replaced `fig-all-20261009-b`, whose
@@ -99,6 +106,7 @@ three are properties of Module 11 rather than oversights:
 |---|---|---|---|---|---|---|---|
 | fig-all-20261016-a | all | crossregion | see `tables/exclusions-and-denominators.tsv` (6 cells: arm × region) | 2026-10-16 | Kynon J. Benjamin | ACCEPTED_MANUSCRIPT_OUTPUTS | Built at `bffc7e9c9` with `git_dirty = false` and a `code/` snapshot (39 files); 25 figures, 83 source tables. Replaces fig-all-20261009-b: Module 09 reads the published-locus runs `scz-AA-*-20261015` and the EA check `scz-all_individuals.EA-crossregion-20261016`. Against fig-all-20261009-b only the Module 09 products moved: the schizophrenia supplement (panel a -0.270/-0.231/-0.222; panel b 55/27/34, 68/52/44, 100/102/104, 32/19/20, out of 282 loci of which 238/263/262 link to a VMR; panel c the published-locus prioritized loci), Figure 5's run ID column and its context note (broad genomic context moves the schizophrenia estimate 2.8-4.1%, was 1.2-3.1%), and the run-level tables (claim matrix, number registry, manifests, summaries). Every other source table is byte-identical. Every PNG viewed, both arms. `fig-all-20261016` (built while an uncommitted supplementary-data manifest edit sat in the tree, so sealed `git_dirty = true`; identical code and inputs) was never accepted. |
 | fig-all-20261022-a | all | crossregion | see `tables/exclusions-and-denominators.tsv` (6 cells: arm × region) | 2026-10-22 | Kynon J. Benjamin | ACCEPTED_MANUSCRIPT_OUTPUTS | Built locally on `quickball` (R 4.6.1, `~/R/library`, no SLURM; the 1000 Genomes panel read from the tracked mirror `inputs/reference_1kgp/`) at `ad86efb4d` with `git_dirty = false` and a `code/` snapshot (40 files); 27 figures, 94 source tables. Replaces fig-all-20261016-a after the 2026-10-22 re-plots: Figure 2 panel c is a 2-D rank density with a full-width manuscript variant (`figure2_local_genetic_control_manuscript`), Figure 3 panel c and Figure 6 panel e are tile matrices, Figure 4 is three panels (slope printed on a, horizontal count bars on b, coupling tests on c), `figure5_gwas_architecture_axis` is retired in favour of `figure6_gwas_nongenetic_axis` (age gradient, exposure gradients, 63-trait axis, schizophrenia vs distribution, chromatin link), `figureS_schizophrenia_application` gains panel d (psychiatric vs other traits), and `figureS_abc_target_enrichment` is new (Module 07 stage 09, exploratory). Against fig-all-20261016-a only the source tables of those figures are new or changed; Table 1, the cross-region QC screen and every other source table are byte-identical. Every PNG viewed, both arms. `fig-all-20261022` (identical inputs and source tables; built at `1c91e8dae`) was never accepted: its four-panel Figure 2 variants squeezed the density panel into a narrow slot and Figure S12 clipped its axis title, fixed in `ad86efb4d`. |
+| fig-all-20261022-b | all | crossregion | see `tables/exclusions-and-denominators.tsv` (6 cells: arm × region) | 2026-10-22 | Kynon J. Benjamin | ACCEPTED_MANUSCRIPT_OUTPUTS | Built locally on `quickball` (R 4.6.1, `~/R/library`, no SLURM; the 1000 Genomes panel and the GENCODE v47 chromosome sizes read from the tracked mirrors under `inputs/`) at `2278316a9` with `git_dirty = false` and a `code/` snapshot (40 files); 25 figures, 78 source tables. Replaces fig-all-20261022-a after the figure-file consolidation: one PDF per manuscript main figure. `figure2_local_genetic_control` is the three-panel manuscript arrangement (the `_manuscript` copy is retired), the prediction panel is `figure1_held_out_prediction`, the catalog is `figureS_vmr_catalog[_all_individuals]` with panel b as VMRs per Mb of chromosome and panel d showing 450K and EPIC together (the `_epic` figures are retired), and the all-donor Figure 2 is `figureS_local_genetic_control_all_individuals`. Against fig-all-20261022-a only those figures' source tables are new, renamed or re-lettered; Table 1, the cross-region QC screen and every other source table are byte-identical. Every PNG viewed, both arms. |
 
 ## Implemented figures
 
@@ -110,9 +118,10 @@ reacceptance, which is how Figure 2 once shipped on a retired run.
 
 | Output | Content | Owning modules |
 |---|---|---|
-| `figure1_vmr_catalog[_all_individuals][_epic]` | **a** cohort **b** VMRs per chromosome **c** VMR width and CpGs per VMR **d** off-array coverage **e** genomic compartment **f** distance to nearest gene | 01 (+ the 01 QC refresh) |
-| `figure2_local_genetic_control[_all_individuals]` | **a** estimator concordance vs locus geometry **b** held-out local SNP prediction (end-to-end OOF R²) across rank deciles **c** cross-region rank concordance as a 2-D density of matched loci (2026-10-22; was three summary points) **d** genic context across the rank | 02, 03 |
-| `figure2_local_genetic_control_manuscript` | the manuscript's Figure 2 (2026-10-22): panels a, c, d of the above relabelled a, b, c, rendered from the same objects because the manuscript's Figure 1b carries the prediction panel | 02 |
+| `figure1_held_out_prediction` | the manuscript's Figure 1b, a single panel: held-out local SNP prediction (end-to-end OOF R²) across rank deciles, with interquartile bands. Figure 1a is the hand-drawn design schematic, which no run renders | 02, 03 |
+| `figure2_local_genetic_control` | **a** estimator concordance vs locus geometry **b** cross-region rank concordance as a 2-D density of matched loci (2026-10-22; was three summary points) **c** genic context across the rank. One file; the prediction panel it carried as b until 2026-10-22 is `figure1_held_out_prediction` | 02 |
+| `figureS_vmr_catalog[_all_individuals]` | the manuscript's Figure S3 source (was `figure1_vmr_catalog[_epic]` until 2026-10-22): **a** cohort **b** VMRs per Mb of chromosome (GENCODE v47 lengths; `config/paths.yml` `chrom_sizes`, mirrored under `inputs/reference_genome/` for local builds) **c** VMR width and CpGs per VMR **d** off-array coverage, 450K and EPIC side by side **e** genomic compartment **f** distance to nearest gene | 01 (+ the 01 QC refresh) |
+| `figureS_local_genetic_control_all_individuals` | the all-donor arm of Figure 2 (a, b, c as above; no prediction panel, Module 03 did not run in this arm) | 02 |
 | `figure3_repeat_repressive_architecture` | **a** the BH family (quiescent, H3K9me3, LINE/L1) **b** complementary contrasts incl. the BrainScope ATAC union, and the H3K27me3 specificity control **c** the locked analysis sets incl. MuSiC (all regions) and scMD (where fitted) **d** the continuous gradient | 04 |
 | `figure4_meqtl_burden_coupling` | **a** meQTL-positive CpG fraction across the rank, with the burden slope and distal-null λ printed on the panel (2026-10-22; was a separate forest) **b** coupled-VMR denominators **c** coupling tests in Module 07's FDR family | 05, 07 |
 | `figure6_gwas_nongenetic_axis` | the low end of the axis: **a** age gradient per region (shared with `figureS_aging_axis` a) **b** exposure gradients, every eligible family (shared with `figureS_environmental_axis`) **c** every trait's axis estimate by GWAS category **d** schizophrenia against its own null distribution **e** what a trait's depletion tracks (axis-link Spearman, both mappability arms). Was `figure5_gwas_architecture_axis` until 2026-10-22 | 09b, 10, 09 |
