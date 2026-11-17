@@ -1,0 +1,3 @@
+local_genetic_control_exclusion_reason	N	source_run_id	source_table	source_script	row_filter
+incomplete_joint_features	699	lgv-all_individuals-caudate-20260823;lgv-all_individuals-dlpfc-20260823;lgv-all_individuals-hippocampus-20260823	results/combined/local-genetic-control-all_individuals-{region}-vmrs.tsv	11_integrated_manuscript_outputs/_h/02_figure2_local_control.R	local_genetic_control_eligible == FALSE
+outside_expanded_simulation_domain	20	lgv-all_individuals-caudate-20260823;lgv-all_individuals-dlpfc-20260823;lgv-all_individuals-hippocampus-20260823	results/combined/local-genetic-control-all_individuals-{region}-vmrs.tsv	11_integrated_manuscript_outputs/_h/02_figure2_local_control.R	local_genetic_control_eligible == FALSE

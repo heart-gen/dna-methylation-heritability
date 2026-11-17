@@ -1,0 +1,3 @@
+local_genetic_control_exclusion_reason	N	source_run_id	source_table	source_script	row_filter
+incomplete_joint_features	637	lgv-AA-caudate-rescore-20260913;lgv-AA-dlpfc-rescore-20260913;lgv-AA-hippocampus-rescore-20260913	results/combined/local-genetic-control-AA-{region}-vmrs.tsv	11_integrated_manuscript_outputs/_h/02_figure2_local_control.R	local_genetic_control_eligible == FALSE
+outside_expanded_simulation_domain	294	lgv-AA-caudate-rescore-20260913;lgv-AA-dlpfc-rescore-20260913;lgv-AA-hippocampus-rescore-20260913	results/combined/local-genetic-control-AA-{region}-vmrs.tsv	11_integrated_manuscript_outputs/_h/02_figure2_local_control.R	local_genetic_control_eligible == FALSE
